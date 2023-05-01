@@ -1,0 +1,28 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class SystemMenusTableSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        \DB::table('system_menus')->insert([
+            ['id' => 1, 'name' => 'System Setting', 'icon' => 'fa-cogs', 'display_order' => 1],
+            ['id' => 2, 'name' => 'Master', 'icon' => 'fa-list', 'display_order' => 2],
+            ['id' => 3, 'name' => 'Work Structure', 'icon' => 'fa-calendar', 'display_order' => 3],
+            ['id' => 4, 'name' => 'Expense', 'icon' => 'fa-money', 'display_order' => 4],
+            ['id' => 5, 'name' => 'Leave', 'icon' => 'fa-calendar', 'display_order' => 5],
+            ['id' => 6, 'name' => 'Advance/Loan', 'icon' => 'fa-money', 'display_order' => 6],
+            ['id' => 7, 'name' => 'Attendance', 'icon' => 'fa-pencil-square-o', 'display_order' => 7],
+            ['id' => 8, 'name' => 'Delegation Approval', 'icon' => 'fa-pencil-square-o', 'display_order' => 8],
+        ]);
+    }
+}

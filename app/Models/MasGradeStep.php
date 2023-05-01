@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Traits\CreatedByTrait;
+
+class MasGradeStep extends Model
+{
+    use HasFactory, CreatedByTrait;
+
+    protected $guarded = ['id'];
+
+    //relationships
+    public function grade()
+    {
+        return $this->belongsTo(MasGradeStep::class, 'mas_grade_id');
+    }
+}
