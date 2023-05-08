@@ -20,7 +20,10 @@ class NationalityController extends Controller
         $this->middleware('permission:master/nationalities,edit')->only('update');
         $this->middleware('permission:master/nationalities,delete')->only('destroy');
     }
-    
+    public function create()
+    {
+        return view('masters.nationality.create');
+    }
     public function index(Request $request)
     {
         $privileges = $request->instance();
@@ -35,6 +38,7 @@ class NationalityController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -45,7 +49,7 @@ class NationalityController extends Controller
         $nationalities->name = $request->name;
         $nationalities->save();
 
-        return back()->with('msg_success', 'Nationality created successfully');
+        return redirect('master/nationalities')->with('msg_success', 'Nationality created successfully');
     }
 
     /**
@@ -55,6 +59,11 @@ class NationalityController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $nationality = MasNationality::findOrFail($id);
+        return view('masters.nationality.edit', compact('nationality'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -65,7 +74,7 @@ class NationalityController extends Controller
         $nationalities->name = $request->name;
         $nationalities->save();
 
-        return back()->with('msg_success', 'Nationality updated successfully');
+        return redirect('master/nationalities')->with('msg_success', 'Nationality updated successfully');
     }
 
     /**

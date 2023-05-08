@@ -35,6 +35,11 @@ class LeaveTypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    public function create()
+    {
+        return view('masters.leave-types.create');
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -49,7 +54,7 @@ class LeaveTypeController extends Controller
         $leaveTypes->remarks = $request->remarks;
         $leaveTypes->save();
 
-        return back()->with('msg_success', 'Leave type created successfully');
+        return redirect('master/leave-types')->with('msg_success', 'Leave type created successfully');
     }
 
     /**
@@ -59,6 +64,12 @@ class LeaveTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $leaveType = MasLeaveType::findOrFail($id);
+        return view('masters.leave-types.edit', compact('leaveType'));
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -73,7 +84,7 @@ class LeaveTypeController extends Controller
         $leaveTypes->remarks = $request->remarks;
         $leaveTypes->save();
 
-        return back()->with('msg_success', 'leave type updated successfully');
+        return redirect('master/leave-types')->with('msg_success', 'leave type updated successfully');
     }
 
     /**

@@ -34,6 +34,11 @@ class DepartmentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    public function create()
+    {
+        return view('masters.department.create');
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -46,7 +51,7 @@ class DepartmentController extends Controller
         $department->name = $request->name;
         $department->save();
 
-        return back()->with('msg_success', 'Department created successfully');
+        return redirect('master/departments')->with('msg_success', 'Department created successfully');
     }
 
     /**
@@ -56,6 +61,12 @@ class DepartmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function edit(string $id)
+    {
+        $department = MasDepartment::findOrFail($id);
+        return view('masters.department.edit', compact('department'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -68,7 +79,7 @@ class DepartmentController extends Controller
         $department->name = $request->name;
         $department->save();
 
-        return back()->with('msg_success', 'Department updated successfully');
+        return redirect('master/departments')->with('msg_success', 'Department updated successfully');
     }
 
     /**

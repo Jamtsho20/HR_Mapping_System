@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\MasEmploymentType;
+use Illuminate\Http\Request;
 
 class EmploymentTypeController extends Controller
 {
@@ -15,15 +15,29 @@ class EmploymentTypeController extends Controller
         $this->middleware('permission:master/employment-types,edit')->only('update');
         $this->middleware('permission:master/employment-types,delete')->only('destroy');
     }
-
+    /**
+     * Display a listing of the resource.
+     */
+    
     public function index(Request $request)
     {
         $privileges = $request->instance();
         $employmentTypes = MasEmploymentType::filter($request)->orderBy('name')->paginate(30)->withQueryString();
-
         return view('masters.employment-types.index', compact('employmentTypes', 'privileges'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('masters.employment-types.create');
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -35,43 +49,55 @@ class EmploymentTypeController extends Controller
         $employmentName->remarks = $request->remarks;
         $employmentName->save();
 
-        return back()->with('msg_success', 'Employment type created successfully');
+        return redirect('master/employment-types')->with('msg_success', 'Employment type created successfully');;
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $employmentType = MasEmploymentType::findOrFail($id);
+        return view('masters.employment-types.edit', compact('employmentType'));
     }
 
     /**
      * Update the specified resource in storage.
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
-    public function update(Request $request, $id)
+     */
+    public function update(Request $request, string $id)
     {
+      
         $request->validate([
-            'employment_name' => 'required',
+            'name' => 'required',
         ]);
 
-        $employmentName = MasEmploymentType::findOrFail($id);
-        $employmentName->name = $request->employment_name;
-        $employmentName->remarks = $request->remarks;
-        $employmentName->save();
+        $employmentType = MasEmploymentType::findOrFail($id);
+        $employmentType->name = $request->name;
+        $employmentType->remarks = $request->remarks;
+        $employmentType->save();
 
-        return back()->with('msg_success', 'Employment type updated successfully');
+  
+        return redirect('master/employment-types')->with('msg_success', 'Employment type updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
-    *
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
-    public function destroy($id)
+     */
+    public function destroy(string $id)
     {
-        try{
+        try {
             MasEmploymentType::findOrFail($id)->delete();
 
             return back()->with('msg_success', 'Employment type has been deleted');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return back()->with('msg_error', 'Employment type cannot be delete as it has been used by other module. For further information contact system admin.');
         }
     }

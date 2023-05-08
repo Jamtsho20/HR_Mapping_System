@@ -21,7 +21,10 @@ class QualificationController extends Controller
         $this->middleware('permission:master/qualifications,edit')->only('update');
         $this->middleware('permission:master/qualifications,delete')->only('destroy');
     }
-
+    public function create()
+    {
+        return view('masters.qualification.create');
+    }
     public function index(Request $request)
     {
         $privileges = $request->instance();
@@ -46,7 +49,7 @@ class QualificationController extends Controller
         $qualification->name = $request->name;
         $qualification->save();
 
-        return back()->with('msg_success', 'Qualification created successfully');
+        return redirect('master/qualifications')->with('msg_success', 'Qualification created successfully');
     }
 
     /**
@@ -56,6 +59,11 @@ class QualificationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $qualification = MasQualification::findOrFail($id);
+        return view('masters.qualification.edit', compact('qualification'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -66,7 +74,7 @@ class QualificationController extends Controller
         $qualification->name = $request->name;
         $qualification->save();
 
-        return back()->with('msg_success', 'Qualification updated successfully');
+        return redirect('master/qualifications')->with('msg_success', 'Qualification updated successfully');
     }
 
     /**

@@ -4,26 +4,29 @@
 <div class="block">
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-        <div class="form-group row">
-            <div class="col-6">
-                <select class="form-control" id="dzongkhag" name="dzongkhag">
-                    <option value="" disabled selected hidden>Select Dzongkhag</option>
-                    @foreach ($dzongkhags as $dzongkhag)
-                    <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
-                        {{ $dzongkhag->dzongkhag  }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-6">
-                <input type="text" name="gewog" class="form-control" value="{{ request()->get('name') }}" placeholder="Gewog">
+        <div class="form-group">
+            <div class="row">
+                <div class="col-4">
+                    <select class="form-control" id="dzongkhag" name="dzongkhag">
+                        <option value="" disabled selected hidden>Select Dzongkhag</option>
+                        @foreach ($dzongkhags as $dzongkhag)
+                        <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
+                            {{ $dzongkhag->dzongkhag  }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-4">
+                    <input type="text" name="gewog" class="form-control" value="{{ request()->get('name') }}" placeholder="Gewog">
+                </div>
+                @endcomponent
             </div>
         </div>
-        @endcomponent
+
         <div class="block-options">
             <div class="block-options-item">
                 @if($privileges->create)
-                <a href="#" data-toggle="modal" data-target="#create-modal" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Gewog</a>
+                <a href="{{route('gewogs.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Gewog</a>
                 @endif
             </div>
         </div>
@@ -46,7 +49,7 @@
                     <td>{{ $gewog->name }}</td>
                     <td class="text-center">
                         @if ($privileges->edit)
-                        <a href="{{ url('master/gewogs/'.$gewog->id) }}" data-name="{{ $gewog->name }}" data-dzongkhag-id="{{ $gewog->mas_dzongkhag_id }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                        <a href="{{ url('master/gewogs/'.$gewog->id .'/edit') }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
                             <i class="fa fa-edit"></i> EDIT
                         </a>
                         @endif
@@ -69,91 +72,12 @@
     </div>
     @endif
 </div>
-<div class="modal show" id="create-modal" tabindex="-1">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <form action="{{ url('master/gewogs') }}" method="POST">
-                @csrf
-                <div class="block block-themed block-transparent mb-0">
-                    <div class="block-header bg-primary-dark">
-                        <h3 class="block-title">New Gewog</h3>
-                        <div class="block-options">
-                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                                <i class="si si-close"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-group">
-                            <label for="mas_dzongkhag_id">Dzongkhag <span class="text-danger">*</span></label>
-                            <select class="form-control"  name="mas_dzongkhag_id" required="required">
-                                <option value="" disabled selected hidden>Select your option</option>
-                                @foreach ($dzongkhags as $dzongkhag)
-                                <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag  }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="name" value="{{ old('name') }}" required="required">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-alt-primary">
-                        <i class="fa fa-check"></i> Save
-                    </button>
-                    <button type="button" class="btn btn-alt-danger" data-dismiss="modal">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="edit-modal" tabindex="-1">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <form action="" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="block block-themed block-transparent mb-0">
-                    <div class="block-header bg-primary-dark">
-                        <h3 class="block-title">Edit Gewog</h3>
-                        <div class="block-options">
-                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                                <i class="si si-close"></i>
-                            </button>
-                        </div>
-                    </div>
 
-                    <div class="block-content">
-                        <div class="form-group">
-                            <label for="name">Dzongkhag <span class="text-danger">*</span></label>
-                            <select name="mas_dzongkhag_id" class="form-control" id="dzongkhag1">
-                                @foreach ($dzongkhags as $dzongkhag)
-                                <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag  }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="name">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-alt-primary">
-                        <i class="fa fa-check"></i> Update
-                    </button>
-                    <button type="button" class="btn btn-alt-danger" data-dismiss="modal">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
-<script>
+<!-- <script>
     $(document).ready(function() {
         $('.edit-btn').click(function(e) {
             e.preventDefault();
@@ -173,5 +97,5 @@
         allowClear: true
     });
 
-</script>
+</script> -->
 @endpush

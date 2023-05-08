@@ -35,6 +35,11 @@ class RegionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        return view('masters.region.create');
+    }
+   
     public function store(Request $request)
     {
         $request->validate([
@@ -45,7 +50,7 @@ class RegionController extends Controller
         $region->region_name = $request->region;
         $region->save();
 
-        return back()->with('msg_success', 'Region created successfully');
+        return redirect('master/regions')->with('msg_success', 'Region created successfully');
     }
 
     /**
@@ -55,6 +60,11 @@ class RegionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $region = MasRegion::findOrFail($id);
+        return view('masters.region.edit', compact('region'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -65,7 +75,7 @@ class RegionController extends Controller
         $region->region_name = $request->region;
         $region->save();
 
-        return back()->with('msg_success', 'Region updated successfully');
+        return redirect('master/regions')->with('msg_success', 'Region updated successfully');
     }
 
     /**

@@ -35,6 +35,10 @@ class DesignationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        return view('masters.designation.create');
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -45,7 +49,7 @@ class DesignationController extends Controller
         $designation->name = $request->name;
         $designation->save();
 
-        return back()->with('msg_success', 'Designation created successfully');
+        return redirect('master/designations')->with('msg_success', 'Designation created successfully');
     }
 
     /**
@@ -55,6 +59,12 @@ class DesignationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function edit(string $id)
+    {
+        $designation = MasDesignation::findOrFail($id);
+        return view('masters.designation.edit', compact('designation'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -65,7 +75,7 @@ class DesignationController extends Controller
         $designation->name = $request->name;
         $designation->save();
 
-        return back()->with('msg_success', 'Designation updated successfully');
+        return redirect('master/designations')->with('msg_success', 'Designation updated successfully');
     }
 
     /**

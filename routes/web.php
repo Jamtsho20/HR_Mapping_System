@@ -36,20 +36,21 @@ Route::middleware('auth')->group(function () {
 
     // MASTERS
     Route::namespace('Master')->prefix('master')->group(function() {
-        Route::resource('employment-types', 'EmploymentTypeController')->except('create', 'show', 'edit');
-        Route::resource('departments', 'DepartmentController')->except('create', 'show', 'edit');
-        Route::resource('designations', 'DesignationController')->except('create', 'show', 'edit');
-        Route::resource('dzongkhags', 'DzongkhagController')->except('create', 'show', 'edit');
-        Route::resource('gewogs', 'GewogController')->except('create', 'show', 'edit');
-        Route::resource('leave-types', 'LeaveTypeController')->except('create', 'show', 'edit');
-        Route::resource('nationalities', 'NationalityController')->except('create', 'show', 'edit');
-        Route::resource('section', 'SectionController')->except('create', 'show', 'edit');
-        Route::resource('qualifications', 'QualificationController')->except('create', 'show', 'edit');
-        Route::resource('resignation-types', 'ResignationTypeController')->except('create', 'show', 'edit');
-        Route::resource('villages', 'VillageController')->except('create', 'show', 'edit');
+        Route::resource('employment-types', 'EmploymentTypeController');
+        
+        Route::resource('departments', 'DepartmentController');
+        Route::resource('designations', 'DesignationController');
+        Route::resource('dzongkhags', 'DzongkhagController');
+        Route::resource('gewogs', 'GewogController');
+        Route::resource('leave-types', 'LeaveTypeController');
+        Route::resource('nationalities', 'NationalityController');
+        Route::resource('section', 'SectionController');
+        Route::resource('qualifications', 'QualificationController');
+        Route::resource('resignation-types', 'ResignationTypeController');
+        Route::resource('villages', 'VillageController');
         Route::resource('grade-steps', 'GradeStepController')->except('show');
-        Route::resource('regions', 'RegionController')->except('create', 'show', 'edit');
-        Route::resource('expense-types', 'ExpenseTypeController')->except('create', 'show', 'edit');
+        Route::resource('regions', 'RegionController')->except('show');
+        Route::resource('expense-types', 'ExpenseTypeController');
     });
 
      // WORK STRUCTURE

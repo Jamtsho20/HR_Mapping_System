@@ -35,6 +35,12 @@ class ResignationTypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        
+
+        return view('masters.resignation-types.create');
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -46,7 +52,7 @@ class ResignationTypeController extends Controller
         $resignationTypes->remarks = $request->remarks;
         $resignationTypes->save();
 
-        return back()->with('msg_success', 'Resignation type created successfully');
+        return redirect('master/resignation-types')->with('msg_success', 'Resignation type created successfully');
     }
 
     /**
@@ -56,6 +62,12 @@ class ResignationTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $resignation = MasResignationType::findOrFail($id);
+        
+        return view('masters.resignation-types.edit', compact('resignation'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -67,7 +79,7 @@ class ResignationTypeController extends Controller
         $resignationTypes->remarks = $request->remarks;
         $resignationTypes->save();
 
-        return back()->with('msg_success', 'Resignation type updated successfully');
+        return redirect('master/resignation-types')->with('msg_success', 'Resignation type updated successfully');
     }
 
     /**

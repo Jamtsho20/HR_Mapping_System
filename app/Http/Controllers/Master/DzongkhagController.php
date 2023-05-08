@@ -34,6 +34,10 @@ class DzongkhagController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        return view('masters.dzongkhag.create');
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -44,7 +48,7 @@ class DzongkhagController extends Controller
         $dzongkhag->dzongkhag = $request->dzongkhag;
         $dzongkhag->save();
 
-        return back()->with('msg_success', 'Dzongkhag created successfully');
+        return redirect('master/dzongkhags')->with('msg_success', 'Dzongkhag created successfully');
     }
 
     /**
@@ -54,6 +58,11 @@ class DzongkhagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $dzongkhag = MasDzongkhag::findOrFail($id);
+        return view('masters.dzongkhag.edit', compact('dzongkhag'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -64,7 +73,7 @@ class DzongkhagController extends Controller
         $dzongkhag->dzongkhag = $request->dzongkhag;
         $dzongkhag->save();
 
-        return back()->with('msg_success', 'Dzongkhag updated successfully');
+        return redirect('master/dzongkhags')->with('msg_success', 'Dzongkhag updated successfully');
     }
 
     /**

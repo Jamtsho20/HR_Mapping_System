@@ -37,6 +37,12 @@ class GewogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+
+        return view('masters.gewog.create',compact('dzongkhags'));
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -48,7 +54,7 @@ class GewogController extends Controller
         $gewog->mas_dzongkhag_id = $request->mas_dzongkhag_id;
         $gewog->save();
 
-        return back()->with('msg_success', 'Gewog created successfully');
+        return redirect('master/gewogs')->with('msg_success', 'Gewog created successfully');
     }
 
     /**
@@ -58,6 +64,14 @@ class GewogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id) 
+    {
+        $gewog = MasGewog::findOrFail($id);
+        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+
+
+        return view('masters.gewog.edit', compact('gewog', 'dzongkhags'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -68,7 +82,7 @@ class GewogController extends Controller
         $gewog->name = $request->name;
         $gewog->save();
 
-        return redirect()->back()->with('msg_success', 'Gewog updated successfully');
+        return redirect('master/gewogs')->with('msg_success', 'Gewog updated successfully');
     }
 
     /**

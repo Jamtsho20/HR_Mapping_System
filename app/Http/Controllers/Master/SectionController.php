@@ -37,6 +37,18 @@ class SectionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        $departments = MasDepartment::select('id', 'short_name', 'name')->get();
+        return view('masters.section.create', compact( 'departments'));
+    }
+
+    public function edit(string $id)
+    {
+        $section = MasSection::findOrFail($id);
+        $departments = MasDepartment::select('id', 'short_name', 'name')->get();
+        return view('masters.section.edit', compact('section', 'departments'));
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -48,7 +60,7 @@ class SectionController extends Controller
         $section->mas_department_id = $request->mas_department_id;
         $section->save();
 
-        return back()->with('msg_success', 'Section created successfully');
+        return redirect('master/section')->with('msg_success', 'Section created successfully');
     }
 
     /**
@@ -69,7 +81,7 @@ class SectionController extends Controller
         $section->mas_department_id = $request->mas_department_id;
         $section->save();
 
-        return back()->with('msg_success', 'Section updated successfully');
+        return redirect('master/section')->with('msg_success', 'Section updated successfully');
     }
 
     /**

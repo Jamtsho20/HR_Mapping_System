@@ -40,6 +40,12 @@ class VillageController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+        $gewogs = MasGewog::select('id', 'name')->get();
+        return view('masters.village.create',compact('dzongkhags','gewogs'));
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -51,7 +57,7 @@ class VillageController extends Controller
         $village->mas_gewog_id = $request->mas_gewog_id;
         $village->save();
 
-        return back()->with('msg_success', 'Village created successfully');
+        return redirect('master/villages')->with('msg_success', 'Village created successfully');
     }
 
     /**
@@ -61,6 +67,13 @@ class VillageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function edit(string $id)
+    {
+        $village = MasVillage::findOrFail($id);
+
+        $gewogs = MasGewog::select('id', 'name')->get();
+        return view('masters.village.edit', compact( 'gewogs','village'));
+    }
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -72,7 +85,7 @@ class VillageController extends Controller
         $village->mas_gewog_id = $request->mas_gewog_id;
         $village->save();
 
-        return redirect()->back()->with('msg_success', 'Village updated successfully');
+        return redirect('master/villages')->with('msg_success', 'Village updated successfully');
     }
 
     public function getGewog($id)
@@ -80,8 +93,6 @@ class VillageController extends Controller
         $gewogs = MasGewog::where('mas_dzongkhag_id', $id)->get();
         return $gewogs;
     }
-
-
     /**
      * Remove the specified resource from storage.
      *

@@ -35,7 +35,7 @@ class ExpenseTypeController extends Controller
      */
     public function create()
     {
-        //
+        return view('masters.expense-types.create');
     }
 
     /**
@@ -54,7 +54,7 @@ class ExpenseTypeController extends Controller
         $expense->expense_type = $request->expense_type;
         $expense->save();
 
-        return back()->with('msg_success', 'Expense Type created successfully');
+        return redirect('master/expense-types')->with('msg_success', 'Expense Type created successfully');
     }
 
     /**
@@ -76,7 +76,8 @@ class ExpenseTypeController extends Controller
      */
     public function edit($id)
     {
-        //
+        $expense = MasExpenseType::findOrFail($id);
+        return view('masters.expense-types.edit', compact('expense'));
     }
 
     /**
@@ -96,7 +97,7 @@ class ExpenseTypeController extends Controller
         $expense->expense_type = $request->expense_type;
         $expense->save();
 
-        return back()->with('msg_success', 'Expense Type updated successfully');
+        return redirect('master/expense-types')->with('msg_success', 'Expense Type updated successfully');
     }
 
     /**
@@ -110,9 +111,9 @@ class ExpenseTypeController extends Controller
         try {
             MasExpenseType::findOrFail($id)->delete();
 
-            return back()->with('msg_success', 'Expense Typw has been deleted');
+            return back()->with('msg_success', 'Expense Type has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Expense Typw cannot be delete as it has been used by other module. For further information contact system admin.');
+            return back()->with('msg_error', 'Expense Type cannot be delete as it has been used by other module. For further information contact system admin.');
         }
     }
 }
