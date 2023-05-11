@@ -14,6 +14,7 @@
     <!-- TITLE -->
     <title>@yield('name')</title>
     <!-- BOOTSTRAP CSS -->
+    
     <link id="style" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- STYLE CSS -->
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">

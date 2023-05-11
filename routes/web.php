@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('roles', 'RoleController');
         Route::post('users/change-status', 'UserController@changeUserStatus');
         Route::resource('users', 'UserController');
-        Route::resource('hierarchies', 'HierarchyController')->except('create', 'show', 'edit');
+        Route::resource('hierarchies', 'HierarchyController')->except( 'show');
         Route::resource('delegations', 'DelegationController')->except('create', 'show', 'edit');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
     });

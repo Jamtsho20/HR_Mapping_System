@@ -6,13 +6,13 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}"
-                placeholder="Search">
+            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}" placeholder="Search">
         </div>
         @endcomponent
         <div class="block-options">
-            <div class="block-options-item">
-                <a href="#" data-toggle="modal" data-target="#create-encashment" class="btn btn-sm btn-primary"> Leave Balance</a>
+            <div class="block-options-item">               
+                <button type="button" data-bs-toggle="modal" data-bs-target="#create-encashment" class="btn btn-sm btn-primary"> Leave Balance</button>
+
             </div>
         </div>
     </div>
@@ -31,14 +31,14 @@
                 </tr>
             </thead>
             <tbody>
-              
+
                 <tr>
                     <td>1</td>
                     <td>Kinga</td>
                     <td>Casual</td>
                     <td>02/08/2022</td>
                     <td>02/08/2022</td>
-                    <td>0.5</td> 
+                    <td>0.5</td>
                     <td><span class="badge badge-success">Approved</span></td>
                     <td class="text-center">
                         @if ($privileges->edit)
@@ -49,11 +49,11 @@
                         @endif
                     </td>
                 </tr>
-             
+
                 <tr>
                     <td colspan="8" class="text-center text-danger">No Data found</td>
                 </tr>
-            
+
             </tbody>
         </table>
     </div>

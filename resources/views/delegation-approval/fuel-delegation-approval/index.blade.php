@@ -18,9 +18,9 @@
                 <h5>Expense Fuel Approval</h5>
             </div>
             <div class="col-sm-6">
-                <input class="btn btn-alt-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
+                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
                     value="Approve">
-                <input class="btn  btn-alt-danger buttonsubmit " data-value="reject" type="button" value="Reject"
+                <input class="btn-sm  btn-danger buttonsubmit " data-value="reject" type="button" value="Reject"
                     id="btn_reject">
             </div>
         </div>

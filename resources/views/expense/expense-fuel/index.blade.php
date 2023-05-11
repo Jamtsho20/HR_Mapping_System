@@ -16,9 +16,8 @@
         @endcomponent
         <div class="block-options ">
             <div class="block-options-item">
-                <a href="#" data-toggle="modal" data-target="#fuel-expense" class="btn btn-sm btn-primary"><i
-                        class="fa fa-plus"></i> Add New
-                </a>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#fuel-expense" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</button>
+
             </div>
         </div>
     </div>
@@ -62,57 +61,57 @@
             <form action="" method="POST">
                 @csrf
                 <div class="block block-themed block-transparent mb-0">
-                    <div class="block-header bg-primary-dark">
-                        <h3 class="block-title">ADD FUEL EXPENSE</h3>
+                    <div class="modal-header">
+                        <h3 class="block-title">Add Fuel Expense</h3>
                         <div class="block-options">
-                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <i class="si si-close"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="block-content">
-                        <div class="form-group row">
-                            <div class="col-4">
-                                <label for="employee">Employee Name<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="employee" required="required"
-                                    readonly="readonly">
-                            </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-4">
+                                    <label for="employee">Employee Name<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="employee" required="required" readonly="readonly">
+                                </div>
 
-                            <div class="col-4">
-                                <label for="location">Location<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="location" required="required"
-                                    readonly="readonly">
-                            </div>
+                                <div class="col-4">
+                                    <label for="location">Location<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="location" required="required" readonly="readonly">
+                                </div>
 
-                            <div class="col-4">
-                                <label for="date">Date<span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control" name="date" id="date" required="required"
-                                    readonly="readonly">
-                            </div>
+                                <div class="col-4">
+                                    <label for="date">Date<span class="text-danger">*</span> </label>
+                                    <input type="text" class="form-control" name="date" id="date" required="required" readonly="readonly">
+                                </div>
 
-                            <hr style="margin-top:4rem;">
 
-                            <div class="col-4">
-                                <label for="vehicle_number">Vehicle Number <span class="text-danger">*</span></label>
-                                <select class="form-control" id="vehicle_number" name="vehicle_number">
-                                    <option value="" disabled selected hidden>Select</option>
-                                    <option value="">BP-3122</option>
-                                    <option value="">BP-1234</option>
-                                </select>
-                            </div>
 
-                            <div class="col-4" id="vehicle_type">
-                                <label for="distance">Distance<span class="text-danger">*</span></label>
-                                <select class="form-control" id="vehicle_type" name="vehicle_type">
-                                    <option value="" disabled selected hidden>Select</option>
-                                    <option value="">Bolero</option>
-                                    <option value="">Car</option>
-                                </select>
-                            </div>
+                                <div class="col-4">
+                                    <label for="vehicle_number">Vehicle Number <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="vehicle_number" name="vehicle_number">
+                                        <option value="" disabled selected hidden>Select</option>
+                                        <option value="">BP-3122</option>
+                                        <option value="">BP-1234</option>
+                                    </select>
+                                </div>
 
-                            <div class="col-4">
-                                <label for="attachment">Attachment</label>
-                                <input type="file" class="form-control" name="attachment" required="required">
+                                <div class="col-4" id="vehicle_type">
+                                    <label for="distance">Distance<span class="text-danger">*</span></label>
+                                    <select class="form-control" id="vehicle_type" name="vehicle_type">
+                                        <option value="" disabled selected hidden>Select</option>
+                                        <option value="">Bolero</option>
+                                        <option value="">Car</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-4">
+                                    <label for="attachment">Attachment</label>
+                                    <input type="file" class="form-control" name="attachment" required="required">
+                                </div>
+
                             </div>
 
                         </div>
@@ -146,26 +145,26 @@
                                 <th>Mileage</th>
                                 <th>Rate</th>
                                 <th>Amount(Nu)</th>
-                            </tr> 
+                            </tr>
                         </thead>
                         <tbody>
                             <tr class="tablerheader">
                                 <td style="width:200px;font-size:smaller">
-                                    <input class="js-datepicker form-control" type="text"  style="background-color: rgb(255, 255, 255);">
+                                    <input class="js-datepicker form-control" type="text" style="background-color: rgb(255, 255, 255);">
                                 </td>
                                 <td style="width:150px">
                                     <input type="number" tabindex="1" class="form-control" id="initial_km" autocomplete="off">
                                 </td>
 
                                 <td style="width:200px;font-size:smaller">
-                                    <input type="number" class="form-control" type="text" id="final_km"style="background-color: rgb(255, 255, 255);">
+                                    <input type="number" class="form-control" type="text" id="final_km" style="background-color: rgb(255, 255, 255);">
                                 </td>
-                                
+
                                 <td style="width:150px"><input tabindex="3" type="number" class="form-control" id="quantity" autocomplete="off"></td>
-                                <td style="width:90px"><input tabindex="4" type="number" id="mileage" class="form-control myDecimal"readonly="readonly"></td>
-                                <td style="width:120px"><input tabindex="4" type="number" id="rate" class="form-control" ></td>
+                                <td style="width:90px"><input tabindex="4" type="number" id="mileage" class="form-control myDecimal" readonly="readonly"></td>
+                                <td style="width:120px"><input tabindex="4" type="number" id="rate" class="form-control"></td>
                                 <td style="width:90px"><input type="numbre" tabindex="5" id="amount" class="form-control myDecimal" autocomplete="off" readonly="readonly"></td>
-                                
+
                                 <td><a href="" class="text-success font-18" title="Add" tabindex="2"><i class="fa fa-plus myadddsasettlement"></i></a></td>
                             </tr>
                         </tbody>
@@ -174,10 +173,10 @@
 
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-alt-primary">
+                    <button type="submit" class="btn btn-primary">
                         <i class="fa fa-check"></i>Submit
                     </button>
-                    <button type="button" class="btn btn-alt-danger" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
@@ -187,7 +186,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 <script>
-$('#date').val(new Date().toJSON().slice(0,10));
+    $('#date').val(new Date().toJSON().slice(0, 10));
 </script>
 
 @include('layouts.includes.delete-modal')

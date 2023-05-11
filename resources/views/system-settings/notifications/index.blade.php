@@ -23,8 +23,8 @@
             </div>
             <div class="form-group row">
                 <div class="col-lg-9 ml-auto">
-                    <button type="submit" class="btn btn-alt-primary">Submit</button>
-                    <input class="btn btn-alt-secondary" type="reset" value="Reset">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <input class="btn btn-secondary" type="reset" value="Reset">
                 </div>
             </div>
         </form>

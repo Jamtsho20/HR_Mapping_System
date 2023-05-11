@@ -11,8 +11,7 @@
         @endcomponent
         <div class="block-options">
             <div class="block-options-item">
-                <a href="#" data-toggle="modal" data-target="#dsa" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> DSA Settlement</a>
-
+                <button type="button" data-bs-toggle="modal" data-bs-target="#dsa" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> DSA Settlement</button>
             </div>
         </div>
     </div>
@@ -58,58 +57,63 @@
             <form action="" method="POST">
                 @csrf
                 <div class="block block-themed block-transparent mb-0">
-                    <div class="block-header bg-primary-dark">
-                        <h3 class="block-title">Create Expense</h3>
+                    <div class="modal-header">
+                        <h3 class="block-title">DSA Settlement</h3>
                         <div class="block-options">
-                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <i class="si si-close"></i>
                             </button>
                         </div>
+
                     </div>
                     <div class="block-content">
-                        <div class="form-group row">
-                            <div class="col-3">
-                                <label for="employee">Employee Name/code <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="employee" required="required" readonly="readonly">
-                            </div>
+                        <div class="form-group">
+                            <br>
+                            <div class="row">
+                                <div class="col-3">
+                                    <label for="employee">Employee Name/code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="employee" required="required" readonly="readonly">
+                                </div>
 
-                            <div class="col-2">
-                                <label for="advance_no">Advance No </label>
-                                <input type="text" class="form-control" name="advance_no" required="required">
-                            </div>
+                                <div class="col-2">
+                                    <label for="advance_no">Advance No </label>
+                                    <input type="text" class="form-control" name="advance_no" required="required">
+                                </div>
 
-                            <div class="col-2">
-                                <label for="advance_amount">Advance Amount </label>
-                                <input type="text" class="form-control" name="advance_amount" required="required" readonly="readonly" value="0">
-                            </div>
+                                <div class="col-2">
+                                    <label for="advance_amount">Advance Amount </label>
+                                    <input type="text" class="form-control" name="advance_amount" required="required" readonly="readonly" value="0">
+                                </div>
 
-                            <div class="col-2">
-                                <label for="total">Total Amt Adjusted </label>
-                                <input type="text" class="form-control" name="total" required="required" readonly="readonly" value="0">
-                            </div>
+                                <div class="col-2">
+                                    <label for="total">Total Amt Adjusted </label>
+                                    <input type="text" class="form-control" name="total" required="required" readonly="readonly" value="0">
+                                </div>
 
-                            <div class="col-3">
-                                <label for="net_amount">Net Payable Amount <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="net_amount" required="required" readonly="readonly" value="0">
+                                <div class="col-3">
+                                    <label for="net_amount">Net Payable Amount <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="net_amount" required="required" readonly="readonly" value="0">
+                                </div>
                             </div>
-
                         </div>
 
-                        <div class="form-group row">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-3">
+                                    <label for="attachment">File</label>
+                                    <input type="file" class="form-control" name="attachment" required="required">
+                                </div>
 
-                            <div class="col-3">
-                                <label for="attachment">File</label>
-                                <input type="file" class="form-control" name="attachment" required="required">
+                                <div class="col-2">
+                                    <br><br>
+                                    <input type="button" class="btn-sm btn-primary" required="required" Value="Upload">
+                                </div>
+                                <div class="col-2">
+                                    <label for="balance">Balace Amount<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="balance" required="required" readonly="readonly" value="0">
+                                </div>
                             </div>
 
-                            <div class="col-2">
-                                <br>
-                                <input type="button" class="btn btn-alt-primary" required="required" Value="Upload">
-                            </div>
-                            <div class="col-2">
-                                <label for="balance">Balace Amount<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="balance" required="required" readonly="readonly" value="0">
-                            </div>
                         </div>
 
                         <div class="form-group row">
@@ -144,7 +148,7 @@
                                 <th>Total Amount</th>
                                 <th>Remarks</th>
                                 <th></th>
-                            </tr> 
+                            </tr>
                         </thead>
                         <tbody>
                             <tr class="tablerheader">
@@ -158,7 +162,7 @@
                                 <td style="width:200px;font-size:smaller">
                                     <input tabindex="2" class="js-datepicker form-control" type="text" id="tbltxttodate" readonly="readonly" style="background-color: rgb(255, 255, 255);">
                                 </td>
-                                
+
                                 <td style="width:150px"><input tabindex="3" type="text" class="form-control" id="tbltxttolocation" autocomplete="off"></td>
                                 <td style="width:90px"><input tabindex="4" type="text" id="total_days" class="form-control myDecimal"></td>
                                 <td style="width:120px"><input tabindex="4" type="text" id="tbltxtda" class="form-control" readonly=""></td>

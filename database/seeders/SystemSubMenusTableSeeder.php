@@ -60,7 +60,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 5, 'name' => 'Approval', 'route' => 'leave/approval', 'display_order' => 2],
             ['system_menu_id' => 5, 'name' => 'Cancellation', 'route' => 'leave/cancellation', 'display_order' => 3],
             ['system_menu_id' => 5, 'name' => 'History', 'route' => 'leave/history', 'display_order' => 4],
-            ['system_menu_id' => 5, 'name' => 'Encashment Approval', 'route' => 'encashment-approval', 'display_order' => 5],
+            ['system_menu_id' => 5, 'name' => 'Encashment Approval', 'route' => 'leave/encashment-approval', 'display_order' => 5],
 
             //submenu for advance/loans
             ['system_menu_id' => 6, 'name' => 'Apply', 'route' => 'advance-loan/apply', 'display_order' => 1],
@@ -75,9 +75,9 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 8, 'name' => 'Leave Delegation Approval', 'route' => 'delegation-approval/leave-delegation-approval', 'display_order' => 1],
             ['system_menu_id' => 8, 'name' => 'Exp. Delegation Approval', 'route' => 'delegation-approval/exp-delegation-approval', 'display_order' => 2],
             ['system_menu_id' => 8, 'name' => 'Fuel Delegation Approval', 'route' => 'delegation-approval/fuel-delegation-approval', 'display_order' => 3],
-            ['system_menu_id' => 8, 'name' => 'DSA Delegation Approval', 'route' => 'delegation-approval/dsa-loan-approval', 'display_order' => 4],
+            ['system_menu_id' => 8, 'name' => 'DSA Delegation Approval', 'route' => 'delegation-approval/dsa-delegation-approval', 'display_order' => 4],
             ['system_menu_id' => 8, 'name' => 'Transfer Delegation Approval', 'route' => 'delegation-approval/transfer-delegation-approval', 'display_order' => 5],
-            ['system_menu_id' => 8, 'name' => 'Adv. Loan Delegation', 'route' => 'delegation-approval/adv-delegation-approval', 'display_order' => 6],
+            ['system_menu_id' => 8, 'name' => 'Adv. Loan Delegation', 'route' => 'delegation-approval/adv-loan-delegation', 'display_order' => 6],
             ['system_menu_id' => 8, 'name' => 'Approval', 'route' => 'delegation-approval/approval', 'display_order' => 7],
         ]);
     }

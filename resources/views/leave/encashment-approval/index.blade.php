@@ -11,11 +11,11 @@
         </div>
         @endcomponent
         <div class="block-options">
-            <div class="row">
-                <div class=" col-6 text-right">
+            <div class="row" style="float:right;">
+                <div class=" col-6 ">
                     <label>Approval Status:</label>
                 </div>
-                <div class=" col-6 text-right ">
+                <div class=" col-6  ">
                     <select class="form-control" id="ddl_employee_id" name="ddl_employee_id">
                         <option value="" disabled selected hidden>Select</option>
                         <option value="">Pending</option>
@@ -31,9 +31,9 @@
                     <h5>Leave Encashment Approval</h5>
                 </div>         
             <div class="col-sm-6">
-               <input class="btn btn-alt-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
+               <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
                     value="Approve">
-                <input class="btn  btn-alt-danger buttonsubmit " data-value="reject" type="button" value="Reject"
+                <input class="btn-sm btn-danger buttonsubmit " data-value="reject" type="button" value="Reject"
                     id="btn_reject">
             </div>
         </div>

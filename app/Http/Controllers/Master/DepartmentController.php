@@ -69,6 +69,7 @@ class DepartmentController extends Controller
     }
     public function update(Request $request, $id)
     {
+        
         $request->validate([
             'short_name' => 'required',
             'name' => 'required',
