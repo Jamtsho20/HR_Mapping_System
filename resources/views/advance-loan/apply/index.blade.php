@@ -36,7 +36,7 @@
                     <td>Casual</td>
                     <td>02/08/2022</td>
                     <td>02/08/2022</td>
-                    <td><span class="badge badge-success">Approved</span></td>
+                    <td><span class="badge bg-success">Approved</span></td>
                     <td>
                         @if ($privileges->edit)
                         <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i>

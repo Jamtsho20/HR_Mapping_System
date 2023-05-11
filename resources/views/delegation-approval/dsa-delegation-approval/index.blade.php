@@ -44,7 +44,7 @@
                     <td>Kinga</td>
                     <td>Casual</td>
                     <td>02/08/2022</td>
-                    <td><span class="badge badge-success">Approved</span></td>
+                    <td><span class="badge bg-success">Approved</span></td>
                 </tr>
                 <tr>
                     <td colspan="6" class="text-center text-danger">No Data found</td>

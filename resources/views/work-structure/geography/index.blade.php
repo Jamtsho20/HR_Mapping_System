@@ -9,37 +9,30 @@
     </div>
     <div class="block-content">
         <div class="block">
-            <ul class="nav nav-tabs nav-tabs-block font-weight-bold" data-toggle="tabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active font-weight-bold" href="#country">Country</a>
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-country-tab" data-bs-toggle="pill" data-bs-target="#pills-country" type="button" role="tab" aria-controls="pills-country" aria-selected="true">Country</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link font-weight-bold" href="#time_zone">Time Zone</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-time_zone-tab" data-bs-toggle="pill" data-bs-target="#pills-time_zone" type="button" role="tab" aria-controls="pills-time_zone" aria-selected="false">Time Zone</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link font-weight-bold" href="#region">Region</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-region-tab" data-bs-toggle="pill" data-bs-target="#pills-region" type="button" role="tab" aria-controls="pills-region" aria-selected="false">Region</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link font-weight-bold" href="#dzongkhag">Dzongkhag</a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-dzongkhag-tab" data-bs-toggle="pill" data-bs-target="#pills-dzongkhag" type="button" role="tab" aria-controls="pills-dzongkhag" aria-selected="false">Dzongkhag</button>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link font-weight-bold" href="#store_location">Store Location</a>
-                </li>
-                <li class="nav-item ml-auto">
-                    <a class="nav-link" href="#btabs-static-settings">
-                        <i class="si si-settings"></i>
-                    </a>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-store-tab" data-bs-toggle="pill" data-bs-target="#pills-store" type="button" role="tab" aria-controls="pills-store" aria-selected="false">Store Locations</button>
                 </li>
             </ul>
-            <div class="block-content tab-content">
-                <!-- country -->
-                <div class="tab-pane active" id="country" role="tabpanel">
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-country" role="tabpanel" aria-labelledby="pills-country-tab">
                     <div class="row">
                         <div class="col-3">
                             <label style="float:left">Show &nbsp;</label>
                             <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
-                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet"
-                                    class="form-control">
+                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet" class="form-control">
                                     <option value="10">10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
@@ -70,7 +63,7 @@
                                     <td>1</td>
                                     <td>BT</td>
                                     <td>Bhutan</td>
-                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td><span class="badge bg-success">Active</span></td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-center text-danger">No Data found</td>
@@ -81,13 +74,12 @@
                     </div>
                 </div>
                 <!-- time zone -->
-                <div class="tab-pane" id="time_zone" role="tabpanel">
+                <div class="tab-pane fade" id="pills-time_zone" role="tabpanel" aria-labelledby="pills-time_zone-tab">
                     <div class="row">
                         <div class="col-3">
                             <label style="float:left">Show &nbsp;</label>
                             <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
-                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet"
-                                    class="form-control">
+                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet" class="form-control">
                                     <option value="10">10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
@@ -120,7 +112,7 @@
                                     <td>UTC +6</td>
                                     <td>Bhutan Time (BST)</td>
                                     <td>Bhutan</td>
-                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td><span class="badge bg-success">Active</span></td>
                                 </tr>
                                 <tr>
                                     <td colspan="5" class="text-center text-danger">No Data found</td>
@@ -130,14 +122,13 @@
                         </table>
                     </div>
                 </div>
-                <!-- Region -->
-                <div class="tab-pane" id="region" role="tabpanel">
+                <!-- region-->
+                <div class="tab-pane fade" id="pills-region" role="tabpanel" aria-labelledby="pills-region-tab">
                     <div class="row">
                         <div class="col-3">
                             <label style="float:left">Show &nbsp;</label>
                             <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
-                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet"
-                                    class="form-control">
+                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet" class="form-control">
                                     <option value="10">10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
@@ -171,7 +162,7 @@
                                     <td>BT</td>
                                     <td>{{ $region->region_name }}</td>
                                     <td>Bhutan</td>
-                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td><span class="badge bg-success">Active</span></td>
                                 </tr>
                                 @empty
                                 <tr>
@@ -183,21 +174,18 @@
                         </table>
                     </div>
                 </div>
-                <!-- Dzongkhag -->
-                <div class="tab-pane" id="dzongkhag" role="tabpanel">
+                <!-- dzongkhag-->
+                <div class="tab-pane fade" id="pills-dzongkhag" role="tabpanel" aria-labelledby="pills-dzongkhag-tab">
                     <h4 class="font-w400">dzongkhag</h4>
                     <p>...</p>
                 </div>
-                <!-- store location -->
-                <div class="tab-pane" id="store_location" role="tabpanel">
-                    <h4 class="font-w400">store location</h4>
-                    <p>...</p>
-                </div>
-                <div class="tab-pane" id="btabs-static-settings" role="tabpanel">
-                    <h4 class="font-w400">Settings Content</h4>
+                <!-- store location-->
+                <div class="tab-pane fade" id="pills-store" role="tabpanel" aria-labelledby="pills-store-tab">
+                    <h4 class="font-w400">Store Location</h4>
                     <p>...</p>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
