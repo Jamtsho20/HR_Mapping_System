@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
         Route::post('users/change-status', 'UserController@changeUserStatus');
         Route::resource('users', 'UserController');
         Route::resource('hierarchies', 'HierarchyController')->except( 'show');
-        Route::resource('delegations', 'DelegationController')->except('create', 'show', 'edit');
+        Route::resource('delegations', 'DelegationController')->except('show');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
     });
 
@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('grade-steps', 'GradeStepController')->except('show');
         Route::resource('regions', 'RegionController')->except('show');
         Route::resource('expense-types', 'ExpenseTypeController');
+        Route::resource('advance-loans', 'AdvanceLoanController');
     });
 
      // WORK STRUCTURE

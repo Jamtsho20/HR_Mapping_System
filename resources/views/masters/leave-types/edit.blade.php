@@ -4,8 +4,8 @@
 <form action="{{ url('master/leave-types/' . $leaveType->id) }}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
-        <div class="block-content">
+    <div class="card">
+        <div class="card-body">
             <div class="form-group">
                 <label for="name">Leave Type <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="name" value="{{$leaveType->name}}">
@@ -33,7 +33,7 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
         <a href="{{ url('master/leave-types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
 

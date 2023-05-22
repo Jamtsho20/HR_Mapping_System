@@ -35,7 +35,8 @@ class DelegationController extends Controller
      */
     public function create()
     {
-        //
+        return view('system-settings.delegation.create');
+
     }
 
     /**

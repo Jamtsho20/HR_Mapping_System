@@ -3,9 +3,9 @@
 @section('content')
 <form action="{{ url('master/expense-types') }}" method="POST">
     @csrf
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card ">
       
-        <div class="block-content">
+        <div class="card-body">
             <div class="form-group">
                 <label for="expense">Expense Type <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="expense_type" value="{{ old('expense_type') }}" required="required">
@@ -13,7 +13,7 @@
 
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> SAVE
         </button>

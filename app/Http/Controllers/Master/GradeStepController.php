@@ -112,12 +112,11 @@ class GradeStepController extends Controller
             $grade->name = $request->grade_name;
             $grade->save();
 
-            $gradeSteps = [];
+            $grade->gradeSteps()->delete();
+            
             foreach($request->grade_steps as $key => $value){
-                $grade->gradeSteps()->updateOrCreate([
-                    'id' => $value['step_id']
-                ],
-                [
+                $grade->gradeSteps()->create([
+                    'id' => $value['step_id'],
                     'name' => $value['step_name'],
                     'starting_salary' => $value['starting_salary'],
                     'ending_salary' => $value['ending_salary'],

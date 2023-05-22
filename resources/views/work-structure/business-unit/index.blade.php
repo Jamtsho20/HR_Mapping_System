@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('page-title', 'Dashboard')
 @section('content')
-<div class="block">
-    <div class="block-header block-header-default">
+<div class="card">
+    <div class="card-header card-header-default">
         <div class="col-sm-4">
             <h5>Business Unit</h5>
         </div>
     </div>
-    <div class="block-content">
+    <div class="card-body">
         <form class="col-md-12 col-md-offset-3">
             <div class="form-group row">
                 <div class="row">

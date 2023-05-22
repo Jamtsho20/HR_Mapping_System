@@ -5,16 +5,16 @@
 <form action="{{url('master/regions/' .$region->id)}}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card0">
 
-        <div class="block-content">
+        <div class="card-content">
             <div class="form-group">
                 <label for="region">Region <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="region" value="{{$region->region_name}}">
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> UPDATE
         </button>

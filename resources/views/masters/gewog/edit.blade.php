@@ -6,8 +6,8 @@
 <form action="{{ url('master/gewogs/' . $gewog->id) }}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
-        <div class="block-content">
+    <div class="card ">
+        <div class="card-body">
             <div class="form-group">
                 <label for="name">Dzongkhag <span class="text-danger">*</span></label>
                 <select name="mas_dzongkhag_id" class="form-control" id="dzongkhag1">
@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-alt-primary">
             <i class="fa fa-check"></i> Update
         </button>

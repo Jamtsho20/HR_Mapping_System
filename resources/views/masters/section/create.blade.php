@@ -3,10 +3,9 @@
 @section('content')
 <form action="{{ url('master/section') }}" method="POST">
     @csrf
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card ">
 
-        <div class="block-content">
-
+        <div class="card-body">
             <div class="form-group">
                 <label for="example-select">Department <span class="text-danger">*</span></label>
                 <select class="form-control" id="example-select" name="mas_department_id" required="required">
@@ -24,7 +23,7 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
         <a href="{{ url('master/section') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
     </div>

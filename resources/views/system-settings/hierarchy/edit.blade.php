@@ -1,70 +1,131 @@
 @extends('layouts.app')
 @section('page-title', 'Hierarchy')
 @section('content')
-<form action="{{url('system-setting/hierarchies/' .$hierarchy->id)}}" method="POST">
+<form action="{{ url('system-setting/hierarchies/' . $hierarchy->id) }}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
-
-        <div class="block-content">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Edit Hierarchy</h5>
+        </div>
+        <div class="card-body">
             <div class="row">
-                <div class="form-group col-4">
-                    <label for="hiererchy">Hierarchy Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="hierarchy_name" value="{{ $hierarchy->hierarchy_name }}" required="required">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="hierarchy_name">hierarchy Name *</label>
+                        <input type="text" class="form-control" name="hierarchy_name" value="{{  $hierarchy->hierarchy_name}}"  readonly>
+                    </div>
                 </div>
-                <div class="form-group col-4">
-                    <label for="">Level <span class="text-danger">*</span></label>
-                    <select class="form-control" name="level">
-                        <option value="" disabled selected hidden>Select Level</option>
-                        <option value="1" {{ $hierarchy->level == 1 ? 'selected' : '' }}>Level 1</option>
-                        <option value="2" {{ $hierarchy->level == 2 ? 'selected' : '' }}>Level 2</option>
-                        <option value="3" {{ $hierarchy->level == 3 ? 'selected' : '' }}>Level 3</option>
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table id="hierarchies" class="table table-condensed table-bordered table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th width="3%" class="text-center">#</th>
+                                    <th>Level *</th>
+                                    <th>Value</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (count($hierarchy->hierarchyLevels) == 0)
+                                <tr>
+                                    <td class="text-center">
+                                        <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="hierarchies[AAAAA][level]">
+                                            <option value="" disabled selected hidden>Select Level</option>
+                                            @foreach (config('global.level') as $type)
+                                            <option value="{{ $type }}">{{ $type }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="hierarchies[AAAAA][value]">
+                                            <option value="" disabled selected hidden>Select Level</option>
+                                            @foreach (config('global.value') as $type)
+                                            <option value="{{$type}}">{{ $type }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew">
+                                    </td>
+                                    <td>
+                                        <input type="date" name="hierarchies[AAAAA][end_date]" class="form-control form-control-sm resetKeyForNew">
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="hierarchies[AAAAA][status]">
+                                            <option value="" disabled selected hidden>Select Status</option>
+                                            @foreach (config('global.status') as $key => $type)
+                                            <option value="{{ $key}}">{{ $type }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                </tr>
+                                @else
+                                @foreach ($hierarchy->hierarchyLevels as $key => $value)
+                                <tr>
+                                    <td class="text-center">
+                                        <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                        <input type="hidden" name="hierarchies[AAAAA{{$key}}][level_id]" class="resetKeyForNew" value="{{ old('level_id', $value['id']) }}">
 
-                    </select>
-                </div>
-                <div class="form-group col-4">
-                    <label for="">Value <span class="text-danger">*</span></label>
-                    <select class="form-control" name="value">
-                        <option value="" disabled selected hidden>Select Level</option>
-                        <option value="1" {{ $hierarchy->value == 1 ? 'selected' : '' }}>Immediate Supervisor</option>
-                        <option value="2" {{ $hierarchy->value == 2 ? 'selected' : '' }}>Section Head</option>
-                        <option value="3" {{ $hierarchy->value == 3 ? 'selected' : '' }}>Department Head</option>
-                        <option value="4" {{ $hierarchy->value == 4 ? 'selected' : '' }}>Management</option>
-                        <option value="5" {{ $hierarchy->value == 5 ? 'selected' : '' }}>Human Resource</option>
-                        <option value="6" {{ $hierarchy->value == 6 ? 'selected' : '' }}>Finance Head</option>
-                    </select>
-                </div>
+                                    </td>
+                                    <td>
+                                        <select name="hierarchies[AAAAA{{ $key }}][level]" class="form-control form-control-sm resetKeyForNew">
+                                            <option value="" disabled selected hidden>Select Level</option>
+                                            @foreach (config('global.level') as $type)
+                                            <option value="{{ $type }}" {{ old('level', $value['level']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                            @endforeach
+                                        </select>
 
-                <div class="form-group col-4">
-                    <label for="start_date">Start Date <span class="text-danger">*</span></label>
-                    <input type="text" value="{{$hierarchy->start_date}}" class="js-datepicker form-control js-datepicker" name="start_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="mm/dd/yy" placeholder="mm/dd/yy">
-                </div>
+                                    </td>
+                                    <td>
+                                        <select name="hierarchies[AAAAA{{ $key }}][value]" class="form-control form-control-sm resetKeyForNew">
+                                            <option value="" disabled selected hidden>Select Level</option>
+                                            @foreach (config('global.value') as $type)
+                                            <option value="{{ $type }}" {{ old('value', $value['value']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="date" name="hierarchies[AAAAA{{$key}}][start_date]" class="form-control form-control-sm resetKeyForNew" value="{{ old('start_date', $value['start_date']) }}">
+                                    </td>
+                                    <td>
+                                        <input type="date" name="hierarchies[AAAAA{{$key}}][end_date]" class="form-control form-control-sm resetKeyForNew" value="{{ old('end_date', $value['end_date']) }}">
+                                    </td>
+                                    <td>
+                                        <select name="hierarchies[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
+                                            <option value="" disabled selected hidden>Select Status</option>
+                                            @foreach (config('global.status') as $key => $type)
+                                            <option value="{{$key}}" {{ old('status', $value['status']) == $key ? 'selected' : '' }}>{{ $type }}</option>
+                                            @endforeach
 
-                <div class="form-group col-4">
-                    <label for="end_date">End Date <span class="text-danger">*</span></label>
-                    <input type="text" value="{{$hierarchy->end_date}}" class="js-datepicker form-control js-datepicker" name="end_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="mm/dd/yy" placeholder="mm/dd/yy">
-                </div>
+                                        </select>
 
-                <div class="form-group col-4">
-                    <label for="">Status <span class="text-danger">*</span></label>
-                    <select class="form-control" name="status">
-                        <option value="" disabled selected hidden>Select Level</option>
-                        <option value="1"  {{ $hierarchy->status == 1 ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ $hierarchy->status == 0 ? 'selected' : '' }}>Inactive</option>
-                    </select>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @endif
+                                <tr class="notremovefornew">
+                                    <td colspan="5"></td>
+                                    <td class="text-right">
+                                        <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">
-            <i class="fa fa-check"></i> UPDATE
-        </button>
-        <a href="{{ url('system-setting/hierarchies') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        <div class="card-body font-size-sm" style="text-align: right;">
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> UPDATE</button>
+            <a href="{{ url('system-setting/hierarchies') }}" class="btn btn-danger btn-sm"> CANCEL</a>
+        </div>
     </div>
 </form>
-@include('layouts.includes.delete-modal')
 @endsection
-@push('page_scripts')
-
-@endpush

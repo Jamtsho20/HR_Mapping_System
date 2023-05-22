@@ -4,16 +4,16 @@
 <form action="{{url('master/nationalities/' .$nationality->id)}}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card">
 
-        <div class="block-content">
+        <div class="card-body">
             <div class="form-group">
                 <label for="name">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" value="{{$nationality->name}}" name="name">
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> UPDATE
         </button>

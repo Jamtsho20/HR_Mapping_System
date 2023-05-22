@@ -1,21 +1,20 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Advance')
 @section('content')
+@section('buttons')
+<button type="button" data-bs-toggle="modal" data-bs-target="#apply-advance" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Apply Advance</button>
+@endsection
 
-<div class="block">
-    <div class="block-header block-header-default">
+<div class="card">
+    <div class="card-header card-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
             <input type="text" name="advance" class="form-control" value="{{ request()->get('advance') }}" placeholder="Search">
         </div>
         @endcomponent
-        <div class="block-options">
-            <div class="block-options-item">
-                <button type="button" data-bs-toggle="modal" data-bs-target="#apply-advance" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Apply Advance</button>
-            </div>
-        </div>
+       
     </div>
-    <div class="block-content">
+    <div class="card-body">
         <table class="table table-bordered table-sm table-striped">
             <thead class="thead-light">
                 <tr>
@@ -62,10 +61,10 @@
         <div class="modal-content">
             <form action="" method="POST">
                 @csrf
-                <div class="block block-themed block-transparent mb-0">
+                <div class="card card-themed card-transparent mb-0">
                     <div class="modal-header">
-                        <h3 class="block-title">Advance/Loan</h3>
-                        <div class="block-options">
+                        <h3 class="card-title">Advance/Loan</h3>
+                        <div class="card-options">
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <i class="si si-close"></i>
                             </button>

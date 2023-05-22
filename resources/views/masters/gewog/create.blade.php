@@ -4,9 +4,9 @@
 
 <form action="{{ url('master/gewogs') }}" method="POST">
     @csrf
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card ">
 
-        <div class="block-content">
+        <div class="card-body">
             <div class="form-group">
                 <label for="mas_dzongkhag_id">Dzongkhag <span class="text-danger">*</span></label>
                 <select class="form-control" name="mas_dzongkhag_id" required="required">
@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> SAVE
         </button>

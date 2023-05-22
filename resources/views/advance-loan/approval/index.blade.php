@@ -2,15 +2,15 @@
 @section('page-title', 'Expense Approval')
 @section('content')
 
-<div class="block">
-    <div class="block-header block-header-default">
+<div class="card">
+    <div class="card-header card-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
             <input type="text" name="expense" class="form-control" value="{{ request()->get('expense') }}"
                 placeholder="Search">
         </div>
         @endcomponent
-        <div class="block-options">
+        <div class="card-options">
             <div class="row" style="float:right">
                 <div class=" col-4 ">
                     <label>Approval Status:</label>
@@ -25,7 +25,7 @@
             </div>
         </div>
     </div>
-    <div class="block-content">
+    <div class="card-body">
         <div class="block-options">
             <div class="col-sm-8">
                 <h5>Advance Approval</h5>

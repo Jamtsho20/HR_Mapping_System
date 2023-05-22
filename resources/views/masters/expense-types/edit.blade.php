@@ -4,16 +4,16 @@
 <form action="{{url('master/expense-types/' .$expense->id)}}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card card-themed card-transparent mb-0">
 
-        <div class="block-content">
+        <div class="card-body">
             <div class="form-group">
                 <label for="region">Expense Type <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="expense_type" value="{{$expense->expense_type}}">
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> UPDATE
         </button>

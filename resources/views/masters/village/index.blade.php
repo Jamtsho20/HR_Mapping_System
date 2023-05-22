@@ -1,8 +1,13 @@
 @extends('layouts.app')
 @section('page-title', 'Village')
+@if ($privileges->create)
+@section('buttons')
+<a href="{{route('villages.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Village</a>
+@endsection
+@endif
 @section('content')
-<div class="block">
-    <div class="block-header block-header-default">
+<div class="card">
+    <div class="card-header ">
         @component('layouts.includes.filter')
         <div class="form-group">
             <div class="row">
@@ -35,50 +40,46 @@
             </div>
         </div>
 
-        <div class="block-options">
-            <div class="block-options-item">
-                @if($privileges->create)
-                <a href="{{route('villages.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Village</a>
-                @endif
-            </div>
-        </div>
+      
     </div>
-    <div class="block-content">
-        <table class="table table-bordered table-sm table-striped">
-            <thead class="thead-light">
-                <tr>
-                    <th>#</th>
-                    <th>Dzongkhag</th>
-                    <th>Gewog</th>
-                    <th>Village</th>
-                    <th class="text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($villages as $village )
-                <tr>
-                    <td>{{ $villages->firstItem() + ($loop->iteration - 1) }}</td>
-                    <td>{{ $village->gewogs->dzongkhag->dzongkhag }}</td>
-                    <td>{{ $village->gewogs->name }}</td>
-                    <td>{{ $village->village }}</td>
-                    <td class="text-center">
-                        @if ($privileges->edit)
-                        <a href="{{ url('master/villages/'.$village->id . '/edit') }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
-                            <i class="fa fa-edit"></i> EDIT
-                        </a>
-                        @endif
-                        @if ($privileges->delete)
-                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/villages/'.$village->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="text-center text-danger">No villages found</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table border table-sm table-hover text-nowrap text-md-nowrap table-bordered mg-b-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Dzongkhag</th>
+                        <th>Gewog</th>
+                        <th>Village</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($villages as $village )
+                    <tr>
+                        <td>{{ $villages->firstItem() + ($loop->iteration - 1) }}</td>
+                        <td>{{ $village->gewogs->dzongkhag->dzongkhag }}</td>
+                        <td>{{ $village->gewogs->name }}</td>
+                        <td>{{ $village->village }}</td>
+                        <td class="text-center">
+                            @if ($privileges->edit)
+                            <a href="{{ url('master/villages/'.$village->id . '/edit') }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                <i class="fa fa-edit"></i> EDIT
+                            </a>
+                            @endif
+                            @if ($privileges->delete)
+                            <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/villages/'.$village->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">No villages found</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
     @if ($villages->hasPages())
     <div class="card-footer">

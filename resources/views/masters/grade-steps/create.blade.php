@@ -3,11 +3,11 @@
 @section('content')
     <form action="{{ url('master/grade-steps') }}" method="POST">
         @csrf
-        <div class="block">
-            <div class="block-header block-header-default">
-                <h5 class="block-title">Create Grade & Steps</h5>
+        <div class="card">
+            <div class="card-header ">
+                <h5 class="card-title">Create Grade & Steps</h5>
             </div>
-            <div class="block-content">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -70,7 +70,7 @@
                                     <tr class="notremovefornew">
                                         <td colspan="4"></td>
                                         <td class="text-right">
-                                            <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                                            <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -79,7 +79,7 @@
                     </div>
                 </div>
             </div>
-            <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm" style="text-align: right;">
+            <div class="card-body  font-size-sm" style="text-align: right;">
                 <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> SAVE</button>
                 <a href="{{ url('master/grade-steps') }}" class="btn btn-danger btn-sm"> CANCEL</a>
             </div>

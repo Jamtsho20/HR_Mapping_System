@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_hierarchies', function (Blueprint $table) {
+        Schema::create('system_notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('hierarchy_name');
+            $table->string('title');
+            $table->text('message');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
-         
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('system_hierarchies');
+        Schema::dropIfExists('system_notifications');
     }
 };

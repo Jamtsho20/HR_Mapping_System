@@ -4,8 +4,8 @@
 
 <form action="{{ url('master/villages') }}" method="POST">
     @csrf
-    <div class="block block-themed block-transparent mb-0">
-        <div class="block-content">
+    <div class="card">
+        <div class="card-body">
             <div class="form-group">
                 <label for="dzongkhag_id">Dzongkhag </label>
                 <select class="form-control" id="dzongkhag_id">
@@ -29,7 +29,7 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> SAVE
         </button>

@@ -15,6 +15,6 @@ class MasGradeStep extends Model
     //relationships
     public function grade()
     {
-        return $this->belongsTo(MasGradeStep::class, 'mas_grade_id');
+        return $this->belongsTo(MasGrade::class, 'mas_grade_id');
     }
 }

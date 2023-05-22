@@ -4,11 +4,11 @@
     <form action="{{ url('master/grade-steps/' . $grade->id) }}" method="POST">
         @csrf
         @method('PUT')
-        <div class="block">
-            <div class="block-header block-header-default">
-                <h5 class="block-title">Edit Grade & Steps</h5>
+        <div class="card">
+            <div class="card-header card-header-default">
+                <h5 class="card-title">Edit Grade & Steps</h5>
             </div>
-            <div class="block-content">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -47,7 +47,7 @@
                                                 <input type="number" name="grade_steps[AAAAA][ending_salary]" class="form-control form-control-sm resetKeyForNew">
                                             </td>
                                         </tr>
-                                    @else
+                                        @else
                                         @foreach ($grade->gradeSteps as $key => $value)
                                             <tr>
                                                 <td class="text-center">
@@ -81,7 +81,7 @@
                     </div>
                 </div>
             </div>
-            <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm" style="text-align: right;">
+            <div class="card-body font-size-sm" style="text-align: right;">
                 <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> UPDATE</button>
                 <a href="{{ url('master/grade-steps') }}" class="btn btn-danger btn-sm"> CANCEL</a>
             </div>

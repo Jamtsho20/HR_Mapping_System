@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
+use App\Models\SystemNotification;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -45,7 +46,16 @@ class NotificationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+        ]);
+
+        $region = new SystemNotification();
+        $region->title = $request->title;
+        $region->message = $request->message;
+        $region->save();
+
+        return redirect('system-setting/notifications')->with('msg_success', 'Notification created successfully');
     }
 
     /**

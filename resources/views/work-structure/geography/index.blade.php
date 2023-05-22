@@ -1,14 +1,14 @@
 @extends('layouts.app')
 @section('page-title', 'Dashboard')
 @section('content')
-<div class="block">
-    <div class="block-header block-header-default">
+<div class="card">
+    <div class="card-header ">
         <div class="col-sm-4">
             <h5>Geography</h5>
         </div>
     </div>
-    <div class="block-content">
-        <div class="block">
+    <div class="card-body">
+        <div class="card">
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="pills-country-tab" data-bs-toggle="pill" data-bs-target="#pills-country" type="button" role="tab" aria-controls="pills-country" aria-selected="true">Country</button>
@@ -48,7 +48,7 @@
                         </div>
                     </div>
 
-                    <div class="block-content">
+                    <div class="card-body">
                         <table class="table table-bordered table-sm table-striped">
                             <thead class="thead-light">
                                 <tr>
@@ -95,7 +95,7 @@
                         </div>
                     </div>
 
-                    <div class="block-content">
+                    <div class="card-body">
                         <table class="table table-bordered table-sm table-striped">
                             <thead class="thead-light">
                                 <tr>
@@ -144,7 +144,7 @@
                         </div>
                     </div>
 
-                    <div class="block-content">
+                    <div class="card-body">
                         <table class="table table-bordered table-sm table-striped">
                             <thead class="thead-light">
                                 <tr>

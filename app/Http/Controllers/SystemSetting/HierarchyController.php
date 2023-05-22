@@ -5,10 +5,18 @@ namespace App\Http\Controllers\SystemSetting;
 use App\Http\Controllers\Controller;
 use App\Models\SystemHierarchy;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 
 class HierarchyController extends Controller
 {
+    private $rules = [
+        'hierarchy_name' => 'required',
+        'hierarchies.*.level' => 'required'
+    ];
+
+    private $messages = [
+        'hierarchies.*.level.required' => 'Level field is required',
+    ];
     public function __construct()
     {
         $this->middleware('permission:system-setting/hierarchies,view')->only('index');
@@ -23,7 +31,7 @@ class HierarchyController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $hierarchies = SystemHierarchy::filter($request)->orderBy('hierarchy_name')->paginate(30)->withQueryString();
+        $hierarchies = SystemHierarchy::filter($request)->with('hierarchyLevels')->paginate(30)->withQueryString();
 
         return view('system-settings.hierarchy.index', compact('privileges', 'hierarchies'));
     }
@@ -40,27 +48,31 @@ class HierarchyController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    { {
-            $request->validate([
-                'hierarchy_name' => 'required',
-                'level' => 'required',
-                'value' => 'required',
-                'start_date' => 'required|date|before:end_date',
-                'end_date' => 'required|date|after:start_date',
-                'status' => 'required',
-            ]);
+    { 
+
+        $this->validate($request, $this->rules, $this->messages);
+
+        DB::transaction(function () use ($request) {
 
             $hierarchy = new SystemHierarchy();
-            $hierarchy->hierarchy_name= $request->hierarchy_name;
-            $hierarchy->level = $request->level;
-            $hierarchy->value = $request->value;
-            $hierarchy->start_date = $request->start_date;
-            $hierarchy->end_date = $request->end_date;
-            $hierarchy->status = $request->status;
+            $hierarchy->hierarchy_name = $request->hierarchy_name;
             $hierarchy->save();
 
-            return redirect('system-setting/hierarchies')->with('msg_success', 'Hierarchy created successfully');
-        }
+            $level = [];
+            foreach ($request->hierarchies as $key => $value) {
+                $level[] = [
+                    'level' => $value['level'],
+                    'value' => $value['value'],
+                    'start_date' => $value['start_date'],
+                    'end_date' => $value['end_date'],
+                    'status' => $value['status']
+                ];
+            }
+
+            $hierarchy->hierarchyLevels()->createMany($level);
+        });
+
+        return back()->with('msg_success', 'Hierarchy have been created successfully.');
     }
 
     /**
@@ -76,8 +88,8 @@ class HierarchyController extends Controller
      */
     public function edit(string $id)
     {
-        $hierarchy = SystemHierarchy::findOrFail($id);
-        
+        $hierarchy = SystemHierarchy::with('hierarchyLevels')->findOrFail($id);
+
         return view('system-settings.hierarchy.edit', compact('hierarchy'));
     }
 
@@ -86,26 +98,29 @@ class HierarchyController extends Controller
      */
     public function update(Request $request,  $id)
     {
-        $request->validate([
-                'hierarchy_name' => 'required',
-                'level' => 'required',
-                'value' => 'required',
-                'start_date' => 'required|date|before:end_date',
-                'end_date' => 'required|date|after:start_date',
-                'status' => 'required',
-        ]);
+       
+        $this->validate($request, $this->rules, $this->messages);
 
-        $hierarchy = SystemHierarchy::findOrFail($id);
-      
-        $hierarchy->hierarchy_name = $request->hierarchy_name;
-        $hierarchy->level = $request->level;
-        $hierarchy->value = $request->value;
-        $hierarchy->start_date = $request->start_date;
-        $hierarchy->end_date = $request->end_date;
-        $hierarchy->status = $request->status;
-        $hierarchy->save();
+        DB::transaction(function () use ($request, $id) {
 
-        return redirect('system-setting/hierarchies')->with('msg_success', 'Hierarchy Updated successfully');
+            $hierarchy = SystemHierarchy::findOrFail($id);
+            $hierarchy->hierarchy_name = $request->hierarchy_name;
+            $hierarchy->save();
+
+            $hierarchy->hierarchyLevels()->delete();
+
+            foreach ($request->hierarchies as $key => $value) {
+                $hierarchy->hierarchyLevels()->create(['id' => $value['level_id'],
+                    'level' => $value['level'],
+                    'value' => $value['value'],
+                    'start_date' => $value['start_date'],
+                    'end_date' => $value['end_date'],
+                    'status' => $value['status']
+                ]);
+            }
+        });
+
+        return redirect('system-setting/hierarchies')->with('msg_success', 'Hierarchy have been updated successfully.');
 
 
     }

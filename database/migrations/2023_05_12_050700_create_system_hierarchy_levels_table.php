@@ -11,12 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_hierarchies', function (Blueprint $table) {
+        Schema::create('system_hierarchy_levels', function (Blueprint $table) {
             $table->id();
-            $table->string('hierarchy_name');
+            $table->foreignId('system_hierarchy_id')->constrained()->cascadeOnDelete();
+            $table->string('level');
+            $table->string('value');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->tinyInteger('status');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
-         
             $table->timestamps();
         });
     }
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('system_hierarchies');
+        Schema::dropIfExists('system_hierarchy_levels');
     }
 };

@@ -5,9 +5,9 @@
 <form action="{{ url('master/villages/' . $village->id)}}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card">
 
-        <div class="block-content">
+        <div class="card-body">
             <div class="form-group">
                 <label for="name">Gewog <span class="text-danger">*</span> </label>
                 <select name="mas_gewog_id" class="form-control ">
@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="cad-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i>UPDATE
         </button>

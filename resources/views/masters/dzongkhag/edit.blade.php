@@ -4,16 +4,16 @@
 <form action="{{url('master/dzongkhags/'.$dzongkhag->id)}}" method="POST">
     @csrf
     @method('PUT')
-    <div class="block block-themed block-transparent mb-0">
+    <div class="card ">
       
-        <div class="block-content">
+        <div class="card-body">
             <div class="form-group">
                 <label for="dzongkhag">Dzongkhang <span class="text-danger">*</span></label>
                 <input type="text" value="{{$dzongkhag->dzongkhag}}" class="form-control" name="dzongkhag">
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i>UPDATE
         </button>
