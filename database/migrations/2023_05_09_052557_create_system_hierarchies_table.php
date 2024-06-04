@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('hierarchy_name');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
-         
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');         
             $table->timestamps();
         });
     }
