@@ -107,6 +107,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('apply', 'AdvanceLoanApplyController')->except('create', 'show', 'edit');
         Route::resource('approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
+    // SIFAREG
+    Route::namespace('Sifa')->prefix('sifa')->group(function() {
+        Route::resource('sifa-registrations', 'SifaRegistrationController')->except('create', 'show', 'edit');
+        
+    });
+
 
     Route::get('getgewogbydzongkhag/{id}', 'Master\VillageController@getGewog');
 });
