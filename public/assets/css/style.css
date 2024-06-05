@@ -16060,7 +16060,7 @@ a.chip:hover {
 }
 
 #back-to-top:hover {
-    background: #fff !important;
+    background: #00c5fb !important;
 }
 
 .features {
@@ -22681,12 +22681,14 @@ a.chip:hover {
 }
 
 #back-to-top {
-    background-image: linear-gradient(to bottom right, var(--primary-bg-color) 0%, var(--primary06) 100%);
+    background-color: rgb(11, 98, 164);
 }
 
 #back-to-top:hover {
-    color: var(--primary-bg-color) !important;
-    border: 2px solid var(--primary-bg-color);
+    color: #fff !important;
+    
+  
+    /* border: 2px solid var(--primary-bg-color); */
 }
 
 .tabs-menu1 ul li .active {
@@ -42989,7 +42991,7 @@ body.rtl {
 .side-menu__item.active {
     text-decoration: none;
     color: #fff;
-    background: linear-gradient(to bottom right, var(--primary-bg-color) 0%, var(--primary06) 100%);
+    background: rgb(11, 98, 164);
     border-radius: 0 60px 60px 0;
     box-shadow: 0 7px 12px 0 var(--primary02);
 }
@@ -42998,7 +43000,7 @@ body.rtl {
 .side-menu__item.active:focus {
     text-decoration: none;
     color: #fff;
-    background: linear-gradient(to bottom right, var(--primary-bg-color) 0%, var(--primary06) 100%) !important;
+    background:  rgb(11, 98, 164) !important;
     border-radius: 0 60px 60px 0;
     box-shadow: 0 7px 12px 0 var(--primary02);
 }
@@ -43006,14 +43008,14 @@ body.rtl {
 .side-menu__item:hover,
 .side-menu__item:focus {
     text-decoration: none;
-    color: var(--primary-bg-color);
+    color: rgb(11, 98, 164);
     background: #f9fbfd !important;
     border-radius: 0 60px 60px 0;
 }
 
 .side-menu__item:hover .side-menu__label,
 .side-menu__item:focus .side-menu__label {
-    color: var(--primary-bg-color) !important;
+    color:  rgb(11, 98, 164) !important;
 }
 
 @media (min-width: 992px) {
