@@ -64,7 +64,7 @@
                         <div class="card-header bg-primary-dark">
                             <h3 class="card-title">New Advance/Loan</h3>
                             <div class="card-options">
-                                <button type="button" class="btn-card-option" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="btn-card-option" data-bs-dismiss="modal" aria-label="Close">
                                     <i class="si si-close"></i>
                                 </button>
                             </div>
@@ -97,7 +97,7 @@
                         <div class="card-header bg-primary-dark">
                             <h3 class="card-title">Edit Advance/Loan</h3>
                             <div class="card-options">
-                                <button type="button" class="btn-card-option" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="btn-card-option" data-bs-dismiss="modal" aria-label="Close">
                                     <i class="si si-close"></i>
                                 </button>
                             </div>
@@ -113,7 +113,7 @@
                         <button type="submit" class="btn btn-alt-primary">
                             <i class="fa fa-check"></i> Update
                         </button>
-                        <button type="button" class="btn btn-alt-danger" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-alt-danger" data-bs-dismiss="modal">Close</button>
                     </div>
                 </form>
             </div>

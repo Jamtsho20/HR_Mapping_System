@@ -13,9 +13,7 @@
     }
 </style>
 
-<div class="col-sm-4">
-    <h5>Attendance Register</h5>
-</div>
+
 
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
@@ -39,7 +37,7 @@
                     <select class="form-control" name="region">
                         <option value="" disabled selected hidden>Select</option>
                         @foreach ($regions as $region)
-                        <option value="{{ $region->id }}">{{ $region->region_name  }}</option>
+                            <option value="{{ $region->id }}">{{ $region->region_name  }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -51,7 +49,7 @@
                     <select class="form-control" name="department">
                         <option value="" disabled selected hidden>Select</option>
                         @foreach ($departments as $department)
-                        <option value="{{ $department->id }}">{{ $department->name  }}</option>
+                            <option value="{{ $department->id }}">{{ $department->name  }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -60,7 +58,7 @@
             <div class="col-md-2">
                 <div class="form-group form-focus focused">
                     <label class="control-label">Location</label>
-                    <select class="form-control floating myclass input_search" id="ddl_location" name="ddl_location">
+                    <select class="form-control  myclass input_search" id="ddl_location" name="ddl_location">
                         <option value="0">Select</option>
                         <option value="1">TICL_Thimphu Head Office</option>
                         <option value="2">TICL_Autsho Extension</option>
@@ -75,7 +73,7 @@
             <div class="col-md-2">
                 <div class="form-group form-focus focused">
                     <label class="control-label">Year</label>
-                    <select class="form-control floating myclass input_search" id="ddl_year">
+                    <select class="form-control  myclass input_search" id="ddl_year">
                         <option value="0">Select</option>
                         <option value="2021">2021</option>
                         <option value="2022">2022</option>
@@ -92,7 +90,7 @@
             <div class="col-md-2">
                 <div class="form-group form-focus focused">
                     <label class="control-label">Select Month</label>
-                    <select class="form-control floating myclass input_search" id="ddl_month">
+                    <select class="form-control  myclass input_search" id="ddl_month">
                         <option value="0">Select </option>
                         <option value="1">Jan</option>
                         <option value="2">Feb</option>
@@ -112,64 +110,95 @@
             </div>
             @endcomponent
 
-            <div class="row">
-                <div class="col-3">
-
-                    <label style="float:left">Show &nbsp;</label>
-                    <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
-                        <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet" class="form-control">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
+            <div class="row row-sm">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Attendance Register</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="dataTables_length" id="responsive-datatable_length"
+                                                data-select2-id="responsive-datatable_length">
+                                                <label data-select2-id="26">
+                                                    Show
+                                                    <select class="select2">
+                                                        <option value="10">10</option>
+                                                        <option value="25">25</option>
+                                                        <option value="50">50</option>
+                                                        <option value="100">100</option>
+                                                    </select>
+                                                    entries
+                                                </label>
+                                            </div>
+                                            <div class="dataTables_scroll">
+                                                <div class="dataTables_scrollHead"
+                                                    style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                                    <div class="dataTables_scrollHeadInner"
+                                                        style="box-sizing: content-box; padding-right: 0px;">
+                                                        <table
+                                                            class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                            id="basic-datatable table-responsive">
+                                                            <thead>
+                                                                <tr role="row">
+                                                                    <th>
+                                                                        Employee
+                                                                    </th>
+                                                                    <th>
+                                                                        Present
+                                                                    </th>
+                                                                    <th>
+                                                                        Leave
+                                                                    </th>
+                                                                    <th>
+                                                                        Holiday
+                                                                    </th>
+                                                                    <th>
+                                                                        Leave WP
+                                                                    </th>
+                                                                    <th>
+                                                                        Weekly off
+                                                                    </th>
+                                                                    <th>
+                                                                        Pay Day
+                                                                    </th>
+                                                                    <th>
+                                                                        Status
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Adrian</td>
+                                                                    <td>Terry</td>
+                                                                    <td>Casual</td>
+                                                                    <td>2013/04/21</td>
+                                                                    <td>$543,769</td>
+                                                                    <td>0.5</td>
+                                                                    <td>0.5</td>
+                                                                    <td><span class="badge bg-success">Approved</span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    &nbsp;
-                    <label>entries</label>
-                </div>
-
-                <div class="col-3">
-                    <input type="text" name="search" class="form-control" value="" placeholder="Search">
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
-<div class="block-content">
-    <table class="table table-bordered table-sm table-striped">
-        <thead class="thead-light">
-            <tr>
-                <th>#</th>
-                <th>Employee</th>
-                <th>Present</th>
-                <th>Leave</th>
-                <th>Holiday</th>
-                <th>Leave WP</th>
-                <th>Weekly Off</th>
-                <th>Pay Day</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>Kinga</td>
-                <td>02/08/2022</td>
-                <td>02/08/2022</td>
-                <td>0.5</td>
-                <td>0.5</td>
-                <td>0.5</td>
-                <td>0.5</td>
-                <td><span class="badge bg-success">Approved</span></td>
-            </tr>
-            <tr>
-                <td colspan="10" class="text-center text-danger">No Data found</td>
-            </tr>
 
-        </tbody>
-    </table>
-</div>
 
 @endsection

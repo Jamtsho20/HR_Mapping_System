@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Holiday List')
+@section('page-title', 'Leave')
 @section('content')
 
 
@@ -114,7 +114,7 @@
                     <button type="submit" class="btn-sm btn-primary">
                         <i class="fa fa-check"></i> Apply Leave
                     </button>
-                    <button type="button" class="btn-sm btn-danger" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn-sm btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
@@ -181,7 +181,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fa fa-check"></i> Submit
                     </button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </form>
         </div>

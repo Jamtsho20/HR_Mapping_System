@@ -58,7 +58,7 @@
             <div class="col-md-2">
                 <div class="form-group form-focus focused">
                     <label class="control-label">Location</label>
-                    <select class="form-control floating myclass input_search" id="ddl_location" name="ddl_location">
+                    <select class="form-control  myclass input_search" id="ddl_location" name="ddl_location">
                         <option value="0">Select</option>
                         <option value="1">TICL_Thimphu Head Office</option>
                         <option value="2">TICL_Autsho Extension</option>
@@ -73,7 +73,7 @@
             <div class="col-md-2">
                 <div class="form-group form-focus focused">
                     <label class="control-label">Year</label>
-                    <select class="form-control floating myclass input_search" id="ddl_year">
+                    <select class="form-control  myclass input_search" id="ddl_year">
                         <option value="0">Select</option>
                         <option value="2021">2021</option>
                         <option value="2022">2022</option>
@@ -90,7 +90,7 @@
             <div class="col-md-2">
                 <div class="form-group form-focus focused">
                     <label class="control-label">Select Month</label>
-                    <select class="form-control floating myclass input_search" id="ddl_month">
+                    <select class="form-control  myclass input_search" id="ddl_month">
                         <option value="0">Select </option>
                         <option value="1">Jan</option>
                         <option value="2">Feb</option>

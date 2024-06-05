@@ -16,7 +16,7 @@
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> SAVE
         </button>
-        <a href="{{url('master/regions')}}" class="btn btn-danger" data-dismiss="modal">CANCEL</a>
+        <a href="{{url('master/regions')}}" class="btn btn-danger" data-bs-dismiss="modal">CANCEL</a>
     </div>
 </form>
 @include('layouts.includes.delete-modal')

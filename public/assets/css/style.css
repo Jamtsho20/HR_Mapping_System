@@ -22260,8 +22260,8 @@ a.text-primary:focus {
 
 .btn-primary {
     color: #fff !important;
-    background: var(--primary-bg-color) !important;
-    border-color: var(--primary-bg-color) !important;
+    background: #007bff !important;
+    /* border-color: var(--primary-bg-color) !important; */
 }
 
 .btn-primary:hover {

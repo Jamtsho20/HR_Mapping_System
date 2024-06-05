@@ -162,7 +162,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fa fa-check"></i>Submit
                     </button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
