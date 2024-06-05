@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Leave Approval')
+@section('page-title', 'Sifa Registration')
 @section('content')
 
 
