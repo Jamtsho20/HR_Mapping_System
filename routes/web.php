@@ -114,5 +114,11 @@ Route::middleware('auth')->group(function () {
     });
 
 
+    // Eployee
+    Route::namespace('Employee')->prefix('employee')->group(function () {
+        Route::resource('employee-lists', 'EmployeeController')->except('create', 'show', 'edit');
+
+    });
+
     Route::get('getgewogbydzongkhag/{id}', 'Master\VillageController@getGewog');
 });
