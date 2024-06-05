@@ -15,7 +15,7 @@
                         <label for="hierarchy_name">hierarchy Name *</label>
                         <input type="text" class="form-control" name="hierarchy_name" value="{{  $hierarchy->hierarchy_name}}"  readonly>
                     </div>
-                </div>
+                </div> 
                 <div class="col-md-9">
                     <div class="table-responsive">
                         <table id="hierarchies" class="table table-condensed table-bordered table-striped table-sm">
