@@ -23,6 +23,8 @@
                             <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
                                 <div class="d-flex order-lg-2">
                                     <!-- Theme-Layout -->
+
+                                    
                                     <div class="dropdown d-md-flex">
                                         <a class="nav-link icon full-screen-link nav-link-bg">
                                             <i class="fe fe-minimize fullscreen-button"></i>
