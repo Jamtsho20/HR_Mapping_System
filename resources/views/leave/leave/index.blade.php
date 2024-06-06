@@ -203,38 +203,54 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-body">
-                    <table class="table table-bordered table-sm table-striped">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Employee</th>
-                                <th>Leave Type</th>
-                                <th>Opening balance</th>
-                                <th>Current Entitlement</th>
-                                <th>Leaves Availed</th>
-                                <th>Closing balance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <tr>
-                                <td>1</td>
-                                <td>Kinga</td>
-                                <td>Casual</td>
-                                <td>2.5</td>
-                                <td>7</td>
-                                <td>1</td>
-                                <td>9</td>
-
-                            </tr>
-                            <tr>
-                                <td colspan="8" class="text-center text-danger">No Data found</td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div>
+                <div class="dataTables_scroll">
+                    <div class="dataTables_scrollHead"
+                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                        <div class="dataTables_scrollHeadInner"
+                            style="box-sizing: content-box; padding-right: 0px;">
+                            <table
+                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                id="basic-datatable table-responsive">
+                                <thead>
+                                    <tr role="row">
+                                        <th>
+                                            #
+                                        </th>
+                                        <th>
+                                            EMPLOYEE
+                                        </th>
+                                        <th>
+                                            LEAVE TYPE
+                                        </th>
+                                        <th>
+                                            OPENING BALANCE
+                                        </th>
+                                        <th>
+                                            CURRENT ENTITLEMENT
+                                        </th>
+                                        <th>
+                                            LEAVES AVAILED
+                                        </th>
+                                        <th>
+                                            CLOSING BALANCE
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Kinga</td>
+                                        <td>Casual</td>
+                                        <td>7</td>
+                                        <td>8</td>
+                                        <td>1</td>
+                                        <td>9</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            </div>
             </div>
             <div class="modal-footer">
 
