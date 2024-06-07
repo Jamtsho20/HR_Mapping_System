@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('page-title', 'Expense Approval')
+@section('page-title', 'Advance Loan Delegation')
 @section('content')
 
 <div class="block">
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="expense" class="form-control" value="{{ request()->get('expense') }}"
+            <input type="text" name="loandelegation" class="form-control" value="{{ request()->get('loandelegation') }}"
                 placeholder="Search">
         </div>
         @endcomponent
