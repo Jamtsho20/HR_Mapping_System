@@ -11,11 +11,12 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="employeement-type" class="form-control" value="{{ request()->get('employee-type') }}" placeholder="Search">
+            <input type="text" name="employeement-type" class="form-control" value="{{ request()->get('employeement-type') }}" placeholder="Search">
         </div>
         @endcomponent
 
     </div>
+
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -51,7 +52,7 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            EMPLOYEE type
+                                                            EMPLOYEE TYPE
                                                         </th>
                                                         <th>
                                                            REMARKS

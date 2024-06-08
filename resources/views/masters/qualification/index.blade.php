@@ -6,8 +6,8 @@
 @endsection
 @endif
 @section('content')
-<div class="card">
-    <div class="card-header">
+<div class="block">
+    <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
             <input type="text" name="qualification" class="form-control" value="{{ request()->get('qualification') }}" placeholder="Qualification">
@@ -15,38 +15,79 @@
         @endcomponent
 
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table border table-sm table-hover text-nowrap text-md-nowrap table-bordered mg-b-0">
-                <thead class="thead-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Qualification</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($qualification as $type)
-                    <tr>
-                        <td>{{ $qualification->firstItem() + ($loop->iteration - 1) }}</td>
-                        <td>{{ $type->name }}</td>
+    <div class="row row-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="dataTables_length" id="responsive-datatable_length"
+                                        data-select2-id="responsive-datatable_length">
+                                            <label data-select2-id="26">
+                                                Show
+                                                    <select class="select2">
+                                                        <option value="10">10</option>
+                                                        <option value="25">25</option>
+                                                        <option value="50">50</option>
+                                                        <option value="100">100</option>
+                                                    </select>
+                                                entries
+                                            </label>
+                                    </div>
+                                <div class="dataTables_scroll">
+                                    <div class="dataTables_scrollHead"
+                                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                        <div class="dataTables_scrollHeadInner"
+                                            style="box-sizing: content-box; padding-right: 0px;">
+                                            <table
+                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                id="basic-datatable table-responsive">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>
+                                                            #
+                                                        </th>
+                                                        <th>
+                                                           QUALIFICATION
+                                                        </th>                                                 
+                                                        <th>
+                                                            ACTION
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                    <tbody>
+                                                        @forelse($qualification as $type)
+                                                        <tr>
+                                                            <td>{{ $qualification->firstItem() + ($loop->iteration - 1) }}</td>
+                                                            <td>{{ $type->name }}</td>
 
-                        <td class="text-center">
-                            @if ($privileges->edit)
-                            <a href="{{ url('master/qualifications/'.$type->id .'/edit') }}" data-name="{{ $type->name }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                            @endif
-                            @if ($privileges->delete)
-                            <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/qualifications/'.$type->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center text-danger">No Qualifications found</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                                            <td class="text-center">
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('master/qualifications/'.$type->id .'/edit') }}" data-name="{{ $type->name }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/qualifications/'.$type->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-danger">No Qualifications found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </div> 
+                            </div> 
+                        </div> 
+                    </div>    
+                </div>
+            </div>  
         </div>
     </div>
         @if ($qualification->hasPages())
@@ -54,7 +95,7 @@
             {{ $qualification->links() }}
         </div>
         @endif
-    </div>
+</div>
 
 
     @include('layouts.includes.delete-modal')
