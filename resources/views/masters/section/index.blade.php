@@ -64,18 +64,21 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            DEPARTMENT
+                                                            SECTION NAME
                                                         </th>
                                                         <th>
-                                                           SECTION
+                                                           SECTION HEAD
                                                         </th>                                                      
                                                         <th>
-                                                            ACTION
+                                                            DEPARTMENT NAME
+                                                        </th>
+                                                        <th>
+                                                            STATUS
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                     <tbody>
-                                                        @forelse($sections as $section)
+                                                        <!-- @forelse($sections as $section)
                                                         <tr>
                                                             <td>{{ $sections->firstItem() + ($loop->iteration - 1) }}</td>
                                                             <td>{{ $section->department->name }}</td>
@@ -95,7 +98,12 @@
                                                         <tr>
                                                             <td colspan="4" class="text-center text-danger">No Sections found</td>
                                                         </tr>
-                                                        @endforelse
+                                                        @endforelse -->
+                                                        <td>1</td>
+                                                        <td>ISP ACCESS</td>
+                                                        <td>KARMA   </td>
+                                                        <td>ACCESS NETWORK</td>
+                                                        <td><span class="badge bg-success">Approved</span></td>
                                                     </tbody>
                                                 </table>
                                             </div>

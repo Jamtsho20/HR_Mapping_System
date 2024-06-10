@@ -50,18 +50,15 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            SHORT NAME
-                                                        </th>
-                                                        <th>
-                                                           NAME
+                                                            DESIGNATION
                                                         </th>                                                      
                                                         <th>
-                                                            ACTION
+                                                            STATUS
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                     <tbody>
-                                                        @forelse($designations as $designation)
+                                                        <!-- @forelse($designations as $designation)
                                                         <tr>
                                                             <td>{{ $designations->firstItem() + ($loop->iteration - 1) }}</td>
                                                             <td>{{ $designation->name }}</td>
@@ -79,7 +76,10 @@
                                                         <tr>
                                                             <td colspan="4" class="text-center text-danger">No designations found</td>
                                                         </tr>
-                                                        @endforelse
+                                                        @endforelse -->
+                                                        <td>1</td>
+                                                        <td>General Manager</td>
+                                                        <td><span class="badge bg-success">Approved</span></td>
                                                     </tbody>
                                                 </table>
                                             </div>

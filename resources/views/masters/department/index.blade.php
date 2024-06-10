@@ -50,20 +50,23 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            EMPLOYEE type
+                                                            DEPARTMENT NAME
                                                         </th>
                                                         <th>
-                                                           REMARKS
+                                                           HEAD
                                                         </th>                                                      
+                                                        <th>
+                                                            STATUS
+                                                        </th>
                                                         <th>
                                                             ACTION
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                     <tbody>
-                                                        @forelse($departments as $department)
-                                                        <tr>
-                                                            <td>{{ $departments->firstItem() + ($loop->iteration - 1) }}</td>
+                                                        <!-- @forelse($departments as $department)
+                                                        <tr> -->
+                                                            <!-- <td>{{ $departments->firstItem() + ($loop->iteration - 1) }}</td>
                                                             <td>{{ $department->short_name }}</td>
                                                             <td>{{$department->name}}</td>
                                                             <td class="text-center">
@@ -79,7 +82,12 @@
                                                         <tr>
                                                             <td colspan="4" class="text-center text-danger">No Departments found</td>
                                                         </tr>
-                                                        @endforelse
+                                                        @endforelse -->
+                                                        <td>1</td>
+                                                        <td>SAAS</td>
+                                                        <td>DECHEN</td>
+                                                        <td>ACTIVE</td>
+                                                        <td><span class="badge bg-success">Approved</span></td>
                                                     </tbody>
                                                 </table>
                                             </div>
