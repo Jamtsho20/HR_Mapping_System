@@ -6,8 +6,8 @@
 @endsection
 @endif
 @section('content')
-<div class="card">
-    <div class="card-header">
+<div class="block">
+    <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="form-group ">
             <div class="row">
@@ -47,24 +47,34 @@
                         <td>{{ $section->department->name }}</td>
                         <td>{{ $section->name }}</td>
 
-                        <td class="text-center">
-                            @if ($privileges->edit)
-                            <a href="{{ url('master/section/'.$section->id .'/edit') }}" data-name="{{ $section->name }} " data-department-id="{{ $section->mas_department_id }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i>
-                                EDIT</a>
-                            @endif
-                            @if ($privileges->delete)
-                            <a href="#" class="delete-btn  btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/section/'.$section->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center text-danger">No Sections found</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                                                            <td class="text-center">
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('master/section/'.$section->id .'/edit') }}" data-name="{{ $section->name }} " data-department-id="{{ $section->mas_department_id }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i>
+                                                                    EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn  btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/section/'.$section->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-danger">No Sections found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </div> 
+                            </div> 
+                        </div> 
+                    </div>    
+                </div>
+            </div>  
+        </div>                                       
+    </div>
     </div>
         @if ($sections->hasPages())
         <div class="card-footer">

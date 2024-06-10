@@ -6,8 +6,8 @@
 @endsection
 @endif
 @section('content')
-<div class="card">
-    <div class="card-header ">
+<div class="block">
+    <div class="block-header block-header-default ">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
             <input type="text" name="dzongkhag" class="form-control" value="{{ request()->get('dzongkhag') }}" placeholder="Dzongkhag">
@@ -53,7 +53,7 @@
             {{ $dzongkhags->links() }}
         </div>
         @endif
-    </div>
+</div>
 
 
     @include('layouts.includes.delete-modal')

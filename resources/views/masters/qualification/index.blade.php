@@ -6,8 +6,8 @@
 @endsection
 @endif
 @section('content')
-<div class="card">
-    <div class="card-header">
+<div class="block">
+    <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
             <input type="text" name="qualification" class="form-control" value="{{ request()->get('qualification') }}" placeholder="Qualification">
@@ -31,22 +31,31 @@
                         <td>{{ $qualification->firstItem() + ($loop->iteration - 1) }}</td>
                         <td>{{ $type->name }}</td>
 
-                        <td class="text-center">
-                            @if ($privileges->edit)
-                            <a href="{{ url('master/qualifications/'.$type->id .'/edit') }}" data-name="{{ $type->name }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                            @endif
-                            @if ($privileges->delete)
-                            <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/qualifications/'.$type->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center text-danger">No Qualifications found</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                                            <td class="text-center">
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('master/qualifications/'.$type->id .'/edit') }}" data-name="{{ $type->name }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/qualifications/'.$type->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-danger">No Qualifications found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </div> 
+                            </div> 
+                        </div> 
+                    </div>    
+                </div>
+            </div>  
         </div>
     </div>
         @if ($qualification->hasPages())
@@ -54,7 +63,7 @@
             {{ $qualification->links() }}
         </div>
         @endif
-    </div>
+</div>
 
 
     @include('layouts.includes.delete-modal')

@@ -6,8 +6,8 @@
 @endsection
 @endif
 @section('content')
-<div class="card">
-    <div class="card-header ">
+<div class="block">
+    <div class="card-block-header block-header-default ">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
             <input type="text" name="department" class="form-control" value="{{ request()->get('department') }}" placeholder="Department">

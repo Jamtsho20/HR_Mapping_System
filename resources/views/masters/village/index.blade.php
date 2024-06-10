@@ -6,8 +6,8 @@
 @endsection
 @endif
 @section('content')
-<div class="card">
-    <div class="card-header ">
+<div class="block">
+    <div class="block-header block-header-default ">
         @component('layouts.includes.filter')
         <div class="form-group">
             <div class="row">
@@ -81,11 +81,11 @@
             </table>
         </div>
     </div>
-    @if ($villages->hasPages())
-    <div class="card-footer">
-        {{ $villages->links() }}
-    </div>
-    @endif
+        @if ($villages->hasPages())
+        <div class="card-footer">
+            {{ $villages->links() }}
+        </div>
+        @endif
 </div>
 
 @include('layouts.includes.delete-modal')

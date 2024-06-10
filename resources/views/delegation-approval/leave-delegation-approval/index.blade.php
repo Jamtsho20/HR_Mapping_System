@@ -6,7 +6,7 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}"
+            <input type="text" name="leave_delegation" class="form-control" value="{{ request()->get('leave_delegation') }}"
                 placeholder="Search">
         </div>
         

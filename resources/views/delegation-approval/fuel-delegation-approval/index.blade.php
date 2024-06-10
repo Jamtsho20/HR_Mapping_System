@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('page-title', 'Fuel Approval')
+@section('page-title', 'Fuel Delegation Approval')
 @section('content')
 
 <div class="block">
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="employee" class="form-control" value="{{ request()->get('employee') }}"
+            <input type="text" name="fuel" class="form-control" value="{{ request()->get('fuel') }}"
                 placeholder="Search">
         </div>
         @endcomponent
