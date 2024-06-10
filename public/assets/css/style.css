@@ -145,7 +145,9 @@ License        :   Licensed under ThemeForest License
 --- width
 */
 /* ######## FONT ######## */
-@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900");
+/* @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900"); */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 /* ######## BOOTSTRAP ######## */
 /*Color variables*/
@@ -155,7 +157,7 @@ License        :   Licensed under ThemeForest License
 /*shadow variables*/
 /* ###### Bootstrap ###### */
 :root {
-    --primary-bg-color: #6259ca;
+    --primary-bg-color: #0066aa;
     --primary-bg-hover: #233ac5;
     --primary-bg-border: #5161c1;
     --dark-theme: #30304d;
@@ -186,7 +188,7 @@ License        :   Licensed under ThemeForest License
     --breakpoint-md: 768px;
     --breakpoint-lg: 992px;
     --breakpoint-xl: 1200px;
-    --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Poppins, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
@@ -227,7 +229,7 @@ section {
 
 body {
     margin: 0;
-    font-family: "Roboto", sans-serif;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 1.5;
@@ -7743,7 +7745,7 @@ a.card-tabs-item.active {
     display: none;
     float: left;
     min-width: 10rem;
-    padding: 0.5rem 0;
+    /* padding: 0.5rem 0; */
     margin: 0.125rem 0 0;
     font-size: 0.9375rem;
     color: #495057;
