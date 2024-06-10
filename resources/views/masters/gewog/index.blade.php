@@ -6,79 +6,94 @@
 @endsection
 @endif
 @section('content')
-<div class="block">
-    <div class="block-header block-header-default">
-        @component('layouts.includes.filter')
-        <div class="form-group">
-            <div class="row">
-                <div class="col-4">
-                    <select class="form-control" id="dzongkhag" name="dzongkhag">
-                        <option value="" disabled selected hidden>Select Dzongkhag</option>
-                        @foreach ($dzongkhags as $dzongkhag)
-                        <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
-                            {{ $dzongkhag->dzongkhag  }}
-                        </option>
-                        @endforeach
-                    </select>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="block">
+            <div class="block-header block-header-default">
+                @component('layouts.includes.filter')
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-4">
+                            <select class="form-control" id="dzongkhag" name="dzongkhag">
+                                <option value="" disabled selected hidden>Select Dzongkhag</option>
+                                @foreach ($dzongkhags as $dzongkhag)
+                                <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
+                                    {{ $dzongkhag->dzongkhag  }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <input type="text" name="gewog" class="form-control" value="{{ request()->get('name') }}" placeholder="Gewog">
+                        </div>
+                        @endcomponent
+                    </div>
                 </div>
-                <div class="col-4">
-                    <input type="text" name="gewog" class="form-control" value="{{ request()->get('name') }}" placeholder="Gewog">
-                </div>
-                @endcomponent
+
+
             </div>
-        </div>
+            <br>
+            <div class="row row-sm">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Dzongkhag</th>
+                                            <th>Gewog</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($gewogs as $gewog )
+                                        <tr>
+                                            <td>{{ $gewogs->firstItem() + ($loop->iteration - 1) }}</td>
+                                            <td>{{ $gewog->dzongkhag->dzongkhag }}</td>
+                                            <td>{{ $gewog->name }}</td>
+                                            <td class="text-center">
+                                                @if ($privileges->edit)
+                                                <a href="{{ url('master/gewogs/'.$gewog->id .'/edit') }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                    <i class="fa fa-edit"></i> EDIT
+                                                </a>
+                                                @endif
+                                                @if ($privileges->delete)
+                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/gewogs/'.$gewog->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center text-danger">No gewogs found</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @if ($gewogs->hasPages())
+                        <div class="card-footer">
+                            {{ $gewogs->links() }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
 
-
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
-                <thead class="thead-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Dzongkhag</th>
-                        <th>Gewog</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($gewogs as $gewog )
-                    <tr>
-                        <td>{{ $gewogs->firstItem() + ($loop->iteration - 1) }}</td>
-                        <td>{{ $gewog->dzongkhag->dzongkhag }}</td>
-                        <td>{{ $gewog->name }}</td>
-                        <td class="text-center">
-                            @if ($privileges->edit)
-                            <a href="{{ url('master/gewogs/'.$gewog->id .'/edit') }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
-                                <i class="fa fa-edit"></i> EDIT
-                            </a>
-                            @endif
-                            @if ($privileges->delete)
-                            <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/gewogs/'.$gewog->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center text-danger">No gewogs found</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
         </div>
     </div>
-        @if ($gewogs->hasPages())
-        <div class="card-footer">
-            {{ $gewogs->links() }}
-        </div>
-        @endif
+    <!--End Row-->
 </div>
 
 
-    @include('layouts.includes.delete-modal')
-    @endsection
-    @push('page_scripts')
-    <!-- <script>
+
+@include('layouts.includes.delete-modal')
+@endsection
+@push('page_scripts')
+<!-- <script>
     $(document).ready(function() {
         $('.edit-btn').click(function(e) {
             e.preventDefault();
@@ -99,4 +114,4 @@
     });
 
 </script> -->
-    @endpush
+@endpush
