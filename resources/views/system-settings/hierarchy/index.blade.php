@@ -20,7 +20,7 @@
             </div>
             <div class="card-body  p-0">
                 <div class="table-responsive">
-                    <table class="table border table-condensed table-sm table-bordered table-hoverr">
+                    <table class="table border table-condensed table-sm table-borderedr">
 
                         <tr class="thead-light">
                             <th>#</th>
@@ -35,7 +35,7 @@
                                 <td>{{ $hierarchies->firstItem() + ($loop->iteration - 1)}}</td>
                                 <td>{{ $hierarchy->hierarchy_name }}</td>
                                 <td>
-                                    <table class="table border table-condensed table-sm table-bordered table-hover">
+                                    <table class="table border table-condensed table-sm table-bordered">
                                         <tbody>
                                             <tr>
                                                 <th>Level</th>

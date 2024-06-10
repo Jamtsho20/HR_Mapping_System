@@ -31,7 +31,7 @@
                 <h3 class="card-title">Add / Edit Permissions</h3>
 			</div>
 			<div class="card-body p-0">
-				<table id="set-access" class="table table-bordered table-hover table-sm">
+				<table id="set-access" class="table table-bordered table-sm">
 					<thead class="thead-light">
 						<th>Main Module</th>
 						<th>Sub Module</th>

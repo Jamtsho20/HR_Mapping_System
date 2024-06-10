@@ -30,7 +30,7 @@
 				<h3 class="card-title">Assign Permission</h3>
 			</div>
 			<div class="card-body p-0">
-				<table id="set-access" class="table table-condensed table-sm table-bordered table-hover">
+				<table id="set-access" class="table table-condensed table-sm table-bordered">
 					<thead class="thead-light">
 						<th>Main Module</th>
 						<th>Sub Module</th>
