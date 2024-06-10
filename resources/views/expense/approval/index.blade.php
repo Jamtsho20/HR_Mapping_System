@@ -12,15 +12,19 @@
         @endcomponent
         <div class="block-options">
             <div class="row" style="float:right;">
-                <div class="col-4">
-                    <label>Approval Status:</label>
-                </div>
+             
                 <div class=" col-6 ">
-                    <select class="form-control" id="ddl_employee_id" name="ddl_employee_id">
-                        <option value="" disabled selected hidden>Select</option>
-                        <option value="">Pending</option>
-                        <option value="">Approved</option>
-                    </select>
+                    <div class="btn-group mt-2 mb-2">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
+                            Approval Status
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" >
+                            <li><a href="javascript:void(0);">Pending</a></li>
+                            <li><a href="javascript:void(0);">Approved</a></li>
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -102,6 +106,7 @@
                                                             <td>Money</td>
                                                             <td><span class="badge bg-success">Approved</span>
                                                             </td>
+                                                            
                                                         </tr>
                                                     </tbody>
                                                 </table>

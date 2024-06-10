@@ -18,7 +18,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table border table-sm table-hover text-nowrap text-md-nowrap table-bordered mg-b-0">
+            <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
                 <thead>
                     <tr class="thead-light">
                         <th>#</th>
