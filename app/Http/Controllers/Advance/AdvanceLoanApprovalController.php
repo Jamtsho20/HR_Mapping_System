@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class AdvanceLoanApprovalController extends Controller
 {
+         
     /**
      * Display a listing of the resource.
      *
@@ -14,14 +15,17 @@ class AdvanceLoanApprovalController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:advance-loan/approval, view')->only('index');
-        $this->middleware('permission:advance-loan/approval, create')->only('store');
-        $this->middleware('permission:advance-loan/approval, edit')->only('update');
-        $this->middleware('permission:advance-loan/approval, delete')->only('destroy');
+        $this->middleware('permission:advance-loan/advance-loan-approval,view')->only('index');
+        $this->middleware('permission:advance-loan/advance-loan-approval,create')->only('store');
+        $this->middleware('permission:advance-loan/advance-loan-approval,edit')->only('update');
+        $this->middleware('permission:advance-loan/advance-loan-approval,delete')->only('destroy');
     }
+
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
+
                
         return view('advance-loan.approval.index', compact( 'privileges'));
     }

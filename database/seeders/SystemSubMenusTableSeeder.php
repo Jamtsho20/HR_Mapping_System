@@ -64,7 +64,7 @@ class SystemSubMenusTableSeeder extends Seeder
 
             //submenu for advance/loans
             ['system_menu_id' => 6, 'name' => 'Apply', 'route' => 'advance-loan/apply', 'display_order' => 1],
-            ['system_menu_id' => 6, 'name' => 'Approval', 'route' => 'advance-loan/approval', 'display_order' => 2],
+            ['system_menu_id' => 6, 'name' => 'Approval', 'route' => 'advance-loan/advance-loan-approval', 'display_order' => 2],
 
             //submenu for advance/loans
             ['system_menu_id' => 7, 'name' => 'Attendance Entry', 'route' => 'attendance/attendance-entry', 'display_order' => 1],

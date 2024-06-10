@@ -6,24 +6,22 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}"
-                placeholder="Search">
+            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}" placeholder="Search">
         </div>
         @endcomponent
         <div class="block-options">
             <div class="row" style="float:right">
                 <div class="col-6 ">
-                        <div class="btn-group mt-2 mb-2">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
-                                Approval Status
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" >
-                                <li><a href="javascript:void(0);">Pending</a></li>
-                                <li><a href="javascript:void(0);">Approved</a></li>
-                            </ul>
-                        </div>
-
+                    <div class="btn-group mt-2 mb-2">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
+                            Approval Status
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="javascript:void(0);">Pending</a></li>
+                            <li><a href="javascript:void(0);">Approved</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,10 +32,8 @@
                 <h5>Leave Approval</h5>
             </div>
             <div class="col-sm-6">
-                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
-                    value="Approve">
-                <input class="btn-sm  btn-danger buttonsubmit " data-value="reject" type="button" value="Reject"
-                    id="btn_reject">
+                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve" value="Approve">
+                <input class="btn-sm  btn-danger buttonsubmit " data-value="reject" type="button" value="Reject" id="btn_reject">
             </div>
         </div>
         <br>
@@ -49,8 +45,7 @@
                             <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <div class="dataTables_length" id="responsive-datatable_length"
-                                            data-select2-id="responsive-datatable_length">
+                                        <div class="dataTables_length" id="responsive-datatable_length" data-select2-id="responsive-datatable_length">
                                             <label data-select2-id="26">
                                                 Show
                                                 <select class="select2">
@@ -63,13 +58,9 @@
                                             </label>
                                         </div>
                                         <div class="dataTables_scroll">
-                                            <div class="dataTables_scrollHead"
-                                                style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                <div class="dataTables_scrollHeadInner"
-                                                    style="box-sizing: content-box; padding-right: 0px;">
-                                                    <table
-                                                        class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                        id="basic-datatable table-responsive">
+                                            <div class="dataTables_scrollHead" style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                                <div class="dataTables_scrollHeadInner" style="box-sizing: content-box; padding-right: 0px;">
+                                                    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                         <thead>
                                                             <tr role="row">
                                                                 <th>
@@ -109,16 +100,12 @@
                                                                 <td>0.5</td>
                                                                 <td class="text-center">
                                                                     @if ($privileges->edit)
-                                                                        <a href="" data-short_name="" data-name=""
-                                                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                                                class="fa fa-edit"></i>
-                                                                            EDIT</a>
+                                                                    <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i>
+                                                                        EDIT</a>
                                                                     @endif
                                                                     @if ($privileges->delete)
-                                                                        <a href="#"
-                                                                            class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                            data-url=""><i class="fa fa-trash"></i>
-                                                                            DELETE</a>
+                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
+                                                                        DELETE</a>
                                                                     @endif
                                                                 </td>
 
