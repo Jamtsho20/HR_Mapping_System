@@ -194,31 +194,11 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-3">
-                    <label style="float:left">Show &nbsp;</label>
-                    <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
-                        <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet" class="form-control">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-                    &nbsp;
-                    <label>entries</label>
-                </div>
-
-                <div class="col-3">
-                    <input type="text" name="search" class="form-control" value="" placeholder="Search">
-                </div>
-            </div>
+        
         </div>
 
     </div>
 </div>
-<div class="block-content">
 
-</div>
 
 @endsection
