@@ -80,6 +80,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');
         Route::resource('expense-fuel', 'ExpenseFuelController')->except('create', 'show', 'edit');
         Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
+        Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
+        Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
+        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
     });
 
     // LEAVE
