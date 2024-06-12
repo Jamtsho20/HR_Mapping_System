@@ -123,5 +123,12 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    //reports
+    Route::namespace('Reports')->prefix('report')->group(function() {
+        Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
+        Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
+        Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
+    });
+
     Route::get('getgewogbydzongkhag/{id}', 'Master\VillageController@getGewog');
 });

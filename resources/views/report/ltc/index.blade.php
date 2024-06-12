@@ -1,47 +1,76 @@
 @extends('layouts.app')
-@section('page-title', 'Requisition Approval')
+@section('page-title', 'Dashboard')
 @section('content')
+<style>
+    .col-md-2 {
+        -ms-flex: 0 0 16.666667%;
+        flex: 0 0 16.666667%;
+        max-width: 12.5%;
+    }
 
-<div class="block">
-    <div class="block-header block-header-default">
-        @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="reqapproval" class="form-control" value="{{ request()->get('reqapproval') }}"
-                placeholder="Search">
-        </div>
-        @endcomponent
-        <div class="block-options">
-            <div class="row" style="float:right;">
-             
-                <div class=" col-6 ">
-                    <div class="btn-group mt-2 mb-2">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
-                            Approval Status
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu" >
-                            <li><a href="javascript:void(0);">Pending</a></li>
-                            <li><a href="javascript:void(0);">Approved</a></li>
-                        </ul>
-                    </div>
+    .col-md-1 {
+        padding-top: 25px;
+    }
+</style>
 
+<div class="col-sm-6">
+    <h5>Leave Travel Concession (LTC) Report</h5>
+</div>
+<br>
+
+<div class="block-header block-header-default">
+   
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Select Year</label>
+                    <select class="form-control" name="year">
+                        <option value="" disabled selected hidden>Select</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Select Month</label>
+                    <select class="form-control" name="month">
+                        <option value="" disabled selected hidden>Select</option>
+                        <option value="jan">January</option>
+                        <option value="feb">February</option>
+                        <option value="mar">March</option>
+                        <option value="apr">April</option>
+                        <option value="may">May</option>
+                        <option value="jun">June</option>
+                        <option value="jul">July</option>
+                        <option value="aug">August</option>
+                        <option value="sep">September</option>
+                        <option value="oct">October</option>
+                        <option value="nov">November</option>
+                        <option value="dec">December</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label"></label>
+                    <button type="button" name="report" class="form-control btn btn-primary">
+                        {{ request()->get('report') ?? 'Search' }}
+                    </button>
                 </div>
             </div>
         </div>
-    </div>  
-    <div class="block-content">
-        <div class="block-options">
-            <div class="col-sm-8">
-                <h5>Requisition Approval</h5>
-            </div>
-            <div class="col-sm-6">
-                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
-                    value="Approve">
-                <input class="btn-sm  btn-danger buttonsubmit " data-value="reject" type="button" value="Reject"
-                    id="btn_reject">
-            </div>
-        </div>
-        <br>
+    </div>
+           
+            
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -77,36 +106,34 @@
                                                                 #
                                                             </th>
                                                             <th>
-                                                                EMPLOYEE
+                                                                CODE
                                                             </th>
                                                             <th>
-                                                                REQUISITION NO
+                                                                NAME
                                                             </th>
                                                             <th>
-                                                               REQUISITION DATE
+                                                                DESIGNATION
                                                             </th>
                                                             <th>
-                                                                ITEM CATEGORY
+                                                                LOCATION
                                                             </th>
                                                             <th>
-                                                                TOTAL AMOUNT
+                                                                D.O.A
                                                             </th>
                                                             <th>
-                                                                STATUS
+                                                                GRADE
+                                                            </th>
+                                                            <th>
+                                                                BASIC PAY
+                                                            </th>
+                                                            <th>
+                                                                DUE DATE
                                                             </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <tr>
-                                                            <td>1</td>
-                                                            <td>Kinga</td>
-                                                            <td>02/08/2022</td>
-                                                            <td>Amount</td>
-                                                            <td>5000</td>
-                                                            <td>Money</td>
-                                                            <td><span class="badge bg-success">Approved</span>
-                                                            </td>
-                                                            
+                                                            <td colspan="8" class="text-center text-danger">No Holiday found</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -124,9 +151,4 @@
 </div>
 
 
-
-
-@include('layouts.includes.delete-modal')
 @endsection
-@push('page_scripts')
-@endpush
