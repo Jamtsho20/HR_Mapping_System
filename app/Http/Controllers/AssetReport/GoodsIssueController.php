@@ -1,29 +1,27 @@
 <?php
 
-namespace App\Http\Controllers\Sifa;
+namespace App\Http\Controllers\AssetReport;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\SifaRegistration;
-use Illuminate\Support\Facades\Storage;
 
-class SifaRegistrationController extends Controller
+class GoodsIssueController extends Controller
 {
-     /**
+    /**
      * Display a listing of the resource.
      */
     public function __construct()
     {
-        $this->middleware('permission:sifa/sifa-registration,view')->only('index');
-        $this->middleware('permission:sifa/sifa-registration,create')->only('store');
-        $this->middleware('permission:sifa/sifa-registration,edit')->only('update');
-        $this->middleware('permission:sifa/sifa-registration,delete')->only('destroy');
+        $this->middleware('permission:asset-report/goods-issue,view')->only('index');
+        $this->middleware('permission:asset-report/goods-issue,create')->only('store');
+        $this->middleware('permission:asset-report/goods-issue,edit')->only('update');
+        $this->middleware('permission:asset-report/goods-issue,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
       
-        return view('sifa.sifa-registration.index',compact('privileges'));
+        return view('asset-report.goods-issue.index',compact('privileges'));
     }
     /**
      * Show the form for creating a new resource.
