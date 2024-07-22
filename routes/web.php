@@ -112,7 +112,7 @@ Route::middleware('auth')->group(function () {
     });
     //SIFAREG
         Route::namespace('Sifa')->prefix('sifa')->group(function() {
-            Route::resource('sifa-registration', 'SifaRegistrationController')->except('create', 'show', 'edit');
+            Route::resource('sifa-registration', 'SifaRegistrationController');
         
     });
 
@@ -134,15 +134,27 @@ Route::middleware('auth')->group(function () {
     });
 
     //AssetsReport
-    Route::namespace('AssetReport')->prefix('asset-report')->group(function() {
+    Route::namespace('Asset')->prefix('asset')->group(function() {
+        Route::resource('sub-store-master', 'SubStoreMasterController');
+        Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
+        Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
+        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
         Route::resource('goods-issue', 'GoodsIssueController')->except('create', 'show', 'edit');
+        Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt', 'GoodsReceiptController')->except('create', 'show', 'edit');
-        // Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
-        // Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
-        // Route::resource('advance-loan-report', 'AdvanceLoaReportController')->except('create', 'show', 'edit');
-        // Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
-        // Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
+        Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
+        Route::resource('commission', 'CommissionController')->except('create', 'show', 'edit');
+        Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
+        Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
+        Route::resource('asset-transfer', 'AssetTransferController')->except('create', 'show', 'edit');
+        Route::resource('transfer-history', 'TransferHistoryController')->except('create', 'show', 'edit');
+        Route::resource('transfer-approval', 'TransferApprovalController')->except('create', 'show', 'edit');
+        Route::resource('fixed-asset-return', 'FixedAssetReturnController')->except('create', 'show', 'edit');
+        Route::resource('fixed-asset-return-history', 'FixedAssetReturnHistoryController')->except('create', 'show', 'edit');
+        Route::resource('fixed-asset-return-approval', 'FixedAssetReturnApprovalController')->except('create', 'show', 'edit');
+        //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
+
 
     Route::get('getgewogbydzongkhag/{id}', 'Master\VillageController@getGewog');
 });

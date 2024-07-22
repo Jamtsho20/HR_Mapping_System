@@ -3,12 +3,12 @@
 @section('content')
 
 <style>
-        .form-border {
-            border: 2px solid #dee2e6;
-            border-radius: 5px;
-            padding: 20px;
-        }
-    </style>
+    .form-border {
+        border: 2px solid #dee2e6;
+        border-radius: 5px;
+        padding: 20px;
+    }
+</style>
 </head>
 <body>
     <div class="container mt-5">
@@ -22,18 +22,21 @@
                                     <div class="col-sm-12">
                                         <div class="dataTables_length" id="responsive-datatable_length" data-select2-id="responsive-datatable_length">
                                             <div class="form-group form-border">
-                                                <label for="sif_registration">Do you want to register for SIFA?</label>
-                                                <div class="form-check">
-                                                    <input type="radio" id="yes" name="sifa_registration" value="1" class="form-check-input">
-                                                    <label for="yes" class="form-check-label">Yes</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="radio" id="no" name="sifa_registration" value="0" class="form-check-input">
-                                                    <label for="no" class="form-check-label">No</label>
-                                                </div>
-                                                <br>
-                                                <button type="submit" class="btn btn-primary">Submit</button>
-
+                                                <form method="GET" action="{{ route('sifa-registration.create') }}">
+                                                    <label for="sifa_registration">Membership for SIFA is purely voluntary. Do you wish to register as a member of SIFA ? </label>
+                                                    <br><br>
+                                                    <div class="form-check">
+                                                        <input type="radio" id="yes" name="sifa_registration" value="1" class="form-check-input">
+                                                        <label for="yes" class="form-check-label">Yes (If you wish to register as a member, you cannot withdraw your membership<br> from SIFA for the entire duration of your service with the company)</label>
+                                                    </div>
+                                                    <br>
+                                                    <div class="form-check">
+                                                        <input type="radio" id="no" name="sifa_registration" value="0" class="form-check-input">
+                                                        <label for="no" class="form-check-label">No (If you do not wish to register as a member this time, you cannot become a member<br> for the entire duration of your service with the company)</label>
+                                                    </div>
+                                                    <br>
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
                                             </div>   
                                         </div>
                                     </div>

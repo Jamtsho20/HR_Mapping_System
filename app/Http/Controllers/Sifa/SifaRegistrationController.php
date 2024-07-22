@@ -30,7 +30,8 @@ class SifaRegistrationController extends Controller
      */
     public function create()
     {
-        //
+        return view('sifa.sifa-registration.create');
+
     }
 
     /**
