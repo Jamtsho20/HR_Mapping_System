@@ -1,65 +1,15 @@
 @extends('layouts.app')
-@section('page-title', 'Goods Receipt')
+@section('page-title', 'Requisition History')
 @section('content')
-<style>
-    .col-md-2 {
-        -ms-flex: 0 0 16.666667%;
-        flex: 0 0 16.666667%;
-        max-width: 12.5%;
-    }
 
-    .col-md-1 {
-        padding-top: 25px;
-    }
-</style>
-
-<div class="block-header block-header-default">
-   <div class="form-group">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Receipt No</label>
-                    <input type="text" placeholder="" class="form-control" id="reqno">
-                </div>
-            </div>
-        
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Receipt Date</label>
-                    <input type="date" class="form-control">                   
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Issue No</label>
-                    <select class="form-control" name="issueno">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>    
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Emloyeee Name</label>
-                    <select class="form-control" name="empname">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>    
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Department</label>
-                    <select class="form-control" name="department">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>    
-                </div>
-            </div>
+<div class="block">
+    <div class="block-header block-header-default">
+        @component('layouts.includes.filter')
+        <div class="col-8 form-group">
+            <input type="text" name="reqhis" class="form-control" value="{{ request()->get('reqhis') }}"
+                placeholder="Search">
         </div>
-    </div>
-           
-            
+        @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -92,37 +42,34 @@
                                                     <thead>
                                                         <tr role="row">
                                                             <th>
-                                                                PO
+                                                                #
                                                             </th>
                                                             <th>
-                                                                Item Description
+                                                                Issue No
                                                             </th>
                                                             <th>
-                                                                UOM
+                                                                Issue Date
                                                             </th>
                                                             <th>
-                                                                Store
+                                                               Store Name
                                                             </th>
                                                             <th>
-                                                                Site Name
+                                                                Requisition No
                                                             </th>
                                                             <th>
-                                                                Stock Status
-                                                            </th>
-                                                            <th>
-                                                                Receipt Quantity
-                                                            </th>
-                                                            <th>
-                                                                Dzongkhag
-                                                            </th>
-                                                            <th>
-                                                                Status
+                                                                Action
                                                             </th>
                                                         </tr>
-                                                    </thead> 
+                                                    </thead>
                                                     <tbody>
                                                         <tr>
-                                                            <td colspan="12" class="text-center text-danger">No goods receipt found</td>
+                                                            <td>1</td>
+                                                            <td>Kinga</td>
+                                                            <td>02/08/2022</td>
+                                                            <td>Amount</td>
+                                                            <td>5000</td>
+                                                            <td><span class="badge bg-success">Approved</span>
+                                                            </td>    
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -139,5 +86,7 @@
     </div>
 </div>
 
-
+@include('layouts.includes.delete-modal')
 @endsection
+@push('page_scripts')
+@endpush

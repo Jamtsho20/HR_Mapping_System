@@ -5,20 +5,24 @@ namespace App\Http\Controllers\Asset;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class RequisitionHistoryController extends Controller
+class CommissionController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function __construct()
     {
-        $this->middleware('permission:asset/requisition-history,view')->only('index');
-   
+        $this->middleware('permission:asset/commission,view')->only('index');
+        $this->middleware('permission:asset/commission,create')->only('store');
+        $this->middleware('permission:asset/commission,edit')->only('update');
+        $this->middleware('permission:asset/commission,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
-
-        return view('asset.requisition-history.index', compact('privileges'));
+      
+        return view('asset.commission.index',compact('privileges'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
