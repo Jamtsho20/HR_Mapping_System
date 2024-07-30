@@ -1,29 +1,49 @@
 @extends('layouts.app')
-@section('page-title', 'Employee List')
+@section('page-title', 'Fixed ASset Return Approval')
 @section('content')
 
-
-<div class="block-header block-header-default">
-     @component('layouts.includes.filter')
+<div class="block">
+    <div class="block-header block-header-default">
+        @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
+            <input type="text" name="reqapp" class="form-control" value="{{ request()->get('reqapp') }}"
                 placeholder="Search">
         </div>
-    @endcomponent
+        @endcomponent
         <div class="block-options">
-            <div class="block-options-item">
-                <button type="button" data-bs-toggle="modal" data-bs-target="#create-expense" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</button>
+            <div class="row" style="float:right;">
+                <div class=" col-6 ">
+                    <div class="btn-group mt-2 mb-2">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
+                            Approval Status
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" >
+                            <li><a href="javascript:void(0);">Pending</a></li>
+                            <li><a href="javascript:void(0);">Approved</a></li>
+                        </ul>
+                    </div>
 
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="block-options">
+            <div class="col-sm-8">
+                <h5>Fixed Asset Return Approval</h5>
+            </div>
+            <div class="col-sm-6">
+                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
+                    value="Approve">
+                <input class="btn-sm  btn-danger buttonsubmit " data-value="reject" type="button" value="Reject"
+                    id="btn_reject">
             </div>
         </div>
         <br>
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Employee List</h3>
-
-                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -53,22 +73,19 @@
                                                     <thead>
                                                         <tr role="row">
                                                             <th>
-                                                                SL no
+                                                                #
                                                             </th>
                                                             <th>
-                                                                Name
+                                                                Asset Return No
                                                             </th>
                                                             <th>
-                                                                DOJ
+                                                                Return Date
                                                             </th>
                                                             <th>
                                                                 Department
                                                             </th>
                                                             <th>
-                                                                Region
-                                                            </th>
-                                                            <th>
-                                                                Email
+                                                                Employee Name
                                                             </th>
                                                             <th>
                                                                 Status
@@ -77,28 +94,11 @@
                                                                 Action
                                                             </th>
                                                         </tr>
+                                                        
                                                     </thead>
                                                     <tbody>
                                                         <tr>
-                                                            <td>Adrian</td>
-                                                            <td>Terry</td>
-                                                            <td>Casual</td>
-                                                            <td>2013/04/21</td>
-                                                            <td>$543,769</td>
-                                                            <td>0.5</td>
-                                                            <td>0.5</td>
-                                                            <td class="text-center">
-                                                                @if ($privileges->edit)
-                                                                    <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                                            class="fa fa-edit"></i>
-                                                                        EDIT</a>
-                                                                @endif
-                                                                @if ($privileges->delete)
-                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
-                                                                        DELETE</a>
-                                                                @endif
-                                                            </td>
-                                                            
+                                                            <td colspan="8" class="text-center text-danger">No data available</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -114,29 +114,10 @@
         </div>
     </div>
 </div>
-</div>
-</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-<script>
-    //Carriage Charge
-    $('#leave-type').on('change', function () {
-        var selection = $(this).val()
-        switch (selection) {
-            case "Earned Leave":
-                $("#first").hide();
-                $("#second").hide();
-                $("#to_first").hide();
-                $("#to_second").hide();
-                break;
-            default:
-                $("#first").show();
-                $("#second").show()
 
-        }
-    });
-</script>
+
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')

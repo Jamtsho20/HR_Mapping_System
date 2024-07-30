@@ -1,29 +1,18 @@
 @extends('layouts.app')
-@section('page-title', 'Employee List')
+@section('page-title', 'Fixed Asset Return History')
 @section('content')
 
-
-<div class="block-header block-header-default">
-     @component('layouts.includes.filter')
+<div class="block">
+    <div class="block-header block-header-default">
+        @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
+            <input type="text" name="reqhis" class="form-control" value="{{ request()->get('reqhis') }}"
                 placeholder="Search">
         </div>
-    @endcomponent
-        <div class="block-options">
-            <div class="block-options-item">
-                <button type="button" data-bs-toggle="modal" data-bs-target="#create-expense" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</button>
-
-            </div>
-        </div>
-        <br>
+        @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Employee List</h3>
-
-                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -53,22 +42,19 @@
                                                     <thead>
                                                         <tr role="row">
                                                             <th>
-                                                                SL no
+                                                                #
                                                             </th>
                                                             <th>
-                                                                Name
+                                                                Asset Return No
                                                             </th>
                                                             <th>
-                                                                DOJ
+                                                                Return Date
                                                             </th>
                                                             <th>
-                                                                Department
+                                                               Employee Name
                                                             </th>
                                                             <th>
-                                                                Region
-                                                            </th>
-                                                            <th>
-                                                                Email
+                                                                Departmnet
                                                             </th>
                                                             <th>
                                                                 Status
@@ -80,25 +66,7 @@
                                                     </thead>
                                                     <tbody>
                                                         <tr>
-                                                            <td>Adrian</td>
-                                                            <td>Terry</td>
-                                                            <td>Casual</td>
-                                                            <td>2013/04/21</td>
-                                                            <td>$543,769</td>
-                                                            <td>0.5</td>
-                                                            <td>0.5</td>
-                                                            <td class="text-center">
-                                                                @if ($privileges->edit)
-                                                                    <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                                            class="fa fa-edit"></i>
-                                                                        EDIT</a>
-                                                                @endif
-                                                                @if ($privileges->delete)
-                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
-                                                                        DELETE</a>
-                                                                @endif
-                                                            </td>
-                                                            
+                                                            <td colspan="8" class="text-center text-danger">No data available</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -114,29 +82,7 @@
         </div>
     </div>
 </div>
-</div>
-</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-<script>
-    //Carriage Charge
-    $('#leave-type').on('change', function () {
-        var selection = $(this).val()
-        switch (selection) {
-            case "Earned Leave":
-                $("#first").hide();
-                $("#second").hide();
-                $("#to_first").hide();
-                $("#to_second").hide();
-                break;
-            default:
-                $("#first").show();
-                $("#second").show()
-
-        }
-    });
-</script>
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
