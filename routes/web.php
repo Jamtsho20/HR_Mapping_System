@@ -111,15 +111,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
     //SIFAREG
-<<<<<<< HEAD
-        Route::namespace('Sifa')->prefix('sifa')->group(function() {
-            Route::resource('sifa-registration', 'SifaRegistrationController');
-            Route::resource('sifa-payout', 'SifaPayoutFormController');
-        
-=======
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
->>>>>>> 39ce1d2ece3294b33493905975a5e8efcca8d719
     });
 
     // Eployee
