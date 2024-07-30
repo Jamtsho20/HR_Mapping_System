@@ -22,6 +22,7 @@ class SystemSubMenusTableSeeder extends Seeder
 		    ['system_menu_id' => 1, 'name' => 'Hierarchy', 'route' => 'system-setting/hierarchies', 'display_order' => 4],
 		    ['system_menu_id' => 1, 'name' => 'Delegation', 'route' => 'system-setting/delegations', 'display_order' => 5],
 		    ['system_menu_id' => 1, 'name' => 'Notification', 'route' => 'system-setting/notifications', 'display_order' => 6],
+		    ['system_menu_id' => 1, 'name' => 'Approval Rules', 'route' => 'system-setting/approval-rules', 'display_order' => 7],
 
             //sub menu for master
             ['system_menu_id' => 2, 'name' => 'Employment Types', 'route' => 'master/employment-types', 'display_order' => 1],
