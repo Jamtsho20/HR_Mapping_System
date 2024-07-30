@@ -14,31 +14,32 @@ use App\Http\Controllers\DashboardController;
 |
 */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
-	Route::get('profile', 'HomeController@getProfile');
+    Route::get('profile', 'HomeController@getProfile');
     Route::get('change-password', 'HomeController@getChangePassword');
     Route::post('change-password', 'HomeController@postChangePassword');
 
     // SYSTEM SETTINGS
-    Route::namespace('SystemSetting')->prefix('system-setting')->group(function() {
+    Route::namespace('SystemSetting')->prefix('system-setting')->group(function () {
         Route::resource('modules', 'ModuleController')->except('show');
         Route::resource('roles', 'RoleController');
         Route::post('users/change-status', 'UserController@changeUserStatus');
         Route::resource('users', 'UserController');
-        Route::resource('hierarchies', 'HierarchyController')->except( 'show');
+        Route::resource('hierarchies', 'HierarchyController')->except('show');
         Route::resource('delegations', 'DelegationController')->except('show');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
+        Route::resource('approval-rules', 'ApprovalRuleController')->except('show', 'edit');
     });
 
     // MASTERS
-    Route::namespace('Master')->prefix('master')->group(function() {
+    Route::namespace('Master')->prefix('master')->group(function () {
         Route::resource('employment-types', 'EmploymentTypeController');
-        
+
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
@@ -55,23 +56,22 @@ Route::middleware('auth')->group(function () {
         Route::resource('advance-loans', 'AdvanceLoanController');
     });
 
-     // WORK STRUCTURE
-     Route::namespace('WorkStructure')->prefix('work-structure')->group(function() {
+    // WORK STRUCTURE
+    Route::namespace('WorkStructure')->prefix('work-structure')->group(function () {
         Route::resource('holiday-lists', 'HolidayListController')->except('create', 'show', 'edit');
         Route::resource('business-unit', 'BusinessUnitController')->except('create', 'show', 'edit');
         Route::resource('geography', 'GeographyController')->except('create', 'show', 'edit');
     });
 
     // ATTENDANCE
-    Route::namespace('Attendance')->prefix('attendance')->group(function() {
+    Route::namespace('Attendance')->prefix('attendance')->group(function () {
         Route::resource('attendance-entry', 'AttendanceEntryController')->except('create', 'show', 'edit');
         Route::resource('attendance-register', 'AttendanceRegisterController')->except('create', 'show', 'edit');
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
-
     });
 
-     //EXPENSE
-     Route::namespace('Expense')->prefix('expense')->group(function() {
+    //EXPENSE
+    Route::namespace('Expense')->prefix('expense')->group(function () {
         Route::resource('apply', 'ExpenseApplyController')->except('create', 'show', 'edit');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimController')->except('create', 'show', 'edit');
@@ -86,7 +86,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // LEAVE
-    Route::namespace('Leave')->prefix('leave')->group(function() {
+    Route::namespace('Leave')->prefix('leave')->group(function () {
         Route::resource('leave-history', 'LeaveController')->except('create', 'show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
@@ -95,7 +95,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // DELEGATION APPROVAL
-      Route::namespace('DelegationApproval')->prefix('delegation-approval')->group(function() {
+    Route::namespace('DelegationApproval')->prefix('delegation-approval')->group(function () {
         Route::resource('leave-delegation-approval', 'LeaveDelegationApprovalController')->except('create', 'show', 'edit');
         Route::resource('exp-delegation-approval', 'ExpDelegationApprovalController')->except('create', 'show', 'edit');
         Route::resource('fuel-delegation-approval', 'FuelDelegationApprovalController')->except('create', 'show', 'edit');
@@ -106,25 +106,29 @@ Route::middleware('auth')->group(function () {
     });
 
     // ADVANCE/LOAN
-       Route::namespace('Advance')->prefix('advance-loan')->group(function() {
+    Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('apply', 'AdvanceLoanApplyController')->except('create', 'show', 'edit');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
     //SIFAREG
+<<<<<<< HEAD
         Route::namespace('Sifa')->prefix('sifa')->group(function() {
             Route::resource('sifa-registration', 'SifaRegistrationController');
             Route::resource('sifa-payout', 'SifaPayoutFormController');
         
+=======
+    Route::namespace('Sifa')->prefix('sifa')->group(function () {
+        Route::resource('sifa-registration', 'SifaRegistrationController');
+>>>>>>> 39ce1d2ece3294b33493905975a5e8efcca8d719
     });
 
     // Eployee
     Route::namespace('Employee')->prefix('employee')->group(function () {
         Route::resource('employee-lists', 'EmployeeController')->except('create', 'show', 'edit');
-
     });
 
     //reports
-    Route::namespace('Reports')->prefix('report')->group(function() {
+    Route::namespace('Reports')->prefix('report')->group(function () {
         Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
@@ -135,7 +139,7 @@ Route::middleware('auth')->group(function () {
     });
 
     //AssetsReport
-    Route::namespace('Asset')->prefix('asset')->group(function() {
+    Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('sub-store-master', 'SubStoreMasterController');
         Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
