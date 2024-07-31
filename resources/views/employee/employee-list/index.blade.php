@@ -1,8 +1,11 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
-
-
+@if ($privileges->create)
+    @section('buttons')
+    <a href="{{ route('employee-list.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Add New Employeement</a>
+    @endsection
+@endif
 <div class="block-header block-header-default">
      @component('layouts.includes.filter')
         <div class="col-8 form-group">
@@ -10,19 +13,12 @@
                 placeholder="Search">
         </div>
     @endcomponent
-        <div class="block-options">
-            <div class="block-options-item">
-                <button type="button" data-bs-toggle="modal" data-bs-target="#create-expense" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</button>
-
-            </div>
-        </div>
-        <br>
+    
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Employee List</h3>
-
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

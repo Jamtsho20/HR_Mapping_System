@@ -117,7 +117,7 @@ Route::middleware('auth')->group(function () {
 
     // Eployee
     Route::namespace('Employee')->prefix('employee')->group(function () {
-        Route::resource('employee-lists', 'EmployeeController')->except('create', 'show', 'edit');
+        Route::resource('employee-list', 'EmployeeController');
     });
 
     //reports
@@ -152,6 +152,15 @@ Route::middleware('auth')->group(function () {
         Route::resource('fixed-asset-return-approval', 'FixedAssetReturnApprovalController')->except('create', 'show', 'edit');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
+
+    //PayMaster
+    Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
+        Route::resource('account-heads', 'AccountHeadsController');
+    });
+
+
+
+
 
 
     Route::get('getgewogbydzongkhag/{id}', 'Master\VillageController@getGewog');

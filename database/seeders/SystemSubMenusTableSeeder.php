@@ -80,6 +80,16 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 8, 'name' => 'Transfer Delegation Approval', 'route' => 'delegation-approval/transfer-delegation-approval', 'display_order' => 5],
             ['system_menu_id' => 8, 'name' => 'Adv. Loan Delegation', 'route' => 'delegation-approval/adv-loan-delegation', 'display_order' => 6],
             ['system_menu_id' => 8, 'name' => 'Approval', 'route' => 'delegation-approval/approval', 'display_order' => 7],
+
+            //submenu for employee 
+            ['system_menu_id' => 9, 'name' => 'Employee', 'route' => 'employee/employee-lists', 'display_order' => 1],
+
+            //submenu for sifa
+            ['system_menu_id' => 10, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
+
+            // //submenu for paymaster
+            // ['system_menu_id' => 11, 'name' => 'Pay Master', 'route' => 'PayMaster/Paym', 'display_order' => 1],
+
         ]);
     }
 }
