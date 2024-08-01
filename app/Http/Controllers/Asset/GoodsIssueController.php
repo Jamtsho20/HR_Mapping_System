@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\AssetReport;
+namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,16 +12,16 @@ class GoodsIssueController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:asset-report/goods-issue,view')->only('index');
-        $this->middleware('permission:asset-report/goods-issue,create')->only('store');
-        $this->middleware('permission:asset-report/goods-issue,edit')->only('update');
-        $this->middleware('permission:asset-report/goods-issue,delete')->only('destroy');
+        $this->middleware('permission:asset/goods-issue,view')->only('index');
+        $this->middleware('permission:asset/goods-issue,create')->only('store');
+        $this->middleware('permission:asset/goods-issue,edit')->only('update');
+        $this->middleware('permission:asset/goods-issue,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
       
-        return view('asset-report.goods-issue.index',compact('privileges'));
+        return view('asset.goods-issue.index',compact('privileges'));
     }
     /**
      * Show the form for creating a new resource.

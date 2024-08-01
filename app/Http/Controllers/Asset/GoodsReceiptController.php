@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\assetreport;
+namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,16 +12,16 @@ class GoodsReceiptController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:asset-report/goods-receipt,view')->only('index');
-        $this->middleware('permission:asset-report/goods-receipt,create')->only('store');
-        $this->middleware('permission:asset-report/goods-receipt,edit')->only('update');
-        $this->middleware('permission:asset-report/goods-receipt,delete')->only('destroy');
+        $this->middleware('permission:asset/goods-receipt,view')->only('index');
+        $this->middleware('permission:asset/goods-receipt,create')->only('store');
+        $this->middleware('permission:asset/goods-receipt,edit')->only('update');
+        $this->middleware('permission:asset/goods-receipt,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
       
-        return view('asset-report.goods-receipt.index',compact('privileges'));
+        return view('asset.goods-receipt.index',compact('privileges'));
     }
 
     /**

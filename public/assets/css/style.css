@@ -58452,5 +58452,14 @@ html [type=button],
 .w-lg {
     min-width: 150px;
 }
+.text-right {
+    text-align: right; /* Ensure alignment to the right */
+}
+
+.btn-xs-custom {
+    padding: 2px 6px !important; /* Adjust padding for smaller size */
+    font-size: 12px !important; /* Adjust font size */
+    line-height: 1.2 !important; /* Ensure proper line height */
+}
 
 /*# sourceMappingURL=style.css.map */

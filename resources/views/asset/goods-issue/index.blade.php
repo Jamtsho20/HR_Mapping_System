@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Dashboard')
+@section('page-title', 'Goods Issue')
 @section('content')
 <style>
     .col-md-2 {
@@ -12,52 +12,45 @@
         padding-top: 25px;
     }
 </style>
-
-<div class="col-sm-6">
-    <h5>Goods Issue Report</h5>
-</div>
-<br>
-
 <div class="block-header block-header-default">
    
     <div class="form-group">
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group form-focus select-focus">
-                    <label class="control-label">Store</label>
-                    <select class="form-control" name="store">
-                        <option value="" disabled selected hidden>Select</option>
-                     
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Item</label>
-                    <select class="form-control" name="item">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">From Date</label>
-                    <input type="date" class="form-control">                   
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">To Date</label>
-                    <input type="date" class="form-control">                   
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
                     <label class="control-label">Issue No</label>
+                    <input type="text" placeholder="" class="form-control" id="issueno">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Issue Date</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Requisition No</label>
+                    <select class="form-control" name="reqno">
+                        <option value="" disabled selected hidden>Select</option>
+                    </select>                   
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Employee Name</label>
+                    <select class="form-control" name="empname">
+                        <option value="" disabled selected hidden>Select</option>
+                    </select>                   
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Department</label>
                     <select class="form-control" name="issueno">
                         <option value="" disabled selected hidden>Select</option>
                     </select>    
@@ -66,10 +59,8 @@
 
             <div class="col-md-4">
                 <div class="form-group form-focus select-focus">
-                    <label class="control-label"></label>
-                    <button type="button" name="report" class="form-control btn btn-primary">
-                        {{ request()->get('report') ?? 'Search' }}
-                    </button>
+                    <label class="control-label">Requisition Date</label>
+                    <input type="date" class="form-control">
                 </div>
             </div>
         </div>
@@ -105,43 +96,40 @@
                                                 <table
                                                     class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                     id="basic-datatable table-responsive">
-                                                    <!-- <thead>
+                                                    <thead>
                                                         <tr role="row">
                                                             <th>
                                                                 #
                                                             </th>
                                                             <th>
-                                                                CODE
+                                                                PO
                                                             </th>
                                                             <th>
-                                                                NAME
+                                                                Item Description
                                                             </th>
                                                             <th>
-                                                                DESIGNATION
+                                                                UOM
                                                             </th>
                                                             <th>
-                                                                DEPARTMENT
+                                                                Store
                                                             </th>
                                                             <th>
-                                                                LOCATION
+                                                                Stock Staus
                                                             </th>
                                                             <th>
                                                                 LEAVE TYPE
                                                             </th>
                                                             <th>
-                                                                OPENING BALANCE
+                                                                Quantity Issued
                                                             </th>
                                                             <th>
-                                                                CURRENT ENTITLEMENT
+                                                                Dzongkhag
                                                             </th>
                                                             <th>
-                                                                LEAVES AVAILED
-                                                            </th>
-                                                            <th>
-                                                                CLOSING BALANCE
+                                                                Site Name
                                                             </th>
                                                         </tr>
-                                                    </thead> --> 
+                                                    </thead> 
                                                     <tbody>
                                                         <tr>
                                                             <td colspan="12" class="text-center text-danger">No goods issue found</td>
@@ -150,6 +138,13 @@
                                                 </table>
                                             </div>
                                         </div>
+                                    </div>
+                                    <br>
+                                    <div class="col-sm-12 text-center">
+                                        <button class="btn btn-primary btn-lg text-center" id="btn_create" type="button">Issue</button>
+                                        <input type="hidden" id="hdn_count" value="0">
+                                        <button class="btn btn-primary btn-lg text-center" id="btn_create" type="button">Reset</button>
+                                        <input type="hidden" id="hdn_count" value="0">
                                     </div>
                                 </div>
                             </div>

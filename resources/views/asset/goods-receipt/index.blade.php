@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Dashboard')
+@section('page-title', 'Goods Receipt')
 @section('content')
 <style>
     .col-md-2 {
@@ -13,51 +13,26 @@
     }
 </style>
 
-<div class="col-sm-6">
-    <h5>Goods Receipt Report</h5>
-</div>
-<br>
-
 <div class="block-header block-header-default">
-   
-    <div class="form-group">
+   <div class="form-group">
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group form-focus select-focus">
-                    <label class="control-label">Store</label>
-                    <select class="form-control" name="store">
-                        <option value="" disabled selected hidden>Select</option>
-                     
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Item</label>
-                    <select class="form-control" name="item">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">From Date</label>
-                    <input type="date" class="form-control">                   
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">To Date</label>
-                    <input type="date" class="form-control">                   
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
                     <label class="control-label">Receipt No</label>
+                    <input type="text" placeholder="" class="form-control" id="reqno">
+                </div>
+            </div>
+        
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Receipt Date</label>
+                    <input type="date" class="form-control">                   
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Issue No</label>
                     <select class="form-control" name="issueno">
                         <option value="" disabled selected hidden>Select</option>
                     </select>    
@@ -66,10 +41,19 @@
 
             <div class="col-md-4">
                 <div class="form-group form-focus select-focus">
-                    <label class="control-label"></label>
-                    <button type="button" name="report" class="form-control btn btn-primary">
-                        {{ request()->get('report') ?? 'Search' }}
-                    </button>
+                    <label class="control-label">Emloyeee Name</label>
+                    <select class="form-control" name="empname">
+                        <option value="" disabled selected hidden>Select</option>
+                    </select>    
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="control-label">Department</label>
+                    <select class="form-control" name="department">
+                        <option value="" disabled selected hidden>Select</option>
+                    </select>    
                 </div>
             </div>
         </div>
@@ -105,43 +89,37 @@
                                                 <table
                                                     class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                     id="basic-datatable table-responsive">
-                                                    <!-- <thead>
+                                                    <thead>
                                                         <tr role="row">
                                                             <th>
-                                                                #
+                                                                PO
                                                             </th>
                                                             <th>
-                                                                CODE
+                                                                Item Description
                                                             </th>
                                                             <th>
-                                                                NAME
+                                                                UOM
                                                             </th>
                                                             <th>
-                                                                DESIGNATION
+                                                                Store
                                                             </th>
                                                             <th>
-                                                                DEPARTMENT
+                                                                Site Name
                                                             </th>
                                                             <th>
-                                                                LOCATION
+                                                                Stock Status
                                                             </th>
                                                             <th>
-                                                                LEAVE TYPE
+                                                                Receipt Quantity
                                                             </th>
                                                             <th>
-                                                                OPENING BALANCE
+                                                                Dzongkhag
                                                             </th>
                                                             <th>
-                                                                CURRENT ENTITLEMENT
-                                                            </th>
-                                                            <th>
-                                                                LEAVES AVAILED
-                                                            </th>
-                                                            <th>
-                                                                CLOSING BALANCE
+                                                                Status
                                                             </th>
                                                         </tr>
-                                                    </thead> --> 
+                                                    </thead> 
                                                     <tbody>
                                                         <tr>
                                                             <td colspan="12" class="text-center text-danger">No goods receipt found</td>

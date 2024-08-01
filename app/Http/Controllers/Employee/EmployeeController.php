@@ -10,25 +10,26 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-
     public function __construct()
     {
-        $this->middleware('permission:employee/employee-lists,view')->only('index');
-   
+        $this->middleware('permission:employee/employee-list,view')->only('index');
+        $this->middleware('permission:employee/employee-list,create')->only('store');
+        $this->middleware('permission:employee/employee-list,edit')->only('update');
+        $this->middleware('permission:employee/employee-list,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
-
-        return view('employee.employee-list.index', compact('privileges'));
+      
+        return view('employee/employee-list.index',compact('privileges'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+        return view('employee/employee-list.create');
+
     }
 
     /**

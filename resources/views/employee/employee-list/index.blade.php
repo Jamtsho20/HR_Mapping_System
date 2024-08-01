@@ -1,22 +1,24 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
-
-
+@if ($privileges->create)
+    @section('buttons')
+    <a href="{{ route('employee-list.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Add New Employeement</a>
+    @endsection
+@endif
 <div class="block-header block-header-default">
-
- @component('layouts.includes.filter')
+     @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}"
+            <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
                 placeholder="Search">
         </div>
-        @endcomponent
+    @endcomponent
+    
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Employee List</h3>
-
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
