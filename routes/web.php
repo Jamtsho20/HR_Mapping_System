@@ -125,10 +125,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
-        Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
-        Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
-        Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
-        Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
+        // Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
+        // Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
+        // Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
+        // Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
     });
 
     //AssetsReport
@@ -156,6 +156,7 @@ Route::middleware('auth')->group(function () {
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
         Route::resource('account-heads', 'AccountHeadsController');
+        Route::resource('pay-groups', 'PayGroupsController');        
     });
 
 

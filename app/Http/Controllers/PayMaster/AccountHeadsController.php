@@ -21,8 +21,9 @@ class AccountHeadsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-      
-        return view('paymaster.account-heads.index',compact('privileges'));
+        $accountHeads = AccAccountHead::filter($request)->orderBy('name')->paginate(30);
+
+        return view('paymaster.account-heads.index', compact('accountHeads', 'privileges'));
     }
     /**
      * Show the form for creating a new resource.
@@ -38,23 +39,24 @@ class AccountHeadsController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the request data
         $request->validate([
-            'code' => 'required|string|max:30',
+            'code' => 'required|string|max:30|unique:acc_account_heads,code',
             'name' => 'required|string|max:100',
-            'type' => 'required|integer|between:1,255', 
+            'type' => 'required|integer|in:1,2', // Assuming 1 for Credit, 2 for Debit
         ]);
 
-        $accountHead = new AccAccountHead;
-        $accountHead->code = $request->input('code');
-        $accountHead->name = $request->input('name');
-        $accountHead->type = $request->input('type');
-        $accountHead->created_by = auth()->user()->id; // Assuming the authenticated user's ID
+        // Create a new AccAccountHead instance and assign properties
+        $accountHead = new AccAccountHead();
+        $accountHead->code = $request->code;
+        $accountHead->name = $request->name;
+        $accountHead->type = $request->type;
+        $accountHead->created_by = auth()->user()->id; // Assuming you're storing the ID of the user who created it
         $accountHead->save();
 
-        return redirect()->route('paymaster.account-heads.index')
-            ->with('msg_success', 'Account head created successfully.');
+        // Redirect with a success message
+        return redirect('paymaster/account-heads')->with('msg_success', 'Account head created successfully');
     }
-
 
     /**
      * Display the specified resource.
@@ -76,37 +78,45 @@ class AccountHeadsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
+        // Validate the incoming request data
         $request->validate([
-            'code' => 'required|string|max:30',
+            'code' => 'required|string|max:30|unique:acc_account_heads,code,' . $id,
             'name' => 'required|string|max:100',
-            'type' => 'required|integer|between:1,255', // Adjust as per the type definition
+            'type' => 'required|integer|in:1,2', // Assuming 1 for Credit, 2 for Debit
         ]);
-    
+
+        // Find the existing account head by ID
         $accountHead = AccAccountHead::findOrFail($id);
-        $accountHead->code = $request->input('code');
-        $accountHead->name = $request->input('name');
-        $accountHead->type = $request->input('type');
-        $accountHead->edited_by = auth()->user()->id; // Track who made the edit
-    
+
+        // Update the account head properties with the request data
+        $accountHead->code = $request->code;
+        $accountHead->name = $request->name;
+        $accountHead->type = $request->type;
+        $accountHead->edited_by = auth()->user()->id; // Assuming you're tracking who edited the record
+
+        // Save the updated model instance to the database
         $accountHead->save();
-    
-        return redirect()->route('paymaster.account-heads.index')->with('msg_success', 'Account head updated successfully');
+
+        // Redirect to the account heads listing page with a success message
+        return redirect('paymaster/account-heads')->with('msg_success', 'Account head updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
         try {
-            $accountHead = AccAccountHead::findOrFail($id);
-            $accountHead->delete();
+            // Attempt to find and delete the account head
+            AccAccountHead::findOrFail($id)->delete();
 
-            return back()->with('msg_success', 'Account head has been deleted successfully');
+            // Redirect back with a success message
+            return back()->with('msg_success', 'Account head has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Account head cannot be deleted as it is referenced by other records. Please contact the system administrator for more information.');
+            // Handle the exception, typically due to foreign key constraints
+            return back()->with('msg_error', 'Account head cannot be deleted as it has been used by another module. For further information, contact the system admin.');
         }
     }
 }
