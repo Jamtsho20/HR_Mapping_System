@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('acc_account_heads', function (Blueprint $table) {
+        Schema::create('mas_pay_groups', function (Blueprint $table) {
             $table->id();
-            $table->string("code",30)->index();
-            $table->string("name",100)->index();
-            $table->tinyInteger("type")->comment("1 for Credit, 2 for Debit");
+            $table->string("name",150)->index();
+            $table->tinyInteger("applicable_on")->comment("1 for Employee Group, 2 for Grade");
             $table->uuid("created_by")->index();
             $table->uuid("edited_by")->index()->nullable();
-            $table->uuid("updated_by")->index()->nullable();            
+            $table->uuid("updated_by")->index()->nullable(); 
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('acc_account_heads');
+        Schema::dropIfExists('mas_pay_groups');
     }
 };

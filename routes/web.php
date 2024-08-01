@@ -157,6 +157,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
         Route::resource('account-heads', 'AccountHeadsController');
         Route::resource('pay-groups', 'PayGroupsController');        
+        Route::resource('pay-heads', 'PayHeadsController');        
     });
 
 

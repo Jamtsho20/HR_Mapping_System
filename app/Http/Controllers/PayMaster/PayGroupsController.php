@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\PayMaster;
 
 use App\Http\Controllers\Controller;
-use App\Models\PayGroup;
+use App\Models\MasPayGroup;
 use Illuminate\Http\Request;
 
 class PayGroupsController extends Controller
@@ -21,7 +21,7 @@ class PayGroupsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $payGroups = PayGroup::filter($request)->orderBy('name')->paginate(30);
+        $payGroups = MasPayGroup::filter($request)->orderBy('name')->paginate(30);
         return view('paymaster.pay-groups.index', compact('payGroups','privileges'));
     }
     /**
@@ -41,7 +41,7 @@ class PayGroupsController extends Controller
             'applicable_on' => 'required|integer|in:1,2',
         ]);
 
-        $payGroup = new PayGroup();
+        $payGroup = new MasPayGroup();
         $payGroup->name = $request->name;
         $payGroup->applicable_on = $request->applicable_on;
         $payGroup->created_by = auth()->user()->id; 
@@ -56,7 +56,7 @@ class PayGroupsController extends Controller
 
     public function edit(string $id)
     {
-        $payGroup = PayGroup::findOrFail($id);
+        $payGroup = MasPayGroup::findOrFail($id);
         return view('paymaster.pay-groups.edit', compact('payGroup'));
     }
 
@@ -69,7 +69,7 @@ class PayGroupsController extends Controller
         ]);
 
         // Find the existing pay group by ID
-        $payGroup = PayGroup::findOrFail($id);
+        $payGroup = MasPayGroup::findOrFail($id);
 
         // Update the pay group properties with the request data
         $payGroup->name = $request->name;
@@ -87,7 +87,7 @@ class PayGroupsController extends Controller
     {
         try {
             // Attempt to find and delete the pay group
-            PayGroup::findOrFail($id)->delete();
+            MasPayGroup::findOrFail($id)->delete();
 
             // Redirect back with a success message
             return back()->with('msg_success', 'Pay group has been deleted');

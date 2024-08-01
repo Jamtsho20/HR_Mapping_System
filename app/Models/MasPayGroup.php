@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 
-class PayGroup extends Model
+class MasPayGroup extends Model
 {
     use HasFactory, CreatedByTrait;
-    
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {
