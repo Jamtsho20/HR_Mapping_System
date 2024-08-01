@@ -89,7 +89,7 @@ class ModuleController extends Controller
                 ];
             }
 
-            $module->systemSubMenus()->createMany($subModules);
+            $module->systemSubMenus()->createMany($subModules); 
 
         });
 

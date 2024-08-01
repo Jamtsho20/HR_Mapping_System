@@ -15,4 +15,9 @@ class MasLeaveType extends Model
             $query->where('name', 'LIKE', '%' .$request->query('leave_type') . '%');
         }
     }
+
+    public function leaveType()
+    {
+        return $this->morphMany(MasApprovalRule::class, 'approvable');
+    }
 }
