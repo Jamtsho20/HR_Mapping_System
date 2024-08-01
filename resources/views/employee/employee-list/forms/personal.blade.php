@@ -80,7 +80,12 @@
                                     <label for="profile_picture">Profile Picture</label>
                                     <input type="file" class="form-control form-control-sm" name="profile_picture" required>
                                 </div>
-                            </div>                                
+
+                            </div>                               
                         </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-arrow-circle-right"></i> Save/ Next</button>
+                                <a href="{{ url('paymaster/account-heads') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+                            </div> 
                     </div>
                 </div>
