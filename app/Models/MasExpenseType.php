@@ -22,4 +22,8 @@ class MasExpenseType extends Model
                $query->where('expense_type', 'LIKE', '%' .$request->query('expense_type') . '%');
            }
        }
+
+       public function expenseType(){
+            return $this->morphMany(MasApprovalRule::class, 'approvable');
+       }
 }
