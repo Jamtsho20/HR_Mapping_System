@@ -33,7 +33,7 @@ class TransferClaimController extends Controller
      */
     public function create()
     {
-        //
+        return view('expense.transfer-claim.create');
     }
 
     /**

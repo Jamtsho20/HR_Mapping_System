@@ -33,7 +33,7 @@ class ExpenseFuelController extends Controller
      */
     public function create()
     {
-        //
+        return view('expense.expense-fuel.create');
     }
 
     /**
