@@ -1,87 +1,65 @@
 <div class="tab-pane fade" id="pills-address" role="tabpanel" aria-labelledby="pills-address-tab">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><label for=""><strong>Current Address</strong></label></h5>
-                                <div class="row">
-                                    <div class="form-group col-md-4">
-                                        <label for="">City </label>
-                                        <input type="text" class="form-control form-control-sm" name="city" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="">Postal Code </label>
-                                        <input type="text" class="form-control form-control-sm" name="postalcode" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="">Dzongkhag</label>
-                                            <select name="dzongkhag" class="form-control form-control-sm" required>
-                                                <option value="">SELECT ONE</option>
-                                                <option value="Bumthang">Bumthang</option>
-                                                <option value="Chukha">Chukha</option>
-                                                <option value="Dagana">Dagana</option>
-                                                <option value="Gasa">Gasa</option>
-                                                <option value="Haa">Haa</option>
-                                                <option value="Lhuntse">Lhuntse</option>
-                                                <option value="Mongar">Mongar</option>
-                                                <option value="Paro">Paro</option>
-                                                <option value="Pemagatshel">Pemagatshel</option>
-                                                <option value="Punakha">Punakha</option>
-                                                <option value="Samdrup Jongkhar">Samdrup Jongkhar</option>
-                                                <option value="Samtse">Samtse</option>
-                                                <option value="Sarpang">Sarpang</option>
-                                                <option value="Thimphu">Thimphu</option>
-                                                <option value="Trashigang">Trashigang</option>
-                                                <option value="Trashiyangtse">Trashiyangtse</option>
-                                                <option value="Trongsa">Trongsa</option>
-                                                <option value="Tsirang">Tsirang</option>
-                                                <option value="Wangdue Phodrang">Wangdue Phodrang</option>
-                                                <option value="Zhemgang">Zhemgang</option>
-                                            </select>
-                                    </div>
-                                    <hr>
-                                    <h5 class="card-title"><label for=""><strong>Permanent Address</strong></label></h5>
-                                    <div class="form-group col-md-4">
-                                        <label for="">Gewog </label>
-                                        <input type="text" class="form-control form-control-sm" name="gewog" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="">Village </label>
-                                        <input type="text" class="form-control form-control-sm" name="village" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="">Dzongkhag </label>
-                                        <select name="dzongkhag" class="form-control form-control-sm" required>
-                                            <option value="">SELECT ONE</option>
-                                            <option value="Bumthang">Bumthang</option>
-                                                <option value="Chukha">Chukha</option>
-                                                <option value="Dagana">Dagana</option>
-                                                <option value="Gasa">Gasa</option>
-                                                <option value="Haa">Haa</option>
-                                                <option value="Lhuntse">Lhuntse</option>
-                                                <option value="Mongar">Mongar</option>
-                                                <option value="Paro">Paro</option>
-                                                <option value="Pemagatshel">Pemagatshel</option>
-                                                <option value="Punakha">Punakha</option>
-                                                <option value="Samdrup Jongkhar">Samdrup Jongkhar</option>
-                                                <option value="Samtse">Samtse</option>
-                                                <option value="Sarpang">Sarpang</option>
-                                                <option value="Thimphu">Thimphu</option>
-                                                <option value="Trashigang">Trashigang</option>
-                                                <option value="Trashiyangtse">Trashiyangtse</option>
-                                                <option value="Trongsa">Trongsa</option>
-                                                <option value="Tsirang">Tsirang</option>
-                                                <option value="Wangdue Phodrang">Wangdue Phodrang</option>
-                                                <option value="Zhemgang">Zhemgang</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="">Thram No </label>
-                                        <input type="text" class="form-control form-control-sm" name="thramno" required>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="">House No </label>
-                                        <input type="text" class="form-control form-control-sm" name="houseno" required>
-                                    </div>
-                                </div>
+    <form action="">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Current Address Section -->
+                    <div class="col-md-5 border">
+                        <h5 class="card-title"><label for=""><strong>Current Address</strong></label></h5>
+                        <div class="form-group">
+                            <label for="">Dzongkhag <span class="text-danger">*</span></label>
+                            <select name="current_dzongkhag_id" class="form-control form-control-sm" required>
+                                <option value="" disabled selected hidden>Select your option</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Gewog <span class="text-danger">*</span></label>
+                            <select name="current_gewog_id" class="form-control form-control-sm" required>
+                                <option value="" disabled selected hidden>Select your option</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">City/State <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="current_state" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Postal Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="current_postalcode" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2"></div>
+                    <!-- Permanent Address Section -->
+                    <div class="col-md-5 border">
+                        <h5 class="card-title"><label for=""><strong>Permanent Address</strong></label></h5>
+                        <div class="form-group">
+                            <label for="">Dzongkhag <span class="text-danger">*</span></label>
+                            <select name="permanent_dzongkhag_id" class="form-control form-control-sm" required>
+                                <option value="" disabled selected hidden>Select your option</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Gewog <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="permanent_gewog_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Village <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="permanent_village" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Thram Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="permanent_thram_no" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">House Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="permanent_house_no" required>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-arrow-circle-right"></i> Save/ Next</button>
+                <a href="{{ url('paymaster/account-heads') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            </div>
+        </div>
+    </form>
+</div>

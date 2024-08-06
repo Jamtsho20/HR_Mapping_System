@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('mas_emp_permenant_addresses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
+            $table->foreignId('mas_dzongkhag_id')->index()->constrained();
+            $table->foreignId('mas_gewog_id')->index()->constrained();
+            $table->foreignId('mas_village_id')->index()->constrained();
+            $table->string('thram_no', 30);
+            $table->string('house_no', 30);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('mas_emp_permenant_addresses');
+    }
+};

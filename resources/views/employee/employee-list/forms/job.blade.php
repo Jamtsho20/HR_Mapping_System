@@ -1,78 +1,102 @@
 <div class="tab-pane fade" id="pills-job" role="tabpanel" aria-labelledby="pills-job-tab">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="form-group col-md-4">
-                                    <label for="">Department</label>
-                                        <select name="department" class="form-control form-control-sm" required>
-                                            <option value="">SELECT ONE</option>
-                                            <option value="Core Network Department"></option>
-                                            <option value="Marketing Department">Marketing Department</option>
-                                            <option value="Finance">Finance</option>
-                                            <option value="SPPD">SPPD</option>
-                                            <option value="MIS">MIS</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="">Section</label>
-                                        <select name="departsectionment" class="form-control form-control-sm" required>
-                                                <option value="">SELECT ONE</option>
-                                                <option value="Core Network Department"></option>
-                                                <option value="Marketing Department">Marketing Department</option>
-                                                <option value="Finance">Finance</option>
-                                                <option value="SPPD">SPPD</option>
-                                                <option value="MIS">MIS</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="">Job Designation</label>
-                                        <select name="jobdesination" class="form-control form-control-sm" required>
-                                                <option value="">SELECT ONE</option>
-                                                <option value="Core Network Department"></option>
-                                                <option value="Marketing Department">Marketing Department</option>
-                                                <option value="Finance">Finance</option>
-                                                <option value="SPPD">SPPD</option>
-                                                <option value="MIS">MIS</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="">Grade Step</label>
-                                        <select name="jobdesination" class="form-control form-control-sm" required>
-                                                <option value="">SELECT ONE</option>
-                                                <option value="P">P.1</option>
-                                                <option value="P2">P2</option>
-                                                <option value="P3">Finance</option>
-                                                <option value="P4">P4</option>
-                                                <option value="P5">P5</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="">Job Location</label>
-                                        <select name="jobdesination" class="form-control form-control-sm" required>
-                                                <option value="">SELECT ONE</option>
-                                                <option value="Thimphu">Thimphu</option>
-                                                <option value="Paro">Paro</option>
-                                                <option value="Wangdi">Wangdi</option>
-                                                <option value="Punakha">Punakha</option>
-                                                <option value="Chhukha">Chhukha</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="">Salary</label>
-                                        <input type="number" class="form-control form-control-sm" name="salary" required>
-                                </div>
-                                <br><br>
-                                <div class="form-group col-md-4">
-                                    <label for="">Status</label><br>
-                                        <input type="checkbox" name="active" id="active" data-toggle="toggle" data-on="Yes" data-off="No"> Active <br>
-                                        <input type="checkbox" name="inactive" id="inactive" data-toggle="toggle" data-on="Yes" data-off="No"> Inactive
-                                </div>
-                            </div>
-                        </div>
+    <form action="">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label for="">Department <span class="text-danger">*</span></label>
+                        <select name="mas_department_id" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Section <span class="text-danger">*</span></label>
+                        <select name="mas_sectionn_id" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Designation <span class="text-danger">*</span></label>
+                        <select name="mas_designation_id" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Grade Step <span class="text-danger">*</span></label>
+                        <select name="mas_grade_step_id" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Selecrt your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Job Location <span class="text-danger">*</span></label>
+                        <select name="location" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Salary <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control form-control-sm" name="salary" required>
+                    </div>
+                    <br><br>
+                    <div class="form-group col-md-4">
+                        <label for="">Job Nature <span class="text-danger">*</span></label>
+                        <select name="mas_emp_type_id" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Probation & Notice Period <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control form-control-sm" name="probation_period" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Supervisor <span class="text-danger">*</span></label>
+                        <select name="supervisor" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Bank <span class="text-danger">*</span></label>
+                        <select name="bank" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                            @foreach(config('global.bank') as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Account Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="account_number" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">PF Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="pf_number" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">TPN Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="tpn_number" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Grade Scale <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="grade_scale" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Ceiling <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="grade_scale" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Grade Ladder <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="grade_ladder" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Pay Scale <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="pay_scale" required>
                     </div>
                 </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-arrow-circle-right"></i> Save/ Next</button>
+                <a href="{{ url('paymaster/account-heads') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            </div>
+        </div>
+    </form>
+</div>

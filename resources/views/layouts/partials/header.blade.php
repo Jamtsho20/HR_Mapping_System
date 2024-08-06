@@ -37,7 +37,7 @@
 <body class="app sidebar-mini ltr light-mode" data-new-gr-c-s-check-loaded="14.1098.0" data-gr-ext-installed="">
     <div class="horizontalMenucontainer">
         <!-- GLOBAL-LOADER -->
-        <div id="global-loader" style="display: none;">
+        <div id="global-loader">
             <img src="{{ asset('assets/images/loader.svg') }}" class="loader-img" alt="Loader">
         </div>
         <!-- /GLOBAL-LOADER -->

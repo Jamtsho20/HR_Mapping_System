@@ -3,7 +3,7 @@
 @section('content')
 @if ($privileges->create)
     @section('buttons')
-    <a href="{{ route('employee-list.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Add New Employeement</a>
+        <a href="{{ route('employee-list.create', ['employee' => 'personal-info'])}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Add New Employee</a>
     @endsection
 @endif
 <div class="block-header block-header-default">
