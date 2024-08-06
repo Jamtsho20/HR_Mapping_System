@@ -23,9 +23,9 @@ class ExpenseApplyController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::get();
-        
-        return view('expense.apply.index', compact( 'privileges','expenses'));
+        $expenses= MasExpenseType::filter($request)->orderBy('expense_type')->paginate(30);
+
+        return view('expense.apply.index', compact('expenses', 'privileges'));
     }
 
     /**
@@ -35,9 +35,9 @@ class ExpenseApplyController extends Controller
      */
     public function create()
     {
-        //
+        $expenses = MasExpenseType::all(); 
+        return view('expense.apply.create', compact('expenses'));
     }
-
     /**
      * Store a newly created resource in storage.
      *

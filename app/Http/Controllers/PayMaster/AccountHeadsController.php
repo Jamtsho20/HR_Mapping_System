@@ -96,7 +96,4 @@ class AccountHeadsController extends Controller
         }
     }
 
-
-
-
 }

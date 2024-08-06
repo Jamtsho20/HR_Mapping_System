@@ -1,18 +1,14 @@
 @extends('layouts.app')
-@section('page-title', 'Transfer Claim')
+@section('page-title', 'Leave Balance')
 @section('content')
-@if ($privileges->create)
-    @section('buttons')
-    <a href="{{ route('transfer-claim.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
-    @endsection
-@endif
-<div class="block-header block-header-default">
-     @component('layouts.includes.filter')
+<div class="block">
+    <div class="block-header block-header-default">
+        @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="transferclaim" class="form-control" value="{{ request()->get('transferclaim') }}"placeholder="Search">
+            <input type="text" name="leave_balance" class="form-control" value="{{ request()->get('leave_balance') }}">
         </div>
-    @endcomponent
-
+        @endcomponent
+    </div>
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -49,22 +45,19 @@
                                                                     EMPLOYEE
                                                                 </th>
                                                                 <th>
-                                                                    TRANSFER CLAIM DATE
+                                                                LEAVE TYPE
                                                                 </th>
                                                                 <th>
-                                                                    TRANSFER CLAIM TYPE
+                                                                    OPENING BALANCE
                                                                 </th>
                                                                 <th>
-                                                                    CLAIM AMOUNT
+                                                                    CURRENT ENTITLEMENT
                                                                 </th>
                                                                 <th>
-                                                                    CURRENT LOCATION
+                                                                    LEAVE AVAILED
                                                                 </th>
                                                                 <th>
-                                                                    NEW LOCATION
-                                                                </th>
-                                                                <th>
-                                                                    STATUS
+                                                                    CLOSING BALANCE
                                                                 </th>
                                                             </tr>
                                                         </thead>
@@ -77,14 +70,10 @@
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div> 
 </div>
-
-
-
 @include('layouts.includes.delete-modal')
 @endsection
-@push('page_scripts')
-@endpush

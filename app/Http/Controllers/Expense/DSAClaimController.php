@@ -34,7 +34,8 @@ class DSAClaimController extends Controller
      */
     public function create()
     {
-        //
+        return view('expense.dsa-claim.create');
+
     }
 
     /**
