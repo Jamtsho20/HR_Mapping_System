@@ -11,18 +11,18 @@ class SubStoreMaster extends Model
     use HasFactory, CreatedByTrait;
 
      //accessors & mutators
-     public function setStoreNameAttribute($value)
+     public function scopeFilter($query, $request)
      {
-         $this->attributes['store_name'] = ucwords($value);    
-         $this->attributes['location'] = ucwords($value);    
-
-     }
-
-    public function scopeFilter($query, $request)
-    {
-        if ($request->has('store_name') && $request->query('store_name') !== '') {
-            $query->where('store_name', 'LIKE', '%' . $request->query('store_name') . '%');
-        }
-        
+         if ($request->has('store_name') && $request->query('store_name') != '') {
+             $query->where('store_name', 'LIKE', '%' . $request->query('store_name') . '%');
+         }
+         
+         if ($request->has('location') && $request->query('location') != '') {
+             $query->where('location', 'LIKE', '%' . $request->query('location') . '%');
+         }
+ 
+         if ($request->has('status') && $request->query('status') != '') {
+             $query->where('status', $request->query('status'));
+         }
     }
 }

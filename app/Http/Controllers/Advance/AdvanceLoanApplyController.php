@@ -34,7 +34,7 @@ class AdvanceLoanApplyController extends Controller
      */
     public function create()
     {
-        //
+        return view('advance-loan.apply.create');
     }
 
     /**

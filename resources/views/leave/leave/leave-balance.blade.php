@@ -1,18 +1,14 @@
 @extends('layouts.app')
-@section('page-title', 'Apply Advance')
+@section('page-title', 'Leave Balance')
 @section('content')
-@if ($privileges->create)
-    @section('buttons')
-    <a href="{{ route('apply.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Apply Advance</a>
-    @endsection
-@endif
-<div class="block-header block-header-default">
-     @component('layouts.includes.filter')
+<div class="block">
+    <div class="block-header block-header-default">
+        @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="applyadvance" class="form-control" value="{{ request()->get('applyadvance') }}"placeholder="Search">
+            <input type="text" name="leave_balance" class="form-control" value="{{ request()->get('leave_balance') }}">
         </div>
-    @endcomponent
-
+        @endcomponent
+    </div>
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -42,28 +38,28 @@
                                                     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                         <thead>
                                                             <tr role="row">
-                                                            <th>
-                                                                #
-                                                            </th>
-                                                            <th>
-                                                                ADVANCE NUMBER
-                                                            </th>
-                                                            <th>
-                                                                ADVANCE/LOAN TYPE
-                                                            </th>
-                                                            <th>
-                                                                DATE
-                                                            </th>
-                                                            <th>
-                                                                AMOUNT
-                                                            </th>
-                                                            <th>
-                                                                STATUS
-                                                            </th>
-                                                            <th>
-                                                                ACTION
-                                                            </th>
-                                                                </tr>
+                                                                <th>
+                                                                    #
+                                                                </th>
+                                                                <th>
+                                                                    EMPLOYEE
+                                                                </th>
+                                                                <th>
+                                                                LEAVE TYPE
+                                                                </th>
+                                                                <th>
+                                                                    OPENING BALANCE
+                                                                </th>
+                                                                <th>
+                                                                    CURRENT ENTITLEMENT
+                                                                </th>
+                                                                <th>
+                                                                    LEAVE AVAILED
+                                                                </th>
+                                                                <th>
+                                                                    CLOSING BALANCE
+                                                                </th>
+                                                            </tr>
                                                         </thead>
                                                     </table>
                                                 </div>
@@ -74,14 +70,10 @@
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div> 
 </div>
-
-
-
 @include('layouts.includes.delete-modal')
 @endsection
-@push('page_scripts')
-@endpush

@@ -10,10 +10,10 @@ class LeaveController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:leave/leave-history,view')->only('index');
-        $this->middleware('permission:leave/leave-history,create')->only('store');
-        $this->middleware('permission:leave/leave-history,edit')->only('update');
-        $this->middleware('permission:leave/leave-history,delete')->only('destroy');
+        $this->middleware('permission:leave/leave-apply,view')->only('index');
+        $this->middleware('permission:leave/leave-apply,create')->only('store');
+        $this->middleware('permission:leave/leave-apply,edit')->only('update');
+        $this->middleware('permission:leave/leave-apply,delete')->only('destroy');
     }
     /**
      * Display a listing of the resource.
@@ -24,7 +24,6 @@ class LeaveController extends Controller
     {
         $privileges = $request->instance();
         $leaves = MasLeaveType::get();
-        //
         return view('leave.leave.index',compact('privileges','leaves'));
 
     }
@@ -36,7 +35,8 @@ class LeaveController extends Controller
      */
     public function create()
     {
-        //
+        $leaves = MasLeaveType::all(); // Fetch all leave types
+        return view('leave.leave-apply', compact('leaves')); // Ensure the view name is correct
     }
 
     /**
