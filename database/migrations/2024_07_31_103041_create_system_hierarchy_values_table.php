@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_hierarchy_values', function (Blueprint $table) {
+        Schema::create('system_hierarchy_values', function (Blueprint $table) { 
             $table->id();
             $table->foreignId('mas_designation_id')->index()->nullable()->connstrained();
             $table->foreignId('mas_department_id')->index()->nullable()->connstrained();

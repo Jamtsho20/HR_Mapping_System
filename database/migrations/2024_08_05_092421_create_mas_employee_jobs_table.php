@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_emp_trainings', function (Blueprint $table) {
+        Schema::create('mas_employee_jobs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
-            $table->string('title', 100);
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->unsignedInteger('duration')->nullable();
-            $table->string('location', 100);
-            $table->string('description', 500)->nullable();
-            $table->string('certificate')->nullable();
-
+            $table->foreignId('mas_department_id')->index()->constrained();
+            $table->foreignId('mas_section_id')->index()->constrained();
+            $table->foreignId('mas_designation_id')->index()->constrained();
+            $table->foreignId('mas_grade_id')->index()->constrained();
+            $table->foreignId('mas_grade_step_id')->index()->constrained();
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_emp_trainings');
+        Schema::dropIfExists('mas_employee_jobs');
     }
 };

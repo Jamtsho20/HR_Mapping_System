@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('starting_salary')->nullable();
             $table->integer('increment')->nullable();
             $table->integer('ending_salary')->nullable();
+            // $table->string('pay_scale', 100)->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
