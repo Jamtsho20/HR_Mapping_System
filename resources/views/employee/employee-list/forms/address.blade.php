@@ -1,4 +1,4 @@
-<div class="tab-pane fade" id="pills-address" role="tabpanel" aria-labelledby="pills-address-tab">
+<div class="tab-pane " >
     <form action="">
         <div class="card">
             <div class="card-body">
@@ -56,10 +56,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-arrow-circle-right"></i> Save/ Next</button>
-                <a href="{{ url('paymaster/account-heads') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-            </div>
+        
         </div>
     </form>
 </div>

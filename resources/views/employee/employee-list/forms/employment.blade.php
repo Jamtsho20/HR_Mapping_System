@@ -1,4 +1,4 @@
-<div class="tab-pane fade" id="pills-employment" role="tabpanel" aria-labelledby="pills-employment-tab">
+<div class="tab-pane">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -39,9 +39,6 @@
                                     <label for="">TPN Number</label>
                                         <input type="text" class="form-control form-control-sm" name="tpnnumber" required>
                                 </div>
-
-                                
-
 
                             </div>
                         </div>

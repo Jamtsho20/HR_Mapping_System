@@ -1,38 +1,87 @@
-<div class="tab-pane fade" id="pills-training" role="tabpanel" aria-labelledby="pills-training-tab">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="tab-pane" id="training-form">
     <form action="">
         <div class="card">
             <div class="card-body">
-                <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="training_title">Training Title</label>
-                        <input type="text" class="form-control form-control-sm" name="training_title" required>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="training_description">Training Description</label>
-                        <textarea class="form-control form-control-sm" name="training_description" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="training_date">Training Date</label>
-                        <input type="date" class="form-control form-control-sm" name="training_date" required>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="training_duration">Training Duration (days)</label>
-                        <input type="number" class="form-control form-control-sm" name="training_duration" required>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="training_location">Training Location</label>
-                        <input type="text" class="form-control form-control-sm" name="training_location" required>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="training_certificate">Training Certificate (optional)</label>
-                        <input type="file" class="form-control form-control-sm" name="training_certificate">
+                <div class="dataTables_scroll">
+                    <div class="dataTables_scrollHead" style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                        <div class="dataTables_scrollHeadInner" style="box-sizing: content-box; padding-right: 0px;">
+                            <table class="table table-condensed table-bordered table-striped table-sm" id="training-datatable table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="font-size: 13px; text-transform: none;">#</th>
+                                        <th style="font-size: 13px; text-transform: none;">Training Title</th>
+                                        <th style="font-size: 13px; text-transform: none;">Training Description</th>
+                                        <th style="font-size: 13px; text-transform: none;">Training Date</th>
+                                        <th style="font-size: 13px; text-transform: none;">Training Duration (days)</th>
+                                        <th style="font-size: 13px; text-transform: none;">Training Location</th>
+                                        <th style="font-size: 13px; text-transform: none;">Training Certificate</th>
+                                    </tr>
+                                </thead>    
+                                <tbody>
+                                    <tr class="training-row">
+                                        <td class="text-center">
+                                            <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="text" class="form-control form-control-sm" name="training_title" placeholder="Title" required="required" style="font-size: 13px;">
+                                        </td>
+                                        <td class="text-center">
+                                            <textarea class="form-control form-control-sm" name="training_description" placeholder="Description" required="required" style="font-size: 13px;"></textarea>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="date" class="form-control form-control-sm" name="training_date" required="required" style="font-size: 13px;">
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="text" class="form-control form-control-sm" name="training_duration" placeholder="No of days" required="required" style="font-size: 13px;">
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="text" class="form-control form-control-sm" name="training_location" placeholder="Location" required="required" style="font-size: 13px;">
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="file" class="form-control form-control-sm" name="training_certificate" required="required" style="font-size: 13px;">
+                                        </td>
+                                    </tr>
+                                    <tr class="notremovefornew">
+                                        <td colspan="6"></td>
+                                        <td class="text-right">
+                                            <a href="#" class="add-training-row btn btn-sm btn-info" style="font-size: 12px;"><i class="fa fa-plus"></i> Add New Row</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-arrow-circle-right"></i> Save/ Next</button>
-                <a href="{{ url('paymaster/account-heads') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-            </div>
         </div>
     </form>
-</div>  
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Function to add a new row in the training form
+        $('#training-form .add-training-row').click(function(e) {
+            e.preventDefault();
+
+            // Clone the first row
+            var newRow = $('#training-form table tbody tr.training-row:first').clone();
+
+            // Clear the input values in the new row
+            newRow.find('input, textarea').val('');
+
+            // Insert the new row before the 'Add New Row' button row
+            newRow.insertBefore('#training-form table tbody tr.notremovefornew');
+        });
+
+        // Function to delete a row
+        $('#training-form').on('click', '.delete-table-row', function(e) {
+            e.preventDefault();
+
+            // Remove the row
+            $(this).closest('tr').remove();
+        });
+    });
+</script>
+

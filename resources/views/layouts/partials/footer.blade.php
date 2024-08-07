@@ -44,9 +44,11 @@
 <script src="{{ asset('assets/js/swither-styles.js') }}"></script>
 <!-- select2 -->
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+
 <script src="{{ asset('assets/plugins/select2/select2.full.min.js') }}"></script>
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('.select2').select2();
     });
 </script>
@@ -57,7 +59,7 @@
 <script src="{{ asset('assets/js/add-new-row.js') }}"></script>
 <script src="{{ asset('assets/js/custom-script.js') }}"></script>
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('form').find('input').attr('autocomplete', 'off');
     });
 </script>

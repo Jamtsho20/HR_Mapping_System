@@ -1,53 +1,199 @@
 @extends('layouts.app')
-@section('page-title', 'Approval Rules')
+@section('page-title', 'Employee List')
 @section('content')
+<style>
+    /* Initially hide all content panels */
+    .content .body {
+        display: none;
+    }
 
-<div class="card">
-    <div class="card-body">
-        <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pills-personal-tab" data-bs-toggle="pill" data-bs-target="#pills-personal" type="button" role="tab" aria-controls="pills-personal" aria-selected="true">Personal Information</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-address-tab" data-bs-toggle="pill" data-bs-target="#pills-address" type="button" role="tab" aria-controls="pills-address" aria-selected="false">Address</button>
-            </li>  
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-qualification-tab" data-bs-toggle="pill" data-bs-target="#pills-qualification" type="button" role="tab" aria-controls="pills-qualification" aria-selected="false">Qualification</button>
-            </li>           
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-job-tab" data-bs-toggle="pill" data-bs-target="#pills-job" type="button" role="tab" aria-controls="pills-job" aria-selected="false">Job</button>
-            </li>           
-            {{-- <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-employment-tab" data-bs-toggle="pill" data-bs-target="#pills-employment" type="button" role="tab" aria-controls="pills-employment" aria-selected="false">Employment</button>
-            </li>        --}}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-training-tab" data-bs-toggle="pill" data-bs-target="#pills-training" type="button" role="tab" aria-controls="pills-training" aria-selected="false">Training</button>
-            </li>           
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-document-tab" data-bs-toggle="pill" data-bs-target="#pills-document" type="button" role="tab" aria-controls="pills-document" aria-selected="false">Document Upload</button>
-            </li>           
-        </ul>
-        <div class="tab-content" id="pills-tabContent">
-            @include('employee.employee-list.forms.personal')
-            <!-- Address Details-->
-            @include('employee.employee-list.forms.address')
-        <!-- Qualification Details-->
-            @include('employee.employee-list.forms.qualification')
-        <!-- Job Details-->
-            @include('employee.employee-list.forms.job')
-        <!-- Employment Details-->
-        {{-- @include('employee.employee-list.forms.employment') --}}
-        
-        <!-- Training Details-->
-            @include('employee.employee-list.forms.training')
-            <!-- Document Details-->
-            @include('employee.employee-list.forms.document')
-                                
-        </div><!--main div-->
+    /* Show the current panel */
+    .content .body.current {
+        display: block;
+    }
+
+    /* Hide previous button on the first tab */
+    .previous-hidden {
+        display: none;
+    }
+
+    /* Scrollable tabs container */
+    .steps {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        white-space: nowrap; /* Prevent wrapping of tabs */
+    }
+
+    .steps ul {
+        display: flex; /* Arrange tabs in a row */
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .steps li {
+        display: inline-block; /* Keep tabs in a row */
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div id="wizard1" role="application" class="wizard clearfix">
+                    <div class="steps clearfix">
+                        <ul role="tablist">
+                            <li role="tab" class="first current" aria-disabled="false" aria-selected="true">
+                                <a id="wizard1-t-0" href="#wizard1-h-0" aria-controls="wizard1-p-0">
+                                    <span class="current-info audible">current step: </span><span class="number">1</span> <span class="title">Personal Information</span>
+                                </a>
+                            </li>
+                            <li role="tab" class="disabled" aria-disabled="true">
+                                <a id="wizard1-t-1" href="#wizard1-h-1" aria-controls="wizard1-p-1"><span class="number">2</span> <span class="title">Address</span></a>
+                            </li>
+                            <li role="tab" class="disabled last" aria-disabled="true">
+                                <a id="wizard1-t-2" href="#wizard1-h-2" aria-controls="wizard1-p-2"><span class="number">3</span> <span class="title">Job</span></a>
+                            </li>
+                            <li role="tab" class="disabled last" aria-disabled="true">
+                                <a id="wizard1-t-3" href="#wizard1-h-3" aria-controls="wizard1-p-3"><span class="number">4</span> <span class="title">Qualification</span></a>
+                            </li>
+                            <li role="tab" class="disabled last" aria-disabled="true">
+                                <a id="wizard1-t-4" href="#wizard1-h-4" aria-controls="wizard1-p-4"><span class="number">5</span> <span class="title">Training</span></a>
+                            </li>
+                            <li role="tab" class="disabled last" aria-disabled="true">
+                                <a id="wizard1-t-5" href="#wizard1-h-5" aria-controls="wizard1-p-5"><span class="number">6</span> <span class="title">Experience</span></a>
+                            </li>
+                            <li role="tab" class="disabled last" aria-disabled="true">
+                                <a id="wizard1-t-6" href="#wizard1-h-6" aria-controls="wizard1-p-6"><span class="number">7</span> <span class="title">Employment</span></a>
+                            </li>
+                            <li role="tab" class="disabled last" aria-disabled="true">
+                                <a id="wizard1-t-7" href="#wizard1-h-7" aria-controls="wizard1-p-7"><span class="number">8</span> <span class="title">Document Upload</span></a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="content clearfix">
+                        <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
+                            @include('employee.employee-list.forms.personal')
+                        </div>
+
+                        <div id="wizard1-p-1" role="tabpanel" aria-labelledby="wizard1-h-1" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.address')
+                        </div>
+                        
+                        <div id="wizard1-p-2" role="tabpanel" aria-labelledby="wizard1-h-2" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.job')
+                        </div>
+                        
+                        <div id="wizard1-p-3" role="tabpanel" aria-labelledby="wizard1-h-3" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.qualification')
+                        </div>
+
+                        <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.training')
+                        </div>
+                        <div id="wizard1-p-5" role="tabpanel" aria-labelledby="wizard1-h-5" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.experience')
+                        </div>
+                        <div id="wizard1-p-6" role="tabpanel" aria-labelledby="wizard1-h-6" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.employment')
+                        </div>
+                        <div id="wizard1-p-7" role="tabpanel" aria-labelledby="wizard1-h-7" class="body" aria-hidden="true">
+                            @include('employee.employee-list.forms.document')
+                        </div>
+                            <div class="actions clearfix" style="display: flex; justify-content: space-between; padding: 0; margin: 0;">
+                                <ul class="pagination" role="menu" aria-label="Pagination" style="list-style: none; padding: 0; margin: 0; display: flex; gap: 5px;">
+                                    <li aria-hidden="false" aria-disabled="false" id="previous-container">
+                                        <a href="#" role="menuitem" id="previous-button" class="previous-hidden" style="display: inline-block; padding: 5px 10px; font-size: 14px; color: #fff; background-color: #6c757d; border: none; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer;">Previous</a>
+                                    </li>
+                                    <li aria-hidden="false" aria-disabled="false">
+                                        <a href="#" role="menuitem" id="next-button" style="display: inline-block; padding: 5px 10px; font-size: 14px; color: #fff; background-color: #007bff; border: none; border-radius: 4px; text-decoration: none; text-align: center; cursor: pointer;">Next</a>
+                                    </li>
+                                </ul>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div> 
+</div>
+
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
+<script>
+    $(document).ready(function() {
+        function updateNavigationButtons() {
+            var $currentTab = $('.steps .current');
+            var $prevTab = $currentTab.prev();
+            var $nextTab = $currentTab.next();
 
+            // Show or hide the Previous button based on the current tab
+            if ($currentTab.hasClass('first')) {
+                $('#previous-button').hide();
+            } else {
+                $('#previous-button').show();
+            }
+
+            // Show or hide the Next button based on whether there's a next tab
+            if ($nextTab.length) {
+                $('#next-button').show();
+            } else {
+                $('#next-button').hide();
+            }
+        }
+
+        $('#next-button').on('click', function(e) {
+            e.preventDefault();
+
+            // Find the current tab and its content panel
+            var $currentTab = $('.steps .current');
+            var $currentPanel = $('#' + $currentTab.find('a').attr('aria-controls'));
+
+            // Find the next tab and its content panel
+            var $nextTab = $currentTab.next();
+            if ($nextTab.length) {
+                var $nextPanel = $('#' + $nextTab.find('a').attr('aria-controls'));
+
+                // Update tabs
+                $currentTab.removeClass('current').attr('aria-selected', 'false').addClass('disabled').attr('aria-disabled', 'true');
+                $nextTab.addClass('current').attr('aria-selected', 'true').removeClass('disabled').attr('aria-disabled', 'false');
+
+                // Update panels
+                $currentPanel.hide().attr('aria-hidden', 'true');
+                $nextPanel.show().attr('aria-hidden', 'false');
+                
+                // Update navigation buttons
+                updateNavigationButtons();
+            }
+        });
+
+        $('#previous-button').on('click', function(e) {
+            e.preventDefault();
+
+            // Find the current tab and its content panel
+            var $currentTab = $('.steps .current');
+            var $currentPanel = $('#' + $currentTab.find('a').attr('aria-controls'));
+
+            // Find the previous tab and its content panel
+            var $prevTab = $currentTab.prev();
+            if ($prevTab.length) {
+                var $prevPanel = $('#' + $prevTab.find('a').attr('aria-controls'));
+
+                // Update tabs
+                $currentTab.removeClass('current').attr('aria-selected', 'false').addClass('disabled').attr('aria-disabled', 'true');
+                $prevTab.addClass('current').attr('aria-selected', 'true').removeClass('disabled').attr('aria-disabled', 'false');
+
+                // Update panels
+                $currentPanel.hide().attr('aria-hidden', 'true');
+                $prevPanel.show().attr('aria-hidden', 'false');
+                
+                // Update navigation buttons
+                updateNavigationButtons();
+            }
+        });
+
+        // Initialize navigation buttons
+        updateNavigationButtons();
+    });
+</script>
 @endpush
