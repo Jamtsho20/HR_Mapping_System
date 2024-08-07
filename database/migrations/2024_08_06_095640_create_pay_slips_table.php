@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_acc_account_heads', function (Blueprint $table) {
+        Schema::create('pay_slips', function (Blueprint $table) {
             $table->id();
-            $table->string("code",30)->index();
-            $table->string("name",100)->index();
-            $table->tinyInteger("type")->comment("1 for Credit, 2 for Debit");
+            $table->date("for_month")->index();
+            $table->tinyInteger("status")->comment("0 for Cancelled, 1 for New, 2 for Verified, 3 for Approved")->default(1);
             $table->foreignId("created_by")->index()->constrained('mas_employees');
-            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');   
-                     
+            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
+            
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_acc_account_heads');
+        Schema::dropIfExists('pay_slips');
     }
 };

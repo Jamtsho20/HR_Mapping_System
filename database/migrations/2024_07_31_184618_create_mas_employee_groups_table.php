@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_pay_slab_details', function (Blueprint $table) {
+        Schema::create('mas_employee_groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_pay_slab_id')->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->decimal('pay_from', 12, 2);
-            $table->decimal('pay_to', 12, 2);
-            $table->decimal('amount', 12, 2);
+            $table->string('name', 200);
+            $table->string('description', 500)->nullable();
+            $table->boolean('status')->default(1)->comment('1 => active, 0 => in-active');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->constrained('mas_employees');
             
             $table->timestamps();
         });
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_pay_slab_details');
+        Schema::dropIfExists('mas_employee_groups');
     }
 };

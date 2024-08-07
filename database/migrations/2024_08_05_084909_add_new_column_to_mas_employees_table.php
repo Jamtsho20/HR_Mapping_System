@@ -19,12 +19,13 @@ return new class extends Migration
             $table->string('cid_no', 50);
             $table->string('employee_id', 30)->unique();
             $table->string('gender', 30);
-            $table->date('dob');
+            $table->date('dob')->default(now());
             $table->string('birth_place', 100);
+            $table->string('birth_country', 100);
             $table->string('marital_status', 50);
             $table->integer('contact_number');
             $table->string('nationality', 50);
-            $table->date('date_of_appointment');
+            $table->date('date_of_appointment')->default(now());
             $table->string('cid_copy');
         });
     }
@@ -42,6 +43,7 @@ return new class extends Migration
             $table->dropColumn('cid_no');
             $table->dropColumn('dob');
             $table->dropColumn('birth_place');
+            $table->dropColumn('birth_country');
             $table->dropColumn('marital_status');
             $table->dropColumn('contact_number');
             $table->dropColumn('nationality');

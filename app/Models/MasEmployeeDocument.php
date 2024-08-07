@@ -5,7 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MasEmpPermenantAddress extends Model
+class MasEmployeeDocument extends Model
 {
     use HasFactory;
+
+    public function masEmployee(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
 }
