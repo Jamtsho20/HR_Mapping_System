@@ -14,7 +14,11 @@ return [
 
     'gender' => ['Male', 'Female', 'Other'],
 
-    'marital_status' => ['Single', 'Married', 'Divorced'],
+    'marital_status' => [
+        0 => 'Single', 
+        1 => 'Married', 
+        3 => 'Divorced'
+    ],
 
     'nationality' => ['Bhutanese', 'Indian', 'Canadian'],
 
