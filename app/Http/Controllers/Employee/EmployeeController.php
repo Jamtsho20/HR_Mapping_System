@@ -37,7 +37,7 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-    
+        dd($request->all());
     }
 
     /**
@@ -70,5 +70,9 @@ class EmployeeController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function savePersonalInfo(){
+        
     }
 }
