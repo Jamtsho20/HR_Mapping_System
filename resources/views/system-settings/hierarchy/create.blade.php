@@ -38,7 +38,7 @@
                                         <select class="form-control" name="hierarchies[AAAAA][level]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.level') as $type)
-                                            <option value="{{ $type }}">{{ $type }}</option>
+                                                <option value="{{ $type }}">{{ $type }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -46,7 +46,7 @@
                                         <select class="form-control" name="hierarchies[AAAAA][value]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.value') as $type)
-                                            <option value="{{$type}}">{{ $type }}</option>
+                                                <option value="{{$type}}">{{ $type }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -60,7 +60,7 @@
                                         <select class="form-control" name="hierarchies[AAAAA][status]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.status') as $key => $type)
-                                            <option value="{{ $key}}">{{ $type }}</option>
+                                                <option value="{{ $key}}">{{ $type }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -76,7 +76,7 @@
                                         <select name="hierarchies[AAAAA{{ $key }}][level]" class="form-control form-control-sm resetKeyForNew">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.level') as $type)
-                                            <option value="{{ $type }}" {{ old('level', $value['level']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                                <option value="{{ $type }}" {{ old('level', $value['level']) == $type ? 'selected' : '' }}>{{ $type }}</option>
                                             @endforeach
                                         </select>
 
@@ -85,7 +85,7 @@
                                         <select class="form-control" name="hierarchies[AAAAA{{ $key }}][value]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.value') as $type)
-                                            <option value="{{$type}}" {{ old('value', $value['value']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                                <option value="{{$type}}" {{ old('value', $value['value']) == $type ? 'selected' : '' }}>{{ $type }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -99,7 +99,7 @@
                                         <select name="grade_steps[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
                                             <option value="" disabled selected hidden>Select Status</option>
                                             @foreach (config('global.status') as $key->$type)
-                                            <option value="{{ $key}}" {{ old('status', $value['status']) == $key ? 'selected' : '' }}>{{ $type }}</option>
+                                                <option value="{{ $key}}" {{ old('status', $value['status']) == $key ? 'selected' : '' }}>{{ $type }}</option>
                                             @endforeach
 
                                         </select>

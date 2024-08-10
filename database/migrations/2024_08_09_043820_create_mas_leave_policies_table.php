@@ -11,24 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_hierarchy_levels', function (Blueprint $table) {
+        Schema::create('mas_leave_policies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('system_hierarchy_id')->constrained()->cascadeOnDelete();
-            $table->string('level');
-            $table->string('value');
+            $table->foreignId('mas_leave_type_id')->constrained();
+            $table->string('name', 50)->comment('leave policy name');
+            $table->text('description')->nullable();
             $table->date('start_date');
-            $table->date('end_date');
-            $table->tinyInteger('status');
+            $table->date('end_date')->nullable();
+            $table->boolean('status')->default(0)->comment('0 => draft, 1 => enforced');
+            $table->boolean('is_information_only')->default(0)->comment('0 => just for information, 1 => used in later part of the application');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('system_hierarchy_levels');
+        Schema::dropIfExists('mas_leave_policies');
     }
 };

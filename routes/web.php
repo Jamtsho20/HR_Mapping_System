@@ -89,7 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Leave')->prefix('leave')->group(function () {
         Route::resource('leave-apply', 'LeaveController')->except('create', 'show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
-        Route::resource('history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
+        Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         
