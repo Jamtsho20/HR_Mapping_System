@@ -63,7 +63,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 5, 'name' => 'Fuel Expense Approval', 'route' => 'expense/fuel-approval', 'display_order' => 10],
 
             //sub menu for leaves
-            ['system_menu_id' => 6, 'name' => 'Apply', 'route' => 'leave/leave-history', 'display_order' => 1],
+            ['system_menu_id' => 6, 'name' => 'Apply', 'route' => 'leave/leave-apply', 'display_order' => 1],
             ['system_menu_id' => 6, 'name' => 'Approval', 'route' => 'leave/approval', 'display_order' => 2],
             ['system_menu_id' => 6, 'name' => 'Cancellation', 'route' => 'leave/cancellation', 'display_order' => 3],
             ['system_menu_id' => 6, 'name' => 'History', 'route' => 'leave/history', 'display_order' => 4],
