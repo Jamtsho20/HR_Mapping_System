@@ -87,17 +87,17 @@ Route::middleware('auth')->group(function () {
 
     // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
-        Route::resource('leave-apply', 'LeaveController')->except('create', 'show', 'edit');
+        Route::resource('leave-policy', 'LeavePolicyController')->except('show', 'edit');
+        Route::resource('leave-apply', 'LeaveController')->except('show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
-        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
-        
+        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
         Route::get('leave-encashment', function () {return view('leave.leave.leave-encashment');})->name('leave.leave-encashment');
-        Route::get('apply-leave', function () {return view('leave.leave.apply-leave');})->name('leave.apply-leave');
         Route::get('leave-balance', function () {return view('leave.leave.leave-balance');})->name('leave.leave-balance');
     });
 
+ 
   
 
     // DELEGATION APPROVAL

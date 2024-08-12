@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string("name",150)->index();
             $table->string("code",50)->index();
             $table->tinyInteger("payhead_type")->comment("1 for Allowance, 2 for Deduction")->index();
-            $table->tinyInteger("calculation_method")->comment("1 for Actual Amount, 2 for Division, 3 for Slab Wise, 4 for Group Wise, 5 for Percentage")->index();
-            $table->tinyInteger("calculated_on")->comment("1 for Basic Pay, 2 for Gross Pay, 3 for Net Pay, 4 for PIT Net Pay")->index();
+            $table->tinyInteger("calculation_method")->comment("1 for Actual Amount, 2 for Division, 3 for Slab Wise, 4 for Group Wise, 5 for Percentage, 6 for By Formula, 7 for Employee Wise")->index();
+            $table->tinyInteger("calculated_on")->comment("1 for Basic Pay, 2 for Gross Pay, 3 for Net Pay, 4 for PIT Net Pay, 5 for By Formula, 6 for Pay Scale Base Pay")->index();
             $table->decimal("amount", 12,2)->nullable();
             $table->foreignId("mas_pay_slab_id")->index()->nullable()->constrained();
             $table->foreignId("mas_pay_group_id")->index()->nullable()->constrained();

@@ -1,18 +1,13 @@
 @extends('layouts.app')
-@section('page-title', 'Leave')
+@section('page-title', 'Leave Policy')
 @section('content')
 <div class="block">
     <div class="block-options">
         <div class="block-options-item">
-            <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
-                <i class="fa fa-plus"></i> Leave Encashment
+            <a href="{{ route('leave-policy.create')}}" class="btn btn-sm btn-primary">
+                <i class="fa fa-plus"></i>Add New
             </a>
-            <a href="{{route('leave-apply.create')}}" class="btn btn-sm btn-primary">
-                <i class="fa fa-plus"></i> Apply Leave
-            </a>
-            <a href="{{ route('leave.leave-balance')}}" class="btn btn-sm btn-primary">
-                <i class="fa fa-calendar"></i> Leave Balance
-            </a>
+
         </div>
     </div>
     <br>
