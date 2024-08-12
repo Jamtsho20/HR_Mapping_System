@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @section('page-title', 'Department')
 @if ($privileges->create)
-@section('buttons')
-<a href="{{ route('departments.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Department</a>
-@endsection
+    @section('buttons')
+        <a href="{{ route('departments.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Department</a>
+    @endsection
 @endif
 @section('content')
 

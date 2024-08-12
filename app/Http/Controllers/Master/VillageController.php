@@ -88,11 +88,6 @@ class VillageController extends Controller
         return redirect('master/villages')->with('msg_success', 'Village updated successfully');
     }
 
-    public function getGewog($id)
-    {
-        $gewogs = MasGewog::where('mas_dzongkhag_id', $id)->get();
-        return $gewogs;
-    }
     /**
      * Remove the specified resource from storage.
      *

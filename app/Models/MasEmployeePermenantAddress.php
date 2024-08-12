@@ -9,7 +9,7 @@ class MasEmployeePermenantAddress extends Model
 {
     use HasFactory;
 
-    public function employee(){
-        return $this->belongsTo(User::class);
+    public function masEmployee(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
     }
 }

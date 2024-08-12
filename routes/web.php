@@ -123,7 +123,7 @@ Route::middleware('auth')->group(function () {
 
     // Eployee
     Route::namespace('Employee')->prefix('employee')->group(function () {
-        Route::resource('employee-list', 'EmployeeController');
+        Route::resource('employee-lists', 'EmployeeController');
     });
 
     //reports
@@ -171,6 +171,8 @@ Route::middleware('auth')->group(function () {
 
 
 
-
-    Route::get('getgewogbydzongkhag/{id}', 'Master\VillageController@getGewog');
+    // route related to ajax
+    Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
+    Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
+    Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
 });

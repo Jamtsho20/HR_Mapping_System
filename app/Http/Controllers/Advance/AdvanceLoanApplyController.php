@@ -14,10 +14,10 @@ class AdvanceLoanApplyController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:advance-loan/apply,view')->only('index');
-        $this->middleware('permission:advance-loan/apply,create')->only('store');
-        $this->middleware('permission:advance-loan/apply,edit')->only('update');
-        $this->middleware('permission:advance-loan/apply,delete')->only('destroy');
+        $this->middleware('permission:advance-loan/apply, view')->only('index');
+        $this->middleware('permission:advance-loan/apply, create')->only('store');
+        $this->middleware('permission:advance-loan/apply, edit')->only('update');
+        $this->middleware('permission:advance-loan/apply, delete')->only('destroy');
     }
     public function index(Request $request)
     {

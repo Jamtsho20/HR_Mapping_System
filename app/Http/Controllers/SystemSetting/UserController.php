@@ -12,10 +12,10 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:system-setting/users,view', ['only' => ['index', 'show']]);
-        $this->middleware('permission:system-setting/users,create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:system-setting/users,edit', ['only' => ['edit', 'update', 'postDisableToggle']]);
-        $this->middleware('permission:system-setting/users,delete', ['only' => 'destroy']);
+        $this->middleware('permission:system-setting/users, view', ['only' => ['index', 'show']]);
+        $this->middleware('permission:system-setting/users, create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:system-setting/users, edit', ['only' => ['edit', 'update', 'postDisableToggle']]);
+        $this->middleware('permission:system-setting/users, delete', ['only' => 'destroy']);
     }
     /**
      * Display a listing of the resource.

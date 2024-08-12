@@ -72,7 +72,7 @@
                     </div>
 
                     <div class="content clearfix">
-                        <form action="{{ route('employee-list.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
+                        <form action="{{ route('employee-lists.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
                             @csrf
                             <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                                 @include('employee.employee-list.forms.personal')

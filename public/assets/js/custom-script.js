@@ -49,6 +49,56 @@ var hrms = function() {
             }
         });
 
+        //populate village based on selection of gewogs
+        $(document).on("change", "#gewog_id", function() {
+            var gewogId = $("#gewog_id").val();
+            if (gewogId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getvillagebygewog/" + gewogId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        var gewogs = data;
+                        var html = "<option value='' disabled selected hidden>Select a gewog</option>";
+                        for (var x in data) {
+                            html += "<option value='" +
+                                data[x].id + "'>" + data[x]
+                                .village + "</option>";
+                        }
+                        $("#village_id").html(html);
+                    }
+                });
+            } else {
+                //do sth
+            }
+        });
+
+        //populate section based on selection of department
+        $(document).on("change", "#department_id", function() {
+            var departmentId = $("#department_id").val();
+            if (departmentId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getsectionbydepartment/" + departmentId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        var section = data;
+                        var html = "<option value='' disabled selected hidden>Select a section</option>";
+                        for (var x in data) {
+                            html += "<option value='" +
+                                data[x].id + "'>" + data[x]
+                                .name + "</option>";
+                        }
+                        $("#section_id").html(html);
+                    }
+                });
+            } else {
+                //do sth
+            }
+        });
+
 
         //END
 

@@ -9,6 +9,10 @@ class MasEmployeeDocument extends Model
 {
     use HasFactory;
 
+    protected $cast = [
+        'other' => 'array'
+    ];
+
     public function masEmployee(){
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
