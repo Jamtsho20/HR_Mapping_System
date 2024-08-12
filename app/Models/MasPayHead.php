@@ -36,4 +36,8 @@ class MasPayHead extends Model
             $query->where('formula', 'LIKE', '%' . $request->query('formula') . '%');
         }
     }
+    public function accountHead()
+    {
+        return $this->belongsTo(MasAccAccountHead::class, 'account_head_id');
+    }
 }
