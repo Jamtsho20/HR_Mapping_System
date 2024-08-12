@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mas_leave_policy_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->boolean('attachment_required')->default(0)->comment('0 => not required while applying leave, 1 => required');
-            $table->unsignedTinyInteger('gender')->comment('0 => Male, 1 => Female, 2 => All');
+            $table->unsignedTinyInteger('gender')->comment('1 => Male, 2 => Female, 3 => All');
             $table->unsignedTinyInteger('leave_year')->comment('1 => Calendar Year, 2 => Financial Year');
             $table->unsignedTinyInteger('credit_frequency')->comment('1 => monthly, 2 => yearly');
             $table->unsignedTinyInteger('credit')->comment('1 => Start of period, 2 => end of period; determines when the leave will be credited.');

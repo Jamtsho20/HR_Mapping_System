@@ -91,13 +91,7 @@
                                                                                 Deduction
                                                                             @endif
                                                                         </td>
-                                                                        <td>
-                                                                            @if($payHead->accounthead_type == 1)
-                                                                                Allowance
-                                                                            @elseif($payHead->accounthead_type == 2)
-                                                                                Deduction
-                                                                            @endif
-                                                                        </td>
+                                                                        <td>{{ $payHead->accountHead->name ?? 'N/A' }}</td>
                                                                         <td>{{ $payHead->code }}</td>
                                                                         <td>
                                                                             @if($payHead->calculation_method == 1)
@@ -133,7 +127,7 @@
                                                                                 By Formula
                                                                             @endif
                                                                         </td>
-                                                                        <td>{{ $payHead->formula }}</td>
+                                                                        <td>{{ $payHead->amount }}</td>
                                                                         <td>{{ $payHead->created_at->format('Y-m-d H:i:s') }}</td>
                                                                         <td>{{ $payHead->updated_at->format('Y-m-d H:i:s') }}</td>
                                                                         <td class="text-center">

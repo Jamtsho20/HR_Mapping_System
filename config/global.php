@@ -12,12 +12,34 @@ return [
         1 =>'active', 0=>'inactive'
     ],
 
-    'gender' => ['Male', 'Female', 'Other'],
+    'application_status' => [
+        -1 => 'Rejected',
+        0 => 'Cancelled',
+        1 => 'New',
+        2 => 'Approved'
+    ],
+
+    'gender' => [
+        1 => 'Male', 
+        2 => 'Female', 
+        3 => 'Other'
+    ],
+
+    'gender_with_all' => [
+        1 => 'Male', 
+        2 => 'Female', 
+        3 => 'All'
+    ],
 
     'marital_status' => [
         0 => 'Single', 
         1 => 'Married', 
         3 => 'Divorced'
+    ],
+
+    'leave_year' => [
+        1 => 'Calendar Year', 
+        2 => 'Financial Year'
     ],
 
     'nationality' => ['Bhutanese', 'Indian', 'Canadian'],

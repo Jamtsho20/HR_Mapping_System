@@ -21,9 +21,14 @@ class PayHeadsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $payHeads = MasPayHead::filter($request)->orderBy('name')->paginate(30);
+        $payHeads = MasPayHead::with('accountHead') // Ensure that you have defined the relationship in your model
+            ->filter($request)
+            ->orderBy('name')
+            ->paginate(30);
+    
         return view('paymaster.pay-heads.index', compact('payHeads', 'privileges'));
     }
+    
 
     /**
      * Show the form for creating a new resource.

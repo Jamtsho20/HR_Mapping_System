@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-policy', 'LeavePolicyController')->except('show', 'edit');
         Route::resource('leave-apply', 'LeaveController')->except('show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
-        Route::resource('history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
+        Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
         Route::get('leave-encashment', function () {return view('leave.leave.leave-encashment');})->name('leave.leave-encashment');
