@@ -51,9 +51,9 @@
                                                         @foreach ($grade->gradeSteps as $step)
                                                         <tr>
                                                             <td>{{ $step->name }}</td>
-                                                            <td class="text-right">{{ number_format($step->starting_salary) }}</td>
-                                                            <td class="text-right">{{ number_format($step->increment) }}</td>
-                                                            <td class="text-right">{{ number_format($step->ending_salary) }}</td>
+                                                            <td class="text-center">{{ number_format($step->starting_salary) }}</td>
+                                                            <td class="text-center">{{ number_format($step->increment) }}</td>
+                                                            <td class="text-center">{{ number_format($step->ending_salary) }}</td>
                                                         </tr>
                                                         @endforeach
                                                     </tbody>

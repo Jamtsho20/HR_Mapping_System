@@ -88,13 +88,16 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 9, 'name' => 'Approval', 'route' => 'delegation-approval/approval', 'display_order' => 7],
 
             //submenu for employee 
-            ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-lists', 'display_order' => 1],
+            ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-list', 'display_order' => 1],
 
             //submenu for sifa
             ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
 
-            // //submenu for paymaster
-            // ['system_menu_id' => 11, 'name' => 'Pay Master', 'route' => 'PayMaster/Paym', 'display_order' => 1],
+            //submenu for paymaster
+            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/account-heads', 'display_order' => 1],
+            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-groups', 'display_order' => 1],
+            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
+            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
 
         ]);
     }
