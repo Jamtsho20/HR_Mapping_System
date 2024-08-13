@@ -1,11 +1,11 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
-@if ($privileges->create)
+{{-- @if ($privileges->create) --}}
     @section('buttons')
-        <a href="{{ route('employee-list.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
+        <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
     @endsection
-@endif
+{{-- @endif --}}
 <div class="block-header block-header-default">
      @component('layouts.includes.filter')
         <div class="col-8 form-group">

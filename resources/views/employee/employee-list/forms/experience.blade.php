@@ -20,22 +20,22 @@
                                 <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][AAAAA][organization]" placeholder="Organization" required="required">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][organization]" value="{{ old('experiences.AAAAA.organization') }}" placeholder="Organization">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][AAAAA][country]" placeholder="Country " required="required">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][place]" value="{{ old('experiences.AAAAA.place') }}" placeholder="Country ">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][AAAAA][designation]" placeholder="Designation" required="required">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][designation]" value="{{ old('experiences.AAAAA.designation') }}" placeholder="Designation">
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][AAAAA][start_date]" placeholder="Start date" required="required">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][start_date]" value="{{ old('experiences.AAAAA.start_date') }}" placeholder="Start date">
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][AAAAA][end_date]" placeholder="End date" required="required">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][end_date]" value="{{ old('experiences.AAAAA.end_date') }}" placeholder="End date">
                             </td>
                             <td class="text-center">
-                                <textarea class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][AAAAA][description]" placeholder="description" required="required"></textarea>
+                                <textarea class="form-control form-control-sm resetKeyForNew" name="experiences[AAAAA][description]" value="{{ old('experiences.AAAAA.description') }}" placeholder="description"></textarea>
                             </td>
                         </tr>
                         <tr class="notremovefornew">

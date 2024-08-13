@@ -8,8 +8,9 @@
                             <th width="3%" class="text-center">#</th>
                             <th>Qualification</th>
                             <th>School/College</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
+                            <th>Completion Year</th>
+                            {{-- <th>Start Date</th>
+                            <th>End Date</th> --}}
                             <th>Subject/Course</th>
                             <th>Aggregate Score</th>
                         </tr>
@@ -20,29 +21,30 @@
                                 <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                             </td>
                             <td class="text-center">
-                                <select name="qualifications[AAAAA][AAAAA][mas_qualification_id]" class="form-control form-control-sm resetKeyForNew" required>
-                                    <option value="">SELECT ONE</option>
-                                    <option value="Bhutan">Bhutan</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="China">China</option>
-                                    <option value="India">India</option>
-                                    <option value="Other">Other</option>
+                                <select name="qualifications[AAAAA][mas_qualification_id]" class="form-control form-control-sm resetKeyForNew" required>
+                                    <option value="" disabled selected hidden>SELECT ONE</option>
+                                    @foreach($qualifications as $qualification)
+                                        <option value="{{ $qualification->id }} {{ old('qualifications.AAAAA.mas_qualification_id') == $qualification->id ? 'selected' : '' }}">{{ $qualification->name }}</option>
+                                    @endforeach
                                 </select>
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" id="decline-reason" name="qualifications[AAAAA][AAAAA][school]" required></textarea>
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" id="decline-reason" name="qualifications[AAAAA][school]" value="{{ old('qualifications.AAAAA.school') }}" required></textarea>
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][AAAAA][startdate]" required>
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][completion_year]" value="{{ old('qualifications.AAAAA.completion_year') }}" required>
+                            </td>
+                            {{-- <td class="text-center">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][start_date]" value="{{ old('qualifications.AAAAA.start_date') }}" required>
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][AAAAA][enddate]" required>
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][end_date]" value="{{ old('qualifications.AAAAA.end_date') }}" required>
+                            </td> --}}
+                            <td class="text-center">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][subject]" value="{{ old('qualifications.AAAAA.subject') }}" required>
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][AAAAA][subject]" required>
-                            </td>
-                            <td class="text-center">
-                                <input type="number" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][AAAAA][aggregate_score]" required>
+                                <input type="number" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][aggregate_score]" value="{{ old('qualifications.AAAAA.aggregate_score') }}" required>
                             </td>
                         </tr>
                         <tr class="notremovefornew">

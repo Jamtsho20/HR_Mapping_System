@@ -100,4 +100,5 @@ class SectionController extends Controller
             return back()->with('msg_error', 'Section cannot be delete as it has been used by other module. For further information contact system admin.');
         }
     }
+
 }

@@ -8,10 +8,11 @@ use Illuminate\Http\Request;
 
 class LeaveController extends Controller
 {
+      
     public function __construct()
     {
         $this->middleware('permission:leave/leave-apply,view')->only('index');
-        $this->middleware('permission:leave/leave-apply,create')->only('store');
+        $this->middleware('permission:leave/leave-apply,create')->only('create');
         $this->middleware('permission:leave/leave-apply,edit')->only('update');
         $this->middleware('permission:leave/leave-apply,delete')->only('destroy');
     }
@@ -22,6 +23,7 @@ class LeaveController extends Controller
      */
     public function index(Request $request)
     {
+      
         $privileges = $request->instance();
         $leaves = MasLeaveType::get();
         return view('leave.leave.index',compact('privileges','leaves'));
@@ -35,8 +37,11 @@ class LeaveController extends Controller
      */
     public function create()
     {
-        $leaves = MasLeaveType::all(); // Fetch all leave types
-        return view('leave.leave-apply', compact('leaves')); // Ensure the view name is correct
+ 
+    
+        $leaves = MasLeaveType::get(); 
+  // Fetch all leave types
+        return view('leave.leave.apply-leave',compact('leaves')); // Ensure the view name is correct
     }
 
     /**

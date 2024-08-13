@@ -3,112 +3,117 @@
         <div class="card-body">
             <div class="row">
                 <div class="form-group col-md-4">
-                    <label for="">First Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="peronal[first_name]" value="{{ old('first_name') }}" required>
+                    <label for="first_name">First Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="personal[first_name]" value="{{ old('first_name') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Middle Name</label>
-                    <input type="text" class="form-control form-control-sm" name="peronal[middle_name]" value="{{ old('middle_name') }}">
+                    <label for="middle_name">Middle Name</label>
+                    <input type="text" class="form-control form-control-sm" name="personal[middle_name]" value="{{ old('middle_name') }}">
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Last Name</label>
-                    <input type="text" class="form-control form-control-sm" name="peronal[last_name]" value="{{ old('last_name') }}">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" class="form-control form-control-sm" name="personal[last_name]" value="{{ old('last_name') }}">
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Title <span class="text-danger">*</span></label>
-                    <select name="peronal[title]" id="" class="form-control form-control-sm" required>
+                    <label for="title">Title <span class="text-danger">*</span></label>
+                    <select name="personal[title]" id="" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.title') as $title)
-                            <option value={{ $title }}>{{ $title }}</option>
+                            <option value="{{ $title }} {{ old('personal.title') == $title ? 'selected' : '' }}">{{ $title }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">CID <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="peronal[cid_no]" value="{{ old('cid_no') }}" required>
+                    <label for="cid_no">CID Number<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="personal[cid_no]" value="{{ old('cid_no') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Employee ID <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="peronal[employee_id]" value="{{ old('employee_id') }}" required>
+                    <label for="employee_id">Employee ID <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="personal[employee_id]" value="{{ old('employee_id') }}" required>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
-                    <label for="">Gender <span class="text-danger">*</span></label>
-                    <select name="peronal[gender]" class="form-control form-control-sm" required>
+                    <label for="gender">Gender <span class="text-danger">*</span></label>
+                    <select name="personal[gender]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
-                        @foreach(config('global.gender') as $gender)
-                            <option value={{ $gender }}>{{ $gender }}</option>
+                        @foreach(config('global.gender') as $key => $value)
+                            <option value="{{ $key }} {{ old('personal.gender') == $key ? 'selected' : '' }}">{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">DoB <span class="text-danger">*</span></label>
+                    <label for="dob">Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control form-control-sm" name="personal[dob]" value="{{ old('dob') }}" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="birth_place">Birth Place <span class="text-danger">*</span></label>
                     <div class="input-group input-group-sm">
-                        <input type="date" class="form-control form-control-sm" name="peronal[dob]" value="{{ old('dob') }}" data-mask placeholder="dd-mm-yyyy" required>
+                        <input type="text" class="form-control form-control-sm" name="personal[birth_place]" value="{{ old('birth_place') }}" required>
                     </div>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Birth Place <span class="text-danger">*</span></label>
+                    <label for="birth_country">Birth Country <span class="text-danger">*</span></label>
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control form-control-sm" name="peronal[birth_place]" value="{{ old('birth_place') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="personal[birth_country]" value="{{ old('birth_country') }}" required>
                     </div>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Birth Country <span class="text-danger">*</span></label>
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control form-control-sm" name="peronal[birth_country]" value="{{ old('birth_country') }}" required>
-                    </div>
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="">Marital Status <span class="text-danger">*</span></label>
-                    <select name="peronal[marital_status]" class="form-control form-control-sm" required>
+                    <label for="marital_status">Marital Status <span class="text-danger">*</span></label>
+                    <select name="personal[marital_status]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>select your option</option>
-                        @foreach(config('global.marital_status') as $maritalStatus)
-                            <option value={{ $maritalStatus }}>{{ $maritalStatus }}</option>
+                        @foreach(config('global.marital_status') as $key => $value)
+                            <option value="{{ $key }} {{ old('personal.marital_status') == $key ? 'selected' : '' }}">{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
-                        <label for="">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control form-control-sm" name="peronal[email]" value="{{ old('email') }}" required>
+                        <label for="email">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control form-control-sm" name="personal[email]" value="{{ old('email') }}" required>
                     </div>
                 <div class="form-group col-md-4">
-                    <label for="">Contact Number <span class="text-danger">*</span></label>
+                    <label for="contact_number">Contact Number <span class="text-danger">*</span></label>
                     <div class="input-group input-group-sm">
                         <div class="input-group-prepend">
                             <span class="input-group-text">(+975)</span>
                         </div>
-                        <input type="number" class="form-control form-control-sm" name="peronal[contact_number]" value="{{ old('contact_number') }}" >
+                        <input type="number" class="form-control form-control-sm" name="personal[contact_number]" value="{{ old('contact_number') }}" >
                     </div>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Nationality <span class="text-danger">*</span></label>
-                    <select name="peronal[nationality]" class="form-control form-control-sm" required>
+                    <label for="nationality">Nationality <span class="text-danger">*</span></label>
+                    <select name="personal[nationality]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.nationality') as $nationality)
-                            <option value={{ $nationality }}>{{ $nationality }}</option>
+                            <option value="{{ $nationality }} {{ old('personal.nationality') == $nationality ? 'selected' : '' }}">{{ $nationality }}</option>
                         @endforeach
                     </select>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
                     <label for="date_of_appointment">Date of Appointment <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm" name="peronal[date_of_appointment]" value="{{ old('date_of_appointment') }}" required>
+                    <input type="date" class="form-control form-control-sm" name="personal[date_of_appointment]" value="{{ old('date_of_appointment') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="cid_copy">CID Copy <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control form-control-sm" name="peronal[cid_copy]" required>
+                    <input type="file" class="form-control form-control-sm" name="personal[cid_copy]" required>
                 </div>
 
                 <div class="form-group col-md-4">
-                    <label for="profile_picture">Profile Picture <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control form-control-sm" name="peronal[profile_picture]" required>
+                    <label for="profile_pic">Profile Picture</label>
+                    <input type="file" class="form-control form-control-sm" name="personal[profile_pic]">
                 </div>
                 <div class="form-group col-md-4">
                     <div class="form-label mt-6"></div>
                     <label class="custom-switch">
-                        <input type="checkbox" name="peronal[is_active]" class="custom-switch-input form-control form-control-sm" /> 
+                        <!-- Hidden input to pass '0' when checkbox is unchecked -->
+                        <input type="hidden" name="personal[is_active]" value="0">
+                        <!-- Checkbox to pass '1' when checked, and retain old value -->
+                        <input type="checkbox" 
+                               name="personal[is_active]" 
+                               class="custom-switch-input form-control form-control-sm" 
+                               value="1" 
+                               {{ old('personal.is_active') == '1' ? 'checked' : '' }} /> 
                         <span class="custom-switch-indicator"></span>
                         <span class="custom-switch-description">is Active</span>
                     </label>

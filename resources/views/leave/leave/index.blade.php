@@ -7,7 +7,7 @@
             <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-plus"></i> Leave Encashment
             </a>
-            <a href="{{ route('leave.apply-leave')}}" class="btn btn-sm btn-primary">
+            <a href="{{route('leave-apply.create')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-plus"></i> Apply Leave
             </a>
             <a href="{{ route('leave.leave-balance')}}" class="btn btn-sm btn-primary">
@@ -45,14 +45,14 @@
                                             entries
                                         </label>
                                     </div>
-                                        <div class="dataTables_scroll">
-                                            <div class="dataTables_scrollHead"
-                                                style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                <div class="dataTables_scrollHeadInner"
-                                                    style="box-sizing: content-box; padding-right: 0px;">
-                                                    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
-                                                        <thead>
-                                                            <tr role="row">
+                                    <div class="dataTables_scroll">
+                                        <div class="dataTables_scrollHead"
+                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                            <div class="dataTables_scrollHeadInner"
+                                                style="box-sizing: content-box; padding-right: 0px;">
+                                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
+                                                    <thead>
+                                                        <tr role="row">
                                                             <th>
                                                                 #
                                                             </th>
@@ -60,7 +60,7 @@
                                                                 EMPLOYEE
                                                             </th>
                                                             <th>
-                                                               LEAVE TYPE
+                                                                LEAVE TYPE
                                                             </th>
                                                             <th>
                                                                 FROM DATE
@@ -74,12 +74,12 @@
                                                             <th>
                                                                 STATUS
                                                             </th>
-                                                                </tr>
-                                                        </thead>
-                                                    </table>
-                                                </div>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
                                             </div>
-                                        </div>    
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 </div>
 @include('layouts.includes.delete-modal')
 @endsection

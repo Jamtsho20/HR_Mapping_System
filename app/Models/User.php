@@ -50,6 +50,34 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'mas_employee_roles', 'mas_employee_id', 'role_id');
     }
 
+    public function empJob(){
+        return $this->hasOne(MasEmployeeJob::class, 'mas_employee_id');
+    }
+
+    public function empDoc(){
+        return $this->hasOne(MasEmployeeDocument::class, 'mas_employee_id');
+    }
+
+    public function empQualifications(){
+        return $this->hasMany(MasEmployeeQualification::class, 'mas_employee_id');
+    }
+
+    public function empPermenantAddress(){
+        return $this->hasOne(MasEmployeePermenantAddress::class, 'mas_employee_id');
+    }
+
+    public function empPresentAddress(){
+        return $this->hasOne(MasEmployeePresentAddress::class, 'mas_employee_id');
+    }
+
+    public function empTrainings(){
+        return $this->hasMany(MasEmployeeTraining::class, 'mas_employee_id');
+    }
+
+    public function empExperiences(){
+        return $this->hasMany(MasEmployeeExperience::class, 'mas_employee_id');
+    }
+
     public function isActive()
     {
         return $this->is_active == 1;

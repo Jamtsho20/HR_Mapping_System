@@ -11,7 +11,7 @@
                 <select class="form-control" id="dzongkhag_id">
                     <option value="" disabled selected hidden>Select your option</option>
                     @foreach ($dzongkhags as $dzongkhag)
-                    <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag  }}</option>
+                        <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag  }}</option>
                     @endforeach
                 </select>
             </div>
