@@ -141,6 +141,24 @@ if (!function_exists('dayNumberToName')) {
     }
 }
 
+if (!function_exists('fixEmployeeId')) {
+    //checks the length of the employee and then attaches the E00 or E000 and so on accordingly
+    function fixEmployeeId($employeeId)
+    {
+        if (strlen($employeeId) == 1) {
+            return 'E0000'.$employeeId;
+        } else if (strlen($employeeId) == 2) {
+            return 'E000'.$employeeId;
+        } else if (strlen($employeeId) == 3) {
+            return 'E00'.$employeeId;
+        } else if (strlen($employeeId) == 4) {
+            return 'E0'.$employeeId;
+        } else if (strlen($employeeId) == 5) {
+            return 'E'.$employeeId;
+        }
+    }
+}
+
 if (!function_exists('invoiceNoGenerator')) {
     function invoiceNoGenerator($storeId){
         $startDate = date('Y')."-01-01";

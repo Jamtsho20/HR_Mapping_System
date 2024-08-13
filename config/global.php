@@ -32,8 +32,8 @@ return [
     ],
 
     'marital_status' => [
-        0 => 'Single', 
-        1 => 'Married', 
+        1 => 'Single', 
+        2 => 'Married', 
         3 => 'Divorced'
     ],
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MasSection;
 use App\Models\MasGewog;
+use App\Models\MasGradeStep;
 use App\Models\MasVillage;
 
 class AjaxRequestController extends Controller
@@ -24,5 +25,10 @@ class AjaxRequestController extends Controller
     public function getSection($id){
         $sections = MasSection::where('mas_department_id', $id)->get(['id', 'name']);
         return $sections;
+    }
+
+    public function getGradeStep($id){
+        $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name']);
+        return $gradeSteps;
     }
 }

@@ -62,11 +62,11 @@
                     </div>
                     <div class="form-group">
                         <label for="">City/State <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="current_address[current_state]" required>
+                        <input type="text" class="form-control form-control-sm" name="current_address[city]" value="{{ old('current_address.city') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="">Postal Code <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="current_address[current_postalcode]" required>
+                        <label for="postal_code">Postal Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="current_address[postal_code]" value="{{ old('current_address.postal_code') }}" required>
                     </div>
                 </div>
             </div>

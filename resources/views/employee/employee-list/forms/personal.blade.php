@@ -19,7 +19,7 @@
                     <select name="personal[title]" id="" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.title') as $title)
-                            <option value={{ $title }}>{{ $title }}</option>
+                            <option value="{{ $title }} {{ old('personal.title') == $title ? 'selected' : '' }}">{{ $title }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -36,8 +36,8 @@
                     <label for="gender">Gender <span class="text-danger">*</span></label>
                     <select name="personal[gender]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
-                        @foreach(config('global.gender') as $gender)
-                            <option value={{ $gender }}>{{ $gender }}</option>
+                        @foreach(config('global.gender') as $key => $value)
+                            <option value="{{ $key }} {{ old('personal.gender') == $key ? 'selected' : '' }}">{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -61,8 +61,8 @@
                     <label for="marital_status">Marital Status <span class="text-danger">*</span></label>
                     <select name="personal[marital_status]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>select your option</option>
-                        @foreach(config('global.marital_status') as $maritalStatus)
-                            <option value={{ $maritalStatus }}>{{ $maritalStatus }}</option>
+                        @foreach(config('global.marital_status') as $key => $value)
+                            <option value="{{ $key }} {{ old('personal.marital_status') == $key ? 'selected' : '' }}">{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -85,7 +85,7 @@
                     <select name="personal[nationality]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.nationality') as $nationality)
-                            <option value={{ $nationality }}>{{ $nationality }}</option>
+                            <option value="{{ $nationality }} {{ old('personal.nationality') == $nationality ? 'selected' : '' }}">{{ $nationality }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -106,7 +106,14 @@
                 <div class="form-group col-md-4">
                     <div class="form-label mt-6"></div>
                     <label class="custom-switch">
-                        <input type="checkbox" name="personal[is_active]" class="custom-switch-input form-control form-control-sm" /> 
+                        <!-- Hidden input to pass '0' when checkbox is unchecked -->
+                        <input type="hidden" name="personal[is_active]" value="0">
+                        <!-- Checkbox to pass '1' when checked, and retain old value -->
+                        <input type="checkbox" 
+                               name="personal[is_active]" 
+                               class="custom-switch-input form-control form-control-sm" 
+                               value="1" 
+                               {{ old('personal.is_active') == '1' ? 'checked' : '' }} /> 
                         <span class="custom-switch-indicator"></span>
                         <span class="custom-switch-description">is Active</span>
                     </label>

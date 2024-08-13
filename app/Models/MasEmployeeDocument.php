@@ -9,6 +9,7 @@ class MasEmployeeDocument extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['mas_employee_id', 'employment_contract', 'non_disclosure_aggrement', 'job_responsibilities', 'other']; 
     protected $cast = [
         'other' => 'array'
     ];

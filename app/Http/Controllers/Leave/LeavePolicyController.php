@@ -13,7 +13,7 @@ class LeavePolicyController extends Controller
 
     public function __construct()
     {
-        $this->middleware('permission:leave/leave-policy,view')->only('index');
+        $this->middleware('permission:leave/leave-policy, view')->only('index');
     }
     /**
      * Display a listing of the resource.

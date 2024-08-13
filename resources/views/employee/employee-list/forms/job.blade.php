@@ -13,7 +13,7 @@
                 </div>
                 <div class="form-group col-md-4">
                     <label for="section_id">Section<span class="text-danger">*</span></label>
-                    <select name="job[mas_sectionn_id]" id="section_id" class="form-control form-control-sm" required>
+                    <select name="job[mas_section_id]" id="section_id" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         <select class="form-control" id="section_id" name="job[mas_section_id]">
                             {{-- will be populated based on selection of section --}}
@@ -30,15 +30,24 @@
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Grade Step <span class="text-danger">*</span></label>
-                    <select name="job[mas_grade_step_id]" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Selecrt your option</option>
-                        @foreach($gradeSteps as $step)
-                            <option value="{{ $step->id }} {{ old('job.mas_grade_step_id') == $step->id ? 'selected' : '' }}">{{ $step->name }}</option>
+                    <label for="mas_grade_id">Grade<span class="text-danger">*</span></label>
+                    <select name="job[mas_grade_id]" id="grade_id" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Select your option</option>
+                        @foreach($grades as $grade)
+                            <option value="{{ $grade->id }} {{ old('job.mas_grade_id') == $grade->id ? 'selected' : '' }}">{{ $grade->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group col-md-4">
+                    <label for="mas_grade_step_id">Grade Step <span class="text-danger">*</span></label>
+                    <select name="job[mas_grade_step_id]" id="grade_step_id" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Selecrt your option</option>
+                        <select class="form-control" id="grade_step_id" name="job[mas_grade_step_id]">
+                            {{-- will be populated based on selection of section --}}
+                        </select>
+                    </select>
+                </div>
+                {{-- <div class="form-group col-md-4">
                     <label for="">Job Location <span class="text-danger">*</span></label>
                     <select name="job[location]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
@@ -104,7 +113,7 @@
                 <div class="form-group col-md-4">
                     <label for="">Pay Scale <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[pay_scale]" required>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

@@ -171,8 +171,9 @@ Route::middleware('auth')->group(function () {
 
 
 
-    // route related to ajax
+    /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
+    Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
 });

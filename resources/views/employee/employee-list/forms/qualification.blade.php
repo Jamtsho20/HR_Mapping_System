@@ -8,8 +8,9 @@
                             <th width="3%" class="text-center">#</th>
                             <th>Qualification</th>
                             <th>School/College</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
+                            <th>Completion Year</th>
+                            {{-- <th>Start Date</th>
+                            <th>End Date</th> --}}
                             <th>Subject/Course</th>
                             <th>Aggregate Score</th>
                         </tr>
@@ -31,11 +32,14 @@
                                 <input type="text" class="form-control form-control-sm resetKeyForNew" id="decline-reason" name="qualifications[AAAAA][school]" value="{{ old('qualifications.AAAAA.school') }}" required></textarea>
                             </td>
                             <td class="text-center">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][completion_year]" value="{{ old('qualifications.AAAAA.completion_year') }}" required>
+                            </td>
+                            {{-- <td class="text-center">
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][start_date]" value="{{ old('qualifications.AAAAA.start_date') }}" required>
                             </td>
                             <td class="text-center">
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][end_date]" value="{{ old('qualifications.AAAAA.end_date') }}" required>
-                            </td>
+                            </td> --}}
                             <td class="text-center">
                                 <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][subject]" value="{{ old('qualifications.AAAAA.subject') }}" required>
                             </td>

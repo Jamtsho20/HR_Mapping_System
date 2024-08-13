@@ -99,6 +99,31 @@ var hrms = function() {
             }
         });
 
+        //populate grade step based on selection of grade
+        $(document).on("change", "#grade_id", function() {
+            var gradeId = $("#grade_id").val();
+            if (gradeId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getgradestepbygrade/" + gradeId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        var gradeStep = data;
+                        var html = "<option value='' disabled selected hidden>Select a grade step</option>";
+                        for (var x in data) {
+                            html += "<option value='" +
+                                data[x].id + "'>" + data[x]
+                                .name + "</option>";
+                        }
+                        $("#grade_step_id").html(html);
+                    }
+                });
+            } else {
+                //do sth
+            }
+        });
+
 
         //END
 
