@@ -30,4 +30,8 @@ class MasPaySlab extends Model
         $query->where('formula', 'LIKE', '%' . $request->query('formula') . '%');
     }
     }
+    public function details()
+    {
+    return $this->hasMany(MasPaySlabDetail::class, 'mas_pay_slab_id');
+    }
 }
