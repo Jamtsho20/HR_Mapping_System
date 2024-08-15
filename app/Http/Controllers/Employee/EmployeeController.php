@@ -25,25 +25,22 @@ class EmployeeController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware('permission:employee/employee-lists, view')->only('index');
-        // $this->middleware('permission:employee/employee-lists, create')->only('store');
-        // $this->middleware('permission:employee/employee-lists, edit')->only('update');
-        // $this->middleware('permission:employee/employee-lists, delete')->only('destroy');
+        $this->middleware('permission:employee/employee-lists,view')->only('index', 'show');
+        $this->middleware('permission:employee/employee-lists,create')->only('store');
+        $this->middleware('permission:employee/employee-lists,edit')->only('update');
+        $this->middleware('permission:employee/employee-lists,delete')->only('destroy');
     }
 
-    protected $rules = [
+    protected $rules = [];
 
-    ];
-
-    protected $messages = [
-
-    ];
+    protected $messages = [];
 
     public function index(Request $request)
     {
         $privileges = $request->instance();
-      
-        return view('employee/employee-list.index',compact('privileges'));
+        $employees = User::all();
+
+        return view('employee/employee-list.index', compact('privileges', 'employees'));
     }
     /**
      * Show the form for creating a new resource.
@@ -59,7 +56,6 @@ class EmployeeController extends Controller
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
 
         return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications'));
-
     }
 
     /**
@@ -69,7 +65,7 @@ class EmployeeController extends Controller
     {
         $this->validate($request, $this->rules, $this->messages);
         DB::beginTransaction();
-        try{
+        try {
             $employeeId = $this->savePersonalInfo($request->personal);
             $this->saveAddress($request->permenant_address, $request->current_address, $employeeId);
             $this->saveJob($request->job, $employeeId);
@@ -79,7 +75,7 @@ class EmployeeController extends Controller
             $this->saveDocuments($request->documents, $employeeId);
 
             DB::commit();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
             DB::rollBack();
             return back()->with('msg_error', 'The employee could not be created, please try again.');
@@ -90,9 +86,14 @@ class EmployeeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id, Request $request)
     {
-        //
+        $instance = $request->instance(); //we need to pull the privileges from the instance
+        $canUpdate = (int) $instance->edit;
+        $employee = User::with('empPresentAddress.masDzongkhag', 'empPresentAddress.masDzongkhag.gewogs', 'empPermenantAddress.masDzongkhag', 'empPermenantAddress.masDzongkhag.gewogs', 'empQualifications.masQualification')->findOrFail($id)->toArray();
+        // dd($employee);
+
+        return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
 
     /**
@@ -102,7 +103,7 @@ class EmployeeController extends Controller
     {
         $employee = User::findOrFail($id);
 
-        return view('masters.village.edit', compact( 'employee'));
+        return view('masters.village.edit', compact('employee'));
     }
 
     /**
@@ -143,19 +144,20 @@ class EmployeeController extends Controller
         // }
     }
 
-    private function savePersonalInfo($personalInfo){
+    private function savePersonalInfo($personalInfo)
+    {
         $user = new User();
         $profilePic = isset($personalInfo['profile_pic']) ? uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/') : null;
         $empCidCopy = "";
-        if(isset($personalInfo['cid_copy'])){
+        if (isset($personalInfo['cid_copy'])) {
             $file = $personalInfo['cid_copy'];
             $empCidCopy = uploadImageToDirectory($file, 'images/emp-cid-copy/');
-        }else{
-            return back()->withInput()->with('msg_error', 'Please upload the employee cid copy.');    
+        } else {
+            return back()->withInput()->with('msg_error', 'Please upload the employee cid copy.');
         }
 
         $name = trim($personalInfo['first_name'] . ($personalInfo['middle_name'] ? ' ' . $personalInfo['middle_name'] : '') . ($personalInfo['last_name'] ? ' ' . $personalInfo['last_name'] : ''));
-    
+
         $userName = 'test';
         $user->first_name = $personalInfo['first_name'];
         $user->middle_name = $personalInfo['middle_name'];
@@ -184,10 +186,11 @@ class EmployeeController extends Controller
         return $user->id;
     }
 
-    private function saveAddress($permenantAddress, $currentAddress, $employeeId){
+    private function saveAddress($permenantAddress, $currentAddress, $employeeId)
+    {
         $user = new User();
         $user->id = $employeeId;
-        if($permenantAddress){
+        if ($permenantAddress) {
             $user->empPermenantAddress()->create([
                 'mas_employee_id' => $user->id,
                 'mas_dzongkhag_id' => $permenantAddress['mas_dzongkhag_id'],
@@ -197,7 +200,7 @@ class EmployeeController extends Controller
                 'house_no' => $permenantAddress['house_no']
             ]);
         }
-        if($currentAddress){
+        if ($currentAddress) {
             $user->empPresentAddress()->create([
                 'mas_employee_id' => $user->id,
                 'mas_dzongkhag_id' => $currentAddress['mas_dzongkhag_id'],
@@ -206,10 +209,10 @@ class EmployeeController extends Controller
                 'postal_code' => $currentAddress['postal_code']
             ]);
         }
-
     }
 
-    private function saveJob($job, $employeeId){
+    private function saveJob($job, $employeeId)
+    {
         $user = new User();
         $user->id = $employeeId;
         $user->empJob()->create([
@@ -222,11 +225,12 @@ class EmployeeController extends Controller
         ]);
     }
 
-    private function saveQualifications($qualifications, $employeeId){
+    private function saveQualifications($qualifications, $employeeId)
+    {
         $user = new User();
         $user->id = $employeeId;
         $qualification = [];
-        foreach($qualifications as $key => $value){
+        foreach ($qualifications as $key => $value) {
             $qualification[] = [
                 'mas_employee_id' => $user->id,
                 'mas_qualification_id' => $value['mas_qualification_id'],
@@ -239,11 +243,12 @@ class EmployeeController extends Controller
         $user->empQualifications()->createMany($qualification);
     }
 
-    private function saveTrainings($trainings, $employeeId){
+    private function saveTrainings($trainings, $employeeId)
+    {
         $user = new User();
         $user->id = $employeeId;
         $training = [];
-        foreach($trainings as $key => $value){
+        foreach ($trainings as $key => $value) {
             $trainingCertificate = $value['certificate'] ? uploadImageToDirectory($value['certificate'], '/images/emp-training-cert') : null;
             $training[] = [
                 'mas_employee_id' => $user->id,
@@ -255,16 +260,17 @@ class EmployeeController extends Controller
                 'description' => $value['description'],
                 'certificate' => $trainingCertificate, //check if file exists and save the path
             ];
-        } 
+        }
         $user->empTrainings()->createMany($training);
     }
 
-    private function saveExperiences($experiences, $employeeId){
+    private function saveExperiences($experiences, $employeeId)
+    {
         // $empExperience = new MasEmployeeExperience();
         $user = new User();
         $user->id = $employeeId;
         $experience = [];
-        foreach($experiences as $key => $value){
+        foreach ($experiences as $key => $value) {
             $experience[] = [
                 'mas_employee_id' => $user->id,
                 'organization' => $value['organization'],
@@ -278,30 +284,31 @@ class EmployeeController extends Controller
         $user->empExperiences()->createMany($experience);
     }
 
-    private function saveDocuments($doc, $employeeId){
+    private function saveDocuments($doc, $employeeId)
+    {
         $user = new User();
         $user->id = $employeeId;
         $empContract = "";
         $empNonDisclosureAggrement = "";
         $jobResponsibilities = "";
         $otherDocuments = [];
-        if(isset($doc['employment_contract'])){
+        if (isset($doc['employment_contract'])) {
             $empContract = uploadImageToDirectory($doc['employment_contract'], 'images/emp-doc/');
-        }else{
+        } else {
             return back()->withInput()->with('msg_error', 'Please upload employment contract document.');
         }
-        if(isset($doc['non_disclosure_aggrement'])){
+        if (isset($doc['non_disclosure_aggrement'])) {
             $empNonDisclosureAggrement = uploadImageToDirectory($doc['non_disclosure_aggrement'], 'images/emp-doc/');
-        }else{
+        } else {
             return back()->withInput()->with('msg_error', 'Please upload employee non disclosure aggrement.');
         }
-        if(isset($doc['job_responsibilities'])){
+        if (isset($doc['job_responsibilities'])) {
             $jobResponsibilities = uploadImageToDirectory($doc['job_responsibilities'], 'images/emp-doc/');
-        }else{
+        } else {
             return back()->withInput()->with('msg_error', 'Please upload employee job responsibilities.');
         }
-        if(isset($doc['other'])){
-            foreach($doc['other'] as $otherFile){
+        if (isset($doc['other'])) {
+            foreach ($doc['other'] as $otherFile) {
                 $otherDocuments[] = uploadImageToDirectory($otherFile, 'images/emp-doc/');
             }
         }

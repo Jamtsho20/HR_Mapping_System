@@ -27,4 +27,12 @@ class MasDzongkhag extends Model
     {
         return $this->hasMany(MasGewog::class, 'mas_dzongkhag_id');
     }
+    public function empPresentAddress()
+    {
+        return $this->belongsTo(MasEmployeePresentAddress::class, 'id');
+    }
+    public function empPermanentAddress()
+    {
+        return $this->belongsTo(MasEmployeePermenantAddress::class, 'id');
+    }
 }
