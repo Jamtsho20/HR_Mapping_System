@@ -8,10 +8,12 @@
 {{-- @endif --}}
 <div class="block-header block-header-default">
      @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
-                placeholder="Search">
+        <div class="col-md-4 form-group">
+            <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
         </div>
+        {{-- <div class="col-md-4 form-group">
+            <input type="text" name="" class="form-control" value="{{ request()->get('username') }}" placeholder="Username">
+        </div> --}}
     @endcomponent
     
     <div class="row row-sm">
@@ -52,16 +54,13 @@
                                                                 SL no
                                                             </th>
                                                             <th>
+                                                                Employee Id
+                                                            </th>
+                                                            <th>
                                                                 Name
                                                             </th>
                                                             <th>
-                                                                DOJ
-                                                            </th>
-                                                            <th>
-                                                                Department
-                                                            </th>
-                                                            <th>
-                                                                Region
+                                                                Date of Appointment
                                                             </th>
                                                             <th>
                                                                 Email
@@ -75,27 +74,34 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+                                                        @forelse ($users as $user)
                                                         <tr>
-                                                            <td>Adrian</td>
-                                                            <td>Terry</td>
-                                                            <td>Casual</td>
-                                                            <td>2013/04/21</td>
-                                                            <td>$543,769</td>
-                                                            <td>0.5</td>
-                                                            <td>0.5</td>
+                                                            <td class="text-center">{{ $loop->iteration }}</td>
+                                                            <td>{{ $user->employee_id }}</td>
+                                                            <td>{{ $user->name }}</td>
+                                                            <td>{{ $user->date_of_appointment }}</td>
+                                                            <td>{{ $user->email }}</td>
+                                                            <td class="text-center">{!! $user->isActive() ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}</td>
                                                             <td class="text-center">
-                                                                @if ($privileges->edit)
+                                                                {{-- @if ($privileges->edit) --}}
                                                                     <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
                                                                             class="fa fa-edit"></i>
                                                                         EDIT</a>
-                                                                @endif
-                                                                @if ($privileges->delete)
+                                                                {{-- @endif --}}
+                                                                {{-- @if ($privileges->delete) --}}
                                                                     <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
                                                                         DELETE</a>
-                                                                @endif
+                                                                {{-- @endif --}}
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-eye"></i>
+                                                                    DETAIL</a>
                                                             </td>
                                                             
                                                         </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="7" class="text-center text-danger">No employee found.</td>
+                                                            </tr>
+                                                        @endforelse
                                                     </tbody>
                                                 </table>
                                             </div>

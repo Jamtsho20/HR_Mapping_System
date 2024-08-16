@@ -44,29 +44,29 @@
                         <ul role="tablist">
                             <li role="tab" class="first current" aria-disabled="false" aria-selected="true">
                                 <a id="wizard1-t-0" aria-controls="wizard1-p-0" title="Personal Info">
-                                    <span class="current-info audible">current step: </span><span class="number">1</span> <span class="title">Personal Info</i></span>
+                                    <span class="current-info audible">current step: </span><span class="number">1</span> <span class="title">Basic Info</i></span>
                                 </a>
                             </li>
                             <li role="tab" class="disabled" aria-disabled="true">
                                 <a id="wizard1-t-1" aria-controls="wizard1-p-1"><span class="number">2</span> <span class="title">Address</span></a>
                             </li>
                             <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-2" aria-controls="wizard1-p-2"><span class="number">3</span> <span class="title">Job</span></a>
+                                <a id="wizard1-t-2" aria-controls="wizard1-p-2"><span class="number">3</span> <span class="title">Job Details</span></a>
                             </li>
                             <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-3" aria-controls="wizard1-p-3"><span class="number">4</span> <span class="title">Qualification</span></a>
+                                <a id="wizard1-t-3" aria-controls="wizard1-p-3"><span class="number">4</span> <span class="title">Qualifications</span></a>
                             </li>
                             <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-4" aria-controls="wizard1-p-4"><span class="number">5</span> <span class="title">Training</span></a>
+                                <a id="wizard1-t-4" aria-controls="wizard1-p-4"><span class="number">5</span> <span class="title">Training (s)</span></a>
                             </li>
                             <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-5" aria-controls="wizard1-p-5"><span class="number">6</span> <span class="title">Experience</span></a>
+                                <a id="wizard1-t-5" aria-controls="wizard1-p-5"><span class="number">6</span> <span class="title">Experience (s)</span></a>
                             </li>
                             {{-- <li role="tab" class="disabled last" aria-disabled="true">
                                 <a id="wizard1-t-6" href="#wizard1-h-6" aria-controls="wizard1-p-6"><span class="number">7</span> <span class="title">Employment</span></a>
                             </li> --}}
                             <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-7" aria-controls="wizard1-p-7"><span class="number">7</span> <span class="title">Document Upload</span></a>
+                                <a id="wizard1-t-7" aria-controls="wizard1-p-7"><span class="number">7</span> <span class="title">Documents</span></a>
                             </li>
                         </ul>
                     </div>

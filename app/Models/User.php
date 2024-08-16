@@ -93,6 +93,9 @@ class User extends Authenticatable
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' .$request->query('name') . '%');
         }
+        if($request->has('employee_id') && $request->query('employee_id') != ''){
+            $query->where('employee_id', 'LIKE', '%' . $request->query('employee_id') . '%');
+        }
     }
 
     //accessors & mutators

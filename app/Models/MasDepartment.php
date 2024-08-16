@@ -17,4 +17,5 @@ class MasDepartment extends Model
             $query->where('name', 'LIKE', '%' . $request->query('department') . '%');
         }
     }
+
 }
