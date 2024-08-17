@@ -25,7 +25,7 @@ class SectionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $sections = MasSection::filter($request)->with('department')->paginate(30)->withQueryString();
+        $sections = MasSection::filter($request)->with('department')->paginate('30')->withQueryString();
         $departments = MasDepartment::select('id', 'short_name', 'name')->get();
 
         return view('masters.section.index', compact('sections', 'privileges','departments'));

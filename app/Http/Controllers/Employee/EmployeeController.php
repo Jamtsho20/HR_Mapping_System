@@ -34,20 +34,16 @@ class EmployeeController extends Controller
 
     private $filePath = 'images/employee/';
 
-    protected $rules = [
+    protected $rules = [];
 
-    ];
-
-    protected $messages = [
-
-    ];
+    protected $messages = [];
 
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $users = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
+        $employees = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
         
-        return view('employee/employee-list.index',compact('privileges', 'users'));
+        return view('employee/employee-list.index',compact('privileges', 'employees'));
     }
     /**
      * Show the form for creating a new resource.
@@ -63,7 +59,6 @@ class EmployeeController extends Controller
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
 
         return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications'));
-
     }
 
     /**
@@ -73,7 +68,7 @@ class EmployeeController extends Controller
     {
         $this->validate($request, $this->rules, $this->messages);
         DB::beginTransaction();
-        try{
+        try {
             $employeeId = $this->savePersonalInfo($request->personal);
             $this->saveAddress($request->permenant_address, $request->current_address, $employeeId);
             $this->saveJob($request->job, $employeeId);
@@ -84,7 +79,6 @@ class EmployeeController extends Controller
 
             DB::commit();
         }catch(\Exception $e){
-            // dd($e);
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', 'Employee couldnot be created, please try again.');
@@ -95,9 +89,12 @@ class EmployeeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id, Request $request)
     {
-        //
+        $instance = $request->instance(); 
+        $canUpdate = (int) $instance->edit;
+        $employee = User::findOrFail($id);
+        return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
 
     /**
@@ -107,7 +104,7 @@ class EmployeeController extends Controller
     {
         $employee = User::findOrFail($id);
 
-        return view('masters.village.edit', compact( 'employee'));
+        return view('masters.village.edit', compact('employee'));
     }
 
     /**
@@ -149,11 +146,10 @@ class EmployeeController extends Controller
     }
 
     private function savePersonalInfo($personalInfo){
-        // dd($personalInfo);
         $user = new User();
         $profilePic = isset($personalInfo['profile_pic']) ? uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/') : null;
         $empCidCopy = "";
-        if(isset($personalInfo['cid_copy'])){
+        if (isset($personalInfo['cid_copy'])) {
             $file = $personalInfo['cid_copy'];
             $empCidCopy = uploadImageToDirectory($file, $this->filePath);
         }else{
@@ -208,7 +204,6 @@ class EmployeeController extends Controller
             $empCurrentAddress->postal_code = $currentAddress['postal_code'];
             $empCurrentAddress->save();
         }
-
     }
 
     private function saveJob($job, $employeeId){
@@ -233,7 +228,7 @@ class EmployeeController extends Controller
     private function saveQualifications($qualifications, $employeeId){
         $qualificationData = [];
         foreach($qualifications as $key => $value){
-            $qualification[] = [
+            $qualificationData[] = [
                 'mas_employee_id' => $employeeId,
                 'mas_qualification_id' => $value['mas_qualification_id'],
                 'school' => $value['school'],
@@ -249,7 +244,7 @@ class EmployeeController extends Controller
         $trainingData = [];
         foreach($trainings as $key => $value){
             $trainingCertificate = isset($value['certificate']) ? uploadImageToDirectory($value['certificate'], $this->filePath) : null;
-            $training[] = [
+            $trainingData[] = [
                 'mas_employee_id' => $employeeId,
                 'title' => $value['title'],
                 'start_date' => $value['start_date'],
@@ -266,7 +261,7 @@ class EmployeeController extends Controller
     private function saveExperiences($experiences, $employeeId){
         $experienceData = [];
         foreach($experiences as $key => $value){
-            $experience[] = [
+            $experienceData[] = [
                 'mas_employee_id' => $employeeId,
                 'organization' => $value['organization'],
                 'place' => $value['place'],
@@ -280,8 +275,6 @@ class EmployeeController extends Controller
     }
 
     private function saveDocuments($doc, $employeeId){
-        // $user = new User();
-        // $user->id = $employeeId;
         $EmpDocument = new MasEmployeeDocument();
         $empContract = "";
         $empNonDisclosureAggrement = "";
@@ -309,7 +302,6 @@ class EmployeeController extends Controller
             }
         }
 
-        // dd($otherDocuments);
         $EmpDocument->mas_employee_id = $employeeId;
         $EmpDocument->employment_contract = $empContract;
         $EmpDocument->non_disclosure_aggrement = $empNonDisclosureAggrement;

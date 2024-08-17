@@ -16,4 +16,8 @@ class MasQualification extends Model
             $query->where('name', 'LIKE', '%' .$request->query('qualification') . '%');
         }
     }
+    public function masEmployeeQualification()
+    {
+        return $this->belongsTo(MasEmployeeQualification::class, 'id');
+    }
 }
