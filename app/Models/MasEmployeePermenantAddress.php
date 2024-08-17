@@ -16,4 +16,14 @@ class MasEmployeePermenantAddress extends Model
     public function masEmployee(){
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
+
+    public function masDzongkhag()
+    {
+        return $this->belongsTo(MasDzongkhag::class);
+    }
+
+    public function masGewog()
+    {
+        return $this->belongsTo(MasGewog::class);
+    }
 }

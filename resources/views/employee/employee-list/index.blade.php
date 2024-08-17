@@ -1,19 +1,19 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
-{{-- @if ($privileges->create) --}}
+@if ($privileges->create)
     @section('buttons')
-        <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
+    <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
     @endsection
-{{-- @endif --}}
+@endif
 <div class="block-header block-header-default">
-     @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
-                placeholder="Search">
-        </div>
+    @component('layouts.includes.filter')
+    <div class="col-8 form-group">
+        <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
+            placeholder="Search">
+    </div>
     @endcomponent
-    
+
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -52,16 +52,17 @@
                                                                 SL no
                                                             </th>
                                                             <th>
+                                                                Employee Id
+                                                            </th>
+                                                            <th>
                                                                 Name
                                                             </th>
                                                             <th>
                                                                 DOJ
                                                             </th>
+
                                                             <th>
-                                                                Department
-                                                            </th>
-                                                            <th>
-                                                                Region
+                                                                Contact No
                                                             </th>
                                                             <th>
                                                                 Email
@@ -75,27 +76,37 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+                                                        @forelse($employees as $employee)
                                                         <tr>
-                                                            <td>Adrian</td>
-                                                            <td>Terry</td>
-                                                            <td>Casual</td>
-                                                            <td>2013/04/21</td>
-                                                            <td>$543,769</td>
-                                                            <td>0.5</td>
-                                                            <td>0.5</td>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{$employee->name}}</td>
+                                                            <td>{{$employee->date_of_appointment}}</td>
+                                                            <td>{{$employee->contact_number}}</td>
+                                                            <td>{{$employee->email}}</td>
+                                                            <td> <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 1 ? 'primary' : 'danger' }}">
+                                                                    {{ $employee->is_active == 1 ? 'Active' : 'Inactive' }}
+                                                                </span></td>
                                                             <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                <a href="{{ url('employee/employee-lists/' . $employee->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                                @endif
                                                                 @if ($privileges->edit)
-                                                                    <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                                            class="fa fa-edit"></i>
-                                                                        EDIT</a>
+                                                                <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
+                                                                        class="fa fa-edit"></i>
+                                                                    EDIT</a>
                                                                 @endif
                                                                 @if ($privileges->delete)
-                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
-                                                                        DELETE</a>
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
+                                                                    DELETE</a>
                                                                 @endif
                                                             </td>
-                                                            
+
                                                         </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="6" class="text-danger text-center">No users to be displayed</td>
+                                                        </tr>
+                                                        @endforelse
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -117,7 +128,7 @@
 
 <script>
     //Carriage Charge
-    $('#leave-type').on('change', function () {
+    $('#leave-type').on('change', function() {
         var selection = $(this).val()
         switch (selection) {
             case "Earned Leave":

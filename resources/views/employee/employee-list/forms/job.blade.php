@@ -7,7 +7,7 @@
                     <select name="job[mas_department_id]" id="department_id" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($departments as $department)
-                            <option value="{{ $department->id }} {{ old('job.mas_department_id') == $department->id ? 'selected' : '' }}">{{ $department->name }}</option>
+                            <option value="{{ $department->id }}" {{ old('job.mas_department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -25,7 +25,7 @@
                     <select name="job[mas_designation_id]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($designations as $designation)
-                            <option value="{{ $designation->id }} {{ old('job.mas_designation_id') == $designation->id ? 'selected' : '' }}">{{ $designation->name }}</option>
+                            <option value="{{ $designation->id }}" {{ old('job.mas_designation_id') == $designation->id ? 'selected' : '' }}>{{ $designation->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -34,7 +34,7 @@
                     <select name="job[mas_grade_id]" id="grade_id" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($grades as $grade)
-                            <option value="{{ $grade->id }} {{ old('job.mas_grade_id') == $grade->id ? 'selected' : '' }}">{{ $grade->name }}</option>
+                            <option value="{{ $grade->id }}" {{ old('job.mas_grade_id') == $grade->id ? 'selected' : '' }}>{{ $grade->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -47,19 +47,17 @@
                         </select>
                     </select>
                 </div>
-                {{-- <div class="form-group col-md-4">
+                <div class="form-group col-md-4">
                     <label for="">Job Location <span class="text-danger">*</span></label>
-                    <select name="job[location]" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Select your option</option>
-                    </select>
+                    <input type="text" class="form-control form-control-sm" name="job[job_location]" value="{{ old('job.job_location') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Salary <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control form-control-sm" name="job[salary]" value="{{ old('job.salary') }}" required>
+                    <label for="">Basic Pay<span class="text-danger">*</span></label>
+                    <input type="number" class="form-control form-control-sm" name="job[basic_pay]" value="{{ old('job.basic_pay') }}" required>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
-                    <label for="">Job Nature <span class="text-danger">*</span></label>
+                    <label for="">Employment Type <span class="text-danger">*</span></label>
                     <select name="job[mas_employment_type_id]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($employmentTypes as $type)
@@ -67,13 +65,13 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group col-md-4">
+                {{-- <div class="form-group col-md-4">
                     <label for="">Probation & Notice Period <span class="text-danger">*</span></label>
                     <input type="date" class="form-control form-control-sm" name="job[probation_period]" value="{{ old('job.probation_period') }}" required>
-                </div>
+                </div> --}}
                 <div class="form-group col-md-4">
-                    <label for="">Supervisor <span class="text-danger">*</span></label>
-                    <select name="job[supervisor]" class="form-control form-control-sm" required>
+                    <label for="immediate_supervisor">Immediate Supervisor</label>
+                    <select name="job[immediate_supervisor]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                     </select>
                 </div>
@@ -98,11 +96,11 @@
                     <label for="">TPN Number <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[tpn_number]" value="{{ old('job.tpn_number') }}" required>
                 </div>
-                <div class="form-group col-md-4">
+                {{-- <div class="form-group col-md-4">
                     <label for="">Grade Scale <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[grade_scale]" value="{{ old('job.grade_scale') }}" required>
-                </div>
-                <div class="form-group col-md-4">
+                </div> --}}
+                {{-- <div class="form-group col-md-4">
                     <label for="">Ceiling <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[grade_scale]" required>
                 </div>

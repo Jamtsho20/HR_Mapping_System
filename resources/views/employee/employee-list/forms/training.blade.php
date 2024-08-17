@@ -21,22 +21,22 @@
                                         <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                     </td>
                                     <td class="text-center">
-                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][title]" placeholder="Title">
+                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][title]" value="{{ old('trainings.AAAAA.title') }}" placeholder="Title">
                                     </td>
                                     <td class="text-center">
-                                        <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][start_date]">
+                                        <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][start_date]" value="{{ old('trainings.AAAAA.start_date') }}">
                                     </td>
                                     <td class="text-center">
-                                        <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][end_date]">
+                                        <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][end_date]" value="{{ old('trainings.AAAAA.end_date') }}">
                                     </td>
                                     <td class="text-center">
-                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][duration]" placeholder="No of days">
+                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][duration]" value="{{ old('trainings.AAAAA.duration') }}" placeholder="No of days">
                                     </td>
                                     <td class="text-center">
-                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][location]" placeholder="Location">
+                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][location]" value="{{ old('trainings.AAAAA.location') }}" placeholder="Location">
                                     </td>
                                     <td class="text-center">
-                                        <textarea class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][description]" placeholder="Description"></textarea>
+                                        <textarea class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][description]" value="{{ old('trainings.AAAAA.description') }}" placeholder="Description"></textarea>
                                     </td>
                                     <td class="text-center">
                                         <input type="file" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][certificate]">

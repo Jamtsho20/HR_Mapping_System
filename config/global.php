@@ -53,24 +53,5 @@ return [
         'Druk PNB' => 'Druk PNB',
         'T Bank' => 'T Bank',
         'DK Bank' => 'Digital Kidu'
-    ], 
-
-    'calculation__method' => [
-        1 => 'Actual Amount',
-        2 => 'Division method',
-        3 => 'On pay Slab',
-        4 => 'On Pay Group',
-        5  => 'Percentage Method',
-        6  => 'By Formula',
-        7 => 'Employment Wise',
-    ],
-
-    'calculated_on' => [
-        1 => 'Basic Pay',
-        2 => 'Grosss Pay',
-        3 => 'Net Pay',
-        4 => 'PIT Net Pay',
-        5  => 'By formula',
-        6  => 'Pay Scale Base Pay',
     ]
 ];
