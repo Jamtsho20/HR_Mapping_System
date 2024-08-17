@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="advance-to-staff-form" class="advance-to-staff" style="display: none; padding-left: 25px; padding-right: 15px; required">
+<div id="advance-to-staff-form" class="advance-to-staff" style="display: none; padding-left: 25px; padding-right: 15px; ">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group required">

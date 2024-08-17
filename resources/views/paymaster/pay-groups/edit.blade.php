@@ -27,6 +27,8 @@
         </div>
     </div>
 </form>
+<!-- Pay Group Details Form -->
+@include('paymaster.pay-group-details.index', ['payGroup' => $payGroup])
 
 @include('layouts.includes.delete-modal')
 @endsection

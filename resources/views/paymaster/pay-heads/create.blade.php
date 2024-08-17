@@ -5,12 +5,12 @@
 <form action="{{ route('pay-heads.store') }}" method="POST">
     @csrf
     <div class="card">
-        <div class="card-body">
-            <div class="row">
+        <div class="card-body" >
+            <div class="row" >
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="payhead_type">Pay Head Type</label>
-                        <select name="payhead_type" id="pay_head_type" class="form-control form-control-sm" required>
+                        <select name="payhead_type" id="pay_head_type" class="form-control form-control-sm" required="required">
                             <option value="" disabled selected>Select an option</option>
                             <option value="1">Allowance</option>
                             <option value="2">Deduction</option>
@@ -26,8 +26,9 @@
                         <label for="accounthead_type">Account Head</label>
                         <select name="accounthead_type" id="account_head_type" class="form-control form-control-sm" required>
                             <option value="" disabled selected>Select an option</option>
-                            <option value="1">Allowance</option>
-                            <option value="2">Deduction</option>
+                            @foreach($accountHeads as $accountHead)
+                                <option value="{{ $accountHead->id }}">{{ $accountHead->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="form-group">
@@ -39,28 +40,78 @@
                     <div class="form-group">
                         <label for="calculation_method">Calculation Method</label>
                         <select name="calculation_method" id="calculation_method" class="form-control form-control-sm" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="1">Actual Amount</option>
-                            <option value="2">Division Method</option>
-                            <option value="3">On Pay Slab</option>
-                            <option value="4">On Pay Group</option>
-                            <option value="5">Percentage Method</option>
-                            <option value="6">By Formula</option>
-                            <option value="7">Employment Wise</option>
+                            <option value="" disabled selected hidden>Select your option</option>
+                            @foreach(config('global.calculation__method') as $key => $calculation_method)
+                                <option value="{{ $key }}" {{ old('calculation_method') == $key ? 'selected' : '' }}>
+                                    {{ $calculation_method }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
-                    <div class="form-group">
+                    
+                    <div class="form-group" id="calculated_on_container">
                         <label for="calculated_on">Calculated On</label>
                         <select name="calculated_on" id="calculated_on" class="form-control form-control-sm" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="1">Basic Pay</option>
-                            <option value="2">Gross Pay</option>
-                            <option value="3">Net pay</option>
-                            <option value="4">PIT Net Pay</option>
-                            <option value="5">Lumpsum</option>
-                            <option value="6">Pay Scale Base Pay</option>
-                            <option value="7">By Formula</option>
+                            <option value="" disabled selected hidden>Select your option</option>
+                            @foreach(config('global.calculated_on') as $calculated_on)
+                                <option value="{{ $calculated_on }}" {{ old('calculated_on') == $calculated_on ? 'selected' : '' }}>
+                                    {{ $calculated_on }}
+                                </option>
+                            @endforeach
                         </select>
+                    </div>
+                    <!-- Dynamic Form -->
+                    <!-- Actual Method Form -->
+                    <div id="actualmethod_form" class="calculation_method" style="display:none;" required="required">
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" class="form-control" name="amount" value="" required>
+                        </div>
+                    </div>
+                    <!-- Division Method Form -->
+                    <div id="divisionmethod_form" class="calculation_method" style="display:none;" required="required">
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" class="form-control" name="amount" value="" required>
+                        </div>
+                    </div>
+                    <!-- Pay Slab Method Form -->
+                    <div id="payslab_form" class="calculation_method" style="display:none;" required="required">
+                        <div class="form-group">
+                            <label for="payslab">Pay Slab</label>
+                            <select class="form-control" name="payslab_id" id="payslab" required>
+                                <option value="" disabled selected>Select Pay Slab</option>
+                                @foreach($paySlabs as $paySlab)
+                                    <option value="{{ $paySlab->id }}">{{ $paySlab->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                   <!-- Pay Group Form -->
+                   <div id="paygroup_form" class="calculation_method" style="display:none;">
+                        <div class="form-group">
+                            <label for="paygroup">Pay Group</label>
+                            <select class="form-control" name="paygroup_id" id="paygroup" required>
+                                <option value="" disabled selected>Select Pay Group</option>
+                                @foreach($payGroups as $payGroup)
+                                    <option value="{{ $payGroup->id }}">{{ $payGroup->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                     <!-- Percentage Method Form -->
+                     <div id="percentagemethod_form" class="calculation_method" style="display:none;" required="required">
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" class="form-control" name="amount" value="" required>
+                        </div>
+                    </div>
+                     <!-- By Formula Method Form -->
+                     <div id="formulamethod_form" class="calculation_method" style="display:none;" required="required">
+                        <div class="form-group">
+                            <label for="formula">Formula</label>
+                            <input type="textarea" class="form-control" name="formula" value="" required>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,6 +121,7 @@
             <a href="{{ url('paymaster/pay-heads') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>
+   
 </form>
 <div class="row mt-4">
     <div class="col-md-6">
@@ -148,8 +200,59 @@
         </div>
     </div>
 </div>
-
+<style>
+    .hidden {
+    display: none;
+    }
+</style>
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
+<script>
+  $(document).ready(function() {
+    $('#calculation_method').on('change', function() {
+        var selection = $(this).val();
+        $(".calculation_method").hide();
+        $("#calculated_on_container").show(); // Show by default
+
+        switch (selection) {
+            case "1":
+                $("#actualmethod_form").show();
+                break;
+            case "2":
+                $("#divisionmethod_form").show();
+                break;
+            case "3":
+                $("#payslab_form").show();
+                break;
+            case "4":
+                $("#paygroup_form").show();
+                break;
+            case "5":
+                $("#percentagemethod_form").show();
+                break;
+            case "6":
+                $("#formulamethod_form").show();
+                break;
+            case "7":
+                $("#employeewisemethod_form").show();
+                break;
+            default:
+                $(".calculation_method").hide();
+        }
+
+        // Hide 'calculated_on' field if specific calculation methods are selected
+        if (selection === "1" || selection === "6" || selection === "7") {
+            $("#calculated_on_container").hide();
+        } else {
+            $("#calculated_on_container").show();
+        }
+    });
+
+    // Trigger change event on page load if a method is already selected
+    $('#calculation_method').trigger('change');
+});
+
+
+</script>
 @endpush
