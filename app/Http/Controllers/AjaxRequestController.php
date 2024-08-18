@@ -31,4 +31,11 @@ class AjaxRequestController extends Controller
         $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name']);
         return $gradeSteps;
     }
+
+    public function getPayScale($id){
+        // $payScale = MasGradeStep::where('id', $id)->selectRaw("concat(starting_salary, '-', increment, '-', ending_salary) as pay_scale")->first();
+        $payScale = MasGradeStep::where('id', $id)->get(['starting_salary', 'increment', 'ending_salary']);
+        // dd($payScale);
+        return $payScale;
+    }
 }

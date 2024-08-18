@@ -48,12 +48,16 @@
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Job Location <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[job_location]" value="{{ old('job.job_location') }}" required>
+                    <label for="pay_scale">Pay Scale</label>
+                    <input type="text" id="pay_scale" class="form-control form-control-sm" disabled>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Basic Pay<span class="text-danger">*</span></label>
-                    <input type="number" class="form-control form-control-sm" name="job[basic_pay]" value="{{ old('job.basic_pay') }}" required>
+                    <label for="basic_scale">Basic Pay<span class="text-danger">*</span></label>
+                    <input type="text" name="job[basic_pay]" id="basic_pay" class="form-control form-control-sm" value="{{ old('job.basic_pay') }}" required disabled>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">Job Location <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="job[job_location]" value="{{ old('job.job_location') }}" required>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">

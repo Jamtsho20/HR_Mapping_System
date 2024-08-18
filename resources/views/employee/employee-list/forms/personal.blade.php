@@ -15,10 +15,6 @@
                     <input type="text" class="form-control form-control-sm" name="personal[last_name]" value="{{ old('personal.last_name') }}">
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="username">User Name</label>
-                    <input type="text" class="form-control form-control-sm" name="personal[username]" value="{{ old('personal.username') }}">
-                </div>
-                <div class="form-group col-md-4">
                     <label for="title">Title <span class="text-danger">*</span></label>
                     <select name="personal[title]" id="" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
@@ -32,8 +28,8 @@
                     <input type="text" class="form-control form-control-sm" name="personal[cid_no]" value="{{ old('personal.cid_no') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="employee_id">Employee ID <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="personal[employee_id]" value="{{ old('personal.employee_id') }}" required>
+                    <label for="employee_id">Employee ID</label>
+                    <input type="text" class="form-control form-control-sm" value="{{ old('personal.employee_id', $employeeId) }}" disabled>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">

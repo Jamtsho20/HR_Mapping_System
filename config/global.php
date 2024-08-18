@@ -1,5 +1,6 @@
 <?php
 return [
+    'null_value' => 'N/A',
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2','level 3'],

@@ -6,10 +6,10 @@
 @section('content')
 <div class="row">
     <!-- Personal Details -->
-    <div class="col-md-4">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{$employee->name }}
+                <h3 class="card-title">{{$employee->name }} ({{ $employee->username }})
                     <span class="badge rounded-pill  bg-{{$employee->is_active == 1 ? 'primary' : 'danger' }} me-1 mt-1">{{$employee->is_active == 1 ? 'active':'inactive'}}
                 </h3>
 
@@ -17,22 +17,16 @@
             <div class="card-body p-0">
                 <ul class="list-group list-group-unbordered">
                     <li class="list-group-item">
-                        <b>Username</b> <a class="pull-right">{{$employee->username }}</a>
+                        <b>DOB</b> <a class="pull-right">{{ $employee->dob }}</a>
                     </li>
                     <li class="list-group-item">
-                        <b>DOB</b> <a class="pull-right">{{$employee->dob }}</a>
+                        <b>Contact No</b> <a class="pull-right">{{ $employee->contact_number }}</a>
                     </li>
                     <li class="list-group-item">
-                        <b>Employee ID</b> <a class="pull-right">{{$employee->employee_id }}</a>
+                        <b>Email Id</b> <a class="pull-right">{{ $employee->email }}</a>
                     </li>
                     <li class="list-group-item">
-                        <b>Contact No</b> <a class="pull-right">{{$employee->contact_number }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Email</b> <a class="pull-right">{{$employee->email }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>CID</b> <a class="pull-right">{{$employee->cid_no }}</a>
+                        <b>CID</b> <a class="pull-right">{{ $employee->cid_no }}</a>
                     </li>
                     <li class="list-group-item">
                         <b>Gender</b>
@@ -75,12 +69,15 @@
         </div>
     </div>
     <!-- Address -->
-    <div class="col-md-4">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title mb-1 mt-1">Present Address(s)</h3>
+                <button type="button" class="btn btn-tool place" data-toggle="collapse" data-target="#experience-card-body">
+                    <i class="fa fa-plus"></i>
+                </button>
             </div>
-            <div class="card-body p-0">
+            <div id="#experience-card-body" class="card-body p-0">
                 <ul class="list-group list-group-unbordered">
                     <li class="list-group-item">
                         <b>Dzongkhag</b> <a class="pull-right">{{ $employee->empPresentAddress->masDzongkhag->dzongkhag }}</a>
@@ -103,7 +100,7 @@
                 </ul>
             </div>
         </div>
-        <div class="card ">
+        <div class="card">
             <div class="card-header">
                 <h3 class="card-title mb-1 mt-1">Permanent Address(s)</h3>
             </div>
@@ -131,8 +128,66 @@
             </div>
         </div>
     </div>
-
-    <div class="col-md-4">
+    <!-- Employee Job related -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Job Details</h3>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-unbordered">
+                    <li class="list-group-item">
+                        <b>Department</b> <a class="pull-right">{{ $employee->empJob->department->code_name }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Section</b> <a class="pull-right">{{ $employee->empJob->section->name }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Designation</b> <a class="pull-right">{{ $employee->empJob->designation->name }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Grade</b> <a class="pull-right">{{ $employee->empJob->grade->name }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Grade Step</b> <a class="pull-right">{{ $employee->empJob->gradeStep->name }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Employment Type</b> <a class="pull-right">{{ $employee->empJob->empType->name }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Supervisor</b> <a class="pull-right">{{ $employee->empJob->supervisor->emp_id_name ?? config('global.null_value') }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Job Location</b> <a class="pull-right">{{ $employee->empJob->job_location }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Basic Pay</b> <a class="pull-right">{{ $employee->empJob->basic_pay }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Account Number</b> <a class="pull-right">{{ $employee->empJob->account_number }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>PF Number</b> <a class="pull-right">{{ $employee->empJob->pf_number }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>TPN Number</b> <a class="pull-right">{{ $employee->empJob->tpn_number }}</a>
+                    </li>
+                </ul>
+            </div>
+            @if ($canUpdate === 1)
+            <div class="card-footer">
+                <a href="{{ url('employee/employee-lists/' .$employee->id . '/edit') }}" class="btn btn-outline-primary btn-block btn-sm"><b><i class="fa fa-edit"></i> Edit Record</b></a>
+            </div>
+            @endif
+        </div>
+    </div>
+    <div class="col-md-12">
         <!-- Qualification -->
         <div class="card">
             <div class="card-header">
@@ -198,3 +253,13 @@
     </div>
 </div>
 @endsection
+@push('page_scripts')
+<script>
+    $(document).ready(function() {
+    $('.btn-tool').on('click', function() {
+        var icon = $(this).find('i');
+        icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
+    });
+});
+</script>
+@endpush

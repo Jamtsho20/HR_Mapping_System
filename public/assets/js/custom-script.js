@@ -124,6 +124,27 @@ var hrms = function() {
             }
         });
 
+        //populate payscale and basic pay based on gradestep
+        $(document).on("change", "#grade_step_id", function() {
+            var gradeStepId = $("#grade_step_id").val();
+            if (gradeStepId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getpayscalebygradestep/" + gradeStepId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        // var payScale = data.pay_scale;
+                        $("#pay_scale").val(data[0].starting_salary + ' - ' + data[0].increment + ' - ' + data[0].ending_salary); // set the value for pay scale
+                        $("#basic_pay").val(data[0].starting_salary); // set the value for pay scale
+                    }
+                });
+            } else {
+                $("#pay_scale").val('');
+                $("#basic_pay").val('');
+            }
+        });
+
 
         //END
 

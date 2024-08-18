@@ -42,6 +42,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'employee_id' => 'integer'
     ];
 
     /** Relationships */
@@ -101,6 +102,10 @@ class User extends Authenticatable
     }
 
     //accessors & mutators
+    public function getEmpIdNameAttribute(){
+        return $this->username . ' - ' . $this->name;
+    }
+
     public function getProfilePictureAttribute()
     {
         if ($this->profile_pic) {
