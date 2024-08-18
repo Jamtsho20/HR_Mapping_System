@@ -58,7 +58,6 @@ class EmployeeController extends Controller
         'permenant_address.house_no' => 'required', 
         //present address validation rule
         'current_address.mas_dzongkhag_id' => 'required', 
-        'current_address.mas_gewog_id' => 'required', 
         'current_address.city' => 'required', 
         'current_address.postal_code' => 'required', 
         //validation rule for mas_employee_jobs
