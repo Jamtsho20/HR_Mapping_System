@@ -3,7 +3,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="form-group col-md-12">
-                    <label for="employment_contract">Contract of Employment<span class="text-danger">*</span></label>
+                    <label for="employment_contract">Employment Contract<span class="text-danger">*</span></label>
                     <input type="file" class="form-control form-control-sm" name="documents[employment_contract]" required>
                 </div>
                 <br>

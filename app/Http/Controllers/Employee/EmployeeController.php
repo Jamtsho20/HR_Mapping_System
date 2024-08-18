@@ -14,7 +14,6 @@ use App\Models\MasEmployeePresentAddress;
 use App\Models\MasEmploymentType;
 use App\Models\MasGewog;
 use App\Models\MasGrade;
-use App\Models\MasGradeStep;
 use App\Models\MasQualification;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -37,13 +36,10 @@ class EmployeeController extends Controller
     // private $employeeId = User::max('employee_id') + 1;
     protected $rules = [
         // rules for mas_employees
-        'personal.name' => 'required',
-        // 'personal.username' => 'required|unique:mas_employees,username',
         'personal.email' => 'required|email|unique:mas_employees,email',
         'personal.first_name' => 'required',
         'personal.title' => 'required',
         'personal.cid_no' => 'required|digits:11',
-        // 'personal.employee_id' => 'required|unique:mas_employees,employee-id',
         'personal.gender' => 'required',
         'personal.dob' => 'required|date',
         'personal.birth_place' => 'required',
@@ -63,9 +59,8 @@ class EmployeeController extends Controller
         //present address validation rule
         'current_address.mas_dzongkhag_id' => 'required', 
         'current_address.mas_gewog_id' => 'required', 
-        'current_address.mas_village_id' => 'required', 
-        'current_address.thram_no' => 'required', 
-        'current_address.house_no' => 'required', 
+        'current_address.city' => 'required', 
+        'current_address.postal_code' => 'required', 
         //validation rule for mas_employee_jobs
         'job.mas_department_id' => 'required',
         'job.mas_section_id' => 'required',
@@ -78,12 +73,7 @@ class EmployeeController extends Controller
         'job.account_number' => 'required',
         'job.pf_number' => 'required',
         'job.tpn_number' => 'required',
-        //validation rule for qualification
-        'qualifications.*.mas_qualification_id' => 'required',
-        //validation rule for training
-        'trainings.*.title' => 'required',        
-        'trainings.*.location' => 'required',
-        //validation rules for documnets
+        //validation rules for documents
         'documents.employment_contract' => 'required|file|mimes:jpg,png,pdf|max:2048',
         'documents.non_disclosure_aggrement' => 'required|file|mimes:jpg,png,pdf|max:2048',
         'documents.job_responsibilities' => 'required|file|mimes:jpg,png,pdf|max:2048',
@@ -110,7 +100,6 @@ class EmployeeController extends Controller
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
-        // $employeeId = fixEmployeeId(User::max('employee_id') + 1);
         $employeeId = fixEmployeeId($this->fetchHighestEmpId() + 1);
         return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'employeeId'));
     }
@@ -126,9 +115,15 @@ class EmployeeController extends Controller
             $employeeId = $this->savePersonalInfo($request->personal);
             $this->saveAddress($request->permenant_address, $request->current_address, $employeeId);
             $this->saveJob($request->job, $employeeId);
-            $this->saveQualifications($request->qualifications, $employeeId);
-            $this->saveTrainings($request->trainings, $employeeId);
-            $this->saveExperiences($request->experiences, $employeeId);
+            if(!empty($request->qualifications)){
+                $this->saveQualifications($request->qualifications, $employeeId);
+            }
+            if(!empty($request->trainings)){
+                $this->saveTrainings($request->trainings, $employeeId);
+            }
+            if(!empty($request->experiences)){
+                $this->saveExperiences($request->experiences, $employeeId);
+            }
             $this->saveDocuments($request->documents, $employeeId);
 
             DB::commit();
@@ -244,23 +239,20 @@ class EmployeeController extends Controller
     private function saveAddress($permenantAddress, $currentAddress, $employeeId){
         $empPermenantAddress = new MasEmployeePermenantAddress();
         $empCurrentAddress = new MasEmployeePresentAddress();
-        if($permenantAddress){
-            $empPermenantAddress->mas_employee_id = $employeeId;
-            $empPermenantAddress->mas_dzongkhag_id = $permenantAddress['mas_dzongkhag_id'];
-            $empPermenantAddress->mas_gewog_id = $permenantAddress['mas_gewog_id'];
-            $empPermenantAddress->mas_village_id = $permenantAddress['mas_village_id'];
-            $empPermenantAddress->thram_no = $permenantAddress['thram_no'];
-            $empPermenantAddress->house_no = $permenantAddress['house_no'];
-            $empPermenantAddress->save();
-        }
-        if($currentAddress){
-            $empCurrentAddress->mas_employee_id = $employeeId;
-            $empCurrentAddress->mas_dzongkhag_id = $currentAddress['mas_dzongkhag_id'];
-            $empCurrentAddress->mas_gewog_id = $currentAddress['mas_gewog_id'];
-            $empCurrentAddress->city = $currentAddress['city'];
-            $empCurrentAddress->postal_code = $currentAddress['postal_code'];
-            $empCurrentAddress->save();
-        }
+        $empPermenantAddress->mas_employee_id = $employeeId;
+        $empPermenantAddress->mas_dzongkhag_id = $permenantAddress['mas_dzongkhag_id'];
+        $empPermenantAddress->mas_gewog_id = $permenantAddress['mas_gewog_id'];
+        $empPermenantAddress->mas_village_id = $permenantAddress['mas_village_id'];
+        $empPermenantAddress->thram_no = $permenantAddress['thram_no'];
+        $empPermenantAddress->house_no = $permenantAddress['house_no'];
+        $empPermenantAddress->save();
+        
+        $empCurrentAddress->mas_employee_id = $employeeId;
+        $empCurrentAddress->mas_dzongkhag_id = $currentAddress['mas_dzongkhag_id'];
+        $empCurrentAddress->mas_gewog_id = $currentAddress['mas_gewog_id'];
+        $empCurrentAddress->city = $currentAddress['city'];
+        $empCurrentAddress->postal_code = $currentAddress['postal_code'];
+        $empCurrentAddress->save();
     }
 
     private function saveJob($job, $employeeId){

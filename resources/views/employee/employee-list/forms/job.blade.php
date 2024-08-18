@@ -52,8 +52,8 @@
                     <input type="text" id="pay_scale" class="form-control form-control-sm" disabled>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="basic_scale">Basic Pay<span class="text-danger">*</span></label>
-                    <input type="text" name="job[basic_pay]" id="basic_pay" class="form-control form-control-sm" value="{{ old('job.basic_pay') }}" required disabled>
+                    <label for="basic_pay">Basic Pay<span class="text-danger">*</span></label>
+                    <input type="text" name="job[basic_pay]" id="basic_pay" class="form-control form-control-sm" value="{{ old('job.basic_pay') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="">Job Location <span class="text-danger">*</span></label>
