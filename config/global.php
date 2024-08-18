@@ -54,7 +54,5 @@ return [
         'Druk PNB' => 'Druk PNB',
         'T Bank' => 'T Bank',
         'DK Bank' => 'Digital Kidu'
-    ],
-
-    'pagination' => 30,
+    ]
 ];

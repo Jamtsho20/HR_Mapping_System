@@ -4,6 +4,9 @@ namespace App\Http\Controllers\PayMaster;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasPayHead;
+use App\Models\MasPayGroup;
+use App\Models\MasAccAccountHead;
+use App\Models\MasPaySlab;
 use Illuminate\Http\Request;
 
 class PayHeadsController extends Controller
@@ -35,35 +38,45 @@ class PayHeadsController extends Controller
      */
     public function create()
     {
-        return view('paymaster.pay-heads.create');
+        $accountHeads = MasAccAccountHead::all();
+        $paySlabs = MasPaySlab::all();
+        $payGroups = MasPayGroup::all(); 
+
+        // Pass both data sets to the view
+        return view('paymaster.pay-heads.create', compact('accountHeads', 'paySlabs', 'payGroups'));
 
     }
     public function store(Request $request)
     {
-        // Validate the request data
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'code' => 'required|string|max:50',
-            'payhead_type' => 'required|integer|in:1,2', // Assuming 1 for Allowance, 2 for Deduction
-            'accounthead_type' => 'required|integer|in:1,2', // Assuming 1 for Allowance, 2 for Deduction
-            'calculation_method' => 'required|integer|in:1,2,3,4,5,6,7', // Depending on your methods
-            'calculated_on' => 'required|integer|in:1,2,3,4,5,6,7', // Depending on your criteria
-            'formula' => 'nullable|string',
+        dd($request->all());
+        $validatedData = $request->validate([
+            'payhead_type' => 'required|integer',
+            'name' => 'required|string|max:255',
+            'accounthead_type' => 'required|integer',
+            'code' => 'required|string|max:255',
+            'calculation_method' => 'required|integer',
+            'calculated_on' => 'required_if:calculation_method,3,4,5',
+            'amount' => 'required_if:calculation_method,1,2,5|numeric',
+            'payslab_id' => 'required_if:calculation_method,3|integer',
+            'paygroup_id' => 'required_if:calculation_method,4|integer',
+            'formula' => 'required_if:calculation_method,6|string',
         ]);
-
-        // Create a new PayHead instance and assign data
+    
+        // If validation passes, handle the data
         $payHead = new MasPayHead();
-        $payHead->name = $request->name;
-        $payHead->code = $request->code;
         $payHead->payhead_type = $request->payhead_type;
-        $payHead->accounthead_type = $request->payhead_type;
+        $payHead->name = $request->name;
+        $payHead->accounthead_type = $request->accounthead_type;
+        $payHead->code = $request->code;
         $payHead->calculation_method = $request->calculation_method;
         $payHead->calculated_on = $request->calculated_on;
+        $payHead->amount = $request->amount;
+        $payHead->payslab_id = $request->payslab_id;
+        $payHead->paygroup_id = $request->paygroup_id;
         $payHead->formula = $request->formula;
-        $payHead->created_by = auth()->user()->id;
         $payHead->save();
-
-        return redirect('paymaster/pay-heads')->with('msg_success', 'Pay head created successfully');
+    
+        return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
     }
     public function show(string $id)
     {

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('page-title', 'Edit Pay Slab')
-
+@include('layouts.includes.delete-modal')
 @section('content')
 <form action="{{ url('paymaster/pay-slabs/' . $paySlab->id) }}" method="POST">
     @csrf
@@ -35,99 +35,9 @@
         </div>
     </div>
 </form>
+
 <!-- Pay Slab Details Form -->
-<div class="row row-sm">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Pay Slab Details</h3>
-            </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                        <div class="dataTables_scroll">
-                                            <div class="dataTables_scrollHead"
-                                                style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                <div class="dataTables_scrollHeadInner"
-                                                    style="box-sizing: content-box; padding-right: 0px;">
-                                                    <table
-                                                        class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                        id="basic-datatable table-responsive">
-                                                        <thead>
-                                                            <tr role="row">
-                                                                <th>Pay From</th>
-                                                                <th>Pay To</th>
-                                                                <th>Amount</th>
-                                                                <th>Created At</th>
-                                                                <th>Updated At</th>
-                                                                <th>Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($details as $index => $detail)
-                                                            <tr>
-                                                                <td>
-                                                                    <input type="number" class="form-control form-control-sm" name="detail[{{ $index }}][pay_from]" value="{{ old('detail.'.$index.'.pay_from', $detail->pay_from) }}" placeholder="Pay From" required>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="number" class="form-control form-control-sm" name="detail[{{ $index }}][pay_to]" value="{{ old('detail.'.$index.'.pay_to', $detail->pay_to) }}" placeholder="Pay To" required>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="number" class="form-control form-control-sm" name="detail[{{ $index }}][amount]" value="{{ old('detail.'.$index.'.amount', $detail->amount) }}" placeholder="Amount" required>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="date" class="form-control form-control-sm" name="detail[{{ $index }}][created_at]" value="{{ old('detail.'.$index.'.created_at', $detail->created_at ? $detail->created_at->format('Y-m-d') : '') }}" placeholder="Created At" required>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="date" class="form-control form-control-sm" name="detail[{{ $index }}][updated_at]" value="{{ old('detail.'.$index.'.updated_at', $detail->updated_at ? $detail->updated_at->format('Y-m-d') : '') }}" placeholder="Updated At" required>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <a href="#" class="edit-detail-btn btn-sm btn btn-rounded btn-outline-success" 
-                                                                    data-id="{{ $detail->id }}"
-                                                                    data-pay-from="{{ $detail->pay_from }}"
-                                                                    data-pay-to="{{ $detail->pay_to }}"
-                                                                    data-amount="{{ $detail->amount }}"
-                                                                    data-created-at="{{ $detail->created_at->format('Y-m-d') }}"
-                                                                    data-updated-at="{{ $detail->updated_at->format('Y-m-d') }}">
-                                                                    <i class="fa fa-edit"></i> Edit
-                                                                    </a>
-                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                        data-id="{{ $detail->id }}"
-                                                                        data-pay-from="{{ $detail->pay_from }}"
-                                                                        data-pay-to="{{ $detail->pay_to }}"
-                                                                        data-amount="{{ $detail->amount }}"
-                                                                        data-created-at="{{ $detail->created_at->format('Y-m-d') }}"
-                                                                        data-updated-at="{{ $detail->updated_at->format('Y-m-d') }}">
-                                                                        <i class="fa fa-trash"></i> Delete
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
-                                                            @endforeach
-                                                            <tr class="notremovefornew">
-                                                                <td colspan="7" class="text-right">
-                                                                    <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                    <!-- Pagination Links -->
-                                                    <div class="pagination-wrapper">
-                                                        {{ $details->links() }}
-                                                    </div>
-                                                
-                                            </div>
-                                        </div>
-                                </div>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-        </div>
-    </div>
-</div>
+@include('paymaster.pay-slabs-details.index', ['paySlab' => $paySlab])
 
 
 <!-- Edit Detail Modal -->
@@ -212,5 +122,4 @@
     });
 });
 </script>
-
 @endpush

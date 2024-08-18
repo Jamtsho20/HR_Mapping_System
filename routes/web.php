@@ -165,6 +165,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-groups', 'PayGroupsController');        
         Route::resource('pay-heads', 'PayHeadsController');        
         Route::resource('pay-slabs', 'PaySlabsController');        
+        Route::resource('pay-slab-details', 'PaySlabsDetailsController'); 
+        Route::resource('pay-group-details', 'PayGroupDetailsController'); 
     });
 
     /* route related to ajax */
