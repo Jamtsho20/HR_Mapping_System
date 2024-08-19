@@ -188,7 +188,7 @@ class EmployeeController extends Controller
         // try {
         //     User::findOrFail($id)->delete();
 
-        //     return back()->with('msg_success', 'The qualification has been deleted successfully');
+        //     return back()->with('msg_success', 'The employee has been deleted successfully');
         // } catch(\Exception $exception){
         //     return back()->with('msg_error', 'The qualification cannot be deleted as it has been used and is linked with other modules. For further information contact system admin.');
         // }
