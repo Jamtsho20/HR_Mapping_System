@@ -191,10 +191,7 @@
         <!-- Qualification -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Qualification(s)
-
-                </h3>
-
+                <h3 class="card-title mb-1 mt-1">Job Detail(s)</h3>
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-unbordered">

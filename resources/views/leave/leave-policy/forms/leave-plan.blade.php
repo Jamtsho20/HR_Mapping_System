@@ -81,7 +81,6 @@
     </div>
 </div>
 <div class="row">
-
     <span class="col-sm-4">Can Avail In</span>
     <div class="col-sm-2">
         <div class="form-check">
@@ -116,6 +115,7 @@
 
 <button class="btn btn-primary  pull-left is_informationonlyenable " data-bs-toggle="modal" data-bs-target="#largemodal"><i class="fa fa-plus"></i> &nbsp;&nbsp;Create Rule</button>
 
+<!-- Rule Modal -->
 <div class="modal fade" id="largemodal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -127,23 +127,22 @@
                 <form>
                     <div class="row">
                         <div class="col-sm-4 form-group">
-                            <select id="example-getting-started" multiple="multiple">
-                                <option value="cheese">Cheese</option>
-                                <option value="tomatoes">Tomatoes</option>
-                                <option value="mozarella">Mozzarella</option>
-                                <option value="mushrooms">Mushrooms</option>
-                                <option value="pepperoni">Pepperoni</option>
-                                <option value="onions">Onions</option>
+                            <label>Grade<span class="text-danger">*</span> </label>
+                            <select class="form-control select2 select2-hidden-accessible" data-placeholder="Choose Grade" multiple="" tabindex="-1" style="width: 100%" aria-hidden=" true" name="grade">
+                                <option value="Firefox"> Firefox </option>
+                                <option value="Chrome selected"> Chrome </option>
+                                <option value="Safari"> Safari </option>
+                                <option value="Opera"> Opera </option>
+                                <option value="Internet Explorer"> Internet Explorer </option>
                             </select>
-
                         </div>
                         <div class=" col-sm-4 form-group">
                             <label>Duration<span class="text-danger">*</span> </label>
-                            <input type="text" min="0" maxlength="5" name="name" onkeypress="if(this.value.length==0 &amp;&amp; event.keyCode == 48) return false; " class="form-control mynumval" autocomplete="off" id="txtnoofdays" placeholder="Duration" value="">
+                            <input type="text" min="0" maxlength="5" name="duration" class="form-control " id="duration" placeholder="Duration" value="">
                         </div>
                         <div class=" col-sm-4 form-group">
                             <label>UOM <span class="text-danger">*</span> </label>
-                            <select class="form-control" id="ddlUOM" name="ddlUOM">
+                            <select class="form-control" id="UOM" name="UOM">
                                 <option value="0">Select</option>
                                 <option value="Day">Day</option>
                                 <option value="Month">Month</option>
@@ -152,11 +151,11 @@
                         </div>
                         <div class=" col-sm-4 form-group">
                             <label>Start Date <span class="text-danger">*</span> </label>
-                            <div class="cal-icon"><input type="text" id="txtStartdatepolicyplan" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker" readonly="readonly" style="background-color: rgb(255, 255, 255);"></div>
+                            <div class="cal-icon"><input type="date" id="" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker" style="background-color: rgb(255, 255, 255);"></div>
                         </div>
                         <div class="col-sm-4 form-group">
                             <label>End Date </label>
-                            <div class="cal-icon"><input type="text" id="txtEnddatepolicyplan" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker" readonly="readonly" style="background-color: rgb(255, 255, 255);"></div>
+                            <div class="cal-icon"><input type="date" id="" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker" style="background-color: rgb(255, 255, 255);"></div>
                         </div>
                         <div class="col-sm-4 form-group">
                             <label>Is loss of Pay <span class="text-danger">*</span> </label>
@@ -186,17 +185,70 @@
                             </select>
                         </div>
                     </div>
-                    <div id="wait" style="display:none;width:109px;height:100px;position:absolute;top:50%;left:50%;padding:2px;"><img src="/assets/img/giphy.gif" width="64" height="64"><br>Loading..</div>
-                    <input type="hidden" id="hiddenrowindex">
-                    <input type="hidden" id="hiddenrowgroup" value="1">
-                    <input type="hidden" id="hiddenrowenddate">
+
                     <input type="button" id="btnAddCreateRule" class="btn btn-primary" name="Apply" value="Submit">
-                    <input type="button" id="btnreset" class="btn btn-primary" onclick="javascript: clearText();" name="" value="Reset">
+                    <input type="reset" id="btnreset" class="btn btn-primary">
                 </form>
             </div>
             <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button class="btn btn-primary">Save changes</button></div>
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.1.0/dist/js/coreui.min.js" integrity="sha384-5AFH+cXP6pr6PW8bkdG8JYEV6tNQ5A0LDXN7dFK1IEactC693axhMgPNm2aM2uza" crossorigin="anonymous"></script>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="dataTables_length" id="responsive-datatable_length"
+                            data-select2-id="responsive-datatable_length">
+
+                        </div>
+                        <div class="dataTables_scroll">
+                            <div class="dataTables_scrollHead"
+                                style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                <div class="dataTables_scrollHeadInner"
+                                    style="box-sizing: content-box; padding-right: 0px;">
+                                    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
+                                        <thead>
+                                            <tr role="row">
+                                                <th>
+                                                    Grade
+                                                </th>
+                                                <th>
+                                                    Duration
+                                                </th>
+                                                <th>
+                                                    UOM
+                                                </th>
+                                                <th>
+                                                    START DATE
+                                                </th>
+                                                <th>
+                                                    END DATE
+                                                </th>
+                                                <th>
+                                                    Is Loss of Pay
+                                                </th>
+                                                <th>
+                                                    EMPLOYEMENT TYPE
+                                                </th>
+                                                <th>
+                                                    STATUS
+                                                </th>
+                                                <th>
+                                                    ACTION
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
