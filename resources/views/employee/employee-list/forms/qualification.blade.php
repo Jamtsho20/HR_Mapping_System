@@ -7,11 +7,9 @@
                         <tr>
                             <th width="3%" class="text-center">#</th>
                             <th>Qualification</th>
-                            <th>School/College</th>
-                            <th>Completion Year</th>
-                            {{-- <th>Start Date</th>
-                            <th>End Date</th> --}}
-                            <th>Subject/Course</th>
+                            <th>School/College/university</th>
+                            <th>Completed On</th>
+                            <th>Subject</th>
                             <th>Aggregate Score</th>
                         </tr>
                     </thead>
@@ -24,7 +22,7 @@
                                 <select name="qualifications[AAAAA][mas_qualification_id]" class="form-control form-control-sm resetKeyForNew" required>
                                     <option value="" disabled selected hidden>SELECT ONE</option>
                                     @foreach($qualifications as $qualification)
-                                        <option value="{{ $qualification->id }} {{ old('qualifications.AAAAA.mas_qualification_id') == $qualification->id ? 'selected' : '' }}">{{ $qualification->name }}</option>
+                                        <option value="{{ $qualification->id }}" {{ old('qualifications.AAAAA.mas_qualification_id') == $qualification->id ? 'selected' : '' }}>{{ $qualification->name }}</option>
                                     @endforeach
                                 </select>
                             </td>
@@ -34,12 +32,6 @@
                             <td class="text-center">
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][completion_year]" value="{{ old('qualifications.AAAAA.completion_year') }}" required>
                             </td>
-                            {{-- <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][start_date]" value="{{ old('qualifications.AAAAA.start_date') }}" required>
-                            </td>
-                            <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][end_date]" value="{{ old('qualifications.AAAAA.end_date') }}" required>
-                            </td> --}}
                             <td class="text-center">
                                 <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][subject]" value="{{ old('qualifications.AAAAA.subject') }}" required>
                             </td>
@@ -48,7 +40,7 @@
                             </td>
                         </tr>
                         <tr class="notremovefornew">
-                            <td colspan="6"></td>
+                            <td colspan="5"></td>
                             <td class="text-right">
                                 <a href="#" class="add-table-row btn btn-sm btn-primary" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                             </td>

@@ -27,5 +27,4 @@ class MasDzongkhag extends Model
     {
         return $this->hasMany(MasGewog::class, 'mas_dzongkhag_id');
     }
-
 }

@@ -52,8 +52,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="">Gewog <span class="text-danger">*</span></label>
-                        <select name="current_address[mas_gewog_id]" class="form-control form-control-sm" required>
+                        <label for="">Gewog</label>
+                        <select name="current_address[mas_gewog_id]" class="form-control form-control-sm">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($gewogs as $gewog)
                                 <option value="{{ $gewog->id }}" {{ old('current_address.mas_gewog_id') == $gewog->id ? 'selected' : '' }}>{{ $gewog->name }}</option>

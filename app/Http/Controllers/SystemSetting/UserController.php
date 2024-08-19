@@ -25,6 +25,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        
         $users = User::filter($request)->orderBy('name')->paginate(30)->withQueryString();
 
         return view('system-settings.users.index', compact('users', 'privileges'));

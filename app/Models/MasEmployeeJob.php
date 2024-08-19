@@ -9,26 +9,39 @@ class MasEmployeeJob extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id', 'mas_grade_id', 'mas_grade_step_id'];
+    protected $fillable = [
+        'mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id', 'mas_grade_id', 'mas_grade_step_id',
+        'mas_employment_type_id', 'immediate_supervisor', 'job_location', 'basic_pay', 'bank', 'account_number', 'pf_number', 'tpn_number'
+    ];
 
-    public function masEmployee()
-    {
+    public function masEmployee() {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
-    public function masDepartment()
-    {
-        return $this->hasOne(MasDepartment::class, 'id');
+
+    public function department() {
+        return $this->belongsTo(MasDepartment::class, 'mas_department_id');
     }
-    public function masDesignation()
-    {
-        return $this->hasOne(MasDesignation::class, 'id');
+
+    public function section() {
+        return $this->belongsTo(MasSection::class, 'mas_section_id');
     }
-    public function masGrade()
-    {
-        return $this->hasOne(MasGrade::class, 'id');
+    public function designation() {
+        return $this->belongsTo(MasSection::class, 'mas_section_id');
     }
-    public function masGradeStep()
-    {
-        return $this->hasOne(MasGradeStep::class, 'id', 'mas_grade_step_id');
+
+    public function grade() {
+        return $this->belongsTo(MasGrade::class, 'mas_grade_id');
+    }
+
+    public function gradeStep() {
+        return $this->belongsTo(MasGradeStep::class, 'mas_grade_step_id');
+    }
+
+    public function empType() {
+        return $this->belongsTo(MasEmploymentType::class, 'mas_employment_type_id');
+    }
+
+    public function supervisor() {
+        return $this->belongsTo(User::class, 'immediate_supervisor');
     }
 }
