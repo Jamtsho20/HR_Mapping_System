@@ -138,7 +138,7 @@
                         </div>
                         <div class=" col-sm-4 form-group">
                             <label>Duration<span class="text-danger">*</span> </label>
-                            <input type="text" min="0" maxlength="5" name="name" onkeypress="if(this.value.length==0 &amp;&amp; event.keyCode == 48) return false; " class="form-control mynumval" autocomplete="off" id="txtnoofdays" placeholder="Duration" value="">
+                            <input type="text" min="0" maxlength="5" name="duration" class="form-control " id="duration" placeholder="Duration" value="">
                         </div>
 
                         <div class=" col-sm-4 form-group">
