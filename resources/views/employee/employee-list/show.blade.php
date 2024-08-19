@@ -69,62 +69,51 @@
         </div>
     </div>
     <!-- Address -->
-    <div class="col-md-12">
+    <div class="row col-md-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Present Address(s)</h3>
-                <button type="button" class="btn btn-tool place" data-toggle="collapse" data-target="#experience-card-body">
-                    <i class="fa fa-plus"></i>
-                </button>
+                <h3 class="card-title mb-1 mt-1">Address Details</h3>
             </div>
-            <div id="#experience-card-body" class="card-body p-0">
-                <ul class="list-group list-group-unbordered">
-                    <li class="list-group-item">
-                        <b>Dzongkhag</b> <a class="pull-right">{{ $employee->empPresentAddress->masDzongkhag->dzongkhag }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Gewog</b> <a class="pull-right">
-                            {{ $employee->empPresentAddress->masGewog->name }}
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>City</b> <a class="pull-right">
-                            {{ $employee->empPresentAddress->city }}
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Postal Code</b> <a class="pull-right">
-                            {{ $employee->empPresentAddress->postal_code }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Permanent Address(s)</h3>
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-unbordered">
-                    <li class="list-group-item">
-                        <b>Dzongkhag</b> <a class="pull-right">{{ $employee->empPermenantAddress->masDzongkhag->dzongkhag }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Gewog</b> <a class="pull-right">
-                            {{ $employee->empPermenantAddress->masGewog->name }}
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Tharm No</b> <a class="pull-right">
-                            {{ $employee->empPermenantAddress->thram_no }}
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>House No</b> <a class="pull-right">
-                            {{ $employee->empPermenantAddress->house_no }}
-                        </a>
-                    </li>
-                </ul>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Present Address -->
+                    <div class="col-md-6">
+                        <h6>Present Address</h6>
+                        <ul class="list-group list-group-unbordered">
+                            <li class="list-group-item">
+                                <b>Dzongkhag</b> <a class="pull-right">{{ $employee->empPresentAddress->masDzongkhag->dzongkhag }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Gewog</b> <a class="pull-right">{{ $employee->empPresentAddress->masGewog->name }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>City</b> <a class="pull-right">{{ $employee->empPresentAddress->city }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Postal Code</b> <a class="pull-right">{{ $employee->empPresentAddress->postal_code }}</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Permanent Address -->
+                    <div class="col-md-6">
+                        <h6>Permanent Address</h6>
+                        <ul class="list-group list-group-unbordered">
+                            <li class="list-group-item">
+                                <b>Dzongkhag</b> <a class="pull-right">{{ $employee->empPermenantAddress->masDzongkhag->dzongkhag }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Gewog</b> <a class="pull-right">{{ $employee->empPermenantAddress->masGewog->name }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Tharm No</b> <a class="pull-right">{{ $employee->empPermenantAddress->thram_no }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>House No</b> <a class="pull-right">{{ $employee->empPermenantAddress->house_no }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -187,6 +176,7 @@
             @endif
         </div>
     </div>
+    <!--qualification-->
     <div class="col-md-12">
         <!-- Qualification -->
         <div class="card">
