@@ -13,58 +13,53 @@
                     <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                         <div class="row">
                             <div class="col-sm-12">
-                                    <div class="dataTables_scroll">
-                                        <div class="dataTables_scrollHead"
-                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                            <div class="dataTables_scrollHeadInner"
-                                                style="box-sizing: content-box; padding-right: 0px;">
-                                                <table
-                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                    id="basic-datatable table-responsive">
-                                                    <thead>
-                                                        <tr role="row">
-                                                            <th>Pay From</th>
-                                                            <th>Pay To</th>
-                                                            <th>Amount</th>
-                                                            <th>Created At</th>
-                                                            <th>Updated At</th>
-                                                            <th>Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <!-- {{ $paySlab->paySlabDetails }} -->
-                                                    <tbody>
-                                                        @foreach($paySlab->paySlabDetails as $detail)
-                                                        <tr>
-                                                            <td>{{ $detail->pay_from }}</td>
-                                                            <td>{{ $detail->pay_to }}</td>
-                                                            <td>{{ $detail->amount }}</td>
-                                                            <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d') : '' }}</td>
-                                                            <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d') : '' }}</td>
-                                                            <td class="text-center">
-                                                                <a href="#" class="edit-detail-btn btn-sm btn btn-rounded btn-outline-success" 
-                                                                    data-id="{{ $detail->id }}"
-                                                                    data-pay-from="{{ $detail->pay_from }}"
-                                                                    data-pay-to="{{ $detail->pay_to }}"
-                                                                    data-amount="{{ $detail->amount }}">
-                                                                    <i class="fa fa-edit"></i> Edit
-                                                                </a>
-                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                    data-url="{{ url('paymaster/pay-slab-details/' . $detail->id) }}">
-                                                                    <i class="fa fa-trash"></i> Delete
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                                <!-- Pagination Links -->
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                               
-                                                </div>
-                                            
+                                <div class="dataTables_scroll">
+                                    <div class="dataTables_scrollHead"
+                                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                        <div class="dataTables_scrollHeadInner"
+                                            style="box-sizing: content-box; padding-right: 0px;">
+                                            <table
+                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                id="basic-datatable table-responsive">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>Pay From</th>
+                                                        <th>Pay To</th>
+                                                        <th>Amount</th>
+                                                        <th>Created At</th>
+                                                        <th>Updated At</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($paySlabDetails as $detail)
+                                                    <tr>
+                                                        <td>{{ $detail->pay_from }}</td>
+                                                        <td>{{ $detail->pay_to }}</td>
+                                                        <td>{{ $detail->amount }}</td>
+                                                        <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d') : '' }}</td>
+                                                        <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d') : '' }}</td>
+                                                        <td class="text-center">
+                                                            <a href="#" class="edit-btn btn btn-sm btn-rounded btn-outline-success"
+                                                                data-url="{{ url('getpayslabdetail/' . $detail->id) }}"
+                                                                data-update-url="{{ url('paymaster/pay-slab-details/' . $detail->id) }}">
+                                                                <i class="fa fa-edit"></i> Edit
+                                                            </a>
+                                                            <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                                                data-url="{{ url('paymaster/pay-slab-details/' . $detail->id) }}">
+                                                                <i class="fa fa-trash"></i> Delete
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                            <div>{{ $paySlabDetails->links() }}</div>
                                         </div>
+
+                                        <!-- Pagination Links -->
                                     </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -73,3 +68,4 @@
         </div>
     </div>
 </div>
+@include('layouts.includes.delete-modal')

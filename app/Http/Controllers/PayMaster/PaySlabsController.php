@@ -71,28 +71,9 @@ class PaySlabsController extends Controller
 
     public function edit(string $id)
     {
-    $paySlab = MasPaySlab::with('paySlabDetails')->findOrFail($id);
-    // dd($paySlab);
-
-    // $payHead = ['GSLI', 'TDS'];
-
-    // if (in_array($paySlab->name, $payHead)) {
-    //     // Paginate details directly if it's an Eloquent relationship
-    //     $details = $paySlab->paySlabDetails()->paginate(30);
-    // } else {
-    //     $details = collect()->paginate(30); // this won't paginate correctly, adjust as needed
-    // }
-
-    // // Handle null dates
-    // $details->getCollection()->transform(function($detail) {
-    //     $detail->created_at = $detail->created_at ? $detail->created_at->format('Y-m-d') : '';
-    //     $detail->updated_at = $detail->updated_at ? $detail->updated_at->format('Y-m-d') : '';
-    //     return $detail;
-    // });
-
-    // dd($paySlab);
-
-    return view('paymaster.pay-slabs.edit', compact('paySlab'));
+        $paySlab = MasPaySlab::findOrFail($id);
+        $paySlabDetails = $paySlab->paySlabDetails()->paginate(10);
+        return view('paymaster.pay-slabs.edit', compact('paySlab', 'paySlabDetails'));
     }
 
     public function update(Request $request, string $id)

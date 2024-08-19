@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\PayMaster;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasGrade;
 use App\Models\MasPayGroup;
 use App\Models\MasPayGroupDetail;
 use Illuminate\Http\Request;
@@ -20,16 +21,21 @@ class PayGroupDetailsController extends Controller
     {
         $privileges = $request->instance(); 
         $payGroupDetails = MasPayGroupDetail::filter($request)->orderBy('created_at', 'desc')->paginate(30);
-        return view('paymaster.pay-group-details.index', compact('paygrupDetails', 'privileges'));
+        return view('paymaster.pay-group-details.index', compact('payGroupDetails', 'privileges'));
     }
 
     public function create(Request $request)
     {
+       
         $payGroupId = $request->payGroupId;
+    
         $payGroup = MasPayGroup::whereId($payGroupId)->first(); 
-        
+      
+        $grades = MasGrade::pluck('name', 'id');
+        $calculationMethods = MasPayGroupDetail::getCalculationMethods();
+       
 
-        return view('paymaster.pay-group-details.create', compact('payGroup'));
+        return view('paymaster.pay-group-details.create', compact('payGroup','grades', 'calculationMethods'));
     }
     public function store(Request $request)
     {

@@ -178,4 +178,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
+    Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
 });

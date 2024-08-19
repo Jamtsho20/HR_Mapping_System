@@ -137,10 +137,11 @@
                             </select>
 
                         </div>
-                        <div class=" col-sm-4 form-group">
-                            <label>Duration<span class="text-danger">*</span> </label>
-                            <input type="text" min="0" maxlength="5" name="name" onkeypress="if(this.value.length==0 &amp;&amp; event.keyCode == 48) return false; " class="form-control mynumval" autocomplete="off" id="txtnoofdays" placeholder="Duration" value="">
+                        <div class="col-sm-4 form-group">
+                            <label for="txtnoofdays">Duration<span class="text-danger">*</span></label>
+                            <input type="text" maxlength="5" name="name" onkeypress="if(this.value.length==0 && event.keyCode == 48) return false;" class="form-control mynumval" autocomplete="off" id="txtnoofdays" placeholder="Duration" value="">
                         </div>
+
                         <div class=" col-sm-4 form-group">
                             <label>UOM <span class="text-danger">*</span> </label>
                             <select class="form-control" id="ddlUOM" name="ddlUOM">

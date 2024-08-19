@@ -39,87 +39,51 @@
 <!-- Pay Slab Details Form -->
 @include('paymaster.pay-slabs-details.index', ['paySlab' => $paySlab])
 
+<!-- Edit Modal-->
 
-<!-- Edit Detail Modal -->
-<div class="modal fade" id="edit-detail-modal" tabindex="-1" aria-labelledby="editDetailLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+<div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="editDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #f8f9fa;">
             <div class="modal-header">
                 <h5 class="modal-title" id="editDetailLabel">Edit Detail</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
-                <form id="editDetailForm" method="POST" action="">
+                <form action="" method="POST" id="edit-modal-form">
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
                         <label for="pay_from" class="form-label">Pay From</label>
-                        <input type="number" class="form-control" id="pay_from" name="pay_from" required>
+                        <input type="number" class="form-control" id="pay_from" name="pay_from" value="{{ old('pay_from', $paySlab->pay_from) }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="pay_to" class="form-label">Pay To</label>
-                        <input type="number" class="form-control" id="pay_to" name="pay_to" required>
+                        <input type="number" class="form-control" id="pay_to" name="pay_to" value="{{ old('pay_to', $paySlab->pay_to) }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="amount" class="form-label">Amount</label>
-                        <input type="number" class="form-control" id="amount" name="amount" required>
+                        <input type="number" class="form-control" id="amount" name="amount" value="{{ old('amount', $paySlab->pay_to) }}" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="created_at" class="form-label">Created At</label>
-                        <input type="date" class="form-control" id="created_at" name="created_at" required>
+
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
-                    <div class="mb-3">
-                        <label for="updated_at" class="form-label">Updated At</label>
-                        <input type="date" class="form-control" id="updated_at" name="updated_at" required>
-                    </div>
-                    <button type="submit" name="detail_id" id="detail_id" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button><a href="{{ url('paymaster/pay-slabs') }}">
                 </form>
             </div>
+
         </div>
     </div>
 </div>
 
+<!-- Custom backdrop style -->
+<style>
+    .modal-backdrop {
+        background-color: rgba(255, 255, 255, 0.7) !important;
+    }
+</style>
+
+
 @include('layouts.includes.delete-modal')
 @endsection
-@push('page_scripts')
-<!-- Bootstrap CSS -->
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Bootstrap Bundle with Popper -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.edit-detail-btn').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-
-            const id = this.getAttribute('data-id');
-            const payFrom = this.getAttribute('data-pay-from');
-            const payTo = this.getAttribute('data-pay-to');
-            const amount = this.getAttribute('data-amount');
-            const createdAt = this.getAttribute('data-created-at');
-            const updatedAt = this.getAttribute('data-updated-at');
-
-            // Set the form action URL and input values
-            const form = document.getElementById('editDetailForm');
-            form.action = `/paymaster/pay-slabs/details/${id}`; // Adjust this URL as needed
-
-            document.getElementById('pay_from').value = payFrom;
-            document.getElementById('pay_to').value = payTo;
-            document.getElementById('amount').value = amount;
-
-            // Check if date fields are not null before setting them
-            document.getElementById('created_at').value = createdAt || '';
-            document.getElementById('updated_at').value = updatedAt || '';
-
-            document.getElementById('detail_id').value = id;
-
-            // Show the modal
-            var myModal = new bootstrap.Modal(document.getElementById('edit-detail-modal'));
-            myModal.show();
-        });
-    });
-});
-</script>
-@endpush

@@ -55,7 +55,7 @@
                                             <td>{{ $section->name }}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)
-                                                <a href="{{ url('master/section/'.$section->id .'/edit') }}" data-name="{{ $section->name }}" data-department-id="{{ $section->mas_department_id }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                <a href="{{ url('master/section/'.$section->id .'/edit') }}" data-name="{{ $section->name }}" data-department-id="{{ $section->mas_department_id }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                 @endif
                                                 @if ($privileges->delete)
                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/section/'.$section->id) }}"><i class="fa fa-trash"></i> DELETE</a>
