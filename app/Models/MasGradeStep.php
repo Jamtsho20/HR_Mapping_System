@@ -17,4 +17,9 @@ class MasGradeStep extends Model
     {
         return $this->belongsTo(MasGrade::class, 'mas_grade_id');
     }
+
+    // accessors & mutators
+    public function getPayScaleAttribute(){
+        return $this->starting_salary . ' - ' . $this->increment . ' - ' . $this->ending_salary;
+    }
 }

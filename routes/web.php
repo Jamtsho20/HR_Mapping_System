@@ -169,14 +169,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-group-details', 'PayGroupDetailsController'); 
     });
 
-
-
-
-
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
-    Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
 });

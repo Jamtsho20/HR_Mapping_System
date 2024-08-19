@@ -41,19 +41,23 @@
                 <div class="form-group col-md-4">
                     <label for="mas_grade_step_id">Grade Step <span class="text-danger">*</span></label>
                     <select name="job[mas_grade_step_id]" id="grade_step_id" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Selecrt your option</option>
+                        <option value="" disabled selected hidden>Select your option</option>
                         <select class="form-control" id="grade_step_id" name="job[mas_grade_step_id]">
                             {{-- will be populated based on selection of section --}}
                         </select>
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Job Location <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[job_location]" value="{{ old('job.job_location') }}" required>
+                    <label for="pay_scale">Pay Scale</label>
+                    <input type="text" id="pay_scale" class="form-control form-control-sm" disabled>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Basic Pay<span class="text-danger">*</span></label>
-                    <input type="number" class="form-control form-control-sm" name="job[basic_pay]" value="{{ old('job.basic_pay') }}" required>
+                    <label for="basic_pay">Basic Pay<span class="text-danger">*</span></label>
+                    <input type="text" name="job[basic_pay]" id="basic_pay" class="form-control form-control-sm" value="{{ old('job.basic_pay') }}" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">Job Location <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="job[job_location]" value="{{ old('job.job_location') }}" required>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">

@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('mas_employee_trainings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
-            $table->string('title', 100);
+            $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('title', 100)->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->unsignedInteger('duration')->nullable();
-            $table->string('location', 100);
+            $table->string('location', 100)->nullable();
             $table->string('description', 500)->nullable();
             $table->string('certificate')->nullable();
 

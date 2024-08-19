@@ -31,9 +31,4 @@ class AjaxRequestController extends Controller
         $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name']);
         return $gradeSteps;
     }
-
-    public function getPaySlabDetail($id){
-        $paySlabDetail = MasPaySlabDetails::findOrFail($id);
-        return $paySlabDetail;
-    }
 }

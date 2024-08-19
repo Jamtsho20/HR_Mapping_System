@@ -29,12 +29,54 @@ class EmployeeController extends Controller
         $this->middleware('permission:employee/employee-lists,create')->only('store');
         $this->middleware('permission:employee/employee-lists,edit')->only('update');
         $this->middleware('permission:employee/employee-lists,delete')->only('destroy');
-        $this->middleware('permission:employee/employee-lists,view-detail')->only('detail');
+        // $this->middleware('permission:employee/employee-lists,view')->only('show');
     }
 
     private $filePath = 'images/employee/';
-
-    protected $rules = [];
+    // private $employeeId = User::max('employee_id') + 1;
+    protected $rules = [
+        // rules for mas_employees
+        'personal.email' => 'required|email|unique:mas_employees,email',
+        'personal.first_name' => 'required',
+        'personal.title' => 'required',
+        'personal.cid_no' => 'required|digits:11',
+        'personal.gender' => 'required',
+        'personal.dob' => 'required|date',
+        'personal.birth_place' => 'required',
+        'personal.birth_country' => 'required',
+        'personal.marital_status' => 'required',
+        'personal.contact_number' => 'required|digits:8',
+        'personal.nationality' => 'required',
+        'personal.date_of_appointment' => 'required|date',
+        'personal.nationality' => 'required',
+        'personal.cid_copy' => 'required|file|mimes:jpg,png,pdf|max:2048',
+        //permenat address validation rule
+        'permenant_address.mas_dzongkhag_id' => 'required', 
+        'permenant_address.mas_gewog_id' => 'required', 
+        'permenant_address.mas_village_id' => 'required', 
+        'permenant_address.thram_no' => 'required', 
+        'permenant_address.house_no' => 'required', 
+        //present address validation rule
+        'current_address.mas_dzongkhag_id' => 'required', 
+        'current_address.city' => 'required', 
+        'current_address.postal_code' => 'required', 
+        //validation rule for mas_employee_jobs
+        'job.mas_department_id' => 'required',
+        'job.mas_section_id' => 'required',
+        'job.mas_designation_id' => 'required',
+        'job.mas_grade_id' => 'required',
+        'job.mas_grade_step_id' => 'required',
+        'job.mas_employment_type_id' => 'required',
+        'job.basic_pay' => 'required',
+        'job.bank' => 'required',
+        'job.account_number' => 'required',
+        'job.pf_number' => 'required',
+        'job.tpn_number' => 'required',
+        //validation rules for documents
+        'documents.employment_contract' => 'required|file|mimes:jpg,png,pdf|max:2048',
+        'documents.non_disclosure_aggrement' => 'required|file|mimes:jpg,png,pdf|max:2048',
+        'documents.job_responsibilities' => 'required|file|mimes:jpg,png,pdf|max:2048',
+    ];
 
     protected $messages = [];
 
@@ -57,8 +99,8 @@ class EmployeeController extends Controller
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
-
-        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications'));
+        $employeeId = fixEmployeeId($this->fetchHighestEmpId() + 1);
+        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'employeeId'));
     }
 
     /**
@@ -72,9 +114,15 @@ class EmployeeController extends Controller
             $employeeId = $this->savePersonalInfo($request->personal);
             $this->saveAddress($request->permenant_address, $request->current_address, $employeeId);
             $this->saveJob($request->job, $employeeId);
-            $this->saveQualifications($request->qualifications, $employeeId);
-            $this->saveTrainings($request->trainings, $employeeId);
-            $this->saveExperiences($request->experiences, $employeeId);
+            if(!empty($request->qualifications)){
+                $this->saveQualifications($request->qualifications, $employeeId);
+            }
+            if(!empty($request->trainings)){
+                $this->saveTrainings($request->trainings, $employeeId);
+            }
+            if(!empty($request->experiences)){
+                $this->saveExperiences($request->experiences, $employeeId);
+            }
             $this->saveDocuments($request->documents, $employeeId);
 
             DB::commit();
@@ -94,6 +142,7 @@ class EmployeeController extends Controller
         $instance = $request->instance(); 
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
+        // dd($employee->empJob->supervisor);
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
 
@@ -139,7 +188,7 @@ class EmployeeController extends Controller
         // try {
         //     User::findOrFail($id)->delete();
 
-        //     return back()->with('msg_success', 'The qualification has been deleted successfully');
+        //     return back()->with('msg_success', 'The employee has been deleted successfully');
         // } catch(\Exception $exception){
         //     return back()->with('msg_error', 'The qualification cannot be deleted as it has been used and is linked with other modules. For further information contact system admin.');
         // }
@@ -147,6 +196,8 @@ class EmployeeController extends Controller
 
     private function savePersonalInfo($personalInfo){
         $user = new User();
+        $employeeId = $this->fetchHighestEmpId() + 1;
+        $userName = fixEmployeeId($employeeId);
         $profilePic = isset($personalInfo['profile_pic']) ? uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/') : null;
         $empCidCopy = "";
         if (isset($personalInfo['cid_copy'])) {
@@ -156,18 +207,18 @@ class EmployeeController extends Controller
             throw new \Exception('Please upload the employee CID copy.');    
         }
         
-        $name = trim($personalInfo['first_name'] . ($personalInfo['middle_name'] ? ' ' . $personalInfo['middle_name'] : '') . ($personalInfo['last_name'] ? ' ' . $personalInfo['last_name'] : ''));
+        $fullName = trim($personalInfo['first_name'] . ($personalInfo['middle_name'] ? ' ' . $personalInfo['middle_name'] : '') . ($personalInfo['last_name'] ? ' ' . $personalInfo['last_name'] : ''));
         
         $user->first_name = $personalInfo['first_name'];
         $user->middle_name = $personalInfo['middle_name'];
         $user->last_name = $personalInfo['last_name'];
         $user->title = $personalInfo['title'];
-        $user->name = $name;
-        $user->username = $personalInfo['username'];
+        $user->name = $fullName;
+        $user->username = $userName;
         $user->password = bcrypt('password');
         $user->email = $personalInfo['email'];
         $user->cid_no = $personalInfo['cid_no'];
-        $user->employee_id = $personalInfo['employee_id'];
+        $user->employee_id = $employeeId;
         $user->gender = $personalInfo['gender'];
         $user->dob = $personalInfo['dob'];
         $user->birth_place = $personalInfo['birth_place'];
@@ -187,27 +238,25 @@ class EmployeeController extends Controller
     private function saveAddress($permenantAddress, $currentAddress, $employeeId){
         $empPermenantAddress = new MasEmployeePermenantAddress();
         $empCurrentAddress = new MasEmployeePresentAddress();
-        if($permenantAddress){
-            $empPermenantAddress->mas_employee_id = $employeeId;
-            $empPermenantAddress->mas_dzongkhag_id = $permenantAddress['mas_dzongkhag_id'];
-            $empPermenantAddress->mas_gewog_id = $permenantAddress['mas_gewog_id'];
-            $empPermenantAddress->mas_village_id = $permenantAddress['mas_village_id'];
-            $empPermenantAddress->thram_no = $permenantAddress['thram_no'];
-            $empPermenantAddress->house_no = $permenantAddress['house_no'];
-            $empPermenantAddress->save();
-        }
-        if($currentAddress){
-            $empCurrentAddress->mas_employee_id = $employeeId;
-            $empCurrentAddress->mas_dzongkhag_id = $currentAddress['mas_dzongkhag_id'];
-            $empCurrentAddress->mas_gewog_id = $currentAddress['mas_gewog_id'];
-            $empCurrentAddress->city = $currentAddress['city'];
-            $empCurrentAddress->postal_code = $currentAddress['postal_code'];
-            $empCurrentAddress->save();
-        }
+        $empPermenantAddress->mas_employee_id = $employeeId;
+        $empPermenantAddress->mas_dzongkhag_id = $permenantAddress['mas_dzongkhag_id'];
+        $empPermenantAddress->mas_gewog_id = $permenantAddress['mas_gewog_id'];
+        $empPermenantAddress->mas_village_id = $permenantAddress['mas_village_id'];
+        $empPermenantAddress->thram_no = $permenantAddress['thram_no'];
+        $empPermenantAddress->house_no = $permenantAddress['house_no'];
+        $empPermenantAddress->save();
+        
+        $empCurrentAddress->mas_employee_id = $employeeId;
+        $empCurrentAddress->mas_dzongkhag_id = $currentAddress['mas_dzongkhag_id'];
+        $empCurrentAddress->mas_gewog_id = $currentAddress['mas_gewog_id'];
+        $empCurrentAddress->city = $currentAddress['city'];
+        $empCurrentAddress->postal_code = $currentAddress['postal_code'];
+        $empCurrentAddress->save();
     }
 
     private function saveJob($job, $employeeId){
         $empJob = new MasEmployeeJob();
+        // $basicPay = MasGradeStep::where('id', $job['mas_grade_step_id'])->pluck('starting_salary')->first();
         $empJob->mas_employee_id = $employeeId;
         $empJob->mas_department_id = $job['mas_department_id'];
         $empJob->mas_section_id = $job['mas_section_id'];
@@ -218,6 +267,7 @@ class EmployeeController extends Controller
         $empJob->immediate_supervisor = $job['immediate_supervisor'] ?? null;
         $empJob->job_location = $job['job_location'];
         $empJob->basic_pay = $job['basic_pay'];
+        // $empJob->basic_pay = $basicPay;
         $empJob->bank = $job['bank'];
         $empJob->account_number = $job['account_number'];
         $empJob->pf_number = $job['pf_number'];
@@ -308,5 +358,9 @@ class EmployeeController extends Controller
         $EmpDocument->job_responsibilities = $jobResponsibilities;
         $EmpDocument->other = empty($otherDocuments) ? null : json_encode($otherDocuments);
         $EmpDocument->save();
+    }
+
+    private function fetchHighestEmpId(){
+        return User::max('employee_id');
     }
 }

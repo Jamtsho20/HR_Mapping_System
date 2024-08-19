@@ -3,15 +3,19 @@
 @section('content')
 @if ($privileges->create)
     @section('buttons')
-    <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
+        <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
     @endsection
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-8 form-group">
-        <input type="text" name="emplist" class="form-control" value="{{ request()->get('emplist') }}"
-            placeholder="Search">
-    </div>
+        <div class="col-4 form-group">
+            <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}"
+                placeholder="Name">
+        </div>
+        <div class="col-4 form-group">
+            <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}"
+                placeholder="Employee Id">
+        </div>
     @endcomponent
 
     <div class="row row-sm">
@@ -79,6 +83,7 @@
                                                         @forelse($employees as $employee)
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
+                                                            <td>{{$employee->username}}</td>
                                                             <td>{{$employee->name}}</td>
                                                             <td>{{$employee->date_of_appointment}}</td>
                                                             <td>{{$employee->contact_number}}</td>
@@ -109,6 +114,7 @@
                                                         @endforelse
                                                     </tbody>
                                                 </table>
+                                                <div>{{ $employees->links() }}</div>
                                             </div>
                                         </div>
                                     </div>

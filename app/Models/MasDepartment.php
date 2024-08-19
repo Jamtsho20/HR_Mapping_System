@@ -17,5 +17,11 @@ class MasDepartment extends Model
             $query->where('name', 'LIKE', '%' . $request->query('department') . '%');
         }
     }
+    
+    //accessors & mutators
+    public function getCodeNameAttribute()
+    {
+        return $this->short_name . ' - ' . $this->name;
+    }
 
 }
