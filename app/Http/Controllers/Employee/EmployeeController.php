@@ -90,7 +90,7 @@ class EmployeeController extends Controller
     {
         $instance = $request->instance(); //we need to pull the privileges from the instance
         $canUpdate = (int) $instance->edit;
-        $employee = User::with('empPresentAddress.masDzongkhag', 'empPresentAddress.masDzongkhag.gewogs', 'empPermenantAddress.masDzongkhag', 'empPermenantAddress.masDzongkhag.gewogs', 'empQualifications.masQualification')->findOrFail($id)->toArray();
+        $employee = User::with('empPresentAddress.masDzongkhag', 'empPresentAddress.masDzongkhag.gewogs', 'empPermenantAddress.masDzongkhag', 'empPermenantAddress.masDzongkhag.gewogs', 'empQualifications.masQualification', 'empExperiences', 'empJob.masDepartment.sections', 'empJob.masDesignation', 'empJob.masGrade', 'empJob.masGradeStep')->findOrFail($id)->toArray();
         // dd($employee);
 
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));

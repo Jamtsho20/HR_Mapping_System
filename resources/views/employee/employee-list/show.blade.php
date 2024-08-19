@@ -74,6 +74,73 @@
             @endif
         </div>
     </div>
+
+    <div class="col-md-4">
+        <!-- Qualification -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-1 mt-1">Qualification(s)
+
+                </h3>
+
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-unbordered">
+                    <li class="list-group-item">
+                        <b>Qualification</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['mas_qualification']['name'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>School</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['school'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Subject</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['subject'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Completion Year</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['completion_year']}}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Aggregate Score</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['aggregate_score'] }}</a>
+                    </li>
+
+
+                </ul>
+            </div>
+
+        </div>
+        <!-- Experiences -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-1 mt-1">Experience(s)
+                </h3>
+
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-unbordered">
+                    <li class="list-group-item">
+                        <b>Organization</b> <a class="pull-right">{{$employee['emp_experiences'][0]['organization'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Place</b> <a class="pull-right">{{$employee['emp_experiences'][0]['place'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Designation</b> <a class="pull-right">{{$employee['emp_experiences'][0]['designation'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Description</b> <a class="pull-right">{{$employee['emp_experiences'][0]['description'] }}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Start Date</b> <a class="pull-right">{{$employee['emp_experiences'][0]['start_date']}}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>End Date</b> <a class="pull-right">{{$employee['emp_experiences'][0]['end_date'] }}</a>
+                    </li>
+
+
+                </ul>
+            </div>
+
+        </div>
+    </div>
     <!-- Address -->
     <div class="col-md-4">
         <div class="card">
@@ -131,70 +198,42 @@
             </div>
         </div>
     </div>
-
+    <!-- Jobs -->
     <div class="col-md-4">
-        <!-- Qualification -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Qualification(s)
-
-                </h3>
-
+                <h3 class="card-title mb-1 mt-1">Job Detail(s)</h3>
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-unbordered">
                     <li class="list-group-item">
-                        <b>Qualification</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['mas_qualification']['name'] }}</a>
+                        <b>Designation</b> <a class="pull-right">{{$employee ['emp_job'] ['mas_designation']['name']}}</a>
                     </li>
                     <li class="list-group-item">
-                        <b>School</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['school'] }}</a>
+                        <b>Grade</b> <a class="pull-right">
+                            {{ $employee ['emp_job'] ['mas_grade']['name'] }}
+                        </a>
                     </li>
                     <li class="list-group-item">
-                        <b>Subject</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['subject'] }}</a>
+                        <b>Grade Step</b> <a class="pull-right">
+                            {{$employee ['emp_job'] ['mas_grade_step']['name'] }}
+                        </a>
                     </li>
                     <li class="list-group-item">
-                        <b>Completion Year</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['completion_year']}}</a>
+                        <b>Department</b> <a class="pull-right">
+                            {{ $employee ['emp_job'] ['mas_department']['name'] }}
+                        </a>
                     </li>
                     <li class="list-group-item">
-                        <b>Aggregate Score</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['aggregate_score'] }}</a>
+                        <b>Section</b> <a class="pull-right">
+                            {{ $employee ['emp_job'] ['mas_department']['sections'][0]['name'] }}
+                        </a>
                     </li>
-
-
-                </ul>
-            </div>
-
-        </div>
-        <!-- Experiences -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Experience(s)
-
-                </h3>
-
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-unbordered">
-                    <li class="list-group-item">
-                        <b>Organization</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['mas_qualification']['name'] }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Place</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['school'] }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Designation</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['subject'] }}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Start Date</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['completion_year']}}</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>End Date</b> <a class="pull-right">{{$employee['emp_qualifications'][0]['aggregate_score'] }}</a>
-                    </li>
-
 
                 </ul>
             </div>
-
         </div>
+
     </div>
 
 

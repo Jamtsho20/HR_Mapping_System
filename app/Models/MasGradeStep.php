@@ -17,4 +17,5 @@ class MasGradeStep extends Model
     {
         return $this->belongsTo(MasGrade::class, 'mas_grade_id');
     }
+  
 }

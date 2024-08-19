@@ -17,4 +17,10 @@ class MasDepartment extends Model
             $query->where('name', 'LIKE', '%' . $request->query('department') . '%');
         }
     }
+    public function sections()
+    {
+        return $this->hasMany(MasSection::class, 'id');
+    }
+
+
 }
