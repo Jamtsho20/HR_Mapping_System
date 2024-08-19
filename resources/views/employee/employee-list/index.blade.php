@@ -114,6 +114,7 @@
                                                         @endforelse
                                                     </tbody>
                                                 </table>
+                                                <div>{{ $employees->links() }}</div>
                                             </div>
                                         </div>
                                     </div>
