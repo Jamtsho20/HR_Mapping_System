@@ -2,13 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\CreatedByTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MasPayHead extends Model
 {
     use HasFactory, CreatedByTrait;
+
+    public function payGroup()
+    {
+        return $this->belongsTo(MasPayGroup::class, 'mas_pay_group_id');
+    }
+
+    public function paySlab()
+    {
+        return $this->belongsTo(MasPaySlab::class, 'mas_pay_slab_id');
+    }
+
+    public function accountHead()
+    {
+        return $this->belongsTo(MasAccAccountHead::class, 'account_head_id');
+    }
 
     public function scopeFilter($query, $request)
     {
@@ -35,9 +50,5 @@ class MasPayHead extends Model
         if ($request->has('formula') && $request->query('formula') != '') {
             $query->where('formula', 'LIKE', '%' . $request->query('formula') . '%');
         }
-    }
-    public function accountHead()
-    {
-        return $this->belongsTo(MasAccAccountHead::class, 'account_head_id');
     }
 }

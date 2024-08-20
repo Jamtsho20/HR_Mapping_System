@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Models\PaySlip;
+use App\Services\PayrollService;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +18,29 @@ use App\Http\Controllers\DashboardController;
 
 require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
+
+Route::get('/test-payslip', function () {
+    // Retrieve or create a dummy PaySlip record for testing
+
+
+    $payslip = PaySlip::whereStatus(1)->first(); // Assuming there's a payslip with ID 1
+
+    if (!$payslip) {
+        return "PaySlip not found.";
+    }
+
+    // $result = PayrollService::processPaySlip($payslip);
+    // return response()->json([
+    //     'message' => 'PaySlip processed successfully!',
+    //     'result' => $result,
+    // ]);
+
+    $result = PayrollService::generateAndMailPaySlips($payslip);
+    return response()->json([
+        'message' => 'PaySlip generated successfully!',
+        'result' => $result,
+    ]);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
@@ -92,13 +117,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
-        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
+        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         Route::get('leave-encashment', function () {return view('leave.leave.leave-encashment');})->name('leave.leave-encashment');
         Route::get('leave-balance', function () {return view('leave.leave.leave-balance');})->name('leave.leave-balance');
     });
 
- 
-  
+
+
 
     // DELEGATION APPROVAL
     Route::namespace('DelegationApproval')->prefix('delegation-approval')->group(function () {
@@ -162,9 +187,14 @@ Route::middleware('auth')->group(function () {
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
         Route::resource('account-heads', 'AccountHeadsController');
-        Route::resource('pay-groups', 'PayGroupsController');        
-        Route::resource('pay-heads', 'PayHeadsController');        
-        Route::resource('pay-slabs', 'PaySlabsController');        
+        Route::resource('pay-groups', 'PayGroupsController');
+        Route::resource('pay-heads', 'PayHeadsController');
+        Route::resource('pay-slabs', 'PaySlabsController');
+    });
+
+    //Payroll
+    Route::namespace('Payroll')->prefix('payroll')->group(function () {
+        Route::resource('pay-slips', 'PaySlipController');
     });
 
 

@@ -88,7 +88,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 9, 'name' => 'Adv. Loan Delegation', 'route' => 'delegation-approval/adv-loan-delegation', 'display_order' => 6],
             ['system_menu_id' => 9, 'name' => 'Approval', 'route' => 'delegation-approval/approval', 'display_order' => 7],
 
-            //submenu for employee 
+            //submenu for employee
             ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-list', 'display_order' => 1],
 
             //submenu for sifa
@@ -100,6 +100,8 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
 
+            //submenu for payroll
+            ['system_menu_id' => 14, 'name' => 'Pay Slip', 'route' => 'payroll/pay-slips', 'display_order' => 1],
         ]);
     }
 }

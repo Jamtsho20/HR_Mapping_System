@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class PaySlip extends Model
 {
     use HasFactory;
+
+    public function details() {
+        return $this->hasMany(PaySlipDetail::class,'pay_slip_id');
+    }
 }
