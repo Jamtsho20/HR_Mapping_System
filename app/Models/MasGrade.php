@@ -23,4 +23,9 @@ class MasGrade extends Model
             $query->where('name', 'LIKE', '%' .$request->query('grade_name') . '%');
         }
     }
+    public function payGroupDetails()
+    {
+    return $this->hasMany(MasPayGroupDetail::class, 'mas_grade_id');
+    }
+
 }

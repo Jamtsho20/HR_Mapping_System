@@ -75,7 +75,7 @@
                                                                         <td class="text-center">
                                                                             @if ($privileges->edit)
                                                                                 <a href="{{ url('paymaster/pay-slabs/' . $paySlab->id . '/edit') }}"
-                                                                                    class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                                    class="btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-edit"></i> EDIT
                                                                                 </a>
                                                                             @endif

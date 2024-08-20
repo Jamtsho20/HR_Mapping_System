@@ -140,6 +140,7 @@
                             <label>Duration<span class="text-danger">*</span> </label>
                             <input type="text" min="0" maxlength="5" name="duration" class="form-control " id="duration" placeholder="Duration" value="">
                         </div>
+
                         <div class=" col-sm-4 form-group">
                             <label>UOM <span class="text-danger">*</span> </label>
                             <select class="form-control" id="UOM" name="UOM">

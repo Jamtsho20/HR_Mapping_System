@@ -27,4 +27,27 @@ class MasPayGroupDetail extends Model
             $query->where('amount', '<=', $request->query('amount'));
         }
     }
+    public function grade()
+    {   
+    return $this->belongsTo(MasGrade::class, 'mas_grade_id');
+    }  
+    // public function getCalculationMethodTextAttribute()
+    // {
+    //     $methods = [
+    //         1 => 'Actual Method',
+    //         2 => 'Division',
+    //         3 => 'Percentage',
+    //     ];
+
+    //     return $methods[$this->calculation_method] ?? 'Unknown Method';
+    // } 
+    public static function getCalculationMethods()
+    {
+    return [
+        1 => 'Actual Method',
+        2 => 'Division',
+        3 => 'Percentage',
+    ];
+    }
+
 }

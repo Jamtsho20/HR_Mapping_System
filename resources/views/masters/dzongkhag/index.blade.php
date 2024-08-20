@@ -39,7 +39,7 @@
                                             <td>{{ $dzongkhag->dzongkhag }}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)
-                                                <a href="{{ url('master/dzongkhags/'.$dzongkhag->id .'/edit') }}" data-dzongkhag="{{ $dzongkhag->dzongkhag }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                <a href="{{ url('master/dzongkhags/'.$dzongkhag->id .'/edit') }}" data-dzongkhag="{{ $dzongkhag->dzongkhag }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                 @endif
                                                 @if ($privileges->delete)
                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/dzongkhags/'.$dzongkhag->id) }}"><i class="fa fa-trash"></i> DELETE</a>

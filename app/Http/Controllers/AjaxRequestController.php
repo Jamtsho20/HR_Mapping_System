@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\MasSection;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
+use App\Models\MasPaySlabDetails;
+use App\Models\MasSection;
 use App\Models\MasVillage;
 
 class AjaxRequestController extends Controller
@@ -32,6 +32,11 @@ class AjaxRequestController extends Controller
         return $gradeSteps;
     }
 
+    public function getPaySlabDetail($id){
+        $paySlabDetail = MasPaySlabDetails::findOrFail($id);
+        return $paySlabDetail;
+    }
+    
     public function getPayScale($id){
         // $payScale = MasGradeStep::where('id', $id)->selectRaw("concat(starting_salary, '-', increment, '-', ending_salary) as pay_scale")->first();
         $payScale = MasGradeStep::where('id', $id)->get(['starting_salary', 'increment', 'ending_salary']);

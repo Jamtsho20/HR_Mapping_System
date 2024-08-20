@@ -4,7 +4,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Pay Group Details</h3>
                 <form action="{{ route('pay-group-details.create') }}" method="GET">
-                    <input type="hidden" value="{{ $payGroup->id }}" name="paygroupId">
+                    <input type="hidden" value="{{ $payGroup->id }}" name="payGroupId">
                     <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Pay Pay Group Details</button>
                 </form>
             </div>
@@ -36,19 +36,30 @@
                                                         @foreach($payGroup->payGroupDetails as $detail)
                                                         <tr>
                                                             <td>{{ $detail->employee_category }}</td>
-                                                            <td>{{ $detail->grade_id }}</td>
-                                                            <td>{{ $detail->calculation_method }}</td>
+                                                            <td>{{ $detail->grade ? $detail->grade->name : 'N/A' }}</td>
+                                                            <td>{{ $detail->calculation_method_text  }}</td>
                                                             <td>{{ $detail->amount }}</td>
                                                             <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d') : '' }}</td>
                                                             <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d') : '' }}</td>
                                                             <td class="text-center">
-                                                                <a href="#" class="edit-detail-btn btn-sm btn btn-rounded btn-outline-success" 
+                                                                <!-- <a href="#" class="edit-detail-btn btn-sm btn btn-rounded btn-outline-success" 
                                                                     data-id="{{ $detail->id }}"
-                                                                    data-pay-from="{{ $detail->pay_from }}"
-                                                                    data-pay-to="{{ $detail->pay_to }}"
+                                                                    data-employee-category="{{ $detail->employee_category }}"
+                                                                    data-grade="{{ $detail->grade ? $detail->grade->name : 'N/A' }}"
+                                                                    data-calculation-method-text="{{ $detail->calculation_method_text }}"
                                                                     data-amount="{{ $detail->amount }}">
                                                                     <i class="fa fa-edit"></i> Edit
                                                                 </a>
+                                                                                                                                 -->
+                                                                <a href="{{ url('paymaster/pay-group-details/' . $detail->id . '/edit') }}"
+                                                                    data-id="{{ $detail->id }}"
+                                                                    data-pay-from="{{ $detail->pay_from }}"
+                                                                    data-pay-to="{{ $detail->pay_to }}"
+                                                                    data-amount="{{ $detail->amount }}"
+                                                                    class="edit-detail-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                    <i class="fa fa-edit"></i> Edit
+                                                                    </a>
+
                                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
                                                                     data-url="{{ url('paymaster/pay-slab-details/' . $detail->id) }}">
                                                                     <i class="fa fa-trash"></i> Delete

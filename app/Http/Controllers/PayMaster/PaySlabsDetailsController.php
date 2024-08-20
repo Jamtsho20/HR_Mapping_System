@@ -103,8 +103,6 @@ class PaySlabsDetailsController extends Controller
             'pay_from' => 'required|numeric',
             'pay_to' => 'required|numeric',
             'amount' => 'required|numeric',
-            'created_at' => 'required|date',
-            'updated_at' => 'required|date',
         ]);
 
         // Find the existing Pay Slab Detail by ID and update its properties
@@ -112,12 +110,9 @@ class PaySlabsDetailsController extends Controller
         $paySlabDetail->pay_from = $request->pay_from;
         $paySlabDetail->pay_to = $request->pay_to;
         $paySlabDetail->amount = $request->amount;
-        $paySlabDetail->created_at = $request->created_at;
-        $paySlabDetail->updated_at = $request->updated_at;
-        $paySlabDetail->edited_by = auth()->user()->id;
         $paySlabDetail->save();
 
-        return redirect('paymaster/pay-slabs-details')->with('msg_success', 'Pay slab detail updated successfully');
+        return redirect()->back()->with('msg_success', 'Pay slab detail updated successfully');
     }
 
     public function destroy(string $id)
