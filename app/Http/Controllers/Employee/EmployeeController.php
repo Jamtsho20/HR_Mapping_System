@@ -25,7 +25,7 @@ class EmployeeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:employee/employee-lists,view')->only('index');
+        $this->middleware('permission:employee/employee-lists,view')->only('index','show');
         $this->middleware('permission:employee/employee-lists,create')->only('store');
         $this->middleware('permission:employee/employee-lists,edit')->only('update');
         $this->middleware('permission:employee/employee-lists,delete')->only('destroy');
@@ -142,6 +142,7 @@ class EmployeeController extends Controller
         $instance = $request->instance(); 
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
+     
         // dd($employee->empJob->supervisor);
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }

@@ -200,7 +200,7 @@
             }
         });
 
-        $('#submit-button').on('click', function(e) {alert("a")
+        $('#submit-button').on('click', function(e) {alert("Are you sure you want to submit?")
             $('#emp-form').submit();
         })
 
