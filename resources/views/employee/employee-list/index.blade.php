@@ -104,7 +104,7 @@
                                                         </tr>
                                                         @empty
                                                         <tr>
-                                                            <td colspan="6" class="text-danger text-center">No users to be displayed</td>
+                                                            <td colspan="8" class="text-danger text-center">No users to be displayed</td>
                                                         </tr>
                                                         @endforelse
                                                     </tbody>
