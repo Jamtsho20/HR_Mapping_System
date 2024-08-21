@@ -20,14 +20,14 @@ class MasRegion extends Model
     //accessors & mutators
     public function setRegionNameAttribute($value)
     {
-        $this->attributes['region_name'] = ucwords($value);
+        $this->attributes['name'] = ucwords($value);
     }
 
     //scopes & filters
     public function scopeFilter($query, $request)
     {
         if ($request->has('region') && $request->query('region') != '') {
-            $query->where('region_name', 'LIKE', '%' .$request->query('region') . '%');
+            $query->where('name', 'LIKE', '%' .$request->query('region') . '%');
         }
     }
 }
