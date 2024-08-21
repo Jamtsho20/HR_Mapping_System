@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
+use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasSection;
 use App\Models\MasVillage;
@@ -35,6 +36,10 @@ class AjaxRequestController extends Controller
     public function getPaySlabDetail($id){
         $paySlabDetail = MasPaySlabDetails::findOrFail($id);
         return $paySlabDetail;
+    }
+    public function getPayGroupDetail($id){
+        $payGroupDetail = MasPayGroupDetail::findOrFail($id);
+        return $payGroupDetail;
     }
     
     public function getPayScale($id){

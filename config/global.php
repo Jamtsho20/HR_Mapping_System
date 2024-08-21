@@ -1,6 +1,7 @@
 <?php
 return [
     'null_value' => 'N/A',
+
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2','level 3'],
@@ -54,5 +55,30 @@ return [
         'Druk PNB' => 'Druk PNB',
         'T Bank' => 'T Bank',
         'DK Bank' => 'Digital Kidu'
+    ],
+
+    'calculated_on' => [ // for payheads
+        1 => 'Basic Pay',
+        2 => 'Gross Pay',
+        3 => 'Net Pay',
+        4 => 'PIT Net Pay',
+        5 => 'By Formula',
+        6 => 'Pay Scale Base Pay'
+    ],
+    // 1 for Actual Amount, 2 for Division, 3 for Slab Wise, 4 for Group Wise, 5 for Percentage, 6 for By Formula, 7 for Employee Wise
+    'calculation_methods_for_payheads' => [ //payheads
+        1 => 'Actual Amount',
+        2 =>  'Division',
+        3 =>  'Slab Wise',
+        4 => 'Group Wise',
+        5 => 'Percentage',
+        6 => 'By Formula',
+        7 => 'Employee Wise'
+    ],
+
+    'calculation_method' => [ //for pay groups
+        1 => 'Actual Method',
+        2 => 'Division',
+        3 => 'Percentage'
     ]
 ];

@@ -62,42 +62,43 @@ class PayGroupDetailsController extends Controller
     {
         // Find the MasPayGroupDetail by ID and display it
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
-        return view('paymaster.pay-groups-details.show', compact('payGroupDetail'));
+        return view('paymaster.pay-group-details.show', compact('payGroupDetail'));
     }
 
     public function edit(string $id)
     {
         // Find the PayGroupDetail and associated PayGroup by ID
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
-        $payGroup = MasPayGroup::findOrFail($payGroupDetail->mas_pay_group_id);
+        $payGroup = MasPayGroup::findOrFail($id);
 
         // Handle null dates
         $payGroupDetail->created_at = $payGroupDetail->created_at ? $payGroupDetail->created_at->format('Y-m-d') : '';
         $payGroupDetail->updated_at = $payGroupDetail->updated_at ? $payGroupDetail->updated_at->format('Y-m-d') : '';
 
-        return view('paymaster.pay-groups-details.edit', compact('payGroupDetail', 'payGroup'));
+        return view('paymaster.pay-group-details.edit', compact('payGroupDetail', 'payGroup'));
     }
+    
 
     public function update(Request $request, string $id)
     {
         // Validate the incoming request data for Pay Group Details
         $request->validate([
-            'calculation_method' => 'required|integer',
+
+            'employee_category' => 'required',
+            'grade' => 'required',
+            'calculation_method' => 'required',
             'amount' => 'required|numeric',
-            'created_at' => 'required|date',
-            'updated_at' => 'required|date',
         ]);
 
         // Find the existing Pay Group Detail by ID and update its properties
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
+        $payGroupDetail->employee_category = $request->employee_category;
+        $payGroupDetail->grade = $request->grade;
         $payGroupDetail->calculation_method = $request->calculation_method;
         $payGroupDetail->amount = $request->amount;
-        $payGroupDetail->created_at = $request->created_at;
-        $payGroupDetail->updated_at = $request->updated_at;
-        $payGroupDetail->edited_by = auth()->user()->id;
         $payGroupDetail->save();
 
-        return redirect('paymaster/pay-groups-details')->with('msg_success', 'Pay group detail updated successfully');
+        return redirect()->back()->with('msg_success', 'Pay group detail updated successfully');
     }
 
     public function destroy(string $id)
