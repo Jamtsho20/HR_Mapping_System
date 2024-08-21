@@ -24,7 +24,7 @@ class UsersTableSeeder extends Seeder
         $user->first_name = 'Admin';
         $user->title = 'Mr.';
         $user->cid_no = '11211000920';
-        $user->employee_id = '1049';
+        $user->employee_id = 0;
         $user->gender = 1;
         $user->dob = '1995-02-13';
         $user->birth_place = 'Samchi';
