@@ -139,7 +139,7 @@
                                                                                     data-calculation_method="{{ $payHead->calculation_method }}"
                                                                                     data-calculated_on="{{ $payHead->calculated_on }}"
                                                                                     data-formula="{{ $payHead->formula }}"
-                                                                                    class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                                    class=" btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-edit"></i> EDIT
                                                                                 </a>
                                                                             @endif
