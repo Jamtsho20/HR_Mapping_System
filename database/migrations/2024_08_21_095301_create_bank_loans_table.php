@@ -8,29 +8,29 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('mas_regions', function (Blueprint $table) {
+        Schema::create('bank_loans', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('rm_email')->unique()->nullable();
-            $table->string('rm_phone')->nullable();
+            $table->foreignId('mas_employee_id')->index()->constrained();
+            $table->string('bank', 50);
+            $table->string('loan_type');
+            $table->string('account_number');
+            $table->string('principal_amount');
+            $table->string('start_month')->comment('starting month for deduction');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            
             $table->timestamps();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('mas_regions');
+        Schema::dropIfExists('bank_loans');
     }
 };

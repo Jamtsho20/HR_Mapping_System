@@ -8,16 +8,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('mas_regions', function (Blueprint $table) {
+        Schema::create('mas_region_locations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('rm_email')->unique()->nullable();
-            $table->string('rm_phone')->nullable();
+            $table->foreignId('mas_region_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('mas_dzongkhag_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -26,11 +24,9 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('mas_regions');
+        Schema::dropIfExists('mas_region_locations');
     }
 };
