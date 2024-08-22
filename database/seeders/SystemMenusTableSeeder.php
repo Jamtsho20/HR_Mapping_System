@@ -28,6 +28,7 @@ class SystemMenusTableSeeder extends Seeder
             ['id' => 11, 'name' => 'Sifa', 'icon' => 'fa-user', 'display_order' => 11],
             ['id' => 12, 'name' => 'Reports', 'icon' => 'fa-flag', 'display_order' => 12],
             ['id' => 13, 'name' => 'Asset', 'icon' => 'fa-pie-chart', 'display_order' => 13],
+            ['id' => 14, 'name' => 'Employee Group', 'icon' => 'fa-users', 'display_order' => 14],
 
         ]);
     }

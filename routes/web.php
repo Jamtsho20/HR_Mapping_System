@@ -169,6 +169,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-group-details', 'PayGroupDetailsController'); 
     });
 
+    //EmployeeCategory
+    Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
+        Route::resource('employee-create', 'EmployeeGroupController');
+     
+    });
+
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');

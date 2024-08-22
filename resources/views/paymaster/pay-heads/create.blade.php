@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="payhead_type">Pay Head Type</label>
+                        <label for="payhead_type">Pay Head Type <span class="text-danger">*</span></label>
                         <select name="payhead_type" id="pay_head_type" class="form-control form-control-sm" required>
                             <option value="" disabled selected>Select an option</option>
                             <option value="1">Allowance</option>
@@ -17,13 +17,13 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="name">Name</label>
+                        <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="name" value="" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="account_head_id">Account Head</label>
+                        <label for="account_head_id">Account Head <span class="text-danger">*</span></label>
                         <select name="account_head_id" id="account__head_id" class="form-control form-control-sm" required>
                             <option value="" disabled selected>Select an option</option>
                             @foreach($accountHeads as $accountHead)
@@ -32,13 +32,13 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="code">Code</label>
+                        <label for="code">Code <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="code" value="" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="calculation_method">Calculation Method</label>
+                        <label for="calculation_method">Calculation Method <span class="text-danger">*</span></label>
                         <select name="calculation_method" id="calculation_method" class="form-control form-control-sm">
                             <option value="" disabled selected >Select your option</option>
                             @foreach(config('global.calculation_methods_for_payheads') as $key => $value)
@@ -50,8 +50,8 @@
                     </div>
 
                     <div class="form-group" id="calculated_on_container">
-                        <label for="calculated_on">Calculated On</label>
-                        <select name="calculated_on" id="calculated_on" class="form-control form-control-sm">
+                        <label for="calculated_on">Calculated On <span class="text-danger">*</span></label>
+                        <select name="calculated_on" id="calculated_on" class="form-control form-control-sm" required>
                             <option value="" disabled selected >Select your option</option>
                             @foreach(config('global.calculated_on') as $key => $value)
                             <option value="{{ $key }}" {{ old('calculated_on') == $key ? 'selected' : '' }}>
@@ -63,20 +63,20 @@
                     <!-- Dynamic Forms -->
                     <div id="actualmethod_form" class="calculation_method">
                         <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <input type="number" class="form-control" name="amount" value="">
+                            <label for="amount">Amount <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="amount" value="" required>
                         </div>
                     </div>
                     <div id="divisionmethod_form" class="calculation_method ">
                         <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <input type="number" class="form-control" name="amount" value="">
+                            <label for="amount">Amount <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="amount" value="" required>
                         </div>
                     </div>
                     <div id="payslab_form" class="calculation_method ">
                         <div class="form-group">
-                            <label for="payslab">Pay Slab</label>
-                            <select class="form-control" name="mas_pay_slab_id" id="mas_pay_slab_id">
+                            <label for="payslab">Pay Slab <span class="text-danger">*</span></label>
+                            <select class="form-control" name="mas_pay_slab_id" id="mas_pay_slab_id" required>
                                 <option value="" disabled selected>Select Pay Slab</option>
                                 @foreach($paySlabs as $paySlab)
                                 <option value="{{ $paySlab->id }}">{{ $paySlab->name }}</option>
@@ -86,8 +86,8 @@
                     </div>
                     <div id="paygroup_form" class="calculation_method ">
                         <div class="form-group">
-                            <label for="paygroup">Pay Group</label>
-                            <select class="form-control" name="mas_pay_group_id" id="mas_pay_group_id">
+                            <label for="paygroup">Pay Group <span class="text-danger">*</span></label>
+                            <select class="form-control" name="mas_pay_group_id" id="mas_pay_group_id" required>
                                 <option value="" disabled selected>Select Pay Group</option>
                                 @foreach($payGroups as $payGroup)
                                 <option value="{{ $payGroup->id }}">{{ $payGroup->name }}</option>
@@ -97,14 +97,14 @@
                     </div>
                     <div id="percentagemethod_form" class="calculation_method ">
                         <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <input type="number" class="form-control" name="amount" value="">
+                            <label for="amount">Amount <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="amount" value="" required>
                         </div>
                     </div>
                     <div id="formulamethod_form" class="calculation_method ">
                         <div class="form-group">
-                            <label for="formula">Formula</label>
-                            <textarea class="form-control" name="formula"></textarea>
+                            <label for="formula">Formula <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="formula" required></textarea>
                         </div>
                     </div>
                 </div>

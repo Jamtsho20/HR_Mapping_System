@@ -8,13 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasPayGroupDetail extends Model
 {
-    use HasFactory,CreatedByTrait;
+    use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'mas_pay_group_id', 'mas_grade_id', 'calculation_method', 'amount'
+        'mas_pay_group_id',
+        'mas_grade_id',
+        'calculation_method',
+        'amount'
     ];
-    
-    public function masPayGroup(){
+    public function employeeGroup()
+    {
+        return $this->belongsTo(MasEmployeeGroup::class, 'employee_category', 'id');
+    }
+    public function masPayGroup()
+    {
         return $this->belongsTo(MasPayGroup::class);
     }
     public function scopeFilter($query, $request)
@@ -28,26 +35,15 @@ class MasPayGroupDetail extends Model
         }
     }
     public function grade()
-    {   
-    return $this->belongsTo(MasGrade::class, 'mas_grade_id');
-    }  
-    // public function getCalculationMethodTextAttribute()
-    // {
-    //     $methods = [
-    //         1 => 'Actual Method',
-    //         2 => 'Division',
-    //         3 => 'Percentage',
-    //     ];
-
-    //     return $methods[$this->calculation_method] ?? 'Unknown Method';
-    // } 
+    {
+        return $this->belongsTo(MasGrade::class, 'mas_grade_id');
+    }
     public static function getCalculationMethods()
     {
-    return [
-        1 => 'Actual Method',
-        2 => 'Division',
-        3 => 'Percentage',
-    ];
+        return [
+            1 => 'Actual Method',
+            2 => 'Division',
+            3 => 'Percentage',
+        ];
     }
-
 }

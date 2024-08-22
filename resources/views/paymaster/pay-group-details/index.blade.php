@@ -23,10 +23,10 @@
                                                 id="basic-datatable table-responsive" >
                                                 <thead>
                                                     <tr role="row">
-                                                        <th>Employee Category <span class="text-danger">*</span></th>
-                                                        <th>Grade <span class="text-danger">*</span></th></th>
-                                                        <th>Calculation Method <span class="text-danger">*</span></th></th>
-                                                        <th>Amount <span class="text-danger">*</span></th></th>
+                                                        <th>Employee Category </th>
+                                                        <th>Grade </th></th>
+                                                        <th>Calculation Method </th></th>
+                                                        <th>Amount </th></th>
                                                         <th>Created At</th>
                                                         <th>Updated At</th>
                                                         <th>Action</th>
@@ -36,7 +36,7 @@
                                                     @foreach($payGroup->payGroupDetails as $detail)
 
                                                     <tr>
-                                                        <td>{{ $detail->employee_category }}</td>
+                                                        <td>{{ $detail->employeeGroup->name ?? 'N/A' }}</td>
                                                         <td>{{ $detail->grade ? $detail->grade->name : 'N/A' }}</td>
                                                         <td>
                                                             {{ \App\Models\MasPayGroupDetail::getCalculationMethods()[$detail->calculation_method] ?? 'Unknown Method' }}

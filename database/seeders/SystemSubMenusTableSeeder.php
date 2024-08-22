@@ -100,6 +100,9 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
 
+            //submenu for employee categories
+            ['system_menu_id' => 14, 'name' => 'Employee Group', 'route' => 'employee-group/employee-create', 'display_order' => 1],
+
         ]);
     }
 }
