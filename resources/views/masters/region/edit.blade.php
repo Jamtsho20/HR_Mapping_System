@@ -10,7 +10,7 @@
         <div class="card-content">
             <div class="form-group">
                 <label for="region">Region <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="region" value="{{$region->region_name}}">
+                <input type="text" class="form-control" name="region" value="{{$region->name}}">
             </div>
         </div>
     </div>
