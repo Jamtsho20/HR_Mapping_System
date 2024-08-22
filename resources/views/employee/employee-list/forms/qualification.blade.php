@@ -6,7 +6,7 @@
                     <thead>
                         <tr>
                             <th width="3%" class="text-center">#</th>
-                            <th>Qualification</th>
+                            <!-- <th>Qualification</th> -->
                             <th>School/College/university</th>
                             <th>Completed On</th>
                             <th>Subject</th>
@@ -14,6 +14,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse(isset($employee) ? $employee->empQualifications : [] as $key => $value)
                         <tr>
                             <td class="text-center">
                                 <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
@@ -22,7 +23,33 @@
                                 <select name="qualifications[AAAAA][mas_qualification_id]" class="form-control form-control-sm resetKeyForNew" required>
                                     <option value="" disabled selected hidden>SELECT ONE</option>
                                     @foreach($qualifications as $qualification)
-                                        <option value="{{ $qualification->id }}" {{ old('qualifications.AAAAA.mas_qualification_id') == $qualification->id ? 'selected' : '' }}>{{ $qualification->name }}</option>
+                                    <option value="{{ $qualification->id }}" {{ old('qualifications.AAAAA.mas_qualification_id', $value->mas_qualification_id) == $qualification->id ? 'selected' : '' }}>{{ $qualification->name }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" id="decline-reason" name="qualifications[AAAAA][school]" value="{{ old('qualifications.AAAAA.school', $value->school) }}" required></textarea>
+                            </td>
+                            <td class="text-center">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][completion_year]" value="{{ old('qualifications.AAAAA.completion_year', $value->completion_year) }}" required>
+                            </td>
+                            <td class="text-center">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][subject]" value="{{ old('qualifications.AAAAA.subject', $value->subject) }}" required>
+                            </td>
+                            <td class="text-center">
+                                <input type="number" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][aggregate_score]" value="{{ old('qualifications.AAAAA.aggregate_score', $value->aggregate_score) }}" required>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td class="text-center">
+                                <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                            </td>
+                            <td class="text-center">
+                                <select name="qualifications[AAAAA][mas_qualification_id]" class="form-control form-control-sm resetKeyForNew" required>
+                                    <option value="" disabled selected hidden>SELECT ONE</option>
+                                    @foreach($qualifications as $qualification)
+                                    <option value="{{ $qualification->id }}" {{ old('qualifications.AAAAA.mas_qualification_id') == $qualification->id ? 'selected' : '' }}>{{ $qualification->name }}</option>
                                     @endforeach
                                 </select>
                             </td>
@@ -33,12 +60,13 @@
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][completion_year]" value="{{ old('qualifications.AAAAA.completion_year') }}" required>
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][subject]" value="{{ old('qualifications.AAAAA.subject') }}" required>
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][subject]" value="{{ old('qualifications.AAAAA.subject')}}" required>
                             </td>
                             <td class="text-center">
                                 <input type="number" class="form-control form-control-sm resetKeyForNew" name="qualifications[AAAAA][aggregate_score]" value="{{ old('qualifications.AAAAA.aggregate_score') }}" required>
                             </td>
                         </tr>
+                        @endforelse
                         <tr class="notremovefornew">
                             <td colspan="5"></td>
                             <td class="text-right">
@@ -51,5 +79,3 @@
         </div>
     </div>
 </div>
-
-

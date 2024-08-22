@@ -14,7 +14,10 @@ use App\Models\MasEmployeePresentAddress;
 use App\Models\MasEmploymentType;
 use App\Models\MasGewog;
 use App\Models\MasGrade;
+use App\Models\MasGradeStep;
 use App\Models\MasQualification;
+use App\Models\MasSection;
+use App\Models\MasVillage;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -25,9 +28,9 @@ class EmployeeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:employee/employee-lists,view')->only('index','show');
+        $this->middleware('permission:employee/employee-lists,view')->only('index', 'show');
         $this->middleware('permission:employee/employee-lists,create')->only('store');
-        $this->middleware('permission:employee/employee-lists,edit')->only('update');
+        $this->middleware('permission:employee/employee-lists,edit')->only('update', 'edit');
         $this->middleware('permission:employee/employee-lists,delete')->only('destroy');
         // $this->middleware('permission:employee/employee-lists,view')->only('show');
     }
@@ -51,15 +54,15 @@ class EmployeeController extends Controller
         'personal.nationality' => 'required',
         'personal.cid_copy' => 'required|file|mimes:jpg,png,pdf|max:2048',
         //permenat address validation rule
-        'permenant_address.mas_dzongkhag_id' => 'required', 
-        'permenant_address.mas_gewog_id' => 'required', 
-        'permenant_address.mas_village_id' => 'required', 
-        'permenant_address.thram_no' => 'required', 
-        'permenant_address.house_no' => 'required', 
+        'permenant_address.mas_dzongkhag_id' => 'required',
+        'permenant_address.mas_gewog_id' => 'required',
+        'permenant_address.mas_village_id' => 'required',
+        'permenant_address.thram_no' => 'required',
+        'permenant_address.house_no' => 'required',
         //present address validation rule
-        'current_address.mas_dzongkhag_id' => 'required', 
-        'current_address.city' => 'required', 
-        'current_address.postal_code' => 'required', 
+        'current_address.mas_dzongkhag_id' => 'required',
+        'current_address.city' => 'required',
+        'current_address.postal_code' => 'required',
         //validation rule for mas_employee_jobs
         'job.mas_department_id' => 'required',
         'job.mas_section_id' => 'required',
@@ -84,8 +87,8 @@ class EmployeeController extends Controller
     {
         $privileges = $request->instance();
         $employees = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
-        
-        return view('employee/employee-list.index',compact('privileges', 'employees'));
+
+        return view('employee/employee-list.index', compact('privileges', 'employees'));
     }
     /**
      * Show the form for creating a new resource.
@@ -95,12 +98,15 @@ class EmployeeController extends Controller
         $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
         $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
+        $sections = MasSection::orderBy('name')->get(['id', 'name']);
+        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
         $employeeId = fixEmployeeId($this->fetchHighestEmpId() + 1);
-        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'employeeId'));
+        
+        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades','gradeSteps','sections', 'employmentTypes', 'qualifications', 'employeeId'));
     }
 
     /**
@@ -114,19 +120,19 @@ class EmployeeController extends Controller
             $employeeId = $this->savePersonalInfo($request->personal);
             $this->saveAddress($request->permenant_address, $request->current_address, $employeeId);
             $this->saveJob($request->job, $employeeId);
-            if(!empty($request->qualifications)){
+            if (!empty($request->qualifications)) {
                 $this->saveQualifications($request->qualifications, $employeeId);
             }
-            if(!empty($request->trainings)){
+            if (!empty($request->trainings)) {
                 $this->saveTrainings($request->trainings, $employeeId);
             }
-            if(!empty($request->experiences)){
+            if (!empty($request->experiences)) {
                 $this->saveExperiences($request->experiences, $employeeId);
             }
             $this->saveDocuments($request->documents, $employeeId);
 
             DB::commit();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', 'Employee couldnot be created, please try again.');
@@ -139,10 +145,10 @@ class EmployeeController extends Controller
      */
     public function show($id, Request $request)
     {
-        $instance = $request->instance(); 
+        $instance = $request->instance();
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
-     
+
         // dd($employee->empJob->supervisor);
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
@@ -151,10 +157,23 @@ class EmployeeController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
+
     {
         $employee = User::findOrFail($id);
+        // dd($employee->empTrainings);
+        $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
+        $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
+        $villages = MasVillage::orderBy('village')->get(['id', 'village']);
+        $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
+        $sections = MasSection::orderBy('name')->get(['id', 'name']);
+        $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
+        $grades = MasGrade::orderBy('name')->get(['id', 'name']);
+        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name']);
+        $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
+        $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
+        $employeeId = fixEmployeeId($this->fetchHighestEmpId() + 1);
 
-        return view('masters.village.edit', compact('employee'));
+        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections','designations', 'grades', 'gradeSteps','employmentTypes', 'qualifications', 'employeeId'));
     }
 
     /**
@@ -162,23 +181,26 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // $this->validate($request, $this->rules, $this->messages);
-        // DB::beginTransaction();
-        // try{
-        //     $employeeId = $this->savePersonalInfo($request->personal);
-        //     $this->saveAddress($request->permenant_address, $request->current_address, $employeeId);
-        //     $this->saveJob($request->job, $employeeId);
-        //     $this->saveQualifications($request->qualifications);
-        //     $this->saveTrainings($request->trainings);
-        //     $this->saveExperiences($request->experiences);
-        //     $this->saveDocuments($request->documents);
+        $this->validate($request, $this->rules, $this->messages);
+        DB::beginTransaction();
+        try {
+            if ($request->personal->isDirty()) {
+                dd("a");
+                $this->savePersonalInfo($request->personal);
+            }
+            $this->saveAddress($request->permenant_address, $request->current_address, $id);
+            $this->saveJob($request->job, $id);
+            $this->saveQualifications($request->qualifications, $id);
+            $this->saveTrainings($request->trainings, $id);
+            $this->saveExperiences($request->experiences, $id);
+            $this->saveDocuments($request->documents, $id);
 
-        //     DB::commit();
-        // }catch(\Exception $e){
-        //     DB::rollBack();
-        //     return back()->with('msg_error', 'The employee could not be updated, please try again.');
-        // }
-        // return redirect('employee/employee-lists')->with('msg_success', 'Employee updated successfully.');
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('msg_error', 'The employee could not be updated, please try again.');
+        }
+        return redirect('employee/employee-lists')->with('msg_success', 'Employee updated successfully.');
     }
 
     /**
@@ -195,7 +217,8 @@ class EmployeeController extends Controller
         // }
     }
 
-    private function savePersonalInfo($personalInfo){
+    private function savePersonalInfo($personalInfo)
+    {
         $user = new User();
         $employeeId = $this->fetchHighestEmpId() + 1;
         $userName = fixEmployeeId($employeeId);
@@ -204,12 +227,12 @@ class EmployeeController extends Controller
         if (isset($personalInfo['cid_copy'])) {
             $file = $personalInfo['cid_copy'];
             $empCidCopy = uploadImageToDirectory($file, $this->filePath);
-        }else{
-            throw new \Exception('Please upload the employee CID copy.');    
+        } else {
+            throw new \Exception('Please upload the employee CID copy.');
         }
-        
+
         $fullName = trim($personalInfo['first_name'] . ($personalInfo['middle_name'] ? ' ' . $personalInfo['middle_name'] : '') . ($personalInfo['last_name'] ? ' ' . $personalInfo['last_name'] : ''));
-        
+
         $user->first_name = $personalInfo['first_name'];
         $user->middle_name = $personalInfo['middle_name'];
         $user->last_name = $personalInfo['last_name'];
@@ -236,7 +259,8 @@ class EmployeeController extends Controller
         return $user->id;
     }
 
-    private function saveAddress($permenantAddress, $currentAddress, $employeeId){
+    private function saveAddress($permenantAddress, $currentAddress, $employeeId)
+    {
         $empPermenantAddress = new MasEmployeePermenantAddress();
         $empCurrentAddress = new MasEmployeePresentAddress();
         $empPermenantAddress->mas_employee_id = $employeeId;
@@ -246,7 +270,7 @@ class EmployeeController extends Controller
         $empPermenantAddress->thram_no = $permenantAddress['thram_no'];
         $empPermenantAddress->house_no = $permenantAddress['house_no'];
         $empPermenantAddress->save();
-        
+
         $empCurrentAddress->mas_employee_id = $employeeId;
         $empCurrentAddress->mas_dzongkhag_id = $currentAddress['mas_dzongkhag_id'];
         $empCurrentAddress->mas_gewog_id = $currentAddress['mas_gewog_id'];
@@ -255,7 +279,8 @@ class EmployeeController extends Controller
         $empCurrentAddress->save();
     }
 
-    private function saveJob($job, $employeeId){
+    private function saveJob($job, $employeeId)
+    {
         $empJob = new MasEmployeeJob();
         // $basicPay = MasGradeStep::where('id', $job['mas_grade_step_id'])->pluck('starting_salary')->first();
         $empJob->mas_employee_id = $employeeId;
@@ -276,9 +301,10 @@ class EmployeeController extends Controller
         $empJob->save();
     }
 
-    private function saveQualifications($qualifications, $employeeId){
+    private function saveQualifications($qualifications, $employeeId)
+    {
         $qualificationData = [];
-        foreach($qualifications as $key => $value){
+        foreach ($qualifications as $key => $value) {
             $qualificationData[] = [
                 'mas_employee_id' => $employeeId,
                 'mas_qualification_id' => $value['mas_qualification_id'],
@@ -291,9 +317,10 @@ class EmployeeController extends Controller
         DB::table('mas_employee_qualifications')->insert($qualificationData);
     }
 
-    private function saveTrainings($trainings, $employeeId){
+    private function saveTrainings($trainings, $employeeId)
+    {
         $trainingData = [];
-        foreach($trainings as $key => $value){
+        foreach ($trainings as $key => $value) {
             $trainingCertificate = isset($value['certificate']) ? uploadImageToDirectory($value['certificate'], $this->filePath) : null;
             $trainingData[] = [
                 'mas_employee_id' => $employeeId,
@@ -305,13 +332,14 @@ class EmployeeController extends Controller
                 'description' => $value['description'],
                 'certificate' => $trainingCertificate ?? null, //check if file exists and save the path
             ];
-        } 
+        }
         DB::table('mas_employee_trainings')->insert($trainingData);
     }
 
-    private function saveExperiences($experiences, $employeeId){
+    private function saveExperiences($experiences, $employeeId)
+    {
         $experienceData = [];
-        foreach($experiences as $key => $value){
+        foreach ($experiences as $key => $value) {
             $experienceData[] = [
                 'mas_employee_id' => $employeeId,
                 'organization' => $value['organization'],
@@ -325,30 +353,31 @@ class EmployeeController extends Controller
         DB::table('mas_employee_experiences')->insert($experienceData);
     }
 
-    private function saveDocuments($doc, $employeeId){
+    private function saveDocuments($doc, $employeeId)
+    {
         $EmpDocument = new MasEmployeeDocument();
         $empContract = "";
         $empNonDisclosureAggrement = "";
         $jobResponsibilities = "";
         $otherDocuments = [];
-        if(isset($doc['employment_contract'])){
+        if (isset($doc['employment_contract'])) {
             $empContract = uploadImageToDirectory($doc['employment_contract'], $this->filePath);
-        }else{
+        } else {
             throw new \Exception('Please upload employment contract document.');
         }
-        if(isset($doc['non_disclosure_aggrement'])){
+        if (isset($doc['non_disclosure_aggrement'])) {
             $empNonDisclosureAggrement = uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath);
-        }else{
+        } else {
             throw new \Exception('Please upload employee non disclosure aggrement.');
         }
-        if(isset($doc['job_responsibilities'])){
+        if (isset($doc['job_responsibilities'])) {
             $jobResponsibilities = uploadImageToDirectory($doc['job_responsibilities'], $this->filePath);
-        }else{
+        } else {
             throw new \Exception('Please upload employee job responsibilities.');
         }
         // dd($doc['other']);
-        if(isset($doc['other'])){
-            foreach($doc['other'] as $otherFile){
+        if (isset($doc['other'])) {
+            foreach ($doc['other'] as $otherFile) {
                 $otherDocuments[] = uploadImageToDirectory($otherFile, $this->filePath);
             }
         }
@@ -361,7 +390,8 @@ class EmployeeController extends Controller
         $EmpDocument->save();
     }
 
-    private function fetchHighestEmpId(){
+    private function fetchHighestEmpId()
+    {
         return User::max('employee_id');
     }
 }

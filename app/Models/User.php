@@ -46,6 +46,10 @@ class User extends Authenticatable
         'employee_id' => 'integer'
     ];
 
+    public function getStatusAttribute($value) {
+        return ucwords($value == 1 ? 'inactive':'active');
+    }
+
     /** Relationships */
     public function roles()
     {
@@ -116,4 +120,6 @@ class User extends Authenticatable
             return url('assets/images/no-image.png');
         }
     }
+
+
 }
