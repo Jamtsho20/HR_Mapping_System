@@ -4,6 +4,7 @@ namespace App\Http\Controllers\EmployeeGroup;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasEmployeeGroup;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class EmployeeGroupController extends Controller
@@ -29,7 +30,9 @@ class EmployeeGroupController extends Controller
     }
     public function create()
     {
-        return view('employee-group.employee-create.create');
+        $employees = User::all(); 
+
+        return view('employee-group.employee-create.create', compact('employees'));
     }
 
     public function store(Request $request)

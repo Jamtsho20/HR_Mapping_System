@@ -44,9 +44,9 @@
                                                         <th>
                                                             Status
                                                         </th>
-                                                        <!-- <th>
+                                                        <th>
                                                             Employee
-                                                        </th> -->
+                                                        </th>
                                                         <th>
                                                             Description
                                                         </th>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Department')
+@section('page-title', 'Emplyee Create')
 @section('content')
 
 <form action="{{ url('employee-group/employee-create') }}" class="js-validation-bootstrap" method="POST">
@@ -7,14 +7,13 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" id="name" class="form-control" name="name" value="{{ old('name') }}" required="required">
                     </div>
                 </div>
-
-                <div class="col-md-6">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label for="status">Status <span class="text-danger">*</span></label>
                         <select name="status" id="status" class="form-control">
@@ -23,22 +22,20 @@
                         </select>
                     </div>
                 </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label for="description">Description <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="description" name="description" required>{{ old('description') }}</textarea>
                     </div>
                 </div>
-
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="employees">Select Employees <span class="text-danger">*</span></label>
                         <select name="employees[]" id="employees" class="form-control" multiple="multiple">
                             <option value="" disabled selected hidden>Select an option</option>
-                            
+                            @foreach($employees as $employee)
+                            <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
