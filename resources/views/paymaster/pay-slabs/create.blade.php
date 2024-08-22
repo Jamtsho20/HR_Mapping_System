@@ -9,19 +9,19 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="name">Name</label>
+                        <label for="name">Name <span class="text-danger">*</span></th></label>
                         <input type="text" class="form-control" name="name" value="" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="effective_date">Effective Date</label>
+                        <label for="effective_date">Effective Date <span class="text-danger">*</span></th></label>
                         <input type="date" class="form-control" name="effective_date" value="" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="formula">Formula</label>
+                        <label for="formula">Formula <span class="text-danger">*</span></th></label>
                         <input type="textarea" class="form-control" name="formula" value="" required>
                     </div>
                 </div>
@@ -47,9 +47,9 @@
                                                         <thead>
                                                             <tr>
                                                                 <th class="text-center">#</th>
-                                                                <th>Pay From *</th>
-                                                                <th>Pay To *</th>
-                                                                <th>Amount *</th>
+                                                                <th>Pay From <span class="text-danger">*</span></th></th>
+                                                                <th>Pay To <span class="text-danger">*</span></th></th>
+                                                                <th>Amount <span class="text-danger">*</span></th></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>

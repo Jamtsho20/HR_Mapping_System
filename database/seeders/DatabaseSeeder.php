@@ -24,6 +24,11 @@ class DatabaseSeeder extends Seeder
         $this->call(MasSectionSeeder::class);
         $this->call(MasDesignationSeeder::class);
         $this->call(MasDzongkhagSeeder::class);
+        $this->call(MasGewogSeeder::class);
+        $this->call(MasVillagesSeeder::class);
+        $this->call(MasRegionsSeeder::class);
+        $this->call(MasRegionLocationsSeeder::class);
+        $this->call(MasOfficesSeeder::class);
         $this->call(MasGradeSeeder::class);
         $this->call(MasGradeStepsSeeder::class);
         $this->call(MasAccountHeadsSeeder::class);

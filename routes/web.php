@@ -175,5 +175,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
     Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
+    Route::get('getpaygroupdetail/{id}', 'AjaxRequestController@getPayGroupDetail');
     Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
 });

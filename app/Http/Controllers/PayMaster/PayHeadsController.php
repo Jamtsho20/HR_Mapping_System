@@ -47,37 +47,56 @@ class PayHeadsController extends Controller
 
     }
     public function store(Request $request)
-    {
-        dd($request->all());
-        $validatedData = $request->validate([
-            'payhead_type' => 'required|integer',
-            'name' => 'required|string|max:255',
-            'accounthead_type' => 'required|integer',
-            'code' => 'required|string|max:255',
-            'calculation_method' => 'required|integer',
-            'calculated_on' => 'required_if:calculation_method,3,4,5',
-            'amount' => 'required_if:calculation_method,1,2,5|numeric',
-            'payslab_id' => 'required_if:calculation_method,3|integer',
-            'paygroup_id' => 'required_if:calculation_method,4|integer',
-            'formula' => 'required_if:calculation_method,6|string',
-        ]);
-    
-        // If validation passes, handle the data
-        $payHead = new MasPayHead();
-        $payHead->payhead_type = $request->payhead_type;
-        $payHead->name = $request->name;
-        $payHead->accounthead_type = $request->accounthead_type;
-        $payHead->code = $request->code;
-        $payHead->calculation_method = $request->calculation_method;
-        $payHead->calculated_on = $request->calculated_on;
-        $payHead->amount = $request->amount;
-        $payHead->payslab_id = $request->payslab_id;
-        $payHead->paygroup_id = $request->paygroup_id;
-        $payHead->formula = $request->formula;
-        $payHead->save();
-    
-        return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
+{
+    // Basic validation rules
+    $rules = [
+        'payhead_type' => 'required|integer',
+        'name' => 'required|string|max:255',
+        'account_head_id' => 'required|integer',
+        'code' => 'required|string|max:255',
+        'calculation_method' => 'required|integer',
+    ];
+
+    // Additional rules based on calculation method
+    switch ($request->input('calculation_method')) {
+        case 1: // Actual Amount
+        case 2: // Division Method
+        case 5: // Percentage Method
+            $rules['amount'] = 'required|numeric';
+            break;
+        case 3: // Pay Slab Method
+            $rules['mas_pay_slab_id'] = 'required|integer';
+            break;
+        case 4: // Pay Group Method
+            $rules['mas_pay_group_id'] = 'required|integer';
+            break;
+        case 6: // By Formula Method
+            $rules['formula'] = 'required|string';
+            break;
+        case 7: // Employment Wise Method
+            // Add specific rules if needed
+            break;
     }
+
+    // Conditionally add rules for 'calculated_on'
+    if (in_array($request->input('calculation_method'), [3, 4, 5])) {
+        $rules['calculated_on'] = 'required';
+    } else {
+        $rules['calculated_on'] = 'nullable';
+    }
+
+    // Validate the request data
+    $validatedData = $request->validate($rules);
+
+    // Store the data in the database
+    $payHead = new MasPayHead();
+    $payHead->fill($validatedData); // Ensure fillable attributes are set in the model
+    $payHead->save();
+
+    return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
+}
+
+
     public function show(string $id)
     {
         // Show specific PayHead details if needed
@@ -93,12 +112,13 @@ class PayHeadsController extends Controller
 
     public function update(Request $request, string $id)
     {
+        
         // Validate the incoming request data
         $request->validate([
             'name' => 'required|string|max:150',
             'code' => 'required|string|max:50',
             'payhead_type' => 'required|integer|in:1,2',
-            'accounthead_type' => 'required|integer|in:1,2',
+            'account_head_id' => 'required|integer|in:1,2',
             'calculation_method' => 'required|integer|in:1,2,3,4,5,6,7',
             'calculated_on' => 'required|integer|in:1,2,3,4,5,6,7',
             'formula' => 'nullable|string',
@@ -111,7 +131,7 @@ class PayHeadsController extends Controller
         $payHead->name = $request->name;
         $payHead->code = $request->code;
         $payHead->payhead_type = $request->payhead_type;
-        $payHead->accounthead_type = $request->payhead_type;
+        $payHead->account_head_id = $request->account_head_id;
         $payHead->calculation_method = $request->calculation_method;
         $payHead->calculated_on = $request->calculated_on;
         $payHead->formula = $request->formula;

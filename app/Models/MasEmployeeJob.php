@@ -44,4 +44,8 @@ class MasEmployeeJob extends Model
     public function supervisor() {
         return $this->belongsTo(User::class, 'immediate_supervisor');
     }
+
+    public function office(){
+        return $this->belongsTo(MasOffice::class, 'mas_office_id');
+    }
 }
