@@ -45,10 +45,10 @@
                                                             Status
                                                         </th>
                                                         <th>
-                                                            Employee
+                                                            Description
                                                         </th>
                                                         <th>
-                                                            Description
+                                                            Employee
                                                         </th>
                                                         <th>
                                                             Action
@@ -67,7 +67,14 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $employeeGroup->description }}</td>
-                                                        
+                                                        <td>
+                                                            <ul>
+                                                                @foreach($employeeGroup->employees as $employee)
+                                                                <li>{{ $employee->emp_id_name }}</li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </td>
+
                                                         <td class="text-center">
                                                             @if ($privileges->edit)
                                                             <a href="{{ url('employee-group/employee-create/' . $employeeGroup->id . '/edit') }}"
@@ -92,6 +99,7 @@
                                                 </tbody>
 
                                             </table>
+                                            <div>{{ $employeeGroups->links() }}</div>
                                         </div>
                                     </div>
                                 </div>

@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasDzongkhag;
 use App\Models\MasRegion;
+use App\Models\MasRegionLocation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RegionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function __construct()
     {
         $this->middleware('permission:master/regions,view')->only('index');
@@ -21,77 +19,102 @@ class RegionController extends Controller
         $this->middleware('permission:master/regions,delete')->only('destroy');
     }
 
-    public function index( Request $request)
+    public function index(Request $request)
     {
         $privileges = $request->instance();
-        $regions= MasRegion::filter($request)->orderBy('name')->paginate(30);
-
+        $regions = MasRegion::filter($request)->orderBy('name')->paginate(30);
         return view('masters.region.index', compact('regions', 'privileges'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        return view('masters.region.create');
+        $dzongkhags = MasDzongkhag::all();
+        return view('masters.region.create', compact('dzongkhags'));
     }
-   
+
     public function store(Request $request)
     {
         $request->validate([
-            'region' => 'required',
+            'region' => 'required|string|max:200',
+            'rm_email' => 'nullable|email|max:200',
+            'rm_phone' => 'nullable|string|max:20',
         ]);
 
-        $region = new MasRegion();
-        $region->name = $request->region;
-        $region->save();
+        DB::beginTransaction();
+        // try {
+            $region = new MasRegion();
+            $region->region_name = $request->region;
+            $region->rm_email = $request->rm_email;
+            $region->rm_phone = $request->rm_phone;
+            $region->created_by = auth()->user()->id;
+            $region->save();
+
+            if (isset($request->details)) {
+                $this->saveRegionLocation($request->details, $region->id);
+            }
+
+            DB::commit();
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return back()->with('msg_error', 'The region could not be created, please try again.');
+        
 
         return redirect('master/regions')->with('msg_success', 'Region created successfully');
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit(string $id)
     {
         $region = MasRegion::findOrFail($id);
-        return view('masters.region.edit', compact('region'));
+        $regionLocations = $region->regionLocations()->paginate(10);
+        $dzongkhags = MasDzongkhag::all();
+        return view('masters.region.edit', compact('region', 'regionLocations', 'dzongkhags'));
     }
-    public function update(Request $request, $id)
+
+    public function update(Request $request, string $id)
     {
-        $request->validate([
-            'region' => 'required',
-        ]);
+        // Check if the request is for updating the Region
+        if ($request->has('region')) {
+            $request->validate([
+                'region' => 'required|string|max:200',
+                'rm_email' => 'nullable|email|max:200',
+                'rm_phone' => 'nullable|string|max:20',
+            ]);
 
-        $region = MasRegion::findOrFail($id);
-        $region->name = $request->region;
-        $region->save();
+            $region = MasRegion::findOrFail($id);
+            $region->region_name = $request->region;
+            $region->rm_email = $request->rm_email;
+            $region->rm_phone = $request->rm_phone;
+            $region->edited_by = auth()->user()->id;
+            $region->save();
 
-        return redirect('master/regions')->with('msg_success', 'Region updated successfully');
+            return redirect('master/regions')->with('msg_success', 'Region updated successfully');
+        }
+
+        // Add additional conditions for other forms if necessary
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         try {
             MasRegion::findOrFail($id)->delete();
-
             return back()->with('msg_success', 'Region has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Region cannot be delete as it has been used by other module. For further information contact system admin.');
+            return back()->with('msg_error', 'Region cannot be deleted as it has been used by other modules. For further information, contact the system admin.');
         }
+    }
+
+    private function saveRegionLocation($details, $regionId)
+    {
+        $regionLocationDetails = [];
+        foreach ($details as $key => $value) {
+            $regionLocationDetails[] = [
+                'mas_region_id' => $regionId,
+                'mas_dzongkhag_id' => $value['dzongkhag'], // Adjusted to use the correct field name
+                'name' => $value['name'],
+                'created_by' => auth()->user()->id,
+            ];
+        }
+
+        MasRegionLocation::findOrFail($regionId)->regionLocationDetails()->createMany($regionLocationDetails);
     }
 }

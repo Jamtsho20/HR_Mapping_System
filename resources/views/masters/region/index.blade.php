@@ -35,36 +35,38 @@
                                     <thead class="thead-light">
                                         <tr>
                                             <th>#</th>
-                                            <th>Name</th>
+                                            <th>Region</th>
+                                            <th>RM Email</th>
+                                            <th>RM Phone</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($regions as $region)
-                                        <tr>
-                                            <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
-                                            <td>{{ $region->name }}</td>
+                                            <tr>
+                                                <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
+                                                <td>{{ $region->name }}</td>
+                                                <td>{{ $region->rm_email }}</td>
+                                                <td>{{ $region->rm_phone }}</td>
 
-                                            <td class="text-center">
-                                                @if ($privileges->edit)
-                                                <a href="{{ url('master/regions/'.$region->id. '/edit') }}" data-name="{{ $region->region_name }}" class="s btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                                                @endif
-                                                @if ($privileges->delete)
-                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/regions/'.$region->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                                                @endif
-                                            </td>
-                                        </tr>
+                                                <td class="text-center">
+                                                    @if ($privileges->edit)
+                                                        <a href="{{ url('master/regions/'.$region->id. '/edit') }}" data-name="{{ $region->name }}" class="btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                    @endif
+                                                    @if ($privileges->delete)
+                                                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/regions/'.$region->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                    @endif
+                                                </td>
+                                            </tr>
                                         @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center text-danger">No Regions found</td>
-                                        </tr>
+                                            <tr>
+                                                <td colspan="5" class="text-center text-danger">No Regions found</td>
+                                            </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>

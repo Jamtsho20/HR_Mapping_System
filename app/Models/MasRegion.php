@@ -30,4 +30,8 @@ class MasRegion extends Model
             $query->where('name', 'LIKE', '%' .$request->query('region') . '%');
         }
     }
+    public function regionLocations()
+    {
+        return $this->hasMany(MasRegionLocation::class, 'mas_region_id');
+    }
 }

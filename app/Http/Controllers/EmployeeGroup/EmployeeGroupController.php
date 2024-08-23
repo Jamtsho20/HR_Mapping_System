@@ -4,8 +4,10 @@ namespace App\Http\Controllers\EmployeeGroup;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasEmployeeGroup;
+use App\Models\MasEmployeeGroupMap;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeGroupController extends Controller
 {
@@ -23,14 +25,22 @@ class EmployeeGroupController extends Controller
      */
     public function index(Request $request)
     {
-        $privileges = $request->instance();
-        $employeeGroups = MasEmployeeGroup::filter($request)->orderBy('name')->paginate(30);
+        // $privileges = $request->instance();
+        // $employees = User::all();
+        // $employeeGroups = MasEmployeeGroup::filter($request)->orderBy('name')->paginate(30);
 
-        return view('employee-group.employee-create.index', compact('privileges','employeeGroups'));
+        // return view('employee-group.employee-create.index', compact('privileges', 'employeeGroups', 'employees'));
+        $privileges = $request->instance();
+        $employeeGroups = MasEmployeeGroup::with('employees') // Eager load employees
+            ->filter($request)
+            ->orderBy('name')
+            ->paginate(30);
+
+        return view('employee-group.employee-create.index', compact('privileges', 'employeeGroups'));
     }
     public function create()
     {
-        $employees = User::all(); 
+        $employees = User::all();
 
         return view('employee-group.employee-create.create', compact('employees'));
     }
@@ -42,32 +52,76 @@ class EmployeeGroupController extends Controller
             'name' => 'required|string|max:200',
             'description' => 'nullable|string|max:500',
             'status' => 'required|boolean',
+            'employees' => 'required|array', // Validate that employees is an array
+            'employees.*' => 'exists:mas_employees,id', // Validate that each employee exists in the users table
         ]);
 
-        // Create a new New Employee Group instance and fill it with the validated data
+        // Start a database transaction
+        DB::beginTransaction();
+
+        // try {
+        // Create a new Employee Group instance and fill it with the validated data
         $employeeGroup = new MasEmployeeGroup();
+
         $employeeGroup->name = $request->name;
         $employeeGroup->description = $request->description;
         $employeeGroup->status = $request->status;
-        $employeeGroup->created_by = auth()->user()->id;
-        $employeeGroup->updated_by = auth()->user()->id;
+
 
         // Save the new Employee Group instance to the database
         $employeeGroup->save();
 
+        // Loop through the selected employees and insert each into the mas_employee_group_maps table
+        foreach ($request->employees as $employeeId) {
+
+            $mas_employee_group_maps = new MasEmployeeGroupMap();
+            $mas_employee_group_maps->mas_employee_id = $employeeId;
+            $mas_employee_group_maps->mas_employee_group_id = $employeeGroup->id;
+            $mas_employee_group_maps->save();
+
+
+            // DB::table('mas_employee_group_maps')->insert([
+            //     'mas_employee_id' => $employeeId,
+            //     'mas_employee_group_id' => $employeeGroup->id,
+            // ]);
+        }
+
+        // Commit the transaction
+        DB::commit();
+
         // Redirect to the index page with a success message
         return redirect('employee-group/employee-create')->with('msg_success', 'New Employee Group created successfully');
+        // } catch (\Exception $e) {
+        //     // Rollback the transaction in case of any error
+        //     DB::rollBack();
+        //     return redirect('employee-group/employee-create')->with('msg_error', 'An error occurred while creating the Employee Group. Please try again.');
+        // }
     }
+
+
     public function show(string $id)
     {
-        //
+        $employee = User::find($id); // Finds an employee by ID from mas_employees table
+
+        if (!$employee) {
+            return redirect()->back()->with('msg_error', 'Employee not found.');
+        }
+
+        return view('employee-group.show', compact('employee'));
     }
 
     public function edit(string $id)
     {
         $employeeGroup = MasEmployeeGroup::findOrFail($id);
-        
-        return view('employee-group.employee-create.edit', compact('employeeGroup'));
+
+        // Get the IDs of the employees currently associated with this group
+        $selectedEmployees = MasEmployeeGroupMap::where('mas_employee_group_id', $id)
+            ->pluck('mas_employee_id')
+            ->toArray();
+
+        $employees = User::all();
+
+        return view('employee-group.employee-create.edit', compact('employeeGroup', 'employees', 'selectedEmployees'));
     }
 
     public function update(Request $request, string $id)
@@ -82,11 +136,10 @@ class EmployeeGroupController extends Controller
         // Find the existing sub-store by ID
         $employeeGroup = MasEmployeeGroup::findOrFail($id);
 
-
         $employeeGroup->name = $request->name;
         $employeeGroup->description = $request->description;
         $employeeGroup->status = $request->status;
-        $employeeGroup->updated_by = auth()->user()->id; // Track who edited the record
+        // Track who edited the record
 
         // Save the updated model instance to the database
         $employeeGroup->save();

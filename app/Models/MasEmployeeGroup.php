@@ -37,4 +37,15 @@ class MasEmployeeGroup extends Model
         }
 
     }
+    public function employees()
+    {
+        return $this->hasManyThrough(
+            User::class, // The related model
+            MasEmployeeGroupMap::class, // The intermediate model
+            'mas_employee_group_id', // Foreign key on MasEmployeeGroupMap
+            'id', // Foreign key on User (mas_employees)
+            'id', // Local key on MasEmployeeGroup
+            'mas_employee_id' // Local key on MasEmployeeGroupMap
+        );
+    }
 }

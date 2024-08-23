@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('villages', 'VillageController');
         Route::resource('grade-steps', 'GradeStepController')->except('show');
         Route::resource('regions', 'RegionController')->except('show');
+        Route::resource('region-location', 'RegionLocationController');
         Route::resource('expense-types', 'ExpenseTypeController');
         Route::resource('advance-loans', 'AdvanceLoanController');
     });

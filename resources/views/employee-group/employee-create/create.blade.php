@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Emplyee Create')
+@section('page-title', 'Employee Create')
 @section('content')
 
 <form action="{{ url('employee-group/employee-create') }}" class="js-validation-bootstrap" method="POST">
@@ -31,10 +31,16 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="employees">Select Employees <span class="text-danger">*</span></label>
-                        <select name="employees[]" id="employees" class="form-control" multiple="multiple">
+                        <!-- <select name="employees[]" id="employees" class="form-control" multiple="multiple">
                             <option value="" disabled selected hidden>Select an option</option>
                             @foreach($employees as $employee)
                             <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}</option>
+                            @endforeach
+                        </select> -->
+                        <select name="employees[]" id="employees" class="form-control" multiple="multiple">
+                            <option value="" disabled selected hidden>Select an option</option>
+                            @foreach($employees as $employee)
+                                <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}</option>
                             @endforeach
                         </select>
                     </div>

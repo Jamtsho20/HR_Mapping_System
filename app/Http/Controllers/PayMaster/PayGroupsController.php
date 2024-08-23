@@ -81,48 +81,15 @@ class PayGroupsController extends Controller
 
     public function edit(string $id)
     {
-        // $payGroup = MasPayGroup::findOrFail($id);
-        // new code
-        $employeeGroups = MasEmployeeGroup::all();
         $payGroup = MasPayGroup::findOrFail($id);
+        $employeeGroups = MasEmployeeGroup::all();
         $grades = MasGrade::all();
         $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
-        return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups','grades'));
+        
+        return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades'));
     }
 
-    // public function update(Request $request, string $id)
-    // {
-    //     $this->validate($request, $this->rules);
-    //     if ($request->has('name')) {
-    //         // Validate the incoming request data for Pay Slab
-
-    //         // Find the existing PaySlab by ID and update its properties
-    //         $payGroup = MasPayGroup::findOrFail($id);
-    //         $payGroup->name = $request->name;
-    //         $payGroup->applicable_on = $request->applicable_on;
-    //         $payGroup->edited_by = auth()->user()->id;
-    //         $payGroup->save();
-
-    //         return redirect('paymaster/pay-groups')->with('msg_success', 'Pay group updated successfully');
-    //     }
-
-    //     // Check if the request is for updating Pay Slab Details
-    //     if ($request->has('employee_category')) {
-    //         // Validate the incoming request data for Pay Slab Details
-
-    //         // Find the existing Pay Slab Detail by ID and update its properties
-    //         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
-    //         $payGroupDetail->employee_category = $request->employee_category;
-    //         $payGroupDetail->grade = $request->grade;
-    //         $payGroupDetail->calculation_method = $request->calculation_method;
-    //         $payGroupDetail->amount = $request->amount;
-    //         $payGroupDetail->created_at = $request->created_at;
-    //         $payGroupDetail->updated_at = $request->updated_at;
-    //         $payGroupDetail->save();
-
-    //         return redirect()->back()->with('msg_success', 'Pay Group detail updated successfully.');
-    //     }
-    // }
+    
     public function update(Request $request, string $id)
     {
         $this->validate($request, $this->rules);
