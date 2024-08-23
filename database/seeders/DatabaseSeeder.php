@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MasPayHeadsSeeder::class);
         $this->call(MasPayGroupSeeder::class);
         $this->call(MasPaySlabDetailSeeder::class);
+        $this->call(ApprovingAuthoritySeeder::class);
       
     }
 }

@@ -8,15 +8,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('mas_regions', function (Blueprint $table) {
+        Schema::create('approving_authorities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
+            $table->text('description')->nullable();
+            $table->boolean('has_employee_field')->default(1)->comment('1 -> yes, 0 -> No');
             $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
@@ -26,11 +25,9 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('mas_regions');
+        Schema::dropIfExists('approving_authorities');
     }
 };
