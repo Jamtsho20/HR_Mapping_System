@@ -76,9 +76,6 @@ class PayGroupsController extends Controller
 
     public function edit(string $id)
     {
-        // $payGroup = MasPayGroup::findOrFail($id);
-        // return view('paymaster.pay-groups.edit', compact('payGroup'));
-
         $payGroup = MasPayGroup::findOrFail($id);
         $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
         return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails'));

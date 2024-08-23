@@ -19,7 +19,7 @@ return new class extends Migration
             $table->tinyInteger("calculation_method")->nullable()->comment("0 for no method, 1 for Actual Method, 2 for Division, 3 for Percentage")->index();
             $table->decimal('amount', 12, 2);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('edited_by')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
 
             $table->timestamps();
         });

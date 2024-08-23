@@ -6,7 +6,7 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MasPayGroupDetail extends Model
+class  MasPayGroupDetail extends Model
 {
     use HasFactory,CreatedByTrait;
 
@@ -15,8 +15,19 @@ class MasPayGroupDetail extends Model
     ];
     
     public function masPayGroup(){
-        return $this->belongsTo(MasPayGroup::class);
+        return $this->belongsTo(MasPayGroup::class, 'mas_pay_group_id');
     }
+
+    public function grade()
+    {   
+        return $this->belongsTo(MasGrade::class, 'mas_grade_id');
+    }  
+
+    public function employeeGroup(){
+        return $this->belongsTo(MasEmployeeGroup::class, 'mas_employee_group_id');
+    }
+
+    //filter
     public function scopeFilter($query, $request)
     {
         if ($request->has('calculation_method') && $request->query('calculation_method') != '') {
@@ -26,28 +37,6 @@ class MasPayGroupDetail extends Model
         if ($request->has('amount') && $request->query('amount') != '') {
             $query->where('amount', '<=', $request->query('amount'));
         }
-    }
-    public function grade()
-    {   
-    return $this->belongsTo(MasGrade::class, 'mas_grade_id');
-    }  
-    // public function getCalculationMethodTextAttribute()
-    // {
-    //     $methods = [
-    //         1 => 'Actual Method',
-    //         2 => 'Division',
-    //         3 => 'Percentage',
-    //     ];
-
-    //     return $methods[$this->calculation_method] ?? 'Unknown Method';
-    // } 
-    public static function getCalculationMethods()
-    {
-    return [
-        1 => 'Actual Method',
-        2 => 'Division',
-        3 => 'Percentage',
-    ];
     }
 
 }

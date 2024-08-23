@@ -33,13 +33,12 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach($payGroup->payGroupDetails as $detail)
-
+                                                    @foreach($payGroupDetails as $detail)
                                                     <tr>
-                                                        <td>{{ $detail->employee_category }}</td>
-                                                        <td>{{ $detail->grade ? $detail->grade->name : 'N/A' }}</td>
+                                                        <td>{{ $detail->employeeGroup->name ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->grade->name ?? config('global.null_value') }} </td>
                                                         <td>
-                                                            {{ \App\Models\MasPayGroupDetail::getCalculationMethods()[$detail->calculation_method] ?? 'Unknown Method' }}
+                                                            {{ config('global.calculation_method')[$detail->calculation_method] }} 
                                                         </td>
                                                         <td>{{ $detail->amount }}</td>
                                                         <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d') : '' }}</td>

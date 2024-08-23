@@ -142,7 +142,6 @@ class EmployeeController extends Controller
         $instance = $request->instance(); 
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
-        // dd($employee->empJob->supervisor);
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
 
