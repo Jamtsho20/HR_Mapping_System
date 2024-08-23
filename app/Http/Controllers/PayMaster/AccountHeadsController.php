@@ -17,14 +17,13 @@ class AccountHeadsController extends Controller
     }
     public function index(Request $request)
     {
-        $privileges = $request->instance(); 
+        $privileges = $request->instance();
         $accountHeads = MasAccAccountHead::filter($request)->orderBy('name')->paginate(30);
         return view('paymaster.account-heads.index', compact('accountHeads', 'privileges'));
     }
     public function create()
     {
         return view('paymaster.account-heads.create');
-
     }
     public function store(Request $request)
     {
@@ -39,7 +38,7 @@ class AccountHeadsController extends Controller
         $accountHead->code = $request->code;
         $accountHead->name = $request->name;
         $accountHead->type = $request->type;
-        $accountHead->created_by = auth()->user()->id; 
+        $accountHead->created_by = auth()->user()->id;
         $accountHead->save();
 
         return redirect('paymaster/account-heads')->with('msg_success', 'Account head created successfully');
@@ -95,5 +94,4 @@ class AccountHeadsController extends Controller
             return back()->with('msg_error', 'Account head cannot be deleted as it has been used by another module. For further information, contact the system admin.');
         }
     }
-
 }

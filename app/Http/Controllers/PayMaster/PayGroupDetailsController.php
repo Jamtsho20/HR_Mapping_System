@@ -18,35 +18,24 @@ class PayGroupDetailsController extends Controller
         // $this->middleware('permission:paymaster/pay-slab-details,edit')->only('update');
         // $this->middleware('permission:paymaster/pay-slab-details,delete')->only('destroy');
     }
-    // public function index(Request $request)
-    // {
-    //     $privileges = $request->instance(); 
-    //     $payGroupDetails = MasPayGroupDetail::filter($request)->orderBy('created_at', 'desc')->paginate(30);
-    //     return view('paymaster.pay-group-details.index', compact('payGroupDetails', 'privileges'));
-    // }
-    public function index(Request $request)
-{
-    $privileges = $request->instance(); 
-    $payGroupDetails = MasPayGroupDetail::with('employeeGroup')
-        ->filter($request)
-        ->orderBy('created_at', 'desc')
-        ->paginate(30);
 
-    return view('paymaster.pay-group-details.index', compact('payGroupDetails', 'privileges'));
-}
+    public function index(Request $request)
+    {
+        $privileges = $request->instance();
+        $payGroupDetails = MasPayGroupDetail::with('employeeGroup')
+            ->filter($request)
+            ->orderBy('created_at', 'desc')
+            ->paginate(30);
+
+        return view('paymaster.pay-group-details.index', compact('payGroupDetails', 'privileges'));
+    }
 
     public function create(Request $request)
     {
-       
         $payGroupId = $request->payGroupId;
-    
-        $payGroup = MasPayGroup::whereId($payGroupId)->first(); 
-      
+        $payGroup = MasPayGroup::whereId($payGroupId)->first();
         $grades = MasGrade::pluck('name', 'id');
-        $calculationMethods = MasPayGroupDetail::getCalculationMethods();
-       
-
-        return view('paymaster.pay-group-details.create', compact('payGroup','grades', 'calculationMethods'));
+        return view('paymaster.pay-group-details.create', compact('payGroup', 'grades'));
     }
     public function store(Request $request)
     {
@@ -88,7 +77,7 @@ class PayGroupDetailsController extends Controller
 
         return view('paymaster.pay-group-details.edit', compact('payGroupDetail', 'payGroup'));
     }
-    
+
 
     public function update(Request $request, string $id)
     {
@@ -123,5 +112,4 @@ class PayGroupDetailsController extends Controller
             return back()->with('msg_error', 'Pay group detail cannot be deleted as it has been used by another module. For further information, contact the system admin.');
         }
     }
-
 }

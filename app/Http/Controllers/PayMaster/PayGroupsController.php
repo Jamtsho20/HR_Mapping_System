@@ -85,11 +85,11 @@ class PayGroupsController extends Controller
         $employeeGroups = MasEmployeeGroup::all();
         $grades = MasGrade::all();
         $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
-        
+
         return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades'));
     }
 
-    
+
     public function update(Request $request, string $id)
     {
         $this->validate($request, $this->rules);

@@ -20,6 +20,15 @@
                 <label for="name">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="name" value="{{$section->name}}">
             </div>
+            <div class="form-group">
+                <label for="mas_employee_id">Section Head</label>
+                <select class="form-control" name="mas_employee_id">
+                    <option value="" disabled selected hidden>Select your option</option>
+                    @foreach (concateEmpNameUserName() as $employee)
+                        <option value="{{ $employee->id }}" {{ $section->mas_employee_id == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
     </div>
     <div class="card-footer">

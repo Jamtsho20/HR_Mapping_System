@@ -6,7 +6,7 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MasPayGroupDetail extends Model
+class  MasPayGroupDetail extends Model
 {
     use HasFactory, CreatedByTrait;
 
@@ -17,20 +17,10 @@ class MasPayGroupDetail extends Model
         'amount'
     ];
 
+    //relationship 
     public function masPayGroup()
     {
         return $this->belongsTo(MasPayGroup::class);
-    }
-
-    public function scopeFilter($query, $request)
-    {
-        if ($request->has('calculation_method') && $request->query('calculation_method') != '') {
-            $query->where('calculation_method', '>=', $request->query('calculation_method'));
-        }
-
-        if ($request->has('amount') && $request->query('amount') != '') {
-            $query->where('amount', '<=', $request->query('amount'));
-        }
     }
 
     public function grade()
@@ -42,12 +32,17 @@ class MasPayGroupDetail extends Model
         return $this->belongsTo(MasEmployeeGroup::class, 'mas_employee_group_id');
     }
 
-    public static function getCalculationMethods()
+    //filter
+    public function scopeFilter($query, $request)
     {
-        return [
-            1 => 'Actual Method',
-            2 => 'Division',
-            3 => 'Percentage',
-        ];
+        if ($request->has('calculation_method') && $request->query('calculation_method') != '') {
+            $query->where('calculation_method', '>=', $request->query('calculation_method'));
+        }
+
+        if ($request->has('amount') && $request->query('amount') != '') {
+            $query->where('amount', '<=', $request->query('amount'));
+        }
     }
+
+    //accessor/modifier
 }

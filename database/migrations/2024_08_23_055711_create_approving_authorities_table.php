@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bank_loans', function (Blueprint $table) {
+        Schema::create('approving_authorities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_employee_id')->index()->constrained();
-            $table->string('bank', 50);
-            $table->string('loan_type');
-            $table->string('account_number');
-            $table->string('principal_amount');
-            $table->date('start_month')->comment('starting month for deduction');
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->boolean('has_employee_field')->default(1)->comment('1 -> yes, 0 -> No');
+            $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
-            
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bank_loans');
+        Schema::dropIfExists('approving_authorities');
     }
 };

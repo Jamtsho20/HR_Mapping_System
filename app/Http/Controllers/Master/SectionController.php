@@ -53,11 +53,13 @@ class SectionController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'mas_department_id' => 'required',
         ]);
 
         $section = new MasSection;
         $section->name = $request->name;
         $section->mas_department_id = $request->mas_department_id;
+        $section->mas_employee_id = $request->mas_employee_id;
         $section->save();
 
         return redirect('master/section')->with('msg_success', 'Section created successfully');
@@ -79,6 +81,7 @@ class SectionController extends Controller
         $section = MasSection::findOrFail($id);
         $section->name = $request->name;
         $section->mas_department_id = $request->mas_department_id;
+        $section->mas_employee_id = $request->mas_employee_id;
         $section->save();
 
         return redirect('master/section')->with('msg_success', 'Section updated successfully');

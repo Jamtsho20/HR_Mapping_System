@@ -9,7 +9,10 @@ use App\Traits\CreatedByTrait;
 class MasDepartment extends Model
 {
     use HasFactory, CreatedByTrait;
-
+    //relationship
+    public function employee(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
     //filters
     public function scopeFilter($query, $request)
     {

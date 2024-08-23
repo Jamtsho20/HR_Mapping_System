@@ -49,6 +49,7 @@ class DepartmentController extends Controller
         $department = new MasDepartment;
         $department->short_name = $request->short_name;
         $department->name = $request->name;
+        $department->mas_employee_id = $request->mas_employee_id;
         $department->save();
 
         return redirect('master/departments')->with('msg_success', 'Department created successfully');
@@ -78,6 +79,7 @@ class DepartmentController extends Controller
         $department = MasDepartment::findOrFail($id);
         $department->short_name = $request->short_name;
         $department->name = $request->name;
+        $department->mas_employee_id = $request->mas_employee_id;
         $department->save();
 
         return redirect('master/departments')->with('msg_success', 'Department updated successfully');

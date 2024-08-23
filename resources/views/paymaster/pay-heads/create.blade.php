@@ -9,8 +9,8 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="payhead_type">Pay Head Type <span class="text-danger">*</span></label>
-                        <select name="payhead_type" id="pay_head_type" class="form-control form-control-sm" required>
+                        <label for="payhead_type">Pay Head Type</label>
+                        <select name="payhead_type" id="pay_head_type" class="form-control" required>
                             <option value="" disabled selected>Select an option</option>
                             <option value="1">Allowance</option>
                             <option value="2">Deduction</option>
@@ -23,8 +23,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="account_head_id">Account Head <span class="text-danger">*</span></label>
-                        <select name="account_head_id" id="account__head_id" class="form-control form-control-sm" required>
+                        <label for="account_head_id">Account Head</label>
+                        <select name="account_head_id" id="account__head_id" class="form-control" required>
                             <option value="" disabled selected>Select an option</option>
                             @foreach($accountHeads as $accountHead)
                             <option value="{{ $accountHead->id }}">{{ $accountHead->name }}</option>
@@ -38,8 +38,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="calculation_method">Calculation Method <span class="text-danger">*</span></label>
-                        <select name="calculation_method" id="calculation_method" class="form-control form-control-sm">
+                        <label for="calculation_method">Calculation Method</label>
+                        <select name="calculation_method" id="calculation_method" class="form-control">
                             <option value="" disabled selected >Select your option</option>
                             @foreach(config('global.calculation_methods_for_payheads') as $key => $value)
                             <option value="{{ $key }}" {{ old('calculation_method') == $key ? 'selected' : '' }}>
@@ -50,8 +50,8 @@
                     </div>
 
                     <div class="form-group" id="calculated_on_container">
-                        <label for="calculated_on">Calculated On <span class="text-danger">*</span></label>
-                        <select name="calculated_on" id="calculated_on" class="form-control form-control-sm" required>
+                        <label for="calculated_on">Calculated On</label>
+                        <select name="calculated_on" id="calculated_on" class="form-control">
                             <option value="" disabled selected >Select your option</option>
                             @foreach(config('global.calculated_on') as $key => $value)
                             <option value="{{ $key }}" {{ old('calculated_on') == $key ? 'selected' : '' }}>

@@ -23,8 +23,8 @@
                         <label for="calculation_method">Calculation Method</label>
                         <select name="calculation_method" id="calculation_method" class="form-control">
                             <option value="" disabled selected hidden>Select an option</option>
-                            @foreach($calculationMethods as $id => $method)
-                                <option value="{{ $id }}">{{ $method }}</option>
+                            @foreach(config('global.calculation_method') as $key => $value)
+                                <option value="{{ $key }}" {{ old('calculation_method') == $key ? 'selected' : '' }}>{{ $value }}</option>
                             @endforeach
                         </select>
                     </div>

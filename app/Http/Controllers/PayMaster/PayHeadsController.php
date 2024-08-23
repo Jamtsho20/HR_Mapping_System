@@ -28,10 +28,10 @@ class PayHeadsController extends Controller
             ->filter($request)
             ->orderBy('name')
             ->paginate(30);
-    
+
         return view('paymaster.pay-heads.index', compact('payHeads', 'privileges'));
     }
-    
+
 
     /**
      * Show the form for creating a new resource.
@@ -40,61 +40,60 @@ class PayHeadsController extends Controller
     {
         $accountHeads = MasAccAccountHead::all();
         $paySlabs = MasPaySlab::all();
-        $payGroups = MasPayGroup::all(); 
+        $payGroups = MasPayGroup::all();
 
         // Pass both data sets to the view
         return view('paymaster.pay-heads.create', compact('accountHeads', 'paySlabs', 'payGroups'));
-
     }
     public function store(Request $request)
-{
-    // Basic validation rules
-    $rules = [
-        'payhead_type' => 'required|integer',
-        'name' => 'required|string|max:255',
-        'account_head_id' => 'required|integer',
-        'code' => 'required|string|max:255',
-        'calculation_method' => 'required|integer',
-    ];
+    {
+        // Basic validation rules
+        $rules = [
+            'payhead_type' => 'required|integer',
+            'name' => 'required|string|max:255',
+            'account_head_id' => 'required|integer',
+            'code' => 'required|string|max:255',
+            'calculation_method' => 'required|integer',
+        ];
 
-    // Additional rules based on calculation method
-    switch ($request->input('calculation_method')) {
-        case 1: // Actual Amount
-        case 2: // Division Method
-        case 5: // Percentage Method
-            $rules['amount'] = 'required|numeric';
-            break;
-        case 3: // Pay Slab Method
-            $rules['mas_pay_slab_id'] = 'required|integer';
-            break;
-        case 4: // Pay Group Method
-            $rules['mas_pay_group_id'] = 'required|integer';
-            break;
-        case 6: // By Formula Method
-            $rules['formula'] = 'required|string';
-            break;
-        case 7: // Employment Wise Method
-            // Add specific rules if needed
-            break;
+        // Additional rules based on calculation method
+        switch ($request->input('calculation_method')) {
+            case 1: // Actual Amount
+            case 2: // Division Method
+            case 5: // Percentage Method
+                $rules['amount'] = 'required|numeric';
+                break;
+            case 3: // Pay Slab Method
+                $rules['mas_pay_slab_id'] = 'required|integer';
+                break;
+            case 4: // Pay Group Method
+                $rules['mas_pay_group_id'] = 'required|integer';
+                break;
+            case 6: // By Formula Method
+                $rules['formula'] = 'required|string';
+                break;
+            case 7: // Employment Wise Method
+                // Add specific rules if needed
+                break;
+        }
+
+        // Conditionally add rules for 'calculated_on'
+        if (in_array($request->input('calculation_method'), [3, 4, 5])) {
+            $rules['calculated_on'] = 'required';
+        } else {
+            $rules['calculated_on'] = 'nullable';
+        }
+
+        // Validate the request data
+        $validatedData = $request->validate($rules);
+
+        // Store the data in the database
+        $payHead = new MasPayHead();
+        $payHead->fill($validatedData); // Ensure fillable attributes are set in the model
+        $payHead->save();
+
+        return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
     }
-
-    // Conditionally add rules for 'calculated_on'
-    if (in_array($request->input('calculation_method'), [3, 4, 5])) {
-        $rules['calculated_on'] = 'required';
-    } else {
-        $rules['calculated_on'] = 'nullable';
-    }
-
-    // Validate the request data
-    $validatedData = $request->validate($rules);
-
-    // Store the data in the database
-    $payHead = new MasPayHead();
-    $payHead->fill($validatedData); // Ensure fillable attributes are set in the model
-    $payHead->save();
-
-    return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
-}
 
 
     public function show(string $id)
@@ -112,7 +111,7 @@ class PayHeadsController extends Controller
 
     public function update(Request $request, string $id)
     {
-        
+
         // Validate the incoming request data
         $request->validate([
             'name' => 'required|string|max:150',
@@ -157,6 +156,4 @@ class PayHeadsController extends Controller
             return back()->with('msg_error', 'Pay head cannot be deleted as it has been used by another module. For further information, contact the system admin.');
         }
     }
-
-
 }

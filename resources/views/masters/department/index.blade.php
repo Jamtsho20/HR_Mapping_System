@@ -30,6 +30,7 @@
                                             <th>#</th>
                                             <th>Short Name</th>
                                             <th>Name</th>
+                                            <th>Department Head</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
