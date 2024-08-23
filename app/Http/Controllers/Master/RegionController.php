@@ -36,17 +36,14 @@ class RegionController extends Controller
     {
         $request->validate([
             'region' => 'required|string|max:200',
-            'rm_email' => 'nullable|email|max:200',
-            'rm_phone' => 'nullable|string|max:20',
         ]);
 
         DB::beginTransaction();
         // try {
             $region = new MasRegion();
             $region->region_name = $request->region;
-            $region->rm_email = $request->rm_email;
-            $region->rm_phone = $request->rm_phone;
-            $region->created_by = auth()->user()->id;
+            $region->mas_employee_id = $request->mas_employee_id;
+            $region->status = $request->status;
             $region->save();
 
             if (isset($request->details)) {
@@ -82,9 +79,8 @@ class RegionController extends Controller
 
             $region = MasRegion::findOrFail($id);
             $region->region_name = $request->region;
-            $region->rm_email = $request->rm_email;
-            $region->rm_phone = $request->rm_phone;
-            $region->edited_by = auth()->user()->id;
+            $region->mas_employee_id = $request->mas_employee_id;
+            $region->status = $request->status;
             $region->save();
 
             return redirect('master/regions')->with('msg_success', 'Region updated successfully');
@@ -111,7 +107,6 @@ class RegionController extends Controller
                 'mas_region_id' => $regionId,
                 'mas_dzongkhag_id' => $value['dzongkhag'], // Adjusted to use the correct field name
                 'name' => $value['name'],
-                'created_by' => auth()->user()->id,
             ];
         }
 

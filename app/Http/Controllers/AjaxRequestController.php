@@ -37,6 +37,7 @@ class AjaxRequestController extends Controller
         $paySlabDetail = MasPaySlabDetails::findOrFail($id);
         return $paySlabDetail;
     }
+    
     public function getPayGroupDetail($id){
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
         return $payGroupDetail;

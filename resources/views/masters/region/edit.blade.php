@@ -15,16 +15,15 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="rm_email">RM Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" name="rm_email" value="{{ old('rm_email', $region->rm_email) }}">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="rm_phone">RM Phone Number <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="rm_phone" value="{{ old('rm_phone', $region->rm_phone) }}">
-                    </div>
+                <label for="mas_employee_id">Regional manager</label>
+                    <select class="form-control" name="mas_employee_id" required>
+                        <option value="" hidden selected disabled>Select your option</option>
+                        @foreach(concateEmpNameUserName() as $employee)
+                        <option value="{{ $employee->id }}" {{ $region->mas_employee_id == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->name }}
+                        </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
         </div>
@@ -35,8 +34,7 @@
     </div>
 </form>
 <!--Region Location Details -->
-@include('masters.region-location.index', ['regionLocation' => $regionLocation])
 
-
+@include('masters.region-location.index', ['regionLocations' => $regionLocations])
 @include('layouts.includes.delete-modal')
 @endsection

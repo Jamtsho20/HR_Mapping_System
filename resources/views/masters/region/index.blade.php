@@ -36,8 +36,6 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Region</th>
-                                            <th>RM Email</th>
-                                            <th>RM Phone</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -46,8 +44,6 @@
                                             <tr>
                                                 <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
                                                 <td>{{ $region->name }}</td>
-                                                <td>{{ $region->rm_email }}</td>
-                                                <td>{{ $region->rm_phone }}</td>
 
                                                 <td class="text-center">
                                                     @if ($privileges->edit)

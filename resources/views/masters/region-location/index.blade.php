@@ -4,7 +4,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Region Location</h3>
                 <form action="{{ route('region-location.create') }}" method="GET">
-                    @foreach($regionLocation as $location)
+                    @foreach($regionLocations as $location)
                     <input type="hidden" value="{{ $location->id }}" name="regionLocationId[]">
                     @endforeach
                     <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Region Location</button>
@@ -25,8 +25,8 @@
                                                 id="basic-datatable table-responsive">
                                                 <thead>
                                                     <tr role="row">
-                                                        <th>Region Name</th>
-                                                        <th>Region</th>
+                                                        <th>Name</th>
+                                                       
                                                         <th>Dzongkhag</th>
                                                         <th>Created At</th>
                                                         <th>Updated At</th>
@@ -35,10 +35,9 @@
                                                 </thead>
                                                 <tbody>
                                                 <tbody>
-                                                    @foreach($regionLocation as $location)
+                                                    @foreach($regionLocations as $location)
                                                     <tr>
                                                         <td>{{ $location->name }}</td>
-                                                        <td>{{ $location->region->id ?? 'N/A' }}</td>
                                                         <td>{{ $location->dzongkhag->dzongkhag }}</td>
                                                         <td>{{ $location->created_at ? $location->created_at->format('Y-m-d') : '' }}</td>
                                                         <td>{{ $location->updated_at ? $location->updated_at->format('Y-m-d') : '' }}</td>
@@ -60,7 +59,7 @@
                                                 </tbody>
                                             </table>
                                             <div class="col-md-12 col-sm-12 col-xs-12">
-                                                <div>{{ $regionLocation->links() }}</div>
+                                                <div>{{ $regionLocations->links() }}</div>
                                             </div>
                                         </div>
                                     </div>

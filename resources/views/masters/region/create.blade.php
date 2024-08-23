@@ -14,16 +14,15 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="rm_email">RM Email</label>
-                        <input type="email" class="form-control" name="rm_email" value="{{ old('rm_email') }}">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="rm_phone">RM Phone Number</label>
-                        <input type="text" class="form-control" name="rm_phone" value="{{ old('rm_phone') }}">
-                    </div>
+                <label for="mas_employee_id">Regional manager</label>
+                    <select class="form-control" name="mas_employee_id" required>
+                        <option value="" hidden selected disabled>Select your option</option>
+                        @foreach(concateEmpNameUserName() as $employee)
+                        <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->name }}
+                        </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
         </div>
