@@ -111,7 +111,7 @@ class RegionController extends Controller
         foreach ($details as $key => $value) {
             $regionLocationDetails[] = [
                 'mas_region_id' => $regionId,
-                'mas_dzongkhag_id' => $value['dzongkhag'],
+                'mas_dzongkhag_id' => $value['mas_dzongkhag_id'],
                 'name' => $value['name'],
                 'created_by' => auth()->id(),
             ];

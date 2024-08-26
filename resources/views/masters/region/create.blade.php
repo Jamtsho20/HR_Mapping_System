@@ -77,10 +77,10 @@
                                                                     <input type="text" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][name]" value="{{ old('name') }}" placeholder="Region Name" required>
                                                                 </td>
                                                                 <td>
-                                                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][dzongkhag]" required>
+                                                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][mas_dzongkhag_id]" required>
                                                                         <option value="">Select Dzongkhag</option>
                                                                         @foreach($dzongkhags as $dzongkhag)
-                                                                        <option value="{{ $dzongkhag->id }}" {{ old('details.AAAAA.dzongkhag') == $dzongkhag->id ? 'selected' : '' }}>
+                                                                        <option value="{{ $dzongkhag->id }}" {{ old('details.AAAAA.mas_dzongkhag_id') == $dzongkhag->id ? 'selected' : '' }}>
                                                                             {{ $dzongkhag->dzongkhag }}
                                                                         </option>
                                                                         @endforeach

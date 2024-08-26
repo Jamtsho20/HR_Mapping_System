@@ -25,16 +25,16 @@
                 <select class="form-control" name="mas_employee_id">
                     <option value="" disabled selected hidden>Select your option</option>
                     @foreach (concateEmpNameUserName() as $employee)
-                        <option value="{{ $employee->id }}" {{ $section->mas_employee_id == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
+                    <option value="{{ $employee->id }}" {{ $section->mas_employee_id == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
-    </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-        <a href="{{ url('master/section') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
+            <a href="{{ url('master/section') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
 
+        </div>
     </div>
 </form>
 @include('layouts.includes.delete-modal')
