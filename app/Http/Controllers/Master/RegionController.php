@@ -24,7 +24,7 @@ class RegionController extends Controller
     public function index( Request $request)
     {
         $privileges = $request->instance();
-        $regions= MasRegion::filter($request)->orderBy('region_name')->paginate(30);
+        $regions= MasRegion::filter($request)->orderBy('name')->paginate(30);
 
         return view('masters.region.index', compact('regions', 'privileges'));
     }

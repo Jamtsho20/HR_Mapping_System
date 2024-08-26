@@ -7,13 +7,14 @@
                     <h5 class="card-title"><label for=""><strong>Permanent Address</strong></label></h5>
                     <div class="form-group">
                         <label for="dzongkhag_id">Dzongkhag <span class="text-danger">*</span></label>
-                        <select name="permanent_address[mas_dzongkhag_id]" id="dzongkhag_id" class="form-control form-control-sm" required>
+                        <select name="permenant_address[mas_dzongkhag_id]" id="dzongkhag_id" class="form-control form-control-sm" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($dzongkhags as $dzongkhag)
                             <option value="{{ $dzongkhag->id }}"
-                                {{ old('permanent_address.mas_dzongkhag_id', isset($employee->empPermenantAddress->masDzongkhag->id) ? $employee->empPermenantAddress->masDzongkhag->id : '') == $dzongkhag->id ? 'selected' : '' }}>
+                                {{ old('permenant_address.mas_dzongkhag_id', isset($employee->empPermenantAddress) ? $employee->empPermenantAddress->masDzongkhag->id : '') == $dzongkhag->id ? 'selected' : '' }}>
                                 {{ $dzongkhag->dzongkhag }}
                             </option>
+
                             @endforeach
                         </select>
 
@@ -21,39 +22,41 @@
                     <!-- Gewog Dropdown -->
                     <div class="form-group">
                         <label for="gewog_id">Gewog <span class="text-danger">*</span></label>
-                        <select name="permanent_address[mas_gewog_id]" id="gewog_id" class="form-control form-control-sm" required>
+                        <select name="permenant_address[mas_gewog_id]" id="gewog_id" class="form-control form-control-sm" required>
                             <option value="" disabled selected hidden>Select a gewog</option>
                             <!-- Options will be populated based on Dzongkhag selection -->
                             @if(isset($employee))
                             @foreach($gewogs as $gewog)
                             <option value="{{ $gewog->id }}"
-                                {{ old('permanent_address.mas_gewog_id', $employee->empPermenantAddress->masGewog->id ?? '') == $gewog->id ? 'selected' : '' }}>
+                                {{ old('permenant_address.mas_gewog_id', $employee->empPermenantAddress->masGewog->id ?? '') == $gewog->id ? 'selected' : '' }}>
                                 {{ $gewog->name }}
                             </option>
                             @endforeach
                             @else
-                            <select class="form-control" id="mas_gewog_id" name="permanent_address[mas_gewog_id]">
+                            <select class="form-control" id="gewog_id" name="permenant_address[mas_gewog_id]">
                                 {{-- will be populated based on selection of section --}}
                             </select>
                             @endif
+
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="mas_village_id">Village <span class="text-danger">*</span></label>
                         <select name="permenant_address[mas_village_id]" id="village_id" class="form-control form-control-sm" required>
-                            {{-- will be populated based on selection of gewog --}}
+
                             @if(isset($employee))
                             @foreach($villages as $village)
                             <option value="{{ $village->id }}"
-                                {{ old('permanent_address.mas_village_id', $employee->empPermenantAddress->masVillage->id ?? '') == $village->id ? 'selected' : '' }}>
+                                {{ old('permenant_address.mas_village_id', $employee->empPermenantAddress->masVillage->id ?? '') == $village->id ? 'selected' : '' }}>
                                 {{ $village->village }}
                             </option>
                             @endforeach
                             @else
-                            <select class="form-control" id="mas_village_id" name="permanent_address[mas_village_id]">
+                            <select class="form-control" id="village_id" name="permenant_address[mas_village_id]">
                                 {{-- will be populated based on selection of section --}}
                             </select>
                             @endif
+
 
                         </select>
                     </div>
@@ -72,7 +75,7 @@
                     <h5 class="card-title"><label for=""><strong>Current Address</strong></label></h5>
                     <div class="form-group">
                         <label for="">Dzongkhag <span class="text-danger">*</span></label>
-                        <select name="current_address[mas_dzongkhag_id]" id="dzongkhag_id" class="form-control form-control-sm" required>
+                        <select name="current_address[mas_dzongkhag_id]" id="" class="form-control form-control-sm" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($dzongkhags as $dzongkhag)
                             <option value="{{ $dzongkhag->id }}"
@@ -84,7 +87,7 @@
                     </div>
                     <div class="form-group">
                         <label for="">Gewog</label>
-                        <select name="current_address[mas_gewog_id]" id="gewog_id" class="form-control form-control-sm">
+                        <select name="current_address[mas_gewog_id]" id="" class="form-control form-control-sm">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($gewogs as $gewog)
                             <option value="{{ $gewog->id }}"
@@ -96,11 +99,11 @@
                     </div>
                     <div class="form-group">
                         <label for="">City/State <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="current_address[city]" value="{{old('curent_address.city', isset($employee) ? $employee->empPresentAddress->city : '') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="current_address[city]" value="{{old('current_address.city', isset($employee) ? $employee->empPresentAddress->city : '') }}" required>
                     </div>
                     <div class="form-group">
                         <label for="postal_code">Postal Code <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="current_address[postal_code]" value="{{old('curent_address.postal_code', isset($employee) ? $employee->empPresentAddress->postal_code : '') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="current_address[postal_code]" value="{{ old('current_address.postal_code', isset($employee) ? $employee->empPresentAddress->postal_code : '') }}" required>
                     </div>
                 </div>
             </div>

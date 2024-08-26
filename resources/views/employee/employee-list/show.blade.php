@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Employee Details')
 @section('buttons')
-    <!-- @if ($canUpdate === 1)
+<!-- @if ($canUpdate === 1)
             <div class="card-footer">
                 <a href="{{ url('employee/employee-lists/' .$employee->id . '/edit') }}" class="btn btn-outline-primary btn-block btn-sm"><b><i class="fa fa-edit"></i> Edit Record</b></a>
             </div>
@@ -83,7 +83,7 @@
                 </div>
 
             </div>
-        
+
         </div>
     </div>
     <!-- Address -->
@@ -122,6 +122,9 @@
                             </li>
                             <li class="list-group-item">
                                 <b>Gewog</b> <a class="pull-right">{{ $employee->empPermenantAddress->masGewog->name }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>VIllage</b> <a class="pull-right">{{ $employee->empPermenantAddress->masVillage->village }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Tharm No</b> <a class="pull-right">{{ $employee->empPermenantAddress->thram_no }}</a>
@@ -171,7 +174,10 @@
                     </div>
                     <div class="col-md-6">
                         <li class="list-group-item">
-                            <b>Job Location</b> <a class="pull-right">{{ $employee->empJob->job_location }}</a>
+                            <b>Job Location</b> <a class="pull-right">{{ $employee->empJob->office->name }} ({{$employee->empJob->office->dzongkhag->dzongkhag}})</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Address</b> <a class="pull-right">{{ $employee->empJob->office->address }} </a>
                         </li>
                         <li class="list-group-item">
                             <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale }}</a>
@@ -270,8 +276,14 @@
                                 <td>{{ $training->end_date }}</td>
                                 <td>{{ $training->duration }}</td>
                                 <td>{{ $training->location }}</td>
-                                <td>{{ $training->description }}</td>
-                                <td>{{ $training->certificate }}</td>
+                                <td>
+                                    @if($training->certificate)
+                                    <a href="{{ asset($training->certificate) }}" target="_blank" class="btn btn-link">
+                                        <i class="fas fa-file-alt"></i> View
+                                    </a>
+                                    @endif
+                                </td>
+                                <td class="{{ !$training->description ? 'text-center' : '' }}">{{ $training->description ?? config('global.null_value') }}</td>
                             </tr>
                             @empty
                             <tr>
@@ -298,10 +310,11 @@
                                 <th>#</th>
                                 <th>Qualification</th>
                                 <th class="text-center">Organization</th>
-                                <th class="text-center">Place/Location</th>
+                                <th class="text-center">Country</th>
                                 <th class="text-center">Designation</th>
                                 <th class="text-center">Start Date</th>
                                 <th class="text-center">End Date</th>
+                                <th class="text-center">Description</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -313,6 +326,7 @@
                                 <td>{{ $experience->designation }}</td>
                                 <td>{{ $experience->start_date }}</td>
                                 <td>{{ $experience->end_date }}</td>
+                                <td>{{ $experience->description }}</td>
                             </tr>
                             @empty
                             <tr>
@@ -326,55 +340,46 @@
         </div>
     </div>
     <!-- Documents -->
-    <div class="col-md-12">
+    <div class="row col-md-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Document(s)</h3>
+                <h3 class="card-title mb-1 mt-1">Documents</h3>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Qualification</th>
-                                <th class="text-center">Organization</th>
-                                <th class="text-center">Place/Location</th>
-                                <th class="text-center">Designation</th>
-                                <th class="text-center">Start Date</th>
-                                <th class="text-center">End Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($employee->empExperiences as $experience)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $experience->organization }}</td>
-                                <td>{{ $experience->place }}</td>
-                                <td>{{ $experience->designation }}</td>
-                                <td>{{ $experience->start_date }}</td>
-                                <td>{{ $experience->end_date }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-danger">No document found</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <div class="card-body">
+                <div class="row ">
+
+                    <div class="col-md-12">
+
+                        <a href="{{ asset($employee->empDoc->employment_contract)}}" class="btn btn-primary" target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                            &nbsp; Employement Contract</a>
+
+
+                        <a href="{{ asset($employee->empDoc->non_disclosure_aggrement) }}" class="btn btn-primary" target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                            &nbsp; Non Disclosure Aggrement</a>
+
+                        <a href="{{ asset($employee->empDoc->job_responsibilities) }}" class="btn btn-primary" target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                            &nbsp; Job Responsibilities</a>
+                        @if($employee->empDoc->other)
+                        @foreach(json_decode($employee->empDoc->other) as $other)
+                        <a href="{{ asset( $other) }}" class="btn btn-primary" target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                            &nbsp; Others</a>
+                        @endforeach
+                        @endif
+
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-</div>
-@endsection
-@push('page_scripts')
-<script>
-    $(document).ready(function() {
-        $('.btn-tool').on('click', function() {
-            var icon = $(this).find('i');
-            icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
+    @endsection
+    @push('page_scripts')
+    <script>
+        $(document).ready(function() {
+            $('.btn-tool').on('click', function() {
+                var icon = $(this).find('i');
+                icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
+            });
         });
-    });
-</script>
-@endpush
+    </script>
+    @endpush

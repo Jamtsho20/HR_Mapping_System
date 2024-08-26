@@ -43,7 +43,7 @@
                                         @forelse($regions as $region)
                                         <tr>
                                             <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
-                                            <td>{{ $region->region_name }}</td>
+                                            <td>{{ $region->name }}</td>
 
                                             <td class="text-center">
                                                 @if ($privileges->edit)

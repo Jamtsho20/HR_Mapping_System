@@ -8,7 +8,7 @@
                             <th width="3%" class="text-center">#</th>
                             <th>Training Title</th>
                             <th>Start Date</th>
-                            <th>End Date Date</th>
+                            <th>End Date</th>
                             <th>Duration (days)</th>
                             <th>Location</th>
                             <th>Description</th>
@@ -17,58 +17,64 @@
                     </thead>
                     <tbody>
                         @forelse(isset($employee) ? $employee->empTrainings : [] as $key => $value)
-
                         <tr class="training-row">
                             <td class="text-center">
-                                <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][title]" value="{{ old('trainings.AAAAA.title',$value->title) }}" placeholder="Title">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][title]" value="{{ old('trainings.' . $key . '.title', $value->title) }}" placeholder="Title">
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][start_date]" value="{{ old('trainings.AAAAA.start_date',$value->start_date) }}">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][start_date]" value="{{ old('trainings.' . $key . '.start_date', $value->start_date) }}">
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][end_date]" value="{{ old('trainings.AAAAA.end_date',$value->end_date) }}">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][end_date]" value="{{ old('trainings.' . $key . '.end_date', $value->end_date) }}">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][duration]" value="{{ old('trainings.AAAAA.duration',$value->duration) }}" placeholder="No of days">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][duration]" value="{{ old('trainings.' . $key . '.duration', $value->duration) }}" placeholder="No of days">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][location]" value="{{ old('trainings.AAAAA.location',$value->location) }}" placeholder="Location">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][location]" value="{{ old('trainings.' . $key . '.location', $value->location) }}" placeholder="Location">
                             </td>
                             <td class="text-center">
-                                <textarea class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][description]" value="{{ old('trainings.AAAAA.description',$value->description) }}" placeholder="Description"></textarea>
+                                <textarea class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][description]" value="{{ old('trainings.' . $key . '.description', $value->description) }}" placeholder="Description">{{ $value->description }}</textarea>
                             </td>
                             <td class="text-center">
-                                <input type="file" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][certificate]">
+                                <input type="file" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][certificate]">
+                                @if($value->certificate)
+                                <div class="mt-2">
+                                    <a href="{{ asset($value->certificate) }}" target="_blank" class="btn btn-link">
+                                        <i class="fas fa-file-alt"></i> View
+                                    </a>
+                                </div>
+                                @endif
                             </td>
                         </tr>
                         @empty
                         <tr class="training-row">
                             <td class="text-center">
-                                <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][title]" value="{{ old('trainings.AAAAA.title') }}" placeholder="Title">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][title]" value="{{ old('trainings.0.title') }}" placeholder="Title">
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][start_date]" value="{{ old('trainings.AAAAA.start_date') }}">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[0][start_date]" value="{{ old('trainings.0.start_date') }}">
                             </td>
                             <td class="text-center">
-                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][end_date]" value="{{ old('trainings.AAAAA.end_date') }}">
+                                <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[0][end_date]" value="{{ old('trainings.0.end_date') }}">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][duration]" value="{{ old('trainings.AAAAA.duration') }}" placeholder="No of days">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][duration]" value="{{ old('trainings.0.duration') }}" placeholder="No of days">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][location]" value="{{ old('trainings.AAAAA.location') }}" placeholder="Location">
+                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][location]" value="{{ old('trainings.0.location') }}" placeholder="Location">
                             </td>
                             <td class="text-center">
-                                <textarea class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][description]" value="{{ old('trainings.AAAAA.description') }}" placeholder="Description"></textarea>
+                                <textarea class="form-control form-control-sm resetKeyForNew" name="trainings[0][description]" placeholder="Description">{{ old('trainings.0.description') }}</textarea>
                             </td>
                             <td class="text-center">
-                                <input type="file" class="form-control form-control-sm resetKeyForNew" name="trainings[AAAAA][certificate]">
+                                <input type="file" class="form-control form-control-sm resetKeyForNew" name="trainings[0][certificate]">
                             </td>
                         </tr>
                         @endforelse
@@ -81,6 +87,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 </div>

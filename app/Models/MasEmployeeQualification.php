@@ -16,6 +16,6 @@ class MasEmployeeQualification extends Model
     }
     public function qualification()
     {
-        return $this->belongsTo(MasQualification::class, 'id');
+        return $this->belongsTo(MasQualification::class, 'mas_qualification_id');
     }
 }

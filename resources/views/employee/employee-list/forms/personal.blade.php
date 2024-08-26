@@ -53,7 +53,7 @@
                     <select name="personal[gender]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.gender') as $key => $value)
-                        <option value="{{ $key }}" {{old('personal.gender', isset($employee) ? $employee->gender : '') ? 'selected' : '' }}>{{ $value }}</option>
+                        <option value="{{ $key }}" {{old('personal.gender', isset($employee) ? $employee->gender : '')==$key ? 'selected' : '' }}>{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -117,7 +117,7 @@
 
                     @if(!empty($employee->cid_copy))
                     <div class="mt-2">
-                        <a href="{{ asset('storage/' . $employee->cid_copy) }}" target="_blank" class="btn btn-link">
+                        <a href="{{ asset($employee->cid_copy) }}" target="_blank" class="btn btn-link">
                             <i class="fas fa-file-alt"></i> View Current CID Copy
                         </a>
                     </div>

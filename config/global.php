@@ -1,6 +1,6 @@
 <?php
 return [
-    'null_value' => 'N/A',
+    'null_value' => '-',
 
     'holiday_types' => ['Government', 'Private'],
 

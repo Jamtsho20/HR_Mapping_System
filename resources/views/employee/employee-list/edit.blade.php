@@ -79,6 +79,7 @@
                         <form action="{{ route('employee-lists.update', $employee->id) }}" id="emp-form" method="post" enctype="multipart/form-data">
                             @csrf
                             @method("PUT")
+                            <input type="hidden" name="type" value="2" />
                             <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                                 @include('employee.employee-list.forms.personal')
                             </div>

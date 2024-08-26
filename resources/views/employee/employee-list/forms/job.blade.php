@@ -94,7 +94,18 @@
                 </div>
                 <div class="form-group col-md-4">
                     <label for="">Job Location <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[job_location]" value="{{ old('job.job_location',isset($employee->empJob->job_location)?$employee->empJob->job_location:'') }}" required>
+                    <select name="job[mas_office_id]" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Select your option</option>
+                        @foreach($offices as $office)
+                        <option value="{{ $office->id }}"
+                            {{ old('job.mas_office_id', 
+                            isset($employee->empJob->office->id) ? $employee->empJob->office->id: '') == $office->id ? 'selected' : '' }}>
+                            {{ $office->name }}
+                        </option>
+                        @endforeach
+
+                    </select>
+                    <!-- <input type="text" class="form-control form-control-sm" name="job[mas_office_id]" value="{{ old('job.mas_office_id',isset($employee->empJob->mas_office_id) ? $employee->empJob->mas_office_id : '') }}" required> -->
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
@@ -127,9 +138,10 @@
                 <select name="job[bank]" class="form-control form-control-sm" required>
                     <option value="" disabled selected hidden>Select your option</option>
                     @foreach(config('global.bank') as $key => $label)
-                    <option value="{{ $key }}" {{ old('job.bank', isset($employee->empJob) ? $employee->empJob->bank  : '') == $label ? 'selected' : '' }}>{{ $label }}</option>
+                    <option value="{{ $key }}" {{ old('job.bank', isset($employee->empJob->bank) ? $employee->empJob->bank  : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
 
                     @endforeach
+                    
                 </select>
             </div>
             <div class="form-group col-md-4">
