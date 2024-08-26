@@ -36,6 +36,9 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Region</th>
+                                            <th>Status</th>
+                                            <th>RM Email</th>
+                                            <th>RM Phone</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -43,7 +46,11 @@
                                         @forelse($regions as $region)
                                             <tr>
                                                 <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
-                                                <td>{{ $region->name }}</td>
+                                                <td text-center>{{ $region->name }}</td>
+                                                <td>{{ $region->status ? 'Active' : 'Inactive' }}</td>
+                                                <td></td>
+                                                <td></td>
+
 
                                                 <td class="text-center">
                                                     @if ($privileges->edit)

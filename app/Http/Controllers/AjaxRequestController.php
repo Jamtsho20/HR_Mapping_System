@@ -6,6 +6,7 @@ use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
+use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasVillage;
 
@@ -42,11 +43,14 @@ class AjaxRequestController extends Controller
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
         return $payGroupDetail;
     }
+
+    public function getRegionLocation($id){
+        $regionLocation = MasRegionLocation::findOrFail($id);
+        return $regionLocation;
+    }
     
     public function getPayScale($id){
-        // $payScale = MasGradeStep::where('id', $id)->selectRaw("concat(starting_salary, '-', increment, '-', ending_salary) as pay_scale")->first();
         $payScale = MasGradeStep::where('id', $id)->get(['starting_salary', 'increment', 'ending_salary']);
-        // dd($payScale);
         return $payScale;
     }
 }

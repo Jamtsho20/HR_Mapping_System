@@ -36,14 +36,16 @@ class RegionController extends Controller
     {
         $request->validate([
             'region' => 'required|string|max:200',
+            'details.*.name' => 'required',
+            'details.*.mas_dzongkhag_id' => 'required' 
         ]);
 
         DB::beginTransaction();
-        // try {
+        try {
             $region = new MasRegion();
             $region->region_name = $request->region;
             $region->mas_employee_id = $request->mas_employee_id;
-            $region->status = $request->status;
+            $region->status = $request->input('status.is_active', 0);
             $region->save();
 
             if (isset($request->details)) {
@@ -51,10 +53,10 @@ class RegionController extends Controller
             }
 
             DB::commit();
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return back()->with('msg_error', 'The region could not be created, please try again.');
-        
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('msg_error', 'The region could not be created, please try again.');
+        }
 
         return redirect('master/regions')->with('msg_success', 'Region created successfully');
     }
@@ -69,24 +71,28 @@ class RegionController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // Check if the request is for updating the Region
-        if ($request->has('region')) {
-            $request->validate([
-                'region' => 'required|string|max:200',
-                'rm_email' => 'nullable|email|max:200',
-                'rm_phone' => 'nullable|string|max:20',
-            ]);
+        // Validate the incoming request data
+        $request->validate([
+            'region' => 'required|string|max:200',
+            'mas_employee_id' => 'required|integer|exists:mas_employees,id',
+            'status.is_active' => 'sometimes|boolean', // Validate the status checkbox
+        ]);
 
-            $region = MasRegion::findOrFail($id);
-            $region->region_name = $request->region;
-            $region->mas_employee_id = $request->mas_employee_id;
-            $region->status = $request->status;
-            $region->save();
+        // Find the region by ID or throw a 404 error
+        $region = MasRegion::findOrFail($id);
 
-            return redirect('master/regions')->with('msg_success', 'Region updated successfully');
-        }
+        // Update the region details
+        $region->region_name = $request->region;
+        $region->mas_employee_id = $request->mas_employee_id;
 
-        // Add additional conditions for other forms if necessary
+        // Handle the status field (default to 0 if not set)
+        $region->status = $request->input('status.is_active', 0);
+
+        // Save the updated region
+        $region->save();
+
+        // Redirect with a success message
+        return redirect('master/regions')->with('msg_success', 'Region updated successfully');
     }
 
     public function destroy(string $id)
@@ -105,11 +111,13 @@ class RegionController extends Controller
         foreach ($details as $key => $value) {
             $regionLocationDetails[] = [
                 'mas_region_id' => $regionId,
-                'mas_dzongkhag_id' => $value['dzongkhag'], // Adjusted to use the correct field name
+                'mas_dzongkhag_id' => $value['dzongkhag'],
                 'name' => $value['name'],
+                'created_by' => auth()->id(),
             ];
         }
 
-        MasRegionLocation::findOrFail($regionId)->regionLocationDetails()->createMany($regionLocationDetails);
+        // Use the MasRegionLocation model to create many records
+        MasRegionLocation::insert($regionLocationDetails);
     }
 }

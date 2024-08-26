@@ -22,6 +22,7 @@ class MasRegion extends Model
     {
         $this->attributes['name'] = ucwords($value);
     }
+    
 
     //scopes & filters
     public function scopeFilter($query, $request)

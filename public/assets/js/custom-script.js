@@ -189,7 +189,32 @@ var hrms = function() {
                     console.error('Error:', error);
                 });
         });
+// add modal script
+$('.add-btn').click(function(e) {
+    e.preventDefault(); // Prevent the default action if needed
+    var url = $(this).data('url');
+    var updateUrl = $(this).data('update-url');
 
+    $.get(url)
+        .done(function(data) {
+            // Populate form fields with the fetched data
+            $.each(data, function(key, value) {
+                var field = $('#add-modal-form').find('[name="' + key + '"]');
+                if (field.length) {
+                    field.val(value || '');
+                }
+            });
+
+            // Set the form's action URL
+            $('#add-modal-form').attr('action', updateUrl);
+
+            // Show the modal
+            $('#add-modal').modal('show');
+        })
+        .fail(function(error) {
+            console.error('Error:', error);
+        });
+});
 
     }
     return {

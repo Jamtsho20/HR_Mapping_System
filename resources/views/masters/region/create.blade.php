@@ -14,7 +14,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                <label for="mas_employee_id">Regional manager</label>
+                    <label for="mas_employee_id">Regional manager</label>
                     <select class="form-control" name="mas_employee_id" required>
                         <option value="" hidden selected disabled>Select your option</option>
                         @foreach(concateEmpNameUserName() as $employee)
@@ -24,6 +24,21 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="form-group col-md-4">
+                    <div class="form-label mt-6"></div>
+                    <label class="custom-switch">
+                        <!-- Hidden input to pass '0' when checkbox is unchecked -->
+                        <input type="hidden" name="status[is_active]" value="0">
+                        <!-- Checkbox to pass '1' when checked, and retain old value -->
+                        <input type="checkbox"
+                            name="status[is_active]"
+                            class="custom-switch-input form-control form-control-sm"
+                            value="1"
+                            {{ old('status.is_active') == '1' ? 'checked' : '' }} />
+                        <span class="custom-switch-indicator"></span>
+                        <span class="custom-switch-description">is Active</span>
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -31,7 +46,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Pay Slab Details</h3>
+                        <h3 class="card-title">Region Location Details</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">

@@ -52,9 +52,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('villages', 'VillageController');
         Route::resource('grade-steps', 'GradeStepController')->except('show');
         Route::resource('regions', 'RegionController')->except('show');
-        Route::resource('region-location', 'RegionLocationController');
+        Route::resource('region-location', 'RegionLocationController')->except(['show', 'edit']);
         Route::resource('expense-types', 'ExpenseTypeController');
         Route::resource('advance-loans', 'AdvanceLoanController');
+        Route::resource('offices', 'OfficeController');
     });
 
     // WORK STRUCTURE
@@ -183,5 +184,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
     Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
     Route::get('getpaygroupdetail/{id}', 'AjaxRequestController@getPayGroupDetail');
+    Route::get('getregionlocation/{id}', 'AjaxRequestController@getRegionLocation');
     Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
 });

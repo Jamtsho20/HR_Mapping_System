@@ -39,6 +39,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 2, 'name' => 'Nationality', 'route' => 'master/nationalities', 'display_order' => 12],
             ['system_menu_id' => 2, 'name' => 'Regions', 'route' => 'master/regions', 'display_order' => 13],
             ['system_menu_id' => 2, 'name' => 'Expense Types', 'route' => 'master/expense-types', 'display_order' => 14],
+            ['system_menu_id' => 2, 'name' => 'Offices', 'route' => 'master/offices', 'display_order' => 15],
 
             //sub menu for work structure
             ['system_menu_id' => 3, 'name' => 'Holiday List', 'route' => 'work-structure/holiday-lists', 'display_order' => 1],
