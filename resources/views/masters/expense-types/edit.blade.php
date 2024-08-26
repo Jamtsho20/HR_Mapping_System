@@ -12,13 +12,14 @@
                 <input type="text" class="form-control" name="expense_type" value="{{$expense->expense_type}}">
             </div>
         </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-check"></i> UPDATE
+            </button>
+            <a href="{{ url('master/expense-types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        </div>
     </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-primary">
-            <i class="fa fa-check"></i> UPDATE
-        </button>
-        <a href="{{ url('master/expense-types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-    </div>
+
 </form>
 @include('layouts.includes.delete-modal')
 @endsection

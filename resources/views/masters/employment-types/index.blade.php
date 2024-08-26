@@ -45,7 +45,7 @@
                                                 <td class="text-center">
                                                     @if ($privileges->edit)
                                                         <a href="{{ url('master/employment-types/' . $type->id . '/edit') }}"
-                                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
+                                                            class=" btn btn-sm btn-rounded btn-outline-success"><i
                                                                 class="fa fa-edit"></i> EDIT</a>
                                                     @endif
                                                     @if ($privileges->delete)
