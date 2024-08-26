@@ -20,7 +20,7 @@ class PaySlabsController extends Controller
 
     public function index(Request $request)
     {
-        $privileges = $request->instance(); 
+        $privileges = $request->instance();
         $paySlabs = MasPaySlab::filter($request)->orderBy('name')->paginate(30);
         return view('paymaster.pay-slabs.index', compact('paySlabs', 'privileges'));
     }
@@ -28,7 +28,6 @@ class PaySlabsController extends Controller
     public function create()
     {
         return view('paymaster.pay-slabs.create');
-
     }
 
     public function store(Request $request)
@@ -43,18 +42,18 @@ class PaySlabsController extends Controller
 
         // Create a new PaySlab instance and save it to the database
         DB::beginTransaction();
-        try{
+        try {
             $paySlab = new MasPaySlab();
             $paySlab->name = $request->name;
             $paySlab->effective_date = $request->effective_date;
             $paySlab->formula = $request->formula;
             $paySlab->created_by = auth()->user()->id;
             $paySlab->save();
-            if(isset($request->details)){
+            if (isset($request->details)) {
                 $this->savePaySlabDetail($request->details, $paySlab->id);
             }
             DB::commit();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('msg_error', 'The pay slab could not be created, please try again.');
         }
@@ -89,7 +88,7 @@ class PaySlabsController extends Controller
                 'mas_pay_slab_details.*.pay_to' => 'required',
                 'mas_pay_slab_details.*.amount' => 'required'
             ]);
-    
+
             // Find the existing PaySlab by ID and update its properties
             $paySlab = MasPaySlab::findOrFail($id);
             $paySlab->name = $request->name;
@@ -97,10 +96,10 @@ class PaySlabsController extends Controller
             $paySlab->formula = $request->formula;
             $paySlab->edited_by = auth()->user()->id;
             $paySlab->save();
-    
+
             return redirect('paymaster/pay-slabs')->with('msg_success', 'Pay slab updated successfully');
         }
-    
+
         // Check if the request is for updating Pay Slab Details
         if ($request->has('pay_from')) {
             // Validate the incoming request data for Pay Slab Details
@@ -111,7 +110,7 @@ class PaySlabsController extends Controller
                 'created_at' => 'required|date',
                 'updated_at' => 'required|date',
             ]);
-    
+
             // Find the existing Pay Slab Detail by ID and update its properties
             $paySlabDetail = MasPaySlabDetails::findOrFail($id);
             $paySlabDetail->pay_from = $request->pay_from;
@@ -120,13 +119,13 @@ class PaySlabsController extends Controller
             $paySlabDetail->created_at = $request->created_at;
             $paySlabDetail->updated_at = $request->updated_at;
             $paySlabDetail->save();
-    
+
             return redirect()->back()->with('msg_success', 'Pay slab detail updated successfully.');
         }
-    
+
         // Add additional conditions for other forms if necessary
     }
-    
+
 
     public function destroy(string $id)
     {
@@ -140,12 +139,13 @@ class PaySlabsController extends Controller
         }
     }
 
-    private function savePaySlabDetail($details, $paySlabId){
+    private function savePaySlabDetail($details, $paySlabId)
+    {
         $paySlab = new MasPaySlab();
         $paySlab->id = $paySlabId;
         // dd($paySlab->id);
         $paySlabDetails = [];
-        foreach($details as $key => $value){
+        foreach ($details as $key => $value) {
             $paySlabDetails[] = [
                 'mas_pay_slab_id' => $paySlab->id,
                 'pay_from' => $value['pay_from'],
@@ -156,5 +156,4 @@ class PaySlabsController extends Controller
         // dd($paySlabDetails);
         $paySlab->paySlabDetails()->createMany($paySlabDetails);
     }
-    
 }

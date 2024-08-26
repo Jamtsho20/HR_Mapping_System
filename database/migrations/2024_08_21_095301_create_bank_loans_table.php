@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('loan_type');
             $table->string('account_number');
             $table->string('principal_amount');
-            $table->string('start_month')->comment('starting month for deduction');
+            $table->date('start_month')->comment('starting month for deduction');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             

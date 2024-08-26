@@ -26,28 +26,9 @@
                     <button class="nav-link" id="pills-store-tab" data-bs-toggle="pill" data-bs-target="#pills-store" type="button" role="tab" aria-controls="pills-store" aria-selected="false">Store Locations</button>
                 </li>
             </ul>
+            <br>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-country" role="tabpanel" aria-labelledby="pills-country-tab">
-                    <div class="row">
-                        <div class="col-3">
-                            <label style="float:left">Show &nbsp;</label>
-                            <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
-                                <select name="tbl_attendancesheet_length" aria-controls="tbl_attendancesheet" class="form-control">
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </div>
-                            &nbsp;
-                            <label>entries</label>
-                        </div>
-
-                        <div class="col-3">
-                            <input type="text" name="search" class="form-control" value="" placeholder="Search">
-                        </div>
-                    </div>
-
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-striped">
                             <thead class="thead-light">
@@ -75,7 +56,7 @@
                 </div>
                 <!-- time zone -->
                 <div class="tab-pane fade" id="pills-time_zone" role="tabpanel" aria-labelledby="pills-time_zone-tab">
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-3">
                             <label style="float:left">Show &nbsp;</label>
                             <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
@@ -93,7 +74,7 @@
                         <div class="col-3">
                             <input type="text" name="search" class="form-control" value="" placeholder="Search">
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-striped">
@@ -124,7 +105,7 @@
                 </div>
                 <!-- region-->
                 <div class="tab-pane fade" id="pills-region" role="tabpanel" aria-labelledby="pills-region-tab">
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-3">
                             <label style="float:left">Show &nbsp;</label>
                             <div class="dataTables_length" id="tbl_attendancesheet_length" style="float:left">
@@ -142,7 +123,7 @@
                         <div class="col-3">
                             <input type="text" name="search" class="form-control" value="" placeholder="Search">
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="card-body">
                         <table class="table table-bordered table-sm table-striped">
@@ -160,7 +141,7 @@
                                 <tr>
                                     <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
                                     <td>BT</td>
-                                    <td>{{ $region->region_name }}</td>
+                                    <td>{{ $region->name }}</td>
                                     <td>Bhutan</td>
                                     <td><span class="badge bg-success">Active</span></td>
                                 </tr>
@@ -173,12 +154,46 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div>{{ $regions->links() }}</div>
+                    </div>
                 </div>
                 <!-- dzongkhag-->
                 <div class="tab-pane fade" id="pills-dzongkhag" role="tabpanel" aria-labelledby="pills-dzongkhag-tab">
-                    <h4 class="font-w400">dzongkhag</h4>
-                    <p>...</p>
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm table-striped">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Code</th>
+                                    <th>Dzongkhag Name</th>
+                                    <th>Country</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($dzongkhags as $dzongkhag)
+                                <tr>
+                                    <td>{{ $dzongkhags->firstItem() + ($loop->iteration - 1) }}</td>
+                                    <td>BT</td>
+                                    <td>{{ $dzongkhag->dzongkhag }}</td>
+                                    <td>Bhutan</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-danger">No Dzongkhags found</td>
+                                </tr>
+                                @endforelse
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div>{{ $dzongkhags->links() }}</div>
+                    </div>
                 </div>
+
                 <!-- store location-->
                 <div class="tab-pane fade" id="pills-store" role="tabpanel" aria-labelledby="pills-store-tab">
                     <h4 class="font-w400">Store Location</h4>

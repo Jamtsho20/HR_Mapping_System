@@ -28,16 +28,16 @@
             </div>
         </div>
         <div class="row row-sm">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Pay Slab Details</h3>
-            </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pay Slab Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                                <div class="row">
+                                    <div class="col-sm-12">
                                         <div class="dataTables_scroll">
                                             <div class="dataTables_scrollHead"
                                                 style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -47,9 +47,12 @@
                                                         <thead>
                                                             <tr>
                                                                 <th class="text-center">#</th>
-                                                                <th>Pay From <span class="text-danger">*</span></th></th>
-                                                                <th>Pay To <span class="text-danger">*</span></th></th>
-                                                                <th>Amount <span class="text-danger">*</span></th></th>
+                                                                <th>Pay From <span class="text-danger">*</span></th>
+                                                                </th>
+                                                                <th>Pay To <span class="text-danger">*</span></th>
+                                                                </th>
+                                                                <th>Amount <span class="text-danger">*</span></th>
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -77,14 +80,14 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
-    </div>
-</div>
         <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
             <a href="{{ url('paymaster/pay-slabs') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>

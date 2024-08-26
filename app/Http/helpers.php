@@ -4,6 +4,7 @@ use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
  */
+Use Illuminate\Support\Facades\DB;
 
 if (!function_exists('uploadImageToDirectory')) {
     /**
@@ -173,5 +174,11 @@ if (!function_exists('invoiceNoGenerator')) {
         }
         $invoiceNo = str_pad($newInvoiceNo, 5, '0', STR_PAD_LEFT);
         return $invoiceNo;
+    }
+}
+
+if(!function_exists('concateEmpNameUserName')){
+    function concateEmpNameUserName(){
+        return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.name) as name")->get();
     }
 }

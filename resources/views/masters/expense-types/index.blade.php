@@ -48,7 +48,7 @@
 
                                             <td class="text-center">
                                                 @if ($privileges->edit)
-                                                <a href="{{ url('master/expense-types/'.$expense->id.'/edit') }}" data-name="{{ $expense->expense_type }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                <a href="{{ url('master/expense-types/'.$expense->id.'/edit') }}" data-name="{{ $expense->expense_type }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                 @endif
                                                 @if ($privileges->delete)
                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/expense-types/'.$expense->id) }}"><i class="fa fa-trash"></i> DELETE</a>

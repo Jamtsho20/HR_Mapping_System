@@ -2,10 +2,16 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="card-title">Pay Group Details<span class="text-danger">*</span></th></h3>
+                <h3 class="card-title">Pay Group Details<span class="text-danger">*</span></th>
+                </h3>
                 <form action="{{ route('pay-group-details.create') }}" method="GET">
                     <input type="hidden" value="{{ $payGroup->id }}" name="payGroupId">
-                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Pay Pay Group Details</button>
+                    <form action="{{ route('pay-group-details.create') }}" method="GET">
+                        <button type="button" class="add-btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#add-modal">
+                            <i class="fa fa-plus"></i> Add New Pay Group Detail
+                        </button>
+                    </form>
+
                 </form>
             </div>
             <div class="card-body">
@@ -20,26 +26,29 @@
                                             style="box-sizing: content-box; padding-right: 0px;">
                                             <table
                                                 class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                id="basic-datatable table-responsive" >
+                                                id="basic-datatable table-responsive">
                                                 <thead>
                                                     <tr role="row">
-                                                        <th>Employee Category <span class="text-danger">*</span></th>
-                                                        <th>Grade <span class="text-danger">*</span></th></th>
-                                                        <th>Calculation Method <span class="text-danger">*</span></th></th>
-                                                        <th>Amount <span class="text-danger">*</span></th></th>
+                                                        <th>Employee Category </th>
+                                                        <th>Grade </th>
+                                                        </th>
+                                                        <th>Calculation Method </th>
+                                                        </th>
+                                                        <th>Amount </th>
+                                                        </th>
                                                         <th>Created At</th>
                                                         <th>Updated At</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach($payGroup->payGroupDetails as $detail)
+                                                    @foreach($payGroupDetails as $detail)
 
                                                     <tr>
-                                                        <td>{{ $detail->employee_category }}</td>
-                                                        <td>{{ $detail->grade ? $detail->grade->name : 'N/A' }}</td>
+                                                        <td>{{ $detail->employeeGroup->name ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->grade->name ?? config('global.null_value') }}</td>
                                                         <td>
-                                                            {{ \App\Models\MasPayGroupDetail::getCalculationMethods()[$detail->calculation_method] ?? 'Unknown Method' }}
+                                                            {{ config('global.calculation_method')[$detail->calculation_method] }}
                                                         </td>
                                                         <td>{{ $detail->amount }}</td>
                                                         <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d') : '' }}</td>
@@ -76,6 +85,56 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!--Add new pay group -->
+<div class="modal fade" id="add-modal" tabindex="-1" aria-labelledby="addDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #f8f9fa;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDetailLabel">Add New Pay Group Detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form action="{{ route('pay-group-details.store') }}" method="POST" id="add-modal-form">
+                    @csrf
+                    <input type="hidden" name="mas_pay_group_id" value="{{ $payGroup->id }}">
+
+                    <div class="mb-3">
+                        <label for="mas_grade_id" class="form-label">Grade <span class="text-danger">*</span></label>
+                        <select name="mas_grade_id" id="mas_grade_id" class="form-control">
+                            <option value="" disabled selected hidden>Select an option</option>
+                            @foreach($grades as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="calculation_method" class="form-label">Calculation Method <span class="text-danger">*</span></label>
+                        <select name="calculation_method" id="calculation_method" class="form-control">
+                            <option value="" disabled selected hidden>Select an option</option>
+                            @foreach(config('global.calculation_method') as $key => $value)
+                            <option value="{{ $key }}" {{ old('calculation_method') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="amount" name="amount" value="{{ old('amount') }}" required>
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">Add Detail</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
 </div>

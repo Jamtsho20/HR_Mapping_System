@@ -11,6 +11,7 @@
             <div class="form-group">
                 <label for="name">Dzongkhag <span class="text-danger">*</span></label>
                 <select name="mas_dzongkhag_id" class="form-control" id="dzongkhag1">
+                    <option value="" disabled selected hidden>Select your option</option>
                     @foreach ($dzongkhags as $dzongkhag)
                     <option value="{{ $dzongkhag->id }}" {{ $gewog->mas_dzongkhag_id == $dzongkhag->id ? 'selected' : '' }}>{{ $dzongkhag->dzongkhag }}</option>
                     @endforeach

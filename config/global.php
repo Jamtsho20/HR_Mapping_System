@@ -77,6 +77,7 @@ return [
     ],
 
     'calculation_method' => [ //for pay groups
+        0 => 'N/A',
         1 => 'Actual Method',
         2 => 'Division',
         3 => 'Percentage'

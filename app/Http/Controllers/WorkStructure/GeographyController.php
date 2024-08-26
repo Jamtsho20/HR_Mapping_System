@@ -29,8 +29,9 @@ class GeographyController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $regions= MasRegion::filter($request)->orderBy('region_name')->paginate(30);
-        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+        
+        $regions= MasRegion::filter($request)->orderBy('name')->paginate(10);
+        $dzongkhags = MasDzongkhag::filter($request)->orderBy('dzongkhag')->paginate(10);
            
         return view('work-structure.geography.index', compact('privileges','regions','dzongkhags'));
     }

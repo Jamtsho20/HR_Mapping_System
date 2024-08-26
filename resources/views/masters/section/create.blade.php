@@ -15,11 +15,18 @@
                     @endforeach
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="name" value="{{ old('name') }}" required="required">
-
+            </div>
+            <div class="form-group">
+                <label for="mas_employee_id">Section Head</label>
+                <select class="form-control" name="mas_employee_id">
+                    <option value="" disabled selected hidden>Select your option</option>
+                    @foreach (concateEmpNameUserName() as $employee)
+                        <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>{{ $employee->name  }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
     </div>

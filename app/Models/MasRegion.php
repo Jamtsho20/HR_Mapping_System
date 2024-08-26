@@ -22,6 +22,7 @@ class MasRegion extends Model
     {
         $this->attributes['name'] = ucwords($value);
     }
+    
 
     //scopes & filters
     public function scopeFilter($query, $request)
@@ -29,5 +30,9 @@ class MasRegion extends Model
         if ($request->has('region') && $request->query('region') != '') {
             $query->where('name', 'LIKE', '%' .$request->query('region') . '%');
         }
+    }
+    public function regionLocations()
+    {
+        return $this->hasMany(MasRegionLocation::class, 'mas_region_id');
     }
 }

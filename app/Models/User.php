@@ -103,7 +103,7 @@ class User extends Authenticatable
         $query->where('username', '<>', 'admin');
     }
 
-    //accessors & mutators
+    //accessors & mutators refeer this
     public function getEmpIdNameAttribute(){
         return $this->username . ' - ' . $this->name;
     }

@@ -16,7 +16,6 @@
                     <input type="text" name="dzongkhag" class="form-control" value="{{ request()->get('dzongkhag') }}" placeholder="Dzongkhag">
                 </div>
                 @endcomponent
-
             </div>
             <br>
             <div class="row row-sm">

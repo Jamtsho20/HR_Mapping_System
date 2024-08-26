@@ -14,11 +14,12 @@ class MasEmploymentTypesSeeder extends Seeder
     public function run(): void
     {
         DB::table('mas_employment_types')->insert([
-            ['id' => 1, 'name' => 'Full-Time', 'remarks' => 'Full-time employment', 'created_by' => 1],
-            ['id' => 2, 'name' => 'Part-Time', 'remarks' => 'Part-time employment', 'created_by' => 1],
-            ['id' => 3, 'name' => 'Contract', 'remarks' => 'Contractual employment', 'created_by' => 1],
-            ['id' => 4, 'name' => 'Internship', 'remarks' => 'Internship or training', 'created_by' => 1],
-            ['id' => 5, 'name' => 'Freelance', 'remarks' => 'Freelance or consultancy', 'created_by' => 1],
+            ['id' => 1, 'name' => 'Regular', 'remarks' => 'Regular Employee', 'created_by' => 1],
+            ['id' => 2, 'name' => 'Probation', 'remarks' => 'Probation Employee', 'created_by' => 1],
+            ['id' => 3, 'name' => 'Long-term Contract(Executive Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
+            ['id' => 4, 'name' => 'Long-term Contract(Technical Staff Group 2 Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
+            ['id' => 5, 'name' => 'Long-term Contract(General Support Staff Group)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
+            ['id' => 6, 'name' => 'Short-term Contract', 'remarks' => 'Short Term Contract Employee', 'created_by' => 1],
         ]);
     }
 }

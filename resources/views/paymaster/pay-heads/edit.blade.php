@@ -19,7 +19,7 @@
                         <input type="text" class="form-control" name="code" value="{{ old('code', $payHead->code) }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="payhead_type">Pay Head Type</label>
+                        <label for="payhead_type">Pay Head Type <span class="text-danger">*</span></label></label>
                         <select name="payhead_type" class="form-control" required>
                             <option value="" disabled>Select an option</option>
                             <option value="1" {{ old('payhead_type', $payHead->payhead_type) == 1 ? 'selected' : '' }}>Allowance</option>
@@ -27,7 +27,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="accounthead_type">Account Head Type</label>
+                        <label for="accounthead_type">Account Head Type <span class="text-danger">*</span></label></label>
                         <select name="accounthead_type" class="form-control" required>
                             <option value="" disabled>Select an option</option>
                             <option value="1" {{ old('accounthead_type', $payHead->accounthead_type) == 1 ? 'selected' : '' }}>Allowance</option>
@@ -37,7 +37,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="calculation_method">Calculation Method</label>
+                        <label for="calculation_method">Calculation Method <span class="text-danger">*</span></label></label>
                         <select name="calculation_method" class="form-control" required>
                             <option value="" disabled>Select an option</option>
                             <option value="1" {{ old('calculation_method', $payHead->calculation_method) == 1 ? 'selected' : '' }}>Actual Amount</option>
@@ -50,7 +50,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="calculated_on">Calculated On</label>
+                        <label for="calculated_on">Calculated On <span class="text-danger">*</span></label></label>
                         <select name="calculated_on" class="form-control" required>
                             <option value="" disabled>Select an option</option>
                             <option value="1" {{ old('calculated_on', $payHead->calculated_on) == 1 ? 'selected' : '' }}>Basic Pay</option>
@@ -63,7 +63,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="formula">Formula</label>
+                        <label for="formula">Formula <span class="text-danger">*</span></label></label>
                         <textarea class="form-control" name="formula">{{ old('formula', $payHead->formula) }}</textarea>
                     </div>
                 </div>
