@@ -2,20 +2,20 @@
 @section('page-title', 'Employee List')
 @section('content')
 @if ($privileges->create)
-    @section('buttons')
-        <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
-    @endsection
+@section('buttons')
+<a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Employee</a>
+@endsection
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-        <div class="col-4 form-group">
-            <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}"
-                placeholder="Name">
-        </div>
-        <div class="col-4 form-group">
-            <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}"
-                placeholder="Employee Id">
-        </div>
+    <div class="col-4 form-group">
+        <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}"
+            placeholder="Name">
+    </div>
+    <div class="col-4 form-group">
+        <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}"
+            placeholder="Employee Id">
+    </div>
     @endcomponent
 
     <div class="row row-sm">
@@ -96,9 +96,7 @@
                                                                 <a href="{{ url('employee/employee-lists/' . $employee->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                                 @endif
                                                                 @if ($privileges->edit)
-                                                                <a href="" data-short_name="" data-name="" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                                        class="fa fa-edit"></i>
-                                                                    EDIT</a>
+                                                                <a href="{{ url('employee/employee-lists/'.$employee->id .'/edit') }}"  class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                                 @endif
                                                                 @if ($privileges->delete)
                                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>

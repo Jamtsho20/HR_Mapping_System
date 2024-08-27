@@ -19,7 +19,7 @@
 <div class="row">
     <span class="col-sm-4 ">Policy Name <span class="text-danger">*</span> </span>
     <div class="col-sm-4">
-        <input type="text" id="txtPolicyname" autocomplete="off" placeholder="Policy name" class="form-control" >
+        <input type="text" id="txtPolicyname" autocomplete="off" placeholder="Policy name" class="form-control" required>
     </div>
 </div>
 

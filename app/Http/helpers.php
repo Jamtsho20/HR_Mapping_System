@@ -1,4 +1,6 @@
 <?php
+
+use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
  */

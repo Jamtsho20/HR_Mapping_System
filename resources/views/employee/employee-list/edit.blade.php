@@ -1,7 +1,6 @@
 @extends('layouts.app')
-@section('page-title', 'Employee List')
+@section('page-title', 'Edit Employee List')
 @section('content')
-
 <style>
     /* Initially hide all content panels */
     .content .body {
@@ -41,16 +40,6 @@
 </style>
 
 <div class="row">
-    @if ($errors->any())
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-        <strong class="font-bold">Whoops!</strong>
-        <ul class="mt-3 list-disc list-inside text-sm text-red-600">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
@@ -87,8 +76,10 @@
                     </div>
 
                     <div class="content clearfix">
-                        <form action="{{ route('employee-lists.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
+                        <form action="{{ route('employee-lists.update', $employee->id) }}" id="emp-form" method="post" enctype="multipart/form-data">
                             @csrf
+                            @method("PUT")
+                            <input type="hidden" name="type" value="2" />
                             <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                                 @include('employee.employee-list.forms.personal')
                             </div>
@@ -145,6 +136,7 @@
     $(document).ready(function() {
         function updateNavigationButtons() {
             var $currentTab = $('.steps .current');
+            var $prevTab = $currentTab.prev();
             var $nextTab = $currentTab.next();
 
             // Show or hide the Previous button based on the current tab
@@ -164,32 +156,8 @@
             }
         }
 
-        function validateCurrentForm() {
-            var isValid = true;
-
-            // Check all required fields in the current and previous tabs
-            $('.content .body:visible').each(function() {
-                $(this).find(':input[required]').each(function() {
-                    if (!$(this).val()) {
-                        isValid = false;
-                        $(this).addClass('is-invalid'); // Add a class to highlight the input
-                    } else {
-                        $(this).removeClass('is-invalid'); // Remove the class if the input is filled
-                    }
-                });
-            });
-
-            return isValid;
-        }
-
         $('#next-button').on('click', function(e) {
             e.preventDefault();
-
-            // Validate the current form before proceeding
-            if (!validateCurrentForm()) {
-                alert('Please fill all required fields.');
-                return;
-            }
 
             // Find the current tab and its content panel
             var $currentTab = $('.steps .current');
@@ -239,13 +207,9 @@
         });
 
         $('#submit-button').on('click', function(e) {
-            if (!validateCurrentForm()) {
-                e.preventDefault();
-                alert('Please fill all required fields.');
-            } else {
-                $('#emp-form').submit();
-            }
-        });
+            alert("Are you sure you want to submit?")
+            $('#emp-form').submit();
+        })
 
         // Initialize navigation buttons
         updateNavigationButtons();

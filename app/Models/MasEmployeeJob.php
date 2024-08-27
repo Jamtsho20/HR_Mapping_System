@@ -26,7 +26,7 @@ class MasEmployeeJob extends Model
         return $this->belongsTo(MasSection::class, 'mas_section_id');
     }
     public function designation() {
-        return $this->belongsTo(MasSection::class, 'mas_section_id');
+        return $this->belongsTo(MasDesignation::class, 'mas_designation_id');
     }
 
     public function grade() {
