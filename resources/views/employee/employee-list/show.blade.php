@@ -1,14 +1,17 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Employee Details')
 @section('buttons')
-<!-- @if ($canUpdate === 1)
-            <div class="card-footer">
-                <a href="{{ url('employee/employee-lists/' .$employee->id . '/edit') }}" class="btn btn-outline-primary btn-block btn-sm"><b><i class="fa fa-edit"></i> Edit Record</b></a>
-            </div>
-            @endif -->
 <a href="{{ url('employee/employee-lists/')}}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Employee List</a>
 @endsection
 @section('content')
+@if ($canUpdate === 1)
+<div class="d-flex flex-row-reverse">
+    <a href="{{ url('employee/employee-lists/' .$employee->id . '/edit') }}" class="col-sm-2 btn btn-outline-primary btn-block btn-sm "><b><i class="fa fa-edit"></i> Edit Record</b>
+    </a>
+</div>
+<br>
+
+@endif
 <div class="row">
     <!-- Personal Details -->
     <div class="col-md-12">

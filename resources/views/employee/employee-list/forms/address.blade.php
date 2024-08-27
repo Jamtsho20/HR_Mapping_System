@@ -72,7 +72,7 @@
                 </div>
                 <!-- Current Address Section -->
                 <div class="col-md-6 border">
-                    <h5 class="card-title"><label for=""><strong>Current Address</strong></label></h5>
+                    <h5 class="card-title"><label for=""><strong>Current Address</strong></label></h5>about:blank#blocked
                     <div class="form-group">
                         <label for="">Dzongkhag <span class="text-danger">*</span></label>
                         <select name="current_address[mas_dzongkhag_id]" id="" class="form-control form-control-sm" required>
@@ -108,6 +108,7 @@
                 </div>
             </div>
         </div>
+        
 
     </div>
 </div>

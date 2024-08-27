@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
+
 <style>
     /* Initially hide all content panels */
     .content .body {
@@ -19,23 +20,37 @@
 
     /* Scrollable tabs container */
     .steps {
-        overflow-x: auto; /* Enable horizontal scrolling */
-        white-space: nowrap; /* Prevent wrapping of tabs */
+        overflow-x: auto;
+        /* Enable horizontal scrolling */
+        white-space: nowrap;
+        /* Prevent wrapping of tabs */
     }
 
     .steps ul {
-        display: flex; /* Arrange tabs in a row */
+        display: flex;
+        /* Arrange tabs in a row */
         padding: 0;
         margin: 0;
         list-style: none;
     }
 
     .steps li {
-        display: inline-block; /* Keep tabs in a row */
+        display: inline-block;
+        /* Keep tabs in a row */
     }
 </style>
 
 <div class="row">
+    @if ($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+        <strong class="font-bold">Whoops!</strong>
+        <ul class="mt-3 list-disc list-inside text-sm text-red-600">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
@@ -77,19 +92,19 @@
                             <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                                 @include('employee.employee-list.forms.personal')
                             </div>
-    
+
                             <div id="wizard1-p-1" role="tabpanel" aria-labelledby="wizard1-h-1" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.address')
                             </div>
-                            
+
                             <div id="wizard1-p-2" role="tabpanel" aria-labelledby="wizard1-h-2" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.job')
                             </div>
-                            
+
                             <div id="wizard1-p-3" role="tabpanel" aria-labelledby="wizard1-h-3" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.qualification')
                             </div>
-    
+
                             <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.training')
                             </div>
@@ -111,10 +126,10 @@
                                         <a href="#" role="menuitem" id="next-button" class="btn btn-md btn-primary">Next</a>
                                     </li>
                                     {{-- <li aria-hidden="false" aria-disabled="false"> --}}
-                                        <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
+                                    <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
                                     {{-- </li> --}}
-                                    </ul>
-                                </div>
+                                </ul>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -130,7 +145,6 @@
     $(document).ready(function() {
         function updateNavigationButtons() {
             var $currentTab = $('.steps .current');
-            var $prevTab = $currentTab.prev();
             var $nextTab = $currentTab.next();
 
             // Show or hide the Previous button based on the current tab
@@ -150,8 +164,32 @@
             }
         }
 
+        function validateCurrentForm() {
+            var isValid = true;
+
+            // Check all required fields in the current and previous tabs
+            $('.content .body:visible').each(function() {
+                $(this).find(':input[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid'); // Add a class to highlight the input
+                    } else {
+                        $(this).removeClass('is-invalid'); // Remove the class if the input is filled
+                    }
+                });
+            });
+
+            return isValid;
+        }
+
         $('#next-button').on('click', function(e) {
             e.preventDefault();
+
+            // Validate the current form before proceeding
+            if (!validateCurrentForm()) {
+                alert('Please fill all required fields.');
+                return;
+            }
 
             // Find the current tab and its content panel
             var $currentTab = $('.steps .current');
@@ -169,7 +207,7 @@
                 // Update panels
                 $currentPanel.hide().attr('aria-hidden', 'true');
                 $nextPanel.show().attr('aria-hidden', 'false');
-                
+
                 // Update navigation buttons
                 updateNavigationButtons();
             }
@@ -194,15 +232,20 @@
                 // Update panels
                 $currentPanel.hide().attr('aria-hidden', 'true');
                 $prevPanel.show().attr('aria-hidden', 'false');
-                
+
                 // Update navigation buttons
                 updateNavigationButtons();
             }
         });
 
-        $('#submit-button').on('click', function(e) {alert("Are you sure you want to submit?")
-            $('#emp-form').submit();
-        })
+        $('#submit-button').on('click', function(e) {
+            if (!validateCurrentForm()) {
+                e.preventDefault();
+                alert('Please fill all required fields.');
+            } else {
+                $('#emp-form').submit();
+            }
+        });
 
         // Initialize navigation buttons
         updateNavigationButtons();
