@@ -129,8 +129,8 @@
                         <div class="col-sm-4 form-group">
                             <label>Grade<span class="text-danger">*</span> </label>
                             <select class="form-control select2 select2-hidden-accessible" data-placeholder="Choose Grade" multiple="" tabindex="-1" style="width: 100%" aria-hidden=" true" name="grade">
-                                @foreach($grades as $grade)
-                                <option value="{{$grade->id}}"> {{$grade->name}} </option>
+                                @foreach($gradeSteps as $step)
+                                <option value="{{$step->id}}"> {{$step->name}} </option>
                                 @endforeach
                             </select>
                         </div>

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\LeavePolicyPlan;
 use App\Models\LeavePolicyRule;
 use App\Models\LeavePolicyYearEndProcessing;
-use App\Models\MasGrade;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
