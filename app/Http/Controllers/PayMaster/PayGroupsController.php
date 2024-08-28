@@ -55,7 +55,7 @@ class PayGroupsController extends Controller
     
         DB::beginTransaction();
     
-        // try {
+        try {
             // Create a new pay group
             $payGroup = new MasPayGroup();
             $payGroup->name = $request->name;
@@ -69,11 +69,11 @@ class PayGroupsController extends Controller
             }
     
             DB::commit();
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     // Log the exception or handle as needed
-        //     return back()->with('msg_error', 'The pay group could not be created, please try again.');
-        // }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log the exception or handle as needed
+            return back()->with('msg_error', 'The pay group could not be created, please try again.');
+        }
     
         return redirect('paymaster/pay-groups')->with('msg_success', 'Pay Group created successfully');
     }
@@ -109,7 +109,7 @@ class PayGroupsController extends Controller
         $employeeGroups = MasEmployeeGroup::all();
         $grades = MasGrade::all();
         $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
-        
+        //dd($payGroupDetails);
 
         return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades'));
     }
