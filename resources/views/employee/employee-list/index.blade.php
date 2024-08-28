@@ -96,7 +96,7 @@
                                                                 <a href="{{ url('employee/employee-lists/' . $employee->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                                 @endif
                                                                 @if ($privileges->edit)
-                                                                <a href="{{ url('employee/employee-lists/'.$employee->id .'/edit') }}"  class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                <a href="{{ url('employee/employee-lists/'.$employee->id .'/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                                 @endif
                                                                 @if ($privileges->delete)
                                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
@@ -125,8 +125,7 @@
         </div>
     </div>
 </div>
-</div>
-</div>
+
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 

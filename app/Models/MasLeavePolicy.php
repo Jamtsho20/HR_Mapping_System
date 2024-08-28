@@ -2,10 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MasLeavePolicy extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
+
+    //realtions
+    public function leaveType(){
+        return $this->belongsTo(MasLeaveType::class, 'mas_leave_type_id');
+    }
+
+    //filters
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('code') && $request->query('code') != '') {
+            $query->where('code', 'LIKE', '%' . $request->query('code') . '%');
+        }
+    }
+    // accessors & mutators
 }

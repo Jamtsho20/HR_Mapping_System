@@ -16,4 +16,5 @@ class LeavePolicyPlan extends Model
     public function masLeavePolicy(){
         return $this->belongsTo(MasLeavePolicy::class);
     }
+
 }
