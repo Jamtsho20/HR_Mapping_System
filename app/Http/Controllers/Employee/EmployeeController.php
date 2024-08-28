@@ -450,10 +450,6 @@ class EmployeeController extends Controller
         }
     }
 
-
-
-
-
     private function saveExperiences($experiences, $employeeId, $request)
     {
         // Fetch all existing experiences for the employee, keyed by their IDs

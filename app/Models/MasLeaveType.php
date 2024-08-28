@@ -20,4 +20,5 @@ class MasLeaveType extends Model
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
+
 }
