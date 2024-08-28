@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasGrade;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use Illuminate\Http\Request;
@@ -32,7 +33,10 @@ class LeavePolicyController extends Controller
     public function create()
     {
         $leaves = MasLeaveType::get();
-        return view('leave.leave-policy.create', compact('leaves'));
+        $grades=MasGrade::get();
+
+   
+        return view('leave.leave-policy.create', compact('leaves',  'grades'));
     }
 
     /**
