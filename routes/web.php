@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
     // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
         Route::resource('leave-policy', 'LeavePolicyController')->except('show', 'edit');
-        Route::resource('leave-apply', 'LeaveController')->except('show', 'edit');
+        Route::resource('leave-apply', 'LeaveApplicationController')->except('show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');

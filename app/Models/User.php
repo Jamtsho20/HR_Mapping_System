@@ -46,10 +46,6 @@ class User extends Authenticatable
         'employee_id' => 'integer'
     ];
 
-    public function getStatusAttribute($value) {
-        return ucwords($value == 1 ? 'inactive':'active');
-    }
-
     /** Relationships */
     public function roles()
     {
@@ -104,6 +100,10 @@ class User extends Authenticatable
     }
 
     //accessors & mutators refeer this
+    public function getStatusAttribute($value) {
+        return ucwords($value == 1 ? 'inactive':'active');
+    }
+    
     public function getEmpIdNameAttribute(){
         return $this->username . ' - ' . $this->name;
     }
