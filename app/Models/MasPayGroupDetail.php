@@ -13,6 +13,8 @@ class  MasPayGroupDetail extends Model
     protected $fillable = [
         'mas_pay_group_id',
         'mas_grade_id',
+        'mas_employee_group_id', 
+        'mas_grade_id',
         'calculation_method',
         'amount'
     ];

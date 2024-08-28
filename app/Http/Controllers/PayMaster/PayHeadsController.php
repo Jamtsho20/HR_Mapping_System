@@ -46,24 +46,24 @@ class PayHeadsController extends Controller
         return view('paymaster.pay-heads.create', compact('accountHeads', 'paySlabs', 'payGroups'));
     }
     public function store(Request $request)
-{
-    $validatedData = $request->validate([
-        'payhead_type' => 'required',
-        'account_head_id' => 'required',
-        'name' => 'required|max:150',
-        'code' => 'required|max:50',
-        'calculation_method' => 'required',
-        'calculated_on' => 'nullable',
-        'pay_slab_id' => 'nullable',
-        'pay_group_id' => 'nullable',
-        'amount' => 'nullable|numeric',
-        'formula' => 'nullable|string',
-    ]);
+    {
+        $validatedData = $request->validate([
+            'payhead_type' => 'required',
+            'account_head_id' => 'required',
+            'name' => 'required|max:150',
+            'code' => 'required|max:50',
+            'calculation_method' => 'required',
+            'calculated_on' => 'nullable',
+            'pay_slab_id' => 'nullable',
+            'pay_group_id' => 'nullable',
+            'amount' => 'nullable|numeric',
+            'formula' => 'nullable|string',
+        ]);
 
-    MasPayHead::create($validatedData);
+        MasPayHead::create($validatedData);
 
-    return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
-}
+        return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
+    }
 
 
     public function show(string $id)
@@ -76,42 +76,31 @@ class PayHeadsController extends Controller
     public function edit(string $id)
     {
         $payHead = MasPayHead::findOrFail($id);
-        return view('paymaster.pay-heads.edit', compact('payHead'));
+        $accountHeads = MasAccAccountHead::all();
+        $paySlabs = MasPaySlab::all();
+        $payGroups = MasPayGroup::all();
+        return view('paymaster.pay-heads.edit', compact('payHead','payGroups','accountHeads','paySlabs'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-
-        // Validate the incoming request data
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'code' => 'required|string|max:50',
-            'payhead_type' => 'required|integer|in:1,2',
-            'account_head_id' => 'required|integer|in:1,2',
-            'calculation_method' => 'required|integer|in:1,2,3,4,5,6,7',
-            'calculated_on' => 'required|integer|in:1,2,3,4,5,6,7',
-            'formula' => 'nullable|string',
-            'amount' => 'required_if:calculation_method,1,2,5|numeric',
-        ]);
-
-        // Find the existing PayHead by ID
         $payHead = MasPayHead::findOrFail($id);
 
-        // Update the PayHead properties with the request data
-        $payHead->name = $request->name;
-        $payHead->code = $request->code;
-        $payHead->payhead_type = $request->payhead_type;
-        $payHead->account_head_id = $request->account_head_id;
-        $payHead->calculation_method = $request->calculation_method;
-        $payHead->calculated_on = $request->calculated_on;
-        $payHead->formula = $request->formula;
-        $payHead->amount = $request->amount;
-        $payHead->edited_by = auth()->user()->id;
+        $validatedData = $request->validate([
+            'payhead_type' => 'required',
+            'account_head_id' => 'required',
+            'name' => 'required|max:150',
+            'code' => 'required|max:50',
+            'calculation_method' => 'required',
+            'calculated_on' => 'nullable',
+            'pay_slab_id' => 'nullable',
+            'pay_group_id' => 'nullable',
+            'amount' => 'nullable|numeric',
+            'formula' => 'nullable|string',
+        ]);
 
-        // Save the updated model instance to the database
-        $payHead->save();
+        $payHead->update($validatedData);
 
-        // Redirect to the pay heads listing page with a success message
         return redirect('paymaster/pay-heads')->with('msg_success', 'Pay head updated successfully');
     }
 

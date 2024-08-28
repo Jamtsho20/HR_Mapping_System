@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 class MasPayGroup extends Model
 {
     use HasFactory, CreatedByTrait;
+    protected $fillable = ['name', 'applicable_on', 'created_by'];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
