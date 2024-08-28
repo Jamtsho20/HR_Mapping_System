@@ -22,7 +22,8 @@ class MasGradeSeeder extends Seeder
             ("T2", 1),
             ("S", 1),
             ("P", 1),
-            ("T", 1);
+            ("T", 1),
+            ("GSSG", 1);
         ');
     }
 }

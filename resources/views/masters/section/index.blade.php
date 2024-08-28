@@ -1,36 +1,22 @@
 @extends('layouts.app')
-@section('page-title', 'Section')
-
+@section('page-title', 'Department')
 @if ($privileges->create)
-@section('buttons')
-<a href="{{ route('section.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Section</a>
-@endsection
+    @section('buttons')
+        <a href="{{ route('section.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Section</a>
+    @endsection
 @endif
-
 @section('content')
+
 <div class="row">
     <div class="col-md-12">
         <div class="block">
-            <div class="block-header block-header-default">
+            <div class="card-block-header block-header-default ">
                 @component('layouts.includes.filter')
-                <div class="form-group ">
-                    <div class="row">
-                        <div class="col-4">
-                            <select id="department" class="form-control" name="department">
-                                <option value="" disabled selected hidden>Select Department</option>
-                                @foreach ($departments as $department)
-                                <option @if ($department->id == request()->get('department')) selected @endif value="{{ $department->id }}">
-                                    {{ $department->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" name="section" class="form-control" value="{{ request()->get('section') }}" placeholder="Section">
-                        </div>
-                    </div>
+                <div class="col-8 form-group">
+                    <input type="text" name="section" class="form-control" value="{{ request()->get('section') }}" placeholder="Section">
                 </div>
                 @endcomponent
+
             </div>
             <br>
             <div class="row row-sm">
@@ -68,20 +54,27 @@
                                         </tr>
                                         @endforelse
                                     </tbody>
+
                                 </table>
                             </div>
                         </div>
                         @if ($sections->hasPages())
                         <div class="card-footer">
-                            {{ $sections->links() }}  
+                            {{ $sections->links() }}
                         </div>
                         @endif
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <!--End Row-->
 </div>
 @include('layouts.includes.delete-modal')
 @endsection
+@push('page_scripts')
+
+
+
+@endpush
