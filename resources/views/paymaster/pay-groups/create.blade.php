@@ -40,10 +40,10 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th class="text-center">#</th>
-                                                                    <th>Employee Category<span class="text-danger">*</span> </th>
-                                                                    <th>Grade<span class="text-danger">*</span> </th>
-                                                                    <th>Calculation Method<span class="text-danger">*</span> </th>
-                                                                    <th>Amount<span class="text-danger">*</span> </th>
+                                                                    <th id="employee_category_header" class="d-none">Employee Category<span class="text-danger">*</span></th>
+                                                                    <th id="grade_header" class="d-none">Grade<span class="text-danger">*</span></th>
+                                                                    <th>Calculation Method<span class="text-danger">*</span></th>
+                                                                    <th>Amount<span class="text-danger">*</span></th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -51,11 +51,25 @@
                                                                     <td class="text-center">
                                                                         <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                                                     </td>
-                                                                    <td>
-                                                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][employee_category]" value="{{ old('employee_category') }}" placeholder="Employee Category" required>
+                                                                    <td id="employee_category_cell" class="d-none">
+                                                                        <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][mas_employee_group_id]" >
+                                                                            <option value="" disabled selected>Select Employee Category</option>
+                                                                            @foreach ($employeeGroups as $employeeGroup)
+                                                                            <option value="{{ $employeeGroup->id }}" {{ old('details.AAAAA.mas_employee_group_id') == $employeeGroup->id ? 'selected' : '' }}>
+                                                                                {{ $employeeGroup->name }}
+                                                                            </option>
+                                                                            @endforeach
+                                                                        </select>
                                                                     </td>
-                                                                    <td>
-                                                                        <input type="text" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][grade]" value="{{ old('grade') }}" placeholder="Grade" required>
+                                                                    <td id="grade_cell" class="d-none">
+                                                                        <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][mas_grade_id]" >
+                                                                            <option value="" disabled selected>Select Grade</option>
+                                                                            @foreach ($grades as $grade)
+                                                                            <option value="{{ $grade->id }}" {{ old('details.AAAAA.mas_grade_id') == $grade->id ? 'selected' : '' }}>
+                                                                                {{ $grade->name }}
+                                                                            </option>
+                                                                            @endforeach
+                                                                        </select>
                                                                     </td>
                                                                     <td>
                                                                         <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][calculation_method]">
@@ -97,6 +111,38 @@
 </form>
 
 @include('layouts.includes.delete-modal')
+
 @endsection
+
 @push('page_scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const applicableOnSelect = document.getElementById('applicable_on');
+        const employeeCategoryHeader = document.getElementById('employee_category_header');
+        const gradeHeader = document.getElementById('grade_header');
+        const employeeCategoryCell = document.getElementById('employee_category_cell');
+        const gradeCell = document.getElementById('grade_cell');
+
+        applicableOnSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+
+            if (selectedValue == '1') { // Employee Category
+                employeeCategoryHeader.classList.remove('d-none');
+                gradeHeader.classList.add('d-none');
+                employeeCategoryCell.classList.remove('d-none');
+                gradeCell.classList.add('d-none');
+            } else if (selectedValue == '2') { // Grade
+                employeeCategoryHeader.classList.add('d-none');
+                gradeHeader.classList.remove('d-none');
+                employeeCategoryCell.classList.add('d-none');
+                gradeCell.classList.remove('d-none');
+            } else {
+                employeeCategoryHeader.classList.add('d-none');
+                gradeHeader.classList.add('d-none');
+                employeeCategoryCell.classList.add('d-none');
+                gradeCell.classList.add('d-none');
+            }
+        });
+    });
+</script>
 @endpush

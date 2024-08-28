@@ -26,8 +26,8 @@ class PayGroupsController extends Controller
     protected $rules = [
         'name' => 'required|string|max:150',
         'applicable_on' => 'required',
-        'mas_pay_group_details.*.employee_category' => 'required',
-        'mas_pay_group_details.*.grade' => 'required',
+        'mas_pay_group_details.*.mas_employee_group_id' => 'required',
+        'mas_pay_group_details.*.mas_grade_id' => 'required',
         'mas_pay_group_details.*.calculation_method' => 'required',
         'mas_pay_group_details.*.amount' => 'required'
     ];
@@ -43,35 +43,59 @@ class PayGroupsController extends Controller
      */
     public function create()
     {
-        return view('paymaster.pay-groups.create');
+        $employeeGroups = MasEmployeeGroup::all();
+        $grades = MasGrade::all();
+        return view('paymaster.pay-groups.create',compact('employeeGroups','grades'));
     }
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $this->validate($request, $this->rules);
+    
         DB::beginTransaction();
-
+    
         try {
+            // Create a new pay group
             $payGroup = new MasPayGroup();
             $payGroup->name = $request->name;
             $payGroup->applicable_on = $request->applicable_on;
             $payGroup->created_by = auth()->user()->id;
             $payGroup->save();
-
+    
             // Save associated pay group details
-            if (isset($request->details)) {
+            if ($request->has('details')) {
                 $this->savePayGroupDetail($request->details, $payGroup->id);
             }
-
+    
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            // Log the exception or handle as needed
             return back()->with('msg_error', 'The pay group could not be created, please try again.');
         }
-
+    
         return redirect('paymaster/pay-groups')->with('msg_success', 'Pay Group created successfully');
     }
-
+    
+    private function savePayGroupDetail($details, $payGroupId)
+    {
+        $payGroupDetails = [];
+    
+        foreach ($details as $key => $value) {
+            $payGroupDetails[] = [
+                'mas_pay_group_id' => $payGroupId,
+                'mas_employee_group_id' => $value['mas_employee_group_id'] ?? null,
+                'mas_grade_id' => $value['mas_grade_id'] ?? null,
+                'calculation_method' => $value['calculation_method'],
+                'amount' => $value['amount'],
+                'created_by' => auth()->user()->id, 
+            ];
+        }
+    
+        MasPayGroupDetail::insert($payGroupDetails);
+    }
+    
 
     public function show(string $id)
     {
@@ -85,39 +109,41 @@ class PayGroupsController extends Controller
         $employeeGroups = MasEmployeeGroup::all();
         $grades = MasGrade::all();
         $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
+        //dd($payGroupDetails);
 
         return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades'));
     }
 
 
     public function update(Request $request, string $id)
-    {
-        $this->validate($request, $this->rules);
+{
+    $this->validate($request, $this->rules);
 
-        $payGroup = MasPayGroup::findOrFail($id);
-        $payGroup->name = $request->name;
-        $payGroup->applicable_on = $request->applicable_on;
-        $payGroup->edited_by = auth()->user()->id;
-        $payGroup->save();
+    $payGroup = MasPayGroup::findOrFail($id);
+    $payGroup->name = $request->name;
+    $payGroup->applicable_on = $request->applicable_on;
+    $payGroup->edited_by = auth()->user()->id;
+    $payGroup->save();
 
-        // Handle the update of dynamic fields based on pay group name
-        if ($request->has('details')) {
-            foreach ($request->details as $detail) {
-                $payGroupDetail = MasPayGroupDetail::findOrFail($detail['id']);
-                if (isset($detail['employee_category'])) {
-                    $payGroupDetail->employee_category = $detail['employee_category'];
-                }
-                if (isset($detail['grade'])) {
-                    $payGroupDetail->grade = $detail['grade'];
-                }
-                $payGroupDetail->calculation_method = $detail['calculation_method'];
-                $payGroupDetail->amount = $detail['amount'];
-                $payGroupDetail->save();
+    if ($request->has('details')) {
+        foreach ($request->details as $detail) {
+            $payGroupDetail = MasPayGroupDetail::findOrFail($detail['id']);
+            if (isset($detail['mas_employee_group_id'])) {
+                $payGroupDetail->mas_employee_group_id = $detail['mas_employee_group_id'];
             }
+            if (isset($detail['mas_grade_id'])) {
+                $payGroupDetail->mas_grade_id = $detail['mas_grade_id'];
+            }
+            $payGroupDetail->calculation_method = $detail['calculation_method'];
+            $payGroupDetail->amount = $detail['amount'];
+            $payGroupDetail->edited_by = auth()->user()->id;  // Add this line if applicable
+            $payGroupDetail->save();
         }
-
-        return redirect('paymaster/pay-groups')->with('msg_success', 'Pay group updated successfully');
     }
+
+    return redirect('paymaster/pay-groups')->with('msg_success', 'Pay group updated successfully');
+}
+
 
 
     public function destroy(string $id)
@@ -134,20 +160,20 @@ class PayGroupsController extends Controller
         }
     }
 
-    private function savePayGroupDetail($details, $payGroupId)
-    {
-        $payGroupDetails = [];
+    // private function savePayGroupDetail($details, $payGroupId)
+    // {
+    //     $payGroupDetails = [];
 
-        foreach ($details as $key => $value) {
-            $payGroupDetails[] = [
-                'mas_pay_group_id' => $payGroupId,
-                'employee_category' => $value['employee_category'] ?? null,
-                'grade' => $value['grade'] ?? null,
-                'calculation_method' => $value['calculation_method'],
-                'amount' => $value['amount'],
-            ];
-        }
+    //     foreach ($details as $key => $value) {
+    //         $payGroupDetails[] = [
+    //             'mas_pay_group_id' => $payGroupId,
+    //             'employee_category' => $value['employee_category'] ?? null,
+    //             'grade' => $value['grade'] ?? null,
+    //             'calculation_method' => $value['calculation_method'],
+    //             'amount' => $value['amount'],
+    //         ];
+    //     }
 
-        MasPayGroup::findOrFail($payGroupId)->payGroupDetails()->createMany($payGroupDetails);
-    }
+    //     MasPayGroup::findOrFail($payGroupId)->payGroupDetails()->createMany($payGroupDetails);
+    // }
 }

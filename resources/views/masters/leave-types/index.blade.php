@@ -61,7 +61,7 @@
                                                                     data-applicable_to="{{ $type->applicable_to }}"
                                                                     data-max_days="{{$type->max_days}}"
                                                                     data-remarks="{{ $type->remarks }}"
-                                                                    class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
+                                                                    class=" btn btn-sm btn-rounded btn-outline-success"><i
                                                                         class="fa fa-edit"></i>
                                                                     EDIT</a>
                                                             @endif

@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="form-group" id="pay_slab_wrapper" style="display: none;">
                         <label for="mas_pay_slab_id">Pay Slab</label>
                         <select name="mas_pay_slab_id" id="mas_pay_slab_id" class="form-control">
@@ -117,6 +117,7 @@
         </div>
     </div>
 </form>
+
 <div class="row mt-4">
     <div class="col-md-6">
         <div class="card">
@@ -193,6 +194,7 @@
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const calculationMethodSelect = document.getElementById('calculation_method');
