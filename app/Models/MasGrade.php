@@ -25,7 +25,7 @@ class MasGrade extends Model
     }
     public function payGroupDetails()
     {
-    return $this->hasMany(MasPayGroupDetail::class, 'mas_grade_id');
+        return $this->hasMany(MasPayGroupDetail::class, 'mas_grade_id');
     }
 
 }

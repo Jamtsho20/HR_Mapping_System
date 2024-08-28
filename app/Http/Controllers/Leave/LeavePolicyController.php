@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\LeavePolicyPlan;
 use App\Models\LeavePolicyRule;
 use App\Models\LeavePolicyYearEndProcessing;
+use App\Models\MasGrade;
+use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use Illuminate\Http\Request;
@@ -57,7 +59,9 @@ class LeavePolicyController extends Controller
     public function create()
     {
         $leaves = MasLeaveType::get();
-        return view('leave.leave-policy.create', compact('leaves'));
+        $gradeSteps=MasGradeStep::get(['id', 'name']);
+
+        return view('leave.leave-policy.create', compact('leaves',  'gradeSteps'));
     }
 
     /**

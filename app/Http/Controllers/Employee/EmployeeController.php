@@ -497,6 +497,46 @@ class EmployeeController extends Controller
                 ->delete();
         }
     }
+    // private function saveExperiences($experiences, $employeeId, $request)
+    // {
+    //     $dataToUpsert = [];
+    //     $experienceIdsInRequest = [];
+
+    //     foreach ($experiences as $value) {
+    //         $experienceId = $value['id'] ?? null;
+
+    //         $dataToUpsert[] = [
+    //             'id' => $experienceId,
+    //             'mas_employee_id' => $employeeId,
+    //             'organization' => $value['organization'],
+    //             'place' => $value['place'],
+    //             'designation' => $value['designation'],
+    //             'start_date' => $value['start_date'],
+    //             'end_date' => $value['end_date'],
+    //             'description' => $value['description'],
+              
+    //         ];
+
+    //         if ($experienceId) {
+    //             $experienceIdsInRequest[] = $experienceId;
+    //         }
+    //     }
+
+    //     // Perform upsert
+    //     MasEmployeeExperience::upsert(
+    //         $dataToUpsert,
+    //         ['id'], // Unique constraint
+    //         ['organization', 'place', 'designation', 'start_date', 'end_date', 'description']
+    //     );
+
+    //     if ($request->isMethod('put') || $request->isMethod('patch')) {
+    //         // Delete any experiences that are not in the current request
+    //         MasEmployeeExperience::where('mas_employee_id', $employeeId)
+    //             ->whereNotIn('id', $experienceIdsInRequest)
+    //             ->delete();
+    //     }
+    // }
+
 
 
     private function saveDocuments($doc, $employeeId, $request)

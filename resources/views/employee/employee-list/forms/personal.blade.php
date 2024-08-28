@@ -41,7 +41,7 @@
 
                 <div class="form-group col-md-4">
                     <label for="cid_no">CID Number<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="personal[cid_no]" value="{{old('personal.cid_no', isset($employee) ? $employee->cid_no : '') }}" required>
+                    <input type="text" class="form-control form-control-sm" name="personal[cid_no]" value="{{old('personal.cid_no', isset($employee) ? $employee->cid_no : '') }}" required maxlength="11">
                 </div>
                 <div class="form-group col-md-4">
                     <label for="employee_id">Employee ID</label>
@@ -93,7 +93,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">(+975)</span>
                         </div>
-                        <input type="number" class="form-control form-control-sm" name="personal[contact_number]" value="{{ old('personal.contact_number', isset($employee) ? $employee->contact_number : '')}}">
+                        <input type="number" class="form-control form-control-sm" name="personal[contact_number]" value="{{ old('personal.contact_number', isset($employee) ? $employee->contact_number : '')}}" maxlength="8">
                     </div>
                 </div>
                 <div class="form-group col-md-4">

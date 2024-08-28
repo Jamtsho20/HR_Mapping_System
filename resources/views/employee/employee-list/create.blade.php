@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
+
 <style>
     /* Initially hide all content panels */
     .content .body {
@@ -19,23 +20,28 @@
 
     /* Scrollable tabs container */
     .steps {
-        overflow-x: auto; /* Enable horizontal scrolling */
-        white-space: nowrap; /* Prevent wrapping of tabs */
+        overflow-x: auto;
+        /* Enable horizontal scrolling */
+        white-space: nowrap;
+        /* Prevent wrapping of tabs */
     }
 
     .steps ul {
-        display: flex; /* Arrange tabs in a row */
+        display: flex;
+        /* Arrange tabs in a row */
         padding: 0;
         margin: 0;
         list-style: none;
     }
 
     .steps li {
-        display: inline-block; /* Keep tabs in a row */
+        display: inline-block;
+        /* Keep tabs in a row */
     }
 </style>
 
 <div class="row">
+
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
@@ -77,19 +83,19 @@
                             <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                                 @include('employee.employee-list.forms.personal')
                             </div>
-    
+
                             <div id="wizard1-p-1" role="tabpanel" aria-labelledby="wizard1-h-1" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.address')
                             </div>
-                            
+
                             <div id="wizard1-p-2" role="tabpanel" aria-labelledby="wizard1-h-2" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.job')
                             </div>
-                            
+
                             <div id="wizard1-p-3" role="tabpanel" aria-labelledby="wizard1-h-3" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.qualification')
                             </div>
-    
+
                             <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.training')
                             </div>
@@ -111,10 +117,10 @@
                                         <a href="#" role="menuitem" id="next-button" class="btn btn-md btn-primary">Next</a>
                                     </li>
                                     {{-- <li aria-hidden="false" aria-disabled="false"> --}}
-                                        <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
+                                    <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
                                     {{-- </li> --}}
-                                    </ul>
-                                </div>
+                                </ul>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -127,85 +133,6 @@
 @endsection
 @push('page_scripts')
 <script>
-    $(document).ready(function() {
-        function updateNavigationButtons() {
-            var $currentTab = $('.steps .current');
-            var $prevTab = $currentTab.prev();
-            var $nextTab = $currentTab.next();
-
-            // Show or hide the Previous button based on the current tab
-            if ($currentTab.hasClass('first')) {
-                $('#previous-button').hide();
-            } else {
-                $('#previous-button').show();
-            }
-
-            // Show or hide the Next button based on whether there's a next tab
-            if ($nextTab.length) {
-                $('#next-button').show();
-                $('#submit-button').hide();
-            } else {
-                $('#next-button').hide();
-                $('#submit-button').show();
-            }
-        }
-
-        $('#next-button').on('click', function(e) {
-            e.preventDefault();
-
-            // Find the current tab and its content panel
-            var $currentTab = $('.steps .current');
-            var $currentPanel = $('#' + $currentTab.find('a').attr('aria-controls'));
-
-            // Find the next tab and its content panel
-            var $nextTab = $currentTab.next();
-            if ($nextTab.length) {
-                var $nextPanel = $('#' + $nextTab.find('a').attr('aria-controls'));
-
-                // Update tabs
-                $currentTab.removeClass('current').attr('aria-selected', 'false').addClass('disabled').attr('aria-disabled', 'true');
-                $nextTab.addClass('current').attr('aria-selected', 'true').removeClass('disabled').attr('aria-disabled', 'false');
-
-                // Update panels
-                $currentPanel.hide().attr('aria-hidden', 'true');
-                $nextPanel.show().attr('aria-hidden', 'false');
-                
-                // Update navigation buttons
-                updateNavigationButtons();
-            }
-        });
-
-        $('#previous-button').on('click', function(e) {
-            e.preventDefault();
-
-            // Find the current tab and its content panel
-            var $currentTab = $('.steps .current');
-            var $currentPanel = $('#' + $currentTab.find('a').attr('aria-controls'));
-
-            // Find the previous tab and its content panel
-            var $prevTab = $currentTab.prev();
-            if ($prevTab.length) {
-                var $prevPanel = $('#' + $prevTab.find('a').attr('aria-controls'));
-
-                // Update tabs
-                $currentTab.removeClass('current').attr('aria-selected', 'false').addClass('disabled').attr('aria-disabled', 'true');
-                $prevTab.addClass('current').attr('aria-selected', 'true').removeClass('disabled').attr('aria-disabled', 'false');
-
-                // Update panels
-                $currentPanel.hide().attr('aria-hidden', 'true');
-                $prevPanel.show().attr('aria-hidden', 'false');
-                
-                // Update navigation buttons
-                updateNavigationButtons();
-            }
-        });
-
-        $('#submit-button').on('click', function(e) {alert("Are you sure you want to submit?")
-            $('#emp-form').submit();
-        })
-
-        // Initialize navigation buttons
-        updateNavigationButtons();
-    });
+   
 </script>
 @endpush

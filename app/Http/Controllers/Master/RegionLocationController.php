@@ -15,10 +15,13 @@ class RegionLocationController extends Controller
         'mas_region_id' => 'required|exists:mas_regions,id', // Region ID must be a valid ID
         'name' => 'required', // Ensure the region name is provided
         'mas_dzongkhag_id' => 'required|exists:mas_dzongkhags,id', // Dzongkhag must be a valid ID
+        'status.is_active' => 'required|boolean',
     ];
     
     protected $messages = [
-        'mas_dzongkhag_id.required' => 'The Dzongkhag field is required.'
+        'mas_dzongkhag_id.required' => 'The Dzongkhag field is required.',
+        'status.is_active.required' => 'The status is required.',
+        'status.is_active.boolean' => 'The status must be a valid boolean value.',
     ];
 
     public function index(Request $request)
@@ -47,11 +50,12 @@ class RegionLocationController extends Controller
             'mas_region_id' => $request->mas_region_id,
             'name' => $request->name,
             'mas_dzongkhag_id' => $request->mas_dzongkhag_id, // Correctly map to the foreign key
+            'status' => $request->input('status.is_active', 0),
+            //'status' => $request->has('status.is_active') ? 1 : 0,
         ]);
 
         return redirect()->back()->with('msg_success', 'Region location created successfully.');
     }
-
 
     public function show(string $id)
     {
@@ -70,6 +74,10 @@ class RegionLocationController extends Controller
         $regionLocation = MasRegionLocation::findOrFail($id);
         $regionLocation->name = $request->name;
         $regionLocation->mas_dzongkhag_id = $request->mas_dzongkhag_id;
+        $regionLocation->status = $request->input('status.is_active'); 
+        //$regionLocation->status = $request->has('status.is_active') ? 1 : 0;
+
+        $regionLocation->save();
         
         return redirect()->back()->with('msg_success', 'Region location updated successfully');
     }

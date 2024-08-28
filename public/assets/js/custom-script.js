@@ -225,3 +225,113 @@ $('.add-btn').click(function(e) {
 $(document).ready(function() {
     hrms.Initialize();
 });
+
+//form validation and button for tabs
+$(document).ready(function () {
+    function updateNavigationButtons() {
+        var $currentTab = $('.steps .current');
+        var $nextTab = $currentTab.next();
+
+        // Show or hide the Previous button based on the current tab
+        if ($currentTab.hasClass('first')) {
+            $('#previous-button').hide();
+        } else {
+            $('#previous-button').show();
+        }
+
+        // Show or hide the Next button based on whether there's a next tab
+        if ($nextTab.length) {
+            $('#next-button').show();
+            $('#submit-button').hide();
+        } else {
+            $('#next-button').hide();
+            $('#submit-button').show();
+        }
+    }
+
+    function validateCurrentForm() {
+        var isValid = true;
+
+        // Check all required fields in the current and previous tabs
+        $('.content .body:visible').each(function () {
+            $(this).find(':input[required]').each(function () {
+                if (!$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid'); // Add a class to highlight the input
+                } else {
+                    $(this).removeClass('is-invalid'); // Remove the class if the input is filled
+                }
+            });
+        });
+
+        return isValid;
+    }
+
+    $('#next-button').on('click', function (e) {
+        e.preventDefault();
+
+        // Validate the current form before proceeding
+        if (!validateCurrentForm()) {
+            alert('Please fill all required fields.');
+            return;
+        }
+
+        // Find the current tab and its content panel
+        var $currentTab = $('.steps .current');
+        var $currentPanel = $('#' + $currentTab.find('a').attr('aria-controls'));
+
+        // Find the next tab and its content panel
+        var $nextTab = $currentTab.next();
+        if ($nextTab.length) {
+            var $nextPanel = $('#' + $nextTab.find('a').attr('aria-controls'));
+
+            // Update tabs
+            $currentTab.removeClass('current').attr('aria-selected', 'false').addClass('disabled').attr('aria-disabled', 'true');
+            $nextTab.addClass('current').attr('aria-selected', 'true').removeClass('disabled').attr('aria-disabled', 'false');
+
+            // Update panels
+            $currentPanel.hide().attr('aria-hidden', 'true');
+            $nextPanel.show().attr('aria-hidden', 'false');
+
+            // Update navigation buttons
+            updateNavigationButtons();
+        }
+    });
+
+    $('#previous-button').on('click', function (e) {
+        e.preventDefault();
+
+        // Find the current tab and its content panel
+        var $currentTab = $('.steps .current');
+        var $currentPanel = $('#' + $currentTab.find('a').attr('aria-controls'));
+
+        // Find the previous tab and its content panel
+        var $prevTab = $currentTab.prev();
+        if ($prevTab.length) {
+            var $prevPanel = $('#' + $prevTab.find('a').attr('aria-controls'));
+
+            // Update tabs
+            $currentTab.removeClass('current').attr('aria-selected', 'false').addClass('disabled').attr('aria-disabled', 'true');
+            $prevTab.addClass('current').attr('aria-selected', 'true').removeClass('disabled').attr('aria-disabled', 'false');
+
+            // Update panels
+            $currentPanel.hide().attr('aria-hidden', 'true');
+            $prevPanel.show().attr('aria-hidden', 'false');
+
+            // Update navigation buttons
+            updateNavigationButtons();
+        }
+    });
+
+    $('#submit-button').on('click', function (e) {
+        if (!validateCurrentForm()) {
+            e.preventDefault();
+            alert('Please fill all required fields.');
+        } else {
+            $('#emp-form').submit();
+        }
+    });
+
+    // Initialize navigation buttons
+    updateNavigationButtons();
+});

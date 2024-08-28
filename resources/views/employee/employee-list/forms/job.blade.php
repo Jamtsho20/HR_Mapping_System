@@ -128,9 +128,8 @@
             </div> --}}
             <div class="form-group col-md-4">
                 <label for="immediate_supervisor">Immediate Supervisor</label>
-                <select name="job[immediate_supervisor]" class="form-control form-control-sm" required>
+                <select name="job[immediate_supervisor]" class="form-control form-control-sm">
                     <option value="" disabled selected hidden>Select your option</option>
-
                 </select>
             </div>
             <div class="form-group col-md-4">

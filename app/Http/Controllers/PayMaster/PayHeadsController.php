@@ -27,7 +27,7 @@ class PayHeadsController extends Controller
         $payHeads = MasPayHead::with('accountHead') // Ensure that you have defined the relationship in your model
             ->filter($request)
             ->orderBy('name')
-            ->paginate(30);
+            ->paginate(10);
 
         return view('paymaster.pay-heads.index', compact('payHeads', 'privileges'));
     }
@@ -46,54 +46,24 @@ class PayHeadsController extends Controller
         return view('paymaster.pay-heads.create', compact('accountHeads', 'paySlabs', 'payGroups'));
     }
     public function store(Request $request)
-    {
-        // Basic validation rules
-        $rules = [
-            'payhead_type' => 'required|integer',
-            'name' => 'required|string|max:255',
-            'account_head_id' => 'required|integer',
-            'code' => 'required|string|max:255',
-            'calculation_method' => 'required|integer',
-        ];
+{
+    $validatedData = $request->validate([
+        'payhead_type' => 'required',
+        'account_head_id' => 'required',
+        'name' => 'required|max:150',
+        'code' => 'required|max:50',
+        'calculation_method' => 'required',
+        'calculated_on' => 'nullable',
+        'pay_slab_id' => 'nullable',
+        'pay_group_id' => 'nullable',
+        'amount' => 'nullable|numeric',
+        'formula' => 'nullable|string',
+    ]);
 
-        // Additional rules based on calculation method
-        switch ($request->input('calculation_method')) {
-            case 1: // Actual Amount
-            case 2: // Division Method
-            case 5: // Percentage Method
-                $rules['amount'] = 'required|numeric';
-                break;
-            case 3: // Pay Slab Method
-                $rules['mas_pay_slab_id'] = 'required|integer';
-                break;
-            case 4: // Pay Group Method
-                $rules['mas_pay_group_id'] = 'required|integer';
-                break;
-            case 6: // By Formula Method
-                $rules['formula'] = 'required|string';
-                break;
-            case 7: // Employment Wise Method
-                // Add specific rules if needed
-                break;
-        }
+    MasPayHead::create($validatedData);
 
-        // Conditionally add rules for 'calculated_on'
-        if (in_array($request->input('calculation_method'), [3, 4, 5])) {
-            $rules['calculated_on'] = 'required';
-        } else {
-            $rules['calculated_on'] = 'nullable';
-        }
-
-        // Validate the request data
-        $validatedData = $request->validate($rules);
-
-        // Store the data in the database
-        $payHead = new MasPayHead();
-        $payHead->fill($validatedData); // Ensure fillable attributes are set in the model
-        $payHead->save();
-
-        return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
-    }
+    return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
+}
 
 
     public function show(string $id)
@@ -121,6 +91,7 @@ class PayHeadsController extends Controller
             'calculation_method' => 'required|integer|in:1,2,3,4,5,6,7',
             'calculated_on' => 'required|integer|in:1,2,3,4,5,6,7',
             'formula' => 'nullable|string',
+            'amount' => 'required_if:calculation_method,1,2,5|numeric',
         ]);
 
         // Find the existing PayHead by ID
@@ -134,6 +105,7 @@ class PayHeadsController extends Controller
         $payHead->calculation_method = $request->calculation_method;
         $payHead->calculated_on = $request->calculated_on;
         $payHead->formula = $request->formula;
+        $payHead->amount = $request->amount;
         $payHead->edited_by = auth()->user()->id;
 
         // Save the updated model instance to the database

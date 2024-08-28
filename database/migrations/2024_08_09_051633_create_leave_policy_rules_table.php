@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('leave_policy_rules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('leave_policy_plan_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('mas_grade_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_grade_step_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->unsignedTinyInteger('uom')->comment('1 => day, 2 => month, 3 => year; unit of measurement(uom)');
             $table->unsignedInteger('duration');
             $table->date('start_date');
@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->comment('for each grade_id store entries independently');
+            $table->comment('for each grade_step_id store entries independently');
         });
     }
 

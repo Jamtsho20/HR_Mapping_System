@@ -15,6 +15,7 @@ class MasRegionLocation extends Model
         'mas_region_id',
         'name',
         'mas_dzongkhag_id',
+        'status',
     ];
     public function region()
     {
