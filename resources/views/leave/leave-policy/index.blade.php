@@ -47,24 +47,47 @@
                                                                 #
                                                             </th>
                                                             <th>
-                                                                EMPLOYEE
+                                                                Policy
                                                             </th>
                                                             <th>
                                                                 LEAVE TYPE
                                                             </th>
                                                             <th>
-                                                                FROM DATE
+                                                                Start DATE
                                                             </th>
                                                             <th>
-                                                                TO DATE
+                                                                End DATE
                                                             </th>
-                                                            <th>
-                                                                NO OF DAYS
-                                                            </th>
+
                                                             <th>
                                                                 STATUS
                                                             </th>
+                                                            <th>
+                                                                Action
+                                                            </th>
                                                         </tr>
+                                                        @foreach($leavePolicy as $leave)
+                                                        <tr>
+                                                            <td>{{$loop->iteration}}</td>
+                                                            <td>{{$leave->name}}</td>
+                                                            <td>{{$leave->leaveType->name}}</td>
+                                                            <td>{{$leave->start_date}}</td>
+                                                            <td>{{$leave->end_date}}</td>
+                                                            <td><span class="badge rounded-pill  bg-{{$leave->status == 1 ? 'primary' : 'danger' }} me-1 mt-1"> {{$leave->status == 1? 'Enforced':'Draft'}}</span></td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                <a href="{{ url('leave/leave-policy/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('leave/leave-policy/'.$leave->id .'/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
+                                                                    DELETE</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
                                                     </thead>
                                                 </table>
                                             </div>
