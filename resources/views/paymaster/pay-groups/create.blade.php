@@ -52,20 +52,20 @@
                                                                         <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                                                     </td>
                                                                     <td id="employee_category_cell" class="d-none">
-                                                                        <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][employee_category]" >
+                                                                        <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][mas_employee_group_id]" >
                                                                             <option value="" disabled selected>Select Employee Category</option>
                                                                             @foreach ($employeeGroups as $employeeGroup)
-                                                                            <option value="{{ $employeeGroup->id }}" {{ old('details.AAAAA.employee_category') == $employeeGroup->id ? 'selected' : '' }}>
+                                                                            <option value="{{ $employeeGroup->id }}" {{ old('details.AAAAA.mas_employee_group_id') == $employeeGroup->id ? 'selected' : '' }}>
                                                                                 {{ $employeeGroup->name }}
                                                                             </option>
                                                                             @endforeach
                                                                         </select>
                                                                     </td>
                                                                     <td id="grade_cell" class="d-none">
-                                                                        <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][grade]" >
+                                                                        <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][mas_grade_id]" >
                                                                             <option value="" disabled selected>Select Grade</option>
                                                                             @foreach ($grades as $grade)
-                                                                            <option value="{{ $grade->id }}" {{ old('details.AAAAA.grade') == $grade->id ? 'selected' : '' }}>
+                                                                            <option value="{{ $grade->id }}" {{ old('details.AAAAA.mas_grade_id') == $grade->id ? 'selected' : '' }}>
                                                                                 {{ $grade->name }}
                                                                             </option>
                                                                             @endforeach
