@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveApplication;
+use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,9 +23,12 @@ class LeaveApplicationController extends Controller
     protected $rules = [
         'mas_employee_id' => 'required',
         'mas_leave_type_id' => 'required',
+        'from_day' => 'required',
+        'to_day' => 'required',
         'from_date' => 'required|date',
         'to_date' => 'required|date',
-        'no_of_days' => 'required'
+        'no_of_days' => 'required',
+        'attachment' => 'file|mimes:jpg,png,pdf|max:2048'
     ];
 
     protected $messages = [
@@ -66,14 +70,32 @@ class LeaveApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, $this->rules, $this->messages);
         $leaveApplication = new LeaveApplication();
+        //validate if attachment is required or not based on attachment required field from leave_plans_tbl
+        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $request->mas_leave_type_id)->get(); 
         $attachment = "";
-        if ($request->attachment) {
-            $file = $request->attachment;
-            $attachment = uploadImageToDirectory($file, 'images/leave/');
+        $attachmentRequired = $leavePolicy->leavePolicyPlan[0]->attachment_required;
+        try{
+            if($attachmentRequired){
+                // $this->rules['attachment'] = 'required|file|mimes:jpg,png,pdf|max:2048';
+                if (!$request->hasFile('attachment')) {
+                    // Throw an exception if the attachment is required but not provided
+                    throw new \Exception('Please upload the attachment (medical certificate produced from hospital).');
+                }
+            }
+            if($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $attachment = uploadImageToDirectory($file, 'images/leaves/');
+            }
+        }catch(\Exception $e){
+            return back()->withInput()->with('msg_error', $e->getMessage());
         }
+        
         $leaveApplication->mas_employee_id = $request->mas_employee_id;
         $leaveApplication->mas_leave_type_id = $request->mas_leave_type_id;
+        $leaveApplication->from_day = $request->from_day;
+        $leaveApplication->to_day = $request->to_day;
         $leaveApplication->from_date = $request->from_date;
         $leaveApplication->to_date = $request->to_date;
         $leaveApplication->no_of_days = $request->no_of_days;
@@ -91,19 +113,20 @@ class LeaveApplicationController extends Controller
      */
     public function show($id)
     {
-        //
+        $leaveApplication = LeaveApplication::findOrfail($id);
+        // return view();
     }
 
     /**
      * Show the form for editing the specified resource.
-     *
+     *                    
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         $leaveApplication = LeaveApplication::findOrfail($id);
-        // return
+        // return view('')
     }
 
     /**
@@ -114,8 +137,39 @@ class LeaveApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        //
+    { //need to writ code if image or file already exists then first insert the new one the delete the existing from application folder
+        $leaveApplication = LeaveApplication::findOrFail($id);
+        //validate if attachment is required or not based on attachment required field from leave_plans_tbl
+        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $request->mas_leave_type_id)->get(); 
+        $attachment = "";
+        $attachmentRequired = $leavePolicy->leavePolicyPlan[0]->attachment_required;
+        try{
+            if($attachmentRequired){
+                if (!$request->hasFile('attachment')) {
+                    // Throw an exception if the attachment is required but not provided
+                    throw new \Exception('Please upload the attachment (medical certificate produced from hospital).');
+                }
+            }
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $attachment = uploadImageToDirectory($file, 'images/leaves/');
+            }
+        }catch(\Exception $e){
+            return back()->withInput()->with('msg_error', $e->getMessage());
+        }
+        $this->validate($request, $this->rules, $this->messages);
+        $leaveApplication = LeaveApplication::findOrfail($id);
+        $leaveApplication->mas_employee_id = $request->mas_employee_id;
+        $leaveApplication->mas_leave_type_id = $request->mas_leave_type_id;
+        $leaveApplication->from_day = $request->from_day;
+        $leaveApplication->to_day = $request->to_day;
+        $leaveApplication->from_date = $request->from_date;
+        $leaveApplication->to_date = $request->to_date;
+        $leaveApplication->no_of_days = $request->no_of_days;
+        $leaveApplication->remarks = $request->remarks;
+        $leaveApplication->attachment = $attachment;
+        $leaveApplication->status = $request->status;
+        $leaveApplication->save();
     }
 
     /**
@@ -126,6 +180,12 @@ class LeaveApplicationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            LeaveApplication::findOrFail($id)->delete();
+
+            return back()->with('msg_success', 'Leave Application has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Leave Application cannot be delete as it has been forwarded to higher authorities. For further information contact system admin.');
+        }
     }
 }

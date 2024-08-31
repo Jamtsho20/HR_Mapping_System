@@ -21,7 +21,7 @@
                             <select class="form-control" id="leave_type" name="leave_type">
                                 <option value="" disabled selected hidden>Select your option</option>
                                 @foreach ($leaveTypes as $type)
-                                    <option value="{{ $type->id }}">{{ $leave->type }}</option>
+                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
                                 @endforeach
                             </select>
                         </div>

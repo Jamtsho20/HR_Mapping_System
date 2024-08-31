@@ -45,6 +45,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MasNationalitiesSeeder::class);
         $this->call(MasExpenseTypesSeeder::class);
         $this->call(ApprovingAuthoritySeeder::class);
-      
+        $this->call(HierarchyTableSeeder::class);
     }
 }
