@@ -14,6 +14,15 @@ return [
         1 =>'active', 0=>'inactive'
     ],
 
+    'leave_limits' => [
+        1 => 'Include Public Holidays',
+        2 => 'Can be clubbed with CL',
+        3 => 'Include Weekends',
+        4=> 'Can be half day',
+        5=> 'Can be clubbed with EL'
+
+    ],
+
     'application_status' => [
         -1 => 'Rejected',
         0 => 'Cancelled',

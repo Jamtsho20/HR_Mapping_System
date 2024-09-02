@@ -10,7 +10,8 @@ class LeavePolicyPlan extends Model
     use HasFactory;
 
     protected $cast = [
-        'can_avail_in' => 'array'
+        'can_avail_in' => 'array',
+        'leave_limits' => 'array'
     ];
 
     public function masLeavePolicy(){
