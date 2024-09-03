@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="payhead_type">Pay Head Type</label>
+                        <label for="payhead_type">Pay Head Type <span class="text-danger">*</span></label>
                         <select name="payhead_type" id="payhead_type" class="form-control" required>
                             <option value="" disabled selected>Select an option</option>
                             <option value="1">Allowance</option>
@@ -18,7 +18,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="account_head_id">Account Head</label>
+                        <label for="account_head_id">Account Head <span class="text-danger">*</span></label>
                         <select name="account_head_id" id="account_head_id" class="form-control" required>
                             <option value="" disabled selected>Select an option</option>
                             @foreach($accountHeads as $accountHead)
@@ -32,13 +32,13 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="name">Name</label>
+                        <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="name" class="form-control" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="code">Code</label>
+                        <label for="code">Code <span class="text-danger">*</span></label>
                         <input type="text" name="code" id="code" class="form-control" required>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="calculation_method">Calculation Method</label>
+                        <label for="calculation_method">Calculation Method <span class="text-danger">*</span></label>
                         <select name="calculation_method" id="calculation_method" class="form-control" required>
                             <option value="" disabled selected >Select your option</option>
                             <option value="1">Actual Amount</option>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group" id="calculated_on_wrapper" style="display: none;">
-                        <label for="calculated_on">Calculated On</label>
+                        <label for="calculated_on">Calculated On <span class="text-danger">*</span></label>
                         <select name="calculated_on" id="calculated_on" class="form-control">
                             <option value="" disabled selected >Select your option</option>
                             <option value="1">Basic Pay</option>
@@ -79,7 +79,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group" id="pay_slab_wrapper" style="display: none;">
-                        <label for="mas_pay_slab_id">Pay Slab</label>
+                        <label for="mas_pay_slab_id">Pay Slab <span class="text-danger">*</span></label>
                         <select name="mas_pay_slab_id" id="mas_pay_slab_id" class="form-control">
                             <option value="" disabled selected>Select Pay Slab</option>
                             @foreach($paySlabs as $paySlab)
@@ -89,7 +89,7 @@
                     </div>
 
                     <div class="form-group" id="pay_group_wrapper" style="display: none;">
-                        <label for="mas_pay_group_id">Pay Group</label>
+                        <label for="mas_pay_group_id">Pay Group <span class="text-danger">*</span></label>
                         <select name="mas_pay_group_id" id="mas_pay_group_id" class="form-control">
                             <option value="" disabled selected>Select Pay Group</option>
                             @foreach($payGroups as $payGroup)
@@ -99,12 +99,12 @@
                     </div>
 
                     <div class="form-group" id="amount_wrapper" style="display: none;">
-                        <label for="amount">Amount</label>
+                        <label for="amount">Amount <span class="text-danger">*</span></label>
                         <input type="number" name="amount" id="amount" class="form-control">
                     </div>
 
                     <div class="form-group" id="formula_wrapper" style="display: none;">
-                        <label for="formula">Formula</label>
+                        <label for="formula">Formula <span class="text-danger">*</span></label>
                         <textarea name="formula" id="formula" class="form-control"></textarea>
                     </div>
                 </div>

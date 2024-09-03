@@ -96,7 +96,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
         Route::get('leave-encashment', function () {return view('leave.leave.leave-encashment');})->name('leave.leave-encashment');
-        Route::get('leave-balance', function () {return view('leave.leave.leave-balance');})->name('leave.leave-balance');
+        // Route::get('leave-balance', function () {return view('leave.leave.leave-balance');})->name('leave.leave-balance');
+        Route::get('leave-balance', 'EmployeeLeaveController@index')->name('leave.leave-balance');
     });
 
  

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('leave_year')->comment('1 => Calendar Year, 2 => Financial Year');
             $table->unsignedTinyInteger('credit_frequency')->comment('1 => monthly, 2 => yearly');
             $table->unsignedTinyInteger('credit')->comment('1 => Start of period, 2 => end of period; determines when the leave will be credited.');
-            $table->unsignedSmallInteger('leave_limits')->nullable()->comment('1 => include public holidays, 2 => can be clubbed with CL, 3 => include weekends, 4 => can be half day 5 => can be clubbed with EL');
+            $table->string('leave_limits')->nullable()->comment('1 => include public holidays, 2 => can be clubbed with CL, 3 => include weekends, 4 => can be half day 5 => can be clubbed with EL');
             $table->string('can_avail_in')->nullable()->comment('store mas_employment_type_id`s in array.');
             $table->timestamps();
         });

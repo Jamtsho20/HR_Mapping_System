@@ -96,15 +96,13 @@
                                 @include('employee.employee-list.forms.qualification')
                             </div>
 
-                            <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">
+                            <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">about:blank#blocked
                                 @include('employee.employee-list.forms.training')
                             </div>
                             <div id="wizard1-p-5" role="tabpanel" aria-labelledby="wizard1-h-5" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.experience')
                             </div>
-                            {{-- <div id="wizard1-p-6" role="tabpanel" aria-labelledby="wizard1-h-6" class="body" aria-hidden="true">
-                                @include('employee.employee-list.forms.employment')
-                            </div> --}}
+                    
                             <div id="wizard1-p-7" role="tabpanel" aria-labelledby="wizard1-h-7" class="body" aria-hidden="true">
                                 @include('employee.employee-list.forms.document')
                             </div>
@@ -116,9 +114,9 @@
                                     <li aria-hidden="false" aria-disabled="false">
                                         <a href="#" role="menuitem" id="next-button" class="btn btn-md btn-primary">Next</a>
                                     </li>
-                                    {{-- <li aria-hidden="false" aria-disabled="false"> --}}
+                                  
                                     <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
-                                    {{-- </li> --}}
+                             
                                 </ul>
                             </div>
                         </form>

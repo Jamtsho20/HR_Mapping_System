@@ -80,6 +80,10 @@ class User extends Authenticatable
         return $this->hasMany(MasEmployeeExperience::class, 'mas_employee_id');
     }
 
+    public function empLeave(){
+        return $this->hasMany(EmployeeLeave::class, 'mas_employee_id');
+    }
+
     public function isActive()
     {
         return $this->is_active == 1;

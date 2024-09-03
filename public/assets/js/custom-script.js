@@ -329,6 +329,8 @@ $(document).ready(function () {
             alert('Please fill all required fields.');
         } else {
             $('#emp-form').submit();
+            $('#leave-form').submit();
+
         }
     });
 

@@ -61,6 +61,24 @@
                                                                 </th>
                                                             </tr>
                                                         </thead>
+                                                        <tbody>
+                                                            @forelse($balances as $balance)
+                                                            <tr>
+                                                                <td>{{ $loop->iteration }}</td>
+                                                                {{-- <td>{{ $balance->short_name }}</td> --}}
+                                                                <td>{{$balance->mas_employee_id}}</td>
+                                                                <td>{{$balance->mas_leave_type_id}}</td>
+                                                                <td>{{$balance->opening_balance}}</td>
+                                                                <td>{{$balance->current_entitlement}}</td>
+                                                                <td>{{$balance->leaves_availed}}</td>
+                                                                <td>{{$balance->closing_balance}}</td>
+                                                            </tr>
+                                                            @empty
+                                                            <tr>
+                                                                <td colspan="4" class="text-center text-danger">No Departments found</td>
+                                                            </tr>
+                                                            @endforelse
+                                                        </tbody>
                                                     </table>
                                                 </div>
                                             </div>

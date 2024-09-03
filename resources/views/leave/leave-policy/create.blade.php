@@ -65,8 +65,8 @@
                 </div>
 
                 <div class="content clearfix">
-                    <form action="" id="leave-form" method="" enctype="multipart/form-data">
-
+                    <form action="{{ route('leave-policy.store') }}" id="leave-form" method="post" enctype="multipart/form-data">
+                        @csrf
                         <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                             @include('leave.leave-policy.forms.leave-policy')
                         </div>
@@ -103,7 +103,6 @@
     </div>
 </div>
 
-
-
 @include('layouts.includes.delete-modal')
+
 @endsection
