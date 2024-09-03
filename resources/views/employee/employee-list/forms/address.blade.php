@@ -11,7 +11,7 @@
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($dzongkhags as $dzongkhag)
                             <option value="{{ $dzongkhag->id }}"
-                                {{ old('permenant_address.mas_dzongkhag_id', isset($employee->empPermenantAddress) ? $employee->empPermenantAddress->masDzongkhag->id : '') == $dzongkhag->id ? 'selected' : '' }}>
+                                {{ old('permenant_address.mas_dzongkhag_id', isset($employee->empPermenantAddress->masDzongkhag->id) ? $employee->empPermenantAddress->masDzongkhag->id : '') == $dzongkhag->id ? 'selected' : '' }}>
                                 {{ $dzongkhag->dzongkhag }}
                             </option>
 
@@ -44,7 +44,7 @@
                         <label for="mas_village_id">Village <span class="text-danger">*</span></label>
                         <select name="permenant_address[mas_village_id]" id="village_id" class="form-control form-control-sm" required>
 
-                            @if(isset($employee))
+                            @if(isset($employee->empPermenantAddress->masVillage->id))
                             @foreach($villages as $village)
                             <option value="{{ $village->id }}"
                                 {{ old('permenant_address.mas_village_id', $employee->empPermenantAddress->masVillage->id ?? '') == $village->id ? 'selected' : '' }}>
@@ -62,12 +62,12 @@
                     </div>
                     <div class="form-group">
                         <label for="">Thram Number <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="permenant_address[thram_no]" value="{{old('permenant_address.tharm_no', isset($employee) ? $employee->empPermenantAddress->thram_no : '') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="permenant_address[thram_no]" value="{{old('permenant_address.thram_no', isset($employee->empPermenantAddress->thram_no) ? $employee->empPermenantAddress->thram_no : '') }}" required>
 
                     </div>
                     <div class="form-group">
                         <label for="">House Number <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="permenant_address[house_no]" value="{{old('permenant_address.house_no', isset($employee) ? $employee->empPermenantAddress->house_no : '') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="permenant_address[house_no]" value="{{old('permenant_address.house_no', isset($employee->empPermenantAddress->house_no) ? $employee->empPermenantAddress->house_no : '') }}" required>
                     </div>
                 </div>
                 <!-- Current Address Section -->
@@ -99,16 +99,16 @@
                     </div>
                     <div class="form-group">
                         <label for="">City/State <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="current_address[city]" value="{{old('current_address.city', isset($employee) ? $employee->empPresentAddress->city : '') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="current_address[city]" value="{{old('current_address.city',isset($employee->empPresentAddress->city) ? $employee->empPresentAddress->city : '')}}" required>
                     </div>
                     <div class="form-group">
                         <label for="postal_code">Postal Code <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="current_address[postal_code]" value="{{ old('current_address.postal_code', isset($employee) ? $employee->empPresentAddress->postal_code : '') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="current_address[postal_code]" value="{{old('current_address.postal_code', isset($employee->empPresentAddress->postal_code) ? $employee->empPresentAddress->postal_code : '')}}" required>
                     </div>
                 </div>
             </div>
         </div>
-        
+
 
     </div>
 </div>

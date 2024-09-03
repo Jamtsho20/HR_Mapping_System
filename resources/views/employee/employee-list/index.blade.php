@@ -72,7 +72,10 @@
                                                                 Email
                                                             </th>
                                                             <th>
-                                                                Status
+                                                                Is Active
+                                                            </th>
+                                                            <th>
+                                                                Application Status
                                                             </th>
                                                             <th>
                                                                 Action
@@ -88,9 +91,16 @@
                                                             <td>{{$employee->date_of_appointment}}</td>
                                                             <td>{{$employee->contact_number}}</td>
                                                             <td>{{$employee->email}}</td>
-                                                            <td> <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 1 ? 'primary' : 'danger' }}">
-                                                                    {{ $employee->is_active == 1 ? 'Active' : 'Inactive' }}
-                                                                </span></td>
+                                                            <td>
+                                                                <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 'Active' ? 'primary' : 'danger' }}">
+                                                                    {{ $employee->is_active }}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->status == 'Completed' ? 'primary' : 'danger' }}">
+                                                                    {{ $employee->status }}
+                                                                </span>
+                                                            </td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
                                                                 <a href="{{ url('employee/employee-lists/' . $employee->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
@@ -124,6 +134,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 

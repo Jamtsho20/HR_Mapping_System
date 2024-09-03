@@ -10,7 +10,7 @@
 
                         @foreach($departments as $department)
                         <option value="{{ $department->id }}"
-                            {{ old('job.mas_department_id', isset($employee->empJob->department->id) ? $employee->empJob->department->id : '') == $department->id ? 'selected' : '' }}>
+                            >
                             {{$department->name }}
                         </option>
                         @endforeach

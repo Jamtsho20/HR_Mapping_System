@@ -182,3 +182,22 @@ if(!function_exists('concateEmpNameUserName')){
         return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.name) as name")->get();
     }
 }
+if (!function_exists('modifyFormRequest')) {
+    function modifyFormRequest($formData)
+    {
+        foreach ($formData as $key => $value) {
+            // If the value is an array, call the function recursively
+            if (is_array($value)) {
+                $formData[$key] = modifyFormRequest($value);
+                // Remove the key if the array is empty after cleaning
+                if (empty($formData[$key])) {
+                    unset($formData[$key]);
+                }
+            } elseif ($value === null || $value === "") {
+                // Remove the key if the value is null or an empty string
+                unset($formData[$key]);
+            }
+        }
+        return $formData;
+    }
+}

@@ -46,8 +46,12 @@ class User extends Authenticatable
         'employee_id' => 'integer'
     ];
 
+    public function getIsActiveAttribute($value) {
+        return ucwords($value == 1 ? 'active':'inactive');
+    }
+
     public function getStatusAttribute($value) {
-        return ucwords($value == 1 ? 'inactive':'active');
+        return ucwords($value == 1 ? 'Completed':'Draft');
     }
 
     /** Relationships */

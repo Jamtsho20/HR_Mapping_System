@@ -40,97 +40,69 @@
     }
 </style>
 
-<div class="row">
+<div class="col-xl-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Personal Details</h3>
+        </div>
+        <div class="card-body p-6">
+            <form action="{{ route('employee-lists.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
+                @csrf
+                @include('employee.employee-list.forms.personal')
 
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <div id="wizard1" role="application" class="wizard clearfix">
-                    <div class="steps clearfix">
-                        <ul role="tablist">
-                            <li role="tab" class="first current" aria-disabled="false" aria-selected="true">
-                                <a id="wizard1-t-0" aria-controls="wizard1-p-0" title="Personal Info">
-                                    <span class="current-info audible">current step: </span><span class="number">1</span> <span class="title">Basic Info</i></span>
-                                </a>
-                            </li>
-                            <li role="tab" class="disabled" aria-disabled="true">
-                                <a id="wizard1-t-1" aria-controls="wizard1-p-1"><span class="number">2</span> <span class="title">Address</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-2" aria-controls="wizard1-p-2"><span class="number">3</span> <span class="title">Job Details</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-3" aria-controls="wizard1-p-3"><span class="number">4</span> <span class="title">Qualifications</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-4" aria-controls="wizard1-p-4"><span class="number">5</span> <span class="title">Training (s)</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-5" aria-controls="wizard1-p-5"><span class="number">6</span> <span class="title">Experience (s)</span></a>
-                            </li>
-                            {{-- <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-6" href="#wizard1-h-6" aria-controls="wizard1-p-6"><span class="number">7</span> <span class="title">Employment</span></a>
-                            </li> --}}
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-7" aria-controls="wizard1-p-7"><span class="number">7</span> <span class="title">Documents</span></a>
-                            </li>
-                        </ul>
+                <div class="panel panel-primary">
+                    <div class="tab-menu-heading">
+                        <div class="tabs-menu1">
+                            <!-- Tabs -->
+                            <ul class="nav panel-tabs">
+                                <li><a href="#address" class="active" data-bs-toggle="tab">Address</a></li>
+                                <li><a href="#job" data-bs-toggle="tab">Job Details</a></li>
+                                <li><a href="#qualification" data-bs-toggle="tab">Qualification (s)</a></li>
+                                <li><a href="#training" data-bs-toggle="tab">Training (s)</a></li>
+                                <li><a href="#experience" data-bs-toggle="tab">Experience (s)</a></li>
+                                <li><a href="#document" data-bs-toggle="tab">Document (s)</a></li>`
+                            </ul>
+                        </div>
                     </div>
+                    <div class="panel-body tabs-menu-body">
 
-                    <div class="content clearfix">
-                        <form action="{{ route('employee-lists.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
-                            @csrf
-                            <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
-                                @include('employee.employee-list.forms.personal')
-                            </div>
+                        <input type="hidden" name="status" id="is_complete" value="0">
 
-                            <div id="wizard1-p-1" role="tabpanel" aria-labelledby="wizard1-h-1" class="body" aria-hidden="true">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="address">
                                 @include('employee.employee-list.forms.address')
                             </div>
-
-                            <div id="wizard1-p-2" role="tabpanel" aria-labelledby="wizard1-h-2" class="body" aria-hidden="true">
+                            <div class="tab-pane" id="job">
                                 @include('employee.employee-list.forms.job')
                             </div>
-
-                            <div id="wizard1-p-3" role="tabpanel" aria-labelledby="wizard1-h-3" class="body" aria-hidden="true">
+                            <div class="tab-pane" id="qualification">
                                 @include('employee.employee-list.forms.qualification')
                             </div>
-
-                            <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">about:blank#blocked
+                            <div class="tab-pane" id="training">
                                 @include('employee.employee-list.forms.training')
                             </div>
-                            <div id="wizard1-p-5" role="tabpanel" aria-labelledby="wizard1-h-5" class="body" aria-hidden="true">
+                            <div class="tab-pane" id="experience">
                                 @include('employee.employee-list.forms.experience')
                             </div>
-                    
-                            <div id="wizard1-p-7" role="tabpanel" aria-labelledby="wizard1-h-7" class="body" aria-hidden="true">
+                            <div class="tab-pane" id="document">
                                 @include('employee.employee-list.forms.document')
                             </div>
-                            <div class="actions clearfix" style="display: flex; justify-content: space-between; padding: 0; margin: 0;">
-                                <ul class="pagination" role="menu" aria-label="Pagination" style="list-style: none; padding: 0; margin: 0; display: flex; gap: 5px;">
-                                    <li aria-hidden="false" aria-disabled="false" id="previous-container">
-                                        <a href="#" role="menuitem" id="previous-button" class="btn btn-md btn-secondary">Previous</a>
-                                    </li>
-                                    <li aria-hidden="false" aria-disabled="false">
-                                        <a href="#" role="menuitem" id="next-button" class="btn btn-md btn-primary">Next</a>
-                                    </li>
-                                  
-                                    <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
-                             
-                                </ul>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                        </div>
+                        <button type="button" onclick="submitForm(false)" class="btn btn-secondary float-start">Save Progress</button>
+                        <button type="button" onclick="submitForm(true)" class="btn btn-primary float-end">Submit</button>
+            </form>
         </div>
     </div>
 </div>
+
 
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
 <script>
-   
+    function submitForm(isComplete) {
+        document.getElementById('is_complete').value = isComplete ? 1 : 0;
+        document.getElementById('emp-form').submit();
+    }
 </script>
 @endpush

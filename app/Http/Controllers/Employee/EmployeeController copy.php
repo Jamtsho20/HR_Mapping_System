@@ -175,6 +175,8 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
+
+        $this->validate($request, $this->messages);
         DB::beginTransaction();
         try {
 
@@ -356,44 +358,85 @@ class EmployeeController extends Controller
         }
     }
 
+
+    // private function saveAddress($permenantAddress, $currentAddress, $employeeId, $id, $request)
+    // {
+    //     if ($request->isMethod('put') || $request->isMethod('patch')) {
+    //         $empPermenantAddress = MasEmployeePermenantAddress::where('mas_employee_id', $id)->firstOrFail();
+    //         $empCurrentAddress = MasEmployeePresentAddress::where('mas_employee_id', $id)->firstOrFail();
+    //     } else {
+    //         if ((bool)$request->status == true) {
+    //             $request->validate([
+    //                 //permenat address validation rule
+    //                 'permenant_address.mas_dzongkhag_id' => 'required',
+    //                 'permenant_address.mas_gewog_id' => 'required',
+    //                 'permenant_address.mas_village_id' => 'required',
+    //                 'permenant_address.thram_no' => 'required',
+    //                 'permenant_address.house_no' => 'required',
+    //                 //present address validation rule
+    //                 'current_address.mas_dzongkhag_id' => 'required',
+    //                 'current_address.city' => 'required',
+    //                 'current_address.postal_code' => 'required',
+    //             ]);
+    //         }
+    //         $empPermenantAddress = new MasEmployeePermenantAddress();
+    //         $empCurrentAddress = new MasEmployeePresentAddress();
+    //     }
+
+    //     $empPermenantAddress->mas_employee_id = $employeeId;
+    //     $empPermenantAddress->mas_dzongkhag_id = $permenantAddress['mas_dzongkhag_id']??null;
+    //     $empPermenantAddress->mas_gewog_id = $permenantAddress['mas_gewog_id'] ?? null;
+    //     $empPermenantAddress->mas_village_id = $permenantAddress['mas_village_id'] ?? null;
+    //     $empPermenantAddress->thram_no = $permenantAddress['thram_no'] ?? null;
+    //     $empPermenantAddress->house_no = $permenantAddress['house_no'] ?? null;
+    //     $empPermenantAddress->save();
+
+    //     $empCurrentAddress->mas_employee_id = $employeeId;
+    //     $empCurrentAddress->mas_dzongkhag_id = $currentAddress['mas_dzongkhag_id'] ?? null;
+    //     $empCurrentAddress->mas_gewog_id = $currentAddress['mas_gewog_id'] ?? null;
+    //     $empCurrentAddress->city = $currentAddress['city'] ?? null;
+    //     $empCurrentAddress->postal_code = $currentAddress['postal_code']??null;
+    //     $empCurrentAddress->save();
+    // }
+
     private function saveJob($job, $employeeId, $request)
     {
-        $empJob = MasEmployeeJob::updateOrCreate(
-            ['mas_employee_id' => $employeeId],
-            [
-                'mas_employee_id' => $employeeId,
-                'mas_department_id' => $job['mas_department_id'],
-                'mas_section_id' => $job['mas_section_id'],
-                'mas_designation_id' => $job['mas_designation_id'],
-                'mas_grade_id' => $job['mas_grade_id'],
-                'mas_grade_step_id' => $job['mas_grade_step_id'],
-                'mas_employment_type_id' => $job['mas_employment_type_id'],
-                'immediate_supervisor' => $job['immediate_supervisor'] ?? null,
-                'mas_office_id' => $job['mas_office_id'],
-                'basic_pay' => $job['basic_pay'],
-                'bank' => $job['bank'],
-                'account_number' => $job['account_number'],
-                'pf_number' => $job['pf_number'],
-                'tpn_number' => $job['tpn_number'],
-            ]
-        );
 
-        if ($request->isMethod('post') && (bool)$request->status) {
-            $request->validate([
-                'job.mas_department_id' => 'required',
-                'job.mas_section_id' => 'required',
-                'job.mas_designation_id' => 'required',
-                'job.mas_grade_id' => 'required',
-                'job.mas_grade_step_id' => 'required',
-                'job.mas_employment_type_id' => 'required',
-                'job.basic_pay' => 'required',
-                'job.bank' => 'required',
-                'job.account_number' => 'required',
-                'job.pf_number' => 'required',
-                'job.tpn_number' => 'required',
-            ]);
+        if ($request->isMethod('put') || $request->isMethod('patch')) {
+            $empJob = MasEmployeeJob::where('mas_employee_id', $employeeId)->firstOrFail();
+        } else {
+            $empJob = new MasEmployeeJob();
+            if ((bool)$request->status == true) {
+                $request->validate([
+                    'job.mas_department_id' => 'required',
+                    'job.mas_section_id' => 'required',
+                    'job.mas_designation_id' => 'required',
+                    'job.mas_grade_id' => 'required',
+                    'job.mas_grade_step_id' => 'required',
+                    'job.mas_employment_type_id' => 'required',
+                    'job.basic_pay' => 'required',
+                    'job.bank' => 'required',
+                    'job.account_number' => 'required',
+                    'job.pf_number' => 'required',
+                    'job.tpn_number' => 'required',
+                ]);
+            }
         }
 
+        $empJob->mas_employee_id = $employeeId;
+        $empJob->mas_department_id = $job['mas_department_id'];
+        $empJob->mas_section_id = $job['mas_section_id'];
+        $empJob->mas_designation_id = $job['mas_designation_id'];
+        $empJob->mas_grade_id = $job['mas_grade_id'];
+        $empJob->mas_grade_step_id = $job['mas_grade_step_id'];
+        $empJob->mas_employment_type_id = $job['mas_employment_type_id'];
+        $empJob->immediate_supervisor = $job['immediate_supervisor'] ?? null;
+        $empJob->mas_office_id = $job['mas_office_id'];
+        $empJob->basic_pay = $job['basic_pay'];
+        $empJob->bank = $job['bank'];
+        $empJob->account_number = $job['account_number'];
+        $empJob->pf_number = $job['pf_number'];
+        $empJob->tpn_number = $job['tpn_number'];
         $empJob->save();
     }
 
