@@ -39,14 +39,14 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Health Tax',
                     'code' => 'HC',
-                    'payhead_type' => 2, 
-                    'calculation_method' => 5, 
-                    'calculated_on' => 2, 
+                    'payhead_type' => 2,
+                    'calculation_method' => 5,
+                    'calculated_on' => 2,
                     'amount' => 1.00,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' =>  $deductionAccountHead->id, 
-                    'formula' => 'null', 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' =>  $deductionAccountHead->id,
+                    'formula' => 'null',
                     'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
@@ -55,15 +55,27 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Provident Fund',
                     'code' => 'PF',
-                    'payhead_type' => 2, 
-                    'calculation_method' => 5, 
-                    'calculated_on' => 1, 
+                    'payhead_type' => 2,
+                    'calculation_method' => 6,
+                    'calculated_on' => 1,
                     'amount' => 15.00,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' =>  $deductionAccountHead->id, 
-                    'formula' => null, 
-                    'created_by' => 1, 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' =>  $deductionAccountHead->id,
+                    'formula' => "IF ([mas_employment_types].[name] = 'Regular')
+                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.15))
+                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.10))
+                ELSEIF ([mas_employment_types].[name] = 'Contract')
+                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.15))
+                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.15))
+                ELSEIF ([mas_employment_types].[name] = 'Consolidate' OR [mas_employment_types].[name] = 'Support Contract')
+                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.05))
+                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.05))
+                ELSE
+                    THEN (EMPLOYEE_PF = 0)
+                    THEN (EMPLOYER_PF = 0)
+            ENDIF",  
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -71,15 +83,15 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Staff Initiative for Financial Assistance',
                     'code' => 'SIFA',
-                    'payhead_type' => 2, 
-                    'calculation_method' => 4, 
-                    'calculated_on' => 1, 
+                    'payhead_type' => 2,
+                    'calculation_method' => 4,
+                    'calculated_on' => 1,
                     'amount' => null,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' => $deductionAccountHead->id, 
-                    'formula' => null, 
-                    'created_by' => 1, 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' => $deductionAccountHead->id,
+                    'formula' => null,
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -87,15 +99,15 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Group Savings Linked Insurance',
                     'code' => 'GSLI',
-                    'payhead_type' => 2, 
-                    'calculation_method' => 3, 
-                    'calculated_on' => 1, 
+                    'payhead_type' => 2,
+                    'calculation_method' => 3,
+                    'calculated_on' => 1,
                     'amount' => null,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' => $deductionAccountHead->id, 
-                    'formula' => null, 
-                    'created_by' => 1, 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' => $deductionAccountHead->id,
+                    'formula' => null,
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -103,23 +115,23 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Device EMI',
                     'code' => 'Device_EMI',
-                    'payhead_type' => 2, 
-                    'calculation_method' => 7, 
-                    'calculated_on' => 0, 
+                    'payhead_type' => 2,
+                    'calculation_method' => 7,
+                    'calculated_on' => 0,
                     'amount' => null,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' =>$deductionAccountHead->id, 
-                    'formula' => null, 
-                    'created_by' => 1, 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' => $deductionAccountHead->id,
+                    'formula' => null,
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ],
-                
+
             ]);
         } else {
-           
+
             echo "Account head 'Deduction' not found!";
         }
 
@@ -144,15 +156,15 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Project Allowance',
                     'code' => 'PA',
-                    'payhead_type' => 1, 
-                    'calculation_method' => 6, 
-                    'calculated_on' => 5, 
-                    'amount' =>null,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' => $allowanceAccountHead->id, 
-                    'formula' => null, 
-                    'created_by' => 1, 
+                    'payhead_type' => 1,
+                    'calculation_method' => 6,
+                    'calculated_on' => 5,
+                    'amount' => null,
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' => $allowanceAccountHead->id,
+                    'formula' => null,
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -160,15 +172,15 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Critical Allowance',
                     'code' => 'CA',
-                    'payhead_type' => 1, 
-                    'calculation_method' => 4, 
-                    'calculated_on' => 6, 
+                    'payhead_type' => 1,
+                    'calculation_method' => 4,
+                    'calculated_on' => 6,
                     'amount' => null,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' =>  $allowanceAccountHead->id, 
-                    'formula' => null, 
-                    'created_by' => 1, 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' =>  $allowanceAccountHead->id,
+                    'formula' => null,
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -176,22 +188,22 @@ class MasPayHeadsSeeder extends Seeder
                 [
                     'name' => 'Overtime Allowance',
                     'code' => 'OA',
-                    'payhead_type' => 1, 
-                    'calculation_method' => 6, 
-                    'calculated_on' => 5, 
+                    'payhead_type' => 1,
+                    'calculation_method' => 6,
+                    'calculated_on' => 5,
                     'amount' => 0.00,
-                    'mas_pay_slab_id' => null, 
-                    'mas_pay_group_id' => null, 
-                    'account_head_id' =>  $allowanceAccountHead->id, 
-                    'formula' => 'THEN [OVERTIME_HOURS] * [HOURLY_WAGE]', 
-                    'created_by' => 1, 
+                    'mas_pay_slab_id' => null,
+                    'mas_pay_group_id' => null,
+                    'account_head_id' =>  $allowanceAccountHead->id,
+                    'formula' => 'THEN [OVERTIME_HOURS] * [HOURLY_WAGE]',
+                    'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ],
             ]);
         } else {
-            
+
             echo "Account head 'Allowance' not found!";
         }
     }
