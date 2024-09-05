@@ -12,4 +12,8 @@ class LeavePolicyRule extends Model
     public function leavePolicyPlan() {
         return $this->belongsTo(LeavePolicyPlan::class);
     }
+    public function gradeStep()
+    {
+        return $this->hasOne(MasGradeStep::class,'id');
+    }
 }

@@ -18,6 +18,12 @@ class MasLeavePolicy extends Model
     {
         return $this->hasOne(LeavePolicyPlan::class, 'mas_leave_policy_id');
     }
+    public function yearEnd()
+    {
+        return $this->hasOne(LeavePolicyYearEndProcessing::class, 'mas_leave_policy_id');
+    }
+    
+
 
     //filters
     public function scopeFilter($query, $request)
