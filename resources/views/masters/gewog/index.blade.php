@@ -11,29 +11,26 @@
     <div class="col-md-12">
         <div class="block">
             <div class="block-header block-header-default">
-                @component('layouts.includes.filter')
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-4">
-                            <select class="form-control" id="dzongkhag" name="dzongkhag">
-                                <option value="" disabled selected hidden>Select Dzongkhag</option>
-                                @foreach ($dzongkhags as $dzongkhag)
-                                <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
-                                    {{ $dzongkhag->dzongkhag  }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-4">
-                            <input type="text" name="gewog" class="form-control" value="{{ request()->get('name') }}" placeholder="Gewog">
-                        </div>
+                        @component('layouts.includes.filter')
+                            <div class="col-4">
+                                <select class="form-control" id="dzongkhag" name="dzongkhag">
+                                    <option value="" disabled selected hidden>Select Dzongkhag</option>
+                                    @foreach ($dzongkhags as $dzongkhag)
+                                    <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
+                                        {{ $dzongkhag->dzongkhag  }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <input type="text" name="gewog" class="form-control" value="{{ request()->get('name') }}" placeholder="Gewog">
+                            </div>
                         @endcomponent
                     </div>
                 </div>
-
-
             </div>
-            <br>
             <div class="row row-sm">
                 <div class="col-lg-12">
                     <div class="card">

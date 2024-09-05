@@ -89,14 +89,14 @@ Route::middleware('auth')->group(function () {
 
     // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
-        Route::resource('leave-policy', 'LeavePolicyController');
-        Route::resource('leave-apply', 'LeaveController')->except('show', 'edit');
+        Route::resource('leave-policy', 'LeavePolicyController')->except('show', 'edit');
+        Route::resource('leave-apply', 'LeaveApplicationController')->except('show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
-        Route::get('leave-encashment', function () {return view('leave.leave.leave-encashment');})->name('leave.leave-encashment');
-        Route::get('leave-balance', function () {return view('leave.leave.leave-balance');})->name('leave.leave-balance');
+        Route::get('leave-encashment', 'LeaveApplicationController@leaveEncashment')->name('leave.leave-encashment');
+        Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
     });
 
  

@@ -18,7 +18,7 @@ class LeavePolicyController extends Controller
 
     public function __construct()
     {
-        $this->middleware('permission:leave/leave-policy,view')->only('index','show');
+        $this->middleware('permission:leave/leave-policy,view')->only('index', 'show');
         $this->middleware('permission:leave/leave-policy,create')->only('store');
         $this->middleware('permission:leave/leave-policy,edit')->only('update');
         $this->middleware('permission:leave/leave-policy,destroy')->only('destroy');
@@ -94,14 +94,14 @@ class LeavePolicyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id,Request $request)
+    public function show(string $id, Request $request)
     {
         $instance = $request->instance();
         $canUpdate = (int) $instance->edit;
-   
+
         $leavePolicy = MasLeavePolicy::findOrFail($id);
-  
-      
+
+
 
         // dd($leavePolicy->leavePolicyPlan);
         return view('leave.leave-policy.show', compact('canUpdate', 'leavePolicy'));
@@ -112,7 +112,14 @@ class LeavePolicyController extends Controller
      */
     public function edit(string $id)
     {
-        //
+
+        $leavePolicy = MasLeavePolicy::findOrFail($id);
+        // dd($leavePolicy->yearEnd);
+        $leaves = MasLeaveType::get();
+        $gradeSteps = MasGradeStep::get(['id', 'name']);
+        $employmentTypes = MasEmploymentType::get(['id', 'name']);
+
+        return view('leave.leave-policy.edit', compact('leavePolicy', 'leaves', 'employmentTypes', 'gradeSteps'));
     }
 
     /**
@@ -120,7 +127,22 @@ class LeavePolicyController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $this->validate($request, $this->rules);
+        DB::beginTransaction();
+        // dd($request->year_end_processing);
+        try {
+
+            $leavePolicyId = $this->saveLeavePolicy($request->leave_policy);
+            $leavePolicyPlanId = $this->saveLeavePolicyPlan($request->leave_plan, $leavePolicyId);
+            $this->saveLeavePolicyRule($request->leave_policy_rule, $leavePolicyPlanId);
+            $this->saveYearEndProcessing($request->year_end_processing, $leavePolicyId);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+        }
+
+        return redirect('leave/leave-policy')->with('msg_success', 'Leave policy Updated successfully.');
     }
 
     /**

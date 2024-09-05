@@ -45,7 +45,7 @@
                 </div>
                 <div class="form-group col-md-4">
                     <label for="employee_id">Employee ID</label>
-                    <input type="text" class="form-control form-control-sm" value="{{ old('personal.employee_id', $employeeId) }}" disabled>
+                    <input type="text" class="form-control form-control-sm" value="{{ old('personal.employee_id', isset($employee) ? fixEmployeeId($employee->employee_id) : $fixedEmpId) }}" disabled>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">

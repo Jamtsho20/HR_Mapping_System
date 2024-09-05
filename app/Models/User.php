@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'mas_employees';
 
@@ -24,6 +24,24 @@ class User extends Authenticatable
         'email',
         'username',
         'password',
+        'is_active',
+        'profile_pic',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'title',
+        'cid_no',
+        'employee_id',
+        'gender',
+        'dob',
+        'birth_place',
+        'birth_country',
+        'marital_status',
+        'contact_number',
+        'nationality',
+        'date_of_appointment',
+        'cid_copy',
+        'status'
     ];
 
     /**
@@ -45,10 +63,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'employee_id' => 'integer'
     ];
-
-    public function getStatusAttribute($value) {
-        return ucwords($value == 1 ? 'inactive':'active');
-    }
 
     /** Relationships */
     public function roles()
@@ -84,6 +98,10 @@ class User extends Authenticatable
         return $this->hasMany(MasEmployeeExperience::class, 'mas_employee_id');
     }
 
+    public function empLeave(){
+        return $this->hasMany(EmployeeLeave::class, 'mas_employee_id');
+    }
+
     public function isActive()
     {
         return $this->is_active == 1;
@@ -104,6 +122,14 @@ class User extends Authenticatable
     }
 
     //accessors & mutators refeer this
+    public function getIsActiveAttribute($value) {
+        return ucwords($value == 1 ? 'active':'inactive');
+    }
+
+    public function getStatusAttribute($value) {
+        return ucwords($value == 1 ? 'Completed':'Draft');
+    }
+    
     public function getEmpIdNameAttribute(){
         return $this->username . ' - ' . $this->name;
     }

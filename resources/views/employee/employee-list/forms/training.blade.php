@@ -31,7 +31,7 @@
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][end_date]" value="{{ old('trainings.' . $key . '.end_date', $value->end_date) }}">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][duration]" value="{{ old('trainings.' . $key . '.duration', $value->duration) }}" placeholder="No of days">
+                                <input type="number" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][duration]" value="{{ old('trainings.' . $key . '.duration', $value->duration) }}" placeholder="No of days">
                             </td>
                             <td class="text-center">
                                 <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[{{ $key }}][location]" value="{{ old('trainings.' . $key . '.location', $value->location) }}" placeholder="Location">
@@ -65,7 +65,7 @@
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[0][end_date]" value="{{ old('trainings.0.end_date') }}">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][duration]" value="{{ old('trainings.0.duration') }}" placeholder="No of days">
+                                <input type="number" class="form-control form-control-sm resetKeyForNew" name="trainings[0][duration]" value="{{ old('trainings.0.duration') }}" placeholder="No of days">
                             </td>
                             <td class="text-center">
                                 <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][location]" value="{{ old('trainings.0.location') }}" placeholder="Location">

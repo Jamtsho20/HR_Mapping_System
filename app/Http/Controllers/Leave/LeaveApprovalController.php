@@ -15,7 +15,7 @@ class LeaveApprovalController extends Controller
 
     public function __construct()
     {
-        $this->middleware('permission:leave/approval,view')->only('index');
+        $this->middleware('permission:leave/approval,view')->only('index', 'show');
         $this->middleware('permission:leave/approval,create')->only('store');
         $this->middleware('permission:leave/approval,edit')->only('update');
         $this->middleware('permission:leave/approval,delete')->only('destroy');
