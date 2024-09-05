@@ -1,5 +1,7 @@
 @extends('layouts.app')
+
 @section('page-title', 'Employee List')
+
 @section('content')
 
 <style>
@@ -40,97 +42,108 @@
     }
 </style>
 
-<div class="row">
+<div class="col-xl-12">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Employee Details</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('employee-lists.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
+                @csrf
+                <!-- Include personal form here, always visible -->
+                @include('employee.employee-list.forms.personal')
 
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <div id="wizard1" role="application" class="wizard clearfix">
-                    <div class="steps clearfix">
-                        <ul role="tablist">
-                            <li role="tab" class="first current" aria-disabled="false" aria-selected="true">
-                                <a id="wizard1-t-0" aria-controls="wizard1-p-0" title="Personal Info">
-                                    <span class="current-info audible">current step: </span><span class="number">1</span> <span class="title">Basic Info</i></span>
-                                </a>
-                            </li>
-                            <li role="tab" class="disabled" aria-disabled="true">
-                                <a id="wizard1-t-1" aria-controls="wizard1-p-1"><span class="number">2</span> <span class="title">Address</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-2" aria-controls="wizard1-p-2"><span class="number">3</span> <span class="title">Job Details</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-3" aria-controls="wizard1-p-3"><span class="number">4</span> <span class="title">Qualifications</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-4" aria-controls="wizard1-p-4"><span class="number">5</span> <span class="title">Training (s)</span></a>
-                            </li>
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-5" aria-controls="wizard1-p-5"><span class="number">6</span> <span class="title">Experience (s)</span></a>
-                            </li>
-                            {{-- <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-6" href="#wizard1-h-6" aria-controls="wizard1-p-6"><span class="number">7</span> <span class="title">Employment</span></a>
-                            </li> --}}
-                            <li role="tab" class="disabled last" aria-disabled="true">
-                                <a id="wizard1-t-7" aria-controls="wizard1-p-7"><span class="number">7</span> <span class="title">Documents</span></a>
-                            </li>
-                        </ul>
+                <div class="panel panel-primary">
+                    <div class="tab-menu-heading">
+                        <div class="tabs-menu1">
+                            <!-- Tabs -->
+                            <ul class="nav panel-tabs">
+                                <li><a href="#address" class="{{ request('current_tab') == 'address' ? 'active' : '' }}" data-tab="address">Address</a></li>
+                                <li><a href="#job" class="{{ request('current_tab') == 'job' ? 'active' : '' }}" data-tab="job">Job Details</a></li>
+                                <li><a href="#qualification" class="{{ request('current_tab') == 'qualification' ? 'active' : '' }}" data-tab="qualification">Qualification (s)</a></li>
+                                <li><a href="#training" class="{{ request('current_tab') == 'training' ? 'active' : '' }}" data-tab="training">Training (s)</a></li>
+                                <li><a href="#experience" class="{{ request('current_tab') == 'experience' ? 'active' : '' }}" data-tab="experience">Experience (s)</a></li>
+                                <li><a href="#document" class="{{ request('current_tab') == 'document' ? 'active' : '' }}" data-tab="document">Document (s)</a></li>
+                            </ul>
+                        </div>
                     </div>
+                    <div class="panel-body tabs-menu-body">
 
-                    <div class="content clearfix">
-                        <form action="{{ route('employee-lists.store') }}" id="emp-form" method="post" enctype="multipart/form-data">
-                            @csrf
-                            <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
-                                @include('employee.employee-list.forms.personal')
-                            </div>
+                        <input type="hidden" name="status" id="is_complete" value="0">
+                        <input type="hidden" name="current_tab" id="current_tab" value="{{ request('tab') }}">
+                        {{-- <input type="hidden" name="employee_id" id="employee_id" value="{{ $employeeId ?? '' }}"> --}}
 
-                            <div id="wizard1-p-1" role="tabpanel" aria-labelledby="wizard1-h-1" class="body" aria-hidden="true">
+                        <div class="tab-content">
+                            <!-- Tab panes -->
+                            <div class="tab-pane {{ request('current_tab') == 'address' ? 'active' : '' }}" id="address">
                                 @include('employee.employee-list.forms.address')
                             </div>
-
-                            <div id="wizard1-p-2" role="tabpanel" aria-labelledby="wizard1-h-2" class="body" aria-hidden="true">
+                            <div class="tab-pane {{ request('current_tab') == 'job' ? 'active' : '' }}" id="job">
                                 @include('employee.employee-list.forms.job')
                             </div>
-
-                            <div id="wizard1-p-3" role="tabpanel" aria-labelledby="wizard1-h-3" class="body" aria-hidden="true">
+                            <div class="tab-pane {{ request('current_tab') == 'qualification' ? 'active' : '' }}" id="qualification">
                                 @include('employee.employee-list.forms.qualification')
                             </div>
-
-                            <div id="wizard1-p-4" role="tabpanel" aria-labelledby="wizard1-h-4" class="body" aria-hidden="true">about:blank#blocked
+                            <div class="tab-pane {{ request('current_tab') == 'training' ? 'active' : '' }}" id="training">
                                 @include('employee.employee-list.forms.training')
                             </div>
-                            <div id="wizard1-p-5" role="tabpanel" aria-labelledby="wizard1-h-5" class="body" aria-hidden="true">
+                            <div class="tab-pane {{ request('current_tab') == 'experience' ? 'active' : '' }}" id="experience">
                                 @include('employee.employee-list.forms.experience')
                             </div>
-                    
-                            <div id="wizard1-p-7" role="tabpanel" aria-labelledby="wizard1-h-7" class="body" aria-hidden="true">
+                            <div class="tab-pane {{ request('current_tab') == 'document' ? 'active' : '' }}" id="document">
                                 @include('employee.employee-list.forms.document')
                             </div>
-                            <div class="actions clearfix" style="display: flex; justify-content: space-between; padding: 0; margin: 0;">
-                                <ul class="pagination" role="menu" aria-label="Pagination" style="list-style: none; padding: 0; margin: 0; display: flex; gap: 5px;">
-                                    <li aria-hidden="false" aria-disabled="false" id="previous-container">
-                                        <a href="#" role="menuitem" id="previous-button" class="btn btn-md btn-secondary">Previous</a>
-                                    </li>
-                                    <li aria-hidden="false" aria-disabled="false">
-                                        <a href="#" role="menuitem" id="next-button" class="btn btn-md btn-primary">Next</a>
-                                    </li>
-                                  
-                                    <button type="submit" role="menuitem" id="submit-button" class="btn btn-md btn-primary">Submit</button>
-                             
-                                </ul>
-                            </div>
-                        </form>
+                        </div>
+                        
+                        <button type="button" onclick="saveTabData()" class="btn btn-secondary float-start">Save & Progress</button>
+                        <button type="submit" class="btn btn-primary float-end">Submit</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
 @include('layouts.includes.delete-modal')
+
 @endsection
+
 @push('page_scripts')
 <script>
-   
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.nav.panel-tabs a');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(event) {
+                event.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const tabName = this.getAttribute('data-tab');
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('tab', tabName);
+                window.history.pushState({}, '', newUrl);
+                
+                // Activate the clicked tab and corresponding pane
+                tabs.forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+
+                // Update hidden input for the current tab
+                document.getElementById('current_tab').value = tabName;
+            });
+        });
+
+        // Set initial active tab based on query string
+        const queryTab = new URLSearchParams(window.location.search).get('tab');
+        if (queryTab) {
+            document.querySelector(`a[data-tab="${queryTab}"]`).click();
+        }
+    });
+
+    function saveTabData() {
+        const currentTab = document.getElementById('current_tab').value;
+        document.getElementById('emp-form').submit();
+    }
 </script>
 @endpush

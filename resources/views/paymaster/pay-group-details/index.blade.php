@@ -31,11 +31,8 @@
                                                     <tr role="row">
                                                         <th>Employee Category </th>
                                                         <th>Grade </th>
-                                                        </th>
                                                         <th>Calculation Method </th>
-                                                        </th>
                                                         <th>Amount </th>
-                                                        </th>
                                                         <th>Created At</th>
                                                         <th>Updated At</th>
                                                         <th>Action</th>
@@ -157,7 +154,7 @@
 
                     <div class="mb-3 dynamic-field" id="field_employee_category">
                         <label for="employee_category" class="form-label">Employee Category <span class="text-danger">*</span></label>
-                        <select class="form-control" id="employee_category" name="employee_category">
+                        <select class="form-control" id="mas_employee_group_id" name="mas_employee_group_id">
                             <option value="" disabled selected>Select an option</option>
                             <option value="1">Critical Staff</option>
                         </select>
@@ -165,7 +162,7 @@
 
                     <div class="mb-3 dynamic-field" id="field_grade">
                         <label for="grade" class="form-label">Grade <span class="text-danger">*</span></label>
-                        <select class="form-control" id="grade" name="grade">
+                        <select class="form-control" id="mas_grade_id" name="mas_grade_id">
                             <option value="" disabled selected hidden>Select Grade</option>
                             @foreach ($grades as $grade)
                             <option value="{{ $grade->id }}">{{ $grade->name }}</option>
@@ -209,3 +206,42 @@
         display: none;
     }
 </style>
+
+@push('page_scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const applicableOnSelect = document.getElementById('applicable_on');
+    const dynamicFields = document.querySelectorAll('.dynamic-field');
+    const gradeField = document.getElementById('field_grade');
+    const employeeCategoryField = document.getElementById('field_employee_category');
+    const calculationMethodField = document.getElementById('field_calculation_method');
+    const amountField = document.getElementById('field_amount');
+
+    const toggleFields = (applicableOn) => {
+        dynamicFields.forEach(field => {
+            field.style.display = 'none'; // Hide all dynamic fields
+        });
+
+        // Show fields based on the applicableOn value
+        if (applicableOn === '2') { // Grade
+            gradeField.style.display = 'block';
+            calculationMethodField.style.display = 'block';
+            amountField.style.display = 'block';
+        } else if (applicableOn === '1') { // Employee Group
+            employeeCategoryField.style.display = 'block';
+            calculationMethodField.style.display = 'block';
+            amountField.style.display = 'block';
+        }
+    };
+
+    // Trigger field visibility when the select value changes
+    applicableOnSelect.addEventListener('change', function() {
+        toggleFields(this.value); // Use the value of the select element
+    });
+
+    // Trigger field visibility on page load based on the existing value
+    toggleFields(applicableOnSelect.value); // Use the value of the select element
+});
+</script>
+
+@endpush

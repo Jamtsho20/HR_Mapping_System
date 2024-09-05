@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LeaveApplication;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
-use App\Models\User;
+use App\Models\EmployeeLeave;
 use Illuminate\Http\Request;
 
 class LeaveApplicationController extends Controller
@@ -14,7 +14,7 @@ class LeaveApplicationController extends Controller
       
     public function __construct()
     {
-        $this->middleware('permission:leave/leave-apply,view')->only('index', 'show');
+        $this->middleware('permission:leave/leave-apply,view')->only('index', 'show', 'leaveBalance');
         $this->middleware('permission:leave/leave-apply,create')->only('create');
         $this->middleware('permission:leave/leave-apply,edit')->only('update');
         $this->middleware('permission:leave/leave-apply,delete')->only('destroy');
@@ -187,5 +187,15 @@ class LeaveApplicationController extends Controller
         } catch (\Exception $e) {
             return back()->with('msg_error', 'Leave Application cannot be delete as it has been forwarded to higher authorities. For further information contact system admin.');
         }
+    }
+
+    public function leaveBalance(Request $request){
+        $leaveTypes = MasLeaveType::get(['id', 'name']);
+        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(30);
+        return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
+    }
+
+    public function leaveEncashment(){
+        return view('leave.leave.leave-encashment');
     }
 }
