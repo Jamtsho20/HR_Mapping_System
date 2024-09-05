@@ -65,7 +65,7 @@
                                 <input type="date" class="form-control form-control-sm resetKeyForNew" name="trainings[0][end_date]" value="{{ old('trainings.0.end_date') }}">
                             </td>
                             <td class="text-center">
-                                <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][duration]" value="{{ old('trainings.0.duration') }}" placeholder="No of days">
+                                <input type="number" class="form-control form-control-sm resetKeyForNew" name="trainings[0][duration]" value="{{ old('trainings.0.duration') }}" placeholder="No of days">
                             </td>
                             <td class="text-center">
                                 <input type="text" class="form-control form-control-sm resetKeyForNew" name="trainings[0][location]" value="{{ old('trainings.0.location') }}" placeholder="Location">
