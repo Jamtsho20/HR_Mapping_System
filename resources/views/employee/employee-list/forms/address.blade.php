@@ -14,7 +14,6 @@
                                 {{ old('permenant_address.mas_dzongkhag_id', isset($employee->empPermenantAddress->masDzongkhag->id) ? $employee->empPermenantAddress->masDzongkhag->id : '') == $dzongkhag->id ? 'selected' : '' }}>
                                 {{ $dzongkhag->dzongkhag }}
                             </option>
-
                             @endforeach
                         </select>
 

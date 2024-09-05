@@ -18,8 +18,6 @@ class MasGewog extends Model
 
     public function scopeFilter($query, $request)
     {
-        
-    
         if ($request->has('gewog') && $request->query('gewog') != '')
         {
             $query->where('name', 'LIKE', '%' . $request->query('gewog') . '%');

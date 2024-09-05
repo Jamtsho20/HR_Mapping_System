@@ -13,4 +13,11 @@ class LeaveApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+
+    public function scopeFilter($query, $request){
+        if ($request->has('leave_type') && $request->query('leave_type') != '') {
+            $query->where('mas_leave_type_id', $request->query('leave_type'));
+        }
+        $query->where('mas_employee_id', auth()->user()->id);
+    }
 }
