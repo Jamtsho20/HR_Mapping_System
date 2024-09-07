@@ -9,7 +9,7 @@
         <select class="form-control" id="ddlLeaveType" name="leave_policy[mas_leave_type_id]">
             <option value="" disabled selected hidden>Select your option</option>
             @foreach($leaves as $leave)
-            <option value="{{ $leave->id }}" {{ old('leave_policy.mas_leave_type_id') == $leave ? 'selected' : '' }}>{{ $leave->name }}</option>
+            <option value="{{ $leave->id }}" {{ old('leave_policy.mas_leave_type_id') == $leave->id ? 'selected' : '' }}>{{ $leave->name }}</option>
             @endforeach
         </select>
     </div>

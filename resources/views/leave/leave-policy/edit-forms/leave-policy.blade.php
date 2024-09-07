@@ -53,9 +53,10 @@
     <div class="col-sm-4">
         <select class="form-control" id="ddlStatus" name="leave_policy[status]">
             <option value="">Select</option>
-            <option value="0 " {{ $leavePolicy->status == 0 ? 'selected' : '' }}>Draft</option>
+            <option value="0" {{ $leavePolicy->status == 0 ? 'selected' : '' }}>Draft</option>
             <option value="1" {{ $leavePolicy->status == 1 ? 'selected' : '' }}>Enforce</option>
         </select>
+
     </div>
 </div>
 
