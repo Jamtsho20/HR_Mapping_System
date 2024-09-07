@@ -73,10 +73,10 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $employeeId = $request->employee_id ?? "";
-        
+
         try {
             $employeeId = $this->savePersonalInfo($request->personal, $request);
-            
+
             return redirect()->route('employee-lists.edit', $employeeId)->with('msg_success', 'Data saved successfully.');
         } catch (\Exception $e) {
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -106,7 +106,6 @@ class EmployeeController extends Controller
     {
         $employee = User::findOrFail($id);
 
-
         $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
         $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
         $villages = MasVillage::orderBy('village')->get(['id', 'village']);
@@ -127,7 +126,6 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
         $tab = $request->input('current_tab');
         if ($tab === 'address') {
             $this->saveAddress($request->permenant_address, $request->current_address, $id, $request);
@@ -140,7 +138,15 @@ class EmployeeController extends Controller
         } elseif ($tab === 'experience') {
             $this->saveExperiences($request->experiences, $id, $request);
         } elseif ($tab === 'document') {
-            $this->saveDocuments($request->documents, $id, $request);
+            DB::beginTransaction();
+            try {
+                $this->saveDocuments($request->documents, $id, $request);
+                $masEmployee = DB::table('mas_employees')->where('id', $id)->update(['status' => 1]);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->withInput()->with('msg_error', $e->getMessage());
+            }
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');
         }
         $nextTab = $this->getNextTab($tab);
@@ -152,13 +158,13 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        // try {
-        //     User::findOrFail($id)->delete();
+        try {
+            User::findOrFail($id)->delete();
 
-        //     return back()->with('msg_success', 'The employee has been deleted successfully');
-        // } catch(\Exception $exception){
-        //     return back()->with('msg_error', 'The qualification cannot be deleted as it has been used and is linked with other modules. For further information contact system admin.');
-        // }
+            return back()->with('msg_success', 'The employee has been deleted successfully');
+        } catch (\Exception $exception) {
+            return back()->with('msg_error', 'The employee cannot be deleted as it has been used and is linked with other modules. For further information contact system admin.');
+        }
     }
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
@@ -217,13 +223,13 @@ class EmployeeController extends Controller
             'cid_copy' => $empCidCopy,
             'status' => $request->status,
         ];
-    
+
         // Update or create the user
         $user = User::updateOrCreate(
             ['id' => $employeeId], // Conditions to find the user
             $userData // Data to update or create
         );
-    
+
         return $user->id;
     }
 
@@ -306,42 +312,29 @@ class EmployeeController extends Controller
 
     private function saveQualifications($qualifications, $employeeId, $request)
     {
-        // Fetch all existing qualifications for the employee, keyed by mas_qualification_id
-        $existingQualifications = MasEmployeeQualification::where('mas_employee_id', $employeeId)
-            ->get()
-            ->keyBy('mas_qualification_id');
-
         $qualificationIdsInRequest = []; // Track IDs from the request
 
         foreach ($qualifications as $key => $value) {
             $qualificationId = $value['mas_qualification_id'];
             $qualificationIdsInRequest[] = $qualificationId;
 
-            if (isset($existingQualifications[$qualificationId])) {
-                // Update existing record
-                MasEmployeeQualification::where('mas_employee_id', $employeeId)
-                    ->where('mas_qualification_id', $qualificationId)
-                    ->update([
-                        'school' => $value['school'],
-                        'subject' => $value['subject'],
-                        'completion_year' => $value['completion_year'],
-                        'aggregate_score' => $value['aggregate_score'],
-                    ]);
-            } else {
-                // Insert new record
-                MasEmployeeQualification::create([
+            // Use updateOrCreate to either update the existing record or create a new one
+            MasEmployeeQualification::updateOrCreate(
+                [
                     'mas_employee_id' => $employeeId,
-                    'mas_qualification_id' => $qualificationId,
+                    'mas_qualification_id' => $qualificationId
+                ],
+                [
                     'school' => $value['school'],
                     'subject' => $value['subject'],
                     'completion_year' => $value['completion_year'],
-                    'aggregate_score' => $value['aggregate_score'],
-                ]);
-            }
+                    'aggregate_score' => $value['aggregate_score']
+                ]
+            );
         }
 
+        // Handle deleting records that are no longer in the request
         if ($request->isMethod('put') || $request->isMethod('patch')) {
-            // Delete any qualifications that are not in the current request
             MasEmployeeQualification::where('mas_employee_id', $employeeId)
                 ->whereNotIn('mas_qualification_id', $qualificationIdsInRequest)
                 ->delete();
@@ -350,50 +343,35 @@ class EmployeeController extends Controller
 
     private function saveTrainings($trainings, $employeeId, $request)
     {
-        // Fetch all existing trainings for the employee, keyed by id
-        $existingTrainings = MasEmployeeTraining::where('mas_employee_id', $employeeId)
-            ->get()
-            ->keyBy('id');
-
         $trainingIdsInRequest = []; // Track IDs from the request
 
         foreach ($trainings as $key => $value) {
             $trainingId = $value['id'] ?? null; // Assume the form might include an id for existing records
             $trainingCertificate = isset($value['certificate']) ? uploadImageToDirectory($value['certificate'], $this->filePath) : null;
 
-            if ($trainingId && isset($existingTrainings[$trainingId])) {
-                // Update existing record
-                $existingTrainings[$trainingId]->update([
+            // Use updateOrCreate to either update the existing record or create a new one
+            $training = MasEmployeeTraining::updateOrCreate(
+                [
+                    'id' => $trainingId, // If the trainingId is null, it will create a new record
+                    'mas_employee_id' => $employeeId
+                ],
+                [
                     'title' => $value['title'],
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'duration' => $value['duration'],
                     'location' => $value['location'],
                     'description' => $value['description'],
-                    'certificate' => $trainingCertificate ?? null,
-                ]);
-            } else {
-                // Insert new record
-                $newTraining = MasEmployeeTraining::create([
-                    'mas_employee_id' => $employeeId,
-                    'title' => $value['title'],
-                    'start_date' => $value['start_date'],
-                    'end_date' => $value['end_date'],
-                    'duration' => $value['duration'],
-                    'location' => $value['location'],
-                    'description' => $value['description'],
-                    'certificate' => $trainingCertificate ?? null,
-                ]);
-                $trainingIdsInRequest[] = $newTraining->id; // Track new ID
-            }
+                    'certificate' => $trainingCertificate
+                ]
+            );
 
-            if ($trainingId) {
-                $trainingIdsInRequest[] = $trainingId;
-            }
+            // Add the ID of the created or updated record to the array
+            $trainingIdsInRequest[] = $training->id;
         }
 
+        // Handle deleting records that are no longer in the request
         if ($request->isMethod('put') || $request->isMethod('patch')) {
-            // Delete any trainings that are not in the current request
             MasEmployeeTraining::where('mas_employee_id', $employeeId)
                 ->whereNotIn('id', $trainingIdsInRequest)
                 ->delete();
@@ -402,46 +380,33 @@ class EmployeeController extends Controller
 
     private function saveExperiences($experiences, $employeeId, $request)
     {
-        // Fetch all existing experiences for the employee, keyed by their IDs
-        $existingExperiences = MasEmployeeExperience::where('mas_employee_id', $employeeId)
-            ->get()
-            ->keyBy('id');
-
         $experienceIdsInRequest = []; // Track IDs from the request
 
         foreach ($experiences as $value) {
             $experienceId = $value['id'] ?? null; // Use null if 'id' is not set
 
-            if ($experienceId && isset($existingExperiences[$experienceId])) {
-                // Update existing record
-                $existingExperiences[$experienceId]->update([
+            // Use updateOrCreate to either update the existing record or create a new one
+            $experience = MasEmployeeExperience::updateOrCreate(
+                [
+                    'id' => $experienceId, // Check for an existing record by ID
+                    'mas_employee_id' => $employeeId // Ensure it's for the correct employee
+                ],
+                [
                     'organization' => $value['organization'],
                     'place' => $value['place'],
                     'designation' => $value['designation'],
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'description' => $value['description'],
-                ]);
+                ]
+            );
 
-                $experienceIdsInRequest[] = $experienceId; // Add to tracking array
-            } else {
-                // Insert new record
-                $newExperience = MasEmployeeExperience::create([
-                    'mas_employee_id' => $employeeId,
-                    'organization' => $value['organization'],
-                    'place' => $value['place'],
-                    'designation' => $value['designation'],
-                    'start_date' => $value['start_date'],
-                    'end_date' => $value['end_date'],
-                    'description' => $value['description'],
-                ]);
-
-                $experienceIdsInRequest[] = $newExperience->id; // Track the new ID
-            }
+            // Add the ID of the created or updated record to the array
+            $experienceIdsInRequest[] = $experience->id;
         }
 
+        // Handle deleting records that are no longer in the request
         if ($request->isMethod('put') || $request->isMethod('patch')) {
-            // Delete any experiences that are not in the current request
             MasEmployeeExperience::where('mas_employee_id', $employeeId)
                 ->whereNotIn('id', $experienceIdsInRequest)
                 ->delete();
@@ -454,59 +419,40 @@ class EmployeeController extends Controller
             'documents.employment_contract' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'documents.non_disclosure_aggrement' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'documents.job_responsibilities' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'documents.*.other' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
 
-        $empContract = "";
-        $empNonDisclosureAggrement = "";
-        $jobResponsibilities = "";
-        $otherDocuments = [];
-        // if ($request->isMethod('put') || $request->isMethod('patch')) {
-        $empDocument = MasEmployeeDocument::whereMasEmployeeId($employeeId)->first();
-        // if($empDocument){
-        //     //do sth here
-        // }
-        if (isset($doc['employment_contract'])) {
-            $empContract = uploadImageToDirectory($doc['employment_contract'], $this->filePath);
-        } else {
-            $empContract = $empDocument->employment_contract;
-        }
-        if (isset($doc['non_disclosure_aggrement'])) {
-            $empNonDisclosureAggrement = uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath);
-        } else {
-            $$empNonDisclosureAggrement  = $empDocument->non_disclosure_aggrement;
-        }
-        if (isset($doc['job_responsibilities'])) {
-            $jobResponsibilities = uploadImageToDirectory($doc['job_responsibilities'], $this->filePath);
-        } else {
-            $jobResponsibilities = $empDocument->job_responsibilities;
-        }
+        // Fetch existing employee document, or create an empty object if none exists
+        $empDocument = MasEmployeeDocument::whereMasEmployeeId($employeeId)->first() ?? new MasEmployeeDocument();
 
-        // if ($empDocument->other) { //if it has existing document in table then assign existingDocuments to otherDocuments
-        //     $existingDocuments = json_decode($empDocument->other);
-        //     $otherDocuments = $existingDocuments;
-        // }
+        // Handle file uploads with fallback to existing documents
+        $empContract = isset($doc['employment_contract'])
+            ? uploadImageToDirectory($doc['employment_contract'], $this->filePath)
+            : $empDocument->employment_contract;
 
-        if (isset($doc['other'])) { //if there is other dcument from request
-            foreach ($doc['other'] as $otherFile) {
-                $otherDocuments[] = uploadImageToDirectory($otherFile, $this->filePath);
-            }
-        }
-        $empDoc = MasEmployeeDocument::updateOrCreate(
+        $empNonDisclosureAggrement = isset($doc['non_disclosure_aggrement'])
+            ? uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath)
+            : $empDocument->non_disclosure_aggrement;
+
+        $jobResponsibilities = isset($doc['job_responsibilities'])
+            ? uploadImageToDirectory($doc['job_responsibilities'], $this->filePath)
+            : $empDocument->job_responsibilities;
+
+        // Handle 'other' documents
+        $otherDocuments = isset($doc['other'])
+            ? array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other'])
+            : ($empDocument->other ? json_decode($empDocument->other, true) : []);
+
+        // Update or create the document entry
+        MasEmployeeDocument::updateOrCreate(
             ['mas_employee_id' => $employeeId],
             [
-                'mas_employee_id' => $employeeId,
                 'employment_contract' => $empContract,
                 'non_disclosure_aggrement' => $empNonDisclosureAggrement,
                 'job_responsibilities' => $jobResponsibilities,
-                'other' => empty($otherDocuments) ? null : json_encode($otherDocuments)
+                'other' => empty($otherDocuments) ? null : json_encode($otherDocuments),
             ]
         );
-        // $empDocument->mas_employee_id = $employeeId;
-        // $empDocument->employment_contract = $empContract;
-        // $empDocument->non_disclosure_aggrement = $empNonDisclosureAggrement;
-        // $empDocument->job_responsibilities = $jobResponsibilities;
-        // $empDocument->other = empty($otherDocuments) ? null : json_encode($otherDocuments);
-        // $empDocument->save();
     }
 
     private function getNextTab($currentTab)

@@ -39,7 +39,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="code">Code <span class="text-danger">*</span></label>
-                        <input type="text" name="code" id="code" class="form-control" required readonly>
+                        <input type="text" name="code" id="code" class="form-control"   >
                     </div>
                 </div>
             </div>

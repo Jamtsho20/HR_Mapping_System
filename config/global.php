@@ -55,7 +55,7 @@ return [
 
     'nationality' => ['Bhutanese', 'Indian', 'Canadian'],
 
-    'title' => ['Mr.', 'Mrs.', 'Dr.', 'Dasho'],
+    'title' => ['Mr.','Miss', 'Mrs.', 'Dr.', 'Dasho'],
 
     'bank' => [
         'BoB' => 'Bank of Bhutan',
