@@ -72,7 +72,7 @@ class AccountHeadsController extends Controller
         $accountHead->code = $request->code;
         $accountHead->name = $request->name;
         $accountHead->type = $request->type;
-        $accountHead->edited_by = auth()->user()->id; // Assuming you're tracking who edited the record
+        $accountHead->updated_by = auth()->user()->id; // Assuming you're tracking who edited the record
 
         // Save the updated model instance to the database
         $accountHead->save();
