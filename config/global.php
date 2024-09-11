@@ -1,5 +1,8 @@
 <?php
 return [
+
+    'default_password' => 'password',
+    
     'null_value' => '-',
 
     'holiday_types' => ['Government', 'Private'],

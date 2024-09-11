@@ -8,7 +8,8 @@
                     <select name="job[mas_department_id]" id="department_id" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($departments as $department)
-                        <option value="{{ $department->id }}">
+                        <option value="{{ $department->id }}"
+                            {{ old('job.mas_section_id', isset($employee->empJob->department->id )?$employee->empJob->department->id:'') == $department->id ? 'selected' : '' }}>
                             {{$department->name }}
                         </option>
                         @endforeach
