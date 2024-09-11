@@ -1,0 +1,1 @@
+<p>{{$leavePolicy->name}}</p>
