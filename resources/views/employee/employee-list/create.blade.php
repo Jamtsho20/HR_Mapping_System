@@ -64,6 +64,7 @@
                                 <li><a href="#training" class="{{ request('current_tab') == 'training' ? 'active' : '' }}" data-tab="training">Training (s)</a></li>
                                 <li><a href="#experience" class="{{ request('current_tab') == 'experience' ? 'active' : '' }}" data-tab="experience">Experience (s)</a></li>
                                 <li><a href="#document" class="{{ request('current_tab') == 'document' ? 'active' : '' }}" data-tab="document">Document (s)</a></li>
+                                <li><a href="#role" class="{{ request('current_tab') == 'role' ? 'active' : '' }}" data-tab="role">Assign Roles</a></li>
                             </ul>
                         </div>
                     </div>
@@ -92,6 +93,9 @@
                             </div>
                             <div class="tab-pane {{ request('current_tab') == 'document' ? 'active' : '' }}" id="document">
                                 @include('employee.employee-list.forms.document')
+                            </div>
+                            <div class="tab-pane {{ request('current_tab') == 'role' ? 'active' : '' }}" id="role">
+                                @include('employee.employee-list.forms.role')
                             </div>
                         </div>
                         

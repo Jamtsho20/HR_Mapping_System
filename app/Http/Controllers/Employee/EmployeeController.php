@@ -22,8 +22,10 @@ use App\Models\MasOffice;
 use App\Models\MasQualification;
 use App\Models\MasSection;
 use App\Models\MasVillage;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class EmployeeController extends Controller
 {
@@ -73,11 +75,11 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $employeeId = $request->employee_id ?? "";
-
+        $nextTab = 'address';
         try {
             $employeeId = $this->savePersonalInfo($request->personal, $request);
 
-            return redirect()->route('employee-lists.edit', $employeeId)->with('msg_success', 'Data saved successfully.');
+            return redirect()->route('employee-lists.edit', ['employee_list' => $employeeId, 'tab' => $nextTab])->with('msg_success', 'Data saved successfully.');
         } catch (\Exception $e) {
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
@@ -117,8 +119,10 @@ class EmployeeController extends Controller
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
+        $roles = Role::orderBy('id')->get();
+        $rolesAssigned = $employee->roles->pluck('id')->toArray();
 
-        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections', 'designations', 'grades', 'gradeSteps', 'employmentTypes', 'qualifications', 'offices'));
+        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections', 'designations', 'grades', 'gradeSteps', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned'));
     }
 
     /**
@@ -126,7 +130,13 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
+                
         $tab = $request->input('current_tab');
+        $this->savePersonalInfo($request->personal, $request, $id);
+        if($tab == null){
+            $nextTab = 'address';
+            return redirect()->route('employee-lists.edit', ['employee_list' => $id, 'tab' => $nextTab])->with('msg_success', 'Data saved successfully.');
+        }
         if ($tab === 'address') {
             $this->saveAddress($request->permenant_address, $request->current_address, $id, $request);
         } elseif ($tab === 'job') {
@@ -138,10 +148,19 @@ class EmployeeController extends Controller
         } elseif ($tab === 'experience') {
             $this->saveExperiences($request->experiences, $id, $request);
         } elseif ($tab === 'document') {
+            $this->saveDocuments($request->documents, $id, $request);
+                
+        } else if ($tab === 'role') {
+            // $this->assignRoles($request->roles, $id, $request);
+            if (!$request->roles) {
+                return redirect()->back()->with('msg_error', 'You need to select at least one role');
+            }
             DB::beginTransaction();
             try {
-                $this->saveDocuments($request->documents, $id, $request);
-                $masEmployee = DB::table('mas_employees')->where('id', $id)->update(['status' => 1]);
+                $this->assignRoles($request->documents, $id, $request);
+                if(DB::table('mas_employees')->where('id', $id)->where('status', 0)){
+                    $masEmployee = DB::table('mas_employees')->where('id', $id)->update(['status' => 1]);
+                }
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -169,8 +188,8 @@ class EmployeeController extends Controller
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
-        $request->validate([
-            'personal.email' => 'required|email|unique:mas_employees,email,' . ($employeeId ?? 'null'),
+        $user = $employeeId ? User::findOrFail($employeeId): "";
+        $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
             'personal.cid_no' => 'required|digits:11',
@@ -179,21 +198,41 @@ class EmployeeController extends Controller
             'personal.birth_place' => 'required',
             'personal.birth_country' => 'required',
             'personal.marital_status' => 'required',
+            'personal.email' => 'required|email|unique:mas_employees,email,' . ($employeeId ?? 'null'),
             'personal.contact_number' => 'required|digits:8',
             'personal.nationality' => 'required',
             'personal.date_of_appointment' => 'required|date',
-            'personal.cid_copy' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-        ]);
+            'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png|max:2048',
+        ];
+        $request->validate($rules);
+        
+        if(!$user || !isset($personalInfo['cid_copy'])){
+            $rules['personal.cid_copy'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
+        }
 
-        // Handle file uploads
-        $profilePic = isset($personalInfo['profile_pic']) ? uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/') : null;
-        $empCidCopy = "";
+        // Handle profile picture upload
+        if (isset($personalInfo['profile_pic'])) {
+            // Delete existing profile pic if it exists
+            if ($user && $user->profile_pic) {
+                delete_image($user->profile_pic); // Deletes the old profile pic from storage
+            }
+            // Upload new profile picture and update the path
+            $profilePic = uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/');
+        } else {
+            $profilePic = $user ? $user->profile_pic : null;
+        }
+
+        // Handle CID copy upload
         if (isset($personalInfo['cid_copy'])) {
-            $file = $personalInfo['cid_copy'];
-            $empCidCopy = uploadImageToDirectory($file, $this->filePath);
+            // Delete existing CID copy if it exists
+            if ($user && $user->cid_copy) {
+                delete_image($user->cid_copy); // Deletes the old CID copy from storage
+            }
+            // Upload new CID copy and update the path
+            $empCidCopy = uploadImageToDirectory($personalInfo['cid_copy'], $this->filePath);
         } elseif ($employeeId) {
-            $user = User::findOrFail($employeeId);
-            $empCidCopy = $user->cid_copy;
+            // Retain the existing CID copy if no new one is uploaded
+            $empCidCopy = $user ? $user->cid_copy : null;
         } else {
             throw new \Exception('Please upload the employee CID copy.');
         }
@@ -205,25 +244,24 @@ class EmployeeController extends Controller
             'last_name' => $personalInfo['last_name'] ?? null,
             'title' => $personalInfo['title'] ?? null,
             'name' => trim($personalInfo['first_name'] . ' ' . ($personalInfo['middle_name'] ?? '') . ' ' . ($personalInfo['last_name'] ?? '')),
-            'username' => $employeeId ? null : fixEmployeeId($this->fetchHighestEmpId() + 1),
-            'employee_id' => $this->fetchHighestEmpId() + 1,
+            'username' => $user->username,
+            'employee_id' => $user->employee_id,
             'password' => bcrypt('password'),
-            'email' => $personalInfo['email'] ?? null,
-            'cid_no' => $personalInfo['cid_no'] ?? null,
-            'gender' => $personalInfo['gender'] ?? null,
-            'dob' => $personalInfo['dob'] ?? null,
-            'birth_place' => $personalInfo['birth_place'] ?? null,
-            'birth_country' => $personalInfo['birth_country'] ?? null,
-            'marital_status' => $personalInfo['marital_status'] ?? null,
-            'contact_number' => $personalInfo['contact_number'] ?? null,
-            'nationality' => $personalInfo['nationality'] ?? null,
-            'date_of_appointment' => $personalInfo['date_of_appointment'] ?? null,
-            'is_active' => $personalInfo['is_active'] ?? null,
+            'email' => $personalInfo['email'],
+            'cid_no' => $personalInfo['cid_no'],
+            'gender' => $personalInfo['gender'],
+            'dob' => $personalInfo['dob'],
+            'birth_place' => $personalInfo['birth_place'],
+            'birth_country' => $personalInfo['birth_country'],
+            'marital_status' => $personalInfo['marital_status'],
+            'contact_number' => $personalInfo['contact_number'],
+            'nationality' => $personalInfo['nationality'],
+            'date_of_appointment' => $personalInfo['date_of_appointment'],
+            'is_active' => $personalInfo['is_active'],
             'profile_pic' => $profilePic,
             'cid_copy' => $empCidCopy,
             'status' => $request->status,
         ];
-
         // Update or create the user
         $user = User::updateOrCreate(
             ['id' => $employeeId], // Conditions to find the user
@@ -415,33 +453,71 @@ class EmployeeController extends Controller
 
     private function saveDocuments($doc, $employeeId, $request)
     {
-        $request->validate([
-            'documents.employment_contract' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'documents.non_disclosure_aggrement' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'documents.job_responsibilities' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        $rules = [
+            'documents.employment_contract' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'documents.non_disclosure_aggrement' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'documents.job_responsibilities' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'documents.*.other' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
-        ]);
+        ];
+        $request->validate($rules);
 
         // Fetch existing employee document, or create an empty object if none exists
         $empDocument = MasEmployeeDocument::whereMasEmployeeId($employeeId)->first() ?? new MasEmployeeDocument();
+        if(!$empDocument->employment_contract || !isset($doc['employment_contract'])){
+            $rules['documents.employment_contract'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
+        }
+        if(!$empDocument->non_disclosure_aggrement || !isset($doc['non_disclosure_aggrement'])){
+            $rules['documents.non_disclosure_aggrement'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
+        }
+        if(!$empDocument->job_responsibilities || !isset($doc['job_responsibilities'])){
+            $rules['documents.job_responsibilities'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
+        }
 
-        // Handle file uploads with fallback to existing documents
-        $empContract = isset($doc['employment_contract'])
-            ? uploadImageToDirectory($doc['employment_contract'], $this->filePath)
-            : $empDocument->employment_contract;
-
-        $empNonDisclosureAggrement = isset($doc['non_disclosure_aggrement'])
-            ? uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath)
-            : $empDocument->non_disclosure_aggrement;
-
-        $jobResponsibilities = isset($doc['job_responsibilities'])
-            ? uploadImageToDirectory($doc['job_responsibilities'], $this->filePath)
-            : $empDocument->job_responsibilities;
-
+        if (isset($doc['employment_contract'])) {
+            // Remove old file if exists
+            if ($empDocument->employment_contract) {
+                delete_image($empDocument->employment_contract);
+            }
+            $empContract = uploadImageToDirectory($doc['employment_contract'], $this->filePath);
+        } else {
+            $empContract = $empDocument->employment_contract;
+        }
+    
+        // Handle non-disclosure agreement
+        if (isset($doc['non_disclosure_aggrement'])) {
+            if ($empDocument->non_disclosure_aggrement) {
+                delete_image($empDocument->non_disclosure_aggrement);
+            }
+            $empNonDisclosureAggrement = uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath);
+        } else {
+            $empNonDisclosureAggrement = $empDocument->non_disclosure_aggrement;
+        }
+    
+        // Handle job responsibilities
+        if (isset($doc['job_responsibilities'])) {
+            if ($empDocument->job_responsibilities) {
+                delete_image($empDocument->job_responsibilities);
+            }
+            $jobResponsibilities = uploadImageToDirectory($doc['job_responsibilities'], $this->filePath);
+        } else {
+            $jobResponsibilities = $empDocument->job_responsibilities;
+        }
+    
         // Handle 'other' documents
-        $otherDocuments = isset($doc['other'])
-            ? array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other'])
-            : ($empDocument->other ? json_decode($empDocument->other, true) : []);
+        if (isset($doc['other'])) {
+            // Remove old files for 'other' documents
+            if ($empDocument->other) {
+                $existingOtherDocs = json_decode($empDocument->other, true);
+                foreach ($existingOtherDocs as $oldFile) {
+                    if ($oldFile) {
+                        delete_image($oldFile);
+                    }
+                }
+            }
+            $otherDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other']);
+        } else {
+            $otherDocuments = $empDocument->other ? json_decode($empDocument->other, true) : [];
+        }
 
         // Update or create the document entry
         MasEmployeeDocument::updateOrCreate(
@@ -455,9 +531,22 @@ class EmployeeController extends Controller
         );
     }
 
+    private function assignRoles($roles, $id, $request){
+        $user = User::findOrFail($id);
+        $rolesAssigned = [];
+        foreach($request->roles as $key => $value) {
+            $rolesAssigned[$value] = [
+                'created_by' => $request->user()->id,
+                'updated_by' => $request->user()->id,
+            ];
+        }
+
+        $user->roles()->sync($rolesAssigned);
+    }
+
     private function getNextTab($currentTab)
     {
-        $tabs = ['address', 'job', 'qualification', 'training', 'experience', 'document'];
+        $tabs = ['address', 'job', 'qualification', 'training', 'experience', 'document', 'role'];
 
         $currentIndex = array_search($currentTab, $tabs);
         $nextIndex = $currentIndex !== false && $currentIndex < count($tabs) - 1 ? $currentIndex + 1 : 0;
