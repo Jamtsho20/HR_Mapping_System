@@ -46,5 +46,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MasExpenseTypesSeeder::class);
         $this->call(ApprovingAuthoritySeeder::class);
         $this->call(HierarchyTableSeeder::class);
+        $this->call(MasEmploymentTypeSeeder::class);
     }
 }

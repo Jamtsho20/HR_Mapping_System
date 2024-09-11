@@ -19,7 +19,7 @@
         <select class="form-control" id="gender" name="leave_plan[gender]" required>
             <option value="" disabled selected hidden>Select your option</option>
             @foreach(config('global.gender') as $key => $value)
-            <option value="{{ $key }}" {{old('leave_plan.gender')==$key ? 'selected' : '' }}>{{ $value }}</option>
+            <option value="{{ $key }}" {{old('leave_plan.gender') == $key ? 'selected' : '' }}>{{ $value }}</option>
             @endforeach
         </select>
     </div>
@@ -29,8 +29,8 @@
     <div class="col-sm-4">
         <select class="form-control" id="leave-year" name="leave_plan[leave_year]">
             <option value="" disabled selected hidden>Select your option</option>
-            <option value="1" {{old('leave_plan.leave_year')==1 ? 'selected' : '' }}>Financial Year</option>
-            <option value="2" {{old('leave_plan.leave_year')==2 ? 'selected' : '' }}>Calender Year</option>
+            <option value="1" {{old('leave_plan.leave_year') == 1 ? 'selected' : '' }}>Financial Year</option>
+            <option value="2" {{old('leave_plan.leave_year') == 2 ? 'selected' : '' }}>Calender Year</option>
         </select>
     </div>
 
@@ -40,8 +40,8 @@
     <div class="col-sm-4">
         <select class="form-control" id="credit-frequency" name="leave_plan[credit_frequency]">
             <option value="" disabled selected hidden>Select your option</option>
-            <option value="1" {{old('leave_plan.credit_frequency')==1 ? 'selected' : '' }}>Monthly</option>
-            <option value="2" {{old('leave_plan.credit_frequency')==2 ? 'selected' : '' }}>Yearly</option>
+            <option value="1" {{old('leave_plan.credit_frequency') == 1 ? 'selected' : '' }}>Monthly</option>
+            <option value="2" {{old('leave_plan.credit_frequency') == 2 ? 'selected' : '' }}>Yearly</option>
         </select>
     </div>
 </div>
@@ -50,8 +50,8 @@
     <div class="col-sm-4">
         <select class="form-control" id="credit-frequency" name="leave_plan[credit]">
             <option value="" disabled selected hidden>Select your option</option>
-            <option value="1" {{old('leave_plan.credit')==1 ? 'selected' : '' }}>Monthly</option>
-            <option value="2" {{old('leave_plan.credit')==2 ? 'selected' : '' }}>Yearly</option>
+            <option value="1" {{old('leave_plan.credit') == 1 ? 'selected' : '' }}>Monthly</option>
+            <option value="2" {{old('leave_plan.credit') == 2 ? 'selected' : '' }}>Yearly</option>
         </select>
     </div>
 </div>
@@ -79,13 +79,15 @@
 <div class="row">
     <span class="col-sm-4">Can Avail In</span>
     @foreach($employmentTypes as $employmentType)
-    <div class="col-sm-2">
-        <div class="form-check">
-            <label class="form-check-label" style="font-weight: 400;">
-                <input type="checkbox" id="chkavailprobationperiad" name="leave_plan[can_avail_in][]" value="{{$employmentType->id}}" class="can_avail" {{ old('leave_plan.can_avail_in') ? 'checked' : '' }}>&nbsp;{{$employmentType->name}}
-            </label>
+        @if($employmentType->id != 0)
+        <div class="col-sm-2">
+            <div class="form-check">
+                <label class="form-check-label" style="font-weight: 400;">
+                    <input type="checkbox" id="chkavailprobationperiad" name="leave_plan[can_avail_in][]" value="{{$employmentType->id}}" class="can_avail" {{ old('leave_plan.can_avail_in') ? 'checked' : '' }}>&nbsp;{{$employmentType->name}}
+                </label>
+            </div>
         </div>
-    </div>
+        @endif
     @endforeach
 </div>
 <br>
@@ -111,15 +113,17 @@
                         </tr>
                     </thead>
                     <tbody>
-
-                        <tr>
+                       <tr>
                             <td class="text-center">
                                 <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                             </td>
                             <td class="text-center">
                                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Choose Grade" multiple="" tabindex="-1" style="width: 100%" aria-hidden=" true" name="leave_policy_rule[AAAAA][mas_grade_step_id][]">
                                     @foreach($gradeSteps as $step)
-                                    <option value="{{$step->id}}" {{old('leave_policy_rule.AAAAA.mas_grade_step_id')}}> {{$step->name}} </option>
+                                        <option value="{{ $step->id }}" {{ (old('leave_policy_rule.AAAAA.mas_grade_step_id') == $step->id) ? 'selected' : '' }}>
+                                            {{ $step->name }}
+                                        </option>
+
                                     @endforeach
                                 </select>
                             </td>
@@ -128,9 +132,9 @@
                             </td>
                             <td class="text-center">
                                 <select class="form-control" id="UOM" name="leave_policy_rule[AAAAA][uom]">
-                                    <option value="1" {{old('leave_policy_rule.AAAAA.uom')==1 ? 'selected' : '' }}>Day</option>
-                                    <option value="2" {{old('leave_policy_rule.AAAAA.uom')==2 ? 'selected' : '' }}>Month</option>
-                                    <option value="3" {{old('leave_policy_rule.AAAAA.uom')==3 ? 'selected' : '' }}>Year</option>
+                                    <option value="1" {{old('leave_policy_rule.AAAAA.uom') == 1 ? 'selected' : '' }}>Day</option>
+                                    <option value="2" {{old('leave_policy_rule.AAAAA.uom') == 2 ? 'selected' : '' }}>Month</option>
+                                    <option value="3" {{old('leave_policy_rule.AAAAA.uom') == 3 ? 'selected' : '' }}>Year</option>
                                 </select>
                             </td>
                             <td class="text-center">
@@ -142,34 +146,28 @@
                             <td class="text-center">
                                 <select class="form-control" id="ddlislossofpay" name="leave_policy_rule[AAAAA][is_loss_of_pay]">
                                     <option value="0">Select</option>
-                                    <option value="1" {{old('leave_policy_rule.AAAAA.is_loss_of_pay')==1 ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{old('leave_policy_rule.AAAAA.is_loss_of_pay')==0 ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{old('leave_policy_rule.AAAAA.is_loss_of_pay') == 1 ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{old('leave_policy_rule.AAAAA.is_loss_of_pay') == 0 ? 'selected' : '' }}>No</option>
                                 </select>
                             </td>
                             <td class="text-center">
                                 <select class="form-control" id="Employeetype" name="leave_policy_rule[AAAAA][mas_employment_type_id]">
                                     <option value="" disabled selected hidden>Select your option</option>
                                     @foreach($employmentTypes as $employmentType)
-                                    <option value="{{$employmentType->id}}" {{old('leave_policy_rule.AAAAA.mas_employment_type_id')==$employmentType->id ? 'selected' : '' }}>{{$employmentType->name}}</option>
+                                    <option value="{{$employmentType->id}}" {{old('leave_policy_rule.AAAAA.mas_employment_type_id') == $employmentType->id ? 'selected' : '' }}>{{$employmentType->name}}</option>
                                     @endforeach
-                                    <option value="0">All</option>
                                 </select>
                             </td>
                             <td class="text-center">
                                 <select class="form-control" name="leave_policy_rule[AAAAA][status]">
                                     <option value="" disabled selected hidden>Select your option</option>
                                     @foreach(config('global.status') as $key => $value)
-                                    <option value="{{ $key }}" {{old('leave_policy_rule.AAAAA.status')==$key ? 'selected' : '' }}>{{ $value }}</option>
+                                    <option value="{{ $key }}" {{old('leave_policy_rule.AAAAA.status') == $key ? 'selected' : '' }}>{{ $value }}</option>
                                     @endforeach
                                 </select>
                             </td>
                         </tr>
-                        <tr class="notremovefornew">
-                            <td colspan="8"></td>
-                            <td class="text-right">
-                                <a href="#" class="add-table-row btn btn-sm btn-primary" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
-                            </td>
-                        </tr>
+                        
                     </tbody>
 
                 </table>

@@ -65,8 +65,9 @@
                 </div>
 
                 <div class="content clearfix">
-                    <form action="{{ route('leave-policy.store') }}" id="leave-form" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('leave-policy.update', $leavePolicy->id) }}" id="leave-form" method="post" enctype="multipart/form-data">
                         @csrf
+                        @method("PUT")
                         <div id="wizard1-p-0" role="tabpanel" aria-labelledby="wizard1-h-0" class="body current" aria-hidden="false">
                             @include('leave.leave-policy.edit-forms.leave-policy')
                         </div>

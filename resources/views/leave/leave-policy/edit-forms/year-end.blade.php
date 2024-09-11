@@ -11,7 +11,6 @@
         </label>
 
 
-
     </div>
     <div class=" col-6">
         <div class="row">
@@ -25,6 +24,7 @@
 
 <div class="row">
     <div class="col-4">
+        
         <label class="form-check-label" style="font-weight:400">
             <input type="checkbox" class="year_proccessing" onclick="toggleInput('chkPayYearEnd', 'txtMinBalance', 'txtMaxEncashment');" id="chkPayYearEnd" value="1" name="year_end_processing[pay_at_year_end]" {{ $leavePolicy->yearEnd->pay_at_year_end ? 'checked' : '' }}> Pay at Year end
         </label>
@@ -67,7 +67,8 @@
             document.getElementById(inputId).disabled = !isChecked;
         });
     }
+    
     window.onload = function() {
-        toggleInput('chkAllowCarryover', 'txtCarryoverLimit1', 'chkPayYearEnd', 'txtMinBalance', 'txtMaxEncashment', 'chkCarryForwardEL', 'txtCarryForwardLimit');
+        toggleInput('chkAllowCarryover', 'txtCarryoverLimit1', 'txtMinBalance', 'txtMaxEncashment', 'txtCarryForwardLimit');
     };
 </script>

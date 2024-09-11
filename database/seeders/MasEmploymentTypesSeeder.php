@@ -14,6 +14,7 @@ class MasEmploymentTypesSeeder extends Seeder
     public function run(): void
     {
         DB::table('mas_employment_types')->insert([
+            ['id' => 0, 'name' => 'All', 'remarks' => 'Applical to all ', 'created_by' => 1],
             ['id' => 1, 'name' => 'Regular', 'remarks' => 'Regular Employee', 'created_by' => 1],
             ['id' => 2, 'name' => 'Probation', 'remarks' => 'Probation Employee', 'created_by' => 1],
             ['id' => 3, 'name' => 'Long-term Contract(Executive Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
