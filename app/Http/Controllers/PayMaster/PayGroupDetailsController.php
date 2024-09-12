@@ -42,7 +42,8 @@ class PayGroupDetailsController extends Controller
         // Validate the request data
         $request->validate([
             'mas_pay_group_id' => 'required|exists:mas_pay_groups,id',
-            'mas_grade_id' => 'required|exists:mas_grades,id',
+            'mas_grade_id' => 'required_if:applicable_on,2', // Required if applicable_on is Grade
+            'mas_employee_group_id' => 'required_if:applicable_on,1', // Required if applicable_on is Employee Group
             'calculation_method' => 'required|integer',
             'amount' => 'required|numeric',
         ]);
@@ -51,6 +52,7 @@ class PayGroupDetailsController extends Controller
         $payGroupDetail = new MasPayGroupDetail();
         $payGroupDetail->mas_pay_group_id = $request->mas_pay_group_id;
         $payGroupDetail->mas_grade_id = $request->mas_grade_id;
+        $payGroupDetail->mas_employee_group_id = $request->mas_employee_group_id;
         $payGroupDetail->calculation_method = $request->calculation_method;
         $payGroupDetail->amount = $request->amount;
         $payGroupDetail->created_by = auth()->user()->id;
