@@ -50,8 +50,8 @@
     <div class="col-sm-4">
         <select class="form-control" id="credit-frequency" name="leave_plan[credit]">
             <option value="" disabled selected hidden>Select your option</option>
-            <option value="1" {{old('leave_plan.credit') == 1 ? 'selected' : '' }}>Monthly</option>
-            <option value="2" {{old('leave_plan.credit') == 2 ? 'selected' : '' }}>Yearly</option>
+            <option value="1" {{old('leave_plan.credit') == 1 ? 'selected' : '' }}>Start Of Period</option>
+            <option value="2" {{old('leave_plan.credit') == 2 ? 'selected' : '' }}>End Of Period</option>
         </select>
     </div>
 </div>

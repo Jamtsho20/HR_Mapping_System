@@ -122,22 +122,67 @@
 
 @endsection
 
-
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const form = document.getElementById('leave-form');
-
-        function saveFormData() {
-            const formData = new FormData(form);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-            localStorage.setItem('formData', JSON.stringify(data));
-        }
-
-        document.getElementById('next-button').addEventListener('click', saveFormData);
-        document.getElementById('previous-button').addEventListener('click', saveFormData);
+    document.addEventListener('DOMContentLoaded', () => {
+        updateSummary();
+        setupRealTimeSaving();
     });
+
+    const summaryTab = document.getElementById('wizard1-t-3');
+    if (summaryTab) {
+        summaryTab.addEventListener('click', updateSummary);
+    }
+
+    const nextButton = document.getElementById('next-button');
+    const previousButton = document.getElementById('previous-button');
+
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            saveFormData(); // Save data when navigating to the next tab
+            updateSummary(); // Update summary on tab change
+        });
+    }
+
+    if (previousButton) {
+        previousButton.addEventListener('click', () => {
+            saveFormData(); // Save data when navigating to the previous tab
+            updateSummary(); // Update summary on tab change
+        });
+    }
+
+   function saveFormData() {
+        const form = document.getElementById('leave-form');
+        const formData = new FormData(form);
+        const data = {};
+
+        formData.forEach((value, key) => {
+            // Handle checkboxes
+            if (form.elements[key] && form.elements[key].type === 'checkbox') {
+                data[key] = form.elements[key].checked ? '1' : '0';
+            } else {
+                data[key] = value;
+            }
+        });
+
+        localStorage.setItem('formData', JSON.stringify(data));
+        updateSummary(); // Ensure summary is updated right away
+    }
+
+
+   
+
+    function setupRealTimeSaving() {
+        const form = document.getElementById('leave-form');
+        if (form) {
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('change', saveFormData);
+                // For text inputs, also listen for keyup events
+                if (input.type === 'text' || input.type === 'textarea') {
+                    input.addEventListener('keyup', saveFormData);
+                }
+            });
+        }
+    }
 
 </script>
