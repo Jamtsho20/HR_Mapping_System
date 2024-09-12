@@ -22,6 +22,7 @@ class PayGroupDetailsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        
         $payGroupDetails = MasPayGroupDetail::with('employeeGroup')
             ->filter($request)
             ->orderBy('created_at', 'desc')
@@ -70,7 +71,6 @@ class PayGroupDetailsController extends Controller
         // Find the PayGroupDetail and associated PayGroup by ID
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
         $payGroup = MasPayGroup::findOrFail($id);
-
         // Handle null dates
         // $payGroupDetail->created_at = $payGroupDetail->created_at ? $payGroupDetail->created_at->format('Y-m-d') : '';
         // $payGroupDetail->updated_at = $payGroupDetail->updated_at ? $payGroupDetail->updated_at->format('Y-m-d') : '';

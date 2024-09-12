@@ -26,9 +26,9 @@ class LeaveApplicationController extends Controller
         'from_day' => 'required',
         'to_day' => 'required',
         'from_date' => 'required|date',
-        'to_date' => 'required|date',
+        'to_date' => 'required|date|after_or_equal:from_date',
         'no_of_days' => 'required',
-        'attachment' => 'file|mimes:jpg,png,pdf|max:2048'
+        'attachment' => 'mimes:jpg,png,pdf|max:2048'
     ];
 
     protected $messages = [

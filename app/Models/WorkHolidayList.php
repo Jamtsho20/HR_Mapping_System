@@ -19,7 +19,7 @@ class WorkHolidayList extends Model
     //get the name of the regions stored as IDs in the DB
     public function getRegionNameAttribute()
     {
-        return MasRegion::whereIn('id', $this->region_id)->pluck('region_name')->toArray();
+        return MasRegion::whereIn('id', $this->region_id)->pluck('name')->toArray();
     }
 
     //filters

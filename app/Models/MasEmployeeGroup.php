@@ -14,6 +14,14 @@ class MasEmployeeGroup extends Model
     {
         return $this->hasMany(MasEmployeeGroupMap::class, 'mas_employee_group_id');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'mas_employee_group_maps', 'mas_employee_group_id', 'mas_employee_id')
+                    ->withPivot('created_by', 'updated_by')
+                    ->withTimestamps();
+    }
+
     public function payGroupDetails()
     {
         return $this->hasMany(MasPayGroupDetail::class, 'employee_category', 'id');
