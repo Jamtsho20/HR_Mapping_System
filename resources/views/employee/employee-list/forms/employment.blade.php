@@ -1,7 +1,5 @@
 <div class="tab-pane">
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
+      <div class="row">
                 <div class="form-group col-md-6">
                     <label for="">Employed As</label>
                         <select name="employedas" class="form-control form-control-sm" required>
@@ -41,6 +39,4 @@
                 </div>
 
             </div>
-        </div>
-    </div>
 </div>
