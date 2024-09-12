@@ -12,7 +12,7 @@
                         <tr>
                             <td>
                                 <label class="css-control css-checkbox">
-                                    <input type="checkbox" class="css-control-input" value="{{ $role->id }}" name="roles[]" {{ in_array($role->id, $rolesAssigned) ? 'checked' : ''}}>
+                                    <input type="checkbox" class="css-control-input" value="{{ $role->id }}" name="roles[]" @if (isset($rolesAssigned)){{ in_array($role->id, $rolesAssigned) ? 'checked' : ''}} @endif>
                                     <span class="css-control-indicator"></span> {{ $role->name }}
                                 </label>
                             </td>
