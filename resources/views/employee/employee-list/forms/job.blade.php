@@ -1,7 +1,5 @@
 <div class="tab-pane">
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
+     <div class="row border" >
                 <div class="form-group col-md-4">
                     <label for="department_id">Department <span class="text-danger">*</span></label>
 
@@ -125,52 +123,50 @@
                     <label for="">Probation & Notice Period <span class="text-danger">*</span></label>
                     <input type="date" class="form-control form-control-sm" name="job[probation_period]" value="{{ old('job.probation_period') }}" required>
             </div> --}}
-            <div class="form-group col-md-4">
-                <label for="immediate_supervisor">Immediate Supervisor</label>
-                <select name="job[immediate_supervisor]" class="form-control form-control-sm">
-                    <option value="" disabled selected hidden>Select your option</option>
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="">Bank <span class="text-danger">*</span></label>
-                <select name="job[bank]" class="form-control form-control-sm" required>
-                    <option value="" disabled selected hidden>Select your option</option>
-                    @foreach(config('global.bank') as $key => $label)
-                    <option value="{{ $key }}" {{ old('job.bank', isset($employee->empJob->bank) ? $employee->empJob->bank  : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                <div class="form-group col-md-4">
+                    <label for="immediate_supervisor">Immediate Supervisor</label>
+                    <select name="job[immediate_supervisor]" class="form-control form-control-sm">
+                        <option value="" disabled selected hidden>Select your option</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">Bank <span class="text-danger">*</span></label>
+                    <select name="job[bank]" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Select your option</option>
+                        @foreach(config('global.bank') as $key => $label)
+                        <option value="{{ $key }}" {{ old('job.bank', isset($employee->empJob->bank) ? $employee->empJob->bank  : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
 
-                    @endforeach
-                    
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="">Account Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" name="job[account_number]" value="{{ old('job.account_number', isset($employee->empJob) ? $employee->empJob->account_number:'') }}" required>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="">PF Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" name="job[pf_number]" value="{{ old('job.pf_number', isset($employee->empJob) ? $employee->empJob->pf_number:'') }}" required>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="">TPN Number <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" name="job[tpn_number]" value="{{ old('job.tpn_number',isset($employee->empJob) ? $employee->empJob->tpn_number:'') }}" required>
-            </div>
+                        @endforeach
+                        
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">Account Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="job[account_number]" value="{{ old('job.account_number', isset($employee->empJob) ? $employee->empJob->account_number:'') }}" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">PF Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="job[pf_number]" value="{{ old('job.pf_number', isset($employee->empJob) ? $employee->empJob->pf_number:'') }}" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">TPN Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="job[tpn_number]" value="{{ old('job.tpn_number',isset($employee->empJob) ? $employee->empJob->tpn_number:'') }}" required>
+                </div>
+                {{-- <div class="form-group col-md-4">
+                        <label for="">Grade Scale <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="job[grade_scale]" value="{{ old('job.grade_scale') }}" required>
+            </div> --}}
             {{-- <div class="form-group col-md-4">
-                    <label for="">Grade Scale <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[grade_scale]" value="{{ old('job.grade_scale') }}" required>
-        </div> --}}
-        {{-- <div class="form-group col-md-4">
-                    <label for="">Ceiling <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[grade_scale]" required>
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="">Grade Ladder <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[grade_ladder]" required>
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="">Pay Scale <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[pay_scale]" required>
-                </div> --}}
-    </div>
-</div>
-</div>
+                        <label for="">Ceiling <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="job[grade_scale]" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Grade Ladder <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="job[grade_ladder]" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Pay Scale <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="job[pay_scale]" required>
+                    </div> --}}
+        </div>
 </div>

@@ -24,15 +24,16 @@
                                         style="overflow: scroll; position: relative; border: 0px; width: 100%;">
                                         <div class="dataTables_scrollHeadInner"
                                             style="box-sizing: content-box; padding-right: 0px;">
-                                            <table
-                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                id="basic-datatable table-responsive">
+                                            <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                 <thead>
                                                     <tr role="row">
-                                                        <th>Employee Category </th>
-                                                        <th>Grade </th>
-                                                        <th>Calculation Method </th>
-                                                        <th>Amount </th>
+                                                        @if($payGroup->applicable_on == 1) <!-- Applicable to Employee Group -->
+                                                        <th>Employee Category</th>
+                                                        @elseif($payGroup->applicable_on == 2) <!-- Applicable to Grade -->
+                                                        <th>Grade</th>
+                                                        @endif
+                                                        <th>Calculation Method</th>
+                                                        <th>Amount</th>
                                                         <th>Created At</th>
                                                         <th>Updated At</th>
                                                         <th>Action</th>
@@ -40,35 +41,32 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach($payGroupDetails as $detail)
-
                                                     <tr>
+                                                        @if($payGroup->applicable_on == 1) <!-- Display Employee Category -->
                                                         <td>{{ $detail->employeeGroup->name ?? config('global.null_value') }}</td>
+                                                        @elseif($payGroup->applicable_on == 2) <!-- Display Grade -->
                                                         <td>{{ $detail->grade->name ?? config('global.null_value') }}</td>
-                                                        <td>
-                                                            {{ config('global.calculation_method')[$detail->calculation_method] }}
-                                                        </td>
+                                                        @endif
+                                                        <td>{{ config('global.calculation_method')[$detail->calculation_method] }}</td>
                                                         <td>{{ $detail->amount }}</td>
                                                         <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d') : '' }}</td>
                                                         <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d') : '' }}</td>
                                                         <td class="text-center">
-
                                                             <a href="#" class="edit-btn btn btn-sm btn-rounded btn-outline-success"
                                                                 data-url="{{ url('getpaygroupdetail/' . $detail->id) }}"
                                                                 data-update-url="{{ url('paymaster/pay-group-details/' . $detail->id) }}">
                                                                 <i class="fa fa-edit"></i> Edit
                                                             </a>
-
                                                             <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
                                                                 data-url="{{ url('paymaster/pay-group-details/' . $detail->id) }}">
                                                                 <i class="fa fa-trash"></i> Delete
                                                             </a>
-
                                                         </td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
-
                                             </table>
+
                                         </div>
                                         <!-- Pagination Links -->
                                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -100,13 +98,25 @@
                     @csrf
                     <input type="hidden" name="mas_pay_group_id" value="{{ $payGroup->id }}">
 
-                    <div class="mb-3">
+                    <div id="grade-section" class="mb-3" style="display: none;">
                         <label for="mas_grade_id" class="form-label">Grade <span class="text-danger">*</span></label>
                         <select name="mas_grade_id" id="mas_grade_id" class="form-control">
                             <option value="" disabled selected hidden>Select an option</option>
                             @foreach ($grades as $grade)
                             <option value="{{ $grade->id }}">
                                 {{ $grade->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div id="employee-group-section" class="mb-3" style="display: none;">
+                        <label for="mas_employee_group_id" class="form-label">Employee Group <span class="text-danger">*</span></label>
+                        <select name="mas_employee_group_id" id="mas_employee_group_id" class="form-control">
+                            <option value="" disabled selected hidden>Select an option</option>
+                            @foreach ($employeeGroups as $group)
+                            <option value="{{ $group->id }}">
+                                {{ $group->name }}
                             </option>
                             @endforeach
                         </select>
@@ -133,10 +143,10 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 </div>
+
 
 <!-- Edit Modal -->
 <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="editDetailLabel" aria-hidden="true">
@@ -211,39 +221,39 @@
 
 @push('page_scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const applicableOnSelect = document.getElementById('applicable_on');
-    const dynamicFields = document.querySelectorAll('.dynamic-field');
-    const gradeField = document.getElementById('field_grade');
-    const employeeCategoryField = document.getElementById('field_employee_category');
-    const calculationMethodField = document.getElementById('field_calculation_method');
-    const amountField = document.getElementById('field_amount');
+    document.addEventListener('DOMContentLoaded', function() {
+        const applicableOnSelect = document.getElementById('applicable_on');
+        const dynamicFields = document.querySelectorAll('.dynamic-field');
+        const gradeField = document.getElementById('field_grade');
+        const employeeCategoryField = document.getElementById('field_employee_category');
+        const calculationMethodField = document.getElementById('field_calculation_method');
+        const amountField = document.getElementById('field_amount');
 
-    const toggleFields = (applicableOn) => {
-        dynamicFields.forEach(field => {
-            field.style.display = 'none'; // Hide all dynamic fields
+        const toggleFields = (applicableOn) => {
+            dynamicFields.forEach(field => {
+                field.style.display = 'none'; // Hide all dynamic fields
+            });
+
+            // Show fields based on the applicableOn value
+            if (applicableOn === '2') { // Grade
+                gradeField.style.display = 'block';
+                calculationMethodField.style.display = 'block';
+                amountField.style.display = 'block';
+            } else if (applicableOn === '1') { // Employee Group
+                employeeCategoryField.style.display = 'block';
+                calculationMethodField.style.display = 'block';
+                amountField.style.display = 'block';
+            }
+        };
+
+        // Trigger field visibility when the select value changes
+        applicableOnSelect.addEventListener('change', function() {
+            toggleFields(this.value); // Use the value of the select element
         });
 
-        // Show fields based on the applicableOn value
-        if (applicableOn === '2') { // Grade
-            gradeField.style.display = 'block';
-            calculationMethodField.style.display = 'block';
-            amountField.style.display = 'block';
-        } else if (applicableOn === '1') { // Employee Group
-            employeeCategoryField.style.display = 'block';
-            calculationMethodField.style.display = 'block';
-            amountField.style.display = 'block';
-        }
-    };
-
-    // Trigger field visibility when the select value changes
-    applicableOnSelect.addEventListener('change', function() {
-        toggleFields(this.value); // Use the value of the select element
+        // Trigger field visibility on page load based on the existing value
+        toggleFields(applicableOnSelect.value); // Use the value of the select element
     });
-
-    // Trigger field visibility on page load based on the existing value
-    toggleFields(applicableOnSelect.value); // Use the value of the select element
-});
 </script>
 
 @endpush

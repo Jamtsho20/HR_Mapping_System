@@ -33,5 +33,37 @@
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the applicable_on select element and the form sections
+        var applicableOnSelect = document.getElementById('applicable_on');
+        var gradeSection = document.getElementById('grade-section');
+        var employeeGroupSection = document.getElementById('employee-group-section');
 
+        // Function to toggle the form sections
+        function toggleFormSections() {
+            var selectedValue = applicableOnSelect.value;
+
+            if (selectedValue == '1') {
+                // Show employee group section, hide grade section
+                employeeGroupSection.style.display = 'block';
+                gradeSection.style.display = 'none';
+            } else if (selectedValue == '2') {
+                // Show grade section, hide employee group section
+                gradeSection.style.display = 'block';
+                employeeGroupSection.style.display = 'none';
+            } else {
+                // Hide both sections if nothing is selected
+                gradeSection.style.display = 'none';
+                employeeGroupSection.style.display = 'none';
+            }
+        }
+
+        // Initial toggle based on the preselected value
+        toggleFormSections();
+
+        // Event listener for when the user changes the selection
+        applicableOnSelect.addEventListener('change', toggleFormSections);
+    });
+</script>
 @endpush
