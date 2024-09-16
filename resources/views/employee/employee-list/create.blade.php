@@ -44,15 +44,13 @@
     .tab-menu-heading {
 
         border: none !important;
-        padding-left: 0!important;
+        padding-left: 0 !important;
 
     }
 
     .tabs-menu-body {
         border: none !important;
     }
-
-
 </style>
 
 <div class="col-xl-12">
@@ -99,7 +97,6 @@
                         <input type="hidden" name="current_tab" id="current_tab" value="{{ request('tab') }}">
                         {{-- <input type="hidden" name="employee_id" id="employee_id" value="{{ $employeeId ?? '' }}">
                         --}}
-
                         <div class="tab-content">
                             <!-- Tab panes -->
                             <div class="tab-pane {{ request('current_tab') == 'address' ? 'active' : '' }}"
@@ -133,7 +130,8 @@
                     <div class="card-footer float-end">
                         <button type="button" onclick="saveTabData()" class="btn btn-secondary ">Save &
                             Progress</button>
-                        <button type="submit" class="btn btn-primary ">Submit</button>
+                        <a href="{{route('employee-lists.index')}}" id="cancel" name="cancel"
+                            class="btn btn-primary">Cancel</a>
                     </div>
                 </div>
             </form>
