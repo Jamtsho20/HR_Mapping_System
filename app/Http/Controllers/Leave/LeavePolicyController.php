@@ -21,7 +21,7 @@ class LeavePolicyController extends Controller
         $this->middleware('permission:leave/leave-policy,view')->only('index', 'show');
         $this->middleware('permission:leave/leave-policy,create')->only('store');
         $this->middleware('permission:leave/leave-policy,edit')->only('update');
-        $this->middleware('permission:leave/leave-policy,destroy')->only('destroy');
+        $this->middleware('permission:leave/leave-policy,delete')->only('destroy');
     }
     /**
      * Display a listing of the resource.
@@ -98,13 +98,16 @@ class LeavePolicyController extends Controller
     {
         $instance = $request->instance();
         $canUpdate = (int) $instance->edit;
+        $leaves = MasLeaveType::get();
+        $gradeSteps = MasGradeStep::get(['id', 'name']);
+        $employmentTypes = MasEmploymentType::get(['id', 'name']);
 
         $leavePolicy = MasLeavePolicy::findOrFail($id);
 
 
 
         // dd($leavePolicy->leavePolicyPlan);
-        return view('leave.leave-policy.show', compact('canUpdate', 'leavePolicy'));
+        return view('leave.leave-policy.show', compact('canUpdate', 'leavePolicy', 'leaves', 'employmentTypes', 'gradeSteps'));
     }
 
     /**
@@ -150,9 +153,15 @@ class LeavePolicyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy( $id)
     {
-        //
+        try {
+            MasLeavePolicy::findOrFail($id)->delete();
+
+            return back()->with('msg_success', 'Leave policy has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Leave policy cannot be delete as it has been used by other module. For further information contact system admin.');
+        }
     }
 
     private function saveLeavePolicy($policy, $id)

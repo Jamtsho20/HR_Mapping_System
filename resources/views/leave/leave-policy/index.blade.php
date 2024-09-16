@@ -73,16 +73,16 @@
                                                             <td>{{$leave->leaveType->name}}</td>
                                                             <td>{{$leave->start_date}}</td>
                                                             <td>{{$leave->end_date}}</td>
-                                                            <td><span class="badge rounded-pill  bg-{{$leave->status == 1 ? 'primary' : 'danger' }} me-1 mt-1"> {{$leave->status == 1? 'Enforced':'Draft'}}</span></td>
+                                                            <td><span class="badge rounded-pill  bg-{{$leave->status == 1 ? 'primary' : 'danger' }} me-1 mt-1"> {{$leave->status == 1 ? 'Enforced' : 'Draft'}}</span></td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
                                                                 <a href="{{ url('leave/leave-policy/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                                 @endif
                                                                 @if ($privileges->edit)
-                                                                <a href="{{ url('leave/leave-policy/'.$leave->id .'/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                <a href="{{ url('leave/leave-policy/' . $leave->id . '/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                                 @endif
                                                                 @if ($privileges->delete)
-                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url=""><i class="fa fa-trash"></i>
+                                                                <a href="#" data-url="{{ url('leave/leave-policy/' . $leave->id) }}" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"><i class="fa fa-trash"></i>
                                                                     DELETE</a>
                                                                 @endif
                                                             </td>
