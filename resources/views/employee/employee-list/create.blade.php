@@ -144,41 +144,51 @@
 @endsection
 
 @push('page_scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tabs = document.querySelectorAll('.nav.panel-tabs a');
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.nav.panel-tabs a');
+        const button = document.querySelector('button[type="button"]');
 
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-                    const tabName = this.getAttribute('data-tab');
-                    const newUrl = new URL(window.location);
-                    newUrl.searchParams.set('tab', tabName);
-                    window.history.pushState({}, '', newUrl);
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(event) {
+                event.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const tabName = this.getAttribute('data-tab');
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('tab', tabName);
+                window.history.pushState({}, '', newUrl);
 
-                    // Activate the clicked tab and corresponding pane
-                    tabs.forEach(tab => tab.classList.remove('active'));
-                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                // Activate the clicked tab and corresponding pane
+                tabs.forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
 
-                    this.classList.add('active');
-                    document.getElementById(targetId).classList.add('active');
+                this.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
 
-                    // Update hidden input for the current tab
-                    document.getElementById('current_tab').value = tabName;
-                });
+                // Update hidden input for the current tab
+                document.getElementById('current_tab').value = tabName;
+
+                // Change button label for the 'Assign Roles' tab
+                if (tabName === 'role') {
+                    button.textContent = 'Submit';
+                } else {
+                    button.textContent = 'Save & Progress';
+                }
             });
-
-            // Set initial active tab based on query string
-            const queryTab = new URLSearchParams(window.location.search).get('tab');
-            if (queryTab) {
-                document.querySelector(`a[data-tab="${queryTab}"]`).click();
-            }
         });
 
-        function saveTabData() {
-            const currentTab = document.getElementById('current_tab').value;
-            document.getElementById('emp-form').submit();
+        // Set initial active tab based on query string
+        const queryTab = new URLSearchParams(window.location.search).get('tab');
+        if (queryTab) {
+            document.querySelector(`a[data-tab="${queryTab}"]`).click();
         }
-    </script>
+    });
+
+    function saveTabData() {
+        const currentTab = document.getElementById('current_tab').value;
+
+        // Submit the form
+        document.getElementById('emp-form').submit();
+    }
+</script>
 @endpush

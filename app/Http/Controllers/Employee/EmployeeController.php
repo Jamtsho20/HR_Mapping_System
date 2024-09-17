@@ -190,6 +190,7 @@ class EmployeeController extends Controller
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
         $user = $employeeId ? User::findOrFail($employeeId): "";
+       
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -237,6 +238,7 @@ class EmployeeController extends Controller
         } else {
             throw new \Exception('Please upload the employee CID copy.');
         }
+
 
         // Prepare the data to be saved
         $userData = [

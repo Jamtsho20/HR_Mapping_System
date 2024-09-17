@@ -72,10 +72,10 @@
                                                                 Email
                                                             </th>
                                                             <th>
-                                                                Is Active
+                                                                Employee Status
                                                             </th>
                                                             <th>
-                                                                Status
+                                                                Application Status
                                                             </th>
                                                             <th>
                                                                 Action
