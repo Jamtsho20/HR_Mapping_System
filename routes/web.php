@@ -94,13 +94,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
-        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
+        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         Route::get('leave-encashment', 'LeaveApplicationController@leaveEncashment')->name('leave.leave-encashment');
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
     });
 
- 
-  
+
+
 
     // DELEGATION APPROVAL
     Route::namespace('DelegationApproval')->prefix('delegation-approval')->group(function () {
@@ -164,17 +164,16 @@ Route::middleware('auth')->group(function () {
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
         Route::resource('account-heads', 'AccountHeadsController');
-        Route::resource('pay-groups', 'PayGroupsController');        
-        Route::resource('pay-heads', 'PayHeadsController');        
-        Route::resource('pay-slabs', 'PaySlabsController');        
-        Route::resource('pay-slab-details', 'PaySlabsDetailsController'); 
-        Route::resource('pay-group-details', 'PayGroupDetailsController'); 
+        Route::resource('pay-groups', 'PayGroupsController');
+        Route::resource('pay-heads', 'PayHeadsController');
+        Route::resource('pay-slabs', 'PaySlabsController');
+        Route::resource('pay-slab-details', 'PaySlabsDetailsController');
+        Route::resource('pay-group-details', 'PayGroupDetailsController');
     });
 
     //EmployeeCategory
     Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
         Route::resource('employee-create', 'EmployeeGroupController');
-     
     });
 
     /* route related to ajax */

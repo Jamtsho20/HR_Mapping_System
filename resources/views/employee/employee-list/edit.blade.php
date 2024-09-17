@@ -133,8 +133,7 @@
                     <div class="card-footer float-end">
                         <button type="button" onclick="saveTabData()" class="btn btn-secondary ">Save &
                             Progress</button>
-                        <button type="submit" class="btn btn-primary ">Submit</button>
-                    </div>
+    <a href="{{route('employee-lists.index')}}" id="cancel" name="cancel" class="btn btn-primary">Cancel</a>                    </div>
                 </div>
             </form>
         </div>

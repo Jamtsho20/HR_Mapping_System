@@ -80,15 +80,15 @@
 <div class="row">
     <span class="col-sm-4">Can Avail In</span>
     @foreach($employmentTypes as $employmentType)
-        @if($employmentType->id != 0)
-        <div class="col-sm-2">
-            <div class="form-check">
-                <label class="form-check-label" style="font-weight: 400;">
-                    <input type="checkbox" id="chkavailprobationperiad" name="leave_plan[can_avail_in][]" value="{{$employmentType->id}}" class="can_avail" {{in_array($employmentType->id, json_decode($leavePolicy->leavePolicyPlan->can_avail_in)) ? 'checked' : '' }}>&nbsp;{{$employmentType->name}}
-                </label>
-            </div>
+    @if($employmentType->id != 0)
+    <div class="col-sm-2">
+        <div class="form-check">
+            <label class="form-check-label" style="font-weight: 400;">
+                <input type="checkbox" id="chkavailprobationperiad" name="leave_plan[can_avail_in][]" value="{{$employmentType->id}}" class="can_avail" {{in_array($employmentType->id, json_decode($leavePolicy->leavePolicyPlan->can_avail_in)) ? 'checked' : '' }}>&nbsp;{{$employmentType->name}}
+            </label>
         </div>
-        @endif
+    </div>
+    @endif
     @endforeach
 </div>
 <br>
@@ -115,70 +115,70 @@
                     </thead>
                     <tbody>
                         @foreach($leavePolicy->leavePolicyPlan->LeavePolicyRule as $key => $rule)
-                                                                                            <input type="hidden"  name="leave_policy_rule[{{$key}}][leave_policy_plan_id]" class="form-control resetKeyForNew" value="{{$leavePolicy->leavePolicyPlan->id}}">
-                                                                                            <input type="hidden"  name="leave_policy_rule[{{$key}}][leave_policy_plan_id]" class="form-control resetKeyForNew" value="{{$leavePolicy->leavePolicyPlan->id}}">
-                                                                                    <tr>
-                                                                                        <td class="text-center">
-                                                                                            <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
-                                                                                        </td>
+                        <input type="hidden" name="leave_policy_rule[{{$key}}][leave_policy_plan_id]" class="form-control resetKeyForNew" value="{{$leavePolicy->leavePolicyPlan->id}}">
+                        <input type="hidden" name="leave_policy_rule[{{$key}}][leave_policy_plan_id]" class="form-control resetKeyForNew" value="{{$leavePolicy->leavePolicyPlan->id}}">
+                        <tr>
+                            <td class="text-center">
+                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                            </td>
 
-                                                                                        <td class="text-center">
-                                                                                            <select name="leave_policy_rule[{{ $key }}][mas_grade_step_id]" class="form-control form-control-sm resetKeyForNew" required>
-                                                                                                <option value="" disabled selected hidden>SELECT ONE</option>
-                                                                                                @foreach($gradeSteps as $step)
-                                                                                                @php
-                            $gradeStepsArray = is_array(json_decode($rule->mas_grade_step_id, true)) ? json_decode($rule->mas_grade_step_id, true) : [$rule->mas_grade_step_id];
-                                                                                                @endphp
-                                                                                                <option value="{{ $step->id }} "
-                                                                                                    {{ in_array($step->id, $gradeStepsArray) ? 'selected' : '' }}>
-                                                                                                    {{ $step->name }}
-                                                                                                </option>
-                                                                                                @endforeach
+                            <td class="text-center">
+                                <select name="leave_policy_rule[{{ $key }}][mas_grade_step_id]" class="form-control form-control-sm resetKeyForNew" required>
+                                    <option value="" disabled selected hidden>SELECT ONE</option>
+                                    @foreach($gradeSteps as $step)
+                                    @php
+                                    $gradeStepsArray = is_array(json_decode($rule->mas_grade_step_id, true)) ? json_decode($rule->mas_grade_step_id, true) : [$rule->mas_grade_step_id];
+                                    @endphp
+                                    <option value="{{ $step->id }} "
+                                        {{ in_array($step->id, $gradeStepsArray) ? 'selected' : '' }}>
+                                        {{ $step->name }}
+                                    </option>
+                                    @endforeach
 
-                                                                                            </select>
-                                                                                        </td>
+                                </select>
+                            </td>
 
-                                                                                        <td class="text-center">
-                                                                                            <input type="text" min="0" maxlength="5" name="leave_policy_rule[{{$key}}][duration]" class="form-control resetKeyForNew" id="duration" placeholder="Duration" value="{{$rule->duration}}">
-                                                                                        </td>
-                                                                                        <td class="text-center">
-                                                                                            <select class="form-control resetKeyForNew" id="UOM" name="leave_policy_rule[{{$key}}][uom]">
-                                                                                                <option value="1" {{($rule->uom) == 1 ? 'selected' : '' }}>Day</option>
-                                                                                                <option value="2" {{($rule->uom) == 2 ? 'selected' : '' }}>Month</option>
-                                                                                                <option value="3" {{($rule->uom) == 3 ? 'selected' : '' }}>Year</option>
-                                                                                            </select>
-                                                                                        </td>
+                            <td class="text-center">
+                                <input type="text" min="0" maxlength="5" name="leave_policy_rule[{{$key}}][duration]" class="form-control resetKeyForNew" id="duration" placeholder="Duration" value="{{$rule->duration}}">
+                            </td>
+                            <td class="text-center">
+                                <select class="form-control resetKeyForNew" id="UOM" name="leave_policy_rule[{{$key}}][uom]">
+                                    <option value="1" {{($rule->uom) == 1 ? 'selected' : '' }}>Day</option>
+                                    <option value="2" {{($rule->uom) == 2 ? 'selected' : '' }}>Month</option>
+                                    <option value="3" {{($rule->uom) == 3 ? 'selected' : '' }}>Year</option>
+                                </select>
+                            </td>
 
-                                                                                        <td class="text-center">
-                                                                                            <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker resetKeyForNew" style="background-color: rgb(255, 255, 255);" name="leave_policy_rule[{{$key}}][start_date]" value="{{$rule->start_date}}">
-                                                                                        </td>
-                                                                                        <td class="text-center">
-                                                                                            <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker resetKeyForNew" style="background-color: rgb(255, 255, 255);" name="leave_policy_rule[{{$key}}][end_date]" value="{{$rule->end_date}}">
-                                                                                        </td>
-                                                                                        <td class="text-center">
-                                                                                            <select class="form-control resetKeyForNew" id="ddlislossofpay" name="leave_policy_rule[{{$key}}][is_loss_of_pay]">
-                                                                                                <option value="0">Select</option>
-                                                                                                <option value="1" {{$rule->is_loss_of_pay == 1 ? 'selected' : '' }}>Yes</option>
-                                                                                                <option value="0" {{$rule->is_loss_of_pay == 0 ? 'selected' : '' }}>No</option>
-                                                                                            </select>
-                                                                                        </td>
-                                                                                        <td class="text-center">
-                                                                                            <select class="form-control resetKeyForNew" id="Employeetype" name="leave_policy_rule[{{$key}}][mas_employment_type_id]">
-                                                                                                <option value="" disabled selected hidden>Select your option</option>
-                                                                                                @foreach($employmentTypes as $employmentType)
-                                                                                                <option value="{{$employmentType->id}}" {{$rule->mas_employment_type_id == $employmentType->id ? 'selected' : '' }}>{{$employmentType->name}}</option>
-                                                                                                @endforeach
-                                                                                            </select>
-                                                                                        </td>
-                                                                                        <td class="text-center">
-                                                                                            <select class="form-control resetKeyForNew" name="leave_policy_rule[{{$key}}][status]">
-                                                                                                <option value="" disabled selected hidden>Select your option</option>
-                                                                                                @foreach(config('global.status') as $key => $value)
-                                                                                                <option value="{{ $key }}" {{$rule->status == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                                                                                @endforeach
-                                                                                            </select>
-                                                                                        </td>
-                                                                                    </tr>
+                            <td class="text-center">
+                                <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker resetKeyForNew" style="background-color: rgb(255, 255, 255);" name="leave_policy_rule[{{$key}}][start_date]" value="{{$rule->start_date}}">
+                            </td>
+                            <td class="text-center">
+                                <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker resetKeyForNew" style="background-color: rgb(255, 255, 255);" name="leave_policy_rule[{{$key}}][end_date]" value="{{$rule->end_date}}">
+                            </td>
+                            <td class="text-center">
+                                <select class="form-control resetKeyForNew" id="ddlislossofpay" name="leave_policy_rule[{{$key}}][is_loss_of_pay]">
+                                    <option value="0">Select</option>
+                                    <option value="1" {{$rule->is_loss_of_pay == 1 ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{$rule->is_loss_of_pay == 0 ? 'selected' : '' }}>No</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <select class="form-control resetKeyForNew" id="Employeetype" name="leave_policy_rule[{{$key}}][mas_employment_type_id]">
+                                    <option value="" disabled selected hidden>Select your option</option>
+                                    @foreach($employmentTypes as $employmentType)
+                                    <option value="{{$employmentType->id}}" {{$rule->mas_employment_type_id == $employmentType->id ? 'selected' : '' }}>{{$employmentType->name}}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <select class="form-control resetKeyForNew" name="leave_policy_rule[{{$key}}][status]">
+                                    <option value="" disabled selected hidden>Select your option</option>
+                                    @foreach(config('global.status') as $key => $value)
+                                    <option value="{{ $key }}" {{$rule->status == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                        </tr>
                         @endforeach
                         <tr class="notremovefornew">
                             <td colspan="8"></td>
