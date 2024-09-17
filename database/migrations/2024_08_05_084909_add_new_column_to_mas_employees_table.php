@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('nationality', 50);
             $table->date('date_of_appointment')->default(now());
             $table->string('cid_copy');
+            $table->tinyInteger('status')->default(0);
         });
     }
 
@@ -49,6 +50,7 @@ return new class extends Migration
             $table->dropColumn('nationality');
             $table->dropColumn('date_of_appointment');
             $table->dropColumn('cid_copy');
+            $table->dropColumn('status');
         });
     }
 };

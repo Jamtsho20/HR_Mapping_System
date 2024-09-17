@@ -10,6 +10,7 @@ use App\Models\MasGewog;
 class MasDzongkhag extends Model
 {
     use HasFactory, CreatedByTrait;
+    protected $table = 'mas_dzongkhags';
      //accessors & mutators
      public function setDzongkhagAttribute($value)
      {

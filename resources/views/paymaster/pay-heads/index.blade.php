@@ -139,7 +139,7 @@
                                                                                     data-calculation_method="{{ $payHead->calculation_method }}"
                                                                                     data-calculated_on="{{ $payHead->calculated_on }}"
                                                                                     data-formula="{{ $payHead->formula }}"
-                                                                                    class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                                    class=" btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-edit"></i> EDIT
                                                                                 </a>
                                                                             @endif
@@ -158,6 +158,9 @@
                                                                 @endforelse
                                                             </tbody>
                                                         </table>
+                                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                                            <div>{{ $payHeads->links() }}</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>    

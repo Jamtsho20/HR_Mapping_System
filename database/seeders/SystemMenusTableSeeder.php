@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class SystemMenusTableSeeder extends Seeder
 {
@@ -14,7 +15,7 @@ class SystemMenusTableSeeder extends Seeder
      */
     public function run()
     {
-        \DB::table('system_menus')->insert([
+        DB::table('system_menus')->insert([
             ['id' => 1, 'name' => 'System Setting', 'icon' => 'fa-cogs', 'display_order' => 1],
             ['id' => 2, 'name' => 'Master', 'icon' => 'fa-list', 'display_order' => 2],
             ['id' => 3, 'name' => 'Work Structure', 'icon' => 'fa-calendar', 'display_order' => 3],
@@ -29,6 +30,7 @@ class SystemMenusTableSeeder extends Seeder
             ['id' => 12, 'name' => 'Reports', 'icon' => 'fa-flag', 'display_order' => 12],
             ['id' => 13, 'name' => 'Asset', 'icon' => 'fa-pie-chart', 'display_order' => 13],
             ['id' => 14, 'name' => 'Payroll', 'icon' => 'fa-money', 'display_order' => 14],
+            ['id' => 14, 'name' => 'Employee Group', 'icon' => 'fa-users', 'display_order' => 14],
 
         ]);
     }

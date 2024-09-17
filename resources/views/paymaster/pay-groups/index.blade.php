@@ -79,15 +79,13 @@
                                                                         <td>{{ $payGroup->created_at ? $payGroup->created_at->format('Y-m-d H:i:s') : '' }}</td>
                                                                         <td>{{ $payGroup->updated_at ? $payGroup->updated_at->format('Y-m-d H:i:s'): '' }}</td>
                                                                         <td class="text-center">
-                                                                            <!-- @if ($privileges->edit)
-                                                                                <a href="{{ url('paymaster/pay-groups/' . $payGroup->id . '/edit') }}"
-                                                                                data-name="{{ $payGroup->name }}"
-                                                                                data-applicable_on="{{ $payGroup->applicable_on }}"
-                                                                                class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                            @if ($privileges->edit)
+                                                                                <a href="{{ url('paymaster/pay-groups/' . $payGroup->id .  '/edit') }}"
+                                                                                    class="btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-edit"></i> EDIT
                                                                                 </a>
-                                                                            @endif -->
-                                                                            <button type="button" class="btn-sm btn btn-rounded btn-outline-success" data-bs-toggle="modal" data-bs-target="#edit-detail-modal">Edit</button>
+                                                                            @endif
+                                                                            <!-- <button type="button" class="btn-sm btn btn-rounded btn-outline-success" data-bs-toggle="modal" data-bs-target="#edit-detail-modal">Edit</button> -->
                  
                                                                             @if ($privileges->delete)
                                                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"

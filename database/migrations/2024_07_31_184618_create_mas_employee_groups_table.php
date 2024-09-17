@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('description', 500)->nullable();
             $table->boolean('status')->default(1)->comment('1 => active, 0 => in-active');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             
             $table->timestamps();
         });

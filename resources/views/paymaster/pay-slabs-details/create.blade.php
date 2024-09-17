@@ -11,17 +11,17 @@
                 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="pay_from">Pay From</label>
+                        <label for="pay_from">Pay From <span class="text-danger">*</span></label></label>
                         <input type="number" class="form-control" name="pay_from" id="pay_from" value="{{ old('pay_from') }}" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="pay_to">Pay To</label>
+                        <label for="pay_to">Pay To <span class="text-danger">*</span></label></label>
                         <input type="number" class="form-control" name="pay_to" id="pay_to" value="{{ old('pay_to') }}" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="amount">Amount</label>
+                        <label for="amount">Amount <span class="text-danger">*</span></label></label>
                         <input type="number" class="form-control" name="amount" id="amount" value="{{ old('amount') }}" required>
                     </div>
                 </div>

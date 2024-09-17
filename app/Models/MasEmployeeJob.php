@@ -11,7 +11,7 @@ class MasEmployeeJob extends Model
 
     protected $fillable = [
         'mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id', 'mas_grade_id', 'mas_grade_step_id',
-        'mas_employment_type_id', 'immediate_supervisor', 'job_location', 'basic_pay', 'bank', 'account_number', 'pf_number', 'tpn_number'
+        'mas_employment_type_id', 'immediate_supervisor', 'mas_office_id', 'basic_pay', 'bank', 'account_number', 'pf_number', 'tpn_number'
     ];
 
     public function masEmployee() {
@@ -43,5 +43,9 @@ class MasEmployeeJob extends Model
 
     public function supervisor() {
         return $this->belongsTo(User::class, 'immediate_supervisor');
+    }
+
+    public function office(){
+        return $this->belongsTo(MasOffice::class, 'mas_office_id');
     }
 }

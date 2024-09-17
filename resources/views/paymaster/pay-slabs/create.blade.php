@@ -9,35 +9,35 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="name">Name</label>
+                        <label for="name">Name <span class="text-danger">*</span></th></label>
                         <input type="text" class="form-control" name="name" value="" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="effective_date">Effective Date</label>
+                        <label for="effective_date">Effective Date <span class="text-danger">*</span></th></label>
                         <input type="date" class="form-control" name="effective_date" value="" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="formula">Formula</label>
+                        <label for="formula">Formula <span class="text-danger">*</span></th></label>
                         <input type="textarea" class="form-control" name="formula" value="" required>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row row-sm">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Pay Slab Details</h3>
-            </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pay Slab Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                                <div class="row">
+                                    <div class="col-sm-12">
                                         <div class="dataTables_scroll">
                                             <div class="dataTables_scrollHead"
                                                 style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -47,9 +47,12 @@
                                                         <thead>
                                                             <tr>
                                                                 <th class="text-center">#</th>
-                                                                <th>Pay From *</th>
-                                                                <th>Pay To *</th>
-                                                                <th>Amount *</th>
+                                                                <th>Pay From <span class="text-danger">*</span></th>
+                                                                </th>
+                                                                <th>Pay To <span class="text-danger">*</span></th>
+                                                                </th>
+                                                                <th>Amount <span class="text-danger">*</span></th>
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -77,14 +80,14 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
-    </div>
-</div>
         <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
             <a href="{{ url('paymaster/pay-slabs') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>

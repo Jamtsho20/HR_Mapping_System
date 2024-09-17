@@ -13,6 +13,7 @@ class MasPayGroup extends Model
     public function groupDetails() {
         return $this->hasMany(MasPayGroupDetail::class,'mas_pay_group_id');
     }
+    protected $fillable = ['name', 'applicable_on', 'created_by'];
 
     protected $casts = [
         'created_at' => 'datetime',

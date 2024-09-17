@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\PayMaster;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasEmployeeGroup;
+use App\Models\MasGrade;
 use App\Models\MasPayGroup;
+use App\Models\MasPayGroupDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PayGroupsController extends Controller
 {
@@ -18,70 +22,132 @@ class PayGroupsController extends Controller
         $this->middleware('permission:paymaster/pay-groups,edit')->only('update');
         $this->middleware('permission:paymaster/pay-groups,delete')->only('destroy');
     }
+
+    protected $rules = [
+        'name' => 'required|string|max:150',
+        'applicable_on' => 'required',
+        'mas_pay_group_details.*.mas_employee_group_id' => 'required',
+        'mas_pay_group_details.*.mas_grade_id' => 'required',
+        'mas_pay_group_details.*.calculation_method' => 'required',
+        'mas_pay_group_details.*.amount' => 'required'
+    ];
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
         $payGroups = MasPayGroup::filter($request)->orderBy('name')->paginate(30);
-        return view('paymaster.pay-groups.index', compact('payGroups','privileges'));
+        $empCategories = MasEmployeeGroup::get(['id', 'name']);
+
+        return view('paymaster.pay-groups.index', compact('payGroups', 'privileges', 'empCategories'));
     }
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('paymaster.pay-groups.create');
-
+        $employeeGroups = MasEmployeeGroup::all();
+        $grades = MasGrade::all();
+        return view('paymaster.pay-groups.create',compact('employeeGroups','grades'));
     }
 
     public function store(Request $request)
     {
-        // Validate the request data
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'applicable_on' => 'required|integer|in:1,2',
-        ]);
-
-        $payGroup = new MasPayGroup();
-        $payGroup->name = $request->name;
-        $payGroup->applicable_on = $request->applicable_on;
-        $payGroup->created_by = auth()->user()->id; 
-        $payGroup->save();
-        return redirect('paymaster/pay-groups')->with('msg_success', 'Pay group created successfully');
+        // dd($request->all());
+        $this->validate($request, $this->rules);
+    
+        DB::beginTransaction();
+    
+        try {
+            // Create a new pay group
+            $payGroup = new MasPayGroup();
+            $payGroup->name = $request->name;
+            $payGroup->applicable_on = $request->applicable_on;
+            $payGroup->created_by = auth()->user()->id;
+            $payGroup->save();
+    
+            // Save associated pay group details
+            if ($request->has('details')) {
+                $this->savePayGroupDetail($request->details, $payGroup->id);
+            }
+    
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log the exception or handle as needed
+            return back()->with('msg_error', 'The pay group could not be created, please try again.');
+        }
+    
+        return redirect('paymaster/pay-groups')->with('msg_success', 'Pay Group created successfully');
     }
+    
+    private function savePayGroupDetail($details, $payGroupId)
+    {
+        $payGroupDetails = [];
+    
+        foreach ($details as $key => $value) {
+            $payGroupDetails[] = [
+                'mas_pay_group_id' => $payGroupId,
+                'mas_employee_group_id' => $value['mas_employee_group_id'] ?? null,
+                'mas_grade_id' => $value['mas_grade_id'] ?? null,
+                'calculation_method' => $value['calculation_method'],
+                'amount' => $value['amount'],
+                'created_by' => auth()->user()->id, 
+            ];
+        }
+    
+        MasPayGroupDetail::insert($payGroupDetails);
+    }
+    
 
     public function show(string $id)
     {
-        //
+        $payGroup = MasPayGroup::findOrFail($id);
+        return view('paymaster.pay-groups.show', compact('payGroup'));
     }
 
     public function edit(string $id)
     {
         $payGroup = MasPayGroup::findOrFail($id);
-        return view('paymaster.pay-groups.edit', compact('payGroup'));
+        $employeeGroups = MasEmployeeGroup::all();
+        $grades = MasGrade::all();
+        $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
+        $empCategories = MasEmployeeGroup::get(['id', 'name']);
+        //dd($payGroupDetails);
+
+        return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades', 'empCategories'));
     }
+
 
     public function update(Request $request, string $id)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'applicable_on' => 'required|integer|in:1,2', // Assuming 1 for Employee Group, 2 for Grade
-        ]);
+{
+    $this->validate($request, $this->rules);
 
-        // Find the existing pay group by ID
-        $payGroup = MasPayGroup::findOrFail($id);
+    $payGroup = MasPayGroup::findOrFail($id);
+    $payGroup->name = $request->name;
+    $payGroup->applicable_on = $request->applicable_on;
+    $payGroup->edited_by = auth()->user()->id;
+    $payGroup->save();
 
-        // Update the pay group properties with the request data
-        $payGroup->name = $request->name;
-        $payGroup->applicable_on = $request->applicable_on;
-        $payGroup->edited_by = auth()->user()->id; // Assuming you're tracking who edited the record
-
-        // Save the updated model instance to the database
-        $payGroup->save();
-
-        // Redirect to the pay groups listing page with a success message
-        return redirect('paymaster/pay-groups')->with('msg_success', 'Pay group updated successfully');
+    if ($request->has('details')) {
+        foreach ($request->details as $detail) {
+            $payGroupDetail = MasPayGroupDetail::findOrFail($detail['id']);
+            if (isset($detail['mas_employee_group_id'])) {
+                $payGroupDetail->mas_employee_group_id = $detail['mas_employee_group_id'];
+            }
+            if (isset($detail['mas_grade_id'])) {
+                $payGroupDetail->mas_grade_id = $detail['mas_grade_id'];
+            }
+            $payGroupDetail->calculation_method = $detail['calculation_method'];
+            $payGroupDetail->amount = $detail['amount'];
+            $payGroupDetail->edited_by = auth()->user()->id;  // Add this line if applicable
+            $payGroupDetail->save();
+        }
     }
+
+    return redirect('paymaster/pay-groups')->with('msg_success', 'Pay group updated successfully');
+}
+
+
 
     public function destroy(string $id)
     {
@@ -97,8 +163,20 @@ class PayGroupsController extends Controller
         }
     }
 
+    // private function savePayGroupDetail($details, $payGroupId)
+    // {
+    //     $payGroupDetails = [];
 
+    //     foreach ($details as $key => $value) {
+    //         $payGroupDetails[] = [
+    //             'mas_pay_group_id' => $payGroupId,
+    //             'employee_category' => $value['employee_category'] ?? null,
+    //             'grade' => $value['grade'] ?? null,
+    //             'calculation_method' => $value['calculation_method'],
+    //             'amount' => $value['amount'],
+    //         ];
+    //     }
 
-
-
+    //     MasPayGroup::findOrFail($payGroupId)->payGroupDetails()->createMany($payGroupDetails);
+    // }
 }

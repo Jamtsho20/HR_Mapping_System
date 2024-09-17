@@ -9,6 +9,18 @@ use Illuminate\Database\Eloquent\Model;
 class MasPayHead extends Model
 {
     use HasFactory, CreatedByTrait;
+    protected $fillable = [
+        'payhead_type',
+        'name',
+        'account_head_id',
+        'code',
+        'calculation_method',
+        'calculated_on',
+        'amount',
+        'mas_pay_slab_id',
+        'mas_pay_group_id',
+        'formula',
+    ];
 
     public function payGroup()
     {

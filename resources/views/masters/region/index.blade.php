@@ -36,35 +36,40 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Region</th>
+                                            <th>Regional Manager</th>
+                                            <th>RM Email</th>
+                                            <th>RM Phone</th>
+                                            <th>Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($regions as $region)
-                                        <tr>
-                                            <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
-                                            <td>{{ $region->region_name }}</td>
-
-                                            <td class="text-center">
-                                                @if ($privileges->edit)
-                                                <a href="{{ url('master/regions/'.$region->id. '/edit') }}" data-name="{{ $region->region_name }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                                                @endif
-                                                @if ($privileges->delete)
-                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/regions/'.$region->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                                                @endif
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
+                                                <td>{{ $region->name }}</td>
+                                                <td>{{ $region->user->emp_id_name ?? config('global.null_value') }}</td>
+                                                <td>{{ $region->user->email ?? config('global.null_value') }}</td>
+                                                <td>{{ $region->user->phone_no ?? config('global.null_value') }}</td>
+                                                <td>{{ $region->status ? 'Active' : 'Inactive' }}</td>
+                                                <td class="text-center">
+                                                    @if ($privileges->edit)
+                                                        <a href="{{ url('master/regions/'.$region->id. '/edit') }}" data-name="{{ $region->name }}" class="btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                    @endif
+                                                    @if ($privileges->delete)
+                                                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/regions/'.$region->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                    @endif
+                                                </td>
+                                            </tr>
                                         @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center text-danger">No Regions found</td>
-                                        </tr>
+                                            <tr>
+                                                <td colspan="5" class="text-center text-danger">No Regions found</td>
+                                            </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>

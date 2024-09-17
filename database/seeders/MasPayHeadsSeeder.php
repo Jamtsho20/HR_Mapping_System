@@ -56,13 +56,25 @@ class MasPayHeadsSeeder extends Seeder
                     'name' => 'Provident Fund',
                     'code' => 'PF',
                     'payhead_type' => 2,
-                    'calculation_method' => 5,
+                    'calculation_method' => 6,
                     'calculated_on' => 1,
                     'amount' => 15.00,
                     'mas_pay_slab_id' => null,
                     'mas_pay_group_id' => null,
                     'account_head_id' =>  $deductionAccountHead->id,
-                    'formula' => null,
+                    'formula' => "IF ([mas_employment_types].[name] = 'Regular')
+                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.15))
+                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.10))
+                ELSEIF ([mas_employment_types].[name] = 'Contract')
+                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.15))
+                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.15))
+                ELSEIF ([mas_employment_types].[name] = 'Consolidate' OR [mas_employment_types].[name] = 'Support Contract')
+                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.05))
+                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.05))
+                ELSE
+                    THEN (EMPLOYEE_PF = 0)
+                    THEN (EMPLOYER_PF = 0)
+            ENDIF",
                     'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),
@@ -109,7 +121,7 @@ class MasPayHeadsSeeder extends Seeder
                     'amount' => null,
                     'mas_pay_slab_id' => null,
                     'mas_pay_group_id' => null,
-                    'account_head_id' =>$deductionAccountHead->id,
+                    'account_head_id' => $deductionAccountHead->id,
                     'formula' => null,
                     'created_by' => 1,
                     'updated_by' => null,
@@ -147,7 +159,7 @@ class MasPayHeadsSeeder extends Seeder
                     'payhead_type' => 1,
                     'calculation_method' => 6,
                     'calculated_on' => 5,
-                    'amount' =>null,
+                    'amount' => null,
                     'mas_pay_slab_id' => null,
                     'mas_pay_group_id' => null,
                     'account_head_id' => $allowanceAccountHead->id,

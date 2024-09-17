@@ -11,11 +11,11 @@
                 <input type="text" class="form-control" name="code" value="" required="required">
             </div>
             <div class="form-group col-md-12">
-                <label for="">Name </label>
+                <label for="">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="name" value="" required="required">
             </div>
             <div class="form-group col-md-12">
-                <label for="type">Type</label>
+                <label for="type">Type <span class="text-danger">*</span></label>
                     <select name="type" id="type" class="form-control form-control-sm" required>
                         <option value="" disabled selected>Select an option</option>
                         <option value="1">Credit</option>

@@ -26,4 +26,8 @@ class MasEmployeePresentAddress extends Model
     {
         return $this->belongsTo(MasGewog::class);
     }
+    public function masVillage()
+    {
+        return $this->belongsTo(MasVillage::class);
+    }
 }

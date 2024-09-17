@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApprovingAuthority;
 use App\Models\SystemHierarchy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +32,8 @@ class HierarchyController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $hierarchies = SystemHierarchy::filter($request)->with('hierarchyLevels')->paginate(30)->withQueryString();
-
+        $hierarchies = SystemHierarchy::filter($request)->with('hierarchyLevels')->paginate(10)->withQueryString();
+        // dd($hierarchies);
         return view('system-settings.hierarchy.index', compact('privileges', 'hierarchies'));
     }
 
@@ -41,7 +42,8 @@ class HierarchyController extends Controller
      */
     public function create()
     {
-        return view('system-settings.hierarchy.create');
+        $approvingAuthorities = ApprovingAuthority::whereStatus(1)->get(['id', 'name', 'has_employee_field']);
+        return view('system-settings.hierarchy.create', compact('approvingAuthorities'));
     }
 
     /**
@@ -62,7 +64,7 @@ class HierarchyController extends Controller
             foreach ($request->hierarchies as $key => $value) {
                 $level[] = [
                     'level' => $value['level'],
-                    'value' => $value['value'],
+                    'approving_authority_id' => $value['approving_authority_id'],
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'status' => $value['status']
@@ -89,8 +91,9 @@ class HierarchyController extends Controller
     public function edit(string $id)
     {
         $hierarchy = SystemHierarchy::with('hierarchyLevels')->findOrFail($id);
+        $approvingAuthorities = ApprovingAuthority::where('status', 1)->get(['id', 'name', 'has_employee_field']);
 
-        return view('system-settings.hierarchy.edit', compact('hierarchy'));
+        return view('system-settings.hierarchy.edit', compact('hierarchy', 'approvingAuthorities'));
     }
 
     /**
@@ -98,11 +101,10 @@ class HierarchyController extends Controller
      */
     public function update(Request $request,  $id)
     {
-       
+        // dd($request->all());
         $this->validate($request, $this->rules, $this->messages);
 
         DB::transaction(function () use ($request, $id) {
-
             $hierarchy = SystemHierarchy::findOrFail($id);
             $hierarchy->hierarchy_name = $request->hierarchy_name;
             $hierarchy->save();
@@ -110,9 +112,9 @@ class HierarchyController extends Controller
             $hierarchy->hierarchyLevels()->delete();
 
             foreach ($request->hierarchies as $key => $value) {
-                $hierarchy->hierarchyLevels()->create(['id' => $value['level_id'],
+                $hierarchy->hierarchyLevels()->create([
                     'level' => $value['level'],
-                    'value' => $value['value'],
+                    'approving_authority_id' => $value['approving_authority_id'],
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'status' => $value['status']

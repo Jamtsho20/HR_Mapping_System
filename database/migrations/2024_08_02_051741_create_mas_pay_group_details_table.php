@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('mas_pay_group_id')->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('mas_employee_group_id')->index()->nullable()->constrained();
             $table->foreignId('mas_grade_id')->index()->nullable()->constrained();
-            $table->tinyInteger("calculation_method")->comment("1 for Actual Method, 2 for Division, 3 for Percentage")->index();
+            $table->tinyInteger("calculation_method")->nullable()->comment("0 for no method, 1 for Actual Method, 2 for Division, 3 for Percentage")->index();
             $table->decimal('amount', 12, 2);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('edited_by')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
 
             $table->timestamps();
         });

@@ -20,4 +20,12 @@ class MasLeaveType extends Model
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
+
+    public function empLeave(){
+        return $this->hasMany(EmployeeLeave::class, 'Mas_leave_type_id');
+    }
+
+    // accessors or mutators
+    
+
 }

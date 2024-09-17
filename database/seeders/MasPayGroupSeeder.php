@@ -4,7 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use DB;
+use Illuminate\Support\Facades\DB;
+
 
 class MasPayGroupSeeder extends Seeder
 {
@@ -35,6 +36,24 @@ class MasPayGroupSeeder extends Seeder
             [
                 'name' => 'Critical Staff Group',
                 'applicable_on' => 1, 
+                'created_by' => 1, 
+                'edited_by' => null,
+                'updated_by' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'eTeeru',
+                'applicable_on' => 2, 
+                'created_by' => 1, 
+                'edited_by' => null,
+                'updated_by' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Corporate Allowance',
+                'applicable_on' => 2, 
                 'created_by' => 1, 
                 'edited_by' => null,
                 'updated_by' => null,

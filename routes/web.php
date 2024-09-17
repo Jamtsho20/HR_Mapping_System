@@ -14,7 +14,7 @@ use App\Services\PayrollService;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
@@ -75,8 +75,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('villages', 'VillageController');
         Route::resource('grade-steps', 'GradeStepController')->except('show');
         Route::resource('regions', 'RegionController')->except('show');
+        Route::resource('region-location', 'RegionLocationController')->except(['show', 'edit']);
         Route::resource('expense-types', 'ExpenseTypeController');
         Route::resource('advance-loans', 'AdvanceLoanController');
+        Route::resource('offices', 'OfficeController');
     });
 
     // WORK STRUCTURE
@@ -110,18 +112,15 @@ Route::middleware('auth')->group(function () {
 
     // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
-        Route::resource('leave-policy', 'LeavePolicyController')->except('show', 'edit');
-        Route::resource('leave-apply', 'LeaveController')->except('show', 'edit');
+        Route::resource('leave-policy', 'LeavePolicyController');
+        Route::resource('leave-apply', 'LeaveApplicationController')->except('show', 'edit');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
-        Route::get('leave-encashment', function () {return view('leave.leave.leave-encashment');})->name('leave.leave-encashment');
-        Route::get('leave-balance', function () {return view('leave.leave.leave-balance');})->name('leave.leave-balance');
+        Route::get('leave-encashment', 'LeaveApplicationController@leaveEncashment')->name('leave.leave-encashment');
+        Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
     });
-
-
-
 
     // DELEGATION APPROVAL
     Route::namespace('DelegationApproval')->prefix('delegation-approval')->group(function () {
@@ -216,11 +215,20 @@ Route::middleware('auth')->group(function () {
         Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
     });
 
+    //EmployeeCategory
+    Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
+        Route::resource('employee-create', 'EmployeeGroupController');
+    });
+
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
     Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
+    Route::get('getpaygroupdetail/{id}', 'AjaxRequestController@getPayGroupDetail');
+    Route::get('getregionlocation/{id}', 'AjaxRequestController@getRegionLocation');
     Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
+    Route::get('getleavebalancebyleavetype/{id}', 'AjaxRequestController@getLeaveBalance');
+    Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
 });

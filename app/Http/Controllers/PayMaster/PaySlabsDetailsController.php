@@ -19,7 +19,7 @@ class PaySlabsDetailsController extends Controller
     }
     public function index(Request $request)
     {
-        $privileges = $request->instance(); 
+        $privileges = $request->instance();
         $paySlabDetails = MasPaySlabDetails::filter($request)->orderBy('created_at', 'desc')->paginate(30);
         return view('paymaster.pay-slabs-details.index', compact('paySlabDetails', 'privileges'));
     }
@@ -33,49 +33,28 @@ class PaySlabsDetailsController extends Controller
         return view('paymaster.pay-slabs-details.create', compact('paySlab'));
     }
 
-    // public function store(Request $request)
-    // {
-    //     // dd($request->all());
-    // // Validate the request data
-    //     $request->validate([
-    //         // 'mas_pay_slab_id' => 'required|exists:mas_pay_slabs_id', // Ensure the pay_slab_id is valid
-    //         'mas_pay_slab_id' => 'required|exists:mas_pay_slabs_table,id',
-    //         'pay_from' => 'required|numeric',
-    //         'pay_to' => 'required|numeric',
-    //         'amount' => 'required|numeric',
-    //     ]);
 
-    //     // Create a new PaySlabDetails instance and save it to the database
-    //     $paySlabDetail = new MasPaySlabDetails();
-    //     $paySlabDetail->mas_pay_slab_id = $request->mas_pay_slab_id;
-    //     $paySlabDetail->pay_from = $request->pay_from;
-    //     $paySlabDetail->pay_to = $request->pay_to;
-    //     $paySlabDetail->amount = $request->amount;
-    //     $paySlabDetail->save();
-
-    //     return redirect('paymaster/pay-slabs/'. $request->mas_pay_slab_id . '/edit')->with('msg_success', 'Pay slab detail created successfully');
-    // }
     public function store(Request $request)
-{
-    // Validate the request data
-    $request->validate([
-        'mas_pay_slab_id' => 'required|exists:mas_pay_slabs,id',
-        'pay_from' => 'required|numeric',
-        'pay_to' => 'required|numeric',
-        'amount' => 'required|numeric',
-    ]);
+    {
+        // Validate the request data
+        $request->validate([
+            'mas_pay_slab_id' => 'required|exists:mas_pay_slabs,id',
+            'pay_from' => 'required|numeric',
+            'pay_to' => 'required|numeric',
+            'amount' => 'required|numeric',
+        ]);
 
-    // Create a new PaySlabDetails instance and save it to the database
-    $paySlabDetail = new MasPaySlabDetails();
-    $paySlabDetail->mas_pay_slab_id = $request->mas_pay_slab_id;
-    $paySlabDetail->pay_from = $request->pay_from;
-    $paySlabDetail->pay_to = $request->pay_to;
-    $paySlabDetail->amount = $request->amount;
-    $paySlabDetail->save();
+        // Create a new PaySlabDetails instance and save it to the database
+        $paySlabDetail = new MasPaySlabDetails();
+        $paySlabDetail->mas_pay_slab_id = $request->mas_pay_slab_id;
+        $paySlabDetail->pay_from = $request->pay_from;
+        $paySlabDetail->pay_to = $request->pay_to;
+        $paySlabDetail->amount = $request->amount;
+        $paySlabDetail->save();
 
-    return redirect('paymaster/pay-slabs/'. $request->mas_pay_slab_id . '/edit')->with('msg_success', 'Pay slab detail created successfully');
-    // return redirect()->back()->with('msg_success', 'Pay slab detail created successfully');
-}
+        return redirect('paymaster/pay-slabs/' . $request->mas_pay_slab_id . '/edit')->with('msg_success', 'Pay slab detail created successfully');
+        // return redirect()->back()->with('msg_success', 'Pay slab detail created successfully');
+    }
 
     public function show(string $id)
     {
@@ -93,7 +72,7 @@ class PaySlabsDetailsController extends Controller
         $paySlabDetail->created_at = $paySlabDetail->created_at ? $paySlabDetail->created_at->format('Y-m-d') : '';
         $paySlabDetail->updated_at = $paySlabDetail->updated_at ? $paySlabDetail->updated_at->format('Y-m-d') : '';
 
-        return view('paymaster.pay-slabs-details.edit', compact('paySlabDetail','paySlab'));
+        return view('paymaster.pay-slabs-details.edit', compact('paySlabDetail', 'paySlab'));
     }
 
     public function update(Request $request, string $id)

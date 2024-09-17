@@ -17,17 +17,26 @@ class MasRegion extends Model
         return $this->hasMany(WorkHolidayList::class, 'mas_region_id');
     }
 
+    public function user(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
+
     //accessors & mutators
     public function setRegionNameAttribute($value)
     {
-        $this->attributes['region_name'] = ucwords($value);
+        $this->attributes['name'] = ucwords($value);
     }
+    
 
     //scopes & filters
     public function scopeFilter($query, $request)
     {
         if ($request->has('region') && $request->query('region') != '') {
-            $query->where('region_name', 'LIKE', '%' .$request->query('region') . '%');
+            $query->where('name', 'LIKE', '%' .$request->query('region') . '%');
         }
+    }
+    public function regionLocations()
+    {
+        return $this->hasMany(MasRegionLocation::class, 'mas_region_id');
     }
 }

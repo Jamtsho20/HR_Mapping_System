@@ -24,13 +24,28 @@ class DatabaseSeeder extends Seeder
         $this->call(MasSectionSeeder::class);
         $this->call(MasDesignationSeeder::class);
         $this->call(MasDzongkhagSeeder::class);
+        $this->call(MasGewogSeeder::class);
+        $this->call(MasVillagesSeeder::class);
+        $this->call(MasRegionsSeeder::class);
+        $this->call(MasRegionLocationsSeeder::class);
+        $this->call(MasOfficesSeeder::class);
+        $this->call(MasLeaveTypesSeeder::class);
         $this->call(MasGradeSeeder::class);
         $this->call(MasGradeStepsSeeder::class);
+        $this->call(MasEmploymentGroupSeeder::class);
         $this->call(MasAccountHeadsSeeder::class);
         $this->call(MasPaySlabSeeder::class);
         $this->call(MasPayHeadsSeeder::class);
         $this->call(MasPayGroupSeeder::class);
+        $this->call(MasPayGroupDetailSeeder::class);
         $this->call(MasPaySlabDetailSeeder::class);
-      
+        $this->call(MasResignationTypesSeeder::class);
+        $this->call(MasEmploymentTypesSeeder::class);
+        $this->call(MasQualificationSeeder::class);
+        $this->call(MasNationalitiesSeeder::class);
+        $this->call(MasExpenseTypesSeeder::class);
+        $this->call(ApprovingAuthoritySeeder::class);
+        $this->call(HierarchyTableSeeder::class);
+        $this->call(MasEmploymentTypeSeeder::class);
     }
 }

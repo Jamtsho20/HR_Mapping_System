@@ -54,15 +54,15 @@
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
-                        <label for="pay_from" class="form-label">Pay From</label>
+                        <label for="pay_from" class="form-label">Pay From <span class="text-danger">*</span></label></label>
                         <input type="number" class="form-control" id="pay_from" name="pay_from" value="{{ old('pay_from', $paySlab->pay_from) }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="pay_to" class="form-label">Pay To</label>
+                        <label for="pay_to" class="form-label">Pay To <span class="text-danger">*</span></label></label>
                         <input type="number" class="form-control" id="pay_to" name="pay_to" value="{{ old('pay_to', $paySlab->pay_to) }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Amount</label>
+                        <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label></label>
                         <input type="number" class="form-control" id="amount" name="amount" value="{{ old('amount', $paySlab->pay_to) }}" required>
                     </div>
 

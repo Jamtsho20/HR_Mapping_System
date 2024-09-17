@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Account Heads')
+@section('page-title', 'Transfer Claim')
 @section('content')
 
 <form action="{{ route('transfer-claim.store') }}" method="POST">
