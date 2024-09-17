@@ -16,4 +16,12 @@ class SystemHierarchyLevel extends Model
     {
         return $this->belongsTo(SystemHierarchy::class, 'system_hierarchy_id');
     }
+
+    public function approvingAuthority(){
+        return $this->hasOne(ApprovingAuthority::class, 'id'); 
+    }
+
+    public function approver(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
 }

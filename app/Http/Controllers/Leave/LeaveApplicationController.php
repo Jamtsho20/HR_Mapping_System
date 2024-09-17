@@ -63,7 +63,7 @@ class LeaveApplicationController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource in storage. 
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -103,6 +103,10 @@ class LeaveApplicationController extends Controller
         $leaveApplication->attachment = $attachment;
         $leaveApplication->status = $request->status;
         $leaveApplication->save();
+        // $leaveApplication->histories()->create([
+        //    'level' =>  
+        // ]);
+
     }
 
     /**

@@ -93,5 +93,12 @@ return [
         1 => 'Actual Method',
         2 => 'Division',
         3 => 'Percentage'
+    ],
+
+    'leave_days' => [ //leave days(from_day, to_day)
+        1 => 'Full Day',
+        2 => 'First Half',
+        3 => 'Second Half', 
+        4 => 'Shift'
     ]
 ];

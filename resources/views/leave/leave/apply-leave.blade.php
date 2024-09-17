@@ -29,7 +29,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="leave_balance">Leave Balance <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="leave_balance" placeholder="0.00" required>
+                            <input type="number" class="form-control" id="leave_balance" name="leave_balance" placeholder="0.00" required readonly>
                         </div>
                     </div>
                 </div>
@@ -39,38 +39,29 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="from_date">From Date <span class="text-danger">*</span></label>
-                            <select id="ddlfromday" class="form-control" style="margin-bottom:7px"
-                                onchange="calculateDays()">
-                                <option value="1">Full Day</option>
-                                <option id="2" value="First Half">First Half</option>
-                                <option id="3" value="Second Half">Second Half</option>
-                                <option value="4">Shift</option>
+                            <select id="ddl_from_day" name="from_day" class="form-control" style="margin-bottom:7px">
+                                @foreach(config('global.leave_days') as $key => $value)
+                                    <option value="{{ $key }}" {{ old('from_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                @endforeach
                             </select>
-                            <input type="date" class="js-datepicker form-control" id="example-datepicker3"
-                                name="from_date" data-week-start="1" data-autoclose="true" data-today-highlight="true"
-                                data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy" onchange="calculateDays()">
+                            <input type="date" class="js-datepicker form-control" id="from_date" name="from_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="to_date">To Date <span class="text-danger">*</span></label>
-                            <select id="ddlto_day" class="form-control" style="margin-bottom:7px"
-                                onchange="calculateDays()">
-                                <option value="1">Full Day</option>
-                                <option id="to_first" value="2">First Half</option>
-                                <option id="to_second" value="3">Second Half</option>
-                                <option value="4">Shift</option>
+                            <select id="ddl_to_day" name="to_day" class="form-control" style="margin-bottom:7px">
+                                @foreach(config('global.leave_days') as $key => $value)
+                                    <option value="{{ $key }}" {{ old('to_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                @endforeach
                             </select>
-                            <input type="date" class="js-datepicker form-control" id="example-datepicker4" name="to_date"
-                                data-week-start="1" data-autoclose="true" data-today-highlight="true"
-                                data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy" onchange="calculateDays()">
+                            <input type="date" class="js-datepicker form-control" id="to_date" name="to_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="noofdays">No of Days <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="noofdays" name="noofdays" placeholder="0.00"
-                                required readonly>
+                            <label for="no_of_days">No of Days <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="no_of_days" name="no_of_days" placeholder="0.00" required readonly>
                         </div>
                     </div>
                 </div>
@@ -96,49 +87,5 @@
             </div>
         </div>
     </form>
-    <script>
-        function calculateDays() {
-            let fromDayType = document.getElementById('ddlfromday').value;
-            let toDayType = document.getElementById('ddlto_day').value;
-            let fromDateInput = document.getElementById('example-datepicker3');
-            let toDateInput = document.getElementById('example-datepicker4');
-            let fromDate = new Date(fromDateInput.value);
-            let toDate = new Date(toDateInput.value);
-            let noOfDays = document.getElementById('noofdays');
-
-            // Validate that the From Date is not later than the To Date
-            if (fromDate && toDate && fromDate > toDate) {
-                alert("From Date cannot be later than To Date.");
-                noOfDays.value = "0.00";
-                toDateInput.value = ""; // Reset To Date
-                return;
-            }
-
-            if (fromDayType === "First Half" || fromDayType === "Second Half") {
-                toDateInput.disabled = true;
-                noOfDays.value = "0.5";
-                return;
-            } else {
-                toDateInput.disabled = false;
-            }
-
-            if (fromDate && toDate && fromDate <= toDate) {
-                let timeDiff = toDate.getTime() - fromDate.getTime();
-                let daysDiff = timeDiff / (1000 * 3600 * 24) + 1;
-
-                if (fromDayType === "First Half" || fromDayType === "Second Half") {
-                    daysDiff -= 0.5;
-                }
-                if (toDayType === "First Half" || toDayType === "Second Half") {
-                    daysDiff -= 0.5;
-                }
-
-                noOfDays.value = daysDiff;
-            } else {
-                noOfDays.value = "0.00";
-            }
-        }
-    </script>
-
     @include('layouts.includes.delete-modal')
 @endsection

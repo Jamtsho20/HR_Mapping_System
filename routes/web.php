@@ -186,4 +186,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getpaygroupdetail/{id}', 'AjaxRequestController@getPayGroupDetail');
     Route::get('getregionlocation/{id}', 'AjaxRequestController@getRegionLocation');
     Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
+    Route::get('getleavebalancebyleavetype/{id}', 'AjaxRequestController@getLeaveBalance');
+    Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
 });

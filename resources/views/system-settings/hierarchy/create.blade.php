@@ -23,6 +23,7 @@
                                     <th width="3%" class="text-center">#</th>
                                     <th>Level *</th>
                                     <th>Value</th>
+                                    <th>Approver</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
@@ -43,13 +44,14 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][value]">
-                                            <option value="" disabled selected hidden>Select Level</option>
-                                            @foreach (config('global.value') as $type)
-                                                <option value="{{$type}}">{{ $type }}</option>
+                                        <select class="form-control" name="hierarchies[AAAAA][approving_authority]">
+                                            <option value="" disabled selected hidden>Select</option>
+                                            @foreach ($approvingAuthorities as $authority)
+                                                <option value="{{ $authority->id }}">{{ $authority->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
+                                    <td>Test</td>
                                     <td>
                                         <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
@@ -82,10 +84,10 @@
 
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA{{ $key }}][value]">
-                                            <option value="" disabled selected hidden>Select Level</option>
-                                            @foreach (config('global.value') as $type)
-                                                <option value="{{$type}}" {{ old('value', $value['value']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                        <select class="form-control" name="hierarchies[AAAAA{{ $key }}][approving_authority_id]">
+                                            <option value="" disabled selected hidden>Select</option>
+                                            @foreach ($approvingAuthorities as $authority)
+                                                <option value="{{$authority->id}}" {{ old('approving_authority_id', $value[$authority->id]) == $authority->id ? 'selected' : '' }}>{{ $authority->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -97,9 +99,8 @@
                                     </td>
                                     <td>
                                         <select name="grade_steps[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
-                                            <option value="" disabled selected hidden>Select Status</option>
-                                            @foreach (config('global.status') as $key->$type)
-                                                <option value="{{ $key}}" {{ old('status', $value['status']) == $key ? 'selected' : '' }}>{{ $type }}</option>
+                                            @foreach (config('global.status') as $key => $type)
+                                                <option value="{{ $key}}" {{ old('status', $value['status']) == $key ? 'selected' : $key }}>{{ $type }}</option>
                                             @endforeach
 
                                         </select>
@@ -109,7 +110,7 @@
                                 @endforeach
                                 @endif
                                 <tr class="notremovefornew">
-                                    <td colspan="5"></td>
+                                    <td colspan="6"></td>
                                     <td class="text-right">
                                         <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                     </td>

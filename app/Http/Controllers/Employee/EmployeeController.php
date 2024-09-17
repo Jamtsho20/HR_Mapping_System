@@ -347,18 +347,18 @@ class EmployeeController extends Controller
             ]
         );
 
-        $user = User::findOrFail($employeeId); //need to check this later
-        if($job['employee_group']){
-            $empGroupMaps = [];
-            foreach($job['employee_group'] as $key => $value) {
-                $empGroupMaps[$value] = [
-                    'created_by' => $request->user()->id,
-                    'updated_by' => $request->user()->id,
-                ];
-            }
+        // $user = User::findOrFail($employeeId); //need to check this later
+        // if($job['employee_group']){
+        //     $empGroupMaps = [];
+        //     foreach($job['employee_group'] as $key => $value) {
+        //         $empGroupMaps[$value] = [
+        //             'created_by' => $request->user()->id,
+        //             'updated_by' => $request->user()->id,
+        //         ];
+        //     }
 
-            $user->empGroups()->sync($empGroupMaps);
-        }
+        //     $user->empGroups()->sync($empGroupMaps);
+        // }
     }
 
     private function saveQualifications($qualifications, $employeeId, $request)
