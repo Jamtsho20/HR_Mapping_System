@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 class MasPayGroup extends Model
 {
     use HasFactory, CreatedByTrait;
+
+    public function groupDetails() {
+        return $this->hasMany(MasPayGroupDetail::class,'mas_pay_group_id');
+    }
     protected $fillable = ['name', 'applicable_on', 'created_by'];
 
     protected $casts = [
@@ -20,7 +24,7 @@ class MasPayGroup extends Model
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
         }
-        
+
         if ($request->has('applicable_on') && $request->query('applicable_on') != '') {
             $query->where('applicable_on', $request->query('applicable_on'));
         }

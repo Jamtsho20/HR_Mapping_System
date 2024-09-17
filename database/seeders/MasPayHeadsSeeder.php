@@ -74,7 +74,7 @@ class MasPayHeadsSeeder extends Seeder
                 ELSE
                     THEN (EMPLOYEE_PF = 0)
                     THEN (EMPLOYER_PF = 0)
-            ENDIF",  
+            ENDIF",
                     'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),

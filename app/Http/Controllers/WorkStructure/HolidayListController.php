@@ -33,10 +33,18 @@ class HolidayListController extends Controller
     {
         $privileges = $request->instance();
         $holidays = WorkHolidayList::filter($request)->orderBy('holiday_name')->paginate(30)->withQueryString();
-        $regions = MasRegion::select('id', 'name')->get();     
+        $regions = MasRegion::select('id', 'name')->get();    
         $dates = DB::table("work_holiday_lists")->distinct()->selectRaw("YEAR(start_date) as year")->pluck('year')->toArray();
     
         return view('work-structure.holiday-list.index', compact('holidays', 'privileges', 'regions','dates'));
+    }
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create(){
+
     }
 
     /**

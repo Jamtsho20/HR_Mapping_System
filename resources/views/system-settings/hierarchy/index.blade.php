@@ -43,6 +43,7 @@
                                                         <tr>
                                                             <th>Level</th>
                                                             <th>Value</th>
+                                                            <th>Approver</th>
                                                             <th>Start Date</th>
                                                             <th>End Date</th>
                                                             <th>Status</th>
@@ -50,7 +51,8 @@
                                                         @foreach ($hierarchy->hierarchyLevels as $level)
                                                             <tr>
                                                                 <td>{{ $level->level }}</td>
-                                                                <td>{{ $level->value }}</td>
+                                                                <td>{{ $level->approvingAuthority->name }}</td>
+                                                                <td>{{ $level->approver->emp_id_name ?? config('global.null_value') }}</td>
                                                                 <td>{{ $level->start_date }}</td>
                                                                 <td>{{ $level->end_date }}</td>
                                                                 @if ($level->status == 1)

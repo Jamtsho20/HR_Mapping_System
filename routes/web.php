@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Models\PaySlip;
+use App\Services\PayrollService;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,10 +14,31 @@ use App\Http\Controllers\DashboardController;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
+
+Route::get('/test-payslip', function () {
+    // Retrieve or create a dummy PaySlip record for testing
+    $payslip = PaySlip::whereStatus(1)->first(); // Assuming there's a payslip with ID 1
+
+    if (!$payslip) {
+        return "PaySlip not found.";
+    }
+
+    // $result = PayrollService::processPaySlip($payslip);
+    // return response()->json([
+    //     'message' => 'PaySlip processed successfully!',
+    //     'result' => $result,
+    // ]);
+
+    $result = PayrollService::generateAndMailPaySlips($payslip);
+    return response()->json([
+        'message' => 'PaySlip generated successfully!',
+        'result' => $result,
+    ]);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
@@ -94,13 +117,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
-        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');        
+        Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         Route::get('leave-encashment', 'LeaveApplicationController@leaveEncashment')->name('leave.leave-encashment');
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
     });
-
- 
-  
 
     // DELEGATION APPROVAL
     Route::namespace('DelegationApproval')->prefix('delegation-approval')->group(function () {
@@ -164,17 +184,40 @@ Route::middleware('auth')->group(function () {
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
         Route::resource('account-heads', 'AccountHeadsController');
-        Route::resource('pay-groups', 'PayGroupsController');        
-        Route::resource('pay-heads', 'PayHeadsController');        
-        Route::resource('pay-slabs', 'PaySlabsController');        
-        Route::resource('pay-slab-details', 'PaySlabsDetailsController'); 
-        Route::resource('pay-group-details', 'PayGroupDetailsController'); 
+        Route::resource('pay-groups', 'PayGroupsController');
+        Route::resource('pay-heads', 'PayHeadsController');
+        Route::resource('pay-slabs', 'PaySlabsController');
+        Route::resource('pay-slab-details', 'PaySlabsDetailsController');
+        Route::resource('pay-group-details', 'PayGroupDetailsController');
+    });
+
+    //Payroll
+    Route::namespace('Payroll')->prefix('payroll')->group(function () {
+        Route::resource('other-pay-changes', 'OtherPayChangeController');
+        Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
+        Route::resource('annual-increment', 'AnnualIncrementController');
+        Route::resource('pay-slips', 'PaySlipController');
+
+        Route::get('process-pay-slips/{id}', 'PaySlipController@processPaySlip')->name('pay-slips.process');
+        Route::get('verify-pay-slips/{id}', 'PaySlipController@verifyPaySlip')->name('pay-slips.verify');
+        Route::get('approve-pay-slips/{id}', 'PaySlipController@approvePaySlip')->name('pay-slips.approve');
+        Route::get('mail-pay-slips/{id}', 'PaySlipController@mailPaySlip')->name('pay-slips.mail');
+        Route::any('add-pay-slip-detail/{id}', 'PaySlipController@addPaySlipDetail')->name('pay-slip-detail.add');
+
+        Route::patch('annual-increment-toggle-status', 'AnnualIncrementController@toggleStatus')->name('annual-increment.toggles-status');
+        Route::patch('annual-increment-update-remarks', 'AnnualIncrementController@updateRemarks')->name('annual-increment.update-remarks');
+        Route::get('annual-increment-finalize/{id}', 'AnnualIncrementController@finalizeAnnualIncrement')->name('annual-increment.finalize');
+
+        Route::get('calculate-new-basic-pay', 'OtherPayChangeController@calculateNewBasicPay')->name('new-basic-pay.calculate');
+        Route::any('add-other-pay-change-detail/{id}', 'OtherPayChangeController@addPayChangeDetail')->name('other-pay-change-detail.add');
+        Route::patch('other-pay-changes-toggle-status', 'OtherPayChangeController@toggleStatus')->name('other-pay-changes.toggles-status');
+        Route::patch('other-pay-changes-update-remarks', 'OtherPayChangeController@updateRemarks')->name('other-pay-changes.update-remarks');
+        Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
     });
 
     //EmployeeCategory
     Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
         Route::resource('employee-create', 'EmployeeGroupController');
-     
     });
 
     /* route related to ajax */
@@ -186,4 +229,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getpaygroupdetail/{id}', 'AjaxRequestController@getPayGroupDetail');
     Route::get('getregionlocation/{id}', 'AjaxRequestController@getRegionLocation');
     Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
+    Route::get('getleavebalancebyleavetype/{id}', 'AjaxRequestController@getLeaveBalance');
+    Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
 });

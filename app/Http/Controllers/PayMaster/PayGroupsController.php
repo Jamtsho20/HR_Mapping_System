@@ -36,7 +36,9 @@ class PayGroupsController extends Controller
     {
         $privileges = $request->instance();
         $payGroups = MasPayGroup::filter($request)->orderBy('name')->paginate(30);
-        return view('paymaster.pay-groups.index', compact('payGroups', 'privileges'));
+        $empCategories = MasEmployeeGroup::get(['id', 'name']);
+
+        return view('paymaster.pay-groups.index', compact('payGroups', 'privileges', 'empCategories'));
     }
     /**
      * Show the form for creating a new resource.
@@ -109,9 +111,10 @@ class PayGroupsController extends Controller
         $employeeGroups = MasEmployeeGroup::all();
         $grades = MasGrade::all();
         $payGroupDetails = $payGroup->payGroupDetails()->paginate(10);
+        $empCategories = MasEmployeeGroup::get(['id', 'name']);
         //dd($payGroupDetails);
 
-        return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades'));
+        return view('paymaster.pay-groups.edit', compact('payGroup', 'payGroupDetails', 'employeeGroups', 'grades', 'empCategories'));
     }
 
 

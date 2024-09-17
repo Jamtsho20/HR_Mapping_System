@@ -25,7 +25,6 @@ use App\Models\MasVillage;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class EmployeeController extends Controller
 {
@@ -190,6 +189,7 @@ class EmployeeController extends Controller
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
         $user = $employeeId ? User::findOrFail($employeeId): "";
+       
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -238,6 +238,7 @@ class EmployeeController extends Controller
             throw new \Exception('Please upload the employee CID copy.');
         }
 
+
         // Prepare the data to be saved
         $userData = [
             'first_name' => $personalInfo['first_name'] ?? null,
@@ -245,8 +246,8 @@ class EmployeeController extends Controller
             'last_name' => $personalInfo['last_name'] ?? null,
             'title' => $personalInfo['title'] ?? null,
             'name' => trim($personalInfo['first_name'] . ' ' . ($personalInfo['middle_name'] ?? '') . ' ' . ($personalInfo['last_name'] ?? '')),
-            'username' => $user->username,
-            'employee_id' => $user->employee_id,
+            'username' => $user->username ?? fixEmployeeId($this->fetchHighestEmpId() + 1),
+            'employee_id' => $user->employee_id ?? $this->fetchHighestEmpId() + 1,
             'password' => bcrypt('password'),
             'email' => $personalInfo['email'],
             'cid_no' => $personalInfo['cid_no'],
@@ -347,6 +348,19 @@ class EmployeeController extends Controller
                 'tpn_number' => $job['tpn_number'],
             ]
         );
+
+        // $user = User::findOrFail($employeeId); //need to check this later
+        // if($job['employee_group']){
+        //     $empGroupMaps = [];
+        //     foreach($job['employee_group'] as $key => $value) {
+        //         $empGroupMaps[$value] = [
+        //             'created_by' => $request->user()->id,
+        //             'updated_by' => $request->user()->id,
+        //         ];
+        //     }
+
+        //     $user->empGroups()->sync($empGroupMaps);
+        // }
     }
 
     private function saveQualifications($qualifications, $employeeId, $request)

@@ -17,6 +17,10 @@ class MasRegion extends Model
         return $this->hasMany(WorkHolidayList::class, 'mas_region_id');
     }
 
+    public function user(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
+
     //accessors & mutators
     public function setRegionNameAttribute($value)
     {
