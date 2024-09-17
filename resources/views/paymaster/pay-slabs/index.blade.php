@@ -3,7 +3,7 @@
 @section('content')
 @if ($privileges->create)
     @section('buttons')
-    <a href="{{ route('pay-slabs.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Pay Head</a>
+        <a href="{{ route('pay-slabs.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Pay Head</a>
     @endsection
 @endif
 
@@ -75,15 +75,14 @@
                                                                         <td class="text-center">
                                                                             @if ($privileges->edit)
                                                                                 <a href="{{ url('paymaster/pay-slabs/' . $paySlab->id . '/edit') }}"
-                                                                                    class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                                    class="btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-edit"></i> EDIT
                                                                                 </a>
                                                                             @endif
                                                                             @if ($privileges->delete)
-                                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded "
-                                                                                    data-url="{{ url('paymaster/pay-slabs/' . $paySlab->id) }}">
-                                                                                    
-                                                                                </a>
+                                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                                                                data-url="{{ url('paymaster/pay-slabs/' . $paySlab->id) }}"><i class="fa fa-trash"></i>
+                                                                                    DELETE</a>
                                                                             @endif
                                                                         </td>
                                                                     </tr>

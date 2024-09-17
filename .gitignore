@@ -3,7 +3,9 @@
 /public/build
 /public/hot
 /public/storage
+/public/images
 /storage/*.key
+/storage/payslips
 /vendor
 .env
 .env.backup

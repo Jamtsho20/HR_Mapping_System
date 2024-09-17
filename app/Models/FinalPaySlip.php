@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class FinalPaySlip extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['mas_employee_id', 'for_month', 'details'];
 }

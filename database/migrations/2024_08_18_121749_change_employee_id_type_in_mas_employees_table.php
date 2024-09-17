@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('mas_grade_steps', function (Blueprint $table) {
-            $table->string('pay_scale', 100)->nullable();
+        Schema::table('mas_employees', function (Blueprint $table) {
+            $table->unsignedInteger('employee_id')->change();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('mas_grade_steps', function (Blueprint $table) {
-            $table->dropColumn('pay_scale');
+        Schema::table('mas_employees', function (Blueprint $table) {
+            $table->string('employee_id', 30)->change();
         });
     }
 };

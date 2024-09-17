@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PaySlipDetail extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
 
     protected $fillable = [
         "id",
@@ -18,14 +19,14 @@ class PaySlipDetail extends Model
         "created_by",
         "edited_by",
     ];
-    
+
     public function paySlip() {
         return $this->belongsTo(PaySlip::class,'pay_slip_id');
     }
     public function employee() {
-        return $this->belongsTo(User::class,'employee_id');
+        return $this->belongsTo(User::class,'mas_employee_id');
     }
     public function payHead() {
-        return $this->belongsTo(MasPayHead::class,'pay_head_id');
+        return $this->belongsTo(MasPayHead::class,'mas_pay_head_id');
     }
 }

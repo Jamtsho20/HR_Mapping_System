@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('employment_contract')->comment('employment contract documents path');
             $table->string('non_disclosure_aggrement')->comment('Non disclosure aggrerement docs path');
             $table->string('job_responsibilities')->comment('job responsibilities doc path');
-            $table->string('other')->comment('Other relevant doc path and cast to array');
+            $table->json('other')->nullable()->comment('Other relevant doc path and cast to array');
             
             $table->timestamps();
         });

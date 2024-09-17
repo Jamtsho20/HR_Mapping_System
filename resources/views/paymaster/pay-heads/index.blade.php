@@ -128,8 +128,8 @@
                                                                             @endif
                                                                         </td>
                                                                         <td>{{ $payHead->amount }}</td>
-                                                                        <td>{{ $payHead->created_at->format('Y-m-d H:i:s') }}</td>
-                                                                        <td>{{ $payHead->updated_at->format('Y-m-d H:i:s') }}</td>
+                                                                        <td>{{ $payHead->created_at ? $payHead->created_at->format('Y-m-d H:i:s') : ''  }}</td>
+                                                                        <td>{{ $payHead->updated_at ? $payHead->updated_at->format('Y-m-d H:i:s') : '' }}</td>
                                                                         <td class="text-center">
                                                                             @if ($privileges->edit)
                                                                                 <a href="{{ url('paymaster/pay-heads/' . $payHead->id . '/edit') }}"

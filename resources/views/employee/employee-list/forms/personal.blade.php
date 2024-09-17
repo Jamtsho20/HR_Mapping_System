@@ -4,32 +4,32 @@
             <div class="row">
                 <div class="form-group col-md-4">
                     <label for="first_name">First Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="personal[first_name]" value="{{ old('first_name') }}" required>
+                    <input type="text" class="form-control form-control-sm" name="personal[first_name]" value="{{ old('personal.first_name') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="middle_name">Middle Name</label>
-                    <input type="text" class="form-control form-control-sm" name="personal[middle_name]" value="{{ old('middle_name') }}">
+                    <input type="text" class="form-control form-control-sm" name="personal[middle_name]" value="{{ old('personal.middle_name') }}">
                 </div>
                 <div class="form-group col-md-4">
                     <label for="last_name">Last Name</label>
-                    <input type="text" class="form-control form-control-sm" name="personal[last_name]" value="{{ old('last_name') }}">
+                    <input type="text" class="form-control form-control-sm" name="personal[last_name]" value="{{ old('personal.last_name') }}">
                 </div>
                 <div class="form-group col-md-4">
                     <label for="title">Title <span class="text-danger">*</span></label>
                     <select name="personal[title]" id="" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.title') as $title)
-                            <option value="{{ $title }} {{ old('personal.title') == $title ? 'selected' : '' }}">{{ $title }}</option>
+                            <option value="{{ $title }}" {{ old('personal.title') == $title ? 'selected' : '' }}>{{ $title }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="cid_no">CID Number<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="personal[cid_no]" value="{{ old('cid_no') }}" required>
+                    <input type="text" class="form-control form-control-sm" name="personal[cid_no]" value="{{ old('personal.cid_no') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="employee_id">Employee ID <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="personal[employee_id]" value="{{ old('employee_id') }}" required>
+                    <label for="employee_id">Employee ID</label>
+                    <input type="text" class="form-control form-control-sm" value="{{ old('personal.employee_id', $employeeId) }}" disabled>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
@@ -37,24 +37,24 @@
                     <select name="personal[gender]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.gender') as $key => $value)
-                            <option value="{{ $key }} {{ old('personal.gender') == $key ? 'selected' : '' }}">{{ $value }}</option>
+                            <option value="{{ $key }}" {{ old('personal.gender') == $key ? 'selected' : '' }}>{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="dob">Date of Birth <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm" name="personal[dob]" value="{{ old('dob') }}" required>
+                    <input type="date" class="form-control form-control-sm" name="personal[dob]" value="{{ old('personal.dob') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="birth_place">Birth Place <span class="text-danger">*</span></label>
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control form-control-sm" name="personal[birth_place]" value="{{ old('birth_place') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="personal[birth_place]" value="{{ old('personal.birth_place') }}" required>
                     </div>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="birth_country">Birth Country <span class="text-danger">*</span></label>
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control form-control-sm" name="personal[birth_country]" value="{{ old('birth_country') }}" required>
+                        <input type="text" class="form-control form-control-sm" name="personal[birth_country]" value="{{ old('personal.birth_country') }}" required>
                     </div>
                 </div>
                 <div class="form-group col-md-4">
@@ -62,14 +62,14 @@
                     <select name="personal[marital_status]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>select your option</option>
                         @foreach(config('global.marital_status') as $key => $value)
-                            <option value="{{ $key }} {{ old('personal.marital_status') == $key ? 'selected' : '' }}">{{ $value }}</option>
+                            <option value="{{ $key }}" {{ old('personal.marital_status') == $key ? 'selected' : '' }}>{{ $value }}</option>
                         @endforeach
                     </select>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
                         <label for="email">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control form-control-sm" name="personal[email]" value="{{ old('email') }}" required>
+                        <input type="email" class="form-control form-control-sm" name="personal[email]" value="{{ old('personal.email') }}" required>
                     </div>
                 <div class="form-group col-md-4">
                     <label for="contact_number">Contact Number <span class="text-danger">*</span></label>
@@ -77,7 +77,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">(+975)</span>
                         </div>
-                        <input type="number" class="form-control form-control-sm" name="personal[contact_number]" value="{{ old('contact_number') }}" >
+                        <input type="number" class="form-control form-control-sm" name="personal[contact_number]" value="{{ old('personal.contact_number') }}" >
                     </div>
                 </div>
                 <div class="form-group col-md-4">
@@ -85,14 +85,14 @@
                     <select name="personal[nationality]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach(config('global.nationality') as $nationality)
-                            <option value="{{ $nationality }} {{ old('personal.nationality') == $nationality ? 'selected' : '' }}">{{ $nationality }}</option>
+                            <option value="{{ $nationality }}" {{ old('personal.nationality') == $nationality ? 'selected' : '' }}>{{ $nationality }}</option>
                         @endforeach
                     </select>
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
                     <label for="date_of_appointment">Date of Appointment <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm" name="personal[date_of_appointment]" value="{{ old('date_of_appointment') }}" required>
+                    <input type="date" class="form-control form-control-sm" name="personal[date_of_appointment]" value="{{ old('personal.date_of_appointment') }}" required>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="cid_copy">CID Copy <span class="text-danger">*</span></label>

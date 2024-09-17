@@ -124,6 +124,27 @@ var hrms = function() {
             }
         });
 
+        //populate payscale and basic pay based on gradestep
+        $(document).on("change", "#grade_step_id", function() {
+            var gradeStepId = $("#grade_step_id").val();
+            if (gradeStepId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getpayscalebygradestep/" + gradeStepId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        // var payScale = data.pay_scale;
+                        $("#pay_scale").val(data[0].starting_salary + ' - ' + data[0].increment + ' - ' + data[0].ending_salary); // set the value for pay scale
+                        $("#basic_pay").val(data[0].starting_salary); // set the value for pay scale
+                    }
+                });
+            } else {
+                $("#pay_scale").val('');
+                $("#basic_pay").val('');
+            }
+        });
+
 
         //END
 
@@ -140,6 +161,33 @@ var hrms = function() {
                 $(this).val('');
             });
             form.submit();
+        });
+
+        // edit modal script
+        $('.edit-btn').click(function(e) {
+            e.preventDefault(); // Prevent the default action if needed
+            var url = $(this).data('url');
+            var updateUrl = $(this).data('update-url');
+
+            $.get(url)
+                .done(function(data) {
+                    // Populate form fields with the fetched data
+                    $.each(data, function(key, value) {
+                        var field = $('#edit-modal-form').find('[name="' + key + '"]');
+                        if (field.length) {
+                            field.val(value || '');
+                        }
+                    });
+
+                    // Set the form's action URL
+                    $('#edit-modal-form').attr('action', updateUrl);
+
+                    // Show the modal
+                    $('#edit-modal').modal('show');
+                })
+                .fail(function(error) {
+                    console.error('Error:', error);
+                });
         });
 
 

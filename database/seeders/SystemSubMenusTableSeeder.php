@@ -89,7 +89,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 9, 'name' => 'Approval', 'route' => 'delegation-approval/approval', 'display_order' => 7],
 
             //submenu for employee
-            ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-list', 'display_order' => 1],
+            ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-lists', 'display_order' => 1],
 
             //submenu for sifa
             ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
@@ -101,7 +101,10 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
 
             //submenu for payroll
-            ['system_menu_id' => 14, 'name' => 'Pay Slip', 'route' => 'payroll/pay-slips', 'display_order' => 1],
+            ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],
+            ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
+            ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
+            ['system_menu_id' => 14, 'name' => 'Pay Slip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
         ]);
     }
 }

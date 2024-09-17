@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -42,6 +43,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'employee_id' => 'integer'
     ];
 
     /** Relationships */
@@ -118,9 +120,15 @@ class User extends Authenticatable
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' .$request->query('name') . '%');
         }
+
+        $query->where('username', '<>', 'E00000');
     }
 
     //accessors & mutators
+    public function getEmpIdNameAttribute(){
+        return $this->username . ' - ' . $this->name;
+    }
+
     public function getProfilePictureAttribute()
     {
         if ($this->profile_pic) {

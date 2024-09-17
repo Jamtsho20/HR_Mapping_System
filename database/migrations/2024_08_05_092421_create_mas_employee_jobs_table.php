@@ -19,6 +19,14 @@ return new class extends Migration
             $table->foreignId('mas_designation_id')->index()->constrained();
             $table->foreignId('mas_grade_id')->index()->constrained();
             $table->foreignId('mas_grade_step_id')->index()->constrained();
+            $table->foreignId('mas_employment_type_id')->index()->constrained();
+            $table->foreignId('immediate_supervisor')->index()->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
+            $table->string('job_location', 100)->nullable();
+            $table->integer('basic_pay');
+            $table->string('bank', 50);
+            $table->string('account_number');
+            $table->string('pf_number', 100);
+            $table->string('tpn_number', 100);
             $table->timestamps();
         });
     }

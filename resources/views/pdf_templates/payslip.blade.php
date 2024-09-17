@@ -3,23 +3,6 @@
     <div class="lightborder-topbottom text-ucase text-bold w-full text-center font-0_9">
         {{ date_format(date_create($paySlip->for_month), 'F, Y') }}
     </div>
-    {{-- <table class="borderless w-full font-0_9">
-        <tbody>
-            <tr>
-                <td style="width:50%">Employee Name : {{ $employee->first_name }} {{ $employee->middle_name }}
-                    {{ $employee->last_name }}</td>
-                <td style="width:50%">Grade : {{ $employee->empJob->gradeStep->name }}</td>
-            </tr>
-            <tr>
-                <td style="width:50%">Department : {{ $employee->empJob->department->name }}</td>
-                <td style="width:50%">Bank Name : {{ $employee->empJob->bank }}</td>
-            </tr>
-            <tr>
-                <td style="width:50%">Job Title: {{ $employee->empJob->designation->name }}</td>
-                <td style="width:50%">Bank A/C : {{ $employee->empJob->account_number }}</td>
-            </tr>
-        </tbody>
-    </table> --}}
     <table class="borderless w-full font-0_9">
         <tbody>
             <tr style="line-height: 0.9;">

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('mas_employee_qualifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
-            $table->foreignId('mas_qualification_id')->index()->constrained();
+            $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_qualification_id')->index()->nullable()->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('school')->nullable();
             $table->string('subject')->nullable();
             $table->string('completion_year')->nullable();

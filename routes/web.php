@@ -21,8 +21,6 @@ Route::redirect('/', '/login', 301);
 
 Route::get('/test-payslip', function () {
     // Retrieve or create a dummy PaySlip record for testing
-
-
     $payslip = PaySlip::whereStatus(1)->first(); // Assuming there's a payslip with ID 1
 
     if (!$payslip) {
@@ -190,20 +188,39 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-groups', 'PayGroupsController');
         Route::resource('pay-heads', 'PayHeadsController');
         Route::resource('pay-slabs', 'PaySlabsController');
+        Route::resource('pay-slab-details', 'PaySlabsDetailsController');
+        Route::resource('pay-group-details', 'PayGroupDetailsController');
     });
 
     //Payroll
     Route::namespace('Payroll')->prefix('payroll')->group(function () {
+        Route::resource('other-pay-changes', 'OtherPayChangeController');
+        Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
+        Route::resource('annual-increment', 'AnnualIncrementController');
         Route::resource('pay-slips', 'PaySlipController');
+
+        Route::get('process-pay-slips/{id}', 'PaySlipController@processPaySlip')->name('pay-slips.process');
+        Route::get('verify-pay-slips/{id}', 'PaySlipController@verifyPaySlip')->name('pay-slips.verify');
+        Route::get('approve-pay-slips/{id}', 'PaySlipController@approvePaySlip')->name('pay-slips.approve');
+        Route::get('mail-pay-slips/{id}', 'PaySlipController@mailPaySlip')->name('pay-slips.mail');
+        Route::any('add-pay-slip-detail/{id}', 'PaySlipController@addPaySlipDetail')->name('pay-slip-detail.add');
+
+        Route::patch('annual-increment-toggle-status', 'AnnualIncrementController@toggleStatus')->name('annual-increment.toggles-status');
+        Route::patch('annual-increment-update-remarks', 'AnnualIncrementController@updateRemarks')->name('annual-increment.update-remarks');
+        Route::get('annual-increment-finalize/{id}', 'AnnualIncrementController@finalizeAnnualIncrement')->name('annual-increment.finalize');
+
+        Route::get('calculate-new-basic-pay', 'OtherPayChangeController@calculateNewBasicPay')->name('new-basic-pay.calculate');
+        Route::any('add-other-pay-change-detail/{id}', 'OtherPayChangeController@addPayChangeDetail')->name('other-pay-change-detail.add');
+        Route::patch('other-pay-changes-toggle-status', 'OtherPayChangeController@toggleStatus')->name('other-pay-changes.toggles-status');
+        Route::patch('other-pay-changes-update-remarks', 'OtherPayChangeController@updateRemarks')->name('other-pay-changes.update-remarks');
+        Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
     });
-
-
-
-
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
     Route::get('getsectionbydepartment/{id}', 'AjaxRequestController@getSection');
     Route::get('getgradestepbygrade/{id}', 'AjaxRequestController@getGradeStep');
+    Route::get('getpayslabdetail/{id}', 'AjaxRequestController@getPaySlabDetail');
+    Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
 });

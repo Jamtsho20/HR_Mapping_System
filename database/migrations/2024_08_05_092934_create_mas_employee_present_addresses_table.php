@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('mas_employee_present_addresses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
-            $table->foreignId('mas_dzongkhag_id')->index()->constrained();
-            $table->foreignId('mas_gewog_id')->index()->constrained();
+            $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_dzongkhag_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_gewog_id')->index()->nullable()->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('city', 50);
             $table->string('postal_code', 30);
 

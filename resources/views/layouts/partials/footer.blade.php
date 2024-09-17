@@ -26,6 +26,7 @@
 
 <script src="{{ asset('assets/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery-confirm.min.js') }}"></script>
 
 <!-- SIDEBAR JS -->
 <script src="{{ asset('assets/plugins/sidebar/sidebar.js') }}"></script>

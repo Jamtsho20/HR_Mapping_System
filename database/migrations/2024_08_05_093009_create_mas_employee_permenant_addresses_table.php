@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('mas_employee_permenant_addresses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnDelete();
-            $table->foreignId('mas_dzongkhag_id')->index()->constrained();
-            $table->foreignId('mas_gewog_id')->index()->constrained();
-            $table->foreignId('mas_village_id')->index()->constrained();
+            $table->foreignId('mas_dzongkhag_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_gewog_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_village_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('thram_no', 30);
             $table->string('house_no', 30);
             $table->timestamps();

@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="dsa-advance-form" class="dsa-advance" style="display: none; padding-left: 25px; padding-right: 15px; required">
+<div id="dsa-advance-form" class="dsa-advance" style="display: none; padding-left: 25px; padding-right: 15px;">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group required">

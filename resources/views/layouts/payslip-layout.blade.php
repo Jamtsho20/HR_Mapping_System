@@ -173,29 +173,37 @@
         }
     </style>
 </head>
-<?php
-$opciones_ssl = [
-    'ssl' => [
-        'verify_peer' => false,
-        'verify_peer_name' => false,
-    ],
-];
+@php
+    $opciones_ssl = [
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+        ],
+    ];
 
-$img_pathBG = 'images/letterhead - small.jpg';
-$extencionBG = pathinfo($img_pathBG, PATHINFO_EXTENSION);
-$dataBG = file_get_contents($img_pathBG, false, stream_context_create($opciones_ssl));
-$img_base_64BG = base64_encode($dataBG);
-$path_imgBG = 'data:image/' . $extencionBG . ';base64,' . $img_base_64BG;
-?>
+    $img_pathBG = 'images/letterhead - small.jpg';
+    $extencionBG = pathinfo($img_pathBG, PATHINFO_EXTENSION);
+    $dataBG = file_get_contents($img_pathBG, false, stream_context_create($opciones_ssl));
+    $img_base_64BG = base64_encode($dataBG);
+    $path_imgBG = 'data:image/' . $extencionBG . ';base64,' . $img_base_64BG;
+@endphp
 
 <body style="background-image: url('{{ $path_imgBG }}'); background-repeat: no-repeat;background-position: 51% 0%; ">
-
+    <main style="padding-left:13px;padding-right:13px;padding-top:10px;">
+        <div>
+            <div class="font-1_3 mt-5 mb-6" style="border-top: 1px solid #000; padding-top: 7px;">
+                <center><strong>PAY SLIP</strong></center>
+            </div>
+            @yield('content')
+        </div>
+    </main>
     <footer>
         <br>
         <table
             style="bottom:15px;width:100%;border-top:1px solid #000;border-left:0; border-right:none; border-bottom:none;">
             <tr>
-                <td colspan="2" style="border:none;text-align:center;color:#C04424;font-weight:bold;">Address: P.O Box
+                <td colspan="2" style="border:none;text-align:center;color:#C04424;font-weight:bold;">Address: P.O
+                    Box
                     # 1502, Norzin Lam, Thimphu: Bhutan</td>
             </tr>
             <tr>
@@ -204,15 +212,6 @@ $path_imgBG = 'data:image/' . $extencionBG . ';base64,' . $img_base_64BG;
             </tr>
         </table>
     </footer>
-    <main style="padding-left:13px;padding-right:13px;padding-top:10px;">
-        <div>
-            <div class="font-1_3 mt-5 mb-6">
-                <center><strong>PAY SLIP</strong></center>
-            </div>
-            @yield('content')
-        </div>
-    </main>
-
 </body>
 
 </html>

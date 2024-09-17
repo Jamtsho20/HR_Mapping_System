@@ -2,14 +2,18 @@
 
 namespace App\Services;
 
+use App\Models\User;
+use App\Mail\PaySlipMail;
+use App\Models\MasPayHead;
+use App\Models\FinalPaySlip;
+use App\Models\PaySlipDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EmployeeOvertime;
 use App\Models\LoanEMIDeduction;
-use App\Models\MasPayHead;
-use App\Models\PaySlipDetail;
 use App\Models\PaySlipDetailView;
-use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class PayrollService
 {
@@ -17,9 +21,9 @@ class PayrollService
     {
         $paySlipId = $payslip->id;
         PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
-        $employees = User::where('username', '<>', 'admin')->get();
-        // $userId = DB::table("users")->whereRaw("email = ?", [auth()->user()->email])->value('id');
-        $userId = 1;
+        $employees = User::where('id', '<>', 1)->get();
+        $userId = Auth::user()->id;
+        
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
             $employeeVariableValues = [];
@@ -49,9 +53,7 @@ class PayrollService
             $pf = $deductionComputeResult['pf'] ?: 0;
             $payHeadsAfterGross = array_merge($payHeadsAfterGross, $deductionComputeResult['payHeadsAfterGross']);
             $pitNetPay = $employeeVariableValues['pitNetPay'] = $grossPay - $pf;
-            if ($employee->employee_id == 887) {
-                // dd($deductionComputeResult, $pitNetPay, $grossPay);
-            }
+
             foreach ($payHeadsAfterGross as $payHeadAfter) {
                 if ((int) $payHeadAfter['type'] === 2) {
                     $payHead = MasPayHead::whereRaw("id = ?", [$payHeadAfter['mas_pay_head_id']])->first();
@@ -95,7 +97,7 @@ class PayrollService
     public static function computeAllowances($basicPay, $payScaleBasePay, $grossPay, $employeeGradeId, $employeeGroupId, $paySlipId, $employee, $userId, $employeeVariableValues)
     {
         $allowances = MasPayHead::whereRaw("payhead_type = 1")->get();
-        $payHeadsAfterGross = []; // Initialize to avoid undefined variable issues.
+        $payHeadsAfterGross = [];
 
         foreach ($allowances as $allowance) {
             $calculation_method = (int) $allowance->calculation_method; // 1 => "Actual", 2 => "Division", 3 => "Slab Wise", 4 => "Group Wise", 5 => "Percentage", 6 => "Formula"
@@ -145,14 +147,14 @@ class PayrollService
     public static function computeDeductions($basicPay, $netPay, $payScaleBasePay, $grossPay, $employeeGradeId, $employeeGroupId, $paySlipId, $employee, $userId, $employeeVariableValues): array
     {
         $deductions = MasPayHead::whereRaw("payhead_type = 2")->get();
-        $payHeadsAfterGross = []; // Initialize to avoid undefined variable issues.
-        $pf = false; // Initialize PF to avoid undefined variable issues.
+        $payHeadsAfterGross = [];
+        $pf = false;
 
         foreach ($deductions as $deduction) {
             $calculation_method = (int) $deduction->calculation_method; // 1 => "Actual", 2 => "Division", 3 => "Slab Wise", 4 => "Group Wise", 5 => "Percentage", 6 => "Formula"
             $calculated_on = (int) $deduction->calculated_on; // 1 => "Basic Pay", 2 => "Gross Pay", 3 => "Net Pay", 4 => "PIT Net Pay", 5 => "Lumpsum", 6 => "Pay Scale Base Pay"
             $deductionAmount = false;
-            $amountToCalculateOn = 0; // Default to 0 to ensure it is always defined.
+            $amountToCalculateOn = 0;
 
             // Determine the amount to calculate on based on `calculated_on`.
             switch ($calculated_on) {
@@ -191,7 +193,7 @@ class PayrollService
                     $pf = $deductionAmount; // PROVIDENT FUND AMOUNT
                 }
                 $netPay -= $deductionAmount;
-                PaySlipDetail::create([ 'pay_slip_id' => $paySlipId, 'mas_employee_id' => $employee->id, 'mas_pay_head_id' => $deduction->id, 'amount' => $deductionAmount, 'created_by' => $userId]);
+                PaySlipDetail::create(['pay_slip_id' => $paySlipId, 'mas_employee_id' => $employee->id, 'mas_pay_head_id' => $deduction->id, 'amount' => $deductionAmount, 'created_by' => $userId]);
             }
         }
 
@@ -299,12 +301,10 @@ class PayrollService
         }
         if ($calculation_method === 6) {
             $amount = self::evaluateFormula($payHead->formula, $employee, $formulaPossibleVariables, $variableValueMap);
-//            if($payHead->id == '9a83b740-f51c-4b97-a7d9-0ee4027f0287'){
-//                if($variableValueMap['OVERTIME_HOURS']>0)
-//                dd($amount,$payHead->formula, $variableValueMap);
-//            }
+
             return round($amount, 0);
         }
+
         return 0;
     }
 
@@ -358,7 +358,7 @@ class PayrollService
                 $formulaParsed .= "\$value = $formulaLine; ";
             } else {
                 $errorMsg = "Formula Error";
-                //                $errorMsg = $formulaLine;
+                // $errorMsg = $formulaLine;
                 return ['success' => false, 'message' => $errorMsg];
             }
         }
@@ -373,7 +373,7 @@ class PayrollService
             $value = eval($formulaParsed);
         } catch (\Throwable $e) {
             $errorMsg = "Formula Error";
-//            $errorMsg = $e->getMessage();
+            // $errorMsg = $e->getMessage();
             return ['success' => false, 'message' => $errorMsg];
         }
         return ['success' => true];
@@ -433,6 +433,7 @@ class PayrollService
 
     public static function populateReportTable($payslip)
     {
+        // Fetch all pay heads first to ensure all are included
         $payHeads = MasPayHead::orderBy("Name")->get();
 
         $insertQuerySegment = "";
@@ -440,39 +441,55 @@ class PayrollService
         $parameters = [];
         $month = $payslip->for_month;
         $parameters[] = $month;
+
+        // Drop the existing table if it exists
         DB::statement("DROP TABLE IF EXISTS pay_slip_detail_views");
-        $createQuery = "create table pay_slip_detail_views(
-            `id` CHAR(36) NOT NULL,
+
+        // Create the new table with dynamic columns
+        $createQuery = "
+        CREATE TABLE pay_slip_detail_views (
+            `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
             `for_month` DATE NOT NULL,
             `overtime_hours` DECIMAL(5,2) NULL DEFAULT NULL,
             `mas_employee_id` char(36) NOT NULL COLLATE 'utf8mb4_unicode_ci',
             `basic_pay` INT(11) NOT NULL,";
+
+        // Dynamically add columns based on pay heads
         foreach ($payHeads as $payHead) {
-            $createQuery .= " `" . str_replace(" ", "_", $payHead->name) . "` VARCHAR(100) NULL DEFAULT NULL,";
-            if ($insertQuerySegment !== "") {
-                $insertQuerySegment .= ",";
-            }
-            if ($insertQueryColumnSegment !== "") {
-                $insertQueryColumnSegment .= ",";
-            }
-            $insertQueryColumnSegment .= str_replace(" ", "_", $payHead->name);
-            $insertQuerySegment .= "(select amount from pay_slip_details b where b.pay_slip_id = ? and mas_pay_head_id = ? and b.mas_employee_id = c.id)";
+            $columnName = str_replace(" ", "_", $payHead->name);
+            $createQuery .= " `$columnName` VARCHAR(100) NULL DEFAULT NULL,";
+            $insertQueryColumnSegment .= ($insertQueryColumnSegment ? "," : "") . $columnName;
+            $insertQuerySegment .= ($insertQuerySegment ? "," : "") . "(SELECT amount from pay_slip_details b where b.pay_slip_id = ? and mas_pay_head_id = ? and b.mas_employee_id = c.id)";
             $parameters[] = $payslip->id;
             $parameters[] = $payHead->id;
         }
 
-        $createQuery .= "`net_pay` DECIMAL (20,2) NULL DEFAULT NULL,";
-        $createQuery .= "`gross_pay` DECIMAL (20,2) NULL DEFAULT NULL,";
-        $createQuery .= "`created_at` TIMESTAMP NULL DEFAULT NULL,";
-        $createQuery .= "`updated_at` TIMESTAMP NULL DEFAULT NULL,";
-        $createQuery .= "PRIMARY KEY (`id`),INDEX `pay_slip_detail_views_mas_employee_id_index` (`mas_employee_id`),CONSTRAINT `pay_slip_detail_views_mas_employee_id_foreign` FOREIGN KEY (`mas_employee_id`) REFERENCES `mas_employees` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT)";
+        // Add gross and net pay columns
+        $createQuery .= "
+        `net_pay` DECIMAL(20,2) NULL DEFAULT NULL,
+        `gross_pay` DECIMAL(20,2) NULL DEFAULT NULL,
+        `created_at` TIMESTAMP NULL DEFAULT NULL,
+        `updated_at` TIMESTAMP NULL DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        INDEX `pay_slip_detail_views_mas_employee_id_index` (`mas_employee_id`),
+        CONSTRAINT `pay_slip_detail_views_mas_employee_id_foreign` FOREIGN KEY (`mas_employee_id`) REFERENCES `mas_employees` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+    )";
+
+        // Execute the create table query
         DB::statement($createQuery);
 
-        $insertQuery = "INSERT INTO pay_slip_detail_views (id, mas_employee_id, basic_pay, created_at, for_month, $insertQueryColumnSegment) SELECT UUID(), c.id, d.basic_pay, NOW(), ?, $insertQuerySegment FROM mas_employees c JOIN mas_employee_jobs d ON d.mas_employee_id = c.id";
+        // Insert data into the newly created table
+        $insertQuery = "
+        INSERT INTO pay_slip_detail_views (mas_employee_id, basic_pay, created_at, for_month, $insertQueryColumnSegment)
+        SELECT c.id, d.basic_pay, NOW(), ?, $insertQuerySegment
+        FROM mas_employees c
+        JOIN mas_employee_jobs d ON d.mas_employee_id = c.id";
 
+        // Execute the insert statement with parameters
         DB::insert($insertQuery, $parameters);
+
+        // Calculate and update gross and net pay
         $paySlipDetailViews = DB::table("pay_slip_detail_views")->get();
-        $payHeads = MasPayHead::orderBy("Name")->get();
         foreach ($paySlipDetailViews as $paySlipDetailView) {
             $allowanceTotal = $deductionTotal = 0;
             foreach ($payHeads as $payHead) {
@@ -486,8 +503,58 @@ class PayrollService
             }
             $grossPay = $paySlipDetailView->basic_pay + $allowanceTotal;
             $netPay = $grossPay - $deductionTotal;
-            DB::table("pay_slip_detail_views")->whereRaw("id = ?", [$paySlipDetailView->id])->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
+            DB::table("pay_slip_detail_views")
+                ->whereRaw("id = ?", [$paySlipDetailView->id])
+                ->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
         }
+    }
+
+    public static function updateStatus($payslip, $status)
+    {
+        $payslip->status = $status;
+        $payslip->update();
+
+        if ($status == 4) {
+            $individualPayRecords = DB::table("pay_slip_detail_views")->whereForMonth($payslip->for_month)->get();
+
+            foreach ($individualPayRecords as $individualPayRecord) {
+                $input = [];
+                $details = [];
+                $detailView = PaySlipDetailView::find($individualPayRecord->id);
+                $employee = $detailView->employee;
+
+                $input['mas_employee_id'] = $employee->id;
+                $input['for_month'] = $payslip->for_month;
+
+                $details['net_pay'] = doubleval($individualPayRecord->net_pay);
+                $details['gross_pay'] = doubleval($individualPayRecord->gross_pay);
+                $details['basic_pay'] = $individualPayRecord->basic_pay;
+                $details['overtime_hours'] = $individualPayRecord->overtime_hours ?? 0;
+
+                $allowances = MasPayHead::orderBy("Name")->wherePayheadType(1)->get();
+                $deductions = MasPayHead::orderBy("Name")->wherePayheadType(2)->get();
+
+                foreach ($allowances as $allowance) {
+                    $column = str_replace(" ", "_", $allowance->name);
+                    $allowanceAmount = $detailView->$column;
+                    $details['allowances'][$allowance->code] = doubleval($allowanceAmount ?? 0);
+                }
+
+                foreach ($deductions as $deduction) {
+                    $column = str_replace(" ", "_", $deduction->name);
+                    $deductionAmount = $detailView->$column;
+                    $details['deductions'][$deduction->code] = doubleval($deductionAmount ?? 0);
+                }
+
+                $input['details'] = json_encode($details);
+
+                FinalPaySlip::whereForMonth($payslip->for_month)->whereMasEmployeeId($employee->id)->delete();
+
+                FinalPaySlip::create($input);
+            }
+        }
+
+        return true;
     }
 
     public static function generateAndMailPaySlips($payslip)
@@ -498,8 +565,10 @@ class PayrollService
             $paySlipFile = $fileResult['file'];
             $monthFriendly = $fileResult['month'];
             $employeeName = $fileResult['employeeName'];
-            // Mail::to(["sw_engineer11.sdu@tashicell.com"])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+            Mail::to(["sw_engineer11.sas@tashicell.com"])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
         }
+
+        return true;
     }
 
     public static function paySlipFileGenerate($paySlipDetailId): array
