@@ -94,9 +94,9 @@ class EmployeeController extends Controller
         $instance = $request->instance();
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
-        if ($employee->status == 'Draft') {
-            return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
-        }
+        // if ($employee->status == 'Draft') {
+        //     return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
+        // }
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
 
@@ -244,8 +244,8 @@ class EmployeeController extends Controller
             'last_name' => $personalInfo['last_name'] ?? null,
             'title' => $personalInfo['title'] ?? null,
             'name' => trim($personalInfo['first_name'] . ' ' . ($personalInfo['middle_name'] ?? '') . ' ' . ($personalInfo['last_name'] ?? '')),
-            'username' => $user->username,
-            'employee_id' => $user->employee_id,
+            'username' => $user->username ?? fixEmployeeId($this->fetchHighestEmpId() + 1),
+            'employee_id' => $user->employee_id ?? $this->fetchHighestEmpId() + 1,
             'password' => bcrypt('password'),
             'email' => $personalInfo['email'],
             'cid_no' => $personalInfo['cid_no'],
