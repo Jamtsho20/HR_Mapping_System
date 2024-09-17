@@ -23,7 +23,7 @@ class PayrollService
         PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
         $employees = User::where('id', '<>', 1)->get();
         $userId = Auth::user()->id;
-        
+
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
             $employeeVariableValues = [];
@@ -451,7 +451,7 @@ class PayrollService
             `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
             `for_month` DATE NOT NULL,
             `overtime_hours` DECIMAL(5,2) NULL DEFAULT NULL,
-            `mas_employee_id` char(36) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+            `mas_employee_id` BIGINT(20) NOT NULL COLLATE 'utf8mb4_unicode_ci',
             `basic_pay` INT(11) NOT NULL,";
 
         // Dynamically add columns based on pay heads
