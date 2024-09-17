@@ -1,0 +1,5 @@
+[
+    {"menu_group": "System", "name": "Users", "route": "admin/users", "HasViewControl": 1, "HasEditControl": 1, "HasDeleteControl": 1, "HasRecordControl": "0", "display_order": 1},
+    {"menu_group": "System", "name": "User Role Mapping", "route": "admin/sa-user-role-mappings", "HasViewControl": 1, "HasEditControl": 1, "HasDeleteControl": 1, "HasRecordControl": "0", "display_order": 2},
+    {"menu_group": "System", "name": "Roles", "route": "admin/sa-roles", "HasViewControl": 1, "HasEditControl": 1, "HasDeleteControl": 1, "HasRecordControl": "0", "display_order": 3}
+]

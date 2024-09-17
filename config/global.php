@@ -2,7 +2,7 @@
 return [
 
     'default_password' => 'password',
-    
+
     'null_value' => '-',
 
     'holiday_types' => ['Government', 'Private'],
@@ -12,7 +12,7 @@ return [
     'value' => [
         'Immediate Supervisor','Section Head','Department Head','Management','Human Resource','Finance Head'
     ],
-    
+
     'status' => [
         1 =>'active', 0=>'inactive'
     ],
@@ -34,25 +34,25 @@ return [
     ],
 
     'gender' => [
-        1 => 'Male', 
-        2 => 'Female', 
+        1 => 'Male',
+        2 => 'Female',
         3 => 'Other'
     ],
 
     'gender_with_all' => [
-        1 => 'Male', 
-        2 => 'Female', 
+        1 => 'Male',
+        2 => 'Female',
         3 => 'All'
     ],
 
     'marital_status' => [
-        1 => 'Single', 
-        2 => 'Married', 
+        1 => 'Single',
+        2 => 'Married',
         3 => 'Divorced'
     ],
 
     'leave_year' => [
-        1 => 'Calendar Year', 
+        1 => 'Calendar Year',
         2 => 'Financial Year'
     ],
 
@@ -69,6 +69,16 @@ return [
         'DK Bank' => 'Digital Kidu'
     ],
 
+    'calculation__method' => [
+        1 => 'Actual Amount',
+        2 => 'Division',
+        3 => 'Slab Wise',
+        4 => 'Group Wise',
+        5 => 'Percentage',
+        6 => 'By Formula',
+        7 => 'Employee Wise',
+    ],
+// 1 for Basic Pay, 2 for Gross Pay, 3 for Net Pay, 4 for PIT Net Pay, 5 for By Formula, 6 for Pay Scale Base Pay
     'calculated_on' => [ // for payheads
         1 => 'Basic Pay',
         2 => 'Gross Pay',
@@ -98,7 +108,7 @@ return [
     'leave_days' => [ //leave days(from_day, to_day)
         1 => 'Full Day',
         2 => 'First Half',
-        3 => 'Second Half', 
+        3 => 'Second Half',
         4 => 'Shift'
     ]
 ];

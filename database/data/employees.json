@@ -1,0 +1,119 @@
+[
+    {
+        "id": 1,
+        "emp_id": "887",
+        "first_name": "Tashi Wangchuk",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 2,
+        "emp_id": "714",
+        "first_name": "Sangay Wangdi Moktan",
+        "basic_pay": "43565",
+        "grade_id": 7,
+        "grade_step": "P Step 10",
+        "designation_id": 70
+    },
+    {
+        "id": 3,
+        "emp_id": "873",
+        "first_name": "Tshewang Tenzin",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 4,
+        "emp_id": "874",
+        "first_name": "Sangay Cheten",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 5,
+        "emp_id": "875",
+        "first_name": "Tshering Dhendup",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 6,
+        "emp_id": "876",
+        "first_name": "Choki Wangmo",
+        "basic_pay": "19064",
+        "grade_id": 4,
+        "grade_step": "T1 Step 11",
+        "designation_id": 70
+    },
+    {
+        "id": 7,
+        "emp_id": "882",
+        "first_name": "Tshedup Gyeltshen",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 8,
+        "emp_id": "883",
+        "first_name": "Tula Ram Ghalley",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 9,
+        "emp_id": "886",
+        "first_name": "Kinga Seldon",
+        "basic_pay": "32362",
+        "grade_id": 7,
+        "grade_step": "P Step 12",
+        "designation_id": 70
+    },
+    {
+        "id": 10,
+        "emp_id": "911",
+        "first_name": "Kelzang Ugyen Dorji",
+        "basic_pay": "28895",
+        "grade_id": 7,
+        "grade_step": "P Step 13",
+        "designation_id": 70
+    },
+    {
+        "id": 11,
+        "emp_id": "912",
+        "first_name": "Promod Tamang",
+        "basic_pay": "28895",
+        "grade_id": 7,
+        "grade_step": "P Step 13",
+        "designation_id": 70
+    },
+    {
+        "id": 12,
+        "emp_id": "939",
+        "first_name": "Kinga Wangchuk",
+        "basic_pay": "28190",
+        "grade_id": 7,
+        "grade_step": "P Step 13",
+        "designation_id": 70
+    },
+    {
+        "id": 13,
+        "emp_id": "965",
+        "first_name": "Karma Chenga",
+        "basic_pay": "17399",
+        "grade_id": 4,
+        "grade_step":  "T1 Step 11",
+        "designation_id": 70
+    }
+]
