@@ -94,9 +94,9 @@ class EmployeeController extends Controller
         $instance = $request->instance();
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
-        // if ($employee->status == 'Draft') {
-        //     return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
-        // }
+        if ($employee->status == 'Draft') {
+            return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
+        }
         return view('employee.employee-list.show', compact('employee', 'canUpdate'));
     }
 
