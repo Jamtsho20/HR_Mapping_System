@@ -36,7 +36,7 @@
                                         <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][level]">
+                                        <select class="form-control resetKeyForNew" name="hierarchies[AAAAA][level]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.level') as $type)
                                             <option value="{{ $type }}">{{ $type }}</option>
@@ -44,10 +44,10 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][value]">
-                                            <option value="" disabled selected hidden>Select Level</option>
-                                            @foreach (config('global.value') as $type)
-                                            <option value="{{$type}}">{{ $type }}</option>
+                                        <select class="form-control resetKeyForNew" name="hierarchies[AAAAA][approving_authority_id]">
+                                            <option value="" disabled selected hidden>Select</option>
+                                            @foreach ($approvingAuthorities as $authority)
+                                            <option value="{{ $authority->id }}">{{ $authority->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -58,7 +58,7 @@
                                         <input type="date" name="hierarchies[AAAAA][end_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][status]">
+                                        <select class="form-control resetKeyForNew" name="hierarchies[AAAAA][status]">
                                             <option value="" disabled selected hidden>Select Status</option>
                                             @foreach (config('global.status') as $key => $type)
                                             <option value="{{ $key}}">{{ $type }}</option>
@@ -84,10 +84,10 @@
 
                                     </td>
                                     <td>
-                                        <select name="hierarchies[AAAAA{{ $key }}][value]" class="form-control form-control-sm resetKeyForNew">
-                                            <option value="" disabled selected hidden>Select Level</option>
-                                            @foreach (config('global.value') as $type)
-                                            <option value="{{ $type }}" {{ old('value', $value['value']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                        <select class="form-control" name="hierarchies[AAAAA{{ $key }}][approving_authority_id]">
+                                            <option value="" disabled selected hidden>Select</option>
+                                            @foreach ($approvingAuthorities as $authority)
+                                                <option value="{{$authority->id}}" {{ old('approving_authority_id', $value[$authority->id]) == $authority->id ? 'selected' : '' }}>{{ $authority->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -99,9 +99,8 @@
                                     </td>
                                     <td>
                                         <select name="hierarchies[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
-                                            <option value="" disabled selected hidden>Select Status</option>
                                             @foreach (config('global.status') as $key => $type)
-                                            <option value="{{$key}}" {{ old('status', $value['status']) == $key ? 'selected' : '' }}>{{ $type }}</option>
+                                                <option value="{{$key}}" {{ old('status', $value['status']) == $key ? 'selected' : $key }}>{{ $type }}</option>
                                             @endforeach
 
                                         </select>

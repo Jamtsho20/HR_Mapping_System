@@ -70,6 +70,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'mas_employee_roles', 'mas_employee_id', 'role_id');
     }
 
+    public function region(){
+        return $this->hasMany(MasRegion::class, 'mas_employee_id');
+    }
+
+    public function empGroups(){
+        return $this->belongsToMany(MasEmployeeGroup::class, 'mas_employee_group_maps', 'mas_employee_id', 'mas_employee_group_id');
+    }
+
     public function empJob(){
         return $this->hasOne(MasEmployeeJob::class, 'mas_employee_id');
     }
@@ -100,6 +108,10 @@ class User extends Authenticatable
 
     public function empLeave(){
         return $this->hasMany(EmployeeLeave::class, 'mas_employee_id');
+    }
+
+    public function hierachyLevel(){
+        return $this->hasOne(SystemHierarchyLevel::class, 'mas_employee_id');
     }
 
     public function isActive()

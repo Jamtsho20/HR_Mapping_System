@@ -26,9 +26,9 @@ class LeaveApplicationController extends Controller
         'from_day' => 'required',
         'to_day' => 'required',
         'from_date' => 'required|date',
-        'to_date' => 'required|date',
+        'to_date' => 'required|date|after_or_equal:from_date',
         'no_of_days' => 'required',
-        'attachment' => 'file|mimes:jpg,png,pdf|max:2048'
+        'attachment' => 'mimes:jpg,png,pdf|max:2048'
     ];
 
     protected $messages = [
@@ -63,7 +63,7 @@ class LeaveApplicationController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource in storage. 
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -103,6 +103,10 @@ class LeaveApplicationController extends Controller
         $leaveApplication->attachment = $attachment;
         $leaveApplication->status = $request->status;
         $leaveApplication->save();
+        // $leaveApplication->histories()->create([
+        //    'level' =>  
+        // ]);
+
     }
 
     /**

@@ -166,7 +166,9 @@
                         <label for="employee_category" class="form-label">Employee Category <span class="text-danger">*</span></label>
                         <select class="form-control" id="mas_employee_group_id" name="mas_employee_group_id">
                             <option value="" disabled selected>Select an option</option>
-                            <option value="1">Critical Staff</option>
+                            @foreach($empCategories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 

@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('system_hierarchy_id')->constrained()->cascadeOnDelete();
             $table->string('level');
-            $table->string('value');
+            $table->foreignId('approving_authority_id')->index()->constrained('approving_authorities')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->date('start_date');
-            $table->date('end_date');
-            $table->tinyInteger('status');
+            $table->date('end_date')->nullable();
+            $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

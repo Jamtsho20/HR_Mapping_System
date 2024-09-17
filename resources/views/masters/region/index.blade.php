@@ -36,9 +36,10 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Region</th>
-                                            <th>Status</th>
+                                            <th>Regional Manager</th>
                                             <th>RM Email</th>
                                             <th>RM Phone</th>
+                                            <th>Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -46,12 +47,11 @@
                                         @forelse($regions as $region)
                                             <tr>
                                                 <td>{{ $regions->firstItem() + ($loop->iteration - 1) }}</td>
-                                                <td text-center>{{ $region->name }}</td>
+                                                <td>{{ $region->name }}</td>
+                                                <td>{{ $region->user->emp_id_name ?? config('global.null_value') }}</td>
+                                                <td>{{ $region->user->email ?? config('global.null_value') }}</td>
+                                                <td>{{ $region->user->phone_no ?? config('global.null_value') }}</td>
                                                 <td>{{ $region->status ? 'Active' : 'Inactive' }}</td>
-                                                <td></td>
-                                                <td></td>
-
-
                                                 <td class="text-center">
                                                     @if ($privileges->edit)
                                                         <a href="{{ url('master/regions/'.$region->id. '/edit') }}" data-name="{{ $region->name }}" class="btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>

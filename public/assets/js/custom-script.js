@@ -145,6 +145,48 @@ var hrms = function() {
             }
         });
 
+        //populate leave balnce based on selection of leaveType
+        $(document).on("change", "#leave_type", function() {
+            var leaveType = $("#leave_type").val();
+            if (leaveType !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getleavebalancebyleavetype/" + leaveType,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        // var payScale = data.pay_scale;
+                        $("#leave_balance").val(data); // set the value for leave balance
+                    }
+                });
+            } else {
+                $("#leave_balance").val('');
+            }
+        });
+
+        //calculate no of leave days based on from date, to date, excluding holidays
+        $(document).on("change", "#from_date, #to_date, #ddl_from_day, #ddl_to_day", function() {
+            var fromDate = $("#from_date").val();
+            var toDate = $("#to_date").val();
+            var fromDay = $("#ddl_from_day").val();
+            var toDay = $("#ddl_to_day").val();
+
+            if (fromDate !== '' && toDate !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getnoofdaysbydate/",
+                    data: { fromDate: fromDate, toDate: toDate, fromDay: fromDay, toDay: toDay},
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        alert(data);
+                        $("#no_of_days").val(data); // set the value for leave balance
+                    }
+                });
+            } else {
+                $("#no_of_days").val('');
+            }
+        });
 
         //END
 
