@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="sifa-loan-form" class="sifa-loan" style="display: none; padding-left: 25px; padding-right: 15px;">
+<div id="sifa-loan-form" class="dynamic-form" style="display: none; padding-left: 25px; padding-right: 15px;">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">

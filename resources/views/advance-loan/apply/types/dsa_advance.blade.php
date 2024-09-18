@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="dsa-advance-form" class="dsa-advance" style="display: none; padding-left: 25px; padding-right: 15px;">
+<div id="dsa-advance-form" class="dynamic-form" style="display: none; padding-left: 25px; padding-right: 15px;">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group required">
@@ -43,19 +43,13 @@
         </div>
         <div class="col-md-4">
             <div class="form-group">
-                <label for="travel_from">Travel From <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="travel_from" required>
+                <label for="amount">Amount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="amount" required placeholder="0">
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="amount">Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="amount" required placeholder="0">
-            </div>
-        </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="purpose">Purpose <span class="text-danger">*</span></label>
