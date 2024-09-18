@@ -23,8 +23,9 @@ return new class extends Migration
             $table->foreignId('immediate_supervisor')->index()->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('mas_office_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete()->comment('job location');
             $table->integer('basic_pay');
-            $table->string('bank', 50);
-            $table->string('account_number');
+            $table->unsignedTinyInteger('salary_disbursement_mode')->comment('1 => Cash, 2 => Saving Account');
+            $table->string('bank', 50)->nullable();
+            $table->string('account_number')->nullable();
             $table->string('pf_number', 100);
             $table->string('tpn_number', 100);
             $table->timestamps();

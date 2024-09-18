@@ -47,13 +47,7 @@
                             </li>
                             <li class="list-group-item">
                                 <b>Gender</b>
-                                @if($employee->gender == 1)
-                                    <a class="pull-right"> Male</a>
-                                @elseif ($employee->gender == 2)
-                                    <a class="pull-right"> Female</a>
-                                @else
-                                    <a class="pull-right"> Other</a>
-                                @endif
+                                <a class="pull-right">{{ $employee->gender_name }}</a>
                             </li>
                         </ul>
                     </div>
@@ -61,13 +55,8 @@
                         <ul class="list-group list-group-unbordered">
 
                             <li class="list-group-item">
-                                <b>Marital Status</b> @if($employee->marital_status == 1)
-                                    <a class="pull-right"> Single</a>
-                                @elseif ($employee->marital_status == 2)
-                                    <a class="pull-right"> Married</a>
-                                @else
-                                    <a class="pull-right"> Divorced</a>
-                                @endif
+                                <b>Marital Status</b>
+                                <a class="pull-right">{{ $employee->marital_status_name }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>DOJ</b> <a class="pull-right">{{ $employee->date_of_appointment }}</a>
@@ -177,16 +166,18 @@
                                 <b>Employment Type</b> <a class="pull-right">{{ $employee->empJob->empType->name }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Supervisor</b> <a
-                                    class="pull-right">{{ $employee->empJob->supervisor->emp_id_name ?? config('global.null_value') }}</a>
+                                <b>Employee Group (s)</b> <a class="pull-right">{{ convert_array_to_string($employeeGroupNames, ', ') }}</a>
                             </li>
-
+                            <li class="list-group-item">
+                                <b>Supervisor</b> 
+                                <a class="pull-right">{{ $employee->empJob->supervisor->emp_id_name ?? config('global.null_value') }}</a>
+                            </li>
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <li class="list-group-item">
-                            <b>Job Location</b> <a class="pull-right">{{ $employee->empJob->office->name }}
-                                ({{$employee->empJob->office->dzongkhag->dzongkhag}})</a>
+                            <b>Job Location</b> 
+                            <a class="pull-right">{{ $employee->empJob->office->name }} ({{$employee->empJob->office->dzongkhag->dzongkhag}})</a>
                         </li>
                         <li class="list-group-item">
                             <b>Address</b> <a class="pull-right">{{ $employee->empJob->office->address }} </a>
@@ -198,10 +189,10 @@
                             <b>Basic Pay</b> <a class="pull-right">{{ $employee->empJob->basic_pay }}</a>
                         </li>
                         <li class="list-group-item">
-                            <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }}</a>
+                            <b>Salary Disbursement Mode</b> <a class="pull-right">{{ $employee->empJob->salary_disbursement_name }}</a>
                         </li>
                         <li class="list-group-item">
-                            <b>Account Number</b> <a class="pull-right">{{ $employee->empJob->account_number }}</a>
+                            <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }} ({{ $employee->empJob->account_number }})</a>
                         </li>
                         <li class="list-group-item">
                             <b>PF Number</b> <a class="pull-right">{{ $employee->empJob->pf_number }}</a>

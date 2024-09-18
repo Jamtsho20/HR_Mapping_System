@@ -171,6 +171,16 @@ class User extends Authenticatable
         return $this->username . ' - ' . $this->name;
     }
 
+    public function getMaritalStatusNameAttribute() {
+        $maritalStatusMapping = config('global.marital_status');
+        return $maritalStatusMapping[$this->marital_status];
+    }
+
+    public function getGenderNameAttribute() {
+        $genderMapping = config('global.gender');
+        return $genderMapping[$this->gender];
+    }
+
     public function getProfilePictureAttribute()
     {
         if ($this->profile_pic) {
