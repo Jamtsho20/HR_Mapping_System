@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\MasDzongkhag;
 use App\Models\MasEmployeeDocument;
 use App\Models\MasEmployeeExperience;
+use App\Models\MasEmployeeGroup;
+use App\Models\MasEmployeeGroupMap;
 use App\Models\MasEmployeeJob;
 use App\Models\MasEmployeePermenantAddress;
 use App\Models\MasEmployeePresentAddress;
@@ -94,10 +96,17 @@ class EmployeeController extends Controller
         $instance = $request->instance();
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
+        $employeeGroupNames = MasEmployeeGroupMap::with('masEmpGroup')
+                                                ->where('mas_employee_id', $id)
+                                                ->get()
+                                                ->map(function ($groupMap) {
+                                                    return $groupMap->masEmpGroup->name; // Assuming 'name' is the field you want from masEmpGroup
+                                                })
+                                                ->toArray();
         // if ($employee->status == 'Draft') {
         //     return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
         // }
-        return view('employee.employee-list.show', compact('employee', 'canUpdate'));
+        return view('employee.employee-list.show', compact('employee', 'canUpdate', 'employeeGroupNames'));
     }
 
     /**
@@ -121,8 +130,10 @@ class EmployeeController extends Controller
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
         $roles = Role::orderBy('id')->get();
         $rolesAssigned = $employee->roles->pluck('id')->toArray();
-
-        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections', 'designations', 'grades', 'gradeSteps', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned'));
+        $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
+        $employeeGroupMaps = MasEmployeeGroupMap::where('mas_employee_id', $id)->pluck('mas_employee_group_id')->toArray();
+        
+        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections', 'designations', 'grades', 'gradeSteps', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps'));
     }
 
     /**
@@ -315,6 +326,11 @@ class EmployeeController extends Controller
 
     private function saveJob($job, $employeeId, $request)
     {
+        // dd($job);
+        $messages = [
+            'job.bank.required_if' => 'The bank field is required when the salary disbursement mode is saving account.',
+            'job.account_number.requiredif' => 'The account number field is required when the salary disbursement mode is saving account.'
+        ];
         $request->validate([
             'job.mas_department_id' => 'required',
             'job.mas_section_id' => 'required',
@@ -323,11 +339,12 @@ class EmployeeController extends Controller
             'job.mas_grade_step_id' => 'required',
             'job.mas_employment_type_id' => 'required',
             'job.basic_pay' => 'required',
-            'job.bank' => 'required',
-            'job.account_number' => 'required',
+            'job.salary_disbursement_mode' => 'required',
+            'job.bank' => 'required_if:job.salary_disbursement_mode,2',
+            'job.account_number' => 'requiredif:salary_disbursement_mode,2',
             'job.pf_number' => 'required',
             'job.tpn_number' => 'required',
-        ]);
+        ], $messages);
 
         $empJob = MasEmployeeJob::updateOrCreate(
             ['mas_employee_id' => $employeeId],
@@ -342,6 +359,7 @@ class EmployeeController extends Controller
                 'immediate_supervisor' => $job['immediate_supervisor'] ?? null,
                 'mas_office_id' => $job['mas_office_id'],
                 'basic_pay' => $job['basic_pay'],
+                'salary_disbursement_mode' => $job['salary_disbursement_mode'],
                 'bank' => $job['bank'],
                 'account_number' => $job['account_number'],
                 'pf_number' => $job['pf_number'],
@@ -349,18 +367,25 @@ class EmployeeController extends Controller
             ]
         );
 
-        // $user = User::findOrFail($employeeId); //need to check this later
-        // if($job['employee_group']){
-        //     $empGroupMaps = [];
-        //     foreach($job['employee_group'] as $key => $value) {
-        //         $empGroupMaps[$value] = [
-        //             'created_by' => $request->user()->id,
-        //             'updated_by' => $request->user()->id,
-        //         ];
-        //     }
-
-        //     $user->empGroups()->sync($empGroupMaps);
-        // }
+        // Handle employee group mapping
+        if (!empty($job['employee_group'])) {
+            $empGroupMaps = [];
+            // Prepare data for employee groups
+            foreach ($job['employee_group'] as $value) {
+                $empGroupMaps[] = [
+                    'mas_employee_id' => $employeeId,
+                    'mas_employee_group_id' => $value,
+                    // 'created_by' => $request->user()->id,
+                    // 'updated_by' => $request->user()->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            // Delete existing mappings for this employee to avoid duplicates
+            MasEmployeeGroupMap::where('mas_employee_id', $employeeId)->delete();
+            // Insert new mappings
+            MasEmployeeGroupMap::insert($empGroupMaps);
+        }
     }
 
     private function saveQualifications($qualifications, $employeeId, $request)

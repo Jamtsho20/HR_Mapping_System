@@ -100,5 +100,10 @@ return [
         2 => 'First Half',
         3 => 'Second Half', 
         4 => 'Shift'
+    ],
+
+    'salary_disbursement_mode' => [
+        1 => 'Cash',
+        2 => 'Saving Account'    
     ]
 ];
