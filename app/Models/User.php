@@ -106,6 +106,10 @@ class User extends Authenticatable
         return $this->hasMany(MasEmployeeExperience::class, 'mas_employee_id');
     }
 
+    public function employeeGroupMap(){
+        return $this->hasMany(MasEmployeeGroupMap::class, 'mas_employee_id');
+    }
+    
     public function empLeave(){
         return $this->hasMany(EmployeeLeave::class, 'mas_employee_id');
     }
@@ -119,6 +123,27 @@ class User extends Authenticatable
         return $this->is_active == 1;
     }
 
+    public function durationOfService() {
+        $sixMonthsLater = date_add(date_create($this->date_of_appointment),date_interval_create_from_date_string("6 months"));
+        $startFrom = ($this->no_probation === 1) ? date_create($this->date_of_appointment) : $sixMonthsLater;
+        $duration = date_diff($startFrom,date_create(date("Y-m-d")))->format("%y_%m");
+        $durationArray = explode("_",$duration);
+        $years = (int)$durationArray[0];
+        $months = (int)$durationArray[1];
+        if($years >= 1){
+            $months += $years*12;
+        }
+
+        $durationOfService = date_diff(date_create($this->date_of_appointment),date_create(date("Y-m-d")))->format("%y_%m");
+        $durationOfServiceArray = explode("_",$durationOfService);
+        $yearsOfService = (int)$durationOfServiceArray[0];
+        $monthsOfService = (int)$durationOfServiceArray[1];
+        if($years >= 1){
+            $monthsOfService += $yearsOfService*12;
+        }
+        return compact('years','months','yearsOfService','monthsOfService');
+    }
+
     //filters
     public function scopeFilter($query, $request)
     {
@@ -129,8 +154,8 @@ class User extends Authenticatable
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' .$request->query('name') . '%');
         }
-        
-        $query->where('username', '<>', 'admin');
+
+        $query->where('username', '<>', 'E00000');
     }
 
     //accessors & mutators refeer this
@@ -141,7 +166,7 @@ class User extends Authenticatable
     public function getStatusAttribute($value) {
         return ucwords($value == 1 ? 'Completed':'Draft');
     }
-    
+
     public function getEmpIdNameAttribute(){
         return $this->username . ' - ' . $this->name;
     }

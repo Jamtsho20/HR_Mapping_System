@@ -1,0 +1,128 @@
+<?php
+
+namespace App\Http\Controllers\Payroll;
+
+use App\Http\Controllers\Controller;
+use App\Models\LoanEMIDeduction;
+use App\Models\MasPayHead;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class LoanEMIDeductionController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('permission:payroll/other-pay-changes,view')->only('index');
+        $this->middleware('permission:payroll/other-pay-changes,create')->only('store');
+        $this->middleware('permission:payroll/other-pay-changes,edit')->only('update');
+        $this->middleware('permission:payroll/other-pay-changes,delete')->only('destroy');
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $privileges = $request->instance();
+        $loanEMIDeductions = LoanEMIDeduction::filter($request)->orderBy('created_at')->paginate(30);
+
+        return view('payroll.loan-emi-deductions.index', compact('privileges', 'loanEMIDeductions'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
+    {
+        $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->get();
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id'])->get();
+
+        return view('payroll.loan-emi-deductions.create', compact('payHeads', 'employees'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate(
+                [
+                    'mas_pay_head_id' => 'required',
+                    'mas_employee_id' => 'required',
+                    'start_date' => 'required|date',
+                    'amount' => 'required',
+                    'recurring_months' => ['required_if:recurring,true', 'integer', 'min:1'],
+                ],
+                [
+                    'mas_pay_head_id.required' => 'Pay Head field is required',
+                    'mas_employee_id.required' => 'Employee field is required',
+                ]
+            );
+
+            $startDate = Carbon::parse($validated['start_date'])->startOfMonth();
+            $validated['start_date'] = $startDate->format('Y-m-d');
+
+            if ($request->has('recurring')) {
+                $recurringMonths = $validated['recurring_months'] ?? 0;
+                $validated['end_date'] = $startDate->copy()->addMonths($recurringMonths)->format('Y-m-d');
+            } else {
+                $validated['end_date'] = $startDate->format('Y-m-d');
+            }
+
+            $loanEMIDeduction = new LoanEMIDeduction();
+            $loanEMIDeduction->mas_pay_head_id = $validated['mas_pay_head_id'];
+            $loanEMIDeduction->mas_employee_id = $validated['mas_employee_id'];
+            $loanEMIDeduction->start_date = $validated['start_date'];
+            $loanEMIDeduction->end_date = $validated['end_date'];
+            $loanEMIDeduction->amount = $validated['amount'];
+            $loanEMIDeduction->recurring = $request->recurring;
+            $loanEMIDeduction->recurring_months = $validated['recurring_months'];
+            $loanEMIDeduction->remarks = $request->remarks;
+            $loanEMIDeduction->is_paid_off = $request->is_paid_off ?? false;
+            $loanEMIDeduction->save();
+
+            return redirect()->route('loan-emi-deductions.index')->with('success', 'Loan EMI Deduction created successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error creating Loan EMI Deduction: ' . $e->getMessage());
+
+            return redirect()->back()->withErrors('An error occurred while creating the Loan EMI Deduction.');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $loanEMIDeduction = LoanEMIDeduction::findOrFail($id);
+
+        return view('payroll.loan-emi-deductions.edit', compact('loanEMIDeduction'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}

@@ -76,8 +76,8 @@
                                                                                 Grade
                                                                             @endif
                                                                         </td>
-                                                                        <td>{{ $payGroup->created_at->format('Y-m-d H:i:s') }}</td>
-                                                                        <td>{{ $payGroup->updated_at->format('Y-m-d H:i:s') }}</td>
+                                                                        <td>{{ $payGroup->created_at ? $payGroup->created_at->format('Y-m-d H:i:s') : '' }}</td>
+                                                                        <td>{{ $payGroup->updated_at ? $payGroup->updated_at->format('Y-m-d H:i:s'): '' }}</td>
                                                                         <td class="text-center">
                                                                             @if ($privileges->edit)
                                                                                 <a href="{{ url('paymaster/pay-groups/' . $payGroup->id .  '/edit') }}"

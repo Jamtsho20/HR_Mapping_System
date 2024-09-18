@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeOvertime extends Model
 {
     use HasFactory;
+
+    public function employee()
+    {
+        return $this->belongsTo(MasEmployee::class, 'employee_id');
+    }
 }

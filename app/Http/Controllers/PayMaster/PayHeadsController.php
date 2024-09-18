@@ -54,8 +54,8 @@ class PayHeadsController extends Controller
             'code' => 'required|max:50',
             'calculation_method' => 'required',
             'calculated_on' => 'nullable',
-            'pay_slab_id' => 'nullable',
-            'pay_group_id' => 'nullable',
+            'mas_pay_slab_id' => 'nullable',
+            'mas_pay_group_id' => 'nullable',
             'amount' => 'nullable|numeric',
             'formula' => 'nullable|string',
         ]);
@@ -93,8 +93,8 @@ class PayHeadsController extends Controller
             'code' => 'required|max:50',
             'calculation_method' => 'required',
             'calculated_on' => 'nullable',
-            'pay_slab_id' => 'nullable',
-            'pay_group_id' => 'nullable',
+            'mas_pay_slab_id' => 'nullable',
+            'mas_pay_group_id' => 'nullable',
             'amount' => 'nullable|numeric',
             'formula' => 'nullable|string',
         ]);

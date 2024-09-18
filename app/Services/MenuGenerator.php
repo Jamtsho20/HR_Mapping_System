@@ -36,7 +36,6 @@ class MenuGenerator
                 $q->select('system_sub_menu_id')->from('role_permissions')->where('view', 1)->whereIn('role_id', $userRoles);
             })->orderBy('display_order');
         }])->orderBy('display_order')->get();
-
         return $menus;
     }
 

@@ -90,7 +90,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 9, 'name' => 'Adv. Loan Delegation', 'route' => 'delegation-approval/adv-loan-delegation', 'display_order' => 6],
             ['system_menu_id' => 9, 'name' => 'Approval', 'route' => 'delegation-approval/approval', 'display_order' => 7],
 
-            //submenu for employee 
+            //submenu for employee
             ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-lists', 'display_order' => 1],
 
             //submenu for sifa
@@ -102,6 +102,11 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
             ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
 
+            //submenu for payroll
+            ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],
+            ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
+            ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
+            ['system_menu_id' => 14, 'name' => 'Pay Slip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
             //submenu for asset
             ['system_menu_id' => 13, 'name' => 'Sub-Store-Master', 'route' => 'asset/sub-store-master', 'display_order' => 1],
             ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition_apply', 'display_order' => 2],

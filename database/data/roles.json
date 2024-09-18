@@ -1,0 +1,6 @@
+[
+    {"name": "sudo", "description": "Super Admin", "no_delete": 1, "users": "sw_engineer2.sdu@tashicell.com"},
+    {"name": "admin", "description": "Admin", "no_delete": 1, "users": ""},
+    {"name": "HR Admin", "description": "HRD Administrator", "users": "sangay.wangdi.moktan@gmail.com"},
+    {"name": "Employee", "description": "Ordinary Employee", "users": "sangay.wangdi.moktan@hotmail.com"}
+]
