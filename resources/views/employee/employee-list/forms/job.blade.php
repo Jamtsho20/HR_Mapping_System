@@ -45,7 +45,19 @@
                             {{ $designation->name }}
                         </option>
                         @endforeach
-
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">Employment Type <span class="text-danger">*</span></label>
+                    <select name="job[mas_employment_type_id]" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Select your option</option>
+                        @foreach($employmentTypes as $type)
+                        <option value="{{ $type->id }}"
+                            {{ old('job.mas_employment_type_id', 
+                            isset($employee->empJob->empType->id) ? $employee->empJob->empType->id : '') == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
+                        @endforeach
 
                     </select>
                 </div>
@@ -106,25 +118,11 @@
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
-                    <label for="">Employment Type <span class="text-danger">*</span></label>
-                    <select name="job[mas_employment_type_id]" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Select your option</option>
-                        @foreach($employmentTypes as $type)
-                        <option value="{{ $type->id }}"
-                            {{ old('job.mas_employment_type_id', 
-                            isset($employee->empJob->empType->id) ? $employee->empJob->empType->id : '') == $type->id ? 'selected' : '' }}>
-                            {{ $type->name }}
-                        </option>
-                        @endforeach
-
-                    </select>
-                </div>
-                <div class="form-group col-md-4">
                     <label for="employee_group">Employee Group (s)</label>
                     <select class="js-select2 form-control form-control-sm" style="width: 100%;" name="job[employee_group][]"
                         data-placeholder="Choose many.." multiple>
                         @foreach($employeeGroups as $group)
-                            <option value="{{ $group->id }}" {{ in_array($group->id, $employeeGroupMaps) ? 'selected' : '' }}>
+                            <option value="{{ $group->id }}" {{ in_array($group->id, $employeeGroupMaps ?? []) ? 'selected' : '' }}>
                                 {{ $group->name }}
                             </option>
                         @endforeach

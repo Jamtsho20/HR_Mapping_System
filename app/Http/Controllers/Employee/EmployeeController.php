@@ -67,8 +67,9 @@ class EmployeeController extends Controller
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
         $fixedEmpId = fixEmployeeId($this->fetchHighestEmpId() + 1);
         $roles = Role::orderBy('id')->get();
+        $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
 
-        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'gradeSteps', 'sections', 'employmentTypes', 'qualifications', 'fixedEmpId', 'offices', 'roles'));
+        return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'gradeSteps', 'sections', 'employmentTypes', 'qualifications', 'fixedEmpId', 'offices', 'roles', 'employeeGroups'));
     }
 
     /**
