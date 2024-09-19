@@ -8,6 +8,7 @@ use App\Models\PaySlip;
 use App\Models\MasPayHead;
 use Illuminate\Http\Request;
 use App\Models\PaySlipDetail;
+use Illuminate\Validation\Rule;
 use App\Services\PayrollService;
 use App\Models\PaySlipDetailView;
 use Illuminate\Support\Facades\DB;
@@ -54,7 +55,17 @@ class PaySlipController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'for_month' => 'required|date_format:Y-m',
+            'for_month' => [
+                'required',
+                'date_format:Y-m',
+                function ($attribute, $value, $fail) {
+                    $startOfMonth = Carbon::parse($value)->startOfMonth()->format('Y-m-d');
+
+                    if (PaySlip::where('for_month', 'like', $startOfMonth)->exists()) {
+                        $fail('A payslip for this month already exists.');
+                    }
+                },
+            ],
         ]);
 
         try {
