@@ -31,7 +31,7 @@
                                     <thead>
                                         <tr class="thead-light">
                                             <th>#</th>
-                                            <th>Employee Type</th>
+                                            <th>Employment Type</th>
                                             <th>Remarks</th>
                                             <th class="text-center">Action</th>
                                         </tr>

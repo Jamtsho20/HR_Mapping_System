@@ -20,7 +20,7 @@
                 <label for="mas_employee_id">Department Head</span></label>
                 <select name="mas_employee_id" class="form-control" id="dzongkhag1">
                     <option value="" disabled selected hidden>Select your option</option>
-                    @foreach (concateEmpNameUserName() as $employee)
+                    @foreach (employeeList() as $employee)
                         <option value="{{ $employee->id }}" {{ $department->mas_employee_id == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
                     @endforeach
                 </select>

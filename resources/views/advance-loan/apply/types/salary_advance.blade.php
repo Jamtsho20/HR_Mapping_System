@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="salary-advance-form" class="salary-advance" style="display: none; padding-left: 25px; padding-right: 15px; required">
+<div id="salary-advance-form" class="dynamic-form" style="display: none; padding-left: 25px; padding-right: 15px;">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
@@ -24,7 +24,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="deduction_from_period">
+                <input type="date" class="form-control" name="deduction_from_period">
             </div>
         </div>
     </div>

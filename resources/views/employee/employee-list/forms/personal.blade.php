@@ -101,7 +101,7 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text">(+975)</span>
                 </div>
-                <input type="number" class="form-control form-control-sm" name="personal[contact_number]"
+                <input type="number" class="form-control form-control-sm" id="contact_number" name="personal[contact_number]"
                     value="{{ old('personal.contact_number', isset($employee) ? $employee->contact_number : '')}}"
                     maxlength="8">
             </div>
@@ -156,5 +156,11 @@
             </label>
         </div>
     </div>
-
 </div>
+@push('page-scripts')
+<script>
+    $(document).ready(function() {
+        $('#contact_number').mask('--------'); // 8-digit mask
+    });
+</script>
+@endpush

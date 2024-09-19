@@ -128,9 +128,11 @@ Route::middleware('auth')->group(function () {
 
     // ADVANCE/LOAN
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
+        Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplyController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
+    
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
