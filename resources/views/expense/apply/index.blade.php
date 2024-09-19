@@ -2,15 +2,15 @@
 @section('page-title', 'Expense Apply')
 @section('content')
 @if ($privileges->create)
-    @section('buttons')
-    <a href="{{ route('apply.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
-    @endsection
+@section('buttons')
+<a href="{{ route('apply-expense.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
+@endsection
 @endif
 <div class="block-header block-header-default">
-     @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="accountheads" class="form-control" value="{{ request()->get('accountheads') }}"placeholder="Search">
-        </div>
+    @component('layouts.includes.filter')
+    <div class="col-8 form-group">
+        <input type="text" name="accountheads" class="form-control" value="{{ request()->get('accountheads') }}" placeholder="Search">
+    </div>
     @endcomponent
 
     <div class="row row-sm">
@@ -34,14 +34,14 @@
                                             entries
                                         </label>
                                     </div>
-                                        <div class="dataTables_scroll">
-                                            <div class="dataTables_scrollHead"
-                                                style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                <div class="dataTables_scrollHeadInner"
-                                                    style="box-sizing: content-box; padding-right: 0px;">
-                                                    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
-                                                        <thead>
-                                                            <tr role="row">
+                                    <div class="dataTables_scroll">
+                                        <div class="dataTables_scrollHead"
+                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                            <div class="dataTables_scrollHeadInner"
+                                                style="box-sizing: content-box; padding-right: 0px;">
+                                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
+                                                    <thead>
+                                                        <tr role="row">
                                                             <th>
                                                                 #
                                                             </th>
@@ -63,12 +63,12 @@
                                                             <th>
                                                                 STATUS
                                                             </th>
-                                                                </tr>
-                                                        </thead>
-                                                    </table>
-                                                </div>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
                                             </div>
-                                        </div>    
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -76,7 +76,7 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 </div>
 
 

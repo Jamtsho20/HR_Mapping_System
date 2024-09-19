@@ -15,10 +15,10 @@ class ExpenseApplyController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/apply,view')->only('index');
-        $this->middleware('permission:expense/apply,create')->only('store');
-        $this->middleware('permission:expense/apply,edit')->only('update');
-        $this->middleware('permission:expense/apply,delete')->only('destroy');
+        $this->middleware('permission:expense/apply-expense,view')->only('index');
+        $this->middleware('permission:expense/apply-expense,create')->only('store');
+        $this->middleware('permission:expense/apply-expense,edit')->only('update');
+        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
     }
     public function index(Request $request)
     {
