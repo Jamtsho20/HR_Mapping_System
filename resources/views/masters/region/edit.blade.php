@@ -17,7 +17,7 @@
                     <label for="mas_employee_id">Regional manager</label>
                     <select class="form-control" name="mas_employee_id" required>
                         <option value="" hidden selected disabled>Select your option</option>
-                        @foreach(concateEmpNameUserName() as $employee)
+                        @foreach(employeeList() as $employee)
                         <option value="{{ $employee->id }}" {{ $region->mas_employee_id == $employee->id ? 'selected' : '' }}>
                             {{ $employee->name }}
                         </option>

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceTypes;
 use Illuminate\Http\Request;
 
 class AdvanceLoanApplyController extends Controller
@@ -33,7 +34,8 @@ class AdvanceLoanApplyController extends Controller
      */
     public function create()
     {
-        return view('advance-loan.apply.create');
+        $advanceTypes = AdvanceTypes::all();
+        return view('advance-loan.apply.create',compact('advanceTypes'));
     }
 
     /**

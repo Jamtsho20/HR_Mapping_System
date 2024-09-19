@@ -90,6 +90,13 @@ if (!function_exists('comma_separated_to_array')) {
     }
 }
 
+if (!function_exists('convert_array_to_string')) {
+    function convert_array_to_string($array, $separator)
+    {
+        return implode($separator, $array);
+    }
+}
+
 if (!function_exists('formatSizeUnits')) {
     function formatSizeUnits($bytes)
     {
@@ -177,11 +184,12 @@ if (!function_exists('invoiceNoGenerator')) {
     }
 }
 
-if(!function_exists('concateEmpNameUserName')){
-    function concateEmpNameUserName(){
+if(!function_exists('employeeList')){
+    function employeeList(){
         return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.name) as name")->get();
     }
 }
+
 if (!function_exists('modifyFormRequest')) {
     function modifyFormRequest($formData)
     {

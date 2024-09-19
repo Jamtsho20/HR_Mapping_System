@@ -73,8 +73,9 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 6, 'name' => 'Encashment Approval', 'route' => 'leave/encashment-approval', 'display_order' => 5],
 
             //submenu for advance/loans
-            ['system_menu_id' => 7, 'name' => 'Apply', 'route' => 'advance-loan/apply', 'display_order' => 1],
-            ['system_menu_id' => 7, 'name' => 'Approval', 'route' => 'advance-loan/advance-loan-approval', 'display_order' => 2],
+            ['system_menu_id' => 7, 'name' => 'Types', 'route' => 'advance-loan/types', 'display_order' => 1],
+            ['system_menu_id' => 7, 'name' => 'Apply', 'route' => 'advance-loan/apply', 'display_order' => 2],
+            ['system_menu_id' => 7, 'name' => 'Approval', 'route' => 'advance-loan/advance-loan-approval', 'display_order' => 3],
 
             //submenu for advance/loans
             ['system_menu_id' => 8, 'name' => 'Attendance Entry', 'route' => 'attendance/attendance-entry', 'display_order' => 1],

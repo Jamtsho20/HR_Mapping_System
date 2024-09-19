@@ -45,7 +45,19 @@
                             {{ $designation->name }}
                         </option>
                         @endforeach
-
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="">Employment Type <span class="text-danger">*</span></label>
+                    <select name="job[mas_employment_type_id]" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Select your option</option>
+                        @foreach($employmentTypes as $type)
+                        <option value="{{ $type->id }}"
+                            {{ old('job.mas_employment_type_id', 
+                            isset($employee->empJob->empType->id) ? $employee->empJob->empType->id : '') == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
+                        @endforeach
 
                     </select>
                 </div>
@@ -53,8 +65,6 @@
                     <label for="mas_grade_id">Grade<span class="text-danger">*</span></label>
                     <select name="job[mas_grade_id]" id="grade_id" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
-
-
                         @foreach($grades as $grade)
                         <option value="{{ $grade->id }}"
                             {{ old('job.mas_grade_id', isset($employee->empJob->grade->id )? $employee->empJob->grade->id: '') == $grade->id ? 'selected' : '' }}>
@@ -81,13 +91,13 @@
                 </div>
                 <div class="form-group col-md-4">
                     <label for="pay_scale">Pay Scale</label>
-                    <input type="text" id="pay_scale" class="form-control form-control-sm" value="{{old('job.pay_scale',isset($employee->empJob->gradeStep->pay_scale)?$employee->empJob->gradeStep->pay_scale:'')}}" disabled>
+                    <input type="text" id="pay_scale" class="form-control form-control-sm" value="{{old('job.pay_scale',isset($employee->empJob->gradeStep->pay_scale) ? $employee->empJob->gradeStep->pay_scale : '')}}" required disabled>
 
 
                 </div>
                 <div class="form-group col-md-4">
                     <label for="basic_pay">Basic Pay<span class="text-danger">*</span></label>
-                    <input type="text" name="job[basic_pay]" id="basic_pay" class="form-control form-control-sm" value="{{ old('job.basic_pay',isset($employee->empJob->basic_pay)?$employee->empJob->basic_pay:'') }}" required>
+                    <input type="text" name="job[basic_pay]" id="basic_pay" class="form-control form-control-sm" value="{{ old('job.basic_pay',isset($employee->empJob->basic_pay)?$employee->empJob->basic_pay:'') }}" required disabled>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="">Job Location <span class="text-danger">*</span></label>
@@ -106,44 +116,51 @@
                 </div>
                 <br><br>
                 <div class="form-group col-md-4">
-                    <label for="">Employment Type <span class="text-danger">*</span></label>
-                    <select name="job[mas_employment_type_id]" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Select your option</option>
-                        @foreach($employmentTypes as $type)
-                        <option value="{{ $type->id }}"
-                            {{ old('job.mas_employment_type_id', 
-                            isset($employee->empJob->empType->id)?$employee->empJob->empType->id: '') == $type->id ? 'selected' : '' }}>
-                            {{ $type->name }}
-                        </option>
+                    <label for="employee_group">Employee Group (s)</label>
+                    <select class="js-select2 form-control form-control-sm" style="width: 100%;" name="job[employee_group][]"
+                        data-placeholder="Choose many.." multiple>
+                        @foreach($employeeGroups as $group)
+                            <option value="{{ $group->id }}" {{ in_array($group->id, $employeeGroupMaps ?? []) ? 'selected' : '' }}>
+                                {{ $group->name }}
+                            </option>
                         @endforeach
-
                     </select>
                 </div>
-                {{-- <div class="form-group col-md-4">
-                    <label for="">Probation & Notice Period <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm" name="job[probation_period]" value="{{ old('job.probation_period') }}" required>
-            </div> --}}
                 <div class="form-group col-md-4">
                     <label for="immediate_supervisor">Immediate Supervisor</label>
                     <select name="job[immediate_supervisor]" class="form-control form-control-sm">
                         <option value="" disabled selected hidden>Select your option</option>
-                    </select>
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="">Bank <span class="text-danger">*</span></label>
-                    <select name="job[bank]" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Select your option</option>
-                        @foreach(config('global.bank') as $key => $label)
-                        <option value="{{ $key }}" {{ old('job.bank', isset($employee->empJob->bank) ? $employee->empJob->bank  : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
-
+                        @foreach(employeeList() as $empList)
+                        <option value="{{ $empList->id }}" {{ old('job.immediate_supervisor', isset($employee->empJob->immediate_supervisor) ? $employee->empJob->immediate_supervisor : '') == $empList->id ? 'selected' : '' }}>
+                            {{ $empList->name }}
+                        </option>
                         @endforeach
-                        
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Account Number <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" name="job[account_number]" value="{{ old('job.account_number', isset($employee->empJob) ? $employee->empJob->account_number:'') }}" required>
+                    <label for="">Salary Disbursement Mode<span class="text-danger">*</span></label>
+                    <select id="salary_disbursement_mode" name="job[salary_disbursement_mode]" class="form-control form-control-sm" required>
+                        <option value="" disabled selected hidden>Select your option</option>
+                        @foreach(config('global.salary_disbursement_mode') as $key => $label)
+                            <option value="{{ $key }}" {{ old('job.salary_disbursement_mode', isset($employee->empJob->salary_disbursement_mode) ? $employee->empJob->salary_disbursement_mode  : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
+                {{-- <div id="bank-details" style="display: none;"> --}}
+                    <div id="bank" style="display: none;" class="form-group col-md-4">
+                        <label for="">Bank <span class="text-danger">*</span></label>
+                        <select name="job[bank]" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                            @foreach(config('global.bank') as $key => $label)
+                                <option value="{{ $key }}" {{ old('job.bank', isset($employee->empJob->bank) ? $employee->empJob->bank  : '') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div id="account_number" style="display: none;" class="form-group col-md-4">
+                        <label for="">Account Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" name="job[account_number]" value="{{ old('job.account_number', isset($employee->empJob) ? $employee->empJob->account_number:'') }}" required>
+                    </div>
+                {{-- </div> --}}
                 <div class="form-group col-md-4">
                     <label for="">PF Number <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[pf_number]" value="{{ old('job.pf_number', isset($employee->empJob) ? $employee->empJob->pf_number:'') }}" required>
@@ -152,21 +169,27 @@
                     <label for="">TPN Number <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[tpn_number]" value="{{ old('job.tpn_number',isset($employee->empJob) ? $employee->empJob->tpn_number:'') }}" required>
                 </div>
-                {{-- <div class="form-group col-md-4">
-                        <label for="">Grade Scale <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="job[grade_scale]" value="{{ old('job.grade_scale') }}" required>
-            </div> --}}
-            {{-- <div class="form-group col-md-4">
-                        <label for="">Ceiling <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="job[grade_scale]" required>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="">Grade Ladder <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="job[grade_ladder]" required>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="">Pay Scale <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-sm" name="job[pay_scale]" required>
-                    </div> --}}
         </div>
 </div>
+@push('page_scripts')
+    <script>
+        $(function() {
+            $('.js-select2').select2();
+        });
+
+        document.getElementById('salary_disbursement_mode').addEventListener('change', function () {
+            var bank = document.getElementById('bank');
+            var accountNumber = document.getElementById('account_number');
+            if (this.value === '2') { // Replace 'saving_account' with the actual value for Savings Account in your config
+                bank.style.display = 'block';
+                accountNumber.style.display = 'block';
+            } else {
+                bank.style.display = 'none';
+                accountNumber.style.display = 'none';
+            }
+        });
+
+        // Trigger change event on page load to set initial state
+        document.getElementById('salary_disbursement_mode').dispatchEvent(new Event('change'));
+    </script>
+@endpush

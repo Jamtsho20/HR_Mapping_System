@@ -23,7 +23,7 @@
                 <label for="mas_employee_id">Section Head</label>
                 <select class="form-control" name="mas_employee_id">
                     <option value="" disabled selected hidden>Select your option</option>
-                    @foreach (concateEmpNameUserName() as $employee)
+                    @foreach (employeeList() as $employee)
                         <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>{{ $employee->name  }}</option>
                     @endforeach
                 </select>

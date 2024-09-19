@@ -10,6 +10,7 @@ use App\Models\PaySlipDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EmployeeOvertime;
 use App\Models\LoanEMIDeduction;
+use App\Models\MasEmployeeJob;
 use App\Models\PaySlipDetailView;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -23,9 +24,11 @@ class PayrollService
         PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
         $employees = User::where('id', '<>', 1)->get();
         $userId = Auth::user()->id;
-        
+
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
+            $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
+
             $employeeVariableValues = [];
             $employeeVariableValues['grade'] = $employee->empJob->grade->name;
             $employeeVariableValues['gradeStep'] = $employee->empJob->gradeStep->name;
@@ -33,12 +36,16 @@ class PayrollService
             $employeeVariableValues['monthsInService'] = $durationOfService['monthsOfService'];
             $employeeVariableValues['yearsSinceRegularization'] = $durationOfService['years'];
             $employeeVariableValues['monthsSinceRegularization'] = $durationOfService['months'];
+            $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
+
             $basicPay = $employeeVariableValues['basicPay'] = $employee->empJob->basic_pay;
             $forMonthObject = date_create($payslip->for_month);
             $overtimeHours = EmployeeOvertime::whereMasEmployeeId($employee->id)->whereForMonth($forMonthObject->format("Y-m-01"))->value("overtime_hours");
             $hourlyWage = ($basicPay / 30) / 8;
+
             $employeeVariableValues['overtimeHours'] = $overtimeHours ?? 0;
             $employeeVariableValues['hourlyWage'] = $hourlyWage;
+
             $payScaleBasePay = $employeeVariableValues['payScaleBasePay'] = $employee->empJob->gradeStep->starting_salary;
             $employeeGradeId = $employee->empJob->gradeStep->mas_grade_id;
             $employeeGroupId = false;
@@ -220,6 +227,7 @@ class PayrollService
             "HOURLY_WAGE",
             "GRADE",
             "GRADE_STEP",
+            "EMPLOYMENT_TYPE",
         ];
         $variableValueMap = [
             "BASIC_PAY" => $employeeVariableValues['basicPay'],
@@ -235,7 +243,9 @@ class PayrollService
             "HOURLY_WAGE" => $employeeVariableValues['hourlyWage'],
             "GRADE" => $employeeVariableValues['grade'],
             "GRADE_STEP" => $employeeVariableValues['gradeStep'],
+            "EMPLOYMENT_TYPE" => $employeeVariableValues['employmentType'],
         ];
+
         $calculation_method = (int) $calculation_method;
         $payHead = MasPayHead::whereRaw("id = ?", [$payHeadId])->first();
         if ($calculation_method === 1) { //ACTUAL
@@ -300,6 +310,10 @@ class PayrollService
             return round(($amountToCalculateOn * ($amount / 100)), 0);
         }
         if ($calculation_method === 6) {
+            // if($payHead->id == 3){
+            //     $amount = self::evaluateFormula($payHead->formula, $employee, $formulaPossibleVariables, $variableValueMap);
+            //     dd($amount, $payHead, $payHead->formula, $employee, $formulaPossibleVariables, $variableValueMap);
+            // }
             $amount = self::evaluateFormula($payHead->formula, $employee, $formulaPossibleVariables, $variableValueMap);
 
             return round($amount, 0);
@@ -308,7 +322,7 @@ class PayrollService
         return 0;
     }
 
-    protected function checkFormulaValidity($formula): array
+    public static function checkFormulaValidity($formula): array
     {
         $formulaLines = explode("\n", $formula);
         $formulaParsed = '';
@@ -327,6 +341,7 @@ class PayrollService
             "HOURLY_WAGE",
             "GRADE",
             "GRADE_STEP",
+            "EMPLOYMENT_TYPE",
         ];
         $z = 1;
         $value = 0;
@@ -419,7 +434,6 @@ class PayrollService
             } else {
                 return 0;
             }
-
         }
 
         $formulaParsed .= " return \$value;";
@@ -451,7 +465,7 @@ class PayrollService
             `id` BIGINT unsigned NOT NULL AUTO_INCREMENT,
             `for_month` DATE NOT NULL,
             `overtime_hours` DECIMAL(5,2) NULL DEFAULT NULL,
-            `mas_employee_id` char(36) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+            `mas_employee_id` BIGINT unsigned NOT NULL,
             `basic_pay` INT(11) NOT NULL,";
 
         // Dynamically add columns based on pay heads

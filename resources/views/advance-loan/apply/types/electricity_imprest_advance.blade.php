@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="electricity-imprest-advance-form" class="electricity-imprest-advance" style="display: none; padding-left: 25px; padding-right: 15px; required">
+<div id="electricity-imprest-advance-form" class="dynamic-form" style="display: none; padding-left: 25px; padding-right: 15px; ">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">

@@ -62,19 +62,15 @@ class MasPayHeadsSeeder extends Seeder
                     'mas_pay_slab_id' => null,
                     'mas_pay_group_id' => null,
                     'account_head_id' =>  $deductionAccountHead->id,
-                    'formula' => "IF ([mas_employment_types].[name] = 'Regular')
-                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.15))
-                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.10))
-                ELSEIF ([mas_employment_types].[name] = 'Contract')
-                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.15))
-                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.15))
-                ELSEIF ([mas_employment_types].[name] = 'Consolidate' OR [mas_employment_types].[name] = 'Support Contract')
-                    THEN (EMPLOYEE_PF = ROUND([BASIC_PAY] * 0.05))
-                    THEN (EMPLOYER_PF = ROUND([BASIC_PAY] * 0.05))
-                ELSE
-                    THEN (EMPLOYEE_PF = 0)
-                    THEN (EMPLOYER_PF = 0)
-            ENDIF",
+                    'formula' => "IF ([EMPLOYMENT_TYPE] == 1)
+                    THEN ([BASIC_PAY] * 0.15)
+                    ELSEIF ([EMPLOYMENT_TYPE] == 3)
+                    THEN ([BASIC_PAY] * 0.15)
+                    ELSEIF ([EMPLOYMENT_TYPE] == 4 OR [EMPLOYMENT_TYPE] == 5)
+                    THEN ([BASIC_PAY] * 0.05)
+                    ELSE
+                    THEN 0
+                    ENDIF",
                     'created_by' => 1,
                     'updated_by' => null,
                     'created_at' => now(),

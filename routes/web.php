@@ -20,24 +20,17 @@ require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
 
 Route::get('/test-payslip', function () {
-    // Retrieve or create a dummy PaySlip record for testing
-    $payslip = PaySlip::whereStatus(1)->first(); // Assuming there's a payslip with ID 1
-
-    if (!$payslip) {
-        return "PaySlip not found.";
-    }
-
-    // $result = PayrollService::processPaySlip($payslip);
-    // return response()->json([
-    //     'message' => 'PaySlip processed successfully!',
-    //     'result' => $result,
-    // ]);
-
-    $result = PayrollService::generateAndMailPaySlips($payslip);
-    return response()->json([
-        'message' => 'PaySlip generated successfully!',
-        'result' => $result,
-    ]);
+ return   PayrollService::checkFormulaValidity(
+"IF (['EMPLOYMENT_TYPE'] == 'Regular')
+THEN ([BASIC_PAY] * 0.15)
+ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
+THEN ([BASIC_PAY] * 0.15)
+ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
+THEN ([BASIC_PAY] * 0.05)
+ELSE
+THEN 0
+ENDIF"
+    );
 });
 
 Route::middleware('auth')->group(function () {
@@ -135,9 +128,11 @@ Route::middleware('auth')->group(function () {
 
     // ADVANCE/LOAN
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
+        Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplyController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
+    
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
