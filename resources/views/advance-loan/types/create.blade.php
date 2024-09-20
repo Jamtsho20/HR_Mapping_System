@@ -28,7 +28,7 @@
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
-                <a href="{{ url('types.store') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+                <a href="{{ url('advance-loan/types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
             </div>
         </div>
     </div>

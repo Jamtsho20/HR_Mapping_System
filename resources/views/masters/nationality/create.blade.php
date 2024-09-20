@@ -12,13 +12,14 @@
 
             </div>
         </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-check"></i> CREATE
+            </button>
+            <a href="{{ url('master/nationalities') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        </div>
     </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-primary">
-            <i class="fa fa-check"></i> SAVE
-        </button>
-        <a href="{{ url('master/nationalities') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-    </div>
+
 </form>
 
 @include('layouts.includes.delete-modal')

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Employee Create')
+@section('page-title', 'Employee Group Create')
 @section('content')
 
 <form action="{{ url('employee-group/employee-create') }}" class="js-validation-bootstrap" method="POST">
@@ -7,13 +7,13 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" id="name" class="form-control" name="name" value="{{ old('name') }}" required="required">
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="status">Status <span class="text-danger">*</span></label>
                         <select name="status" id="status" class="form-control">
@@ -22,7 +22,9 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-2">
+            </div>
+            <div class="row">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="description">Description <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="description" name="description" required>{{ old('description') }}</textarea>
@@ -31,14 +33,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="employees">Select Employees <span class="text-danger">*</span></label>
-                        <!-- <select name="employees[]" id="employees" class="form-control" multiple="multiple">
-                            <option value="" disabled selected hidden>Select an option</option>
-                            @foreach($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}</option>
-                            @endforeach
-                        </select> -->
-                        <select name="employees[]" id="employees" class="form-control" multiple="multiple">
-                            <option value="" disabled selected hidden>Select an option</option>
+                        <select name="employees[]" id="employees" class="js-select2 form-control form-control-sm" style="width: 100%;"  data-placeholder="Choose many... " multiple>
                             @foreach($employees as $employee)
                                 <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}</option>
                             @endforeach
@@ -47,7 +42,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> CREATE</button>
                 <a href="{{ url('employee-group/employee-create') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
             </div>
         </div>
@@ -56,3 +51,10 @@
 
 @include('layouts.includes.delete-modal')
 @endsection
+@push('page_scripts')
+    <script>
+        $(function() {
+            $('.js-select2').select2();
+        });
+    </script>
+@endpush

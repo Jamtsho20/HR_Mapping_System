@@ -56,4 +56,6 @@ class MasEmployeeGroup extends Model
             'mas_employee_id' // Local key on MasEmployeeGroupMap
         );
     }
+    
+    
 }

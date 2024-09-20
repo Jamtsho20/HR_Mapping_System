@@ -40,6 +40,7 @@
                                             <td>{{ $departments->firstItem() + ($loop->iteration - 1) }}</td>
                                             <td>{{ $department->short_name }}</td>
                                             <td>{{$department->name}}</td>
+                                            <td>{{$department->name}}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)
                                                 <a href="{{ url('master/departments/' . $department->id . '/edit') }}" data-short_name="{{ $department->short_name }}" data-name="{{ $department->name }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i>
