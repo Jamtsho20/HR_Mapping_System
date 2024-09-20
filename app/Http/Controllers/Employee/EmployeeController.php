@@ -133,14 +133,14 @@ class EmployeeController extends Controller
         $increment = 0;
         $endingSalary = 0;
         $selectedPoint = 0;
-        if($employee->empJob->mas_grade_step_id){
+        if(!is_null($employee->empJob) && $employee->empJob->mas_grade_step_id){
             $gradeStep = MasGradeStep::where('id', $employee->empJob->mas_grade_step_id)->first();
             $startingSalary = $gradeStep->starting_salary;
             $endingSalary = $gradeStep->ending_salary;
             $increment = $gradeStep->increment;
             $points = range(1, $gradeStep->point);
         }
-        if ($employee->empJob->basic_pay >= $startingSalary) {
+        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary) {
             $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
         }
         return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
