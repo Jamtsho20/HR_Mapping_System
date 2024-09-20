@@ -13,6 +13,11 @@ class MasDepartment extends Model
     public function employee(){
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
+
+    public function sections(){
+        return $this->hasMany(MasSection::class, 'mas_department_id');
+    }
+
     //filters
     public function scopeFilter($query, $request)
     {

@@ -37,7 +37,7 @@ class AjaxRequestController extends Controller
     }
 
     public function getGradeStep($id){
-        $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name']);
+        $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name', 'point']);
         return $gradeSteps;
     }
 
@@ -97,12 +97,14 @@ class AjaxRequestController extends Controller
 
         for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
             // Skip if the day is a holiday
+            
             if (in_array($date->format('Y-m-d'), $holidayDates)) {
                 continue;
             }
             // If it's Saturday, count as half day
             if ($date->isSaturday()) {
                 $totalDays += 0.5;
+                continue;
             }
             // If it's Sunday, skip the day
             if ($date->isSunday()) {
@@ -113,7 +115,8 @@ class AjaxRequestController extends Controller
                 if ($fromDay == 1) { // Full day
                     $totalDays += 1;
                 } elseif ($fromDay == 2 || $fromDay == 3) { // First half or second half
-                    $totalDays += 0.5;
+                    $totalDays = $totalDays + 0.5;
+                    // dd($totalDays);
                 }
             } 
             // Check if it's the last day (toDate)

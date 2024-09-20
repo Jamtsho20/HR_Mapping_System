@@ -59,7 +59,7 @@ class EmployeeController extends Controller
         $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
-        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name']);
+        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name', 'point']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
@@ -117,15 +117,10 @@ class EmployeeController extends Controller
 
     {
         $employee = User::findOrFail($id);
-
         $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
-        $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
-        $villages = MasVillage::orderBy('village')->get(['id', 'village']);
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
-        $sections = MasSection::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
-        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
@@ -133,8 +128,22 @@ class EmployeeController extends Controller
         $rolesAssigned = $employee->roles->pluck('id')->toArray();
         $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
         $employeeGroupMaps = MasEmployeeGroupMap::where('mas_employee_id', $id)->pluck('mas_employee_group_id')->toArray();
-        
-        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections', 'designations', 'grades', 'gradeSteps', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps'));
+        $points = [];
+        $startingSalary = 0;
+        $increment = 0;
+        $endingSalary = 0;
+        $selectedPoint = 0;
+        if($employee->empJob->mas_grade_step_id){
+            $gradeStep = MasGradeStep::where('id', $employee->empJob->mas_grade_step_id)->first();
+            $startingSalary = $gradeStep->starting_salary;
+            $endingSalary = $gradeStep->ending_salary;
+            $increment = $gradeStep->increment;
+            $points = range(1, $gradeStep->point);
+        }
+        if ($employee->empJob->basic_pay >= $startingSalary) {
+            $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
+        }
+        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
     }
 
     /**

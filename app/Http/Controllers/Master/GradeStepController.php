@@ -71,7 +71,8 @@ class GradeStepController extends Controller
                     'name' => $value['step_name'],
                     'starting_salary' => $value['starting_salary'],
                     'ending_salary' => $value['ending_salary'],
-                    'increment' => $value['increment']
+                    'increment' => $value['increment'],
+                    'point' => $value['point']
                 ];
             }
 
@@ -91,7 +92,7 @@ class GradeStepController extends Controller
     public function edit($id)
     {
         $grade = MasGrade::with('gradeSteps')->findOrFail($id);
-
+        
         return view('masters.grade-steps.edit', compact('grade'));
     }
 
@@ -107,21 +108,21 @@ class GradeStepController extends Controller
         $this->validate($request, $this->rules, $this->messages);
 
         DB::transaction(function () use ($request, $id) {
-
             $grade = MasGrade::findOrFail($id);
             $grade->name = $request->grade_name;
             $grade->save();
-
-            $grade->gradeSteps()->delete();
             
             foreach($request->grade_steps as $key => $value){
-                $grade->gradeSteps()->create([
-                    'id' => $value['step_id'],
-                    'name' => $value['step_name'],
-                    'starting_salary' => $value['starting_salary'],
-                    'ending_salary' => $value['ending_salary'],
-                    'increment' => $value['increment']
-                ]);
+                $grade->gradeSteps()->updateOrCreate(
+                    ['id' => $value['step_id']],
+                    [
+                        'name' => $value['step_name'],
+                        'starting_salary' => $value['starting_salary'],
+                        'ending_salary' => $value['ending_salary'],
+                        'increment' => $value['increment'],
+                        'point' => $value['point']
+                    ]
+                );
             }
         });
 
@@ -141,7 +142,7 @@ class GradeStepController extends Controller
 
             return back()->with('msg_success', 'Grade and steps have been deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'You cannot delete this grade and steps, as it is associated with other data in the system.');
+            return back()->with('msg_error', 'You cannot delete this grade and steps, as it is associated with other module in the system.');
         }
     }
 }

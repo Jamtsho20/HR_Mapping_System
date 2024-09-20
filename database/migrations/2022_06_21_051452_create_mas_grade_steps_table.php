@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mas_grade_id')->index()->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->integer('starting_salary')->nullable();
-            $table->integer('increment')->nullable();
-            $table->integer('ending_salary')->nullable();
-            // $table->string('pay_scale', 100)->nullable();
+            $table->integer('starting_salary')->default(0);
+            $table->integer('increment')->default(0);
+            $table->integer('ending_salary')->default(0);
+            $table->unsignedSmallInteger('point')->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

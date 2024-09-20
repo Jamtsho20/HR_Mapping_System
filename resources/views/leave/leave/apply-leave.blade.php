@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Leave')
 @section('content')
-
     <form action="" method="POST">
         @csrf
         <div class="card">
@@ -39,23 +38,27 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="from_date">From Date <span class="text-danger">*</span></label>
-                            <select id="ddl_from_day" name="from_day" class="form-control" style="margin-bottom:7px">
-                                @foreach(config('global.leave_days') as $key => $value)
-                                    <option value="{{ $key }}" {{ old('from_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                @endforeach
-                            </select>
-                            <input type="date" class="js-datepicker form-control" id="from_date" name="from_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
+                            <div class="d-flex" style="gap:4px">
+                                <input type="date" class="js-datepicker form-control" id="from_date" name="from_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
+                                <select id="ddl_from_day" name="from_day" class="form-control" style="width:50%;">
+                                    @foreach(config('global.leave_days') as $key => $value)
+                                        <option value="{{ $key }}" {{ old('from_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="to_date">To Date <span class="text-danger">*</span></label>
-                            <select id="ddl_to_day" name="to_day" class="form-control" style="margin-bottom:7px">
-                                @foreach(config('global.leave_days') as $key => $value)
-                                    <option value="{{ $key }}" {{ old('to_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                @endforeach
-                            </select>
-                            <input type="date" class="js-datepicker form-control" id="to_date" name="to_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
+                            <div class="d-flex" style="gap:4px">
+                                <input type="date" class="js-datepicker form-control" id="to_date" name="to_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
+                                <select id="ddl_to_day" name="to_day" class="form-control" style="width:50%">
+                                    @foreach(config('global.leave_days') as $key => $value)
+                                        <option value="{{ $key }}" {{ old('to_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -89,3 +92,25 @@
     </form>
     @include('layouts.includes.delete-modal')
 @endsection
+@push('page_scripts')
+<script>
+    document.getElementById('ddl_from_day').addEventListener('change', function(){
+        var fromDay = this.value
+        var fromDate = document.getElementById('from_date').value
+        if(fromDay !== '1' && !fromDate){
+            alert('From date cannot be empty!')
+            this.value = '1'
+        }
+    })
+    document.getElementById('ddl_to_day').addEventListener('change', function() {
+        var toDay = this.value
+        var toDate = document.getElementById('to_date').value
+        var fromDate = document.getElementById('from_date').value
+
+        if (toDay !== '1' && (!toDate || !fromDate)) {
+            alert('From date and To date cannot be empty!')
+            this.value = '1'
+        }
+    })
+</script>
+@endpush
