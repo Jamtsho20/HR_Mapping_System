@@ -87,27 +87,34 @@
             </div>
         </div>
 
+        <div id="summary_rules">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive table table-condensed table-bordered table-striped table-sm">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Grade Step</th>
+                                    <th>Duration</th>
+                                    <th>UOM</th>
+                                    <th>Start date</th>
+                                    <th>End Date </th>
+                                    <th>Is Loss Of Pay</th>
+                                    <th>Employment Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic content will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6"></div>
+    </div>
 
-    </div>
-    <div id="summary_rules">
-        <table>
-            <thead>
-                <tr>
-                    <th>Grade Step</th>
-                    <th>Duration</th>
-                    <th>UOM</th>
-                    <th>Start date</th>
-                    <th>End Date </th>
-                    <th>Is Loss Of Pay</th>
-                    <th>Employment Type</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dynamic content will be injected here -->
-            </tbody>
-        </table>
-    </div>
 
 </div>
 
@@ -169,14 +176,13 @@
 
             // Map IDs to names
             const canAvailInNames = selectedIds.map(id => idToNameMap[id] || 'N/A');
-
             // Join names into a string
             const canAvailIn = canAvailInNames.join(', ');
-
             // Display the names in the summary
             document.getElementById('summary_can_avail_in').textContent = canAvailIn;
 
-            // Display Rules
+
+            // Display policy Rules
             const tableBody = document.querySelector('#summary_rules tbody');
             tableBody.innerHTML = ''; // Clear existing rows
             let latestRule = null;
@@ -206,7 +212,7 @@
             }
 
             if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
-                const gradeStepIds = latestRule.mas_grade_step_id.join(', ');
+                const gradeStepIds = latestRule.mas_grade_step_id.map(id=>gradeStepMap[id]).join(', ');
                 const newRow = `
                     <tr>
                         <td>${gradeStepIds}</td>
