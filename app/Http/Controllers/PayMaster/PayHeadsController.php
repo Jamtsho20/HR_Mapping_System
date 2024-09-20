@@ -2,24 +2,30 @@
 
 namespace App\Http\Controllers\PayMaster;
 
-use App\Http\Controllers\Controller;
 use App\Models\MasPayHead;
-use App\Models\MasPayGroup;
-use App\Models\MasAccAccountHead;
 use App\Models\MasPaySlab;
+use App\Models\MasPayGroup;
 use Illuminate\Http\Request;
+use App\Services\PayrollService;
+use App\Models\MasAccAccountHead;
+use App\Http\Controllers\Controller;
 
 class PayHeadsController extends Controller
 {
+    protected $payrollService;
+
     /**
      * Display a listing of the resource.
      */
-    public function __construct()
+    public function __construct(PayrollService $payrollService)
     {
         $this->middleware('permission:paymaster/pay-heads,view')->only('index');
         $this->middleware('permission:paymaster/pay-heads,create')->only('store');
         $this->middleware('permission:paymaster/pay-heads,edit')->only('update');
         $this->middleware('permission:paymaster/pay-heads,delete')->only('destroy');
+
+        $this->payrollService = $payrollService;
+
     }
     public function index(Request $request)
     {
@@ -31,7 +37,6 @@ class PayHeadsController extends Controller
 
         return view('paymaster.pay-heads.index', compact('payHeads', 'privileges'));
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -60,11 +65,18 @@ class PayHeadsController extends Controller
             'formula' => 'nullable|string',
         ]);
 
+
+        if($request->formula != null) {
+            $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
+            if (!$formulaCheckResult['success']) {
+                return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');
+            }
+        }
+
         MasPayHead::create($validatedData);
 
-        return redirect()->route('pay-heads.index')->with('success', 'Pay Head created successfully.');
+        return redirect()->route('pay-heads.index')->with('msg_success', 'Pay Head created successfully.');
     }
-
 
     public function show(string $id)
     {
@@ -79,7 +91,7 @@ class PayHeadsController extends Controller
         $accountHeads = MasAccAccountHead::all();
         $paySlabs = MasPaySlab::all();
         $payGroups = MasPayGroup::all();
-        return view('paymaster.pay-heads.edit', compact('payHead','payGroups','accountHeads','paySlabs'));
+        return view('paymaster.pay-heads.edit', compact('payHead', 'payGroups', 'accountHeads', 'paySlabs'));
     }
 
     public function update(Request $request, $id)
@@ -98,6 +110,13 @@ class PayHeadsController extends Controller
             'amount' => 'nullable|numeric',
             'formula' => 'nullable|string',
         ]);
+
+        if($request->formula != null) {
+            $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
+            if (!$formulaCheckResult['success']) {
+                return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');
+            }
+        }
 
         $payHead->update($validatedData);
 

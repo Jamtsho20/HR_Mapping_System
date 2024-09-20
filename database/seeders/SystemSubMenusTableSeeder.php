@@ -54,7 +54,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 4, 'name' => 'Pay Slabs', 'route' => 'paymaster/pay-slabs', 'display_order' => 3],
 
             //sub menu for expense
-            ['system_menu_id' => 5, 'name' => 'Apply', 'route' => 'expense/apply', 'display_order' => 1],
+            ['system_menu_id' => 5, 'name' => 'Apply', 'route' => 'expense/apply-expense', 'display_order' => 1],
             ['system_menu_id' => 5, 'name' => 'Approval', 'route' => 'expense/approval', 'display_order' => 2],
             ['system_menu_id' => 5, 'name' => 'DSA Claim/Settlement', 'route' => 'expense/dsa-claim-settlement', 'display_order' => 3],
             ['system_menu_id' => 5, 'name' => 'DSA Approval', 'route' => 'expense/dsa-approval', 'display_order' => 5],
