@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers\PayMaster;
 
-use App\Http\Controllers\Controller;
 use App\Models\MasPaySlab;
-use App\Models\MasPaySlabDetails;
 use Illuminate\Http\Request;
+use App\Services\PayrollService;
+use App\Models\MasPaySlabDetails;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class PaySlabsController extends Controller
 {
-    public function __construct()
+    protected $payrollService;
+
+    public function __construct(PayrollService $payrollService)
     {
         $this->middleware('permission:paymaster/pay-slabs,view')->only('index');
         $this->middleware('permission:paymaster/pay-slabs,create')->only('store');
         $this->middleware('permission:paymaster/pay-slabs,edit')->only('update');
         $this->middleware('permission:paymaster/pay-slabs,delete')->only('destroy');
+
+        $this->payrollService = $payrollService;
     }
 
     public function index(Request $request)
@@ -32,13 +37,19 @@ class PaySlabsController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:150',
             'effective_date' => 'required|date',
             'formula' => 'nullable|string',
         ]);
+
+        if($request->formula != null) {
+            $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
+            if (!$formulaCheckResult['success']) {
+                return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');
+            }
+        }
 
         // Create a new PaySlab instance and save it to the database
         DB::beginTransaction();
@@ -88,6 +99,13 @@ class PaySlabsController extends Controller
                 'mas_pay_slab_details.*.pay_to' => 'required',
                 'mas_pay_slab_details.*.amount' => 'required'
             ]);
+
+            if($request->formula != null) {
+                $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
+                if (!$formulaCheckResult['success']) {
+                    return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');
+                }
+            }
 
             // Find the existing PaySlab by ID and update its properties
             $paySlab = MasPaySlab::findOrFail($id);

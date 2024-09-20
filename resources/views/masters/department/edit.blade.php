@@ -21,17 +21,17 @@
                 <select name="mas_employee_id" class="form-control" id="dzongkhag1">
                     <option value="" disabled selected hidden>Select your option</option>
                     @foreach (employeeList() as $employee)
-                        <option value="{{ $employee->id }}" {{ $department->mas_employee_id == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
+                    <option value="{{ $employee->id }}" {{ $department->mas_employee_id == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
+            <a href="{{ url('master/departments') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        </div>
     </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-        <a href="{{ url('master/departments') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
 
-    </div>
 </form>
 @include('layouts.includes.delete-modal')
 @endsection

@@ -104,9 +104,9 @@
                                     <a href="#" role="menuitem" id="next-button" class="btn btn-md btn-primary">Next</a>
                                 </li>
                                 {{-- <li aria-hidden="false" aria-disabled="false"> --}}
-                                    <button type="submit" role="menuitem" id="submit-button"
-                                        class="btn btn-md btn-primary" value="submit">Submit</button>
-                                    {{--
+                                <button type="submit" role="menuitem" id="submit-button"
+                                    class="btn btn-md btn-primary" value="submit">Submit</button>
+                                {{--
                                 </li> --}}
                             </ul>
                         </div>
@@ -150,26 +150,38 @@
         });
     }
 
-   function saveFormData() {
+    function saveFormData() {
         const form = document.getElementById('leave-form');
         const formData = new FormData(form);
         const data = {};
 
         formData.forEach((value, key) => {
-            // Handle checkboxes
-            if (form.elements[key] && form.elements[key].type === 'checkbox') {
-                data[key] = form.elements[key].checked ? '1' : '0';
+            // If key already exists in data object, convert to array or append new values
+            if (data[key]) {
+                // If not already an array, convert it to an array
+                if (!Array.isArray(data[key])) {
+                    data[key] = [data[key]];
+                }
+                data[key].push(value); // Add new value to the array
             } else {
-                data[key] = value;
+                // Handle checkboxes
+                if (form.elements[key] && form.elements[key].type === 'checkbox') {
+                    data[key] = form.elements[key].checked ? '1' : '0';
+                } else {
+                    data[key] = value; // Set initial value
+                }
             }
         });
 
+        // Save the entire data object as a JSON string in localStorage
         localStorage.setItem('formData', JSON.stringify(data));
+
         updateSummary(); // Ensure summary is updated right away
     }
 
 
-   
+
+
 
     function setupRealTimeSaving() {
         const form = document.getElementById('leave-form');
@@ -184,5 +196,20 @@
             });
         }
     }
+    // Pass employment types to JavaScript
+    const employmentTypes = @json($employmentTypes);
 
+    // Create a mapping from IDs to names
+    const idToNameMap = employmentTypes.reduce((map, employmentType) => {
+        map[employmentType.id] = employmentType.name;
+        return map;
+    }, {});
+
+    const gradeSteps = @json($gradeSteps);
+
+    // Create a mapping from IDs to names
+    const gradeStepMap = gradeSteps.reduce((map, step) => {
+        map[step.id] = step.name;
+        return map;
+    }, {});
 </script>
