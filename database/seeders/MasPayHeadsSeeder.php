@@ -13,194 +13,24 @@ class MasPayHeadsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Fetch the account head IDs where the names are 'Deductions' and 'Allowance'
-        $deductionAccountHead = DB::table('mas_acc_account_heads')->where('name', 'Deduction')->first();
-        $allowanceAccountHead = DB::table('mas_acc_account_heads')->where('name', 'Allowance')->first();
+        DB::statement("INSERT INTO mas_pay_heads (name, code, payhead_type, calculation_method, calculated_on, amount, mas_pay_slab_id, mas_pay_group_id, account_head_id, formula, created_by, updated_by, created_at, updated_at) 
+        VALUES 
+            ('Medical Allowance', 'Medical ALL', 1, 2, 1, 12.00, 1, NULL, 1, NULL, 1, NULL, '2024-08-20 08:11:10', '2024-08-20 08:11:10'),
+            ('Project Allowance', 'Project ALL', 1, 6, NULL, NULL, NULL, NULL, 1, NULL, 1, 1, '2024-08-20 08:11:10', '2024-09-17 17:10:02'),
+            ('Critical Allowance', 'Critical ALL', 1, 4, 6, NULL, 1, 3, 1, NULL, 1, 1, '2024-08-20 08:11:10', '2024-09-19 09:33:12'),
+            ('Overtime Allowance', 'Overtime ALL', 1, 6, NULL, NULL, NULL, NULL, 1, 'THEN [OVERTIME_HOURS] * [HOURLY_WAGE]', 1, NULL, '2024-08-20 08:11:10', '2024-08-20 08:11:10'),
+            ('Corporate Allowance', 'Corporate ALL', 1, 4, 6, NULL, NULL, 4, 1, NULL, 1, NULL, NULL, NULL);
+        ");
 
-        // Check if the account heads exist
-        if ($deductionAccountHead) {
-            DB::table('mas_pay_heads')->insert([
-                [
-                    'name' => 'Tax Deducted at Source',
-                    'code' => 'TDS',
-                    'payhead_type' => 2,
-                    'calculation_method' => 3,
-                    'calculated_on' => 3,
-                    'amount' => null,
-                    'mas_pay_slab_id' => 1,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' => $deductionAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Health Tax',
-                    'code' => 'HC',
-                    'payhead_type' => 2,
-                    'calculation_method' => 5,
-                    'calculated_on' => 2,
-                    'amount' => 1.00,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' =>  $deductionAccountHead->id,
-                    'formula' => 'null',
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Provident Fund',
-                    'code' => 'PF',
-                    'payhead_type' => 2,
-                    'calculation_method' => 6,
-                    'calculated_on' => 1,
-                    'amount' => 15.00,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' =>  $deductionAccountHead->id,
-                    'formula' => "IF ([EMPLOYMENT_TYPE] == 1)
-                    THEN ([BASIC_PAY] * 0.15)
-                    ELSEIF ([EMPLOYMENT_TYPE] == 3)
-                    THEN ([BASIC_PAY] * 0.15)
-                    ELSEIF ([EMPLOYMENT_TYPE] == 4 OR [EMPLOYMENT_TYPE] == 5)
-                    THEN ([BASIC_PAY] * 0.05)
-                    ELSE
-                    THEN 0
-                    ENDIF",
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Staff Initiative for Financial Assistance',
-                    'code' => 'SIFA',
-                    'payhead_type' => 2,
-                    'calculation_method' => 4,
-                    'calculated_on' => 1,
-                    'amount' => null,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' => $deductionAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Group Savings Linked Insurance',
-                    'code' => 'GSLI',
-                    'payhead_type' => 2,
-                    'calculation_method' => 3,
-                    'calculated_on' => 1,
-                    'amount' => null,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' => $deductionAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Device EMI',
-                    'code' => 'Device_EMI',
-                    'payhead_type' => 2,
-                    'calculation_method' => 7,
-                    'calculated_on' => 0,
-                    'amount' => null,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' => $deductionAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-
-            ]);
-        } else {
-
-            echo "Account head 'Deduction' not found!";
-        }
-
-        if ($allowanceAccountHead) {
-            DB::table('mas_pay_heads')->insert([
-                [
-                    'name' => 'Medical Allowance',
-                    'code' => 'MA',
-                    'payhead_type' => 1,
-                    'calculation_method' => 2,
-                    'calculated_on' => 1,
-                    'amount' => 12.00,
-                    'mas_pay_slab_id' => 1,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' => $allowanceAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Project Allowance',
-                    'code' => 'PA',
-                    'payhead_type' => 1,
-                    'calculation_method' => 6,
-                    'calculated_on' => 5,
-                    'amount' => null,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' => $allowanceAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Critical Allowance',
-                    'code' => 'CA',
-                    'payhead_type' => 1,
-                    'calculation_method' => 4,
-                    'calculated_on' => 6,
-                    'amount' => null,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' =>  $allowanceAccountHead->id,
-                    'formula' => null,
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'name' => 'Overtime Allowance',
-                    'code' => 'OA',
-                    'payhead_type' => 1,
-                    'calculation_method' => 6,
-                    'calculated_on' => 5,
-                    'amount' => 0.00,
-                    'mas_pay_slab_id' => null,
-                    'mas_pay_group_id' => null,
-                    'account_head_id' =>  $allowanceAccountHead->id,
-                    'formula' => 'THEN [OVERTIME_HOURS] * [HOURLY_WAGE]',
-                    'created_by' => 1,
-                    'updated_by' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-            ]);
-        } else {
-
-            echo "Account head 'Allowance' not found!";
-        }
+        DB::statement("INSERT INTO mas_pay_heads (name, code, payhead_type, calculation_method, calculated_on, amount, mas_pay_slab_id, mas_pay_group_id, account_head_id, formula, created_by, updated_by, created_at, updated_at) 
+            VALUES 
+            ('Salary Tax', 'TDS', 2, 3, 4, NULL, 1, NULL, 2, NULL, 1, NULL, '2024-08-20 08:11:10', '2024-08-20 08:11:10'),
+            ('Health Tax', 'H/Tax', 2, 6, NULL, NULL, NULL, NULL, 2, 'IF ([EMPLOYMENT_TYPE] == 1 OR [EMPLOYMENT_TYPE] == 3) \r\nTHEN ([GROSS_PAY] * 0.01)\r\nELSE\r\nTHEN 0\r\nENDIF', 1, 1, '2024-08-20 08:11:10', '2024-09-20 15:32:02'),
+            ('Provident Fund', 'PF', 2, 6, NULL, NULL, 1, 1, 2, 'IF ([EMPLOYMENT_TYPE] == 1)\r\nTHEN ([BASIC_PAY] * 0.15)\r\nELSEIF ([EMPLOYMENT_TYPE] == 3)\r\nTHEN ([BASIC_PAY] * 0.15)\r\nELSEIF ([EMPLOYMENT_TYPE] == 4 OR [EMPLOYMENT_TYPE] == 5)\r\nTHEN ([BASIC_PAY] * 0.05)\r\nELSE\r\nTHEN 0\r\nENDIF', 1, 1, '2024-08-20 08:11:10', '2024-09-17 18:05:53'),
+            ('Staff Initiative for Financial Assistance', 'SIFA', 2, 4, 1, NULL, NULL, 1, 2, NULL, 1, NULL, '2024-08-20 08:11:10', '2024-08-20 08:11:10'),
+            ('Group Savings Linked Insurance', 'GSLI', 2, 3, 1, NULL, 2, NULL, 2, NULL, 1, NULL, '2024-08-20 08:11:10', '2024-08-20 08:11:10'),
+            ('Device EMI', 'Device EMI', 2, 7, 0, NULL, NULL, NULL, 2, NULL, 1, NULL, '2024-08-20 08:11:10', '2024-08-20 08:11:10'),
+            ( 'BOB Loan', 'BOB_Loan', 2, 7, 1, NULL, 1, 1, 2, NULL, 1, 1, NULL, '2024-09-20 14:09:08'),
+            ( 'TBank Loan', 'TBank_Loan', 2, 7, 1, NULL, 1, 1, 2, NULL, 1, 1, NULL, '2024-09-20 14:11:44');");
     }
 }
