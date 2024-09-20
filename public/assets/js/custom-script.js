@@ -110,7 +110,7 @@ var hrms = function() {
                     type: "GET",
                     success: function(data) {
                         var gewogs = data;
-                        var html = "<option value='' disabled selected hidden>Select a gewog</option>";
+                        var html = "<option value='' disabled selected hidden>Select a village</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]

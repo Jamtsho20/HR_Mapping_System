@@ -114,8 +114,8 @@ class MasGradeStepsSeeder extends Seeder
             //     ['name' => 'T Step 13', 'starting_salary' => 15095, 'increment' => 377, 'ending_salary' => 18851, 'pay_scale' => '15095 - 377 - 18851', 'created_by' => 1],
             // ]],
             ['name' => 'GSSG', 'steps' => [
-                ['name' => 'Security Guard', 'starting_salary' => 10625, 'increment' => 266, 'ending_salary' => 0, 'created_by' => 1],
-                ['name' => 'Tea Lady', 'starting_salary' => 9375, 'increment' => 234, 'ending_salary' => 0, 'created_by' => 1],
+                ['name' => 'Security Guard', 'starting_salary' => 10625, 'increment' => 266, 'ending_salary' => 10625, 'created_by' => 1],
+                ['name' => 'Tea Lady', 'starting_salary' => 9375, 'increment' => 234, 'ending_salary' => 9375, 'created_by' => 1],
             ]],
 
         ];
@@ -130,6 +130,7 @@ class MasGradeStepsSeeder extends Seeder
                         'starting_salary' => $step['starting_salary'],
                         'increment' => $step['increment'],
                         'ending_salary' => $step['ending_salary'],
+                        'point' => $step['increment'] !== 0 ? (($step['ending_salary'] - $step['starting_salary']) / $step['increment']) : 0,
                         'created_by' => 1, 
                     ]);
                 }
