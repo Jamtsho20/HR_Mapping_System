@@ -35,8 +35,8 @@ class DatabaseSeeder extends Seeder
         $this->call(MasEmploymentGroupSeeder::class);
         $this->call(MasAccountHeadsSeeder::class);
         $this->call(MasPaySlabSeeder::class);
-        $this->call(MasPayHeadsSeeder::class);
         $this->call(MasPayGroupSeeder::class);
+        $this->call(MasPayHeadsSeeder::class);
         $this->call(MasPayGroupDetailSeeder::class);
         $this->call(MasPaySlabDetailSeeder::class);
         $this->call(MasResignationTypesSeeder::class);

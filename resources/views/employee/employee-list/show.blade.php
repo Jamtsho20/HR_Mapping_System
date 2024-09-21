@@ -96,7 +96,7 @@
                             </li>
                             <li class="list-group-item">
                                 <b>Gewog</b> <a
-                                    class="pull-right">{{ $employee->empPresentAddress->masGewog->name }}</a>
+                                    class="pull-right">{{ $employee->empPresentAddress->masGewog->name ?? config('global.null_value') }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>City</b> <a class="pull-right">{{ $employee->empPresentAddress->city }}</a>

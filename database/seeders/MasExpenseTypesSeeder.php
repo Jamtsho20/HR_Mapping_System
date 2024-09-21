@@ -14,10 +14,10 @@ class MasExpenseTypesSeeder extends Seeder
     public function run(): void
     {
         DB::table('mas_expense_types')->insert([
-            ['id' => 1, 'expense_type' => 'DSA Advance', 'created_by' => 1],
-            ['id' => 2, 'expense_type' => 'Salary Advance', 'created_by' => 1],
-            ['id' => 3, 'expense_type' => 'Sifa Loan', 'created_by' => 1],
-            ['id' => 4, 'expense_type' => 'Gadget Emi', 'created_by' => 1],
+            ['id' => 1, 'name' => 'DSA Advance', 'created_by' => 1],
+            ['id' => 2, 'name' => 'Salary Advance', 'created_by' => 1],
+            ['id' => 3, 'name' => 'Sifa Loan', 'created_by' => 1],
+            ['id' => 4, 'name' => 'Gadget Emi', 'created_by' => 1],
            
         ]);
     }

@@ -18,7 +18,7 @@ class UsersTableSeeder extends Seeder
         //administrator user
         $user = new User();
         $user->name = 'Super User';
-        $user->username = 'admin';
+        $user->username = 'E00000';
         $user->email = 'admin@admin.com';
         $user->password = bcrypt('password');
         $user->first_name = 'Admin';
