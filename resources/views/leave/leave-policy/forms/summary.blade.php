@@ -132,6 +132,7 @@
             document.getElementById('summary_start_date').textContent = data['leave_policy[start_date]'] || 'N/A';
             document.getElementById('summary_end_date').textContent = data['leave_policy[end_date]'] || 'N/A';
             document.getElementById('summary_status').textContent = data['leave_policy[status]'] === '1' ? 'Enforced' : 'Draft';
+            document.getElementById('summary_is_information_only').checked = data['leave_policy[is_information_only]'] === '1';
 
             // Display Leave Plan Data
             const summaryGenderElement = document.getElementById('summary_gender');
@@ -181,6 +182,7 @@
             // Display the names in the summary
             document.getElementById('summary_can_avail_in').textContent = canAvailIn;
 
+            //display year ed processing
 
             // Display policy Rules
             const tableBody = document.querySelector('#summary_rules tbody');
@@ -212,7 +214,7 @@
             }
 
             if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
-                const gradeStepIds = latestRule.mas_grade_step_id.map(id=>gradeStepMap[id]).join(', ');
+                const gradeStepIds = latestRule.mas_grade_step_id.map(id => gradeStepMap[id]).join(', ');
                 const newRow = `
                     <tr>
                         <td>${gradeStepIds}</td>
