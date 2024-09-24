@@ -13,4 +13,14 @@ class PaySlipDetailView extends Model
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
+
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('search') && $request->query('search') != '') {
+            $query->whereHas('employee', function($employeeQuery) use ($request) {
+                $employeeQuery->where('name', 'like', '%' . $request->query('search'). '%')
+                              ->orWhere('employee_id', 'like', '%' . $request->query('search'). '%');
+            });
+        }
+    }
 }
