@@ -179,9 +179,7 @@ class EmployeeController extends Controller
             DB::beginTransaction();
             try {
                 $this->assignRoles($request->documents, $id, $request);
-                if(DB::table('mas_employees')->where('id', $id)->where('status', 0)){
-                    $masEmployee = DB::table('mas_employees')->where('id', $id)->update(['status' => 1]);
-                }
+                DB::table('mas_employees')->where('id', $id)->whereStatus(0)->update(['status' => 1]);
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();

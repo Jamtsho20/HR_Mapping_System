@@ -76,7 +76,7 @@
                                 <option value="" disabled selected hidden>Select your option</option>
                                 @if(isset($employee->empJob->grade))
                                     @foreach($employee->empJob->grade->gradesteps as $step)
-                                        <option value="{{ $step->id }}" data-point="{{ $step->point }}"
+                                        <option value="{{ $step->id }}" data-point="{{ $step->point }}" data-starting-salary="{{ $step->starting_salary }}"
                                             {{ old('job.mas_grade_step_id', isset($employee->empJob->gradeStep->id ) ? $employee->empJob->gradeStep->id: '') == $step->id ? 'selected' : '' }}>
                                             {{ $step->name }}
                                         </option>
@@ -180,6 +180,8 @@
             $('.js-select2').select2();
         });
 
+        // var initialBasicPay = parseFloat(document.getElementById('basic_pay').value);
+
         document.getElementById('salary_disbursement_mode').addEventListener('change', function () {
             var bank = document.getElementById('bank');
             var accountNumber = document.getElementById('account_number');
@@ -204,7 +206,7 @@
 
             // Populate the point dropdown if maxPoint is available
             if (maxPoint !== null && maxPoint >= 0) {
-                for (var i = 0; i <= maxPoint; i++) {
+                for (var i = 1; i <= maxPoint; i++) {
                     stepPointDropdown.innerHTML += "<option value='" + i + "'>" + i + "</option>";
                 }
             }  
@@ -212,16 +214,20 @@
 
         // update basic pay using step points
         document.getElementById('step_point').addEventListener('change', function() {
+            var gradeStep = document.getElementById('grade_step_id');
+            var selectedGradeStep = gradeStep.options[gradeStep.selectedIndex]; //selected ptions of grade step
+            var initialBasicPay = parseFloat(selectedGradeStep.getAttribute('data-starting-salary')) || 0;
+            
             var stepPoint = parseFloat(this.value);
-            var basicPay = parseFloat(document.getElementById('basic_pay').value);
             var payScale = document.getElementById('pay_scale').value;
             var parts = payScale.split(" - "); // Split the string by " - "
             var incrementVal = parseFloat(parts[1]); 
             if(stepPoint != 0 || null){
                 if(stepPoint == 1){
+                    document.getElementById('basic_pay').value = initialBasicPay;
                     return;
                 }
-                document.getElementById('basic_pay').value = ((stepPoint - 1) * incrementVal) + basicPay;
+                document.getElementById('basic_pay').value = ((stepPoint - 1) * incrementVal) + initialBasicPay;
             }else{
                 alert('Basic Pay will remain same if step point is less than 1 or equal to 0!')
             }
