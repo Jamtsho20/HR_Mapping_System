@@ -69,7 +69,7 @@
                                             <td>{{ $village->village }}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)
-                                                <a href="{{ url('master/villages/'.$village->id . '/edit') }}" class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                <a href="{{ url('master/villages/'.$village->id . '/edit') }}" class="btn btn-sm btn-rounded btn-outline-success">
                                                     <i class="fa fa-edit"></i> EDIT
                                                 </a>
                                                 @endif

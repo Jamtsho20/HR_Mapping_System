@@ -14,13 +14,14 @@ class MasEmploymentTypesSeeder extends Seeder
     public function run(): void
     {
         DB::table('mas_employment_types')->insert([
-            ['id' => 0, 'name' => 'All', 'remarks' => 'Applical to all ', 'created_by' => 1],
-            ['id' => 1, 'name' => 'Regular', 'remarks' => 'Regular Employee', 'created_by' => 1],
-            ['id' => 2, 'name' => 'Probation', 'remarks' => 'Probation Employee', 'created_by' => 1],
-            ['id' => 3, 'name' => 'Long-term Contract(Executive Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
-            ['id' => 4, 'name' => 'Long-term Contract(Technical Staff Group 2 Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
-            ['id' => 5, 'name' => 'Long-term Contract(General Support Staff Group)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
-            ['id' => 6, 'name' => 'Short-term Contract', 'remarks' => 'Short Term Contract Employee', 'created_by' => 1],
+            ['name' => 'All', 'remarks' => 'Applicable to all ', 'created_by' => 1],
+            ['name' => 'Regular', 'remarks' => 'Regular Employee', 'created_by' => 1],
+            [ 'name' => 'Probation', 'remarks' => 'Probation Employee', 'created_by' => 1],
+            [ 'name' => 'Long-term Contract(Executive Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
+            [ 'name' => 'Long-term Contract(Technical Staff Group 2 Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
+            [ 'name' => 'Long-term Contract(General Support Staff Group)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
+            [ 'name' => 'Short-term Contract', 'remarks' => 'Short Term Contract Employee', 'created_by' => 1],
         ]);
     }
 }
+

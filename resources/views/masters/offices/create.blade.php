@@ -52,7 +52,7 @@
 
             <div class="card-footer text-center">
                 <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
-                <a href="{{ url('masters/offices') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+                <a href="{{ url('master/offices') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
             </div>
         </div>
     </div>

@@ -74,6 +74,56 @@ var hrms = function() {
             }
         });
 
+        //dzongkhag and gewog population for present address
+        $(document).on("change", "#mas_dzongkhag_id", function() {
+            var dzongkhagId = $("#mas_dzongkhag_id").val();
+            if (dzongkhagId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getgewogbydzongkhag/" + dzongkhagId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        var gewogs = data;
+                        var html = "<option value='' disabled selected hidden>Select a gewog</option>";
+                        for (var x in data) {
+                            html += "<option value='" +
+                                data[x].id + "'>" + data[x]
+                                .name + "</option>";
+                        }
+                        $("#mas_gewog_id").html(html);
+                    }
+                });
+            } else {
+                //do sth
+            }
+        });
+
+        //populate village based on selection of gewogs
+        $(document).on("change", "#gewog_id", function() {
+            var gewogId = $("#gewog_id").val();
+            if (gewogId !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getvillagebygewog/" + gewogId,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        var gewogs = data;
+                        var html = "<option value='' disabled selected hidden>Select a village</option>";
+                        for (var x in data) {
+                            html += "<option value='" +
+                                data[x].id + "'>" + data[x]
+                                .village + "</option>";
+                        }
+                        $("#village_id").html(html);
+                    }
+                });
+            } else {
+                //do sth
+            }
+        });
+
         //populate section based on selection of department
         $(document).on("change", "#department_id", function() {
             var departmentId = $("#department_id").val();
@@ -92,16 +142,20 @@ var hrms = function() {
                                 .name + "</option>";
                         }
                         $("#section_id").html(html);
+                        // $("#section_id").prop('disabled', false);
                     }
                 });
             } else {
-                //do sth
+                var html = "<option value='' disabled selected hidden>No Section Availaible</option>";
+                $("#section_id").html(html);
             }
         });
 
         //populate grade step based on selection of grade
         $(document).on("change", "#grade_id", function() {
             var gradeId = $("#grade_id").val();
+            var gradeStepSelect = $("#grade_step_id");
+            // var stepPointSelect = $("#step_point");
             if (gradeId !== '') {
                 //ajax call
                 $.ajax({
@@ -110,17 +164,16 @@ var hrms = function() {
                     type: "GET",
                     success: function(data) {
                         var gradeStep = data;
-                        var html = "<option value='' disabled selected hidden>Select a grade step</option>";
+                        var html = "<option value='' data-starting-salary='' data-point='' disabled selected hidden>Select a grade step</option>";
                         for (var x in data) {
-                            html += "<option value='" +
-                                data[x].id + "'>" + data[x]
-                                .name + "</option>";
+                            html += "<option value='" + data[x].id + "' data-starting-salary='" + data[x].starting_salary + "' data-point='" + data[x].point + "'>" + data[x].name + "</option>";
                         }
-                        $("#grade_step_id").html(html);
+                        gradeStepSelect.html(html);
                     }
                 });
             } else {
-                //do sth
+                gradeStepSelect.html("<option value='' data-point='' disabled selected hidden>No grade step availaible.</option>");
+                // stepPointSelect.html("<option value='' data-point='' disabled selected hidden>Select a grade step</option>"); // Enable Step Point
             }
         });
 
@@ -171,7 +224,7 @@ var hrms = function() {
             var fromDay = $("#ddl_from_day").val();
             var toDay = $("#ddl_to_day").val();
 
-            if (fromDate !== '' && toDate !== '') {
+            if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
                 //ajax call
                 $.ajax({
                     url: "/getnoofdaysbydate/",
@@ -179,7 +232,6 @@ var hrms = function() {
                     dataType: "JSON",
                     type: "GET",
                     success: function(data) {
-                        alert(data);
                         $("#no_of_days").val(data); // set the value for leave balance
                     }
                 });

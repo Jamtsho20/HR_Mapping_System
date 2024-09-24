@@ -2,12 +2,10 @@
 @section('page-title', 'Leave Type')
 @if ($privileges->create)
     @section('buttons')
-    <a href="{{ route('leave-types.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Leave Type</a>
+        <a href="{{ route('leave-types.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Leave Type</a>
     @endsection
 @endif
 @section('content')
-
-
 <div class="row">
     <div class="col-md-12">
         <div class="row">
@@ -15,12 +13,10 @@
                 <div class="block">
                     <div class="block-header block-header-default">
                         @component('layouts.includes.filter')
-                        <div class="col-8 form-group">
-                            <input type="text" name="expense" class="form-control"
-                                value="{{ request()->get('expense') }}" placeholder="Search">
-                        </div>
+                            <div class="col-8 form-group">
+                                <input type="text" name="expense" class="form-control" value="{{ request()->get('expense') }}" placeholder="Search">
+                            </div>
                         @endcomponent
-
                     </div>
                     <br>
                     <div class="row row-sm">
@@ -28,8 +24,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table
-                                            class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
+                                        <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
                                             <thead class="thead-light">
                                                 <tr>
                                                     <th>#</th>
@@ -56,28 +51,16 @@
                                                         <td>{!! nl2br($type->remarks) !!}</td>
                                                         <td class="text-center">
                                                             @if ($privileges->edit)
-                                                                <a href="{{ url('master/leave-types/' . $type->id . '/edit') }}"
-                                                                    data-name="{{ $type->name }}"
-                                                                    data-applicable_to="{{ $type->applicable_to }}"
-                                                                    data-max_days="{{$type->max_days}}"
-                                                                    data-remarks="{{ $type->remarks }}"
-                                                                    class=" btn btn-sm btn-rounded btn-outline-success"><i
-                                                                        class="fa fa-edit"></i>
-                                                                    EDIT</a>
+                                                                <a href="{{ url('master/leave-types/' . $type->id . '/edit') }}" class="btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                                             @endif
                                                             @if ($privileges->delete)
-                                                                <a href="#"
-                                                                    class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                    data-url="{{ url('master/leave-types/' . $type->id) }}"><i
-                                                                        class="fa fa-trash"></i>
-                                                                    DELETE</a>
+                                                                <button type="button" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('master/leave-types/' . $type->id) }}" data-bs-toggle="modal" data-bs-target="#delete-modal"><i class="fa fa-trash"></i> DELETE</button>
                                                             @endif
                                                         </td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="6" class="text-center text-danger">No leave types found
-                                                        </td>
+                                                        <td colspan="6" class="text-center text-danger">No leave types found</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -92,13 +75,10 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <!--End Row-->
         </div>
-
-
         <div class="modal fade" id="delete-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -108,9 +88,9 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <form action="" method="POST">
-                        <input type="hidden" name="_token" value="l7RBNaYy7oEShlpZQ8T2QmzkMF0CHJbwXruLCL41"
-                            autocomplete="off"> <input type="hidden" name="_method" value="DELETE" autocomplete="off">
+                    <form id="delete-form" method="POST">
+                        @csrf
+                        @method('DELETE')
                         <div class="modal-body">
                             Are you sure you want to delete this record?
                         </div>
@@ -124,7 +104,15 @@
     </div>
 </div>
 
-
-
 @include('layouts.includes.delete-modal')
+@endsection
+
+@section('scripts')
+<script>
+    // Use jQuery or vanilla JavaScript to handle delete button click and set the action URL of the form
+    $(document).on('click', '.delete-btn', function () {
+        var url = $(this).data('url');
+        $('#delete-form').attr('action', url);
+    });
+</script>
 @endsection
