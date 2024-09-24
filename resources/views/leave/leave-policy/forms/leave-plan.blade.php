@@ -18,7 +18,7 @@
     <div class="col-sm-4">
         <select class="form-control" id="gender" name="leave_plan[gender]" required>
             <option value="" disabled selected hidden>Select your option</option>
-            @foreach(config('global.gender') as $key => $value)
+            @foreach(config('global.gender_with_all') as $key => $value)
             <option value="{{ $key }}" {{old('leave_plan.gender') == $key ? 'selected' : '' }}>{{ $value }}</option>
             @endforeach
         </select>
@@ -80,7 +80,7 @@
     <span class="col-sm-4">Can Avail In</span>
 
     @foreach($employmentTypes as $employmentType)
-    @if($employmentType->id != 0)
+    @if($employmentType->id != 1)
     <div class="col-sm-2">
         <div class="form-check">
             <label class="form-check-label" style="font-weight: 400;">
@@ -218,5 +218,4 @@
         // Trigger the change event for Select2 to update the UI
         $(selectBox).trigger('change');
     });
- 
 </script>

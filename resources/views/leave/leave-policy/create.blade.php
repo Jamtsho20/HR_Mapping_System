@@ -212,4 +212,13 @@
         map[step.id] = step.name;
         return map;
     }, {});
+
+    // Pass the $leaves array as a JSON object to JavaScript
+    const leaves = @json($leaves);
+
+    // Create a mapping from IDs to names
+    const leavesMap = leaves.reduce((map, leave) => {
+        map[leave.id] = leave.name;
+        return map;
+    }, {});
 </script>
