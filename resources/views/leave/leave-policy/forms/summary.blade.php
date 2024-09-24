@@ -112,9 +112,62 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6"></div>
-    </div>
+        <div class="col-md-12 card">
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-check-label" style="font-weight:400">
+                        <input type="checkbox" id="summary_allow"> Allow Carryover
+                    </label>
+                </div>
+                <div class=" col-6">
+                    <div class="row">
+                        <div class="col-3"> <span>Carryover Limit</span></div>
+                        <div class="col-3">
+                            <span id="summary_carryover_limit"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-check-label" style="font-weight:400">
+                        <input type="checkbox" id="summary_pay"> Pay at Year end
+                    </label>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-3"> <span>Min. Balance Need To be Maintained</span></div>
+                        <div class="col-3">
+                            <span id="summary_min_bal"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3"> <span>Maximum Encashment Per Year</span></div>
+                        <div class="col-3">
+                            <span id="summary_max_encashment"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-check-label" style="font-weight:400">
+                        <input type="checkbox" id="summary_allow_EL"> Carry Foward To EL
+                    </label>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-3"> <span>Carry Forward Limit</span></div>
+                        <div class="col-3">
+                            <span id="summary_carryover_EL"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -127,7 +180,7 @@
 
             // Display Leave Policy Data
             document.getElementById('summary_leave_policy_name').textContent = data['leave_policy[name]'] || 'N/A';
-            document.getElementById('summary_leave_type').textContent = data['leave_policy[mas_leave_type_id]'] || 'N/A';
+            document.getElementById('summary_leave_type').textContent = leavesMap[data['leave_policy[mas_leave_type_id]']] || 'N/A';
             document.getElementById('summary_description').textContent = data['leave_policy[description]'] || 'N/A';
             document.getElementById('summary_start_date').textContent = data['leave_policy[start_date]'] || 'N/A';
             document.getElementById('summary_end_date').textContent = data['leave_policy[end_date]'] || 'N/A';
@@ -231,6 +284,18 @@
             } else {
                 tableBody.innerHTML = '<tr><td colspan="8">No leave policy rules found.</td></tr>';
             }
+
+
+            //display year end processing
+            document.getElementById('summary_allow').checked = data['year_end_processing[allow_carry_over]'] === '1';
+            document.getElementById('summary_carryover_limit').textContent = data['year_end_processing[carryover_limit]'] || 'N/A';
+            document.getElementById('summary_pay').checked = data['year_end_processing[pay_at_year_end]'] === '1';
+            document.getElementById('summary_min_bal').textContent = data['year_end_processing[min_balance_required]'] || 'N/A';
+            document.getElementById('summary_max_encashment').textContent = data['year_end_processing[min_encashment_per_year]'] || 'N/A';
+            document.getElementById('summary_allow_EL').checked = data['year_end_processing[carry_forward_to_el]'] === '1';
+            document.getElementById('summary_carryover_EL').textContent = data['year_end_processing[carry_forward_limit]'] || 'N/A';
+
+
         } else {
             document.getElementById('summary_rules').innerHTML = '<p>No data available.</p>';
         }
