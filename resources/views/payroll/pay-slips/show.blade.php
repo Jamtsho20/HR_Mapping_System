@@ -5,37 +5,112 @@
         List</a>
 @endsection
 @section('content')
-    <div class="row">
-        <form action="{{ route('pay-slips.update', $paySlip->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-group col-md-6">
-                        <label for="for_month">For Month <span class="text-danger">*</span></label>
-                        <input type="month" class="form-control" name="for_month"
-                            value="{{ substr($paySlip->for_month, 0, 7) }}" required="required">
-                    </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-                        <a href="{{ url('payroll/pay-slips') }}" class="btn btn-danger"><i class="fa fa-undo"></i>
-                            CANCEL</a>
-                    </div>
+    <form action="{{ route('pay-slips.update', $paySlip->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="card">
+            <div class="card-body d-flex justify-content-between">
+                <div class="form-group col-md-6">
+                    <label for="for_month">For Month <span class="text-danger">*</span></label>
+                    <input type="month" class="form-control" name="for_month"
+                        value="{{ substr($paySlip->for_month, 0, 7) }}" required="required">
+                </div>
+                <div class="d-flex align-items-center">
+                    <button type="submit" class="btn btn-primary mr-2">
+                        <i class="fa fa-upload"></i> UPDATE
+                    </button>
+                    &nbsp;
+                    <a href="{{ url('payroll/pay-slips') }}" class="btn btn-danger">
+                        <i class="fa fa-undo"></i> CANCEL
+                    </a>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+
+
+    @component('layouts.includes.filter')
+        <div class="col-8 form-group">
+            <input type="text" name="search" class="form-control"
+                value="{{ request()->get('search') }}"placeholder="Search by employee name or id. eg. tashi or 1050">
+        </div>
+    @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Detail</h3>
+                    <h3 class="card-title">Payslip Overview</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="dataTables_scroll">
+                                        <div class="dataTables_scrollHead"
+                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                            <div class="dataTables_scrollHeadInner"
+                                                style="box-sizing: content-box; padding-right: 0px;">
+                                                <table
+                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                    id="basic-datatable table-responsive">
+                                                    <thead>
+                                                        <tr role="row">
+                                                            <th>Name (ID)</th>
+                                                            <th>Basic Pay</th>
+                                                            @foreach ($payHeads as $payHead)
+                                                                <th>{{ $payHead->code }}</th>
+                                                            @endforeach
+                                                            <th>Gross Pay</th>
+                                                            <th>Net Pay</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse ($records as $record)
+                                                            <tr>
+                                                                <td>{{ $record->employee->name }}
+                                                                    ({{ $record->employee->employee_id }})
+                                                                </td>
+                                                                <td>{{ $record->basic_pay }}</td>
+                                                                @foreach ($payHeads as $payHead)
+                                                                    <td>{{ $record->{str_replace(' ', '_', $payHead->name)} }}
+                                                                    </td>
+                                                                @endforeach
+                                                                <td>{{ $record->gross_pay }}</td>
+                                                                <td>{{ $record->net_pay }}</td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="100" class="text-center text-danger">No
+                                                                    records found</td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                                <div>{{ $records->links() }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Payslip Detail</h3>
                     @if ($paySlip->status['key'] == 2)
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#add-pay-slip-detail-modal">
-                        <i class="fa fa-plus"></i> New
-                        Detail
-                    </button>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#add-pay-slip-detail-modal">
+                            <i class="fa fa-plus"></i> New
+                            Detail
+                        </button>
                     @endif
                 </div>
                 <div class="card-body">
@@ -53,7 +128,7 @@
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row">
-                                                            <th>Employee</th>
+                                                            <th>Name (ID)</th>
                                                             <th>Pay Head</th>
                                                             <th>Amount</th>
                                                             <th>Created At</th>
@@ -61,12 +136,11 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @php
-                                                            $details = $paySlip->details()->paginate(10);
-                                                        @endphp
                                                         @forelse ($details as $detail)
                                                             <tr>
-                                                                <td>{{ $detail->employee->name }}</td>
+                                                                <td>{{ $detail->employee->name }}
+                                                                    ({{ $detail->employee->employee_id }})
+                                                                </td>
                                                                 <td>{{ $detail->payHead->name }}</td>
                                                                 <td>{{ $detail->amount }}</td>
                                                                 <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d H:i:s') : '' }}
@@ -80,67 +154,9 @@
                                                                     records found</td>
                                                             </tr>
                                                         @endforelse
-
                                                     </tbody>
                                                 </table>
                                                 <div>{{ $details->links() }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row row-sm">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Pay Slip Detail View</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="dataTables_scroll">
-                                        <div class="dataTables_scrollHead"
-                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                            <div class="dataTables_scrollHeadInner"
-                                                style="box-sizing: content-box; padding-right: 0px;">
-                                                <table
-                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                    id="basic-datatable table-responsive">
-                                                    <thead>
-                                                        <tr role="row">
-                                                            <th>Employee</th>
-                                                            <th>Basic Pay</th>
-                                                            @foreach ($payHeads as $payHead)
-                                                                <th>{{ $payHead->code }}</th>
-                                                            @endforeach
-                                                            <th>Gross Pay</th>
-                                                            <th>Net Pay</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($records as $record)
-                                                            <tr>
-                                                                <td>{{ $record->employee->name }}</td>
-                                                                <td>{{ $record->basic_pay }}</td>
-                                                                @foreach ($payHeads as $payHead)
-                                                                    <td>{{ $record->{str_replace(' ', '_', $payHead->name)} }}
-                                                                    </td>
-                                                                @endforeach
-                                                                <td>{{ $record->gross_pay }}</td>
-                                                                <td>{{ $record->net_pay }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                                <div>{{ $records->links() }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +192,8 @@
                                     <option value="">Select</option>
                                     @foreach ($employees as $employee)
                                         <option value="{{ $employee->id }}">{{ $employee->name }}
-                                            ({{ $employee->employee_id }})</option>
+                                            ({{ $employee->employee_id }})
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>

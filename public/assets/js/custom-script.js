@@ -164,9 +164,9 @@ var hrms = function() {
                     type: "GET",
                     success: function(data) {
                         var gradeStep = data;
-                        var html = "<option value='' data-point='' disabled selected hidden>Select a grade step</option>";
+                        var html = "<option value='' data-starting-salary='' data-point='' disabled selected hidden>Select a grade step</option>";
                         for (var x in data) {
-                            html += "<option value='" + data[x].id + "' data-point='" + data[x].point + "'>" + data[x].name + "</option>";
+                            html += "<option value='" + data[x].id + "' data-starting-salary='" + data[x].starting_salary + "' data-point='" + data[x].point + "'>" + data[x].name + "</option>";
                         }
                         gradeStepSelect.html(html);
                     }

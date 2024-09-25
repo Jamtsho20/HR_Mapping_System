@@ -6,36 +6,40 @@
         List</a>
 @endsection
 @section('content')
-    <div class="row">
-        <form action="{{ route('other-pay-changes.update', $payChange->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-group col-md-6">
-                        <label for="for_month">For Month <span class="text-danger">*</span></label>
-                        <input type="month" class="form-control" name="for_month"
-                            value="{{ substr($payChange->for_month, 0, 7) }}" required="required">
-                    </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-                        <a href="{{ route('other-pay-changes.index') }}" class="btn btn-danger"><i class="fa fa-undo"></i>
-                            CANCEL</a>
-                    </div>
+    <form action="{{ route('other-pay-changes.update', $payChange->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="card">
+            <div class="card-body d-flex justify-content-between">
+                <div class="form-group col-md-6">
+                    <label for="for_month">For Month <span class="text-danger">*</span></label>
+                    <input type="month" class="form-control" name="for_month" required="required">
+                </div>
+                <div class="d-flex align-items-center">
+                    <button type="submit" class="btn btn-primary mr-2">
+                        <i class="fa fa-upload"></i> Save
+                    </button>
+                    &nbsp;
+                    <a href="{{ url('payroll/other-pay-changes') }}" class="btn btn-danger">
+                        <i class="fa fa-undo"></i> CANCEL
+                    </a>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Detail</h3>
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#add-other-pay-change-detail-modal">
-                        <i class="fa fa-plus"></i> New
-                        Detail
-                    </button>
+                    @if ($payChange->status['key'] == 1)
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#add-other-pay-change-detail-modal">
+                            <i class="fa fa-plus"></i> New
+                            Detail
+                        </button>
+                    @endif
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -75,15 +79,17 @@
                                                                             data-id="{{ $record->id }}"
                                                                             {{ $record->status ? 'checked' : '' }}
                                                                             onchange="toggleStatus(this)"
-                                                                            {{ $payChange->status['key'] == 1 ? 'disabled' : '' }}>
+                                                                            {{ $payChange->status['key'] == 4 ? 'disabled' : '' }}>
                                                                         <span class="custom-switch-indicator"></span>
                                                                     </label>
                                                                 </td>
                                                                 <td>
                                                                     <input type="text" class="form-control remarks-input"
                                                                         value="{{ $record->remarks }}"
-                                                                        data-id="{{ $record->id }}" {{ $payChange->status['key'] == 1 ? 'readonly' : '' }}>
+                                                                        data-id="{{ $record->id }}"
+                                                                        {{ $payChange->status['key'] == 4 ? 'readonly' : '' }}>
                                                                 </td>
+                                                                <td></td>
                                                             </tr>
                                                         @empty
                                                             <tr>

@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('page-title', 'Pay Slips')
+@section('page-title', 'Payslips')
 @section('content')
     @if ($privileges->create)
         @section('buttons')
-            <a href="{{ route('pay-slips.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Pay Slip</a>
+            <a href="{{ route('pay-slips.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Payslip</a>
         @endsection
     @endif
 

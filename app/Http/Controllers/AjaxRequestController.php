@@ -37,7 +37,7 @@ class AjaxRequestController extends Controller
     }
 
     public function getGradeStep($id){
-        $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name', 'point']);
+        $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name', 'starting_salary', 'point']);
         return $gradeSteps;
     }
 
@@ -103,7 +103,7 @@ class AjaxRequestController extends Controller
             }
             // If it's Saturday, count as half day
             if ($date->isSaturday()) {
-                $totalDays += 0.5;
+                $totalDays += 0.5;  
                 continue;
             }
             // If it's Sunday, skip the day
