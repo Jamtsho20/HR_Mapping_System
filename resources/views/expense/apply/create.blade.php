@@ -13,7 +13,7 @@
                         <select class="form-control" id="expense-type" name="expense_type" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($expenses as $expense)
-                                <option value="{{ $expense->expense_type }}">{{ $expense->expense_type }}</option>
+                                <option value="{{ $expense->name }}">{{ $expense->name }}</option>
                             @endforeach
                         </select>
                     </div>
