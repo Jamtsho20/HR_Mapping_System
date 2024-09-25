@@ -209,3 +209,9 @@ if (!function_exists('modifyFormRequest')) {
         return $formData;
     }
 }
+
+if(!function_exists('loggedInUser')){
+    function loggedInUser(){
+        return auth()->user()->id;
+    }
+}

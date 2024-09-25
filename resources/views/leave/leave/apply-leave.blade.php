@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Leave')
 @section('content')
-    <form action="" method="POST">
+    <form action="{{ url('leave/leave-apply') }}" method="POST">
         @csrf
         <div class="card">
             <div class="card-body">
@@ -10,8 +10,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="employee">Employee <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="employee"
-                                placeholder="{{ auth()->user()->name }}" required disabled>
+                            <input type="text" class="form-control" name="employee" value="{{ auth()->user()->name }}"
+                                placeholder="{{ auth()->user()->name }}" disabled>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -72,14 +72,14 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="remarks">Remarks <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="remarks" required></textarea>
+                            <label for="remarks">Remarks</label>
+                            <textarea class="form-control" name="remarks"></textarea>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="attachment">Attachment</label>
-                            <input type="file" class="form-control" name="attachment" required>
+                            <label for="attachment">Attachment <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
+                            <input type="file" id="attachment" class="form-control" name="attachment">
                         </div>
                     </div>
                 </div>

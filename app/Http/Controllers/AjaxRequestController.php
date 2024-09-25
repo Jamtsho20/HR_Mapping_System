@@ -7,6 +7,7 @@ use App\Models\EmployeeLeave;
 use App\Models\MasEmployeeJob;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
+use App\Models\MasLeavePolicy;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
@@ -63,7 +64,10 @@ class AjaxRequestController extends Controller
 
     public function getLeaveBalance($id){
         $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
-        return $balance ?? 0;
+        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->first();
+        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan->isNotEmpty() ? $leavePolicy->leavePolicyPlan[0]->attachment_required : 0;
+
+        return ['balance' => $balance ?? 0, 'attachment_required' => $attachmentRequired];
     }
 
     public function getNoOfDays(Request $request){
@@ -79,8 +83,9 @@ class AjaxRequestController extends Controller
 
         $fromDate = Carbon::parse($request->fromDate);
         $toDate = Carbon::parse($request->toDate);
-        $fromDay = $request->fromDay;
-        $toDay = $request->toDay;
+        // dd($fromDate, $toDate);
+        $fromDay = (int) $request->fromDay;
+        $toDay = (int) $request->toDay;
         // dd(gettype($fromDay));
         $holidays = WorkHolidayList::whereJsonContains('region_id', (string)$loggedInUserRegion[0]->region_id)->get();
         $holidayDates = [];
@@ -110,21 +115,26 @@ class AjaxRequestController extends Controller
             if ($date->isSunday()) {
                 continue;
             }
-            // Check if it's the first day (fromDate)
+            // Handle the first day (fromDate)
             if ($date->eq($fromDate)) {
-                if ($fromDay == 1) { // Full day
-                    $totalDays += 1;
-                } elseif ($fromDay == 2 || $fromDay == 3) { // First half or second half
-                    $totalDays = $totalDays + 0.5;
-                    // dd($totalDays);
+                if ($fromDay == 1) {
+                    $totalDays += 1; // Full day
+                } elseif ($fromDay == 2) {
+                    $totalDays += 0.5; // First half (morning)
+                } elseif ($fromDay == 3) {
+                    // If the leave starts from the second half, we should skip this day and start the next day as full.
+                    $totalDays += 0.5; // Second half (afternoon)
                 }
             } 
-            // Check if it's the last day (toDate)
+            // Handle the last day (toDate)
             elseif ($date->eq($toDate)) {
-                if ($toDay == 1) { // Full day
-                    $totalDays += 1;
-                } elseif ($toDay == 2 || $toDay == 3) { // First half or second half
-                    $totalDays += 0.5;
+                if ($toDay == 1) {
+                    $totalDays += 1; // Full day
+                } elseif ($toDay == 2) {
+                    // If the leave ends on the first half, we only count the first half
+                    $totalDays += 0.5; // First half (morning)
+                } elseif ($toDay == 3) {
+                    $totalDays += 0.5; // Second half (afternoon)
                 }
             } 
             // Handle normal weekdays in between fromDate and toDate
@@ -132,7 +142,7 @@ class AjaxRequestController extends Controller
                 $totalDays += 1;
             }
         }
-        // dd($totalDays);
+
         return $totalDays;
     }
 }

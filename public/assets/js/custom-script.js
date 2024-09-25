@@ -208,8 +208,14 @@ var hrms = function() {
                     dataType: "JSON",
                     type: "GET",
                     success: function(data) {
-                        // var payScale = data.pay_scale;
-                        $("#leave_balance").val(data); // set the value for leave balance
+                        $("#leave_balance").val(data.balance); // set the value for leave balance
+                        if(data.attachment_required){
+                            $("#attachment").attr("required", "required");
+                            $("#attachment_required").show();
+                        }else{
+                            $("#attachment").removeAttr("required");
+                            $("#attachment_required").hide();
+                        }
                     }
                 });
             } else {

@@ -21,19 +21,19 @@ class LeaveApplicationController extends Controller
     }
 
     protected $rules = [
-        'mas_employee_id' => 'required',
-        'mas_leave_type_id' => 'required',
+        // 'employee' => 'required',
+        'leave_type' => 'required',
         'from_day' => 'required',
         'to_day' => 'required',
         'from_date' => 'required|date',
         'to_date' => 'required|date|after_or_equal:from_date',
         'no_of_days' => 'required',
-        'attachment' => 'mimes:jpg,png,pdf|max:2048'
+        // 'attachment' => 'mimes:jpg,png,pdf|max:2048'
     ];
 
     protected $messages = [
-        'mas_employee_id.required' => 'Employee field is required.',
-        'mas_leave_type_id.required' => 'Leave Type field is required.'
+        // 'mas_employee_id.required' => 'Employee field is required.',
+        // 'mas_leave_type_id.required' => 'Leave Type field is required.'
     ];
     /**
      * Display a listing of the resource.
@@ -70,12 +70,22 @@ class LeaveApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
+        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)->where('mas_employee_id', loggedInUser())->value('closing_balance');
+        if((int) $request->no_of_days > $leaveBalance){
+            return back()->with('msg_error', 'You are not allowed to apply for leave since no of days exceeds the leave balance!.');
+        }
+        if($leaveBalance == 0){
+            return back()->with('msg_error', 'You are not allowed to apply for leave since you do not have any availaible leave balances!.');
+        }
         $this->validate($request, $this->rules, $this->messages);
         $leaveApplication = new LeaveApplication();
         //validate if attachment is required or not based on attachment required field from leave_plans_tbl
-        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $request->mas_leave_type_id)->get(); 
+        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $request->leave_type)->first(); 
+        // dd($leavePolicy);
         $attachment = "";
-        $attachmentRequired = $leavePolicy->leavePolicyPlan[0]->attachment_required;
+        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan->isNotEmpty() ? $leavePolicy->leavePolicyPlan[0]->attachment_required : 0;
+
         try{
             if($attachmentRequired){
                 // $this->rules['attachment'] = 'required|file|mimes:jpg,png,pdf|max:2048';
@@ -92,8 +102,8 @@ class LeaveApplicationController extends Controller
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
         
-        $leaveApplication->mas_employee_id = $request->mas_employee_id;
-        $leaveApplication->mas_leave_type_id = $request->mas_leave_type_id;
+        $leaveApplication->mas_employee_id = loggedInUser();
+        $leaveApplication->mas_leave_type_id = $request->leave_type;
         $leaveApplication->from_day = $request->from_day;
         $leaveApplication->to_day = $request->to_day;
         $leaveApplication->from_date = $request->from_date;
