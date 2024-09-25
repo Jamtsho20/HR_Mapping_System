@@ -187,8 +187,8 @@
             document.getElementById('summary_status').textContent = data['leave_policy[status]'] === '1' ? 'Enforced' : 'Draft';
             document.getElementById('summary_is_information_only').checked = data['leave_policy[is_information_only]'] === '1';
 
-            // Display Leave Plan Data
-            const summaryGenderElement = document.getElementById('summary_gender');
+            //display gender
+            const summaryLeaveYear = document.getElementById('summary_gender');
             let genderText = 'N/A';
             switch (data['leave_plan[gender]']) {
                 case '1':
@@ -201,7 +201,49 @@
                     genderText = 'Other';
                     break;
             }
-            summaryGenderElement.textContent = genderText;
+            summaryLeaveYear.textContent = genderText;
+
+            // Display leave year
+            const summaryGenderElement = document.getElementById('summary_leave_year');
+            let leaveYear = 'N/A';
+            switch (data['leave_plan[leave_year]']) {
+                case '1':
+                    leaveYear = 'Financial Year';
+                    break;
+                case '2':
+                    leaveYear = 'Calender Year';
+                    break;
+
+            }
+            summaryGenderElement.textContent = leaveYear;
+
+            // Display credit frequency
+            const summaryCreditFrequency = document.getElementById('summary_credit_frequency');
+            let credit_frequency = 'N/A';
+            switch (data['leave_plan[credit_frequency]']) {
+                case '1':
+                    credit_frequency = 'Monthly';
+                    break;
+                case '2':
+                    credit_frequency = 'Yearly';
+                    break;
+
+            }
+            summaryCreditFrequency.textContent = credit_frequency;
+
+            // Display credit 
+            const summaryCredit = document.getElementById('summary_credit');
+            let credit = 'N/A';
+            switch (data['leave_plan[credit]']) {
+                case '1':
+                    credit = 'Start Of Period';
+                    break;
+                case '2':
+                    credit = 'End Of Period';
+                    break;
+
+            }
+            summaryCredit.textContent = credit;
 
             // Display Leave Limits
             const leaveLimits = Array.isArray(data['leave_plan[leave_limits][]']) ? data['leave_plan[leave_limits][]'] : [];
@@ -224,7 +266,7 @@
             document.getElementById('summary_leave_limits').textContent = leaveLimitsText || 'N/A';
 
             // Display Can Avail In
-            // Assuming 'data' contains your form data with selected IDs
+          
             const selectedIds = Array.isArray(data['leave_plan[can_avail_in][]']) ?
                 data['leave_plan[can_avail_in][]'] : [data['leave_plan[can_avail_in][]']] || [];
 
@@ -235,7 +277,9 @@
             // Display the names in the summary
             document.getElementById('summary_can_avail_in').textContent = canAvailIn;
 
-            //display year ed processing
+            //display attachment
+            document.getElementById('summary_attachment_required').checked = data['leave_plan[attachment_required]'] === '1';
+
 
             // Display policy Rules
             const tableBody = document.querySelector('#summary_rules tbody');

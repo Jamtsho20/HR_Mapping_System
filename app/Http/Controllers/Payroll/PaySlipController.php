@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Payroll;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\PaySlip;
+use App\Http\Controllers\Controller;
 use App\Models\MasPayHead;
-use Illuminate\Http\Request;
+use App\Models\PaySlip;
 use App\Models\PaySlipDetail;
-use Illuminate\Validation\Rule;
-use App\Services\PayrollService;
 use App\Models\PaySlipDetailView;
+use App\Models\User;
+use App\Services\PayrollService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Schema;
 
 class PaySlipController extends Controller
@@ -87,7 +86,7 @@ class PaySlipController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $employees = User::filter($request)->select(['id', 'name', 'employee_id'])->get();
+        $employees = User::select(['id', 'name', 'employee_id'])->get();
         $payHeads = MasPayHead::select(['id', 'name', 'code'])->orderBy('name')->get();
 
         $paySlip = PaySlip::findOrFail($id);
@@ -97,9 +96,10 @@ class PaySlipController extends Controller
         if (!$count) {
             $this->payrollService->populateReportTable($paySlip);
         }
-        $records = PaySlipDetailView::where('for_month', $month)->paginate(30);
+        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(30)->withQueryString();
+        $details = $paySlip->details()->filter($request)->paginate(50)->withQueryString();
 
-        return view('payroll.pay-slips.show', compact('paySlip', 'records', 'employees', 'payHeads'));
+        return view('payroll.pay-slips.show', compact('employees', 'paySlip', 'payHeads', 'records', 'details'));
     }
 
     /**

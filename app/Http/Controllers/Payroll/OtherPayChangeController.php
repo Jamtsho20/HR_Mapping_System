@@ -46,7 +46,17 @@ class OtherPayChangeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'for_month' => 'required|date_format:Y-m',
+            'for_month' => [
+                'required',
+                'date_format:Y-m',
+                function ($attribute, $value, $fail) {
+                    $startOfMonth = Carbon::parse($value)->startOfMonth()->format('Y-m-d');
+
+                    if (OtherPayChange::where('for_month', 'like', $startOfMonth)->exists()) {
+                        $fail('A Pay Change for this month already exists.');
+                    }
+                },
+            ],
         ]);
 
         try {
