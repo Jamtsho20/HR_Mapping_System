@@ -199,28 +199,39 @@ var hrms = function() {
         });
 
         //populate leave balnce based on selection of leaveType
-        $(document).on("change", "#leave_type", function() {
-            var leaveType = $("#leave_type").val();
-            if (leaveType !== '') {
-                //ajax call
-                $.ajax({
-                    url: "/getleavebalancebyleavetype/" + leaveType,
-                    dataType: "JSON",
-                    type: "GET",
-                    success: function(data) {
-                        $("#leave_balance").val(data.balance); // set the value for leave balance
-                        if(data.attachment_required){
-                            $("#attachment").attr("required", "required");
-                            $("#attachment_required").show();
-                        }else{
-                            $("#attachment").removeAttr("required");
-                            $("#attachment_required").hide();
+        $(document).ready(function() {
+            // Function to populate leave balance based on leaveType
+            function populateLeaveBalance() {
+                var leaveType = $("#leave_type").val();
+                if (leaveType !== '') {
+                    // ajax call
+                    $.ajax({
+                        url: "/getleavebalancebyleavetype/" + leaveType,
+                        dataType: "JSON",
+                        type: "GET",
+                        success: function(data) {
+                            $("#leave_balance").val(data.balance); // set the value for leave balance
+                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                $("#attachment").attr("required", "required");
+                                $("#attachment_required").show();
+                            } else {
+                                $("#attachment").removeAttr("required");
+                                $("#attachment_required").hide();
+                            }
                         }
-                    }
-                });
-            } else {
-                $("#leave_balance").val('');
+                    });
+                } else {
+                    $("#leave_balance").val('');
+                }
             }
+        
+            // Trigger on page load (during edit)
+            populateLeaveBalance();
+        
+            // Trigger on change of leave type
+            $(document).on("change", "#leave_type", function() {
+                populateLeaveBalance();
+            });
         });
 
         //calculate no of leave days based on from date, to date, excluding holidays

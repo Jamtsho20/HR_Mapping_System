@@ -64,10 +64,10 @@ class AjaxRequestController extends Controller
 
     public function getLeaveBalance($id){
         $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
-        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->first();
-        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan->isNotEmpty() ? $leavePolicy->leavePolicyPlan[0]->attachment_required : 0;
+        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
+        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
 
-        return ['balance' => $balance ?? 0, 'attachment_required' => $attachmentRequired];
+        return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
     }
 
     public function getNoOfDays(Request $request){

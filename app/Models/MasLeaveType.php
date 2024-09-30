@@ -25,6 +25,10 @@ class MasLeaveType extends Model
         return $this->hasMany(EmployeeLeave::class, 'Mas_leave_type_id');
     }
 
+    public function leaveApplications(){
+        return $this->hasMany(LeaveApplication::class, 'mas_leave_type_id');
+    }
+
     // accessors or mutators
     
 

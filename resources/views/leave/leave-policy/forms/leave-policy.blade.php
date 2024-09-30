@@ -57,7 +57,7 @@
 </div>
 
 <div class="row">
-    <span class="col-sm-4">Leave Type <span class="text-danger">*</span> </span>
+    <span class="col-sm-4">Status <span class="text-danger">*</span> </span>
     <div class="col-sm-4">
         <select class="form-control" id="ddlStatus" name="leave_policy[status]">
             <option value="" disabled selected hidden>Select your option</option>
