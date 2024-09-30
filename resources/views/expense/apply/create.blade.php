@@ -2,7 +2,7 @@
 @section('page-title', 'Create Expense')
 @section('content')
 
-<form action="{{ route('apply.store') }}" method="POST">
+<form action="{{ route(apply-expense.store') }}" method="POST">
     @csrf
     <div class="card">
         <div class="card-body">
@@ -13,7 +13,7 @@
                         <select class="form-control" id="expense-type" name="expense_type" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($expenses as $expense)
-                                <option value="{{ $expense->name }}">{{ $expense->name }}</option>
+                            <option value="{{ $expense->name }}">{{ $expense->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -49,22 +49,13 @@
         </div>
         <!--Conveyance Form-->
         @include('expense.apply.types.conveyance')
-        <!--General Expense Form-->
-        @include('expense.apply.types.generalexpense')
-        <!--Internet Expense Form-->
-        @include('expense.apply.types.internetexpense')
-        <!--Parking Fe Expense Form-->
-        @include('expense.apply.types.parkingfee')
-        <!--Telephone Expense Form-->
-        @include('expense.apply.types.telephoneexpense')
-        <!--Toll Expense Form-->
-        @include('expense.apply.types.tollexpense')
+
 
         <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Create Expense</button>
             <a href="{{ url('expense/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
-        
+
     </div>
 </form>
 
@@ -80,25 +71,24 @@
             case "conveyance":
                 $("#conveyance-form").show();
                 break;
-            case "general expense":
-                $("#general-expense-form").show();
-                break;
-            case "internet expense":
-                $("#internet-expense-form").show();
-                break;
-            case "parking fee":
-                $("#parking-fee-form").show();
-                break;
-            case "telephone expense":
-                $("#telephone-expense-form").show();
-                break;
-            case "toll expense":
-                $("#toll-expense-form").show();
-                break;
+                // case "general expense":
+                //     $("#general-expense-form").show();
+                //     break;
+                // case "internet expense":
+                //     $("#internet-expense-form").show();
+                //     break;
+                // case "parking fee":
+                //     $("#parking-fee-form").show();
+                //     break;
+                // case "telephone expense":
+                //     $("#telephone-expense-form").show();
+                //     break;
+                // case "toll expense":
+                //     $("#toll-expense-form").show();
+                //     break;
             default:
                 $(".expense-form").hide();
         }
     });
 </script>
 @endpush
-
