@@ -175,8 +175,9 @@ class EmployeeController extends Controller
             if (!$request->roles) {
                 return redirect()->back()->with('msg_error', 'You need to select at least one role');
             }
-            DB::beginTransaction();
             try {
+                DB::beginTransaction();
+                
                 $this->assignRoles($request->documents, $id, $request);
                 DB::table('mas_employees')->where('id', $id)->whereStatus(0)->update(['status' => 1]);
                 DB::commit();
