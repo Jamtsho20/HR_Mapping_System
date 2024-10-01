@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('advance_types', function (Blueprint $table) {
+        Schema::create('mas_advance_types', function (Blueprint $table) {
             $table->id();
-            $table->string('advancetype');
+            $table->string('name');
+            $table->string("code",50)->index();
             $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('advance_types');
+        Schema::dropIfExists('mas_advance_types');
     }
 };

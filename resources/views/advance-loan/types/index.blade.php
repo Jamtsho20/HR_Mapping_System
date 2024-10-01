@@ -39,7 +39,10 @@
                                                                 #
                                                             </th>
                                                             <th>
-                                                                Advance Types
+                                                                Name
+                                                            </th>
+                                                            <th>
+                                                                Code
                                                             </th>
                                                             <th>
                                                                 Status
@@ -53,7 +56,8 @@
                                                         @forelse($advanceTypes as $type)
                                                         <tr>
                                                             <td>{{ $advanceTypes->firstItem() + ($loop->iteration - 1) }}</td>
-                                                            <td>{{ $type->advancetype }}</td> <!-- Display the advance type name -->
+                                                            <td>{{ $type->name }}</td> 
+                                                            <td>{{ $type->code }}</td> 
                                                             <td>
                                                                 @if ($type->status)
                                                                 Active

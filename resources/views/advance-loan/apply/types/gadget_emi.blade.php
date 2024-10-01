@@ -3,24 +3,32 @@
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
+                <label for="item_type">Item Type <span class="text-danger">*</span></label>
+                <select class="form-control" id="item_type" name="item_type">
+                    <option value="" disabled selected hidden>Select your option</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
                 <label for="amount">Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="amount" required placeholder="0">
+                <input type="number" class="form-control" name="amount" placeholder="0">
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
-                <label for="interestrate">Interest Rate <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="interestrate" required>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="totalamt">Total Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="totalamt" required>
+                <label for="interest_rate">Interest Rate <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="interest_rate" id="interest_rate">
             </div>
         </div>
     </div>
     <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="total_amount">Total Amount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="total_amount" id="total_amount">
+            </div>
+        </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="no_of_emi">No of EMI <span class="text-danger">*</span></label>
@@ -36,63 +44,31 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="monthly_emi_amount">Monthly EMI Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="monthly_emi_amount" required readonly>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" name="deduction_from_period" required>
+                <input type="number" class="form-control" name="monthly_emi_amount">
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
-                <label for="item_type">Item Type <span class="text-danger">*</span></label>
-                <select class="form-control" id="item_type" name="item_type">
-                    <option value="" disabled selected hidden>Select your option</option>
-                   
-                </select>
+                <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" name="deduction_from_period" id="deduction_from_period">
             </div>
         </div>
-
         <div class="col-md-4">
             <div class="form-group">
                 <label for="purpose">Purpose <span class="text-danger">*</span></label>
-                <input type="textarea" class="form-control" name="purpose" required>
+                <input type="text" class="form-control" name="purpose">
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="attachment">Attachment <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" name="attachment" required>
+                <input type="file" class="form-control" name="attachment">
             </div>
         </div>
     </div>
 </div>
+
 @push('page_scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var noOfEmiSelect = document.getElementById('no_of_emi');
-    var totalAmountInput = document.getElementById('total_amount');
-    var monthlyEmiAmountInput = document.getElementById('monthly_emi_amount');
-
-    function calculateEmi() {
-        var noOfEmi = parseInt(noOfEmiSelect.value);
-        var totalAmount = parseFloat(totalAmountInput.value);
-        
-        if (!isNaN(noOfEmi) && noOfEmi > 0 && !isNaN(totalAmount) && totalAmount > 0) {
-            var emiAmount = totalAmount / noOfEmi;
-            monthlyEmiAmountInput.value = emiAmount.toFixed(2); // Adjust to desired precision
-        } else {
-            monthlyEmiAmountInput.value = ''; // Clear EMI amount if inputs are invalid
-        }
-    }
-
-    // Attach event listeners
-    noOfEmiSelect.addEventListener('change', calculateEmi);
-    totalAmountInput.addEventListener('input', calculateEmi);
-});
-</script>
 @endpush

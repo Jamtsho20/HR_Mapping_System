@@ -58461,5 +58461,29 @@ html [type=button],
     font-size: 12px !important; /* Adjust font size */
     line-height: 1.2 !important; /* Ensure proper line height */
 }
+.custom-close-btn {
+    background: linear-gradient(to right, #ff9b44 0%, #fc6075 100%);
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    color: #fff;
+    font-size: 1.5rem; /* Adjust font size */
+    display: flex; /* Use flexbox for centering */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    border: none; /* Remove default border */
+    position: relative;
+    left: -15px; /* Adjust position */
+    top: 5px; /* Adjust position */
+    z-index: 99; /* Bring it above other elements */
+    transition: background 0.3s; /* Smooth background transition */
+}
+
+.custom-close-btn:hover {
+    background: linear-gradient(to right, #fc6075 0%, #ff9b44 100%); /* Optional hover effect */
+}
+
+
+
 
 /*# sourceMappingURL=style.css.map */
