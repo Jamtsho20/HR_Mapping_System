@@ -44,14 +44,18 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][approving_authority]">
+                                        <select id="approving_authority" class="form-control" name="hierarchies[AAAAA][approving_authority]">
                                             <option value="" disabled selected hidden>Select</option>
                                             @foreach ($approvingAuthorities as $authority)
                                                 <option value="{{ $authority->id }}">{{ $authority->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td>Test</td>
+                                    <td>
+                                        <select id="employee_select" class="form-control" name="hierarchies[AAAAA][employee]">
+                                            <option value="" disabled selected hidden>Select</option>
+                                        </select>
+                                    </td>
                                     <td>
                                         <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>

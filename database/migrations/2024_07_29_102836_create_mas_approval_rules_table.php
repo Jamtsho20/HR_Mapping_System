@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('mas_approval_rules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_approval_head_id')->constrained()->comment('during display in the form, give form label as `For`');
-            $table->foreignId('mas_approval_head_type_id')->constrained();
+            $table->morphs('approvable');
             $table->string('rule_name', 100)->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

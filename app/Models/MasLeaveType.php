@@ -9,14 +9,8 @@ use App\Traits\CreatedByTrait;
 class MasLeaveType extends Model
 {
     use HasFactory, CreatedByTrait;
-    public function scopeFilter($query, $request)
-    {
-        if ($request->has('leave_type') && $request->query('leave_type') != '') {
-            $query->where('name', 'LIKE', '%' .$request->query('leave_type') . '%');
-        }
-    }
 
-    public function leaveType()
+    public function approvableRule()
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
@@ -27,6 +21,14 @@ class MasLeaveType extends Model
 
     public function leaveApplications(){
         return $this->hasMany(LeaveApplication::class, 'mas_leave_type_id');
+    }
+
+    //scope filters
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('leave_type') && $request->query('leave_type') != '') {
+            $query->where('name', 'LIKE', '%' .$request->query('leave_type') . '%');
+        }
     }
 
     // accessors or mutators

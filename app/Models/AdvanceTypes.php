@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class AdvanceTypes extends Model
 {
     use HasFactory,CreatedByTrait;
+
+    public function approvableRule()
+    {
+        return $this->morphMany(MasApprovalRule::class, 'approvable');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('advancetype') && $request->query('advancetype') != '') {

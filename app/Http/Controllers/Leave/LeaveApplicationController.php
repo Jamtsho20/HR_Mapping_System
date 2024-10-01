@@ -216,16 +216,15 @@ class LeaveApplicationController extends Controller
             ->value('closing_balance');
 
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); // query to fetch employee grade step
-        // dd($empJobDetail->mas_grade_step_id);
-        // Retrieve leave policy details
+
+        // query to fetch leave policy details
         $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan.leavePolicyRule' => function($query) use($empJobDetail) {
             $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)->whereStatus(1);
         }, 'leaveType'])
             ->where('mas_leave_type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
-
-        // dd($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration);  
+             
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
@@ -258,7 +257,7 @@ class LeaveApplicationController extends Controller
             return back()->with('msg_error', $msg);
         }
 
-        // Handle file upload if required
+        // Handle file upload if required based on defined in leave policy
         $attachment = $leaveApplication ? $leaveApplication->attachment : '';
         if ($attachmentRequired && !$attachment) {
             $this->validate($request, [
