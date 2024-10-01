@@ -50,19 +50,21 @@ class SystemSubMenusTableSeeder extends Seeder
             //sub menu for Pay master
             ['system_menu_id' => 4, 'name' => 'Account Heads', 'route' => 'paymaster/account-heads', 'display_order' => 1],
             ['system_menu_id' => 4, 'name' => 'Pay Groups', 'route' => 'paymaster/pay-groups', 'display_order' => 2],
-            ['system_menu_id' => 4, 'name' => 'Pay Heads', 'route' => 'paymaster/pay-heads', 'display_order' => 3],
             ['system_menu_id' => 4, 'name' => 'Pay Slabs', 'route' => 'paymaster/pay-slabs', 'display_order' => 3],
+            ['system_menu_id' => 4, 'name' => 'Pay Heads', 'route' => 'paymaster/pay-heads', 'display_order' => 4],
+            ['system_menu_id' => 4, 'name' => 'Employee Group', 'route' => 'employee-group/employee-create', 'display_order' => 5],
+
 
             //sub menu for expense
             ['system_menu_id' => 5, 'name' => 'Apply', 'route' => 'expense/apply-expense', 'display_order' => 1],
-            ['system_menu_id' => 5, 'name' => 'Approval', 'route' => 'expense/approval', 'display_order' => 2],
-            ['system_menu_id' => 5, 'name' => 'DSA Claim/Settlement', 'route' => 'expense/dsa-claim-settlement', 'display_order' => 3],
+            ['system_menu_id' => 5, 'name' => 'Policy', 'route' => 'expense/expense-policy', 'display_order' => 2],
+            ['system_menu_id' => 5, 'name' => 'Approval', 'route' => 'expense/approval', 'display_order' => 3],
+            ['system_menu_id' => 5, 'name' => 'DSA Claim/Settlement', 'route' => 'expense/dsa-claim-settlement', 'display_order' => 4],
             ['system_menu_id' => 5, 'name' => 'DSA Approval', 'route' => 'expense/dsa-approval', 'display_order' => 5],
-            ['system_menu_id' => 5, 'name' => 'DSA Approval', 'route' => 'expense/dsa-approval', 'display_order' => 6],
-            ['system_menu_id' => 5, 'name' => 'Transfer Claim', 'route' => 'expense/transfer-claim', 'display_order' => 7],
-            ['system_menu_id' => 5, 'name' => 'Transfer Claim Approval', 'route' => 'expense/transfer-claim-approval', 'display_order' => 8],
-            ['system_menu_id' => 5, 'name' => 'Expense Fuel /Fuel Claim', 'route' => 'expense/expense-fuel', 'display_order' => 9],
-            ['system_menu_id' => 5, 'name' => 'Fuel Expense Approval', 'route' => 'expense/fuel-approval', 'display_order' => 10],
+            ['system_menu_id' => 5, 'name' => 'Transfer Claim', 'route' => 'expense/transfer-claim', 'display_order' => 6],
+            ['system_menu_id' => 5, 'name' => 'Transfer Claim Approval', 'route' => 'expense/transfer-claim-approval', 'display_order' => 7],
+            ['system_menu_id' => 5, 'name' => 'Expense Fuel /Fuel Claim', 'route' => 'expense/expense-fuel', 'display_order' => 8],
+            ['system_menu_id' => 5, 'name' => 'Fuel Expense Approval', 'route' => 'expense/fuel-approval', 'display_order' => 9],
 
             //sub menu for leaves
             ['system_menu_id' => 6, 'name' => 'Leave Policy', 'route' => 'leave/leave-policy', 'display_order' => 1],
@@ -98,16 +100,16 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
 
             //submenu for paymaster
-            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/account-heads', 'display_order' => 1],
-            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-groups', 'display_order' => 1],
-            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
-            ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
+            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/account-heads', 'display_order' => 1],
+            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-groups', 'display_order' => 1],
+            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
+            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
 
             //submenu for payroll
             ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],
             ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
             ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
-            ['system_menu_id' => 14, 'name' => 'Pay Slip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
+            ['system_menu_id' => 14, 'name' => 'Payslip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
             //submenu for asset
             ['system_menu_id' => 13, 'name' => 'Sub-Store-Master', 'route' => 'asset/sub-store-master', 'display_order' => 1],
             ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition_apply', 'display_order' => 2],
@@ -126,12 +128,6 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return', 'route' => 'asset/fixed-asset-return', 'display_order' => 16],
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return-History', 'route' => 'asset/fixed-asset-return-history', 'display_order' => 17],
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return-Approval', 'route' => 'asset/fixed-asset-return-approval', 'display_order' => 18],
-
-            //submenu for employee categories
-            ['system_menu_id' => 14, 'name' => 'Employee Group', 'route' => 'employee-group/employee-create', 'display_order' => 1],
-
-            //
-
         ]);
     }
 }

@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplyController');
+        Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'show', 'edit');
@@ -106,7 +107,7 @@ Route::middleware('auth')->group(function () {
     // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
         Route::resource('leave-policy', 'LeavePolicyController');
-        Route::resource('leave-apply', 'LeaveApplicationController')->except('show', 'edit');
+        Route::resource('leave-apply', 'LeaveApplicationController');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');

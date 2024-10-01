@@ -112,9 +112,62 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6"></div>
-    </div>
+        <div class="col-md-12 card">
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-check-label" style="font-weight:400">
+                        <input type="checkbox" id="summary_allow"> Allow Carryover
+                    </label>
+                </div>
+                <div class=" col-6">
+                    <div class="row">
+                        <div class="col-3"> <span>Carryover Limit</span></div>
+                        <div class="col-3">
+                            <span id="summary_carryover_limit"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-check-label" style="font-weight:400">
+                        <input type="checkbox" id="summary_pay"> Pay at Year end
+                    </label>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-3"> <span>Min. Balance Need To be Maintained</span></div>
+                        <div class="col-3">
+                            <span id="summary_min_bal"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3"> <span>Maximum Encashment Per Year</span></div>
+                        <div class="col-3">
+                            <span id="summary_max_encashment"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-check-label" style="font-weight:400">
+                        <input type="checkbox" id="summary_allow_EL"> Carry Foward To EL
+                    </label>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-3"> <span>Carry Forward Limit</span></div>
+                        <div class="col-3">
+                            <span id="summary_carryover_EL"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -127,14 +180,15 @@
 
             // Display Leave Policy Data
             document.getElementById('summary_leave_policy_name').textContent = data['leave_policy[name]'] || 'N/A';
-            document.getElementById('summary_leave_type').textContent = data['leave_policy[mas_leave_type_id]'] || 'N/A';
+            document.getElementById('summary_leave_type').textContent = leavesMap[data['leave_policy[mas_leave_type_id]']] || 'N/A';
             document.getElementById('summary_description').textContent = data['leave_policy[description]'] || 'N/A';
             document.getElementById('summary_start_date').textContent = data['leave_policy[start_date]'] || 'N/A';
             document.getElementById('summary_end_date').textContent = data['leave_policy[end_date]'] || 'N/A';
             document.getElementById('summary_status').textContent = data['leave_policy[status]'] === '1' ? 'Enforced' : 'Draft';
+            document.getElementById('summary_is_information_only').checked = data['leave_policy[is_information_only]'] === '1';
 
-            // Display Leave Plan Data
-            const summaryGenderElement = document.getElementById('summary_gender');
+            //display gender
+            const summaryLeaveYear = document.getElementById('summary_gender');
             let genderText = 'N/A';
             switch (data['leave_plan[gender]']) {
                 case '1':
@@ -147,7 +201,49 @@
                     genderText = 'Other';
                     break;
             }
-            summaryGenderElement.textContent = genderText;
+            summaryLeaveYear.textContent = genderText;
+
+            // Display leave year
+            const summaryGenderElement = document.getElementById('summary_leave_year');
+            let leaveYear = 'N/A';
+            switch (data['leave_plan[leave_year]']) {
+                case '1':
+                    leaveYear = 'Financial Year';
+                    break;
+                case '2':
+                    leaveYear = 'Calender Year';
+                    break;
+
+            }
+            summaryGenderElement.textContent = leaveYear;
+
+            // Display credit frequency
+            const summaryCreditFrequency = document.getElementById('summary_credit_frequency');
+            let credit_frequency = 'N/A';
+            switch (data['leave_plan[credit_frequency]']) {
+                case '1':
+                    credit_frequency = 'Monthly';
+                    break;
+                case '2':
+                    credit_frequency = 'Yearly';
+                    break;
+
+            }
+            summaryCreditFrequency.textContent = credit_frequency;
+
+            // Display credit 
+            const summaryCredit = document.getElementById('summary_credit');
+            let credit = 'N/A';
+            switch (data['leave_plan[credit]']) {
+                case '1':
+                    credit = 'Start Of Period';
+                    break;
+                case '2':
+                    credit = 'End Of Period';
+                    break;
+
+            }
+            summaryCredit.textContent = credit;
 
             // Display Leave Limits
             const leaveLimits = Array.isArray(data['leave_plan[leave_limits][]']) ? data['leave_plan[leave_limits][]'] : [];
@@ -170,7 +266,7 @@
             document.getElementById('summary_leave_limits').textContent = leaveLimitsText || 'N/A';
 
             // Display Can Avail In
-            // Assuming 'data' contains your form data with selected IDs
+          
             const selectedIds = Array.isArray(data['leave_plan[can_avail_in][]']) ?
                 data['leave_plan[can_avail_in][]'] : [data['leave_plan[can_avail_in][]']] || [];
 
@@ -180,6 +276,9 @@
             const canAvailIn = canAvailInNames.join(', ');
             // Display the names in the summary
             document.getElementById('summary_can_avail_in').textContent = canAvailIn;
+
+            //display attachment
+            document.getElementById('summary_attachment_required').checked = data['leave_plan[attachment_required]'] === '1';
 
 
             // Display policy Rules
@@ -212,7 +311,7 @@
             }
 
             if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
-                const gradeStepIds = latestRule.mas_grade_step_id.map(id=>gradeStepMap[id]).join(', ');
+                const gradeStepIds = latestRule.mas_grade_step_id.map(id => gradeStepMap[id]).join(', ');
                 const newRow = `
                     <tr>
                         <td>${gradeStepIds}</td>
@@ -229,6 +328,18 @@
             } else {
                 tableBody.innerHTML = '<tr><td colspan="8">No leave policy rules found.</td></tr>';
             }
+
+
+            //display year end processing
+            document.getElementById('summary_allow').checked = data['year_end_processing[allow_carry_over]'] === '1';
+            document.getElementById('summary_carryover_limit').textContent = data['year_end_processing[carryover_limit]'] || 'N/A';
+            document.getElementById('summary_pay').checked = data['year_end_processing[pay_at_year_end]'] === '1';
+            document.getElementById('summary_min_bal').textContent = data['year_end_processing[min_balance_required]'] || 'N/A';
+            document.getElementById('summary_max_encashment').textContent = data['year_end_processing[min_encashment_per_year]'] || 'N/A';
+            document.getElementById('summary_allow_EL').checked = data['year_end_processing[carry_forward_to_el]'] === '1';
+            document.getElementById('summary_carryover_EL').textContent = data['year_end_processing[carry_forward_limit]'] || 'N/A';
+
+
         } else {
             document.getElementById('summary_rules').innerHTML = '<p>No data available.</p>';
         }

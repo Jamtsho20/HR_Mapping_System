@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-3"> <span>Maximum Encashment Per Year</span></div>
             <div class="col-3">
-                <input type="text" id="txtMaxEncashment" min="0" maxlength="3" class="form-control mynumvalthreedigit year_proccessing" value="0" disabled name="year_end_processing[min_encashment_per_year] " {{ old('year_end_processing.min_encashment_per_year')}}>
+                <input type="text" id="txtMaxEncashment" min="0" maxlength="3" class="form-control mynumvalthreedigit year_proccessing" value="0" disabled name="year_end_processing[min_encashment_per_year]" {{ old('year_end_processing.min_encashment_per_year')}}>
             </div>
         </div>
     </div>

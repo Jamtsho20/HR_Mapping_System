@@ -146,11 +146,9 @@
         <div class=" form-group col-md-4">
             <div class="form-label mt-6"></div>
             <label class="custom-switch">
-                <!-- Hidden input to pass '0' when checkbox is unchecked -->
                 <input type="hidden" name="personal[is_active]" value="0">
-                <!-- Checkbox to pass '1' when checked, and retain old value -->
                 <input type="checkbox" name="personal[is_active]"
-                    class="custom-switch-input form-control form-control-sm" value="1" {{ old('personal.is_active', isset($employee) ? $employee->is_active : '') == '1' ? 'checked' : '' }} />
+                    class="custom-switch-input form-control form-control-sm" value="1" {{ old('personal.is_active', isset($employee) ? $employee->is_active : '') == 'Active' ? 'checked' : '' }} />
                 <span class="custom-switch-indicator"></span>
                 <span class="custom-switch-description">is Active</span>
             </label>

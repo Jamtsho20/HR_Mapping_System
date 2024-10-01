@@ -10,6 +10,10 @@ class MasSection extends Model
 {
     use HasFactory, CreatedByTrait;
 
+    public function department(){
+        return $this->belongsTo(MasDepartment::class, 'mas_department_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('section') && $request->query('section') != '') {
@@ -19,10 +23,5 @@ class MasSection extends Model
         {
             $query->where('mas_department_id', $request->query('department'));
         }
-    }
-
-    public function department()
-    {
-        return $this->belongsTo(MasDepartment::class, 'mas_department_id');
     }
 }

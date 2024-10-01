@@ -23,7 +23,8 @@ class ExpenseTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses= MasExpenseType::filter($request)->orderBy('expense_type')->paginate(30);
+        $expenses = MasExpenseType::with('parent')->filter($request)->orderBy('name')->paginate(30);
+
 
         return view('masters.expense-types.index', compact('expenses', 'privileges'));
     }
@@ -35,7 +36,9 @@ class ExpenseTypeController extends Controller
      */
     public function create()
     {
-        return view('masters.expense-types.create');
+        $parentExpenseTypes = MasExpenseType::whereNull('mas_expense_type_id')->get(); // Fetch all top-level expense types
+
+        return view('masters.expense-types.create', compact('parentExpenseTypes'));
     }
 
     /**
@@ -44,18 +47,40 @@ class ExpenseTypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+
+
     public function store(Request $request)
     {
+        // Validate the incoming request data
         $request->validate([
-            'expense_type' => 'required',
+            'mas_expense_type_id' => 'nullable|exists:mas_expense_types,id',
+            'expense_names' => 'required|array|min:1',
+            'expense_names.*' => 'required|string|max:255', // Validate each expense name
         ]);
 
-        $expense = new MasExpenseType();
-        $expense->expense_type = $request->expense_type;
-        $expense->save();
 
-        return redirect('master/expense-types')->with('msg_success', 'Expense Type created successfully');
+
+        // Create the expense types
+        foreach ($request->expense_names as $name) {
+
+            // Create a new expense type first
+            $expenseType = MasExpenseType::create([
+                'mas_expense_type_id' => $request->mas_expense_type_id ?? null, // Use the selected parent ID or null
+                'name' => $name,
+
+            ]);
+        }
+    
+
+        // Redirect back with a success message
+        return redirect()->route('expense-types.index')->with('success', 'Expense types created successfully.');
     }
+
+
+
+
+
 
     /**
      * Display the specified resource.
@@ -77,7 +102,8 @@ class ExpenseTypeController extends Controller
     public function edit($id)
     {
         $expense = MasExpenseType::findOrFail($id);
-        return view('masters.expense-types.edit', compact('expense'));
+        $parentExpenseTypes = MasExpenseType::whereNull('mas_expense_type_id')->get(); // Fetch all top-level expense types
+        return view('masters.expense-types.edit', compact('expense', 'parentExpenseTypes'));
     }
 
     /**
@@ -89,12 +115,13 @@ class ExpenseTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'expense_type' => 'required',
-        ]);
+        // $request->validate([
+        //     'expense_type' => 'required',
+        // ]);
 
         $expense = MasExpenseType::findOrFail($id);
-        $expense->expense_type = $request->expense_type;
+        $expense->mas_expense_type_id = $request->mas_expense_type_id;    
+        $expense->name = $request->expense_names;
         $expense->save();
 
         return redirect('master/expense-types')->with('msg_success', 'Expense Type updated successfully');

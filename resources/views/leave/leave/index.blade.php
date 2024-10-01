@@ -62,7 +62,10 @@
                                                                 #
                                                             </th>
                                                             <th>
-                                                                EMPLOYEE
+                                                                EMPLOYEE ID
+                                                            </th>
+                                                            <th>
+                                                                NAME
                                                             </th>
                                                             <th>
                                                                 LEAVE TYPE
@@ -81,9 +84,43 @@
                                                             </th>
                                                         </tr>
                                                     </thead>
+                                                    <tbody>
+                                                    @forelse($leaveApplications as $leave)
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ $leave->employee->username }}</td>
+                                                            <td>{{ $leave->employee->name }}</td>
+                                                            <td>{{ $leave->leaveType->name }}</td>
+                                                            <td>{{ $leave->from_date }}</td>
+                                                            <td>{{ $leave->to_date }}</td>
+                                                            <td>{{ $leave->no_of_days }}</td>
+                                                            <td>{{ $leave->status_name }}</td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                    <a href="{{ url('leave/leave-apply/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                                @if ($privileges->edit)
+                                                                    <a href="{{ url('leave/leave-apply/'. $leave->id . '/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('leave/leave-apply/' . $leave->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="8" class="text-center text-danger">No Leave found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                    </tbody>
                                                 </table>
                                             </div>
                                         </div>
+                                        @if ($leaveApplications->hasPages())
+                                            <div class="card-footer">
+                                                {{ $leaveApplications->links() }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

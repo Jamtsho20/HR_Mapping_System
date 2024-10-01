@@ -29,4 +29,15 @@ class PaySlipDetail extends Model
     public function payHead() {
         return $this->belongsTo(MasPayHead::class,'mas_pay_head_id');
     }
+
+    public function scopeFilter($query, $request)
+    {
+        $keyword = trim($request->query('search'));
+        if ($request->has('search') && $request->query('search') != '') {
+            $query->whereHas('employee', function($employeeQuery) use ($request, $keyword) {
+                $employeeQuery->where('name', 'like', '%' . $keyword. '%')
+                              ->orWhere('employee_id', 'like', '%' . $keyword. '%');
+            });
+        }
+    }
 }

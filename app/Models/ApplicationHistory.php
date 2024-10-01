@@ -9,6 +9,10 @@ class ApplicationHistory extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'level', 'status', 'remarks', 'created_by', 'approved_by', 'rejected_by', 'cancelled_by', 'updated_by'
+    ];
+
     public function application()
     {
         return $this->morphTo();

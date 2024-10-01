@@ -47,6 +47,7 @@
                                                             <th>Starting Salary</th>
                                                             <th>Increment</th>
                                                             <th>Ending Salary</th>
+                                                            <th>Point (s)</th>
                                                         </tr>
                                                         @foreach ($grade->gradeSteps as $step)
                                                         <tr>
@@ -54,6 +55,7 @@
                                                             <td class="text-center">{{ number_format($step->starting_salary) }}</td>
                                                             <td class="text-center">{{ number_format($step->increment) }}</td>
                                                             <td class="text-center">{{ number_format($step->ending_salary) }}</td>
+                                                            <td class="text-center">{{ number_format($step->point) }}</td>
                                                         </tr>
                                                         @endforeach
                                                     </tbody>
@@ -74,7 +76,7 @@
                                         </tr>
                                         @empty
                                         <tr>
-                                            <td colspan="10" class="text-center text-danger">No grade & steps found</td>
+                                            <td colspan="11" class="text-center text-danger">No grade & steps found</td>
                                         </tr>
                                         @endforelse
                                     </tbody>

@@ -25,6 +25,7 @@
                                         <th>Starting Salary</th>
                                         <th>Increment</th>
                                         <th>Ending Salary</th>
+                                        <th>Point (s)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -37,13 +38,16 @@
                                                 <input type="text" name="grade_steps[AAAAA][step_name]" class="form-control form-control-sm resetKeyForNew" required>
                                             </td>
                                             <td>
-                                                <input type="number" name="grade_steps[AAAAA][starting_salary]" class="form-control form-control-sm resetKeyForNew">
+                                                <input type="number" name="grade_steps[AAAAA][starting_salary]" class="form-control form-control-sm resetKeyForNew" value="0">
                                             </td>
                                             <td>
-                                                <input type="number" name="grade_steps[AAAAA][increment]" class="form-control form-control-sm resetKeyForNew">
+                                                <input type="number" name="grade_steps[AAAAA][increment]" class="form-control form-control-sm resetKeyForNew" value="0">
                                             </td>
                                             <td>
-                                                <input type="number" name="grade_steps[AAAAA][ending_salary]" class="form-control form-control-sm resetKeyForNew">
+                                                <input type="number" name="grade_steps[AAAAA][ending_salary]" class="form-control form-control-sm resetKeyForNew" value="0">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="grade_steps[AAAAA][point]" class="form-control form-control-sm resetKeyForNew" value="0">
                                             </td>
                                         </tr>
                                     @else
@@ -64,11 +68,14 @@
                                                 <td>
                                                     <input type="number" name="grade_steps[AAAAA{{ $key }}][ending_salary]" class="form-control form-control-sm resetKeyForNew" value="{{ old('ending_salary', $value['ending_salary']) }}">
                                                 </td>
+                                                <td>
+                                                    <input type="number" name="grade_steps[AAAAA{{ $key }}][point]" class="form-control form-control-sm resetKeyForNew" value="{{ old('point', $value['point']) }}">
+                                                </td>
                                             </tr>
                                         @endforeach
                                     @endif
                                     <tr class="notremovefornew">
-                                        <td colspan="4"></td>
+                                        <td colspan="5"></td>
                                         <td class="text-right">
                                             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
                                         </td>

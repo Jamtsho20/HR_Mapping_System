@@ -25,8 +25,8 @@
                         required
                         data-initial-value="{{ isset($employee->empPermenantAddress->masGewog->id) ? $employee->empPermenantAddress->masGewog->id : '' }}">
                         <option value="" disabled selected hidden>Select a gewog</option>
-                        @if(isset($employee))
-                            @foreach($gewogs as $gewog)
+                        @if(isset($employee->empPermenantAddress->masDzongkhag))
+                            @foreach($employee->empPermenantAddress->masDzongkhag->gewogs as $gewog)
                                 <option value="{{ $gewog->id }}" {{ old('permenant_address.mas_gewog_id', $employee->empPermenantAddress->masGewog->id ?? '') == $gewog->id ? 'selected' : '' }}>
                                     {{ $gewog->name }}
                                 </option>
@@ -40,8 +40,8 @@
                     <select name="permenant_address[mas_village_id]" id="village_id"
                         class="form-control form-control-sm" required
                         data-initial-value="{{ isset($employee->empPermenantAddress->masVillage->id) ? $employee->empPermenantAddress->masVillage->id : '' }}">
-                        @if(isset($employee->empPermenantAddress->masVillage->id))
-                            @foreach($villages as $village)
+                        @if(isset($employee->empPermenantAddress->masGewog))
+                            @foreach($employee->empPermenantAddress->masGewog->villages as $village)
                                 <option value="{{ $village->id }}" {{ old('permenant_address.mas_village_id', $employee->empPermenantAddress->masVillage->id ?? '') == $village->id ? 'selected' : '' }}>
                                     {{ $village->village }}
                                 </option>
@@ -67,14 +67,12 @@
             </form>
         </div>
 
-
-
         <!-- Current Address Section -->
         <div class="col-6 border">
             <h5 class="card-title"><label for=""><strong>Current Address</strong></label></h5>
             <div class="form-group">
                 <label for="">Dzongkhag <span class="text-danger">*</span></label>
-                <select name="current_address[mas_dzongkhag_id]" id="" class="form-control form-control-sm" required>
+                <select name="current_address[mas_dzongkhag_id]" id="mas_dzongkhag_id" class="form-control form-control-sm" required>
                     <option value="" disabled selected hidden>Select your option</option>
                     @foreach($dzongkhags as $dzongkhag)
                         <option value="{{ $dzongkhag->id }}" {{ old('current_address.mas_dzongkhag_id', isset($employee->empPresentAddress->masDzongkhag->id) ? $employee->empPresentAddress->masDzongkhag->id : '') == $dzongkhag->id ? 'selected' : '' }}>
@@ -85,13 +83,15 @@
             </div>
             <div class="form-group">
                 <label for="">Gewog</label>
-                <select name="current_address[mas_gewog_id]" id="" class="form-control form-control-sm">
+                <select name="current_address[mas_gewog_id]" id="mas_gewog_id" class="form-control form-control-sm">
                     <option value="" disabled selected hidden>Select your option</option>
-                    @foreach($gewogs as $gewog)
-                        <option value="{{ $gewog->id }}" {{ old('current_address.mas_gewog_id', $employee->empPresentAddress->masGewog->id ?? '') == $gewog->id ? 'selected' : '' }}>
-                            {{ $gewog->name }}
-                        </option>
-                    @endforeach
+                    @if(isset($employee->empPresentAddress->masDzongkhag))
+                        @foreach($employee->empPresentAddress->masDzongkhag->gewogs as $gewog)
+                            <option value="{{ $gewog->id }}" {{ old('permenant_address.mas_gewog_id', $employee->empPermenantAddress->masGewog->id ?? '') == $gewog->id ? 'selected' : '' }}>
+                                {{ $gewog->name }}
+                            </option>
+                        @endforeach
+                    @endif
                 </select>
             </div>
             <div class="form-group">

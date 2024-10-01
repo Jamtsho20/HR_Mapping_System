@@ -23,7 +23,6 @@ use App\Models\MasGradeStep;
 use App\Models\MasOffice;
 use App\Models\MasQualification;
 use App\Models\MasSection;
-use App\Models\MasVillage;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +58,7 @@ class EmployeeController extends Controller
         $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
-        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name']);
+        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name', 'point']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
@@ -104,9 +103,9 @@ class EmployeeController extends Controller
                                                     return $groupMap->masEmpGroup->name; // Assuming 'name' is the field you want from masEmpGroup
                                                 })
                                                 ->toArray();
-        // if ($employee->status == 'Draft') {
-        //     return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
-        // }
+        if ($employee->status == 'Draft') {
+            return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
+        }
         return view('employee.employee-list.show', compact('employee', 'canUpdate', 'employeeGroupNames'));
     }
 
@@ -117,15 +116,10 @@ class EmployeeController extends Controller
 
     {
         $employee = User::findOrFail($id);
-
         $dzongkhags = MasDzongkhag::with('gewogs')->orderBy('dzongkhag')->get(['id', 'dzongkhag']);
-        $gewogs = MasGewog::orderBy('name')->get(['id', 'name']);
-        $villages = MasVillage::orderBy('village')->get(['id', 'village']);
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
-        $sections = MasSection::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $grades = MasGrade::orderBy('name')->get(['id', 'name']);
-        $gradeSteps = MasGradeStep::orderBy('name')->get(['id', 'name']);
         $employmentTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $qualifications = MasQualification::orderBy('name')->get(['id', 'name']);
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
@@ -133,8 +127,22 @@ class EmployeeController extends Controller
         $rolesAssigned = $employee->roles->pluck('id')->toArray();
         $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
         $employeeGroupMaps = MasEmployeeGroupMap::where('mas_employee_id', $id)->pluck('mas_employee_group_id')->toArray();
-        
-        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'gewogs', 'villages', 'departments', 'sections', 'designations', 'grades', 'gradeSteps', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps'));
+        $points = [];
+        $startingSalary = 0;
+        $increment = 0;
+        $endingSalary = 0;
+        $selectedPoint = 0;
+        if(!is_null($employee->empJob) && $employee->empJob->mas_grade_step_id){
+            $gradeStep = MasGradeStep::where('id', $employee->empJob->mas_grade_step_id)->first();
+            $startingSalary = $gradeStep->starting_salary;
+            $endingSalary = $gradeStep->ending_salary;
+            $increment = $gradeStep->increment;
+            $points = range(1, $gradeStep->point);
+        }
+        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary) {
+            $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
+        }
+        return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
     }
 
     /**
@@ -167,12 +175,11 @@ class EmployeeController extends Controller
             if (!$request->roles) {
                 return redirect()->back()->with('msg_error', 'You need to select at least one role');
             }
-            DB::beginTransaction();
             try {
+                DB::beginTransaction();
+                
                 $this->assignRoles($request->documents, $id, $request);
-                if(DB::table('mas_employees')->where('id', $id)->where('status', 0)){
-                    $masEmployee = DB::table('mas_employees')->where('id', $id)->update(['status' => 1]);
-                }
+                DB::table('mas_employees')->where('id', $id)->whereStatus(0)->update(['status' => 1]);
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
