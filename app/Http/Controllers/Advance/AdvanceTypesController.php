@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
-use App\Models\AdvanceTypes;
+use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 
 class AdvanceTypesController extends Controller
@@ -18,7 +18,7 @@ class AdvanceTypesController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $advanceTypes = AdvanceTypes::orderBy('advancetype')->paginate(10);  // Fetch advance types with pagination
+        $advanceTypes = MasAdvanceTypes::orderBy('advancetype')->paginate(10);  // Fetch advance types with pagination
 
         return view('advance-loan.types.index', compact('advanceTypes', 'privileges'));
     }
@@ -43,11 +43,13 @@ class AdvanceTypesController extends Controller
     {
         $request->validate([
             'advancetype' => 'required',
+            'code' => 'required',
             'status' => 'required|boolean'
         ]);
 
-        $advanceType = new AdvanceTypes();
+        $advanceType = new MasAdvanceTypes();
         $advanceType->advancetype = $request->advancetype;
+        $advanceType->code = $request->code;
         $advanceType->status = $request->status;
         $advanceType->save();
 
@@ -56,7 +58,7 @@ class AdvanceTypesController extends Controller
 
     public function edit($id)
     {
-        $advanceType = AdvanceTypes::findOrFail($id);
+        $advanceType = MasAdvanceTypes::findOrFail($id);
         return view('advance-loan.types.edit', compact('advanceType'));
 
     }
@@ -64,11 +66,13 @@ class AdvanceTypesController extends Controller
     {
         $request->validate([
             'advancetype' => 'required',
+            'code' => 'required',
             'status' => 'required|boolean'
         ]);
 
-        $advanceType = AdvanceTypes::findOrFail($id);
+        $advanceType = MasAdvanceTypes::findOrFail($id);
         $advanceType->advancetype = $request->advancetype;
+        $advanceType->code = $request->code;
         $advanceType->status = $request->status;
         $advanceType->save();
 
@@ -77,7 +81,7 @@ class AdvanceTypesController extends Controller
     public function destroy($id)
     {
         try {
-            AdvanceTypes::findOrFail($id)->delete();
+            MasAdvanceTypes::findOrFail($id)->delete();
 
             return back()->with('msg_success', 'Advance type has been deleted');
         } catch (\Exception $e) {
