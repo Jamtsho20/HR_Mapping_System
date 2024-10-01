@@ -29,6 +29,7 @@ class AdvanceLoanApplyController extends Controller
         'advance_no' => 'required|string|max:255',
         'date' => 'required|date',
         'advance-loan-type' => 'required|in:1,2,3,4,5,6,7',
+         'advance_type_id' => 'required|exists:mas_advance_types,id',
         'mode_of_travel' => 'nullable|in:1,2,3,4,5',
         'from_location' => 'nullable|string|max:255',
         'to_location' => 'nullable|string|max:255',
@@ -74,17 +75,8 @@ class AdvanceLoanApplyController extends Controller
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::all();
-        $sifaLoan = $advanceTypes->where('advancetype', 'SIFA LOAN')->first();
 
-        // Check if 'SIFA LOAN' exists before accessing the ID
-        if ($sifaLoan) {
-            $sifaLoanId = $sifaLoan->id;
-        } else {
-            $sifaLoanId = null;  // Handle if 'SIFA LOAN' is not found
-        }
-
-
-        return view('advance-loan.apply.create', compact('advanceTypes', 'sifaLoanId'));
+        return view('advance-loan.apply.create', compact('advanceTypes'));
     }
 
     public function store(Request $request)
@@ -96,7 +88,7 @@ class AdvanceLoanApplyController extends Controller
         // Create or fetch the existing advance application instance
         $advanceApplication = new AdvanceApplication();
         // Optionally fetch existing application if updating (logic can be added here)
-
+        $advanceApplication->advance_type = $request->input('advance_type_id');
         // Initialize the attachment variable
         $attachment = "";
 
@@ -125,6 +117,7 @@ class AdvanceLoanApplyController extends Controller
 
         // Assign validated data to the model attributes
         $advanceApplication->advance_no = $request->advance_no;
+        $advanceApplication->advance_type_id = $request->advance_type_id;
         $advanceApplication->date = $request->date;
         $advanceApplication->advance_type = $request->input('advance-loan-type');
         $advanceApplication->mas_employee_id = $request->mas_employee_id;

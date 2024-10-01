@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mas_advance_types', function (Blueprint $table) {
             $table->id();
-            $table->string('advancetype');
+            $table->string('name');
             $table->string("code",50)->index();
             $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');

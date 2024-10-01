@@ -18,7 +18,7 @@ class AdvanceTypesController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $advanceTypes = MasAdvanceTypes::orderBy('advancetype')->paginate(10);  // Fetch advance types with pagination
+        $advanceTypes = MasAdvanceTypes::orderBy('name')->paginate(10);  // Fetch advance types with pagination
 
         return view('advance-loan.types.index', compact('advanceTypes', 'privileges'));
     }
@@ -42,13 +42,13 @@ class AdvanceTypesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'advancetype' => 'required',
+            'name' => 'required',
             'code' => 'required',
             'status' => 'required|boolean'
         ]);
 
         $advanceType = new MasAdvanceTypes();
-        $advanceType->advancetype = $request->advancetype;
+        $advanceType->name = $request->name;
         $advanceType->code = $request->code;
         $advanceType->status = $request->status;
         $advanceType->save();
@@ -65,13 +65,13 @@ class AdvanceTypesController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'advancetype' => 'required',
+            'name' => 'required',
             'code' => 'required',
             'status' => 'required|boolean'
         ]);
 
         $advanceType = MasAdvanceTypes::findOrFail($id);
-        $advanceType->advancetype = $request->advancetype;
+        $advanceType->name = $request->name;
         $advanceType->code = $request->code;
         $advanceType->status = $request->status;
         $advanceType->save();

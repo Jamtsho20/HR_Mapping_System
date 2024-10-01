@@ -14,7 +14,7 @@ class AdvanceTypesSeeder extends Seeder
     public function run(): void
     {
         DB::statement('
-           INSERT INTO `mas_advance_types` (`advancetype`, `code`, `status`, `created_by`) VALUES
+           INSERT INTO `mas_advance_types` (`name`, `code`, `status`, `created_by`) VALUES
             ("Advance to Staff", "ADV_Staff", 1 , 1),
             ("DSA Advance(Tour)", "DSA_ADV", 1, 1),
             ("Electricity Imprest Advance", "ELC_IMP_ADV", 1, 1),

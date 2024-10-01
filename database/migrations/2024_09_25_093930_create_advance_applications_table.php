@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal("amount", 12,2)->nullable();
             $table->string('purpose',150)->index()->nullable();
             $table->string('attachment')->nullable();
-            $table->decimal('interest_rate', 5, 4)->nullable();
+            $table->decimal('interest_rate', 10, 4)->nullable();
             $table->decimal("total_amount", 12,2)->nullable();
             $table->unsignedSmallInteger('no_of_emi')->comment("1 for 3, 2 for 6, 3 for 9, 4 for 12")->index()->nullable();
             $table->decimal("monthly_emi_amount", 12,2)->nullable();

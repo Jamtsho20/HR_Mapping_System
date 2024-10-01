@@ -9,8 +9,8 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="advancetype">Advance Types <span class="text-danger"></span></label>
-                        <input type="text" class="form-control" name="advancetype" id="advancetype" value="{{ old('advancetype') }}" required="required">
+                        <label for="name">Advance Types <span class="text-danger"></span></label>
+                        <input type="text" class="form-control" name="name" id="name" value="{{ old('name') }}" required="required">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -48,7 +48,7 @@
 </form>
 
 <script>
-    document.getElementById('advancetype').addEventListener('input', function() {
+    document.getElementById('name').addEventListener('input', function() {
         let advancetype = this.value.trim();
         
         // Split the input into words

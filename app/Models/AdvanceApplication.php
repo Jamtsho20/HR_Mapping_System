@@ -30,6 +30,10 @@ class AdvanceApplication extends Model
         'item_type',
         
     ];
+    public function histories()
+    {
+        return $this->morphMany(ApplicationHistory::class, 'application');
+    }
     public function advanceType()
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'advance_type', 'id');

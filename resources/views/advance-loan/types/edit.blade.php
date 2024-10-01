@@ -11,8 +11,8 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="advancetype">Advance Type <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="advancetype" value="{{ $advanceType->advancetype }}" required>
+                        <label for="name">Advance Type <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" value="{{ $advanceType->name }}" required>
                     </div>
                 </div>
 

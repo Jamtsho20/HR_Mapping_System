@@ -12,8 +12,8 @@ class MasAdvanceTypes extends Model
 
     public function scopeFilter($query, $request)
     {
-        if ($request->has('advancetype') && $request->query('advancetype') != '') {
-            $query->where('advancetype', 'LIKE', '%' . $request->query('advancetype') . '%');
+        if ($request->has('name') && $request->query('name') != '') {
+            $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
         }
         if ($request->has('code') && $request->query('code') != '') {
             $query->where('code', 'LIKE', '%' . $request->query('code') . '%');
