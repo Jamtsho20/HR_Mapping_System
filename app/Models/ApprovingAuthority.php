@@ -10,6 +10,10 @@ class ApprovingAuthority extends Model
 {
     use HasFactory, CreatedByTrait;
 
+    public function role(){
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
     public function hierarchyLevel(){
         return $this->belongsTo(SystemHierarchyLevel::class, 'approving_authority_id');
     }
