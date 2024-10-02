@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\MasExpenseType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseTypeController extends Controller
 {
@@ -23,7 +24,7 @@ class ExpenseTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::with('parent')->filter($request)->orderBy('name')->paginate(30);
+        $expenses = MasExpenseType::with('children')->filter($request)->where('mas_expense_type_id', null)->orderBy('name')->paginate(30);
 
 
         return view('masters.expense-types.index', compact('expenses', 'privileges'));
@@ -71,7 +72,7 @@ class ExpenseTypeController extends Controller
 
             ]);
         }
-    
+
 
         // Redirect back with a success message
         return redirect()->route('expense-types.index')->with('success', 'Expense types created successfully.');
@@ -102,8 +103,8 @@ class ExpenseTypeController extends Controller
     public function edit($id)
     {
         $expense = MasExpenseType::findOrFail($id);
-        $parentExpenseTypes = MasExpenseType::whereNull('mas_expense_type_id')->get(); // Fetch all top-level expense types
-        return view('masters.expense-types.edit', compact('expense', 'parentExpenseTypes'));
+
+        return view('masters.expense-types.edit', compact('expense'));
     }
 
     /**
@@ -113,19 +114,78 @@ class ExpenseTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    // public function update(Request $request, $id)
+    // {
+
+
+    //     DB::transaction(function () use ($request, $id) {
+    //         // Find the expense by ID or fail
+    //         $expense = MasExpenseType::findOrFail($id);
+
+    //         // Update the expense name
+    //         $expense->name = $request->name;
+    //         $expense->save();
+
+    //         // Loop through the children from the request
+    //         foreach ($request->children as $key => $value) {
+
+    //             // Update or create each child (expense type)
+    //             $expense->children()->updateOrCreate(
+    //                 ['id' => $value['id'] ], // Use null for new records
+    //                 [
+    //                     'name' => $value['name']
+    //                 ]
+    //             );
+    //         }
+
+    //         // Optionally handle deletions if any children (expense types) were removed
+    //         // For example:
+    //         $existingChildIds = $expense->children->pluck('id')->toArray();
+    //         $submittedChildIds = array_column($request->children, 'id');
+    //         $childrenToDelete = array_diff($existingChildIds, $submittedChildIds);
+    //         MasExpenseType::whereIn('id', $childrenToDelete)->delete();
+    //     });
+
+    //     return redirect('master/expense-types')->with('msg_success', 'Expense Type updated successfully');
+    // }
     public function update(Request $request, $id)
     {
-        // $request->validate([
-        //     'expense_type' => 'required',
-        // ]);
+   
 
-        $expense = MasExpenseType::findOrFail($id);
-        $expense->mas_expense_type_id = $request->mas_expense_type_id;    
-        $expense->name = $request->expense_names;
-        $expense->save();
+        DB::transaction(function () use ($request, $id) {
+            // Find the expense type by ID
+            $expense = MasExpenseType::findOrFail($id);
+            $expense->name = $request->name;
+            $expense->save();
 
-        return redirect('master/expense-types')->with('msg_success', 'Expense Type updated successfully');
+            // Get all existing children IDs from the database
+            $existingChildrenIds = $expense->children()->pluck('id')->toArray();
+
+            // Keep track of current children IDs that should remain after update
+            $currentChildrenIds = [];
+
+            // Loop through the submitted children data and update or create new records
+            foreach ($request->children as $key => $value) {
+                // If there's an ID, update the existing record; otherwise, create a new one
+                $child = $expense->children()->updateOrCreate(
+                    ['id' => $value['id'] ?? null], // If no ID, create a new record
+                    ['name' => $value['name']]
+                );
+
+                // Add to the array of current children IDs
+                $currentChildrenIds[] = $child->id;
+            }
+
+            // Find the children that were not included in the current request and delete them
+            $childrenToDelete = array_diff($existingChildrenIds, $currentChildrenIds);
+            if (!empty($childrenToDelete)) {
+                $expense->children()->whereIn('id', $childrenToDelete)->delete();
+            }
+        });
+
+        return redirect('master/expense-types')->with('msg_success', 'Expense Type and Subtypes updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.

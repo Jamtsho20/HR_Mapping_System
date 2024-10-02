@@ -51,7 +51,7 @@
                                 @endforeach
 
                                 <tr class="notremovefornew">
-                                    <td colspan="2"></td>
+                                    <td colspan="1"></td>
                                     <td class="text-center">
                                         <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                     </td>
@@ -69,7 +69,6 @@
             <a href="{{ url('master/expense-types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>
-
 
 </form>
 
