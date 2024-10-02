@@ -65,6 +65,7 @@ class HierarchyController extends Controller
                 $level[] = [
                     'level' => $value['level'],
                     'approving_authority_id' => $value['approving_authority_id'],
+                    'mas_employee_id' => $value['employee'],
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'status' => $value['status']
@@ -115,6 +116,7 @@ class HierarchyController extends Controller
                 $hierarchy->hierarchyLevels()->create([
                     'level' => $value['level'],
                     'approving_authority_id' => $value['approving_authority_id'],
+                    'mas_employee_id' => $value['employee'],
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'status' => $value['status']

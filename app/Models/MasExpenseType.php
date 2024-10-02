@@ -11,20 +11,7 @@ class MasExpenseType extends Model
     use HasFactory, CreatedByTrait;
     protected $fillable = ['name', 'mas_expense_type_id'];
 
-    //accessors & mutators
-    public function setExpenseTypeAttribute($value)
-    {
-        $this->attributes['expense_type'] = ucwords($value);
-    }
-    //scopes & filters
-    public function scopeFilter($query, $request)
-    {
-        if ($request->has('expense_type') && $request->query('expense_type') != '') {
-            $query->where('expense_type', 'LIKE', '%' . $request->query('expense_type') . '%');
-        }
-    }
-
-    public function expenseType()
+    public function approvableRule() // relationship with mas_approvable_rules
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
@@ -41,5 +28,17 @@ class MasExpenseType extends Model
         return $this->hasMany(MasExpenseType::class, 'mas_expense_type_id');
     }
 
-    
+    //accessors & mutators
+    public function setExpenseTypeAttribute($value)
+    {
+        $this->attributes['expense_type'] = ucwords($value);
+    }
+    //scopes & filters
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('expense_type') && $request->query('expense_type') != '') {
+            $query->where('expense_type', 'LIKE', '%' . $request->query('expense_type') . '%');
+        }
+    }
+
 }

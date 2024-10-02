@@ -112,6 +112,18 @@ class GradeStepController extends Controller
             $grade->name = $request->grade_name;
             $grade->save();
             
+            // Get current grade step IDs from the request
+            $requestedStepIds = collect($request->grade_steps)->pluck('step_id')->filter()->all();
+
+            // Fetch existing grade steps
+            $existingSteps = $grade->gradeSteps()->pluck('id')->all();
+
+            // Find steps to delete (those that exist in the DB but are not in the request)
+            $stepsToDelete = array_diff($existingSteps, $requestedStepIds);
+
+            // Delete steps that are not in the request
+            $grade->gradeSteps()->whereIn('id', $stepsToDelete)->delete();
+
             foreach($request->grade_steps as $key => $value){
                 $grade->gradeSteps()->updateOrCreate(
                     ['id' => $value['step_id']],

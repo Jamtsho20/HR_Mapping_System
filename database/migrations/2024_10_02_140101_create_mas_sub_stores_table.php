@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('mas_stores_id')->index()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('location');
-            $table->enum('status', ['active', 'inactive']);
+            $table->boolean('status')->comment('active => 1, 0 => inactive');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

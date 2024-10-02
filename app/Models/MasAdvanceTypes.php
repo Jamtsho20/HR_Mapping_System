@@ -10,6 +10,19 @@ class MasAdvanceTypes extends Model
 {
     use HasFactory,CreatedByTrait;
 
+    //relationship
+
+    public function approvableRule() // relationship with mas_approvable_rules
+    {
+        return $this->morphMany(MasApprovalRule::class, 'approvable');
+    }
+    
+    public function advanceApplications()
+    {
+        return $this->hasMany(AdvanceApplication::class, 'advance_type', 'id');
+    }
+
+    // scope filters
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {
@@ -21,9 +34,7 @@ class MasAdvanceTypes extends Model
 
         return $query;
     }
-    public function advanceApplications()
-    {
-        return $this->hasMany(AdvanceApplication::class, 'advance_type', 'id');
-    }
+
+    //accessors and mutators
 
 }
