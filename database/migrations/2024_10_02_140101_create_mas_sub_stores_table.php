@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sub_store_masters', function (Blueprint $table) {
+        Schema::create('mas_sub_stores', function (Blueprint $table) {
             $table->id();
-            $table->string('store_name');
+            $table->foreignId('mas_stores_id')->index()->constrained()->cascadeOnDelete();
+            $table->string('name');
             $table->string('location');
             $table->enum('status', ['active', 'inactive']);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sub_store_masters');
+        Schema::dropIfExists('mas_sub_stores');
     }
 };

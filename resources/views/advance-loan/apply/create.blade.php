@@ -29,7 +29,7 @@
                         <select class="form-control" id="advance-loan-type" name="advance-loan-type">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($advanceTypes as $type)
-                            <option value="{{ $type->id }}">{{ $type->advancetype }}</option>
+                            <option value="{{ $type->id }}">{{ $type->name }}</option>
                             @endforeach
                         </select>
                     </div>
