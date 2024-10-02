@@ -10,13 +10,13 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="purpose">Purpose <span class="text-danger">*</span></label>
-                <input type="textarea" class="form-control" name="purpose" required>
+                <input type="textarea" class="form-control" name="purpose">
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="attachment">Attachment <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" name="attachment" required>
+                <input type="file" class="form-control" name="attachment">
             </div>
         </div>
     </div>

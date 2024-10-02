@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('approving_authorities', function (Blueprint $table) {
+        Schema::create('mas_stores', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->foreignId('role_id')->index()->nullable()->constrained()->restrictOnDelete()->cascadeOnUpdate();
-            $table->text('description')->nullable();
-            $table->boolean('has_employee_field')->default(1)->comment('1 -> yes, 0 -> No');
-            $table->boolean('status')->default(1);
+            $table->string('name');
+            $table->string('location');
+            $table->enum('status', ['active', 'inactive']);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('approving_authorities');
+        Schema::dropIfExists('mas_stores');
     }
 };

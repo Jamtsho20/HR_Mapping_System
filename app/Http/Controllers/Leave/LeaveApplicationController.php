@@ -7,6 +7,7 @@ use App\Models\LeaveApplication;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\EmployeeLeave;
+use App\Models\MasEmployeeJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -68,76 +69,43 @@ class LeaveApplicationController extends Controller
      */
     public function store(Request $request)
     {
-        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)->where('mas_employee_id', loggedInUser())->value('closing_balance');
-        $leaveApplication = new LeaveApplication();
-
-        //validate if attachment is required or not based on attachment required field from leave_plans_tbl
-        $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan', 'leaveType'])->where('mas_leave_type_id', $request->leave_type)->whereStatus(1)->first(); 
-        $attachment = "";
-        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
-        $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0; 
-        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
-
-        if($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays){ //maximum days of leave user can apply based on leave type
-            return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
+        $result = $this->handleLeaveApplication($request);
+        // If $result is a RedirectResponse, return it immediately
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
         }
 
-        // check if logged in user have enough leave balance to apply for leave and if no of applied leaves is greater han leave balance
-        if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
-            $msg = $leaveBalance == 0 
-                ? 'You do not have any available leave balance for ' .  $leaveType . '.'
-                : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-            return back()->with('msg_error', $msg);
-        }
-        try{
-            if($attachmentRequired){
-                // $this->rules['attachment'] = 'required|file|mimes:jpg,png,pdf|max:2048'; //added validation based on requirement of attachment for each leave type
-                $this->validate($request, [
-                    'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-                ]);
-                // if (!$request->hasFile('attachment')) {
-                //     // Throw an exception if the attachment is required but not provided
-                //     throw new \Exception('Please upload the attachment (medical certificate produced from hospital) for ' . $leaveType . '.');
-                // }
-            }
-            if($request->hasFile('attachment')) {
-                $file = $request->file('attachment');
-                $attachment = uploadImageToDirectory($file, 'images/leaves/');
-            }
-        }catch(\Exception $e){
-            return back()->withInput()->with('msg_error', $e->getMessage());
-        }
-
-        $this->validate($request, $this->rules, $this->messages);
-
-        try{
+        try {
+            $this->validate($request, $this->rules, $this->messages);
             DB::beginTransaction();
-            $leaveApplication = new LeaveApplication();
-            $leaveApplication->mas_employee_id = loggedInUser();
-            $leaveApplication->mas_leave_type_id = $request->leave_type;
-            $leaveApplication->from_day = $request->from_day;
-            $leaveApplication->to_day = $request->to_day;
-            $leaveApplication->from_date = $request->from_date;
-            $leaveApplication->to_date = $request->to_date;
-            $leaveApplication->no_of_days = $request->no_of_days;
-            $leaveApplication->remarks = $request->remarks;
-            $leaveApplication->attachment = $attachment;
-            $leaveApplication->status = $request->status ?? 1;
-            $leaveApplication->save();
-        
-            // Create a history record associated with the LeaveApplication
+            $leaveApplication = LeaveApplication::create([
+                'mas_employee_id' => loggedInUser(),
+                'mas_leave_type_id' => $request->leave_type,
+                'from_day' => $request->from_day,
+                'to_day' => $request->to_day,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+                'no_of_days' => $request->no_of_days,
+                'remarks' => $request->remarks,
+                'attachment' => $result['attachment'],
+                'status' => $request->status ?? 1,
+            ]);
+
+            // Create a history record
             $leaveApplication->histories()->create([
                 'level' => 'Test Level',
                 'status' => 1,
                 'remarks' => $request->remarks,
                 'created_by' => loggedInUser(),
             ]);
+
             DB::commit();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
-        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been applied successfully!.');   
+
+        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been applied successfully!');
     }
 
     /**
@@ -148,8 +116,8 @@ class LeaveApplicationController extends Controller
      */
     public function show($id)
     {
-        $leaveApplication = LeaveApplication::findOrfail($id);
-        // return view();
+        $leave = LeaveApplication::findOrfail($id);
+        return view('leave.leave.show', compact('leave'));
     }
 
     /**
@@ -175,43 +143,14 @@ class LeaveApplicationController extends Controller
     public function update(Request $request, $id)
     { //need to writ code if image or file already exists then first insert the new one the delete the existing from application folder
         $leaveApplication = LeaveApplication::findOrFail($id);
-        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)->where('mas_employee_id', loggedInUser())->value('closing_balance');
-        $leaveApplication = new LeaveApplication();
-
-        //validate if attachment is required or not based on attachment required field from leave_plans_tbl
-        $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan', 'leaveType'])->where('mas_leave_type_id', $request->leave_type)->whereStatus(1)->first(); 
-        $attachment = "";
-        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
-        $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0; 
-        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
-
-        if($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays){ //maximum days of leave user can apply based on leave type
-            return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
+        $result = $this->handleLeaveApplication($request, $leaveApplication);
+        // If $result is a RedirectResponse, return it immediately
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
         }
-
-        // check if logged in user have enough leave balance to apply for leave and if no of applied leaves is greater han leave balance
-        if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
-            $msg = $leaveBalance == 0 
-                ? 'You do not have any available leave balance for ' .  $leaveType . '.'
-                : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-            return back()->with('msg_error', $msg);
-        }
-        try{
-            if($attachmentRequired && $leaveApplication->attachment !== null){
-                $this->validate($request, [
-                    'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-                ]);
-            }
-            if($request->hasFile('attachment')) {
-                $file = $request->file('attachment');
-                $attachment = uploadImageToDirectory($file, 'images/leaves/');
-            }
-        }catch(\Exception $e){
-            return back()->withInput()->with('msg_error', $e->getMessage());
-        }
-
-        $this->validate($request, $this->rules, $this->messages);
-        try{
+        try {
+            $this->validate($request, $this->rules, $this->messages);
+    
             DB::beginTransaction();
             $leaveApplication->update([
                 'mas_employee_id' => $leaveApplication->mas_employee_id,
@@ -222,15 +161,11 @@ class LeaveApplicationController extends Controller
                 'to_date' => $request->to_date,
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
-                'attachment' => $leaveApplication->attachment ?? null,
+                'attachment' => $result['attachment'],
                 'status' => $leaveApplication->status,
             ]);
-        
-            // Create a history record associated with the LeaveApplication
-            $leaveApplication = $leaveApplication->fresh();
-            if(!$leaveApplication){
-                throw new \Exception("Leave application not found!");
-            }
+    
+            // Create a history record
             $leaveApplication->histories()->create([
                 'level' => 'Test Level',
                 'status' => $leaveApplication->status,
@@ -238,11 +173,13 @@ class LeaveApplicationController extends Controller
                 'created_by' => $leaveApplication->created_by,
                 'updated_by' => loggedInUser()
             ]);
+    
             DB::commit();
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
+
         return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');  
     }
 
@@ -271,5 +208,75 @@ class LeaveApplicationController extends Controller
 
     public function leaveEncashment(){
         return view('leave.leave.leave-encashment');
+    }
+
+    private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave
+        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
+            ->where('mas_employee_id', loggedInUser())
+            ->value('closing_balance');
+
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); // query to fetch employee grade step
+
+        // query to fetch leave policy details
+        $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan.leavePolicyRule' => function($query) use($empJobDetail) {
+            $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)->whereStatus(1);
+        }, 'leaveType'])
+            ->where('mas_leave_type_id', $request->leave_type)
+            ->whereStatus(1)
+            ->first();
+             
+        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
+        $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
+        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+            
+        //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
+        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
+            $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
+            $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
+            $unit = match($uom) {
+                3 => 'years',
+                2 => 'months',
+                default => 'days',
+            };
+            return back()->with('msg_error', "You cannot apply more than $duration $unit in a row for $leaveType.");
+        }
+        //validation based on employment type
+        if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
+            return back()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
+        }
+        // Check for max leave days
+        if ($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays) {
+            return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
+        }
+
+        // Check leave balance
+        if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
+            $msg = $leaveBalance == 0
+                ? 'You do not have any available leave balance for ' .  $leaveType . '.'
+                : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
+            return back()->with('msg_error', $msg);
+        }
+
+        // Handle file upload if required based on defined in leave policy
+        $attachment = $leaveApplication ? $leaveApplication->attachment : '';
+        if ($attachmentRequired && !$attachment) {
+            $this->validate($request, [
+                'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
+            ]);
+        }
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path('images/leaves/' . $leaveApplication->attachment))) {
+                delete_image('images/leaves/' . $leaveApplication->attachment); // Delete old attachment
+            }
+            $attachment = uploadImageToDirectory($file, 'images/leaves/');
+        }
+
+        return [
+            'leaveBalance' => $leaveBalance,
+            'maxLeaveDays' => $maxLeaveDays,
+            'leaveType' => $leaveType,
+            'attachment' => $attachment
+        ];   
     }
 }

@@ -257,6 +257,37 @@ var hrms = function() {
             }
         });
 
+        //show employee field for hierarchy level based on selection of approving authority
+            // employee_select
+        $(document).on("change", "#approving_authority", function() {
+            var approvingAuthority = $("#approving_authority").val();
+            var authorityId = $(this).val();
+            var employeeSelect = $(this).closest('td').next('td').find('#employee-select');
+            
+            // Show the employee dropdown
+            employeeSelect.show();
+            if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getemployeebyapprovingauthority/",
+                    data: { approvingAuthorityId: approvingAuthority},
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        // Clear the employee select options
+                        employeeSelect.empty();
+                        employeeSelect.append('<option value="" disabled selected hidden>Select</option>');
+                        
+                        // Populate employee select with data from the response
+                        $.each(data, function(index, employee) {
+                            employeeSelect.append('<option value="' + employee.id + '">' + employee.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                employeeSelect.hide();
+            }
+        });
         //END
 
         //turn off all the autocomplete feature within the forms

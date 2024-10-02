@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\WorkStructure\HolidayListController;
+use App\Models\ApprovingAuthority;
 use App\Models\EmployeeLeave;
 use App\Models\MasEmployeeJob;
 use App\Models\MasGewog;
@@ -144,5 +145,11 @@ class AjaxRequestController extends Controller
         }
 
         return $totalDays;
+    }
+
+    public function getEmployeeSelect($id){
+        $approvingAuthority = ApprovingAuthority::where('id', $id)->first();
+        $employeeSelect = '';
+        return $approvingAuthority;
     }
 }
