@@ -10,7 +10,7 @@ class MasLeaveType extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    public function approvableRule()
+    public function approvableRule() // relationship with mas_approvable_rules
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }

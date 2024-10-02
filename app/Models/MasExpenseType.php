@@ -11,7 +11,7 @@ class MasExpenseType extends Model
     use HasFactory, CreatedByTrait;
     protected $fillable = ['name', 'mas_expense_type_id'];
 
-    public function approvableRule()
+    public function approvableRule() // relationship with mas_approvable_rules
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
