@@ -43,7 +43,7 @@
                                                 <tr>
                                                     <td>{{ $advances->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $advance->advance_no }}</td>
-                                                    <td>{{ optional($advance->advanceType)->advancetype ?? 'N/A' }}</td>
+                                                    <td>{{ optional($advance->advanceType)->name ?? 'N/A' }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}</td>
                                                     <td>{{ number_format($advance->amount, 2) }}</td>
                                                     <td>{{ $advance->status === 'active' ? 'Active' : 'Inactive' }}</td>

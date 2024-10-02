@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
-use App\Models\SubStoreMaster;
+use App\Models\MasStore;
 use Illuminate\Http\Request;
 
 class SubStoreMasterController extends Controller
@@ -18,7 +18,7 @@ class SubStoreMasterController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $subStores = SubStoreMaster::filter($request)->orderBy('store_name')->paginate(30);
+        $subStores = MasStore::filter($request)->orderBy('store_name')->paginate(30);
         return view('asset.sub-store-master.index', compact('subStores', 'privileges'));
     }
     
@@ -36,14 +36,14 @@ class SubStoreMasterController extends Controller
         'status' => 'required|in:active,inactive',
     ]);
 
-    // Create a new SubStoreMaster instance and fill it with the validated data
-    $subStore = new SubStoreMaster();
+    // Create a new MAsStore instance and fill it with the validated data
+    $subStore = new MasStore();
     $subStore->store_name = $request->store_name;
     $subStore->location = $request->location;
     $subStore->status = $request->status;
     $subStore->created_by = auth()->user()->id; // Track who created the record
 
-    // Save the new SubStoreMaster instance to the database
+    // Save the new MAsStore instance to the database
     $subStore->save();
 
     // Redirect to the index page with a success message
@@ -56,7 +56,7 @@ class SubStoreMasterController extends Controller
 
     public function edit(string $id)
     {
-    $subStore = SubStoreMaster::findOrFail($id);
+    $subStore = MasStore::findOrFail($id);
     return view('asset.sub-store-master.edit', compact('subStore'));
     }
 
@@ -70,7 +70,7 @@ class SubStoreMasterController extends Controller
     ]);
 
     // Find the existing sub-store by ID
-    $subStore = SubStoreMaster::findOrFail($id);
+    $subStore = MasStore::findOrFail($id);
 
     // Update the sub-store properties with the request data
     $subStore->store_name = $request->store_name;
@@ -89,7 +89,7 @@ class SubStoreMasterController extends Controller
     {
     try {
         // Attempt to find and delete the sub-store
-        SubStoreMaster::findOrFail($id)->delete();
+        MasStore::findOrFail($id)->delete();
 
         // Redirect back with a success message
         return back()->with('msg_success', 'Sub Store has been deleted');

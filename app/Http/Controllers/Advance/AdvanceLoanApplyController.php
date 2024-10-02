@@ -29,7 +29,7 @@ class AdvanceLoanApplyController extends Controller
         'advance_no' => 'required|string|max:255',
         'date' => 'required|date',
         'advance-loan-type' => 'required|in:1,2,3,4,5,6,7',
-         'advance_type_id' => 'required|exists:mas_advance_types,id',
+        //'advance_type_id' => 'required|exists:mas_advance_types,id',
         'mode_of_travel' => 'nullable|in:1,2,3,4,5',
         'from_location' => 'nullable|string|max:255',
         'to_location' => 'nullable|string|max:255',
@@ -117,7 +117,7 @@ class AdvanceLoanApplyController extends Controller
 
         // Assign validated data to the model attributes
         $advanceApplication->advance_no = $request->advance_no;
-        $advanceApplication->advance_type_id = $request->advance_type_id;
+        //$advanceApplication->advance_type_id = $request->advance_type_id;
         $advanceApplication->date = $request->date;
         $advanceApplication->advance_type = $request->input('advance-loan-type');
         $advanceApplication->mas_employee_id = $request->mas_employee_id;

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\CreatedByTrait;
 
-class SubStoreMaster extends Model
+class MasStore extends Model
 {
     use HasFactory, CreatedByTrait;
 
