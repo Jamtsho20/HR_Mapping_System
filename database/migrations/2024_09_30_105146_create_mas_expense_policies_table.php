@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sub_store_masters', function (Blueprint $table) {
+        Schema::create('mas_expense_policies', function (Blueprint $table) {
             $table->id();
-            $table->string('store_name');
-            $table->string('location');
-            $table->enum('status', ['active', 'inactive']);
+            $table->foreignId('mas_expense_type_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
+            $table->string('name', 50);
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
+            $table->text('description')->nullable();
+            $table->boolean('status')->default(1)->comment('0 => draft, 1 => enforce');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sub_store_masters');
+        Schema::dropIfExists('mas_expense_policies');
     }
 };

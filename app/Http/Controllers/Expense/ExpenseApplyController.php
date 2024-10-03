@@ -23,7 +23,7 @@ class ExpenseApplyController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses= MasExpenseType::filter($request)->orderBy('expense_type')->paginate(30);
+        $expenses= MasExpenseType::filter($request)->orderBy('name')->paginate(30);
 
         return view('expense.apply.index', compact('expenses', 'privileges'));
     }

@@ -16,11 +16,12 @@ return new class extends Migration
             $table->morphs('application');
             $table->string('level');
             $table->tinyInteger('status')->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
+            $table->text('remarks')->nullable();
+            $table->foreignId('created_by')->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('approved_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('rejected_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('cancelled_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->text('remarks')->nullable();
 
             $table->timestamps();
         });

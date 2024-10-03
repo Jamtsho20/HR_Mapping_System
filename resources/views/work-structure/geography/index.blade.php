@@ -2,11 +2,7 @@
 @section('page-title', 'Dashboard')
 @section('content')
 <div class="card">
-    <div class="card-header ">
-        <div class="col-sm-4">
-            <h5>Geography</h5>
-        </div>
-    </div>
+    <br>
     <div class="card-body">
         <div class="card">
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">

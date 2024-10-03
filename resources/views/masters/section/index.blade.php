@@ -30,6 +30,7 @@
                                             <th>#</th>
                                             <th>Department</th>
                                             <th>Section</th>
+                                            <th>Section Head</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -39,6 +40,7 @@
                                             <td>{{ $sections->firstItem() + ($loop->iteration - 1) }}</td>
                                             <td>{{ $section->department->name }}</td>
                                             <td>{{ $section->name }}</td>
+                                            <td>{{ $section->employee->emp_id_name ?? config('global.null_value')}}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)
                                                 <a href="{{ url('master/section/'.$section->id .'/edit') }}" data-name="{{ $section->name }}" data-department-id="{{ $section->mas_department_id }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>

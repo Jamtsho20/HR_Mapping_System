@@ -118,6 +118,11 @@ class User extends Authenticatable
         return $this->hasOne(SystemHierarchyLevel::class, 'mas_employee_id');
     }
 
+    public function isActive()
+    {
+        return $this->is_active == 1;
+    }
+
     public function durationOfService() {
         $sixMonthsLater = date_add(date_create($this->date_of_appointment),date_interval_create_from_date_string("6 months"));
         $startFrom = ($this->no_probation === 1) ? date_create($this->date_of_appointment) : $sixMonthsLater;

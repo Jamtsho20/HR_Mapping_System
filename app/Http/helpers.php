@@ -62,8 +62,16 @@ if (!function_exists('get_image')) {
 if (!function_exists('delete_image')) {
     function delete_image($path)
     {
+        // Check if the file exists before trying to delete
+        if (file_exists($path) && is_file($path)) {
+            // Attempt to delete the original file
+            if (!@unlink($path)) {
+                // Log error or handle failure if needed
+                return false;
+            }
+        }
         //delete the original file
-        @unlink($path);
+        // @unlink($path);
         //delete other size variations of the same file
         $fileNameArray = explode('.', $path);
         $extension = array_pop($fileNameArray);
@@ -207,5 +215,11 @@ if (!function_exists('modifyFormRequest')) {
             }
         }
         return $formData;
+    }
+}
+
+if(!function_exists('loggedInUser')){
+    function loggedInUser(){
+        return auth()->user()->id;
     }
 }

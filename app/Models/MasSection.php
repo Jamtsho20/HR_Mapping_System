@@ -9,6 +9,10 @@ use App\Traits\CreatedByTrait;
 class MasSection extends Model
 {
     use HasFactory, CreatedByTrait;
+    
+    public function employee(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
 
     public function department(){
         return $this->belongsTo(MasDepartment::class, 'mas_department_id');

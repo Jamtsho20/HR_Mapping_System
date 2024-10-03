@@ -57,14 +57,14 @@ class SystemSubMenusTableSeeder extends Seeder
 
             //sub menu for expense
             ['system_menu_id' => 5, 'name' => 'Apply', 'route' => 'expense/apply-expense', 'display_order' => 1],
-            ['system_menu_id' => 5, 'name' => 'Approval', 'route' => 'expense/approval', 'display_order' => 2],
-            ['system_menu_id' => 5, 'name' => 'DSA Claim/Settlement', 'route' => 'expense/dsa-claim-settlement', 'display_order' => 3],
+            ['system_menu_id' => 5, 'name' => 'Policy', 'route' => 'expense/expense-policy', 'display_order' => 2],
+            ['system_menu_id' => 5, 'name' => 'Approval', 'route' => 'expense/approval', 'display_order' => 3],
+            ['system_menu_id' => 5, 'name' => 'DSA Claim/Settlement', 'route' => 'expense/dsa-claim-settlement', 'display_order' => 4],
             ['system_menu_id' => 5, 'name' => 'DSA Approval', 'route' => 'expense/dsa-approval', 'display_order' => 5],
-            ['system_menu_id' => 5, 'name' => 'DSA Approval', 'route' => 'expense/dsa-approval', 'display_order' => 6],
-            ['system_menu_id' => 5, 'name' => 'Transfer Claim', 'route' => 'expense/transfer-claim', 'display_order' => 7],
-            ['system_menu_id' => 5, 'name' => 'Transfer Claim Approval', 'route' => 'expense/transfer-claim-approval', 'display_order' => 8],
-            ['system_menu_id' => 5, 'name' => 'Expense Fuel /Fuel Claim', 'route' => 'expense/expense-fuel', 'display_order' => 9],
-            ['system_menu_id' => 5, 'name' => 'Fuel Expense Approval', 'route' => 'expense/fuel-approval', 'display_order' => 10],
+            ['system_menu_id' => 5, 'name' => 'Transfer Claim', 'route' => 'expense/transfer-claim', 'display_order' => 6],
+            ['system_menu_id' => 5, 'name' => 'Transfer Claim Approval', 'route' => 'expense/transfer-claim-approval', 'display_order' => 7],
+            ['system_menu_id' => 5, 'name' => 'Expense Fuel /Fuel Claim', 'route' => 'expense/expense-fuel', 'display_order' => 8],
+            ['system_menu_id' => 5, 'name' => 'Fuel Expense Approval', 'route' => 'expense/fuel-approval', 'display_order' => 9],
 
             //sub menu for leaves
             ['system_menu_id' => 6, 'name' => 'Leave Policy', 'route' => 'leave/leave-policy', 'display_order' => 1],

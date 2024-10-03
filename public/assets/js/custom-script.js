@@ -199,22 +199,39 @@ var hrms = function() {
         });
 
         //populate leave balnce based on selection of leaveType
-        $(document).on("change", "#leave_type", function() {
-            var leaveType = $("#leave_type").val();
-            if (leaveType !== '') {
-                //ajax call
-                $.ajax({
-                    url: "/getleavebalancebyleavetype/" + leaveType,
-                    dataType: "JSON",
-                    type: "GET",
-                    success: function(data) {
-                        // var payScale = data.pay_scale;
-                        $("#leave_balance").val(data); // set the value for leave balance
-                    }
-                });
-            } else {
-                $("#leave_balance").val('');
+        $(document).ready(function() {
+            // Function to populate leave balance based on leaveType
+            function populateLeaveBalance() {
+                var leaveType = $("#leave_type").val();
+                if (leaveType !== '') {
+                    // ajax call
+                    $.ajax({
+                        url: "/getleavebalancebyleavetype/" + leaveType,
+                        dataType: "JSON",
+                        type: "GET",
+                        success: function(data) {
+                            $("#leave_balance").val(data.balance); // set the value for leave balance
+                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                $("#attachment").attr("required", "required");
+                                $("#attachment_required").show();
+                            } else {
+                                $("#attachment").removeAttr("required");
+                                $("#attachment_required").hide();
+                            }
+                        }
+                    });
+                } else {
+                    $("#leave_balance").val('');
+                }
             }
+        
+            // Trigger on page load (during edit)
+            populateLeaveBalance();
+        
+            // Trigger on change of leave type
+            $(document).on("change", "#leave_type", function() {
+                populateLeaveBalance();
+            });
         });
 
         //calculate no of leave days based on from date, to date, excluding holidays
@@ -240,6 +257,37 @@ var hrms = function() {
             }
         });
 
+        //show employee field for hierarchy level based on selection of approving authority
+            // employee_select
+        $(document).on("change", "#approving_authority", function() {
+            var approvingAuthority = $("#approving_authority").val();
+            var authorityId = $(this).val();
+            var employeeSelect = $(this).closest('td').next('td').find('#employee-select');
+            
+            // Show the employee dropdown
+            employeeSelect.show();
+            if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
+                //ajax call
+                $.ajax({
+                    url: "/getemployeebyapprovingauthority/",
+                    data: { approvingAuthorityId: approvingAuthority},
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function(data) {
+                        // Clear the employee select options
+                        employeeSelect.empty();
+                        employeeSelect.append('<option value="" disabled selected hidden>Select</option>');
+                        
+                        // Populate employee select with data from the response
+                        $.each(data, function(index, employee) {
+                            employeeSelect.append('<option value="' + employee.id + '">' + employee.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                employeeSelect.hide();
+            }
+        });
         //END
 
         //turn off all the autocomplete feature within the forms

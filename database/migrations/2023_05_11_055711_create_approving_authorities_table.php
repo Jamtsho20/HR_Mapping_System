@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('approving_authorities', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->nullable();
+            $table->foreignId('role_id')->index()->nullable()->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->text('description')->nullable();
             $table->boolean('has_employee_field')->default(1)->comment('1 -> yes, 0 -> No');
             $table->boolean('status')->default(1);

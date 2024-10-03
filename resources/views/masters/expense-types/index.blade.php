@@ -36,7 +36,8 @@
                                     <thead class="thead-light">
                                         <tr>
                                             <th>#</th>
-                                            <th>Expense Type</th>
+                                            <th>Expense Category</th>
+                                            <th>Expense Name</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -44,7 +45,15 @@
                                         @forelse($expenses as $expense)
                                         <tr>
                                             <td>{{ $expenses->firstItem() + ($loop->iteration - 1) }}</td>
-                                            <td>{{ $expense->expense_type }}</td>
+                                            <td>
+                                                {{ $expense->name}}
+                                            </td>
+                                            <td> @foreach($expense->children as $child)
+                                                <ul>
+                                                    <li>{{ $child->name}}</li>
+                                                </ul>
+                                                @endforeach
+                                            </td>
 
                                             <td class="text-center">
                                                 @if ($privileges->edit)
