@@ -43,11 +43,17 @@
                                     </thead>
                                     <tbody>
                                         @forelse($expenses as $expense)
-
                                         <tr>
                                             <td>{{ $expenses->firstItem() + ($loop->iteration - 1) }}</td>
-                                            <td>{{ $expense->parent?$expense->parent->name:$expense->name}}</td>
-                                            <td>{{ $expense->mas_expense_type_id !=null?$expense->name:'-'}}</td>
+                                            <td>
+                                                {{ $expense->name}}
+                                            </td>
+                                            <td> @foreach($expense->children as $child)
+                                                <ul>
+                                                    <li>{{ $child->name}}</li>
+                                                </ul>
+                                                @endforeach
+                                            </td>
 
                                             <td class="text-center">
                                                 @if ($privileges->edit)

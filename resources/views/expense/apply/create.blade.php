@@ -2,7 +2,7 @@
 @section('page-title', 'Create Expense')
 @section('content')
 
-<form action="{{ route(apply-expense.store') }}" method="POST">
+<form action="{{ route('apply-expense.store') }}" method="POST">
     @csrf
     <div class="card">
         <div class="card-body">

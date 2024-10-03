@@ -11,7 +11,7 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="col-8 form-group">
-        <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}" placeholder="Leave Type">
+        <input type="text" name="expense_type" class="form-control" value="{{ request()->get('expense_type') }}" placeholder="expense Type">
     </div>
     @endcomponent
     <div class="row row-sm">
@@ -66,6 +66,28 @@
                                                                 Action
                                                             </th>
                                                         </tr>
+                                                        @foreach($expensePolicy as $expense)
+                                                        <tr>
+                                                            <td>{{$loop->iteration}}</td>
+                                                            <td>{{$expense->name}}</td>
+                                                            <td>{{$expense->expenseType->name}}</td>
+                                                            <td>{{$expense->start_date}}</td>
+                                                            <td>{{$expense->end_date}}</td>
+                                                            <td><span class="badge rounded-pill  bg-{{$expense->status == 1 ? 'primary' : 'danger' }} me-1 mt-1"> {{$expense->status == 1 ? 'Enforced' : 'Draft'}}</span></td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                <a href="{{ url('expense/expense-policy/' . $expense->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('expense/expense-policy/' . $expense->id . '/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" data-url="{{ url('expense/expense-policy/' . $expense->id) }}" class="delete-btn btn btn-sm btn-rounded btn-outline-danger"><i class="fa fa-trash"></i>
+                                                                    DELETE</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
 
                                                     </thead>
                                                 </table>
