@@ -22,7 +22,7 @@ class PayrollService
     {
         $paySlipId = $payslip->id;
         PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
-        $employees = User::where('id', '<>', 1)->get();
+        $employees = User::active()->completed()->whereKeyNot(1)->get();
         $userId = Auth::user()->id;
 
         foreach ($employees as $employee) {

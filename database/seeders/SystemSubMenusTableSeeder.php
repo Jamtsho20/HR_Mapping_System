@@ -99,22 +99,11 @@ class SystemSubMenusTableSeeder extends Seeder
             //submenu for sifa
             ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
 
-            //submenu for paymaster
-            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/account-heads', 'display_order' => 1],
-            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-groups', 'display_order' => 1],
-            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-heads', 'display_order' => 1],
-            // ['system_menu_id' => 12, 'name' => 'Pay Master', 'route' => 'paymaster/pay-slabs', 'display_order' => 1],
-
-            //submenu for payroll
-            ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],
-            ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
-            ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
-            ['system_menu_id' => 14, 'name' => 'Payslip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
             //submenu for asset
             ['system_menu_id' => 13, 'name' => 'Sub-Store-Master', 'route' => 'asset/sub-store-master', 'display_order' => 1],
-            ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition_apply', 'display_order' => 2],
-            ['system_menu_id' => 13, 'name' => 'Requisition-History', 'route' => 'asset/requisition_history', 'display_order' => 3],
-            ['system_menu_id' => 13, 'name' => 'Requisition-Approval', 'route' => 'asset/requisition_approval', 'display_order' => 4],
+            ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition-apply', 'display_order' => 2],
+            ['system_menu_id' => 13, 'name' => 'Requisition-History', 'route' => 'asset/requisition-history', 'display_order' => 3],
+            ['system_menu_id' => 13, 'name' => 'Requisition-Approval', 'route' => 'asset/requisition-approval', 'display_order' => 4],
             ['system_menu_id' => 13, 'name' => 'Goods-Issue', 'route' => 'asset/goods-issue', 'display_order' => 5],
             ['system_menu_id' => 13, 'name' => 'Goods-Issue-History', 'route' => 'asset/goods-issue-history', 'display_order' => 6],
             ['system_menu_id' => 13, 'name' => 'Goods-Receipt', 'route' => 'asset/goods-receipt', 'display_order' => 7],
@@ -128,6 +117,12 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return', 'route' => 'asset/fixed-asset-return', 'display_order' => 16],
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return-History', 'route' => 'asset/fixed-asset-return-history', 'display_order' => 17],
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return-Approval', 'route' => 'asset/fixed-asset-return-approval', 'display_order' => 18],
+
+            //submenu for payroll
+            ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],
+            ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
+            ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
+            ['system_menu_id' => 14, 'name' => 'Payslip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
         ]);
     }
 }

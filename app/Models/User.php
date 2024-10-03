@@ -109,18 +109,13 @@ class User extends Authenticatable
     public function employeeGroupMap(){
         return $this->hasMany(MasEmployeeGroupMap::class, 'mas_employee_id');
     }
-    
+
     public function empLeave(){
         return $this->hasMany(EmployeeLeave::class, 'mas_employee_id');
     }
 
     public function hierachyLevel(){
         return $this->hasOne(SystemHierarchyLevel::class, 'mas_employee_id');
-    }
-
-    public function isActive()
-    {
-        return $this->is_active == 1;
     }
 
     public function durationOfService() {
@@ -144,7 +139,7 @@ class User extends Authenticatable
         return compact('years','months','yearsOfService','monthsOfService');
     }
 
-    //filters
+    //scopes
     public function scopeFilter($query, $request)
     {
         if ($request->has('username') && $request->query('username') != '') {
@@ -156,6 +151,17 @@ class User extends Authenticatable
         }
 
         $query->where('username', '<>', 'E00000');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
+
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 1);
     }
 
     //accessors & mutators refeer this
