@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasApprovalHead;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -21,9 +22,9 @@ class ApprovalRuleController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $heads = MasApprovalHead::get();
 
-        return view('system-settings.approval-rule.index', compact('privileges'));
-
+        return view('system-settings.approval-rule.index', compact('privileges','heads'));
     }
 
     /**
@@ -31,8 +32,10 @@ class ApprovalRuleController extends Controller
      */
     public function create()
     {
-        $employees=User::get();
-        return view('system-settings.approval-rule.create',compact('employees'));
+        $employees = User::get();
+        $heads = MasApprovalHead::get();
+
+        return view('system-settings.approval-rule.create', compact('employees','heads'));
     }
 
     /**
