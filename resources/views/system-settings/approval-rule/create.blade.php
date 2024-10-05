@@ -53,19 +53,15 @@
         </div>
 
     </div>
-    <button type="submit" class="btn btn-primary">
-        Conditions
-    </button>
-    <br><br>
+    <a class="btn btn-primary" data-bs-target="#conditions" data-bs-toggle="modal" href=""> Conditions</a>
+
+  @include('system-settings.approval-rule.modal.rules')
     <div class="row card">
         <div class="col-md-12">
             <div class="table-responsive">
                 <table id="tbl_all_condition" class="table table-striped custom-table m-b-0 ">
                     <thead>
                         <tr>
-                            <th style="display:none;">
-                                Type
-                            </th>
                             <th style="width:40%">
                                 Formula
                             </th>
@@ -85,12 +81,8 @@
                             <th style="display:none;">
                                 FYI-Frequency
                             </th>
-                            <th style="display:none;">
-                                FYI-Email
-                            </th>
-                            <th style="display:none;">
-                                FYI- Employee
-                            </th>
+
+
                             <th style="width:5%">
                                 Action
                             </th>

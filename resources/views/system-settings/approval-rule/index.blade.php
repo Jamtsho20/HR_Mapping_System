@@ -15,7 +15,7 @@
     <div class="card-body">
         <div class="card">
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                @foreach ($)
+
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="pills-country-tab" data-bs-toggle="pill" data-bs-target="#pills-country" type="button" role="tab" aria-controls="pills-country" aria-selected="true">Leave</button>
                 </li>
