@@ -92,7 +92,7 @@ class PaySlipController extends Controller
         $paySlip = PaySlip::findOrFail($id);
         $month = $paySlip->for_month;
 
-        $count = PaySlipDetailView::where('for_month', $month)->count();
+        $count = PaySlipDetailView::whereForMonth($month)->count();
         if (!$count) {
             $this->payrollService->populateReportTable($paySlip);
         }
