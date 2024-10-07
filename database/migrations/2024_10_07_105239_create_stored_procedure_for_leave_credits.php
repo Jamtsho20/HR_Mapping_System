@@ -120,7 +120,7 @@ return new class extends Migration
             AFTER UPDATE ON mas_employees
             FOR EACH ROW
             BEGIN
-                IF NEW.status = 1 THEN
+                IF (OLD.status = 0 AND NEW.status = 1) THEN
                     CALL process_leave_credits(NEW.id, NEW.gender, NEW.created_by, NEW.updated_by, NEW.date_of_appointment);
                 END IF;
             END;

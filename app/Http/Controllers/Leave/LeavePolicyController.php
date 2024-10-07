@@ -136,6 +136,8 @@ class LeavePolicyController extends Controller
         try {
 
             $leavePolicyId = $this->saveLeavePolicy($request->leave_policy, $id);
+
+
             $leavePolicyPlanId = $this->saveLeavePolicyPlan($request->leave_plan, $leavePolicyId);
             $this->saveLeavePolicyRule($request->leave_policy_rule, $leavePolicyPlanId, true);
             $this->saveYearEndProcessing($request->year_end_processing, $leavePolicyId);
