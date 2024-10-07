@@ -33,6 +33,8 @@ ENDIF"
     );
 });
 
+Route::get('login-as-employee/{id}','Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
+
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
@@ -50,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('delegations', 'DelegationController')->except('show');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
         Route::resource('approval-rules', 'ApprovalRuleController')->except('show', 'edit');
+        Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
     });
 
     // MASTERS
@@ -133,7 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('apply', 'AdvanceLoanApplyController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
-    
+
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
@@ -157,7 +160,7 @@ Route::middleware('auth')->group(function () {
 
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
-        Route::resource('sub-store-master', 'SubStoreMasterController');
+        Route::resource('mas-store', 'SubStoreMasterController');
         Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');

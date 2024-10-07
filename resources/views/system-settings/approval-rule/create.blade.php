@@ -14,7 +14,9 @@
                     <label for="mas_dzongkhag_id">For <span class="text-danger">*</span></label>
                     <select class="form-control" name="mas_dzongkhag_id" required="required">
                         <option value="" disabled selected hidden>Select your option</option>
-                        <option value=""></option>
+                        @foreach($heads as $head)
+                        <option value="{{$head->id}}">{{$head->name}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="form-group col-4">
@@ -53,19 +55,15 @@
         </div>
 
     </div>
-    <button type="submit" class="btn btn-primary">
-        Conditions
-    </button>
-    <br><br>
+    <a class="btn btn-primary" data-bs-target="#conditions" data-bs-toggle="modal" href=""> Conditions</a>
+
+    @include('system-settings.approval-rule.modal.rules')
     <div class="row card">
         <div class="col-md-12">
             <div class="table-responsive">
                 <table id="tbl_all_condition" class="table table-striped custom-table m-b-0 ">
                     <thead>
                         <tr>
-                            <th style="display:none;">
-                                Type
-                            </th>
                             <th style="width:40%">
                                 Formula
                             </th>
@@ -85,12 +83,8 @@
                             <th style="display:none;">
                                 FYI-Frequency
                             </th>
-                            <th style="display:none;">
-                                FYI-Email
-                            </th>
-                            <th style="display:none;">
-                                FYI- Employee
-                            </th>
+
+
                             <th style="width:5%">
                                 Action
                             </th>

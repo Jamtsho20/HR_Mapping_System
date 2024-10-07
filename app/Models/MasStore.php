@@ -9,6 +9,19 @@ use App\Traits\CreatedByTrait;
 class MasStore extends Model
 {
     use HasFactory, CreatedByTrait;
+    
+    protected $fillable = [
+        'name',
+        'location',
+        'status',
+        'created_by',
+        'updated_by',
+    ];
+
+    public function subStores()
+    {
+        return $this->hasMany(MasSubStore::class, 'mas_stores_id');
+    }
 
      //accessors & mutators
      public function scopeFilter($query, $request)
