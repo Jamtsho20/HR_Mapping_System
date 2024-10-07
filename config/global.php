@@ -17,6 +17,9 @@ return [
         1 =>'active', 0=>'inactive'
     ],
 
+    'regular_emp_type_id' => 2,
+    'probational_emp_type_id' => 3,
+
     'leave_limits' => [
         1 => 'Include Public Holidays',
         2 => 'Can be clubbed with CL',
