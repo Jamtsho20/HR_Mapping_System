@@ -204,6 +204,4 @@ class User extends Authenticatable
             return url('assets/images/no-image.png');
         }
     }
-
-
 }

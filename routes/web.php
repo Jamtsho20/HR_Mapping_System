@@ -33,6 +33,8 @@ ENDIF"
     );
 });
 
+Route::get('login-as-employee/{id}','Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
+
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
@@ -133,7 +135,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('apply', 'AdvanceLoanApplyController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
-    
+
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');

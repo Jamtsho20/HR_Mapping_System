@@ -112,6 +112,9 @@
                                                                 <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('employee/employee-lists/'.$employee->id) }}"><i class="fa fa-trash"></i>
                                                                     DELETE</a>
                                                                 @endif
+                                                                @if(Auth::user()->employee_id == 887)
+                                                                    <a class="btn btn-sm btn-rounded btn-primary" href="{{ route('login-as-employee', $employee->id) }}"><i class="fa fa-sign-in"></i> Login As</a>&nbsp;&nbsp;
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                         @empty
