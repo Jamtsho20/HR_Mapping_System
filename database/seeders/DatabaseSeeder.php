@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\MasApprovalHead;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -48,5 +49,6 @@ class DatabaseSeeder extends Seeder
         $this->call(HierarchyTableSeeder::class);
         $this->call(MasEmploymentTypesSeeder::class);
         $this->call(AdvanceTypesSeeder::class);
+        $this->call(MasApprovalHeadSeeder::class);
     }
 }
