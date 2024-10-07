@@ -244,10 +244,10 @@ class LeaveApplicationController extends Controller
         if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
             return back()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
         }
-        // Check for max leave days
-        if ($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays) {
-            return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
-        }
+        // Check for max leave days commented for now
+        // if ($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays) {
+        //     return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
+        // }
 
         // Check leave balance
         if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
