@@ -119,5 +119,7 @@ return [
     'salary_disbursement_mode' => [
         1 => 'Cash',
         2 => 'Saving Account'    
-    ]
+    ],
+
+    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.'
 ];

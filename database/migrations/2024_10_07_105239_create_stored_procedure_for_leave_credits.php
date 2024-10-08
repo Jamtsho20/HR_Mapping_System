@@ -30,17 +30,21 @@ return new class extends Migration
                 DECLARE grade_step_id INT;
                  -- Declare the cursor to loop through all applicable leave types
                 DECLARE leave_cursor CURSOR FOR
-                    SELECT id, name
-                    FROM mas_leave_types;
+                    SELECT 
+                        t1.id, 
+                        t1.name
+                    FROM mas_leave_types t1
+                        JOIN mas_leave_policies t2 ON t1.id = t2.mas_leave_type_id
+                    WHERE t2.status = 1 AND t2.is_information_only = 1;
 
                 -- Continue handler for cursor
                 DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
                 -- Get employment type and grade step of the newly inserted employee
                 SELECT mas_employment_type_id, mas_grade_step_id
-                INTO emp_type_id, grade_step_id
+                    INTO emp_type_id, grade_step_id
                 FROM mas_employee_jobs
-                WHERE mas_employee_id = emp_id
+                    WHERE mas_employee_id = emp_id
                 LIMIT 1;
 
                 -- Open the cursor
@@ -54,7 +58,7 @@ return new class extends Migration
                     END IF;
 
                     -- Get leave policy plan and leave policy rules
-                    SELECT t3.duration
+                    SELECT COALESCE(t3.duration, 0)
                         INTO duration
                     FROM mas_leave_policies t1
                         LEFT JOIN leave_policy_plans t2 ON t1.id = t2.mas_leave_policy_id
@@ -63,49 +67,54 @@ return new class extends Migration
                         AND t1.status = 1
                         AND t1.is_information_only = 1
                         AND t3.mas_grade_step_id = grade_step_id
-                        AND t3.mas_employment_type_id = emp_type_id
+                        AND (emp_type_id = 1 OR t3.mas_employment_type_id = emp_type_id)
                         AND (t2.gender = 3 OR t2.gender = emp_gender)
                         AND t3.status = 1
                     LIMIT 1;
 
-                    -- Conditional check based on leave_type_name
-                    IF (leave_type_name = 'Casual Leave') THEN
-                        -- Calculate the number of months remaining in the year from the joining date
-                        SET total_months_remaining = 12 - MONTH(joining_date) + 1;
-                        -- Proportionally calculate the leave entitlement
-                        SET leave_entitlement = ROUND((total_months_remaining / 12) * duration);
-                    ELSEIF (leave_type_name = 'Study Leave') THEN
-                    -- Study Leave will be set to 0 because study leave will be eligible only after 2 years of service  
-                        SET leave_entitlement = 0;  
-                    ELSE
-                        SET leave_entitlement = duration;
+                    IF(duration) THEN
+                        -- Conditional check based on leave_type_name
+                        -- for casual leave
+                        IF (leave_id = 1) THEN 
+                            -- Calculate the number of months remaining in the year from the joining date
+                            SET total_months_remaining = 12 - MONTH(joining_date) + 1;
+                            -- Proportionally calculate the leave entitlement
+                            SET leave_entitlement = ROUND((total_months_remaining / 12) * duration);
+                        -- for extra ordinary leave
+                        ELSEIF (leave_id = 6) THEN 
+                        -- Study Leave will be set to 0 because study leave will be eligible only after 2 years of service  
+                            SET leave_entitlement = 0;  
+                        ELSE
+                            SET leave_entitlement = duration;
+                        END IF;
+
+                        -- Insert leave entitlement into employee_leaves table
+                        INSERT INTO employee_leaves (
+                            mas_leave_type_id,
+                            mas_employee_id,
+                            opening_balance,
+                            current_entitlement,
+                            leaves_availed,
+                            closing_balance,
+                            created_by,
+                            updated_by,
+                            created_at,
+                            updated_at
+                        )
+                        VALUES (
+                            leave_id,
+                            emp_id,
+                            0,
+                            leave_entitlement,
+                            0,
+                            leave_entitlement,
+                            created_by,
+                            updated_by,
+                            NOW(),
+                            NOW()
+                        );
                     END IF;
 
-                    -- Insert leave entitlement into employee_leaves table
-                    INSERT INTO employee_leaves (
-                        mas_leave_type_id,
-                        mas_employee_id,
-                        opening_balance,
-                        current_entitlement,
-                        leaves_availed,
-                        closing_balance,
-                        created_by,
-                        updated_by,
-                        created_at,
-                        updated_at
-                    )
-                    VALUES (
-                        leave_id,
-                        emp_id,
-                        0,
-                        leave_entitlement,
-                        0,
-                        leave_entitlement,
-                        created_by,
-                        updated_by,
-                        NOW(),
-                        NOW()
-                    );
 
                 END LOOP leave_loop;
 
@@ -120,7 +129,9 @@ return new class extends Migration
             AFTER UPDATE ON mas_employees
             FOR EACH ROW
             BEGIN
-                IF (OLD.status = 0 AND NEW.status = 1) THEN
+                -- INSERT INTO trigger_logs (old_status, new_status)
+                -- VALUES (OLD.status, NEW.status);
+                IF (CAST(OLD.status AS UNSIGNED) = 0 AND CAST(NEW.status AS UNSIGNED) = 1) THEN
                     CALL process_leave_credits(NEW.id, NEW.gender, NEW.created_by, NEW.updated_by, NEW.date_of_appointment);
                 END IF;
             END;

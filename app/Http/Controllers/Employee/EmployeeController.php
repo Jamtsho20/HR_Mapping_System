@@ -288,6 +288,16 @@ class EmployeeController extends Controller
             ['id' => $employeeId], // Conditions to find the user
             $userData // Data to update or create
         );
+        // Update or create the user
+        // if ($user) {
+        //     // Check if the user is dirty before updating
+        //     if ($user->isDirty($userData)) {
+        //         $user->update($userData);
+        //     }
+        // } else {
+        //     // Create new user
+        //     $user = User::create($userData);
+        // }
 
         return $user->id;
     }
