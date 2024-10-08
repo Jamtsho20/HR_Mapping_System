@@ -213,7 +213,7 @@ var hrms = function() {
                             $("#leave_balance").val(data.balance); // set the value for leave balance
                             // Disable form fields if balance is 0
                             if (data.balance == 0) {
-                                $("form input, form select, form textarea").prop("disabled", true); // disable all input fields
+                                // $("form input, form select, form textarea").prop("disabled", true); // disable all input fields
                                 $("#leave_type").prop("disabled", false);
                             } else {
                                 $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
