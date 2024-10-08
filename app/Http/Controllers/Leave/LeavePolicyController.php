@@ -200,17 +200,7 @@ class LeavePolicyController extends Controller
 
     private function saveLeavePolicyPlan($policyPlan, $leavePolicyId)
     {
-        // $leavePolicyPlan = new LeavePolicyPlan();
-        // $leavePolicyPlan->mas_leave_policy_id = $leavePolicyId;
-        // $leavePolicyPlan->attachment_required = isset($policyPlan['attachment_required']) ? $policyPlan['attachment_required'] : 0;
-        // $leavePolicyPlan->gender = $policyPlan['gender'];
-        // $leavePolicyPlan->leave_year = $policyPlan['leave_year'];
-        // $leavePolicyPlan->credit_frequency = $policyPlan['credit_frequency'];
-        // $leavePolicyPlan->credit = $policyPlan['credit'];
-        // $leavePolicyPlan->leave_limits = json_encode($policyPlan['leave_limits']);
-        // $leavePolicyPlan->can_avail_in = json_encode($policyPlan['can_avail_in']);
-        // $leavePolicyPlan->save();
-        // return $leavePolicyPlan->id;
+     
 
         $leavePolicyPlanData = [
             'mas_leave_policy_id' => $leavePolicyId,
@@ -219,7 +209,7 @@ class LeavePolicyController extends Controller
             'leave_year' => $policyPlan['leave_year'],
             'credit_frequency' => $policyPlan['credit_frequency'],
             'credit' => $policyPlan['credit'],
-            'leave_limits' => json_encode($policyPlan['leave_limits']),
+            'leave_limits' => isset($policyPlan['leave_limits']) ? json_encode($policyPlan['leave_limits']) : null,
             'can_avail_in' => json_encode($policyPlan['can_avail_in']),
         ];
         $leavePolicyPlan = LeavePolicyPlan::updateOrCreate(
