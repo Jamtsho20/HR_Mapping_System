@@ -85,7 +85,7 @@
                             <div class="form-group">
                                 <label for="attachment">Attachment</label>
                                 @if($advance->attachment)
-                                <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
                                 @else
                                 <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
                                 @endif
@@ -131,6 +131,7 @@
                                 <input type="text" class="form-control" id="amount" value="{{ number_format($advance->amount, 2) }}" readonly>
                             </div>
                         </div>
+
                     </div>
                     <div class="row">
                         <div class="col-md-4">
@@ -143,7 +144,7 @@
                             <div class="form-group">
                                 <label for="attachment">Attachment</label>
                                 @if($advance->attachment)
-                                <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
                                 @else
                                 <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
                                 @endif
@@ -164,13 +165,15 @@
                                 <input type="text" class="form-control" id="purpose" value="{{ $advance->purpose }}" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="attachment">Attachment</label>
-                            @if($advance->attachment)
-                            <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
-                            @else
-                            <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
-                            @endif
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="attachment">Attachment</label>
+                                @if($advance->attachment)
+                                <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                @else
+                                <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     @elseif($advance->advanceType->name === 'Gadget EMI')
@@ -228,7 +231,7 @@
                                     <div class="form-group">
                                         <label for="attachment">Attachment</label>
                                         @if($advance->attachment)
-                                        <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                        <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
                                         @else
                                         <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
                                         @endif
@@ -249,13 +252,15 @@
                                         <input type="text" class="form-control" id="purpose" value="{{ $advance->purpose }}" readonly>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="attachment">Attachment</label>
-                                    @if($advance->attachment)
-                                    <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
-                                    @else
-                                    <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
-                                    @endif
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="attachment">Attachment</label>
+                                        @if($advance->attachment)
+                                        <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                        @else
+                                        <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             @elseif($advance->advanceType->name === 'Gadget EMI')
@@ -292,7 +297,7 @@
                                         <div class="form-group">
                                             <label for="attachment">Attachment</label>
                                             @if($advance->attachment)
-                                            <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                            <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
                                             @else
                                             <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
                                             @endif
@@ -347,16 +352,17 @@
                                                 <div class="form-group">
                                                     <label for="attachment">Attachment</label>
                                                     @if($advance->attachment)
-                                                    <a href="{{ asset('storage/'.$advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+                                                    <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
                                                     @else
                                                     <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
                                                     @endif
                                                 </div>
                                             </div>
                                         </div>
-                                        @endif
-                                        @endif
                                     </div>
+                                    @endif
+                                    @endif
+                                </div>
 
             </form>
         </div>
