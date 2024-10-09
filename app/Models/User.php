@@ -176,7 +176,7 @@ class User extends Authenticatable
     }
 
     public function getStatusAttribute($value) {
-        return ucwords($value == 1 ? 'Completed':'Draft');
+        return ucwords($value == 1 ? 'Completed' : 'Draft');
     }
 
     public function getEmpIdNameAttribute(){
