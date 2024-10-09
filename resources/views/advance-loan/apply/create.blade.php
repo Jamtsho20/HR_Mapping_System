@@ -25,8 +25,8 @@
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="advance-loan-type">Advance/Loan Type <span class="text-danger">*</span></label>
-                        <select class="form-control" id="advance-loan-type" name="advance-loan-type">
+                        <label for="advance_loan_type">Advance/Loan Type <span class="text-danger">*</span></label>
+                        <select class="form-control" id="advance_loan_type" name="advance_loan_type">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($advanceTypes as $type)
                             <option value="{{ $type->id }}">{{ $type->name }}</option>
@@ -78,7 +78,7 @@
 @push('page_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    var advanceTypeSelect = document.getElementById('advance-loan-type');
+    var advanceTypeSelect = document.getElementById('advance_loan_type');
     var formSections = document.querySelectorAll('.dynamic-form');
 
     advanceTypeSelect.addEventListener('change', function() {

@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Advance;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Models\MasAdvanceTypes;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdvanceLoanApplyController extends Controller
 {
@@ -28,7 +29,7 @@ class AdvanceLoanApplyController extends Controller
     protected $rules = [
         'advance_no' => 'required|string|max:255',
         'date' => 'required|date',
-        'advance-loan-type' => 'required|in:1,2,3,4,5,6,7',
+        'advance_loan_type' => 'required|in:1,2,3,4,5,6,7',
         //'advance_type_id' => 'required|exists:mas_advance_types,id',
         'mode_of_travel' => 'nullable|in:1,2,3,4,5',
         'from_location' => 'nullable|string|max:255',
@@ -46,11 +47,17 @@ class AdvanceLoanApplyController extends Controller
         'item_type' => 'nullable|string|max:255',
         'mas_employee_id' => 'required|exists:mas_employees,id',
     ];
-
+    private $travelModes = [
+        1 => 'Bike',
+        2 => 'Bus',
+        3 => 'Car',
+        4 => 'Flight',
+        5 => 'Train'
+    ];
     protected $messages = [
         'advance_no.required' => 'The advance number field is required.',
         'date.required' => 'The date field is required.',
-        'advance-loan-type.required' => 'The advance type field is required.',
+        'advance_loan_type.required' => 'The advance type field is required.',
         'advance_type.in' => 'The selected advance type is invalid.',
         'mode_of_travel.in' => 'The selected mode of travel is invalid.',
         'from_date.date' => 'The from date must be a valid date.',
@@ -75,8 +82,9 @@ class AdvanceLoanApplyController extends Controller
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::all();
+        $interestRates = DB::table('interest_rates')->pluck('rate', 'advance_type_id');
 
-        return view('advance-loan.apply.create', compact('advanceTypes'));
+        return view('advance-loan.apply.create', compact('advanceTypes','interestRates'));
     }
 
     public function store(Request $request)
@@ -119,7 +127,7 @@ class AdvanceLoanApplyController extends Controller
         $advanceApplication->advance_no = $request->advance_no;
         //$advanceApplication->advance_type_id = $request->advance_type_id;
         $advanceApplication->date = $request->date;
-        $advanceApplication->advance_type = $request->input('advance-loan-type');
+        $advanceApplication->advance_type = $request->input('advance_loan_type');
         $advanceApplication->mas_employee_id = $request->mas_employee_id;
         $advanceApplication->mode_of_travel = $request->mode_of_travel ?? null;
         $advanceApplication->from_location = $request->from_location ?? null;
@@ -145,21 +153,14 @@ class AdvanceLoanApplyController extends Controller
         return redirect()->route('apply.index')->with('success', 'Advance application created successfully!');
     }
 
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id, Request $request)
     {
         $instance = $request->instance();
-
-        // Fetch the advance loan application details
         $advance = AdvanceApplication::with('advanceType')->findOrFail($id);
+        $advanceTypes = MasAdvanceTypes::all();
+        $advance->mode_of_travel_name = $this->travelModes[$advance->mode_of_travel] ?? 'Unknown';
 
-        return view('advance-loan.apply.show', compact('advance'));
+        return view('advance-loan.apply.show', compact('advance','advanceTypes'));
     }
 
 
