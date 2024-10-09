@@ -8,6 +8,7 @@ return [
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2','level 3'],
+    'level_with_all' => ['ALL','level 1', 'level 2', 'level 3'],
 
     'value' => [
         'Immediate Supervisor','Section Head','Department Head','Management','Human Resource','Finance Head'
@@ -16,6 +17,9 @@ return [
     'status' => [
         1 =>'active', 0=>'inactive'
     ],
+
+    'regular_emp_type_id' => 2,
+    'probational_emp_type_id' => 3,
 
     'leave_limits' => [
         1 => 'Include Public Holidays',
@@ -115,5 +119,7 @@ return [
     'salary_disbursement_mode' => [
         1 => 'Cash',
         2 => 'Saving Account'    
-    ]
+    ],
+
+    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.'
 ];

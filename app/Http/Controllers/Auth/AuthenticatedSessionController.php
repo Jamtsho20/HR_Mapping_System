@@ -45,4 +45,11 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+    public function loginAs($id)
+    {
+        Auth::loginUsingId($id, true);
+
+        return redirect('dashboard');
+    }
 }
