@@ -121,5 +121,12 @@ return [
         2 => 'Saving Account'    
     ],
 
-    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.'
+    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.',
+
+    'no_of_emi' => [
+        1 => 3,
+        2 => 6,
+        3 => 9,
+        4 => 12
+    ],
 ];
