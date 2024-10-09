@@ -10,13 +10,13 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="interest_rate">Interest Rate <span class="text-danger">*</span></label>
-                <input type="number" class="form-control"  name="interest_rate" id="interest_rate">
+                <input type="number" class="form-control"  name="interest_rate" id="interest_rate" step="0.01">
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="total_amount">Total Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="total_amount" id="total_amount">
+                <input type="number" class="form-control" name="total_amount" id="total_amount" readonly>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
         <div class="col-md-4">
             <div class="form-group"> 
                 <label for="monthly_emi_amount">Monthly EMI Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="monthly_emi_amount" id="monthly_emi_amount">
+                <input type="number" class="form-control" name="monthly_emi_amount" id="monthly_emi_amount" readonly>
             </div>
         </div>
         <div class="col-md-4">
@@ -68,26 +68,41 @@
         const amountInput = document.getElementById('amount');
         const interestRateInput = document.getElementById('interest_rate');
         const totalAmountInput = document.getElementById('total_amount');
+        const noOfEmiSelect = document.getElementById('no_of_emi');
+        const monthlyEmiAmountInput = document.getElementById('monthly_emi_amount');
 
         // Function to calculate the total amount
         function calculateTotalAmount() {
-            // Parse the values from the input fields
             const amount = parseFloat(amountInput.value) || 0; // Default to 0 if NaN
             const interestRate = parseFloat(interestRateInput.value) || 0; // Default to 0 if NaN
 
-
-            // Calculate the total amount
-            const totalAmount = (amount * interestRate) + amount;
+            // Calculate the total amount using the correct formula
+            const totalAmount = (amount * (interestRate / 100)) + amount; // Correctly applying the interest rate
 
             // Update the total amount input field's value
             totalAmountInput.value = totalAmount.toFixed(2); // Format to 2 decimal places
+
+            // Calculate monthly EMI when number of EMIs is selected
+            calculateMonthlyEmi(totalAmount);
+        }
+
+        // Function to calculate the monthly EMI
+        function calculateMonthlyEmi(totalAmount) {
+            const noOfEmi = parseInt(noOfEmiSelect.value);
+            if (!isNaN(noOfEmi) && noOfEmi > 0) {
+                const monthlyEmi = totalAmount / noOfEmi; // Calculate EMI
+                monthlyEmiAmountInput.value = monthlyEmi.toFixed(2); // Format to 2 decimal places
+            } else {
+                monthlyEmiAmountInput.value = ''; // Reset if no EMI is selected
+            }
         }
 
         // Add event listeners to amount and interest rate inputs
         amountInput.addEventListener('input', calculateTotalAmount);
         interestRateInput.addEventListener('input', calculateTotalAmount);
+        noOfEmiSelect.addEventListener('change', function() {
+            calculateMonthlyEmi(parseFloat(totalAmountInput.value) || 0);
+        });
     });
 </script>
-
-    
 @endpush

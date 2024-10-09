@@ -89,32 +89,32 @@ class AdvanceLoanApplyController extends Controller
 
     public function store(Request $request)
     {
-        //dd($request->all());
         // Validate the request using your defined rules and messages
         $this->validate($request, $this->rules, $this->messages);
-
-        // Create or fetch the existing advance application instance
+    
+        // Calculate total amount based on the entered values
+        $amount = $request->input('amount'); // e.g. 1000
+        $interestRate = $request->input('interest_rate'); // e.g. 12
+    
+        // Calculate total amount if amount and interest rate are provided
+        if ($amount && $interestRate) {
+            $totalAmount = $amount + ($amount * ($interestRate / 100));
+        } else {
+            $totalAmount = 0; // Default value if not provided
+        }
+    
+        // Create a new instance of AdvanceApplication
         $advanceApplication = new AdvanceApplication();
-        // Optionally fetch existing application if updating (logic can be added here)
-        $advanceApplication->advance_type = $request->input('advance_type_id');
+    
         // Initialize the attachment variable
         $attachment = "";
-
+    
         try {
             // Check if an attachment file was uploaded
             if ($request->hasFile('attachment')) {
-                // Delete existing attachment if it exists
-                if ($advanceApplication->attachment) {
-                    delete_image($advanceApplication->attachment); // Deletes the old attachment from storage
-                }
-
                 // Store the file and generate a unique filename
                 $file = $request->file('attachment');
-                // $attachment = $file->storeAs('attachment', time() . '_' . $file->getClientOriginalName(), 'public');
                 $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-            } elseif ($advanceApplication->attachment) {
-                // Retain the existing attachment if no new one is uploaded
-                $attachment = $advanceApplication->attachment;
             } else {
                 throw new \Exception('Please upload the attachment.');
             }
@@ -122,10 +122,9 @@ class AdvanceLoanApplyController extends Controller
             // If an error occurs, redirect back with the error message
             return back()->withInput()->with('msg_error', 'Failed to upload the attachment: ' . $e->getMessage());
         }
-
+    
         // Assign validated data to the model attributes
         $advanceApplication->advance_no = $request->advance_no;
-        //$advanceApplication->advance_type_id = $request->advance_type_id;
         $advanceApplication->date = $request->date;
         $advanceApplication->advance_type = $request->input('advance_loan_type');
         $advanceApplication->mas_employee_id = $request->mas_employee_id;
@@ -134,24 +133,30 @@ class AdvanceLoanApplyController extends Controller
         $advanceApplication->to_location = $request->to_location ?? null;
         $advanceApplication->from_date = $request->from_date ?? null;
         $advanceApplication->to_date = $request->to_date ?? null;
-        $advanceApplication->amount = $request->amount ?? null;
+        $advanceApplication->amount = $amount; // Use the calculated amount
         $advanceApplication->purpose = $request->purpose ?? null;
         $advanceApplication->attachment = $attachment; // Store attachment path
-        $advanceApplication->interest_rate = $request->interest_rate ?? null;
-        $advanceApplication->total_amount = $request->total_amount ?? null;
+        $advanceApplication->interest_rate = $interestRate; // Store interest rate
+        $advanceApplication->total_amount = $totalAmount; // Set the calculated total amount
         $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
-        $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
+    
+        // Calculate monthly EMI if no_of_emi is provided
+        if ($request->no_of_emi && $totalAmount > 0) {
+            $advanceApplication->monthly_emi_amount = $totalAmount / $request->no_of_emi;
+        }
+    
         $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
         $advanceApplication->item_type = $request->item_type ?? null;
         $advanceApplication->created_by = auth()->user()->id;
         $advanceApplication->updated_by = auth()->user()->id;
-
+    
         // Save the advance application record to the database
         $advanceApplication->save();
-
+    
         // Redirect to the advance loan index with a success message
         return redirect()->route('apply.index')->with('success', 'Advance application created successfully!');
     }
+    
 
     public function show($id, Request $request)
     {
