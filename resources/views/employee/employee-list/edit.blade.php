@@ -94,7 +94,7 @@
                         </div>
                         <div class="panel-body tabs-menu-body">
 
-                            <input type="hidden" name="status" id="is_complete" value="0">
+                            {{-- <input type="hidden" name="status" id="is_complete" value="0"> --}}
                             <input type="hidden" name="current_tab" id="current_tab" value="{{ request('tab') }}">
                             {{-- <input type="hidden" name="employee_id" id="employee_id" value="{{ $employeeId ?? '' }}">
                         --}}

@@ -67,7 +67,7 @@ return new class extends Migration
                         AND t1.status = 1
                         AND t1.is_information_only = 1
                         AND t3.mas_grade_step_id = grade_step_id
-                        AND (emp_type_id = 1 OR t3.mas_employment_type_id = emp_type_id)
+                        AND (t3.mas_employment_type_id = 1 OR t3.mas_employment_type_id = emp_type_id)
                         AND (t2.gender = 3 OR t2.gender = emp_gender)
                         AND t3.status = 1
                     LIMIT 1;
