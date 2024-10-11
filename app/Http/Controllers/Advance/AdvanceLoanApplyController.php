@@ -150,12 +150,16 @@ class AdvanceLoanApplyController extends Controller
         $advanceApplication->created_by = auth()->user()->id;
         $advanceApplication->updated_by = auth()->user()->id;
     
+        // Set the default status to '1' (New)
+        $advanceApplication->status = 1;
+    
         // Save the advance application record to the database
         $advanceApplication->save();
     
         // Redirect to the advance loan index with a success message
         return redirect()->route('apply.index')->with('success', 'Advance application created successfully!');
     }
+    
     
 
     public function show($id, Request $request)

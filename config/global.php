@@ -124,9 +124,9 @@ return [
     'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.',
 
     'no_of_emi' => [
-        1 => 3,
-        2 => 6,
-        3 => 9,
-        4 => 12
+        3 => 3,
+        6 => 6,
+        9 => 9,
+        12 => 12
     ],
 ];

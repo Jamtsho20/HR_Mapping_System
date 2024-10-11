@@ -30,6 +30,7 @@ return new class extends Migration
             $table->decimal("monthly_emi_amount", 12, 2)->nullable();
             $table->date('deduction_from_period')->nullable();
             $table->string('item_type')->nullable();
+            $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
             $table->foreignId('mas_employee_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId("created_by")->index()->constrained('mas_employees');
             $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
