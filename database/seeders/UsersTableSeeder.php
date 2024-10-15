@@ -35,5 +35,7 @@ class UsersTableSeeder extends Seeder
         $user->date_of_appointment = '2018-02-13';
         $user->cid_copy = 'aa/bb/c';
         $user->save();
+
+        
     }
 }

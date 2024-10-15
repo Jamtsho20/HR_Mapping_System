@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasExpenseType;
 use Illuminate\Http\Request;
 
-class ExpenseApplyController extends Controller
+class ExpenseApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.

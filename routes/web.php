@@ -93,7 +93,7 @@ Route::middleware('auth')->group(function () {
 
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {
-        Route::resource('apply-expense', 'ExpenseApplyController');
+        Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimController');
