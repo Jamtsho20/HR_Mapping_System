@@ -11,7 +11,7 @@ class MasOffice extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'name'
+        'name','mas_dzongkhag_id'
     ];
 
     
@@ -22,6 +22,10 @@ class MasOffice extends Model
         if ($request->has('name') && $request->query('name') != '')
         {
             $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
+        }
+        if ($request->has('dzongkhag') && $request->query('dzongkhag') != '')
+        {
+            $query->where('mas_dzongkhag_id', $request->query('dzongkhag'));
         }
     }
 

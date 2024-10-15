@@ -21,7 +21,8 @@ class OfficeController extends Controller
     {
         $privileges = $request->instance();
         $offices = MasOffice::with('dzongkhag')->filter($request)->paginate(10);
-        return view('masters.offices.index', compact('privileges', 'offices'));
+        $dzongkhags = MasDzongkhag::all();
+        return view('masters.offices.index', compact('privileges', 'offices','dzongkhags'));
     }
 
 

@@ -28,7 +28,7 @@
                                             <thead class="thead-light">
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Leave</th>
+                                                    <th>Name</th>
                                                     <th>Applicable To</th>
                                                     <th>Max days</th>
                                                     <th>Remarks</th>
