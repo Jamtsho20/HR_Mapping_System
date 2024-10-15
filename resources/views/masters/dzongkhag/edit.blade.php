@@ -16,7 +16,7 @@
             <button type="submit" class="btn btn-primary">
                 <i class="fa fa-check"></i>UPDATE
             </button>
-            <a href="{{ url('master/dzongkhag') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            <a href="{{ url('master/dzongkhags') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
 
         </div>
     </div>

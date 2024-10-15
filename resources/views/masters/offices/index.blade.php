@@ -9,7 +9,7 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="col-8 form-group">
-        <input type="text" name="payslabs" class="form-control" value="{{ request()->get('offices') }}" placeholder="Search">
+        <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Search">
     </div>
     @endcomponent
 

@@ -9,8 +9,21 @@ use Illuminate\Database\Eloquent\Model;
 class MasOffice extends Model
 {
     use HasFactory, CreatedByTrait;
+
+    protected $fillable = [
+        'name'
+    ];
+
     
     //relationship
+    
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('name') && $request->query('name') != '')
+        {
+            $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
+        }
+    }
 
     public function dzongkhag()
     {

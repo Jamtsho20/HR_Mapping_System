@@ -82,6 +82,8 @@ class AdvanceLoanApplyController extends Controller
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::all();
+        $currentDate = now();
+        
         $interestRates = DB::table('interest_rates')->pluck('rate', 'advance_type_id');
 
         return view('advance-loan.apply.create', compact('advanceTypes','interestRates'));

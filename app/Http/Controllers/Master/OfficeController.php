@@ -20,7 +20,7 @@ class OfficeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $offices = MasOffice::with('dzongkhag')->paginate(10);
+        $offices = MasOffice::with('dzongkhag')->filter($request)->paginate(10);
         return view('masters.offices.index', compact('privileges', 'offices'));
     }
 
