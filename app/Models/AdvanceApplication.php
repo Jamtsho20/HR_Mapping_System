@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class AdvanceApplication extends Model
 {
     use HasFactory,CreatedByTrait;
+    
     protected $fillable = [
         'advance_no',
         'date',
@@ -28,6 +29,7 @@ class AdvanceApplication extends Model
         'monthly_emi_amount',
         'deduction_from_period',
         'item_type',
+        'status',
         
     ];
     public function histories()

@@ -32,8 +32,9 @@
                 </select>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="form-group"> 
+            <div class="form-group">
                 <label for="monthly_emi_amount">Monthly EMI Amount <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" name="monthly_emi_amount" value="{{ old('monthly_emi_amount') }}" id="monthly_emi_amount" readonly required />
             </div>
@@ -62,31 +63,36 @@
 </div>
 @push('page_scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Get references to the input fields
-        const amountInput = document.getElementById('amount');
-        const interestRateInput = document.getElementById('interest_rate');
-        const totalAmountInput = document.getElementById('total_amount');
+    $(document).ready(function() {
 
-        // Function to calculate the total amount
-        function calculateTotalAmount() {
-            // Parse the values from the input fields
-            const amount = parseFloat(amountInput.value) || 0; // Default to 0 if NaN
-            const interestRate = parseFloat(interestRateInput.value) || 0; // Default to 0 if NaN
+        $('#amount-sifa').on('input', function() {
+            const amount = parseFloat($(this).val());
+            if (!isNaN(amount)) {
+                // Set up an event listener for the interest rate
+                $('#interest-rate-sifa').on('input', function() {
+                    const interestRate = parseFloat($(this).val());
 
+                    // Check if interestRate is a valid number
+                    if (!isNaN(interestRate)) {
+                        const totalAmount = amount + (amount * (interestRate / 100));
+                        $('#total-amount-sifa').val(totalAmount.toFixed(2));
+                        console.log('Total Amount:', totalAmount);
+                    }
+                });
+            }
+        });
 
-            // Calculate the total amount
-            const totalAmount = (amount * interestRate) + amount;
+        // Calculate Monthly EMI when No of EMI changes
+        $('#no-of-emi').on('change', function() {
+            const noOfMonths = $(this).val();
+            const totalAmount = $('#total-amount-sifa').val();
+            if (totalAmount && !isNaN(totalAmount) && !isNaN(noOfMonths)) {
+                const emiAmount = totalAmount / noOfMonths;
+                $('#monthly-emi-amount-sifa').val(emiAmount.toFixed(2));
+                console.log('No of EMI:', noOfMonths, 'Total Amount:', totalAmount, 'EMI Amount:', emiAmount);
+            }
+        });
 
-            // Update the total amount input field's value
-            totalAmountInput.value = totalAmount.toFixed(2); // Format to 2 decimal places
-        }
-
-        // Add event listeners to amount and interest rate inputs
-        amountInput.addEventListener('input', calculateTotalAmount);
-        interestRateInput.addEventListener('input', calculateTotalAmount);
     });
 </script>
-
-    
 @endpush

@@ -11,16 +11,27 @@ class MasEmploymentType extends Model
 {
     use HasFactory, CreatedByTrait;
 
+    protected $fillable = [
+        'employment_name'
+    ];
+
     //filters
+    // public function scopeFilter($query, $request)
+    // {
+    //     $routeName = Route::currentRouteName();
+    //     if ($request->has('employment_type') && $request->query('employment_type') != '') {
+    //         $query->where('name', 'LIKE', '%' . $request->query('employment_type') . '%');
+    //     }
+
+    //     if($routeName == 'employment-types.index') {
+    //         $query->where('id', '<>', 0);
+    //     }
+    // }m
     public function scopeFilter($query, $request)
     {
-        $routeName = Route::currentRouteName();
-        if ($request->has('employment_type') && $request->query('employment_type') != '') {
-            $query->where('name', 'LIKE', '%' . $request->query('employment_type') . '%');
-        }
-
-        if($routeName == 'employment-types.index') {
-            $query->where('id', '<>', 0);
+        // Filter by employment_name
+        if ($request->has('employment_name') && $request->query('employment_name') != '') {
+            $query->where('name', 'LIKE', '%' . $request->query('employment_name') . '%');
         }
     }
 }

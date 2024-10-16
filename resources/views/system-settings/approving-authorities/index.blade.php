@@ -60,9 +60,9 @@
                                                         <tr>
                                                             <td>{{ $approvingAuthorities->firstItem() + ($loop->iteration - 1) }}</td>
                                                             <td>{{ $authority->name }}</td>
-                                                            <td>{{ $authority->role ? $authority->role->name : 'Null' }}</td>
+                                                            <td class="text-center">{{ $authority->role ? $authority->role->name : config('global.null_value') }}</td>
                                                             <td>{{ $authority->description }}</td>
-                                                            <td>{{ $authority->has_employee_field ? 'Yes' : 'No' }}</td>
+                                                            <td class="text-center">{!! $authority->has_employee_field ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}</td>
                                                             <td>{{ $authority->status ? 'Active' : 'Inactive' }}</td>
                                                             <td class="text-center">
                                                                 @if ($privileges->edit)

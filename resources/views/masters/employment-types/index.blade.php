@@ -15,8 +15,8 @@
             <div class="block-header block-header-default">
                 @component('layouts.includes.filter')
                 <div class="col-8 form-group">
-                    <input type="text" name="employment-type" class="form-control"
-                        value="{{ request()->get('name') }}" placeholder="Search">
+                    <input type="text" name="employment_name" class="form-control"
+                        value="{{ request()->get('employment_name') }}" placeholder="Search">
                 </div>
                 @endcomponent
             </div>

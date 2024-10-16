@@ -135,6 +135,8 @@ class AdvanceLoanApplicationController extends Controller
 
         return redirect()->route('apply.index')->with('success', 'Advance application created successfully!');
     }
+    
+    
 
     public function show($id, Request $request)
     {
