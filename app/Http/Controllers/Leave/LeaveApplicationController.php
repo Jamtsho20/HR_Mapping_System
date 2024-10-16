@@ -34,6 +34,8 @@ class LeaveApplicationController extends Controller
     protected $messages = [
         
     ];
+
+    private $attachmentPath = 'images/leaves/';
     /**
      * Display a listing of the resource.
      *
@@ -266,10 +268,10 @@ class LeaveApplicationController extends Controller
         }
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path('images/leaves/' . $leaveApplication->attachment))) {
-                delete_image('images/leaves/' . $leaveApplication->attachment); // Delete old attachment
+            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
+                delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
             }
-            $attachment = uploadImageToDirectory($file, 'images/leaves/');
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
         }
 
         return [

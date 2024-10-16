@@ -186,7 +186,7 @@ class EmployeeController extends Controller
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back()->withInput()->with('msg_error', config('global.general_error_msg'));
+                return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
                 // return back()->withInput()->with('msg_error', $e->getMessage());
             }
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');

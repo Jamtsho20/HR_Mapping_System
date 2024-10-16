@@ -133,7 +133,7 @@ Route::middleware('auth')->group(function () {
     // ADVANCE/LOAN
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
-        Route::resource('apply', 'AdvanceLoanApplyController');
+        Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
 
@@ -231,4 +231,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getleavebalancebyleavetype/{id}', 'AjaxRequestController@getLeaveBalance');
     Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
     Route::get('getemployeebyapprovingauthority/{id}', 'AjaxRequestController@getEmployeeSelect');
+    Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
 });

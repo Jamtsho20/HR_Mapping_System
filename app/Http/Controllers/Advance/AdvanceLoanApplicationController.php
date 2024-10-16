@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class AdvanceLoanApplyController extends Controller
+class AdvanceLoanApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,12 +24,12 @@ class AdvanceLoanApplyController extends Controller
         $this->middleware('permission:advance-loan/apply,delete')->only('destroy');
     }
 
-    private $attachmentPath = 'images/attachments/';
+    private $attachmentPath = 'images/advance/';
 
     protected $rules = [
-        'advance_no' => 'required|string|max:255',
+        'advance_no' => 'required',
         'date' => 'required|date',
-        'advance_loan_type' => 'required|in:1,2,3,4,5,6,7',
+        'advance_type' => 'required',
         //'advance_type_id' => 'required|exists:mas_advance_types,id',
         'mode_of_travel' => 'nullable|in:1,2,3,4,5',
         'from_location' => 'nullable|string|max:255',
@@ -37,7 +37,7 @@ class AdvanceLoanApplyController extends Controller
         'from_date' => 'nullable|date',
         'to_date' => 'nullable|date|after_or_equal:from_date',
         'amount' => 'nullable|numeric|min:0',
-        'purpose' => 'nullable|string|max:150',
+        // 'remark' => 'nullable|string|max:150',
         'attachment' => 'nullable|mimes:jpg,png,pdf|max:2048',
         'interest_rate' => 'nullable|numeric|min:0',
         'total_amount' => 'nullable|numeric|min:0',
@@ -82,74 +82,57 @@ class AdvanceLoanApplyController extends Controller
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::all();
-        $interestRates = DB::table('interest_rates')->pluck('rate', 'advance_type_id');
 
-        return view('advance-loan.apply.create', compact('advanceTypes','interestRates'));
+        return view('advance-loan.apply.create', compact('advanceTypes'));
     }
 
     public function store(Request $request)
     {
-        //dd($request->all());
-        // Validate the request using your defined rules and messages
-        $this->validate($request, $this->rules, $this->messages);
-
-        // Create or fetch the existing advance application instance
         $advanceApplication = new AdvanceApplication();
-        // Optionally fetch existing application if updating (logic can be added here)
-        $advanceApplication->advance_type = $request->input('advance_type_id');
-        // Initialize the attachment variable
+        $this->validate($request, $this->rules, $this->messages);
         $attachment = "";
-
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        }
         try {
-            // Check if an attachment file was uploaded
-            if ($request->hasFile('attachment')) {
-                // Delete existing attachment if it exists
-                if ($advanceApplication->attachment) {
-                    delete_image($advanceApplication->attachment); // Deletes the old attachment from storage
-                }
+            DB::beginTransaction();
+            $advanceApplication->advance_no = $request->advance_no;
+            $advanceApplication->date = $request->date;
+            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->mode_of_travel = $request->mode_of_travel ?? null;
+            $advanceApplication->from_location = $request->from_location ?? null;
+            $advanceApplication->to_location = $request->to_location ?? null;
+            $advanceApplication->from_date = $request->from_date ?? null;
+            $advanceApplication->to_date = $request->to_date ?? null;
+            $advanceApplication->amount = $request->amount ?? null;
+            $advanceApplication->attachment = $attachment; // Store attachment path
+            $advanceApplication->interest_rate = $request->interest_rate ?? null;
+            $advanceApplication->total_amount = $request->total_amount ?? null;
+            $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
+            $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
+            $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
+            $advanceApplication->item_type = $request->item_type ?? null;
+            $advanceApplication->remark = $request->remark ?? null;
+            $advanceApplication->status = 1;
 
-                // Store the file and generate a unique filename
-                $file = $request->file('attachment');
-                // $attachment = $file->storeAs('attachment', time() . '_' . $file->getClientOriginalName(), 'public');
-                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-            } elseif ($advanceApplication->attachment) {
-                // Retain the existing attachment if no new one is uploaded
-                $attachment = $advanceApplication->attachment;
-            } else {
-                throw new \Exception('Please upload the attachment.');
-            }
+            $advanceApplication->save();
+
+            // Create a corresponding history record for advance
+            $advanceApplication->histories()->create([
+                'level' => 'Test Level',
+                'status' => 1,
+                'remarks' => $request->remark,
+                'created_by' => loggedInUser(),
+            ]);
+
+            DB::commit();
         } catch (\Exception $e) {
-            // If an error occurs, redirect back with the error message
-            return back()->withInput()->with('msg_error', 'Failed to upload the attachment: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        // Assign validated data to the model attributes
-        $advanceApplication->advance_no = $request->advance_no;
-        //$advanceApplication->advance_type_id = $request->advance_type_id;
-        $advanceApplication->date = $request->date;
-        $advanceApplication->advance_type = $request->input('advance_loan_type');
-        $advanceApplication->mas_employee_id = $request->mas_employee_id;
-        $advanceApplication->mode_of_travel = $request->mode_of_travel ?? null;
-        $advanceApplication->from_location = $request->from_location ?? null;
-        $advanceApplication->to_location = $request->to_location ?? null;
-        $advanceApplication->from_date = $request->from_date ?? null;
-        $advanceApplication->to_date = $request->to_date ?? null;
-        $advanceApplication->amount = $request->amount ?? null;
-        $advanceApplication->purpose = $request->purpose ?? null;
-        $advanceApplication->attachment = $attachment; // Store attachment path
-        $advanceApplication->interest_rate = $request->interest_rate ?? null;
-        $advanceApplication->total_amount = $request->total_amount ?? null;
-        $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
-        $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
-        $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
-        $advanceApplication->item_type = $request->item_type ?? null;
-        $advanceApplication->created_by = auth()->user()->id;
-        $advanceApplication->updated_by = auth()->user()->id;
-
-        // Save the advance application record to the database
-        $advanceApplication->save();
-
-        // Redirect to the advance loan index with a success message
         return redirect()->route('apply.index')->with('success', 'Advance application created successfully!');
     }
 

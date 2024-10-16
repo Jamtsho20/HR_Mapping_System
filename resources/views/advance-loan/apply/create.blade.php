@@ -19,17 +19,17 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="advance_no">Advance No <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="advance_no" id="advance_no" value="{{ old('advance_no') }}" placeholder="Generating..." >
+                        <input type="text" class="form-control" name="advance_no" value="{{ old('advance_no') }}" id="advance_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="advance_loan_type">Advance/Loan Type <span class="text-danger">*</span></label>
-                        <select class="form-control" id="advance_loan_type" name="advance_loan_type">
+                        <label for="advance_type">Advance/Loan Type <span class="text-danger">*</span></label>
+                        <select class="form-control" id="advance_type" name="advance_type">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($advanceTypes as $type)
-                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                <option value="{{ $type->id }}" {{ old('advance_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -38,7 +38,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" name="date" id="date" required>
+                        <input type="date" class="form-control" name="date" value="{{ old('date') }}" id="date" required>
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
 @push('page_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    var advanceTypeSelect = document.getElementById('advance_loan_type');
+    var advanceTypeSelect = document.getElementById('advance_type');
     var formSections = document.querySelectorAll('.dynamic-form');
 
     advanceTypeSelect.addEventListener('change', function() {
