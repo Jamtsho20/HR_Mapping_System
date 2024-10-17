@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\WorkStructure\HolidayListController;
+use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\EmployeeLeave;
+use App\Models\MasAdvanceTypes;
 use App\Models\MasEmployeeJob;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
@@ -14,6 +15,7 @@ use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasVillage;
+use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -147,9 +149,42 @@ class AjaxRequestController extends Controller
         return $totalDays;
     }
 
-    public function getEmployeeSelect($id){
-        $approvingAuthority = ApprovingAuthority::where('id', $id)->first();
-        $employeeSelect = '';
-        return $approvingAuthority;
+    public function getEmployeeSelect($id) {
+        $approvingAuthority = ApprovingAuthority::where('id', $id)->whereStatus(1)->first();
+        $employeeSelect = [];
+    
+        if ($approvingAuthority && $approvingAuthority->has_employee_field) {
+            $employeeSelect = User::whereHas('roles', function ($query) use ($approvingAuthority) {
+                $query->where('roles.id', $approvingAuthority->role_id);
+            })->get(['id', 'name', 'title', 'username']);
+        }
+    
+        return response()->json([
+            'has_employee_field' => $approvingAuthority->has_employee_field ?? false, 
+            'employees' => $employeeSelect
+        ]);
+    }
+
+    public function getAdvanceNumber($id) {
+        $sifaInterestRate = 0;
+        $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
+        //fetch today's latest transaction date
+        $latestTransaction = AdvanceApplication::whereDate('created_at', now()->toDateString())
+                            ->where('advance_type_id', $id)
+                            ->orderBy('id', 'desc')
+                            ->first();
+
+        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->transaction_number, -4) + 1 : 1;
+
+        $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
+
+        if($id == SIFA_LOAN){
+            $sifaInterestRate = SIFA_INTEREST_RATE;
+        }
+        
+        return response()->json([
+            'advance_no' => $advanceNo,
+            'sifa_interest_rate' => $sifaInterestRate
+        ]);
     }
 }

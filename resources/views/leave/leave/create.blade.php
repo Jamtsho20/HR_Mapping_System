@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Leave')
 @section('content')
-    <form action="{{ url('leave/leave-apply') }}" method="POST" enctype="multipart/form-data">
+    <form id="apply_leave" action="{{ url('leave/leave-apply') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="card">
             <div class="card-body">

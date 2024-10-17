@@ -1,6 +1,8 @@
 <?php
 return [
 
+    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.',
+
     'default_password' => 'password',
 
     'null_value' => '-',
@@ -121,12 +123,19 @@ return [
         2 => 'Saving Account'    
     ],
 
-    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.',
+    'travel_modes' => [
+        1 => 'Bike',
+        2 => 'Bus',
+        3 => 'Car',
+        4 => 'Flight',
+        5 => 'Train'
+    ],
 
     'no_of_emi' => [
-        3 => 3,
-        6 => 6,
-        9 => 9,
-        12 => 12
-    ],
+        3 => '3 Months',
+        6 => '6 Months',
+        9 => '9 Months',
+        12 => '12 Months',
+    ], 
+
 ];

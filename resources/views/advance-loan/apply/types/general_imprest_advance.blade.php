@@ -4,19 +4,19 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="amount">Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="amount">
+                <input type="number" class="form-control" name="amount" value="{{ old('amount') }}" required />
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
-                <label for="purpose">Purpose <span class="text-danger">*</span></label>
-                <input type="textarea" class="form-control" name="purpose">
+                <label for="purpose">Remark</label>
+                <textarea rows="2" class="form-control" name="remark">{{ old('remark') }}</textarea>
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="attachment">Attachment <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" name="attachment">
+                <input type="file" class="form-control" name="attachment" required />
             </div>
         </div>
     </div>
