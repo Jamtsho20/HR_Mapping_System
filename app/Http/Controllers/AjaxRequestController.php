@@ -168,16 +168,18 @@ class AjaxRequestController extends Controller
     public function getAdvanceNumber($id) {
         $sifaInterestRate = 0;
         $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
-        //fetch today's latest transaction date
-        $latestTransaction = AdvanceApplication::whereDate('created_at', now()->toDateString())
-                            ->where('advance_type_id', $id)
-                            ->orderBy('id', 'desc')
+
+        $latestTransaction = AdvanceApplication::where('advance_type_id', $id)
+                            ->latest('id') // Orders by id in descending order
                             ->first();
-
-        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->transaction_number, -4) + 1 : 1;
-
+       
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->advance_no, -4) + 1 : 1;
+        
+        // Generate the new advance number with the incremented sequence
         $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
 
+        // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
         if($id == SIFA_LOAN){
             $sifaInterestRate = SIFA_INTEREST_RATE;
         }

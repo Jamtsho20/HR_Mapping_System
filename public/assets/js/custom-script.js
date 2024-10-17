@@ -330,13 +330,27 @@ var hrms = function() {
                     success: function(response) {
                         $('#advance_no').val(response.advance_no) 
                         if(response.sifa_interest_rate != 0){
-                            $('#interest_rate').val(response.sifa_interest_rate);
+                            $('#interest_rate_sifa').val(response.sifa_interest_rate);
                         }
                     },
                     error: function(response) {
                         alert('Something went wrong, please contact system admin for further information!');
                     }
                 });
+                if(advanceTypeId == 4){ // external api from SOMs will be called here to get Item Types(name, code and amount)
+                    $.ajax({
+                        url: 'https://external-application.com/api/endpoint', // External API URL
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(response) {
+                            // Handle the response from the external API
+                            // $('#item_type').val(response.advance_no); // Example field for external response
+                        },
+                        error: function(response) {
+                            alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
+                        }
+                    });
+                }
             }
         })
         

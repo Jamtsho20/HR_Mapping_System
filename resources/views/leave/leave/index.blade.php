@@ -37,19 +37,6 @@
                         <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="dataTables_length" id="responsive-datatable_length"
-                                        data-select2-id="responsive-datatable_length">
-                                        <label data-select2-id="26">
-                                            Show
-                                            <select class="select2">
-                                                <option value="10">10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                                <option value="100">100</option>
-                                            </select>
-                                            entries
-                                        </label>
-                                    </div>
                                     <div class="dataTables_scroll">
                                         <div class="dataTables_scrollHead"
                                             style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -94,7 +81,11 @@
                                                             <td>{{ $leave->from_date }}</td>
                                                             <td>{{ $leave->to_date }}</td>
                                                             <td>{{ $leave->no_of_days }}</td>
-                                                            <td>{{ $leave->status_name }}</td>
+                                                            <td class="text-center">
+                                                                <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $leave->status == 1 ? 'primary' : ($leave->status == -1 ? 'danger' : ($leave->status == 2 ? 'success' : 'secondary')) }}">
+                                                                    {{ $leave->status_name }} <!-- Use the accessor here -->
+                                                                </span>
+                                                            </td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
                                                                     <a href="{{ url('leave/leave-apply/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
