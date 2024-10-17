@@ -41,13 +41,13 @@
           <div class="col-md-4">
               <div class="form-group">
                   <label for="travel_from">Travel From<span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="travel_from" required>
+                  <input type="text" class="form-control" name="travel_from" >
               </div>
           </div>
           <div class="col-md-4">
               <div class="form-group">
                   <label for="travel_to">Travel To<span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="travel_to" required>
+                  <input type="text" class="form-control" name="travel_to" >
               </div>
           </div>
       </div>
