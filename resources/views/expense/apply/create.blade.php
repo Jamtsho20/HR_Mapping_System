@@ -2,18 +2,21 @@
 @section('page-title', 'Create Expense')
 @section('content')
 
-<form action="{{ route('apply-expense.store') }}" method="POST">
+<form action="{{ route('apply-expense.store') }}" method="post"
+    enctype="multipart/form-data">
     @csrf
+
     <div class="card">
         <div class="card-body">
             <div class="row">
+                
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="expense-type">Expense Type <span class="text-danger">*</span></label>
-                        <select class="form-control" id="expense-type" name="expense_type" required>
+                        <select class="form-control" id="expense-type" name="mas_expense_type_id" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($expenses as $expense)
-                            <option value="{{ $expense->name }}">{{ $expense->name }}</option>
+                            <option value="{{ $expense->id }}">{{ $expense->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -53,7 +56,7 @@
 
         <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Create Expense</button>
-            <a href="{{ url('expense/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            <a href="{{ url('expense/apply-expense') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
 
     </div>
@@ -68,24 +71,10 @@
         var selection = $(this).val().toLowerCase();
         $(".expense-form").hide();
         switch (selection) {
-            case "conveyance":
+            case "1":
                 $("#conveyance-form").show();
                 break;
-                // case "general expense":
-                //     $("#general-expense-form").show();
-                //     break;
-                // case "internet expense":
-                //     $("#internet-expense-form").show();
-                //     break;
-                // case "parking fee":
-                //     $("#parking-fee-form").show();
-                //     break;
-                // case "telephone expense":
-                //     $("#telephone-expense-form").show();
-                //     break;
-                // case "toll expense":
-                //     $("#toll-expense-form").show();
-                //     break;
+
             default:
                 $(".expense-form").hide();
         }
