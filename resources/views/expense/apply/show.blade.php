@@ -1,153 +1,143 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Expense Details')
 @section('buttons')
-<a href="{{ url('expense/apply-expense/')}}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Employee
+<a href="{{ url('expense/apply-expense/')}}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Expense
     List</a>
 @endsection
 @section('content')
-@if ($canUpdate === 1)
-<div class="d-flex flex-row-reverse">
-    <a href="{{ url('expense/apply-expense/' . $expense->id . '/edit') }}"
-        class="col-sm-2 btn btn-outline-primary btn-block btn-sm "><b><i class="fa fa-edit"></i> Edit Record</b>
-    </a>
-</div>
-<br>
-@endif
+
 <div class="row">
     <!-- Personal Details -->
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">{{$employee->name }} ({{ $employee->username }})
-                    <span
-                        class="badge rounded-pill  bg-{{$employee->is_active == 1 ? 'primary' : 'danger' }} me-1 mt-1 ">{{$employee->is_active}}
-                </h3>
-            </div>
+
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-2  d-flex justify-content-center align-items-center ">
-                        <img src="{{$employee->profile_picture}}" class="rounded-circle" style="width: 130px;"
-                            alt="Profile" />
-                    </div>
-                    <div class="col-md-4">
-                        <ul class="list-group list-group-unbordered">
 
-                            <li class="list-group-item">
-                                <b>DOB</b> <a class="pull-right">{{ $employee->dob }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Contact No</b> <a class="pull-right">{{ $employee->contact_number }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Email Id</b> <a class="pull-right">{{ $employee->email }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>CID</b> <a class="pull-right">{{ $employee->cid_no }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Gender</b>
-                                <a class="pull-right">{{ $employee->gender_name }}</a>
-                            </li>
-                        </ul>
-                    </div>
                     <div class="col-md-6">
                         <ul class="list-group list-group-unbordered">
 
                             <li class="list-group-item">
-                                <b>Marital Status</b>
-                                <a class="pull-right">{{ $employee->marital_status_name }}</a>
+                                <b>Employee ID</b> <a class="pull-right">{{ $expense->employee->username }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>DOJ</b> <a class="pull-right">{{ $employee->date_of_appointment }}</a>
+                                <b>Expense Type</b> <a class="pull-right">{{ $expense->expenseType->name }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Nationality</b> <a class="pull-right">{{ $employee->nationality }}</a>
+                                <b>Date</b> <a class="pull-right">{{ $expense->date }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Birth Place</b> <a class="pull-right">{{ $employee->birth_place }}</a>
+                                <b>Expense Amount</b> <a class="pull-right">{{ $expense->expense_amount }}</a>
                             </li>
-                            <li class="list-group-item">
-                                <b>Birth Country</b> <a class="pull-right">{{ $employee->birth_country }}</a>
-                            </li>
+
                         </ul>
                     </div>
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-unbordered">
+                            <li class="list-group-item">
+                                <b>Description</b>
+                                <a class="pull-right">{{ $expense->description }}</a>
+                            </li>
+
+                            <li class="list-group-item">
+                                <b>File</b>
+                                <a href="{{ asset($expense->file) }}" class="btn-sm btn-primary pull-right"
+                                    target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                                    &nbsp; Attachement</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Status</b> <a class="pull-right"> @if($expense->status == 1)
+                                    <span class="badge bg-primary">Applied</span>
+                                    @elseif($expense->status == 2)
+                                    <span class="badge bg-summary">Approved</span>
+                                    @elseif($expense->status == 0)
+                                    <span class="badge bg-warning">Cancelled</span>
+                                    @elseif($expense->status == -1)
+                                    <span class="badge bg-danger">Rejected</span>
+                                    @else
+                                    <span class="badge bg-secondary">Unknown Status</span>
+                                    @endif</a>
+                            </li>
+
+                        </ul>
+                    </div>
+
+
                 </div>
-
-            </div>
-
-        </div>
-    </div>
-    <!-- Employee Job related -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Job Details</h3>
-            </div>
-            <div class="card-body ">
+                <!-- conveyance -->
+                <br>
+                @if($expense->mas_expense_type_id == 1)
                 <div class="row">
                     <div class="col-md-6">
                         <ul class="list-group list-group-unbordered">
+
                             <li class="list-group-item">
-                                <b>Department</b> <a
-                                    class="pull-right">{{ $employee->empJob->department->code_name }}</a>
+                                <b>Travel Type</b>
+                                <a class="pull-right">{{ $expense->travel_type}}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Section</b> <a class="pull-right">{{ $employee->empJob->section->name }}</a>
+                                <b>Travel Mode</b> <a class="pull-right">{{ $expense->travel_mode}}</a>
+
                             </li>
                             <li class="list-group-item">
-                                <b>Designation</b> <a class="pull-right">{{ $employee->empJob->designation->name }}</a>
+                                <b>Travel From Date</b>
+                                <a class="pull-right">{{ $expense->travel_from_date}}</a>
+
                             </li>
                             <li class="list-group-item">
-                                <b>Grade</b> <a class="pull-right">{{ $employee->empJob->grade->name }}</a>
+                                <b>Travel To Date</b>
+                                <a class="pull-right">{{ $expense->travel_to_date}}</a>
+
                             </li>
-                            <li class="list-group-item">
-                                <b>Grade Step</b> <a class="pull-right">{{ $employee->empJob->gradeStep->name }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Employment Type</b> <a class="pull-right">{{ $employee->empJob->empType->name }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Employee Group (s)</b> <a class="pull-right">{{ convert_array_to_string($employeeGroupNames, ', ') }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Supervisor</b>
-                                <a class="pull-right">{{ $employee->empJob->supervisor->emp_id_name ?? config('global.null_value') }}</a>
-                            </li>
+
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <li class="list-group-item">
-                            <b>Job Location</b>
-                            <a class="pull-right">{{ $employee->empJob->office->name }} ({{$employee->empJob->office->dzongkhag->dzongkhag}})</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Address</b> <a class="pull-right">{{ $employee->empJob->office->address }} </a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Basic Pay</b> <a class="pull-right">{{ $employee->empJob->basic_pay }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Salary Disbursement Mode</b> <a class="pull-right">{{ $employee->empJob->salary_disbursement_name }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }} ({{ $employee->empJob->account_number }})</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>PF Number</b> <a class="pull-right">{{ $employee->empJob->pf_number }}</a>
-                        </li>
-                        <li class="list-group-item">
-                            <b>TPN Number</b> <a class="pull-right">{{ $employee->empJob->tpn_number }}</a>
-                        </li>
+                        <ul class="list-group list-group-unbordered">
+
+
+                            <li class="list-group-item">
+                                <b>Travel From</b>
+                                <a class="pull-right">{{ $expense->travel_from}}</a>
+
+                            </li>
+                            <li class="list-group-item">
+                                <b>Travel To </b>
+                                <a class="pull-right">{{ $expense->to}}</a>
+
+                            </li>
+                            <li class="list-group-item">
+                                <b>Travel Distance </b>
+                                <a class="pull-right">{{ $expense->travel_distance}}</a>
+
+                            </li>
+
+                        </ul>
                     </div>
                 </div>
-
+                @endif
             </div>
+            <div class="card-footer">
+                <ul class="list-group list-group-unbordered">
+
+                    <li class="list-group-item">
+                        <b>Approved By</b>
+                        <a class="pull-right">{{ $expense->travel_type}}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Rejected By</b> <a class="pull-right">{{ $expense->travel_mode}}</a>
+
+                    </li>
+
+
+                </ul>
+            </div>
+
 
         </div>
     </div>
+    <!-- Expense Job related -->
+
 
     @endsection
     @push('page_scripts')
