@@ -30,42 +30,45 @@ class AdvanceLoanApplicationController extends Controller
         'advance_no' => 'required',
         'date' => 'required|date',
         'advance_type' => 'required',
-        //'advance_type_id' => 'required|exists:mas_advance_types,id',
-        'mode_of_travel' => 'nullable|in:1,2,3,4,5',
-        'from_location' => 'nullable|string|max:255',
-        'to_location' => 'nullable|string|max:255',
-        'from_date' => 'nullable|date',
-        'to_date' => 'nullable|date|after_or_equal:from_date',
-        'amount' => 'nullable|numeric|min:0',
-        // 'remark' => 'nullable|string|max:150',
-        'attachment' => 'nullable|mimes:jpg,png,pdf|max:2048',
-        'interest_rate' => 'nullable|numeric|min:0',
-        'total_amount' => 'nullable|numeric|min:0',
-        'no_of_emi' => 'nullable|in:1,2,3,4',
-        'monthly_emi_amount' => 'nullable|numeric|min:0',
-        'deduction_from_period' => 'nullable|date',
-        'item_type' => 'nullable|string|max:255',
-        'mas_employee_id' => 'required|exists:mas_employees,id',
+        'mode_of_travel' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE,
+        'from_location' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE,
+        'to_location' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE,
+        'from_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|date',
+        'to_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|date|after_or_equal:from_date',
+        'item_type' => 'required_if:advance_type,' . GADGET_EMI,
+        'amount' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE . 
+                    '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
+        'attachment' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE . 
+                        '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|mimes:jpg,png,pdf|max:2048',
+        'interest_rate' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
+        'total_amount' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
+        'no_of_emi' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN,
+        'monthly_emi_amount' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN,
+        'deduction_from_period' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|date_format:Y-m',
     ];
+
+    protected $messages = [
+        'mode_of_travel.required_if' => 'Mode of travel is required for the selected advance type.',
+        'from_location.required_if' => 'From location is required for the selected advance type.',
+        'to_location.required_if' => 'To location is required for the selected advance type.',
+        'from_date.required_if' => 'From date is required for the selected advance type.',
+        'to_date.required_if' => 'To date is required for the selected advance type and must be after or equal to the from date.',
+        'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
+        'amount.required_if' => 'Amount is required for the selected advance type.',
+        'attachment.required_if' => 'Attachment is required for the selected advance type and must be a valid file (jpg, png, pdf).',
+        'interest_rate.required_if' => 'Interest rate is required for the selected advance type.',
+        'total_amount.required_if' => 'Total amount is required for the selected advance type.',
+        'no_of_emi.required_if' => 'Number of EMIs is required for the selected advance type.',
+        'monthly_emi_amount.required_if' => 'Monthly EMI amount is required for the selected advance type.',
+        'deduction_from_period.required_if' => 'Deduction from period is required for the selected advance type and must be a valid date.',
+    ];
+
     private $travelModes = [
         1 => 'Bike',
         2 => 'Bus',
         3 => 'Car',
         4 => 'Flight',
         5 => 'Train'
-    ];
-    protected $messages = [
-        'advance_no.required' => 'The advance number field is required.',
-        'date.required' => 'The date field is required.',
-        'advance_loan_type.required' => 'The advance type field is required.',
-        'advance_type.in' => 'The selected advance type is invalid.',
-        'mode_of_travel.in' => 'The selected mode of travel is invalid.',
-        'from_date.date' => 'The from date must be a valid date.',
-        'to_date.after_or_equal' => 'The to date must be a date after or equal to the from date.',
-        'attachment.mimes' => 'The attachment must be a file of type: jpg, png, pdf.',
-        'attachment.max' => 'The attachment may not be greater than 2MB.',
-        'mas_employee_id.required' => 'The employee field is required.',
-        'mas_employee_id.exists' => 'The selected employee does not exist.',
     ];
 
     public function index(Request $request)
@@ -88,6 +91,7 @@ class AdvanceLoanApplicationController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $advanceApplication = new AdvanceApplication();
         $this->validate($request, $this->rules, $this->messages);
         $attachment = "";
@@ -107,7 +111,6 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->to_date = $request->to_date ?? null;
             $advanceApplication->amount = $request->amount ?? null;
             $advanceApplication->attachment = $attachment; // Store attachment path
-            $advanceApplication->interest_rate = $request->interest_rate ?? null;
             $advanceApplication->total_amount = $request->total_amount ?? null;
             $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
@@ -133,7 +136,7 @@ class AdvanceLoanApplicationController extends Controller
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect()->route('apply.index')->with('success', 'Advance application created successfully!');
+        return redirect()->route('apply.index')->with('msg_success', 'Advance application created successfully!');
     }
     
     

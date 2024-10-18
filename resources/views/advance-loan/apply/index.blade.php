@@ -43,16 +43,14 @@
                                                 <tr>
                                                     <td>{{ $advances->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $advance->advance_no }}</td>
-                                                    <td>{{ optional($advance->advanceType)->name ?? 'N/A' }}</td>
+                                                    <td>{{ $advance->advanceType->name }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}</td>
                                                     <td>{{ number_format($advance->amount, 2) }}</td>
                                                     <td class="text-center">
                                                         <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $advance->status == 1 ? 'primary' : ($advance->status == -1 ? 'danger' : ($advance->status == 2 ? 'success' : 'secondary')) }}">
-                                                            {{ $advance->status == 1 ? 'Applied' : ($advance->status == -1 ? 'Rejected' : ($advance->status == 2 ? 'Approved' : 'N/A')) }}
+                                                            {{ $advance->status_name }} <!-- Use the accessor here -->
                                                         </span>
                                                     </td>
-
-
                                                     <td class="text-center">
                                                         <a href="{{ url('advance-loan/apply/' . $advance->id) }}" class="fa fa-eye m-r-5"></a>
                                                     </td>
