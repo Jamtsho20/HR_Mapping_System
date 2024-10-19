@@ -128,9 +128,9 @@
                         </div>
                     </div>
                     <div class="card-footer float-end">
-                        <button type="button" onclick="saveTabData()" class="btn btn-secondary ">Save &
+                        <button type="button" onclick="saveTabData()" class="btn btn-secondary " id="save-button">Save &
                             Progress</button>
-                        <a href="{{route('employee-lists.index')}}" id="cancel" name="cancel"
+                        <a href=" {{route('employee-lists.index')}}" id="cancel" name="cancel"
                             class="btn btn-primary">Cancel</a>
                     </div>
                 </div>
@@ -147,7 +147,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tabs = document.querySelectorAll('.nav.panel-tabs a');
-        const button = document.querySelector('button[type="button"]');
+        // const button = document.querySelector('button[type="button"]');
+        const button = document.getElementById('save-button'); // Get button by ID
+
 
         tabs.forEach(tab => {
             tab.addEventListener('click', function(event) {
