@@ -16,7 +16,7 @@
                         <select class="form-control" id="expense-type" name="mas_expense_type_id" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($expenses as $expense)
-                            <option value="{{ $expense->id }}">{{ $expense->name }}</option>
+                                <option value="{{ $expense->id }}" {{ old('mas_expense_type_id') == $expense->id ? 'selected' : '' }}>{{ $expense->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -24,13 +24,13 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" name="date" required>
+                        <input type="date" class="form-control" name="date" value="{{ old('date') }}" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="expense_amount">Expense Amount <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="expense_amount" required>
+                        <input type="text" class="form-control" name="expense_amount" value="{{ old('expense_amount') }}" required>
                     </div>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="description">Description <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="description" required>
+                        <input type="text" class="form-control" name="description" value="{{ old('description') }}" required>
                     </div>
                 </div>
                 <div class="col-md-4">

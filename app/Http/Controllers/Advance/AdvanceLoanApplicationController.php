@@ -91,7 +91,6 @@ class AdvanceLoanApplicationController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $advanceApplication = new AdvanceApplication();
         $this->validate($request, $this->rules, $this->messages);
         $attachment = "";
