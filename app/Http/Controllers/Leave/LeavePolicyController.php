@@ -370,8 +370,6 @@ class LeavePolicyController extends Controller
                 }
             }
         }
-
-
     }
 
 }

@@ -1,4 +1,4 @@
-var tashicellHrms=function(){
+var tashicellHrms = function () {
 
     function randomKey() {
         var key = "";
@@ -9,58 +9,124 @@ var tashicellHrms=function(){
         }
         return key;
     };
+
+    // function addNewRow(tableId) {
+    //     var lastRow = $('#'+ tableId +' tr:not(.notremovefornew):last');
+    //     var row = lastRow.clone();
+    //     row.find('span.help-block').remove();
+    //     row.find('input,select').removeClass('error');
+    //     row.insertAfter(lastRow);
+
+    //     var key = randomKey();
+    //     row.find('td').each(function () {
+    //         var $this = $(this);
+    //         $this.find('.resetKeyForNew').each(function (index, item) {
+    //             var aa = $(item).attr('name');
+    //             if(aa) {
+    //                 var startIndexOfKey = aa.indexOf('[');
+    //                 var lastKey = aa.substring(startIndexOfKey+1);
+    //                 lastKey=lastKey.substring(0,lastKey.indexOf(']'));
+    //                 $(item).attr('name', aa.replace(lastKey,key));
+    //             }
+    //         });
+    //         var vClear = $this.find('input:not(.notclearfornew)');
+    //         if (vClear) vClear.val('');vClear.attr("placeholder","");
+    //         var vSelect = $this.find('select:not(.notclearfornew)');
+    //         if (vSelect) vSelect.val('');
+    //         var vCheck = $this.find('input[type="checkbox"]');
+    //         if (vCheck) vCheck.removeAttr('checked');
+    //         var vTextAreaClear = $this.find('textarea');
+    //         var vAClear = $this.find('a.url');
+    //         if (vAClear) vAClear.val('');vAClear.removeAttr("href");
+    //         if (vTextAreaClear) vTextAreaClear.val('');vTextAreaClear.attr("placeholder");
+    //         vCheck.parents('span').removeClass('checked');
+    //         $this.find('div.add-row-input-group-ddl').removeClass('show').addClass('hide');
+    //         $this.find('div.add-row-input-group-txt').removeClass('hide').addClass('show');
+    //     });
+    //     $('#' + tableId + ' tr:last td:first' + ' .rowIndex').attr("value", key);
+    //     return key;
+    // };
     
     function addNewRow(tableId) {
-        var lastRow = $('#'+ tableId +' tr:not(.notremovefornew):last');
+        var lastRow = $('#' + tableId + ' tr:not(.notremovefornew):last');
+
+        // Destroy select2 before cloning to avoid issues
+        lastRow.find('select.select2').select2('destroy');
+
         var row = lastRow.clone();
         row.find('span.help-block').remove();
-        row.find('input,select').removeClass('error');
+        row.find('input, select').removeClass('error');
         row.insertAfter(lastRow);
 
         var key = randomKey();
         row.find('td').each(function () {
             var $this = $(this);
+
+            // Update the name attributes for input/select fields
             $this.find('.resetKeyForNew').each(function (index, item) {
                 var aa = $(item).attr('name');
-                if(aa) {
+                if (aa) {
                     var startIndexOfKey = aa.indexOf('[');
-                    var lastKey = aa.substring(startIndexOfKey+1);
-                    lastKey=lastKey.substring(0,lastKey.indexOf(']'));
-                    $(item).attr('name', aa.replace(lastKey,key));
+                    var lastKey = aa.substring(startIndexOfKey + 1);
+                    lastKey = lastKey.substring(0, lastKey.indexOf(']'));
+                    $(item).attr('name', aa.replace(lastKey, key));
                 }
             });
+
+            // Clear input fields (excluding those marked with 'notclearfornew' class)
             var vClear = $this.find('input:not(.notclearfornew)');
-            if (vClear) vClear.val('');vClear.attr("placeholder","");
+            if (vClear) vClear.val('').attr("placeholder", "");
+
+            // Reset select fields (excluding those marked with 'notclearfornew' class)
             var vSelect = $this.find('select:not(.notclearfornew)');
             if (vSelect) vSelect.val('');
+
+            // Reset checkboxes
             var vCheck = $this.find('input[type="checkbox"]');
-            if (vCheck) vCheck.removeAttr('checked');
+            if (vCheck) vCheck.prop('checked', false);
+
+            // Clear textarea fields
             var vTextAreaClear = $this.find('textarea');
+            if (vTextAreaClear) vTextAreaClear.val('');
+
+            // Clear any anchor (link) tags
             var vAClear = $this.find('a.url');
-            if (vAClear) vAClear.val('');vAClear.removeAttr("href");
-            if (vTextAreaClear) vTextAreaClear.val('');vTextAreaClear.attr("placeholder");
+            if (vAClear) vAClear.val('').removeAttr("href");
+
+            // Reset span visuals for checkboxes
             vCheck.parents('span').removeClass('checked');
+
+            // Reset any custom dropdown/text input group visibility
             $this.find('div.add-row-input-group-ddl').removeClass('show').addClass('hide');
             $this.find('div.add-row-input-group-txt').removeClass('hide').addClass('show');
         });
-        $('#' + tableId + ' tr:last td:first' + ' .rowIndex').attr("value", key);
+
+        // Set a unique key for the row
+        $('#' + tableId + ' tr:last td:first .rowIndex').attr("value", key);
+
+        // Reinitialize select2 for both the previous and the newly added row
+        lastRow.find('select.select2').select2(); // Reinitialize for the previous row
+        row.find('select.select2').select2();     // Initialize for the cloned row
+
         return key;
-    };
-    function initialize(){
+    }
 
 
-        $(document).on('click','.add-table-row',function (e){
+    function initialize() {
+
+
+        $(document).on('click', '.add-table-row', function (e) {
             e.preventDefault();
-            var table=$(this).closest('table').attr('id');
+            var table = $(this).closest('table').attr('id');
             addNewRow(table);
         });
-        $(document).on('click','.delete-table-row',function(e){
+        $(document).on('click', '.delete-table-row', function (e) {
             e.preventDefault();
-            var thisrow=$(this);
-            var table=thisrow.closest('table').attr('id');
-            var rowCount = $('#'+table+' >tbody >tr').length;
-            for(i=0;i<=rowCount;i++){
-                if(rowCount==2){
+            var thisrow = $(this);
+            var table = thisrow.closest('table').attr('id');
+            var rowCount = $('#' + table + ' >tbody >tr').length;
+            for (i = 0; i <= rowCount; i++) {
+                if (rowCount == 2) {
                     $('#alertMessage').find('p.alert-message').html("You cannot delete all the rows.");
                     $('#alertMessage').modal('show');
                     return false;
@@ -69,7 +135,7 @@ var tashicellHrms=function(){
                 }
             }
         });
-        $('.formConfirm').on('click', function(e) {
+        $('.formConfirm').on('click', function (e) {
             e.preventDefault();
             var el = $(this).next();
             var title = el.attr('data-title');
@@ -77,23 +143,23 @@ var tashicellHrms=function(){
             var dataForm = el.attr('data-form');
 
             $('#formConfirm')
-            .find('#frm_body').html(msg)
-            .end().find('#frm_title').html(title)
-            .end().modal('show');
+                .find('#frm_body').html(msg)
+                .end().find('#frm_title').html(title)
+                .end().modal('show');
 
             $('#formConfirm').find('#frm_submit').attr('data-form', dataForm);
         });
 
-        $('#formConfirm').on('click', '#frm_submit', function(e) {
+        $('#formConfirm').on('click', '#frm_submit', function (e) {
             var id = $(this).attr('data-form');
             $(this).parent().find('div#post-loading-container').removeClass('hide');
             $(id).submit();
             $(this).attr('disabled', true);
         });
 
-        $(document).on('keyup', 'input[type="text"].numeric-only', function(){
-            if($(this).val() != ""){
-                if(isNaN($(this).val()) || $(this).val() < 0) {
+        $(document).on('keyup', 'input[type="text"].numeric-only', function () {
+            if ($(this).val() != "") {
+                if (isNaN($(this).val()) || $(this).val() < 0) {
                     $('#alertMessage').find('p.alert-message').html("Invalid input. Only numbers are accepted.");
                     $('#alertMessage').modal('show');
                     $(this).val(0);
@@ -102,12 +168,12 @@ var tashicellHrms=function(){
             }
         });
     }
-    return{
-        RandomKey:randomKey,
-        AddNewRow:addNewRow,
-        Initialize:initialize
+    return {
+        RandomKey: randomKey,
+        AddNewRow: addNewRow,
+        Initialize: initialize
     }
 }();
-$(document).ready(function(){
+$(document).ready(function () {
     tashicellHrms.Initialize();
 });
