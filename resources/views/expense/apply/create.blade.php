@@ -13,10 +13,10 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="expense-type">Expense Type <span class="text-danger">*</span></label>
-                        <select class="form-control" id="expense-type" name="mas_expense_type_id" required>
+                        <select class="form-control" id="expense-type" name="expense_type" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($expenses as $expense)
-                                <option value="{{ $expense->id }}" {{ old('mas_expense_type_id') == $expense->id ? 'selected' : '' }}>{{ $expense->name }}</option>
+                                <option value="{{ $expense->id }}" {{ old('expense_type') == $expense->id ? 'selected' : '' }}>{{ $expense->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -24,13 +24,13 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" name="date" value="{{ old('date') }}" required>
+                        <input type="date" class="form-control" name="date" value="{{ old('date', now()->format('Y-m-d')) }}" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="expense_amount">Expense Amount <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="expense_amount" value="{{ old('expense_amount') }}" required>
+                        <label for="amount">Amount <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" name="amount" value="{{ old('amount') }}" required>
                     </div>
                 </div>
             </div>
@@ -43,6 +43,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
+                    {{-- required depending upon policy rule --}}
                     <div class="form-group">
                         <label for="file">Upload File</label>
                         <input type="file" class="form-control form-control-sm" name="file">
