@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExpenseRateLimit extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'expense_rate_definition_id',
         'mas_grade_step_id',
@@ -16,6 +18,9 @@ class ExpenseRateLimit extends Model
         'end_date',       
         'status',
     ];
-    use HasFactory;
+
+    public function expenseRateDefinition(){
+        return $this->belongsTo(ExpenseRateDefinition::class, 'expense_rate_definition_id');
+    }
   
 }
