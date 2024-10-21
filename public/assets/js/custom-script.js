@@ -347,6 +347,7 @@ var hrms = function() {
                             // $('#item_type').val(response.advance_no); // Example field for external response
                         },
                         error: function(response) {
+                            console.log(response.error);
                             alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
                         }
                     });

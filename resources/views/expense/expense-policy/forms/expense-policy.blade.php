@@ -10,9 +10,9 @@
         <select class="form-control" id="expense_policy_name" name="expense_policy[mas_expense_type_id]">
             <option value="" disabled selected hidden>Select your option</option>
             @foreach($expenses as $expense)
-            <option value="{{ $expense->id }}" {{ old('expense_policy.mas_expense_type_id') == $expense->id ? 'selected' : '' }}>
-                {{ $expense->name }}
-            </option>
+                <option value="{{ $expense->id }}" {{ old('expense_policy.mas_expense_type_id') == $expense->id ? 'selected' : '' }}>
+                    {{ $expense->name }}
+                </option>
             @endforeach
         </select>
     </div>
@@ -60,8 +60,8 @@
     <div class="col-sm-4">
         <select class="form-control" id="" name="expense_policy[status]">
             <option value="" disabled selected hidden>Select your option</option>
-            <option value="0" {{old('expense_policy.status') == 0 ? 'selected' : '' }}>Draft</option>
-            <option value="1" {{old('expense_policy.status') == 1 ? 'selected' : '' }}>Enforce</option>
+            <option value="0" {{ old('expense_policy.status') == 0 ? 'selected' : '' }}>Draft</option>
+            <option value="1" {{ old('expense_policy.status') == 1 ? 'selected' : '' }}>Enforce</option>
         </select>
     </div>
 </div>

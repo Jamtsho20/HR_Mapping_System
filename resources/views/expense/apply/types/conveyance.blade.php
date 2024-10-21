@@ -6,7 +6,9 @@
                   <label for="travel_type">Travel Type<span class="text-danger">*</span></label>
                   <select class="form-control" id="travel_type" name="travel_type">
                       <option value="" disabled selected hidden>Select your option</option>
-                      <option value="domestic">Domestic</option>
+                      @foreach(config('global.travel_types') as $key => $label)
+                        <option value="{{ $key }}" {{ old('travel_type') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                      @endforeach
                   </select>
               </div>
           </div>
@@ -15,11 +17,9 @@
                   <label for="travel_mode">Travel Mode<span class="text-danger">*</span></label>
                   <select class="form-control" id="travel_mode" name="travel_mode">
                       <option value="" disabled selected hidden>Select your option</option>
-                      <option value="bike">Bike</option>
-                      <option value="car">Car</option>
-                      <option value="bus">Bus</option>
-                      <option value="train">Train</option>
-                      <option value="flight">Flight</option>
+                      @foreach(config('global.travel_modes') as $key => $label)
+                        <option value="{{ $key }}" {{ old('travel_mode') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                      @endforeach
                   </select>
               </div>
           </div>

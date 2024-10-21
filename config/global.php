@@ -131,11 +131,21 @@ return [
         5 => 'Train'
     ],
 
+    'travel_types' => [
+        1 => 'Domestic'
+    ],
+
     'no_of_emi' => [
         3 => '3 Months',
         6 => '6 Months',
         9 => '9 Months',
         12 => '12 Months',
     ], 
+
+    'rate_limits' => [
+        1 => 'Daily',
+        2 => 'Monthly',
+        3 => 'Yearly',
+    ]
 
 ];
