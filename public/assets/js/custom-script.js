@@ -359,12 +359,13 @@ var hrms = function() {
         $(document).ready(function() {
             // Function to populate leave balance based on leaveType
             function getExpenseDetails() {
-                var expenseType = $("#expense_type").val();
-                var formId = $("#apply_expense");
-                if (leaveType !== '') {
+                var expenseType = $("#expense-type").val();
+                var formId = $("#apply-expense");
+                var expenseAmount = $("#expense-amount").val();
+                if (expenseType !== '') {
                     // ajax call
                     $.ajax({
-                        url: "/getleavebalancebyleavetype/" + leaveType,
+                        url: "/getmaxexpenseamountbyexpensetype/" + expenseType,
                         dataType: "JSON",
                         type: "GET",
                         success: function(data) {

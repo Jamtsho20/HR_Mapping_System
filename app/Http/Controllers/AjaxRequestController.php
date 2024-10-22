@@ -74,15 +74,17 @@ class AjaxRequestController extends Controller
     }
 
     public function getNoOfDays(Request $request){
-        $loggedInUserId = auth()->user()->id; 
-        $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
-        $loggedInUserRegion = DB::select(
-                                        "select 
-                                            t3.mas_region_id as region_id
-                                        from mas_offices t1
-                                        left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
-                                        left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-                                        where t1.id = ?", [$loggedInUserOfficeId]);
+        // $loggedInUserId = auth()->user()->id; 
+        // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
+        // $loggedInUserRegion = DB::select(
+        //                                 "select 
+        //                                     t3.mas_region_id as region_id
+        //                                 from mas_offices t1
+        //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
+        //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
+        //                                 where t1.id = ?", [$loggedInUserOfficeId]);
+
+        $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
 
         $fromDate = Carbon::parse($request->fromDate);
         $toDate = Carbon::parse($request->toDate);
@@ -188,5 +190,9 @@ class AjaxRequestController extends Controller
             'advance_no' => $advanceNo,
             'sifa_interest_rate' => $sifaInterestRate
         ]);
+    }
+
+    public function getExpenseAmount($id) {
+        
     }
 }

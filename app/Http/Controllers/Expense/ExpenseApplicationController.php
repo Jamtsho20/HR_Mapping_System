@@ -29,11 +29,11 @@ class ExpenseApplicationController extends Controller
         'expense_type' => 'required',
         'date' => 'required|date',
         'amount' => 'required|numeric',
-        'description' => 'required|date',
+        'description' => 'required',
         'travel_type' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
         'mode_of_travel' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
         'travel_from_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_to_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE . '|date|after_or_equal:from_date',
+        'travel_to_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE . '|date|after_or_equal:travel_from_date',
         'travel_from' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
         'travel_to' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
     ];
@@ -91,7 +91,7 @@ class ExpenseApplicationController extends Controller
                 'mas_employee_id' => loggedInUser(),
                 'mas_expense_type_id' => $request->expense_type,
                 'date' => $request->date,
-                'expense_amount' => $request->expense_amount,
+                'expense_amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['attachment'],
                 'travel_type' => $request->travel_type,
@@ -211,21 +211,22 @@ class ExpenseApplicationController extends Controller
     { //common function to handle store and update of expense
         /// query to fetch employee grade step and region
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); 
+        // dd($empJobDetail);
+        $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
         //query to expense policy details
-        $expensePolicy = MasExpensePolicy::with(['rateDefinition.expenseRateLimits' => function($query) use($empJobDetail) {
-            // Filtering on expenseRateLimits for matching grade step and region
-            $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
-                  ->where('mas_region_id', $empJobDetail->mas_region_id)
-                  ->whereStatus(1);
-        }, 'policyEnforcement'])
-        ->whereHas('rateDefinition', function($query) use($request) {
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use ($request, $empJobDetail, $loggedInUserRegion) {
             // Filter rateDefinition by travel type
-            $query->where('travel_type', $request->travel_type);
-        })
+            $query->where('travel_type', $request->travel_type ?? DOMESTIC_TRAVEL_TYPE)
+                  ->with(['expenseRateLimits' => function($q) use($empJobDetail, $loggedInUserRegion) {
+                      // Filter expenseRateLimits by grade step and region
+                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
+                        ->whereStatus(1);
+                  }]);
+        }, 'policyEnforcement'])
         ->where('mas_expense_type_id', $request->expense_type)
         ->whereStatus(1)
         ->first();
-
         //check weather attachment is required while applying expense from expense policy                              
         $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
@@ -233,8 +234,8 @@ class ExpenseApplicationController extends Controller
         //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
-            $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
-            return back()->with('msg_error', 'You cannot apply more than Nu. ' . $limitAmount .  ' for' . $expenseType . ' from ' . $region->name . 'region.');
+            // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
+            return back()->withInput()->with('msg_error', 'You cannot apply more than Nu. ' . $limitAmount .  ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.');
         }
 
         // Handle file upload if required based on defined in leave policy
