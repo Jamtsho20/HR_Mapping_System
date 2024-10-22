@@ -285,6 +285,7 @@ class LeavePolicyController extends Controller
     // }
     private function saveLeavePolicyRule($policyRule, $leavePolicyPlanId, $isUpdate = false)
     {
+     
         if ($isUpdate) {
             // Handle single selection update
             foreach ($policyRule as $key => $rule) {
