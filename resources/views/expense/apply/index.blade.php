@@ -3,7 +3,7 @@
 @section('content')
 @if ($privileges->create)
 @section('buttons')
-<a href="{{ route('apply-expense.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
+<a href="{{ route('apply-expense.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Apply Expense</a>
 @endsection
 @endif
 <div class="block-header block-header-default">
