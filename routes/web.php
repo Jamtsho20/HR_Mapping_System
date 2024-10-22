@@ -232,4 +232,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
     Route::get('getemployeebyapprovingauthority/{id}', 'AjaxRequestController@getEmployeeSelect');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
+    Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
 });

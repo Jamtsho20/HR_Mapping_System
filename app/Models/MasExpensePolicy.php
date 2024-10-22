@@ -16,7 +16,7 @@ class MasExpensePolicy extends Model
     {
         return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
     }
-    public function RateDefinition()
+    public function rateDefinition()
     {
         return $this->hasOne(ExpenseRateDefinition::class, 'mas_expense_policy_id');
     }

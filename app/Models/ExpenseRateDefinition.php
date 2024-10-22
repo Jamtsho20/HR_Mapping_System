@@ -10,8 +10,8 @@ class ExpenseRateDefinition extends Model
     use HasFactory;
     protected $fillable = ['mas_expense_policy_id', 'attachment_required', 'travel_type', 'rate_currency', 'currency', 'rate_limit'];
 
-    public function ExpensePolicyRule()
+    public function expenseRateLimits()
     {
-        return $this->hasMany(ExpenseRateLimit::class);
+        return $this->hasMany(ExpenseRateLimit::class, 'expense_rate_definition_id');
     }
 }

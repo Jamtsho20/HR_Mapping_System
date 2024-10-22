@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\Controller;
 use App\Models\ExpenseApplication;
+use App\Models\MasEmployeeJob;
+use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +24,31 @@ class ExpenseApplicationController extends Controller
         $this->middleware('permission:expense/apply-expense,edit')->only('update');
         $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
     }
-    private $filePath = 'images/files/';
+
+    protected $rules = [
+        'expense_type' => 'required',
+        'date' => 'required|date',
+        'amount' => 'required|numeric',
+        'description' => 'required',
+        'travel_type' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
+        'mode_of_travel' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
+        'travel_from_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
+        'travel_to_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE . '|date|after_or_equal:travel_from_date',
+        'travel_from' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
+        'travel_to' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
+    ];
+
+    protected $messages = [
+        'travel_type.required_if' => 'Travel type is required for the selected expense type.',
+        'mode_of_travel.required_if' => 'Mode of travel is required for the selected expense type.',
+        'travel_from_date.required_if' => 'Travel from date is required for the selected expense type.',
+        'travel_to_date.required_if' => 'Travel to date is required for the selected expense type.',
+        'travel_to_date.date' => 'Travel to date must be equal or greater than travel from date for selected expense type.',
+        'travel_from.required_if' => 'Travel from is required for the selected expense type.',
+        'travel_to.required_if' => 'Travel to is required for the selected expense type.',
+    ];
+
+    private $attachmentPath = 'images/expenses/';
 
     public function index(Request $request)
     {
@@ -51,32 +77,25 @@ class ExpenseApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $result = $this->handleExpenseApplication($request);
+        // If $result is a RedirectResponse, return it immediately
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
 
-        // dd($request->all());
+        $this->validate($request, $this->rules, $this->messages);
         try {
-
-
             DB::beginTransaction();
-
-            if (isset($doc['file'])) {
-                // Remove old file if exists
-                if ($request->file) {
-                    delete_image($request->file);
-                }
-                $file = uploadImageToDirectory($doc['file'], $this->filePath);
-            } else {
-                $file = $request->file;
-            }
 
             $expenseApplication = ExpenseApplication::create([
                 'mas_employee_id' => loggedInUser(),
-                'mas_expense_type_id' => $request->mas_expense_type_id,
+                'mas_expense_type_id' => $request->expense_type,
                 'date' => $request->date,
-                'expense_amount' => $request->expense_amount,
+                'expense_amount' => $request->amount,
                 'description' => $request->description,
-                'file' => $file,
+                'file' => $result['attachment'],
                 'travel_type' => $request->travel_type,
-                'travel_mode' => $request->travel_mode,
+                'travel_mode' => $request->mode_of_travel,
                 'travel_from_date' => $request->travel_from_date,
                 'travel_to_date' => $request->travel_to_date,
                 'travel_from' => $request->travel_from,
@@ -85,17 +104,18 @@ class ExpenseApplicationController extends Controller
             ]);
 
             // Create a history record
-            // $leaveApplication->histories()->create([
-            //     'level' => 'Test Level',
-            //     'status' => 1,
-            //     'remarks' => $request->remarks,
-            //     'created_by' => loggedInUser(),
-            // ]);
+            $expenseApplication->histories()->create([
+                'level' => 'Test Level',
+                'status' => 1,
+                'remarks' => $request->remarks,
+                'created_by' => loggedInUser(),
+            ]);
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
+            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
         return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
@@ -133,7 +153,47 @@ class ExpenseApplicationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $expenseApplication = ExpenseApplication::findOrFail($id);
+        $result = $this->handleExpenseApplication($request, $expenseApplication);
+        // If $result is a RedirectResponse, return it immediately
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+
+        $this->validate($request, $this->rules, $this->messages);
+        try {
+            DB::beginTransaction();
+            $expenseApplication->update([
+
+                'mas_employee_id' => $expenseApplication->mas_employee_id,
+                'mas_leave_type_id' => $request->leave_type,
+                'from_day' => $request->from_day,
+                'to_day' => $request->to_day,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+                'no_of_days' => $request->no_of_days,
+                'remarks' => $request->remarks,
+                'attachment' => $result['attachment'],
+                'status' => $expenseApplication->status,
+            ]);
+    
+            // Create a history record
+            $expenseApplication->histories()->create([
+                'level' => 'Test Level',
+                'status' => $expenseApplication->status,
+                'remarks' => $request->remarks,
+                'created_by' => $expenseApplication->created_by,
+                'updated_by' => loggedInUser()
+            ]);
+    
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+        }
+
+        return redirect('leave/leave-apply')->with('msg_success', 'Expense application has been updated successfully!.');  
     }
 
     /**
@@ -145,5 +205,56 @@ class ExpenseApplicationController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function handleExpenseApplication(Request $request, $expenseApplication = null)
+    { //common function to handle store and update of expense
+        /// query to fetch employee grade step and region
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); 
+        // dd($empJobDetail);
+        $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
+        //query to expense policy details
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use ($request, $empJobDetail, $loggedInUserRegion) {
+            // Filter rateDefinition by travel type
+            $query->where('travel_type', $request->travel_type ?? DOMESTIC_TRAVEL_TYPE)
+                  ->with(['expenseRateLimits' => function($q) use($empJobDetail, $loggedInUserRegion) {
+                      // Filter expenseRateLimits by grade step and region
+                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
+                        ->whereStatus(1);
+                  }]);
+        }, 'policyEnforcement'])
+        ->where('mas_expense_type_id', $request->expense_type)
+        ->whereStatus(1)
+        ->first();
+        //check weather attachment is required while applying expense from expense policy                              
+        $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
+        $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
+            
+        //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
+        if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
+            $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
+            // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
+            return back()->withInput()->with('msg_error', 'You cannot apply more than Nu. ' . $limitAmount .  ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.');
+        }
+
+        // Handle file upload if required based on defined in leave policy
+        $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+        if ($attachmentRequired && !$attachment) {
+            $this->validate($request, [
+                'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
+            ]);
+        }
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+            }
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        }
+
+        return [
+            'attachment' => $attachment
+        ];   
     }
 }

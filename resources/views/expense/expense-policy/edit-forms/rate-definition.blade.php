@@ -72,7 +72,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($expensePolicy->rateDefinition->ExpensePolicyRule as $key => $rule)
+                        @foreach($expensePolicy->rateDefinition->expenserateLimits as $key => $rule)
                         <input type="hidden" name="rate_definition_rule[{{$key}}][expense_policy_plan_id]" class="form-control resetKeyForNew" value="{{$expensePolicy->rateDefinition->id}}">
                         <tr>
                             <td class="text-center">

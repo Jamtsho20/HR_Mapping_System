@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Expense Approval')
+@section('page-title', 'Advance Approval')
 @section('content')
 
 
