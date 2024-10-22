@@ -354,6 +354,50 @@ var hrms = function() {
                 }
             }
         })
+
+        //populate expense details based on selection of expense types for validation purpose
+        $(document).ready(function() {
+            // Function to populate leave balance based on leaveType
+            function getExpenseDetails() {
+                var expenseType = $("#expense_type").val();
+                var formId = $("#apply_expense");
+                if (leaveType !== '') {
+                    // ajax call
+                    $.ajax({
+                        url: "/getleavebalancebyleavetype/" + leaveType,
+                        dataType: "JSON",
+                        type: "GET",
+                        success: function(data) {
+                            $("#leave_balance").val(data.balance); // set the value for leave balance
+                            // Disable form fields if balance is 0
+                            if (data.balance == 0) {
+                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
+                                $("#leave_type").prop("disabled", false);
+                            } else {
+                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
+                            }
+                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                $("#attachment").attr("required", "required");
+                                $("#attachment_required").show();
+                            } else {
+                                $("#attachment").removeAttr("required");
+                                $("#attachment_required").hide();
+                            }
+                        }
+                    });
+                } else {
+                    $("#leave_balance").val('');
+                }
+            }
+        
+            // Trigger on page load (during edit)
+            getExpenseDetails();
+        
+            // Trigger on change of leave type
+            $(document).on("change", "#expense_type", function() {
+                getExpenseDetails();
+            });
+        });
         
         //END
 

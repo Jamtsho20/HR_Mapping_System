@@ -212,14 +212,16 @@ class ExpenseApplicationController extends Controller
         /// query to fetch employee grade step and region
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); 
         //query to expense policy details
-        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use($empJobDetail, $request) {
-            $query->where('travel_type', $request->travel_type)
-                  ->with('expenseRateLimits', function($q) use($empJobDetail) {
-                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
-                        ->where('mas_region_id', $empJobDetail->mas_region_id)
-                        ->whereStatus(1);
-                  });
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition.expenseRateLimits' => function($query) use($empJobDetail) {
+            // Filtering on expenseRateLimits for matching grade step and region
+            $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                  ->where('mas_region_id', $empJobDetail->mas_region_id)
+                  ->whereStatus(1);
         }, 'policyEnforcement'])
+        ->whereHas('rateDefinition', function($query) use($request) {
+            // Filter rateDefinition by travel type
+            $query->where('travel_type', $request->travel_type);
+        })
         ->where('mas_expense_type_id', $request->expense_type)
         ->whereStatus(1)
         ->first();
