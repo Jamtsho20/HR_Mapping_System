@@ -1,5 +1,5 @@
   <!-- Dynamic Form Sections -->
-  <div id="conveyance-form" class="expense-form" style="display: none; padding-left: 25px; padding-right: 15px;">
+  <div id="conveyance_expense_form" class="dynamic-form" style="display: none; padding-left: 25px; padding-right: 15px; ">
       <div class="row">
           <div class="col-md-4">
               <div class="form-group">

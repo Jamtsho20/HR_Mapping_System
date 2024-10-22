@@ -242,12 +242,12 @@ class LeaveApplicationController extends Controller
                 2 => 'months',
                 default => 'days',
             };
-            return back()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . 'in a row for' . $leaveType . '.');
+            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . 'in a row for' . $leaveType . '.');
         }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
             if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
-                return back()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
+                return back()->withInput()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
             }
         }
         // Check for max leave days commented for now
@@ -260,7 +260,7 @@ class LeaveApplicationController extends Controller
             $msg = $leaveBalance == 0
                 ? 'You do not have any available leave balance for ' .  $leaveType . '.'
                 : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-            return back()->with('msg_error', $msg);
+            return back()->withInput()->with('msg_error', $msg);
         }
 
         // Handle file upload if required based on defined in leave policy
