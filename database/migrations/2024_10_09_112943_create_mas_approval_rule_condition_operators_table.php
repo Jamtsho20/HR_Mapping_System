@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_hierarchies', function (Blueprint $table) {
+        Schema::create('mas_approval_rule_condition_operators', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
-            $table->timestamps();
+            $table->string('value');
+
+            $table->timestamp('created_at')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->nullable()->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('system_hierarchies');
+        Schema::dropIfExists('mas_approval_rule_condition_operators');
     }
 };

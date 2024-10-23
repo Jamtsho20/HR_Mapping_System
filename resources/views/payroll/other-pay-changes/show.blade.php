@@ -194,6 +194,7 @@
                     },
                     success: function(data) {
                         $('#new_basic_pay').val(data.new_basic_pay);
+                        $('#no_of_increments').attr('max', data.point);
                     },
                     error: function(error) {
                         console.error('Error calculating new basic pay:', error);

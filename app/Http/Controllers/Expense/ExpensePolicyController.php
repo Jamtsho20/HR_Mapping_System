@@ -78,7 +78,7 @@ class ExpensePolicyController extends Controller
         $canUpdate = (int) $instance->edit;
         $expenses = MasExpenseType::get();
         $gradeSteps = MasGradeStep::get(['id', 'name']);
-       
+
 
         $expensePolicy = MasExpensePolicy::findOrFail($id);
 
@@ -97,15 +97,15 @@ class ExpensePolicyController extends Controller
 
         $expenses = MasExpenseType::get();
         $gradeSteps = MasGradeStep::get(['id', 'name']);
-        $regions=MasRegion::get();
+        $regions = MasRegion::get();
 
-        return view('expense.expense-policy.edit', compact('expensePolicy', 'expenses', 'gradeSteps','regions'));
+        return view('expense.expense-policy.edit', compact('expensePolicy', 'expenses', 'gradeSteps', 'regions'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         DB::beginTransaction();
 
@@ -176,6 +176,7 @@ class ExpensePolicyController extends Controller
     }
     private function saveExpensePolicyRule($policyRule, $rateDefinitionId, $isUpdate = false)
     {
+
         if ($isUpdate) {
             // Handle single selection update
             foreach ($policyRule as $key => $rule) {
