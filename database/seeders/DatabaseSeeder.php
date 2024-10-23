@@ -50,5 +50,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MasEmploymentTypesSeeder::class);
         $this->call(AdvanceTypesSeeder::class);
         $this->call(MasApprovalHeadSeeder::class);
+        $this->call(MasApprovalRuleConditionOperatorSeeder::class);
     }
 }

@@ -141,10 +141,11 @@ class OtherPayChangeController extends Controller
         $increment = $gradeStepNew->increment;
         $basePay = $gradeStepNew->starting_salary;
         $endingPay = $gradeStepNew->ending_salary;
+        $point = $gradeStepNew->point;
 
         $newBasicPay = $this->calculateNewBasicPayValue($employee->basic_pay, $increment, $noOfIncrements, $basePay, $endingPay);
 
-        return response()->json(['new_basic_pay' => $newBasicPay]);
+        return response()->json(['new_basic_pay' => $newBasicPay, 'point' => $point]);
     }
 
     protected function calculateNewBasicPayValue($oldBasicPay, $increment, $multiplier, $basePay, $endingPay)

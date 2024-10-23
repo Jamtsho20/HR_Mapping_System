@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class HierarchyController extends Controller
 {
     private $rules = [
-        'hierarchy_name' => 'required',
+        'name' => 'required',
         'hierarchies.*.level' => 'required'
     ];
 
@@ -50,14 +50,14 @@ class HierarchyController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    { 
+    {
 
         $this->validate($request, $this->rules, $this->messages);
 
         DB::transaction(function () use ($request) {
 
             $hierarchy = new SystemHierarchy();
-            $hierarchy->hierarchy_name = $request->hierarchy_name;
+            $hierarchy->name = $request->name;
             $hierarchy->save();
 
             $level = [];
@@ -107,7 +107,7 @@ class HierarchyController extends Controller
 
         DB::transaction(function () use ($request, $id) {
             $hierarchy = SystemHierarchy::findOrFail($id);
-            $hierarchy->hierarchy_name = $request->hierarchy_name;
+            $hierarchy->name = $request->name;
             $hierarchy->save();
 
             $hierarchy->hierarchyLevels()->delete();

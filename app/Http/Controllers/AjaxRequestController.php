@@ -2,68 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\WorkStructure\HolidayListController;
 use App\Models\ApprovingAuthority;
 use App\Models\EmployeeLeave;
+use App\Models\MasAdvanceTypes;
+use App\Models\MasApprovalHeadTypes;
+use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
+use App\Models\MasExpenseType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
+use App\Models\MasLeaveType;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasVillage;
+use App\Models\SystemHierarchyLevel;
+use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AjaxRequestController extends Controller
-{ 
+{
     /* write code related to ajax request */
 
-    public function getGewog($id){
+    public function getGewog($id)
+    {
         $gewogs = MasGewog::where('mas_dzongkhag_id', $id)->get();
         return $gewogs;
     }
 
-    public function getVillage($id){
+    public function getVillage($id)
+    {
         $villages = MasVillage::where('mas_gewog_id', $id)->get(['id', 'village']);
         return $villages;
     }
 
-    public function getSection($id){
+    public function getSection($id)
+    {
         $sections = MasSection::where('mas_department_id', $id)->get(['id', 'name']);
         return $sections;
     }
 
-    public function getGradeStep($id){
+    public function getGradeStep($id)
+    {
         $gradeSteps = MasGradeStep::where('mas_grade_id', $id)->get(['id', 'name', 'starting_salary', 'point']);
         return $gradeSteps;
     }
 
-    public function getPaySlabDetail($id){
+    public function getPaySlabDetail($id)
+    {
         $paySlabDetail = MasPaySlabDetails::findOrFail($id);
         return $paySlabDetail;
     }
-    
-    public function getPayGroupDetail($id){
+
+    public function getPayGroupDetail($id)
+    {
         $payGroupDetail = MasPayGroupDetail::findOrFail($id);
         return $payGroupDetail;
     }
 
-    public function getRegionLocation($id){
+    public function getRegionLocation($id)
+    {
         $regionLocation = MasRegionLocation::findOrFail($id);
         return $regionLocation;
     }
-    
-    public function getPayScale($id){
+
+    public function getPayScale($id)
+    {
         $payScale = MasGradeStep::where('id', $id)->get(['starting_salary', 'increment', 'ending_salary']);
         return $payScale;
     }
 
-    public function getLeaveBalance($id){
+    public function getLeaveBalance($id)
+    {
         $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
         $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
@@ -71,11 +86,12 @@ class AjaxRequestController extends Controller
         return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
     }
 
-    public function getNoOfDays(Request $request){
-        $loggedInUserId = auth()->user()->id; 
+    public function getNoOfDays(Request $request)
+    {
+        $loggedInUserId = auth()->user()->id;
         $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
         $loggedInUserRegion = DB::select(
-                                        "select 
+            "select
                                             t3.mas_region_id as region_id
                                         from mas_offices t1
                                         left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
@@ -88,7 +104,7 @@ class AjaxRequestController extends Controller
         $fromDay = (int) $request->fromDay;
         $toDay = (int) $request->toDay;
         // dd(gettype($fromDay));
-        $holidays = WorkHolidayList::whereJsonContains('region_id', (string)$loggedInUserRegion[0]->region_id)->get();
+        $holidays = WorkHolidayList::whereJsonContains('region_id', (string) $loggedInUserRegion[0]->region_id)->get();
         $holidayDates = [];
         $totalDays = 0;
         // Create an array of all holiday dates
@@ -103,13 +119,13 @@ class AjaxRequestController extends Controller
 
         for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
             // Skip if the day is a holiday
-            
+
             if (in_array($date->format('Y-m-d'), $holidayDates)) {
                 continue;
             }
             // If it's Saturday, count as half day
             if ($date->isSaturday()) {
-                $totalDays += 0.5;  
+                $totalDays += 0.5;
                 continue;
             }
             // If it's Sunday, skip the day
@@ -126,7 +142,7 @@ class AjaxRequestController extends Controller
                     // If the leave starts from the second half, we should skip this day and start the next day as full.
                     $totalDays += 0.5; // Second half (afternoon)
                 }
-            } 
+            }
             // Handle the last day (toDate)
             elseif ($date->eq($toDate)) {
                 if ($toDay == 1) {
@@ -137,7 +153,7 @@ class AjaxRequestController extends Controller
                 } elseif ($toDay == 3) {
                     $totalDays += 0.5; // Second half (afternoon)
                 }
-            } 
+            }
             // Handle normal weekdays in between fromDate and toDate
             else {
                 $totalDays += 1;
@@ -147,9 +163,53 @@ class AjaxRequestController extends Controller
         return $totalDays;
     }
 
-    public function getEmployeeSelect($id){
+    public function getEmployeeSelect($id)
+    {
         $approvingAuthority = ApprovingAuthority::where('id', $id)->first();
         $employeeSelect = '';
         return $approvingAuthority;
+    }
+
+    public function getApprovalHeadTypes($id)
+    {
+        $modelMap = [
+            1 => MasLeaveType::class,
+            2 => MasExpenseType::class,
+            3 => MasAdvanceTypes::class,
+            4 => MasApprovalHeadTypes::class,
+            5 => MasAdvanceTypes::class,
+        ];
+
+        if (isset($modelMap[$id])) {
+            return $modelMap[$id]::select('id', 'name')->get();
+        }
+
+        return null;
+    }
+
+    public function getApprovalRuleConditionFields($id)
+    {
+        $fields = MasConditionField::whereMasApprovalHeadId($id)->select('id', 'name', 'label', 'has_employee_field')->get();
+
+        return $fields;
+    }
+
+    public function getApprovalRuleConditionField($id)
+    {
+        $field = MasConditionField::whereId($id)->select('id', 'has_employee_field')->first();
+
+        return $field;
+    }
+
+    public function getEmployees() {
+        $employees = User::select('id', 'name', 'employee_id')->get();
+
+        return $employees;
+    }
+
+    public function getSystemHierarchyLevels($id) {
+        $levels = SystemHierarchyLevel::whereSystemHierarchyId($id)->select('id', 'level')->get();
+
+        return $levels;
     }
 }
