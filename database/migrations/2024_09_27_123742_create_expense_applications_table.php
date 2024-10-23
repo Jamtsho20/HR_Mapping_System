@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expense_apply', function (Blueprint $table) {
+        Schema::create('expense_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_expense_type_id')->index()->constrained();
+      
+            $table->foreignId('mas_employee_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('mas_expense_type_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->date('date');
             $table->string('travel_type')->nullable();
             $table->string('travel_mode')->nullable();
@@ -25,6 +27,7 @@ return new class extends Migration
             $table->integer('expense_amount')->nullable();
             $table->string('description')->nullable();
             $table->string('file')->nullable();    
+            $table->string('status')->nullable();    
             $table->timestamps();
         });
     }

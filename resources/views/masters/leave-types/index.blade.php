@@ -14,7 +14,7 @@
                     <div class="block-header block-header-default">
                         @component('layouts.includes.filter')
                             <div class="col-8 form-group">
-                                <input type="text" name="expense" class="form-control" value="{{ request()->get('expense') }}" placeholder="Search">
+                                <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}" placeholder="Search">
                             </div>
                         @endcomponent
                     </div>
@@ -28,7 +28,7 @@
                                             <thead class="thead-light">
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Leave</th>
+                                                    <th>Name</th>
                                                     <th>Applicable To</th>
                                                     <th>Max days</th>
                                                     <th>Remarks</th>

@@ -179,11 +179,15 @@ class EmployeeController extends Controller
                 DB::beginTransaction();
                 
                 $this->assignRoles($request->documents, $id, $request);
+                // $applicationStatus = User::where('id', $id)->value('status');
+                // if($applicationStatus === 'Draft'){
                 DB::table('mas_employees')->where('id', $id)->whereStatus(0)->update(['status' => 1]);
+                // }
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back()->withInput()->with('msg_error', $e->getMessage());
+                return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+                // return back()->withInput()->with('msg_error', $e->getMessage());
             }
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');
         }
@@ -257,7 +261,6 @@ class EmployeeController extends Controller
             throw new \Exception('Please upload the employee CID copy.');
         }
 
-
         // Prepare the data to be saved
         $userData = [
             'first_name' => $personalInfo['first_name'] ?? null,
@@ -281,14 +284,14 @@ class EmployeeController extends Controller
             'is_active' => $personalInfo['is_active'],
             'profile_pic' => $profilePic,
             'cid_copy' => $empCidCopy,
-            'status' => $request->status,
+            'status' => $request->status ??($user->status == 'Completed' ? 1 : 0),
         ];
         // Update or create the user
         $user = User::updateOrCreate(
             ['id' => $employeeId], // Conditions to find the user
             $userData // Data to update or create
         );
-
+        
         return $user->id;
     }
 
@@ -401,7 +404,7 @@ class EmployeeController extends Controller
         $qualificationIdsInRequest = []; // Track IDs from the request
 
         foreach ($qualifications as $key => $value) {
-            $qualificationId = $value['mas_qualification_id'];
+            $qualificationId = $value['mas_qualification_id'] ?? null;
             $qualificationIdsInRequest[] = $qualificationId;
 
             // Use updateOrCreate to either update the existing record or create a new one

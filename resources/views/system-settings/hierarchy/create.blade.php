@@ -22,8 +22,8 @@
                                 <tr>
                                     <th width="3%" class="text-center">#</th>
                                     <th>Level *</th>
-                                    <th>Value</th>
                                     <th>Approver</th>
+                                    <th>Employee</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
@@ -36,7 +36,7 @@
                                         <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][level]">
+                                        <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][level]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.level') as $type)
                                                 <option value="{{ $type }}">{{ $type }}</option>
@@ -44,7 +44,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select id="approving_authority" class="form-control" name="hierarchies[AAAAA][approving_authority]">
+                                        <select class="form-control form-control-sm approving-authority-select resetKeyForNew" name="hierarchies[AAAAA][approving_authority]">
                                             <option value="" disabled selected hidden>Select</option>
                                             @foreach ($approvingAuthorities as $authority)
                                                 <option value="{{ $authority->id }}">{{ $authority->name }}</option>
@@ -52,8 +52,8 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select id="employee_select" class="form-control" name="hierarchies[AAAAA][employee]">
-                                            <option value="" disabled selected hidden>Select</option>
+                                        <select class="form-control form-control-sm employee-select resetKeyForNew" name="hierarchies[AAAAA][employee]">
+                                            <option value="" disabled selected hidden>Select Employee</option>
                                         </select>
                                     </td>
                                     <td>
@@ -63,7 +63,7 @@
                                         <input type="date" name="hierarchies[AAAAA][end_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA][status]">
+                                        <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][status]">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.status') as $key => $type)
                                                 <option value="{{ $key}}">{{ $type }}</option>
@@ -82,33 +82,43 @@
                                         <select name="hierarchies[AAAAA{{ $key }}][level]" class="form-control form-control-sm resetKeyForNew">
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.level') as $type)
-                                                <option value="{{ $type }}" {{ old('level', $value['level']) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                                <option value="{{ $type }}" {{ old('hierarchies[AAAAA'.$key.'][level]', $value['level'] ?? '') == $type ? 'selected' : '' }}>
+                                                    {{ $type }}
+                                                </option>
                                             @endforeach
                                         </select>
-
-                                    </td>
+                                    </td>                                    
                                     <td>
-                                        <select class="form-control" name="hierarchies[AAAAA{{ $key }}][approving_authority_id]">
+                                        <select class="form-control form-control-sm approving-authority-select" name="hierarchies[AAAAA{{ $key }}][approving_authority]">
                                             <option value="" disabled selected hidden>Select</option>
                                             @foreach ($approvingAuthorities as $authority)
-                                                <option value="{{$authority->id}}" {{ old('approving_authority_id', $value[$authority->id]) == $authority->id ? 'selected' : '' }}>{{ $authority->name }}</option>
+                                                <option value="{{$authority->id}}" {{ old('approving_authority', $value['approving_authority'] ?? '') == $authority->id ? 'selected' : '' }}>{{ $authority->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="date" name="hierarchies[AAAAA{{$key}}][start_date]" class="form-control form-control-sm resetKeyForNew">
+                                        <select class="form-control form-control-sm employee-select" name="hierarchies[AAAAA{{ $key }}][employee]">
+                                            <option value="" disabled selected hidden>Select Employee</option>
+                                            @foreach ($employees as $employee)
+                                                <option value="{{ $employee->id }}" {{ old('hierarchies[AAAAA'.$key.'][employee]', $value['employee'] ?? '') == $employee->id ? 'selected' : '' }}>
+                                                    {{ $employee->emp_id_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>                                    
+                                    <td>
+                                        <input type="date" name="hierarchies[AAAAA{{ $key }}][start_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
-                                        <input type="date" name="hierarchies[AAAAA{{$key}}][end_date]" class="form-control form-control-sm resetKeyForNew">
+                                        <input type="date" name="hierarchies[AAAAA{{ $key }}][end_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
                                         <select name="grade_steps[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
-                                            @foreach (config('global.status') as $key => $type)
-                                                <option value="{{ $key}}" {{ old('status', $value['status']) == $key ? 'selected' : $key }}>{{ $type }}</option>
+                                            @foreach (config('global.status') as $key => $label)
+                                                <option value="{{ $key}}" {{ old('status', $value['status'] ?? '') == $key ? 'selected' : $key }}>{{ $label }}</option>
                                             @endforeach
 
                                         </select>
-
                                     </td>
                                 </tr>
                                 @endforeach

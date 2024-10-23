@@ -7,7 +7,7 @@
 <div class="row">
     <span class="col-sm-4">Expense Type <span class="text-danger">*</span> </span>
     <div class="col-sm-4">
-        <select class="form-control" id="expense_policy_name" name="expense_policy[mas_expense_type_id]">
+        <select class="form-control" id="expense_policy_name" name="expense_policy[mas_expense_type_id]" required>
             <option value="" disabled selected hidden>Select your option</option>
             @foreach($expenses as $expense)
             <option value="{{ $expense->id }}" {{ old('expense_policy.mas_expense_type_id') == $expense->id ? 'selected' : '' }}>
@@ -40,8 +40,8 @@
     <div class="col-sm-4">
         <div class="cal-icon">
             <input type="date" name="expense_policy[start_date]" value="{{old('expense_policy.start_date')}}"
-                placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker"
-                style="background-color: rgb(255, 255, 255);">
+                placeholder="dd-mmm-yyyy" class="form-control "
+                style="background-color: rgb(255, 255, 255);" required>
         </div>
     </div>
 </div>
@@ -60,8 +60,8 @@
     <div class="col-sm-4">
         <select class="form-control" id="" name="expense_policy[status]">
             <option value="" disabled selected hidden>Select your option</option>
-            <option value="0" {{old('expense_policy.status') == 0 ? 'selected' : '' }}>Draft</option>
-            <option value="1" {{old('expense_policy.status') == 1 ? 'selected' : '' }}>Enforce</option>
+            <option value="0" {{ old('expense_policy.status') == 0 ? 'selected' : '' }}>Draft</option>
+            <option value="1" {{ old('expense_policy.status') == 1 ? 'selected' : '' }}>Enforce</option>
         </select>
     </div>
 </div>

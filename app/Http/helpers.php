@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\MasEmployeeJob;
 use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
@@ -218,8 +219,33 @@ if (!function_exists('modifyFormRequest')) {
     }
 }
 
-if(!function_exists('loggedInUser')){
+if(!function_exists('loggedInUser')){ 
     function loggedInUser(){
         return auth()->user()->id;
+    }
+}
+
+if(!function_exists('generateTransactionNumber')){
+    function generateTransactionNumber($code, $nextSequence){
+        //include cureent Ymd in while generating transaction number
+        $datePart = now()->format('Ymd');
+        //if next sequence is not there then by default it will be 0001 else incremental basis
+        return $code . '|' . $datePart . '|' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+    }
+}
+
+if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id based on mass_office_id
+    function loggedInUserRegion(){
+        $loggedInUserId = loggedInUser(); 
+        $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
+        $loggedInUserRegion = DB::select(
+                                        "select 
+                                            t3.mas_region_id as region_id,
+                                            t3.name as region_name
+                                        from mas_offices t1
+                                        left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
+                                        left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
+                                        where t1.id = ?", [$loggedInUserOfficeId]);
+        return $loggedInUserRegion;
     }
 }

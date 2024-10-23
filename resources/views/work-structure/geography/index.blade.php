@@ -18,9 +18,9 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pills-dzongkhag-tab" data-bs-toggle="pill" data-bs-target="#pills-dzongkhag" type="button" role="tab" aria-controls="pills-dzongkhag" aria-selected="false">Dzongkhag</button>
                 </li>
-                <li class="nav-item" role="presentation">
+                <!-- <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pills-store-tab" data-bs-toggle="pill" data-bs-target="#pills-store" type="button" role="tab" aria-controls="pills-store" aria-selected="false">Store Locations</button>
-                </li>
+                </li> -->
             </ul>
             <br>
             <div class="tab-content" id="pills-tabContent">
@@ -190,11 +190,11 @@
                     </div>
                 </div>
 
-                <!-- store location-->
+                <!-- store location
                 <div class="tab-pane fade" id="pills-store" role="tabpanel" aria-labelledby="pills-store-tab">
                     <h4 class="font-w400">Store Location</h4>
                     <p>...</p>
-                </div>
+                </div> -->
             </div>
 
         </div>

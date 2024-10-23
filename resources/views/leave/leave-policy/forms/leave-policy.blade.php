@@ -7,7 +7,7 @@
 <div class="row">
     <span class="col-sm-4">Leave Type <span class="text-danger">*</span> </span>
     <div class="col-sm-4">
-        <select class="form-control" id="leave_policy_name" name="leave_policy[mas_leave_type_id]">
+        <select class="form-control" id="leave_policy_name" name="leave_policy[mas_leave_type_id]" required>
             <option value="" disabled selected hidden>Select your option</option>
             @foreach($leaves as $leave)
             <option value="{{ $leave->id }}" {{ old('leave_policy.mas_leave_type_id') == $leave->id ? 'selected' : '' }}>
@@ -41,7 +41,7 @@
         <div class="cal-icon">
             <input type="date" name="leave_policy[start_date]" value="{{old('leave_policy.start_date')}}"
                 placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker"
-                style="background-color: rgb(255, 255, 255);">
+                style="background-color: rgb(255, 255, 255);" required>
         </div>
     </div>
 </div>
@@ -59,7 +59,7 @@
 <div class="row">
     <span class="col-sm-4">Status<span class="text-danger">*</span> </span>
     <div class="col-sm-4">
-        <select class="form-control" id="ddlStatus" name="leave_policy[status]">
+        <select class="form-control" id="ddlStatus" name="leave_policy[status]" required>
             <option value="" disabled selected hidden>Select your option</option>
             <option value="0" {{old('leave_policy.status') == 0 ? 'selected' : '' }}>Draft</option>
             <option value="1" {{old('leave_policy.status') == 1 ? 'selected' : '' }}>Enforce</option>

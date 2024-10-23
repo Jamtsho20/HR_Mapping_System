@@ -3,7 +3,7 @@
 @section('content')
 @if ($privileges->create)
 @section('buttons')
-<a href="{{ route('apply-expense.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
+<a href="{{ route('apply-expense.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Apply Expense</a>
 @endsection
 @endif
 <div class="block-header block-header-default">
@@ -63,7 +63,47 @@
                                                             <th>
                                                                 STATUS
                                                             </th>
+                                                            <th>
+                                                                Action
+                                                            </th>
                                                         </tr>
+                                                    <tbody>
+                                                        @foreach ($expenseApplication as $expense)
+                                                        <tr>
+                                                            <td>{{$loop->iteration}}</td>
+                                                            <td>{{$expense->employee->username}}</td>
+                                                            <td>{{$expense->date}}</td>
+                                                            <td>{{$expense->expenseType->name}}</td>
+                                                            <td>{{$expense->expense_amount}}</td>
+                                                            <td>{{$expense->description}}</td>
+                                                            <td>
+                                                                @if($expense->status == 1)
+                                                                <span class="badge bg-primary">Applied</span>
+                                                                @elseif($expense->status == 2)
+                                                                <span class="badge bg-summary">Approved</span>
+                                                                @elseif($expense->status == 0)
+                                                                <span class="badge bg-warning">Cancelled</span>
+                                                                @elseif($expense->status == -1)
+                                                                <span class="badge bg-danger">Rejected</span>
+                                                                @else
+                                                                <span class="badge bg-secondary">Unknown Status</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                <a href="{{ url('expense/apply-expense/' . $expense->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('expense/apply-expense/'. $expense->id . '/edit') }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('expense/apply-expense/' . $expense->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                                @endif
+                                                            </td>
+
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
                                                     </thead>
                                                 </table>
                                             </div>

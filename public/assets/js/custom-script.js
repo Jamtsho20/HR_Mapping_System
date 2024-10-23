@@ -203,6 +203,7 @@ var hrms = function() {
             // Function to populate leave balance based on leaveType
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
+                var formId = $("#apply_leave");
                 if (leaveType !== '') {
                     // ajax call
                     $.ajax({
@@ -211,6 +212,13 @@ var hrms = function() {
                         type: "GET",
                         success: function(data) {
                             $("#leave_balance").val(data.balance); // set the value for leave balance
+                            // Disable form fields if balance is 0
+                            if (data.balance == 0) {
+                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
+                                $("#leave_type").prop("disabled", false);
+                            } else {
+                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
+                            }
                             if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
                                 $("#attachment").attr("required", "required");
                                 $("#attachment_required").show();
@@ -258,36 +266,140 @@ var hrms = function() {
         });
 
         //show employee field for hierarchy level based on selection of approving authority
-            // employee_select
-        $(document).on("change", "#approving_authority", function() {
-            var approvingAuthority = $("#approving_authority").val();
-            var authorityId = $(this).val();
-            var employeeSelect = $(this).closest('td').next('td').find('#employee-select');
+        // employee_select
+        $(document).on("change", ".approving-authority-select", function() {
+            var approvingAuthorityId = $(this).val();
+            var row = $(this).closest('tr');  // Get the current row
+            var employeeSelect = row.find('.employee-select');
             
-            // Show the employee dropdown
+            // Show the employee dropdown by default
             employeeSelect.show();
-            if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
-                //ajax call
+        
+            if (approvingAuthorityId !== '') {
+                // Make an AJAX request to fetch employees based on approving authority
                 $.ajax({
-                    url: "/getemployeebyapprovingauthority/",
-                    data: { approvingAuthorityId: approvingAuthority},
+                    url: "/getemployeebyapprovingauthority/" + approvingAuthorityId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
-                        // Clear the employee select options
+                    success: function(response) {
+                        if (response.has_employee_field) {
+                            // If there are employees, populate the dropdown
+                            if (response.employees.length > 0) {
+                                employeeSelect.empty();
+                                employeeSelect.append('<option value="" disabled selected hidden>Select Employee</option>');
+                                
+                                // Populate the employee select with data from the response
+                                $.each(response.employees, function(index, employee) {
+                                    employeeSelect.append('<option value="' + employee.id + '">' + employee.username + ' - ' + employee.name + '</option>');
+                                });
+                            } else {
+                                alert('Employee has not been set for selected approver, please contact system admin for further information!')
+                                // If no employees found, clear and show a placeholder
+                                employeeSelect.empty();
+                                employeeSelect.append('<option value="" disabled selected hidden>No employees found</option>');
+                            }
+                        } else {
+                            // If 'has_employee_field' is false, hide and clear the dropdown
+                            alert('You don`t need to select employee for selected approver!')
+                            employeeSelect.empty();
+                            employeeSelect.append('<option value="" disabled selected hidden>No employees found</option>');
+                            // employeeSelect.hide();
+                        }
+                    },
+                    error: function() {
                         employeeSelect.empty();
-                        employeeSelect.append('<option value="" disabled selected hidden>Select</option>');
-                        
-                        // Populate employee select with data from the response
-                        $.each(data, function(index, employee) {
-                            employeeSelect.append('<option value="' + employee.id + '">' + employee.name + '</option>');
-                        });
+                        employeeSelect.append('<option value="" disabled selected hidden>Error loading employees</option>');
                     }
                 });
             } else {
+                // If no approving authority selected, clear and hide the dropdown
+                employeeSelect.empty();
                 employeeSelect.hide();
             }
         });
+
+        //generating advance no based on advance types
+        $(document).on('change', '#advance_type', function(){
+            var advanceTypeId = $(this).val();
+            if(advanceTypeId !== ''){
+                $.ajax({
+                    url: "/getadvancenobyadvancetype/" + advanceTypeId,
+                    dataType: "JSON",
+                    type: "GET",
+
+                    success: function(response) {
+                        $('#advance_no').val(response.advance_no) 
+                        if(response.sifa_interest_rate != 0){
+                            $('#interest_rate_sifa').val(response.sifa_interest_rate);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Something went wrong, please contact system admin for further information!');
+                    }
+                });
+                if(advanceTypeId == 4){ // external api from SOMs will be called here to get Item Types(name, code and amount)
+                    $.ajax({
+                        url: 'https://external-application.com/api/endpoint', // External API URL
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(response) {
+                            // Handle the response from the external API
+                            // $('#item_type').val(response.advance_no); // Example field for external response
+                        },
+                        error: function(response) {
+                            console.log(response.error);
+                            alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
+                        }
+                    });
+                }
+            }
+        })
+
+        //populate expense details based on selection of expense types for validation purpose
+        $(document).ready(function() {
+            // Function to populate leave balance based on leaveType
+            function getExpenseDetails() {
+                var expenseType = $("#expense-type").val();
+                var formId = $("#apply-expense");
+                var expenseAmount = $("#expense-amount").val();
+                if (expenseType !== '') {
+                    // ajax call
+                    $.ajax({
+                        url: "/getmaxexpenseamountbyexpensetype/" + expenseType,
+                        dataType: "JSON",
+                        type: "GET",
+                        success: function(data) {
+                            $("#leave_balance").val(data.balance); // set the value for leave balance
+                            // Disable form fields if balance is 0
+                            if (data.balance == 0) {
+                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
+                                $("#leave_type").prop("disabled", false);
+                            } else {
+                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
+                            }
+                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                $("#attachment").attr("required", "required");
+                                $("#attachment_required").show();
+                            } else {
+                                $("#attachment").removeAttr("required");
+                                $("#attachment_required").hide();
+                            }
+                        }
+                    });
+                } else {
+                    $("#leave_balance").val('');
+                }
+            }
+        
+            // Trigger on page load (during edit)
+            getExpenseDetails();
+        
+            // Trigger on change of leave type
+            $(document).on("change", "#expense_type", function() {
+                getExpenseDetails();
+            });
+        });
+        
         //END
 
         //turn off all the autocomplete feature within the forms

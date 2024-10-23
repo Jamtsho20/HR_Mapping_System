@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SystemSetting;
 use App\Http\Controllers\Controller;
 use App\Models\ApprovingAuthority;
 use App\Models\SystemHierarchy;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,7 +44,8 @@ class HierarchyController extends Controller
     public function create()
     {
         $approvingAuthorities = ApprovingAuthority::whereStatus(1)->get(['id', 'name', 'has_employee_field']);
-        return view('system-settings.hierarchy.create', compact('approvingAuthorities'));
+        $employees = User::get();
+        return view('system-settings.hierarchy.create', compact('approvingAuthorities', 'employees'));
     }
 
     /**
@@ -51,7 +53,6 @@ class HierarchyController extends Controller
      */
     public function store(Request $request)
     {
-
         $this->validate($request, $this->rules, $this->messages);
 
         DB::transaction(function () use ($request) {
@@ -64,8 +65,8 @@ class HierarchyController extends Controller
             foreach ($request->hierarchies as $key => $value) {
                 $level[] = [
                     'level' => $value['level'],
-                    'approving_authority_id' => $value['approving_authority_id'],
-                    'mas_employee_id' => $value['employee'],
+                    'approving_authority_id' => $value['approving_authority'],
+                    'mas_employee_id' => $value['employee'] ?? null,
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'status' => $value['status']
@@ -75,7 +76,8 @@ class HierarchyController extends Controller
             $hierarchy->hierarchyLevels()->createMany($level);
         });
 
-        return back()->with('msg_success', 'Hierarchy have been created successfully.');
+        // return back()->with('msg_success', 'Hierarchy have been created successfully.');
+        return redirect('system-setting/hierarchies')->with('msg_success', 'Hierarchy have been created successfully.');
     }
 
     /**
@@ -93,8 +95,13 @@ class HierarchyController extends Controller
     {
         $hierarchy = SystemHierarchy::with('hierarchyLevels')->findOrFail($id);
         $approvingAuthorities = ApprovingAuthority::where('status', 1)->get(['id', 'name', 'has_employee_field']);
+        //pre-selecting employee  in edit page by hierarchy levels
+        $employeesByHierarchy = [];
+        foreach ($hierarchy->hierarchyLevels as $level) {
+            $employeesByHierarchy[$level->id] = User::where('id', $level->mas_employee_id)->first();
+        }
 
-        return view('system-settings.hierarchy.edit', compact('hierarchy', 'approvingAuthorities'));
+        return view('system-settings.hierarchy.edit', compact('hierarchy', 'approvingAuthorities', 'employeesByHierarchy'));
     }
 
     /**
@@ -115,8 +122,8 @@ class HierarchyController extends Controller
             foreach ($request->hierarchies as $key => $value) {
                 $hierarchy->hierarchyLevels()->create([
                     'level' => $value['level'],
-                    'approving_authority_id' => $value['approving_authority_id'],
-                    'mas_employee_id' => $value['employee'],
+                    'approving_authority_id' => $value['approving_authority'],
+                    'mas_employee_id' => $value['employee'] ?? null,
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
                     'status' => $value['status']

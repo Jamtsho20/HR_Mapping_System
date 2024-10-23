@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+
 
 class AdvanceApplication extends Model
 {
     use HasFactory,CreatedByTrait;
+    
     protected $fillable = [
         'advance_no',
         'date',
@@ -28,6 +31,7 @@ class AdvanceApplication extends Model
         'monthly_emi_amount',
         'deduction_from_period',
         'item_type',
+        'status',
         
     ];
     public function histories()
@@ -36,6 +40,16 @@ class AdvanceApplication extends Model
     }
     public function advanceType()
     {
-        return $this->belongsTo(MasAdvanceTypes::class, 'advance_type', 'id');
+        return $this->belongsTo(MasAdvanceTypes::class, 'advance_type_id');
+    }
+
+    public function setDeductionFromPeriodAttribute($value)
+    {
+        $this->attributes['deduction_from_period'] = Carbon::parse($value)->format('Y-m-01');
+    }
+
+    public function getStatusNameAttribute() {
+        $statusNameMapping = config('global.application_status');
+        return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
 }

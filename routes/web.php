@@ -98,7 +98,7 @@ Route::middleware('auth')->group(function () {
 
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {
-        Route::resource('apply-expense', 'ExpenseApplyController');
+        Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimController');
@@ -138,7 +138,7 @@ Route::middleware('auth')->group(function () {
     // ADVANCE/LOAN
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
-        Route::resource('apply', 'AdvanceLoanApplyController');
+        Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
     });
 
@@ -241,4 +241,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getapprovalruleconditionfieldbyid/{id}', 'AjaxRequestController@getApprovalRuleConditionField');
     Route::get('getemployees', 'AjaxRequestController@getEmployees');
     Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
+    Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
+    Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
 });

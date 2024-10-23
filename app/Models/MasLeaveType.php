@@ -23,6 +23,10 @@ class MasLeaveType extends Model
         return $this->hasMany(LeaveApplication::class, 'mas_leave_type_id');
     }
 
+    public function leavePolicy(){
+        return $this->hasOne(MasLeavePolicy::class, 'mas_leave_type_id');
+    }
+
     //scope filters
     public function scopeFilter($query, $request)
     {

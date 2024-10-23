@@ -8,8 +8,19 @@
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-8 form-group">
-        <input type="text" name="payslabs" class="form-control" value="{{ request()->get('offices') }}" placeholder="Search">
+    <div class="col-6 form-group">
+        <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
+    </div>
+    <div class="col-6 form-group">
+
+        <select class="form-control" id="dzongkhag" name="dzongkhag">
+            <option value="" disabled selected hidden>Select Dzongkhag</option>
+            @foreach ($dzongkhags as $dzongkhag)
+            <option @if ($dzongkhag->id == request()->get('dzongkhag')) selected @endif value="{{ $dzongkhag->id }}">
+                {{ $dzongkhag->dzongkhag  }}
+            </option>
+            @endforeach
+        </select>
     </div>
     @endcomponent
 

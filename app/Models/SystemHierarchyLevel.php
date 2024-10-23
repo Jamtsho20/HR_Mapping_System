@@ -18,7 +18,7 @@ class SystemHierarchyLevel extends Model
     }
 
     public function approvingAuthority(){
-        return $this->hasOne(ApprovingAuthority::class, 'id'); 
+        return $this->belongsTo(ApprovingAuthority::class, 'approving_authority_id'); 
     }
 
     public function approver(){

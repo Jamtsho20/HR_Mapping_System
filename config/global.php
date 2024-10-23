@@ -1,6 +1,8 @@
 <?php
 return [
 
+    'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.',
+
     'default_password' => 'password',
 
     'null_value' => '-',
@@ -17,6 +19,9 @@ return [
     'status' => [
         1 =>'active', 0=>'inactive'
     ],
+
+    'regular_emp_type_id' => 2,
+    'probational_emp_type_id' => 3,
 
     'leave_limits' => [
         1 => 'Include Public Holidays',
@@ -116,5 +121,31 @@ return [
     'salary_disbursement_mode' => [
         1 => 'Cash',
         2 => 'Saving Account'    
+    ],
+
+    'travel_modes' => [
+        1 => 'Bike',
+        2 => 'Bus',
+        3 => 'Car',
+        4 => 'Flight',
+        5 => 'Train'
+    ],
+
+    'travel_types' => [
+        1 => 'Domestic'
+    ],
+
+    'no_of_emi' => [
+        3 => '3 Months',
+        6 => '6 Months',
+        9 => '9 Months',
+        12 => '12 Months',
+    ], 
+
+    'rate_limits' => [
+        1 => 'Daily',
+        2 => 'Monthly',
+        3 => 'Yearly',
     ]
+
 ];

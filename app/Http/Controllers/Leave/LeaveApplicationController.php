@@ -34,6 +34,8 @@ class LeaveApplicationController extends Controller
     protected $messages = [
         
     ];
+
+    private $attachmentPath = 'images/leaves/';
     /**
      * Display a listing of the resource.
      *
@@ -75,8 +77,8 @@ class LeaveApplicationController extends Controller
             return $result;
         }
 
+        $this->validate($request, $this->rules, $this->messages);
         try {
-            $this->validate($request, $this->rules, $this->messages);
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
                 'mas_employee_id' => loggedInUser(),
@@ -103,6 +105,7 @@ class LeaveApplicationController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
+            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
         return redirect('leave/leave-apply')->with('msg_success', 'Leave has been applied successfully!');
@@ -178,6 +181,7 @@ class LeaveApplicationController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
+            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
         return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');  
@@ -238,23 +242,25 @@ class LeaveApplicationController extends Controller
                 2 => 'months',
                 default => 'days',
             };
-            return back()->with('msg_error', "You cannot apply more than $duration $unit in a row for $leaveType.");
+            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . 'in a row for' . $leaveType . '.');
         }
         //validation based on employment type
-        if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
-            return back()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
+        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
+            if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
+                return back()->withInput()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
+            }
         }
-        // Check for max leave days
-        if ($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays) {
-            return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
-        }
+        // Check for max leave days commented for now
+        // if ($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays) {
+        //     return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
+        // }
 
         // Check leave balance
         if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
             $msg = $leaveBalance == 0
                 ? 'You do not have any available leave balance for ' .  $leaveType . '.'
                 : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-            return back()->with('msg_error', $msg);
+            return back()->withInput()->with('msg_error', $msg);
         }
 
         // Handle file upload if required based on defined in leave policy
@@ -266,10 +272,10 @@ class LeaveApplicationController extends Controller
         }
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path('images/leaves/' . $leaveApplication->attachment))) {
-                delete_image('images/leaves/' . $leaveApplication->attachment); // Delete old attachment
+            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
+                delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
             }
-            $attachment = uploadImageToDirectory($file, 'images/leaves/');
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
         }
 
         return [

@@ -19,7 +19,7 @@ class MasAdvanceTypes extends Model
     
     public function advanceApplications()
     {
-        return $this->hasMany(AdvanceApplication::class, 'advance_type', 'id');
+        return $this->hasMany(AdvanceApplication::class, 'advance_type_id');
     }
 
     // scope filters

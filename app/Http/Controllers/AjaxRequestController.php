@@ -7,6 +7,7 @@ use App\Models\EmployeeLeave;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
+use App\Models\AdvanceApplication;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
@@ -86,17 +87,18 @@ class AjaxRequestController extends Controller
         return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
     }
 
-    public function getNoOfDays(Request $request)
-    {
-        $loggedInUserId = auth()->user()->id;
-        $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
-        $loggedInUserRegion = DB::select(
-            "select
-                                            t3.mas_region_id as region_id
-                                        from mas_offices t1
-                                        left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
-                                        left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-                                        where t1.id = ?", [$loggedInUserOfficeId]);
+    public function getNoOfDays(Request $request){
+        // $loggedInUserId = auth()->user()->id;
+        // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
+        // $loggedInUserRegion = DB::select(
+        //                                 "select
+        //                                     t3.mas_region_id as region_id
+        //                                 from mas_offices t1
+        //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
+        //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
+        //                                 where t1.id = ?", [$loggedInUserOfficeId]);
+
+        $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
 
         $fromDate = Carbon::parse($request->fromDate);
         $toDate = Carbon::parse($request->toDate);
@@ -163,11 +165,49 @@ class AjaxRequestController extends Controller
         return $totalDays;
     }
 
-    public function getEmployeeSelect($id)
-    {
-        $approvingAuthority = ApprovingAuthority::where('id', $id)->first();
-        $employeeSelect = '';
-        return $approvingAuthority;
+    public function getEmployeeSelect($id) {
+        $approvingAuthority = ApprovingAuthority::where('id', $id)->whereStatus(1)->first();
+        $employeeSelect = [];
+
+        if ($approvingAuthority && $approvingAuthority->has_employee_field) {
+            $employeeSelect = User::whereHas('roles', function ($query) use ($approvingAuthority) {
+                $query->where('roles.id', $approvingAuthority->role_id);
+            })->get(['id', 'name', 'title', 'username']);
+        }
+
+        return response()->json([
+            'has_employee_field' => $approvingAuthority->has_employee_field ?? false,
+            'employees' => $employeeSelect
+        ]);
+    }
+
+    public function getAdvanceNumber($id) {
+        $sifaInterestRate = 0;
+        $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
+
+        $latestTransaction = AdvanceApplication::where('advance_type_id', $id)
+                            ->latest('id') // Orders by id in descending order
+                            ->first();
+
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->advance_no, -4) + 1 : 1;
+
+        // Generate the new advance number with the incremented sequence
+        $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
+
+        // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
+        if($id == SIFA_LOAN){
+            $sifaInterestRate = SIFA_INTEREST_RATE;
+        }
+
+        return response()->json([
+            'advance_no' => $advanceNo,
+            'sifa_interest_rate' => $sifaInterestRate
+        ]);
+    }
+
+    public function getExpenseAmount($id) {
+
     }
 
     public function getApprovalHeadTypes($id)
