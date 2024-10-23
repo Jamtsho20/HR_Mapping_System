@@ -122,91 +122,6 @@
 
 @endsection
 
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        updateSummary();
-        setupRealTimeSaving();
-    });
-
-    const summaryTab = document.getElementById('wizard1-t-3');
-    if (summaryTab) {
-        summaryTab.addEventListener('click', updateSummary);
-    }
-
-    const nextButton = document.getElementById('next-button');
-    const previousButton = document.getElementById('previous-button');
-
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            saveFormData(); // Save data when navigating to the next tab
-            updateSummary(); // Update summary on tab change
-        });
-    }
-
-    if (previousButton) {
-        previousButton.addEventListener('click', () => {
-            saveFormData(); // Save data when navigating to the previous tab
-            updateSummary(); // Update summary on tab change
-        });
-    }
-
-    function saveFormData() {
-        const form = document.getElementById('expense-form');
-        const formData = new FormData(form);
-        const data = {};
-
-        formData.forEach((value, key) => {
-            // If key already exists in data object, convert to array or append new values
-            if (data[key]) {
-                // If not already an array, convert it to an array
-                if (!Array.isArray(data[key])) {
-                    data[key] = [data[key]];
-                }
-                data[key].push(value); // Add new value to the array
-            } else {
-                // Handle checkboxes
-                if (form.elements[key] && form.elements[key].type === 'checkbox') {
-                    data[key] = form.elements[key].checked ? '1' : '0';
-                } else {
-                    data[key] = value; // Set initial value
-                }
-            }
-        });
-
-        // Save the entire data object as a JSON string in localStorage
-        localStorage.setItem('formData', JSON.stringify(data));
-        console.log('this is test');
-        
-        console.log(data)
-
-        updateSummary(); // Ensure summary is updated right away
-    }
-
-
-    function setupRealTimeSaving() {
-        const form = document.getElementById('expense-form');
-        if (form) {
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('change', saveFormData);
-                // For text inputs, also listen for keyup events
-                if (input.type === 'text' || input.type === 'textarea') {
-                    input.addEventListener('keyup', saveFormData);
-                }
-            });
-        }
-    }
-
-    // Pass the $expense array as a JSON object to JavaScript
-    const expenses = @json($expenses);
-
-    // Create a mapping from IDs to names
-    const expensesMap = expenses.reduce((map, expense) => {
-        map[expense.id] = expense.name;
-        return map;
-    }, {});
-</script> -->
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         setupRealTimeSaving();
@@ -225,7 +140,7 @@
                 event.preventDefault(); // Prevent default form submission on Next
                 saveFormData(); // Save data when navigating to the next tab
                 updateSummary(); // Update summary on tab change
-                moveToNextStep(); // Move to the next tab
+
             });
         }
 
@@ -234,37 +149,46 @@
                 event.preventDefault(); // Prevent default form submission on Previous
                 saveFormData(); // Save data when navigating to the previous tab
                 updateSummary(); // Update summary on tab change
-                moveToPreviousStep(); // Move to the previous tab
             });
         }
     });
 
+
+
     function saveFormData() {
         const form = document.getElementById('expense-form');
-        const inputs = form.querySelectorAll('input, select, textarea');
+        const formData = new FormData(form);
         const data = {};
 
-        inputs.forEach(input => {
-            // Handle checkboxes
-            if (input.type === 'checkbox') {
-                data[input.name] = input.checked ? '1' : '0';
-            }
-            // Handle radio buttons
-            else if (input.type === 'radio') {
-                if (input.checked) {
-                    data[input.name] = input.value;
+        formData.forEach((value, key) => {
+            // Initialize or check for an existing key in the data object
+            if (data[key]) {
+                // If not already an array, convert it to an array
+                if (!Array.isArray(data[key])) {
+                    data[key] = [data[key]]; // Convert single value to an array
                 }
-            }
-            // Handle other input types
-            else {
-                data[input.name] = input.value;
+                // Avoid repeating the same step, only push if value doesn't already exist
+                if (!data[key].includes(value)) {
+                    data[key].push(value); // Add new value if not already in array
+                }
+            } else {
+                // Handle checkboxes specifically
+                if (form.elements[key] && form.elements[key].type === 'checkbox') {
+                    data[key] = form.elements[key].checked ? '1' : '0'; // Save '1' if checked, '0' otherwise
+                } else if (form.elements[key] && form.elements[key].multiple) {
+                    // Handle multiple select inputs
+                    const selectedOptions = [...form.elements[key].options].filter(option => option.selected);
+                    data[key] = selectedOptions.map(option => option.value);
+                } else {
+                    // Set initial value for non-checkbox elements
+                    data[key] = value;
+                }
             }
         });
 
-        // Save the entire data object as a JSON string in localStorage
-        localStorage.setItem('formData', JSON.stringify(data));
-        console.log('Form data saved to localStorage:', data);
 
+
+        localStorage.setItem('expenseData', JSON.stringify(data));
         updateSummary(); // Ensure summary is updated right away
     }
 

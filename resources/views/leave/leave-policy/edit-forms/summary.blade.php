@@ -173,148 +173,145 @@
 
 <script>
     function updateSummary() {
-        const savedData = localStorage.getItem('formData');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            // console.log('Saved Data:', data); // Debugging statement
+        const form = document.getElementById('leave-form');
+        const formData = new FormData(form);
 
-            // Display Leave Policy Data
-            document.getElementById('summary_leave_type').textContent = leavesMap[data['leave_policy[mas_leave_type_id]']] || 'N/A';
-            document.getElementById('summary_leave_policy_name').textContent = data['leave_policy[name]'] || 'N/A';
-            document.getElementById('summary_description').textContent = data['leave_policy[description]'] || 'N/A';
-            document.getElementById('summary_start_date').textContent = data['leave_policy[start_date]'] || 'N/A';
-            document.getElementById('summary_end_date').textContent = data['leave_policy[end_date]'] || 'N/A';
-            document.getElementById('summary_status').textContent = data['leave_policy[status]'] === '1' ? 'Enforced' : 'Draft';
-            document.getElementById('summary_is_information_only').checked = data['leave_policy[is_information_only]'] === '1';
+        // Use formData directly to populate summary
+        document.getElementById('summary_leave_type').textContent = leavesMap[formData.get('leave_policy[mas_leave_type_id]')] || 'N/A';
+        document.getElementById('summary_leave_policy_name').textContent = formData.get('leave_policy[name]') || 'N/A';
+        document.getElementById('summary_description').textContent = formData.get('leave_policy[description]') || 'N/A';
+        document.getElementById('summary_start_date').textContent = formData.get('leave_policy[start_date]') || 'N/A';
+        document.getElementById('summary_end_date').textContent = formData.get('leave_policy[end_date]') || 'N/A';
 
-            //display gender
-            const summaryLeaveYear = document.getElementById('summary_gender');
-            let genderText = 'N/A';
-            switch (data['leave_plan[gender]']) {
+
+        //display gender
+        const summaryLeaveYear = document.getElementById('summary_gender');
+        let genderText = 'N/A';
+        switch (data['leave_plan[gender]']) {
+            case '1':
+                genderText = 'Male';
+                break;
+            case '2':
+                genderText = 'Female';
+                break;
+            case '3':
+                genderText = 'Other';
+                break;
+        }
+        summaryLeaveYear.textContent = genderText;
+
+        // Display leave year
+        const summaryGenderElement = document.getElementById('summary_leave_year');
+        let leaveYear = 'N/A';
+        switch (data['leave_plan[leave_year]']) {
+            case '1':
+                leaveYear = 'Financial Year';
+                break;
+            case '2':
+                leaveYear = 'Calender Year';
+                break;
+
+        }
+        summaryGenderElement.textContent = leaveYear;
+
+        // Display credit frequency
+        const summaryCreditFrequency = document.getElementById('summary_credit_frequency');
+        let credit_frequency = 'N/A';
+        switch (data['leave_plan[credit_frequency]']) {
+            case '1':
+                credit_frequency = 'Monthly';
+                break;
+            case '2':
+                credit_frequency = 'Yearly';
+                break;
+
+        }
+        summaryCreditFrequency.textContent = credit_frequency;
+
+        // Display credit 
+        const summaryCredit = document.getElementById('summary_credit');
+        let credit = 'N/A';
+        switch (data['leave_plan[credit]']) {
+            case '1':
+                credit = 'Start Of Period';
+                break;
+            case '2':
+                credit = 'End Of Period';
+                break;
+
+        }
+        summaryCredit.textContent = credit;
+
+        // Display Leave Limits
+        const leaveLimits = Array.isArray(data['leave_plan[leave_limits][]']) ? data['leave_plan[leave_limits][]'] : [];
+        const leaveLimitsText = leaveLimits.map(limit => {
+            switch (limit) {
                 case '1':
-                    genderText = 'Male';
-                    break;
+                    return 'Include Public Holiday';
                 case '2':
-                    genderText = 'Female';
-                    break;
+                    return 'Can be clubbed with CL';
                 case '3':
-                    genderText = 'Other';
-                    break;
+                    return 'Include Weekends';
+                case '4':
+                    return 'Can be half day';
+                case '5':
+                    return 'Can be clubbed with EL';
+                default:
+                    return 'N/A';
             }
-            summaryLeaveYear.textContent = genderText;
+        }).join(', ');
+        document.getElementById('summary_leave_limits').textContent = leaveLimitsText || 'N/A';
 
-            // Display leave year
-            const summaryGenderElement = document.getElementById('summary_leave_year');
-            let leaveYear = 'N/A';
-            switch (data['leave_plan[leave_year]']) {
-                case '1':
-                    leaveYear = 'Financial Year';
-                    break;
-                case '2':
-                    leaveYear = 'Calender Year';
-                    break;
+        // Display Can Avail In
 
-            }
-            summaryGenderElement.textContent = leaveYear;
+        const selectedIds = Array.isArray(data['leave_plan[can_avail_in][]']) ?
+            data['leave_plan[can_avail_in][]'] : [data['leave_plan[can_avail_in][]']] || [];
 
-            // Display credit frequency
-            const summaryCreditFrequency = document.getElementById('summary_credit_frequency');
-            let credit_frequency = 'N/A';
-            switch (data['leave_plan[credit_frequency]']) {
-                case '1':
-                    credit_frequency = 'Monthly';
-                    break;
-                case '2':
-                    credit_frequency = 'Yearly';
-                    break;
+        // Map IDs to names
+        const canAvailInNames = selectedIds.map(id => idToNameMap[id] || 'N/A');
+        // Join names into a string
+        const canAvailIn = canAvailInNames.join(', ');
+        // Display the names in the summary
+        document.getElementById('summary_can_avail_in').textContent = canAvailIn;
 
-            }
-            summaryCreditFrequency.textContent = credit_frequency;
-
-            // Display credit 
-            const summaryCredit = document.getElementById('summary_credit');
-            let credit = 'N/A';
-            switch (data['leave_plan[credit]']) {
-                case '1':
-                    credit = 'Start Of Period';
-                    break;
-                case '2':
-                    credit = 'End Of Period';
-                    break;
-
-            }
-            summaryCredit.textContent = credit;
-
-            // Display Leave Limits
-            const leaveLimits = Array.isArray(data['leave_plan[leave_limits][]']) ? data['leave_plan[leave_limits][]'] : [];
-            const leaveLimitsText = leaveLimits.map(limit => {
-                switch (limit) {
-                    case '1':
-                        return 'Include Public Holiday';
-                    case '2':
-                        return 'Can be clubbed with CL';
-                    case '3':
-                        return 'Include Weekends';
-                    case '4':
-                        return 'Can be half day';
-                    case '5':
-                        return 'Can be clubbed with EL';
-                    default:
-                        return 'N/A';
-                }
-            }).join(', ');
-            document.getElementById('summary_leave_limits').textContent = leaveLimitsText || 'N/A';
-
-            // Display Can Avail In
-          
-            const selectedIds = Array.isArray(data['leave_plan[can_avail_in][]']) ?
-                data['leave_plan[can_avail_in][]'] : [data['leave_plan[can_avail_in][]']] || [];
-
-            // Map IDs to names
-            const canAvailInNames = selectedIds.map(id => idToNameMap[id] || 'N/A');
-            // Join names into a string
-            const canAvailIn = canAvailInNames.join(', ');
-            // Display the names in the summary
-            document.getElementById('summary_can_avail_in').textContent = canAvailIn;
-
-            //display attachment
-            document.getElementById('summary_attachment_required').checked = data['leave_plan[attachment_required]'] === '1';
+        //display attachment
+        document.getElementById('summary_attachment_required').checked = data['leave_plan[attachment_required]'] === '1';
 
 
-            // Display policy Rules
-            const tableBody = document.querySelector('#summary_rules tbody');
-            tableBody.innerHTML = ''; // Clear existing rows
-            let latestRule = null;
-            let latestRuleKey = null;
+        // Display policy Rules
+        const tableBody = document.querySelector('#summary_rules tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+        let latestRule = null;
+        let latestRuleKey = null;
 
-            // Find the latest rule
-            for (let key in data) {
-                if (key.startsWith('leave_policy_rule')) {
-                    const ruleKeyParts = key.match(/leave_policy_rule\[(.*?)\]/);
-                    if (ruleKeyParts) {
-                        const ruleKey = ruleKeyParts[1];
-                        if (!latestRule || ruleKey > latestRuleKey) {
-                            latestRule = {
-                                mas_grade_step_id: Array.isArray(data[`leave_policy_rule[${ruleKey}][mas_grade_step_id][]`]) ? data[`leave_policy_rule[${ruleKey}][mas_grade_step_id][]`] : [],
-                                duration: data[`leave_policy_rule[${ruleKey}][duration]`] || 'N/A',
-                                uom: data[`leave_policy_rule[${ruleKey}][uom]`] || 'N/A',
-                                start_date: data[`leave_policy_rule[${ruleKey}][start_date]`] || 'N/A',
-                                end_date: data[`leave_policy_rule[${ruleKey}][end_date]`] || 'N/A',
-                                is_loss_of_pay: data[`leave_policy_rule[${ruleKey}][is_loss_of_pay]`] === '1' ? 'Yes' : 'No',
-                                employment_type: data[`leave_policy_rule[${ruleKey}][mas_employment_type_id]`] || 'N/A',
-                                status: data[`leave_policy_rule[${ruleKey}][status]`] === '1' ? 'Active' : 'Inactive'
-                            };
-                            latestRuleKey = ruleKey;
-                        }
+        // Find the latest rule
+        for (let key in data) {
+            if (key.startsWith('leave_policy_rule')) {
+                const ruleKeyParts = key.match(/leave_policy_rule\[(.*?)\]/);
+                if (ruleKeyParts) {
+                    const ruleKey = ruleKeyParts[1];
+                    if (!latestRule || ruleKey > latestRuleKey) {
+                        latestRule = {
+                            mas_grade_step_id: Array.isArray(data[`leave_policy_rule[${ruleKey}][mas_grade_step_id][]`]) ? data[`leave_policy_rule[${ruleKey}][mas_grade_step_id][]`] : [],
+                            duration: data[`leave_policy_rule[${ruleKey}][duration]`] || 'N/A',
+                            uom: data[`leave_policy_rule[${ruleKey}][uom]`] || 'N/A',
+                            start_date: data[`leave_policy_rule[${ruleKey}][start_date]`] || 'N/A',
+                            end_date: data[`leave_policy_rule[${ruleKey}][end_date]`] || 'N/A',
+                            is_loss_of_pay: data[`leave_policy_rule[${ruleKey}][is_loss_of_pay]`] === '1' ? 'Yes' : 'No',
+                            employment_type: data[`leave_policy_rule[${ruleKey}][mas_employment_type_id]`] || 'N/A',
+                            status: data[`leave_policy_rule[${ruleKey}][status]`] === '1' ? 'Active' : 'Inactive'
+                        };
+                        latestRuleKey = ruleKey;
                     }
                 }
             }
+        }
 
-            if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
-                const gradeStepIds = latestRule.mas_grade_step_id.map(id => gradeStepMap[id]).join(', ');
-                console.log(gradeStepIds);
-                
-                const newRow = `
+        if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
+            const gradeStepIds = latestRule.mas_grade_step_id.map(id => gradeStepMap[id]).join(', ');
+            console.log(gradeStepIds);
+
+            const newRow = `
                     <tr>
                         <td>${gradeStepIds}</td>
                         <td>${latestRule.duration}</td>
@@ -326,24 +323,21 @@
                         <td>${latestRule.status}</td>
                     </tr>
                 `;
-                tableBody.insertAdjacentHTML('beforeend', newRow);
-            } else {
-                tableBody.innerHTML = '<tr><td colspan="8">No leave policy rules found.</td></tr>';
-            }
-
-
-            //display year end processing
-            document.getElementById('summary_allow').checked = data['year_end_processing[allow_carry_over]'] === '1';
-            document.getElementById('summary_carryover_limit').textContent = data['year_end_processing[carryover_limit]'] || 'N/A';
-            document.getElementById('summary_pay').checked = data['year_end_processing[pay_at_year_end]'] === '1';
-            document.getElementById('summary_min_bal').textContent = data['year_end_processing[min_balance_required]'] || 'N/A';
-            document.getElementById('summary_max_encashment').textContent = data['year_end_processing[min_encashment_per_year]'] || 'N/A';
-            document.getElementById('summary_allow_EL').checked = data['year_end_processing[carry_forward_to_el]'] === '1';
-            document.getElementById('summary_carryover_EL').textContent = data['year_end_processing[carry_forward_limit]'] || 'N/A';
-
-
+            tableBody.insertAdjacentHTML('beforeend', newRow);
         } else {
-            document.getElementById('summary_rules').innerHTML = '<p>No data available.</p>';
+            tableBody.innerHTML = '<tr><td colspan="8">No leave policy rules found.</td></tr>';
         }
-    }
+
+
+        //display year end processing
+        document.getElementById('summary_allow').checked = data['year_end_processing[allow_carry_over]'] === '1';
+        document.getElementById('summary_carryover_limit').textContent = data['year_end_processing[carryover_limit]'] || 'N/A';
+        document.getElementById('summary_pay').checked = data['year_end_processing[pay_at_year_end]'] === '1';
+        document.getElementById('summary_min_bal').textContent = data['year_end_processing[min_balance_required]'] || 'N/A';
+        document.getElementById('summary_max_encashment').textContent = data['year_end_processing[min_encashment_per_year]'] || 'N/A';
+        document.getElementById('summary_allow_EL').checked = data['year_end_processing[carry_forward_to_el]'] === '1';
+        document.getElementById('summary_carryover_EL').textContent = data['year_end_processing[carry_forward_limit]'] || 'N/A';
+
+
+    } 
 </script>
