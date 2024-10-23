@@ -7,6 +7,7 @@ use App\Models\ApprovingAuthority;
 use App\Models\EmployeeLeave;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasEmployeeJob;
+use App\Models\MasExpensePolicy;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
@@ -192,7 +193,24 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getExpenseAmount($id) {
-        
+    public function getExpenseAmount($id) { // based on expense type check weather attachment is required in form and maximum amount limit
+        $loggedInUserRegion = loggedInUserRegion();
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use ($empJobDetail, $loggedInUserRegion) {
+            // Filter rateDefinition by travel type
+            $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
+                  ->with(['expenseRateLimits' => function($q) use($empJobDetail, $loggedInUserRegion) {
+                      // Filter expenseRateLimits by grade step and region
+                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
+                        ->whereStatus(1);
+                  }]);
+        }])
+        ->where('mas_expense_type_id', $id)
+        ->whereStatus(1)
+        ->first();
+        //check weather attachment is required while applying expense from expense policy                              
+        $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
+        return ['attachment_required' => $attachmentRequired, 'expense_policy' => $expensePolicy];
     }
 }
