@@ -10,36 +10,35 @@
                       <br>
                       <div class="row">
                           <div class="form-group col-4">
-                              <label for="mas_dzongkhag_id">Type <span class="text-danger">*</span></label>
-                              <select class="form-control" name="mas_dzongkhag_id" required="required">
+                              <label for="mas_approval_head_type_id">Type <span class="text-danger">*</span></label>
+                              <select class="form-control" name="mas_approval_head_type_id" required="required">
                                   <option value="" disabled selected hidden>Select your option</option>
-                                  <option value=""></option>
+                                  <option value="1">1</option>
                               </select>
                           </div>
                       </div>
                       <div class="form-group col-3">
-                          <label for="mas_dzongkhag_id">Condition <span class="text-danger">*</span></label>
-                          <select class="form-control" name="mas_dzongkhag_id" required="required">
+                          <label for="condition">Condition <span class="text-danger">*</span></label>
+                          <select class="form-control" name="condition" required="required">
                               <option value="" disabled selected hidden>Select your option</option>
-                              <option value="">AND</option>
-                              <option value="">OR</option>
-                              <option value="">NOT</option>
-                              <option value="">(</option>
-                              <option value="">)</option>
+                              <option value="AND">AND</option>
+                              <option value="OR">OR</option>
+                              <option value="NOT">NOT</option>
+                              <option value="(">(</option>
+                              <option value=")">)</option>
                           </select>
                       </div>
                       <div class="form-group col-3">
-                          <label for="mas_dzongkhag_id">Fields <span class="text-danger">*</span></label>
-                          <select class="form-control" name="mas_dzongkhag_id" required="required">
+                          <label for="mas_condition_field_id">Fields <span class="text-danger">*</span></label>
+                          <select class="form-control" name="mas_condition_field_id" required="required">
                               <option value="" disabled selected hidden>Select your option</option>
                               <option value="">NO of Days</option>
                               <option value="">User</option>
-
                           </select>
                       </div>
                       <div class="form-group col-3">
-                          <label for="mas_dzongkhag_id">Operator <span class="text-danger">*</span></label>
-                          <select class="form-control" name="mas_dzongkhag_id" required="required">
+                          <label for="operator">Operator <span class="text-danger">*</span></label>
+                          <select class="form-control" name="operator" required="required">
                               <option value="" disabled selected hidden>Select your option</option>
                               <option value="">Is</option>
                               <option value="">Is Not</option>
@@ -86,8 +85,8 @@
                               </label>
                           </div>
                           <div class="col-4">
-                              <label for="hierarchy_name">Name <span class="text-danger">*</span></label>
-                              <input type="text" id="hierarchy_name" value="1" disabled class="form-control">
+                              <label for="name">Name <span class="text-danger">*</span></label>
+                              <input type="text" id="name" value="1" disabled class="form-control">
                           </div>
                           <div class="col-4">
                               <label for="ddlStatus">Max Level <span class="text-danger">*</span></label>
@@ -213,7 +212,7 @@
       function disableAssociatedFields(id, disable) {
           switch (id) {
               case 'hierarchy':
-                  document.getElementById('hierarchy_name').disabled = disable;
+                  document.getElementById('name').disabled = disable;
                   document.getElementById('ddlStatus').disabled = disable;
                   break;
               case 'single_user':

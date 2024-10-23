@@ -16,8 +16,8 @@ class SystemHierarchy extends Model
     }
     public function scopeFilter($query, $request)
     {
-        if ($request->has('hierarchy_name') && $request->query('hierarchy_name') != '') {
-            $query->where('hierarchy_name', 'LIKE', '%' . $request->query('hierarchy_name') . '%');
+        if ($request->has('name') && $request->query('name') != '') {
+            $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
         }
     }
 }

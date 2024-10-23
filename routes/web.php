@@ -51,8 +51,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('hierarchies', 'HierarchyController')->except('show');
         Route::resource('delegations', 'DelegationController')->except('show');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
-        Route::resource('approval-rules', 'ApprovalRuleController')->except('show', 'edit');
+        Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
+
+        // Approval Conditions
+        Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
+        Route::get('approvalrulesaddcondition/{id}/edit', 'ApprovalRuleController@getEditCondition')->name('approval-rule-conditions.edit');
+        Route::patch('approvalrulesaddcondition/{id}', 'ApprovalRuleController@updateCondition')->name('approval-rule-conditions.update');
     });
 
     // MASTERS
@@ -231,6 +236,11 @@ Route::middleware('auth')->group(function () {
     Route::get('getleavebalancebyleavetype/{id}', 'AjaxRequestController@getLeaveBalance');
     Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
     Route::get('getemployeebyapprovingauthority/{id}', 'AjaxRequestController@getEmployeeSelect');
+    Route::get('getapprovalheadtypesbyapprovalhead/{id}', 'AjaxRequestController@getApprovalHeadTypes');
+    Route::get('getapprovalruleconditionfieldsbyhead/{id}', 'AjaxRequestController@getApprovalRuleConditionFields');
+    Route::get('getapprovalruleconditionfieldbyid/{id}', 'AjaxRequestController@getApprovalRuleConditionField');
+    Route::get('getemployees', 'AjaxRequestController@getEmployees');
+    Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
 });

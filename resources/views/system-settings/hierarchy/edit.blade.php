@@ -12,8 +12,8 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="hierarchy_name">Hierarchy Name *</label>
-                        <input type="text" class="form-control" name="hierarchy_name" value="{{ $hierarchy->hierarchy_name }}" readonly>
+                        <label for="name">hierarchy Name *</label>
+                        <input type="text" class="form-control" name="name" value="{{  $hierarchy->name}}"  readonly>
                     </div>
                 </div>
                 <div class="col-md-9">
@@ -49,7 +49,7 @@
                                             <option value="" disabled selected hidden>Select Approving Authority</option>
                                         </select>
                                     </td>
-                                    <td> 
+                                    <td>
                                         <select class="form-control form-control-sm employee-select resetKeyForNew" name="hierarchies[AAAAA][employee]" required>
                                             <option disabled selected hidden>Select Employee</option>
                                         </select>

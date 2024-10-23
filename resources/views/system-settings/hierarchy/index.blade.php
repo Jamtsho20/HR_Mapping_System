@@ -14,8 +14,8 @@
                 <div class="card-header">
                     @component('layouts.includes.filter')
                         <div class="col-8 form-group">
-                            <input type="text" name="hierarchy_name" class="form-control"
-                                value="{{ request()->get('hierarchy_name') }}" placeholder="Hierarchy Name">
+                            <input type="text" name="name" class="form-control"
+                                value="{{ request()->get('name') }}" placeholder="Hierarchy Name">
                         </div>
                     @endcomponent
 
@@ -35,7 +35,7 @@
                                 @forelse($hierarchies as $hierarchy)
                                     <tr>
                                         <td>{{ $hierarchies->firstItem() + ($loop->iteration - 1) }}</td>
-                                        <td>{{ $hierarchy->hierarchy_name }}</td>
+                                        <td>{{ $hierarchy->name }}</td>
                                         <td>
                                             @if (count($hierarchy->hierarchyLevels))
                                                 <table class="table border table-condensed table-sm table-bordered">
