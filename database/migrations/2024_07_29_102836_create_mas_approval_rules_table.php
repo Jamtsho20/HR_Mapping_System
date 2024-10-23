@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mas_approval_head_id')->constrained()->comment('during display in the form, give form label as `For`');
             $table->morphs('approvable');
-            $table->string('rule_name', 100)->nullable();
+            $table->string('name', 100)->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(0);

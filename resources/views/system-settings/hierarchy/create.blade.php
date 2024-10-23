@@ -11,8 +11,8 @@
             <div class="row">
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label for="hierarchy_name">Hierarchy Name *</label>
-                        <input type="text" class="form-control" name="hierarchy_name" value="{{ old('hierarchy_name') }}" required>
+                        <label for="name">Hierarchy Name *</label>
+                        <input type="text" class="form-control" name="name" value="{{ old('name') }}" required>
                     </div>
                 </div>
                 <div class="col-md-10">

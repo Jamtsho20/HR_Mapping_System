@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class HierarchyController extends Controller
 {
     private $rules = [
-        'hierarchy_name' => 'required',
+        'name' => 'required',
         'hierarchies.*.level' => 'required'
     ];
 
@@ -52,13 +52,13 @@ class HierarchyController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    { 
+    {
         $this->validate($request, $this->rules, $this->messages);
 
         DB::transaction(function () use ($request) {
 
             $hierarchy = new SystemHierarchy();
-            $hierarchy->hierarchy_name = $request->hierarchy_name;
+            $hierarchy->name = $request->name;
             $hierarchy->save();
 
             $level = [];
@@ -95,7 +95,7 @@ class HierarchyController extends Controller
     {
         $hierarchy = SystemHierarchy::with('hierarchyLevels')->findOrFail($id);
         $approvingAuthorities = ApprovingAuthority::where('status', 1)->get(['id', 'name', 'has_employee_field']);
-        //pre-selecting employee  in edit page by hierarchy levels 
+        //pre-selecting employee  in edit page by hierarchy levels
         $employeesByHierarchy = [];
         foreach ($hierarchy->hierarchyLevels as $level) {
             $employeesByHierarchy[$level->id] = User::where('id', $level->mas_employee_id)->first();
@@ -114,7 +114,7 @@ class HierarchyController extends Controller
 
         DB::transaction(function () use ($request, $id) {
             $hierarchy = SystemHierarchy::findOrFail($id);
-            $hierarchy->hierarchy_name = $request->hierarchy_name;
+            $hierarchy->name = $request->name;
             $hierarchy->save();
 
             $hierarchy->hierarchyLevels()->delete();

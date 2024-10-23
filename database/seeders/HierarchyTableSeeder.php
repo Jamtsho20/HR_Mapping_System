@@ -14,7 +14,7 @@ class HierarchyTableSeeder extends Seeder
     public function run(): void
     {
         DB::statement('
-            INSERT INTO `system_hierarchies` (`id`, `hierarchy_name`, `created_by`) VALUES
+            INSERT INTO `system_hierarchies` (`id`, `name`, `created_by`) VALUES
             (1, "Asset Commission", 1),
             (2, "Asset Requisition", 1),
             (3, "Asset Transfer", 1),

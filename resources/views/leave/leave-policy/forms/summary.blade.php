@@ -179,8 +179,8 @@
             console.log('Saved Data:', data); // Debugging statement
 
             // Display Leave Policy Data
-            document.getElementById('summary_leave_policy_name').textContent = data['leave_policy[name]'] || 'N/A';
             document.getElementById('summary_leave_type').textContent = leavesMap[data['leave_policy[mas_leave_type_id]']] || 'N/A';
+            document.getElementById('summary_leave_policy_name').textContent = data['leave_policy[name]'] || 'N/A';
             document.getElementById('summary_description').textContent = data['leave_policy[description]'] || 'N/A';
             document.getElementById('summary_start_date').textContent = data['leave_policy[start_date]'] || 'N/A';
             document.getElementById('summary_end_date').textContent = data['leave_policy[end_date]'] || 'N/A';
