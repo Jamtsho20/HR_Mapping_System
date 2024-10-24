@@ -73,13 +73,13 @@
         <div id="summary_rules">
             <div class="card">
                 <div class="card-body">
-                    <div class="table-responsive table table-condensed table-bordered table-striped table-sm">
+                    <div class="table-responsive table table-condensed table-bordered table-striped ">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Grade</th>
-                                    <th>Region</th>                                 
-                                    <th>Limit Amount</th>                              
+                                    <th>Region</th>
+                                    <th>Limit Amount</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Status</th>
@@ -120,10 +120,10 @@
 
 <script>
     function updateSummary() {
-        const savedData = localStorage.getItem('formData');
+        const savedData = localStorage.getItem('expenseData');
         if (savedData) {
-            const   = JSON.parse(savedData);
-            console.log('Saved Data:', data); // Debugging statement
+            const data = JSON.parse(savedData);
+            // console.log('Saved Data:', data); // Debugging statement
 
             // Display Leave Policy Data
             document.getElementById('summary_expense_type').textContent = expensesMap[data['expense_policy[mas_expense_type_id]']] || 'N/A';
@@ -196,7 +196,7 @@
             tableBody.innerHTML = ''; // Clear existing rows
             let latestRule = null;
             let latestRuleKey = null;
-            console.log(data); // Log the data object to inspect values
+            // console.log(data); // Log the data object to inspect values
 
 
             // Find the latest rule
@@ -219,9 +219,11 @@
                     }
                 }
             }
-        
+
             if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
                 const gradeStepIds = latestRule.mas_grade_step_id.map(id => gradeStepMap[id]).join(', ');
+                console.log(gradeStepIds);
+
                 const newRow = `
                     <tr>
                         <td>${gradeStepIds}</td>
