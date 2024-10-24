@@ -1,0 +1,112 @@
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="amount">Amount</label>
+            <input type="text" class="form-control" id="sifa_amount" name="amount" value="{{ number_format($advance->amount, 2) }}">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="interest_rate">Interest Rate (%) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="interest_rate"
+                value="{{ old('interest_rate', $advance->interest_rate ?? SIFA_INTEREST_RATE) }}"
+                id="interest_rate_sifa" readonly />
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="total_amount">Total Amount</label>
+            <input type="text" class="form-control" id="sifa_total_amount" name="total_amount"
+                value="{{ number_format($advance->total_amount, 2) ?? 'N/A' }}">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="no_of_emi">No. of EMI</label>
+            <select class="form-control" id="no_of_emi_sifa" name="no_of_emi">
+                <option value="" disabled>Select your option</option>
+                @foreach(config('global.no_of_emi') as $key => $label)
+                <option value="{{ $key }}" {{ $advance->no_of_emi == $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+
+
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="monthly_emi_amount">Monthly EMI Amount</label>
+            <input type="text" class="form-control" id="monthly_emi_amount_sifa" name="monthly_emi_amount"
+                value="{{ number_format($advance->monthly_emi_amount, 2) ?? 'N/A' }}">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
+            <input type="month" class="form-control" name="deduction_from_period"
+                value="{{ $advance->deduction_from_period ? \Carbon\Carbon::parse($advance->deduction_from_period)->format('Y-m') : old('deduction_from_period') }}"
+                required />
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="remark">Remark</label>
+            <input type="text" class="form-control" id="remark" name="remark" value="{{ $advance->remark }}">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="attachment">Attachment</label>
+            @if($advance->attachment)
+            <a href="{{ asset($advance->attachment) }}" class="form-control" name="attachment" target="_blank">View Attachment</a>
+            <br>
+            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf">
+            <small class="text-muted">Leave blank if you don't want to change the attachment.</small>
+            @else
+            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf">
+            @endif
+        </div>
+    </div>
+</div>
+@push('page_scripts')
+<script>
+    $(document).ready(function() {
+
+        $('#sifa_amount').on('change', function() {
+            const amount = parseFloat($(this).val());
+            const interestRate = parseFloat($('#interest_rate_sifa').val());
+            $('#no_of_emi_sifa').val('');
+            $('#monthly_emi_amount_sifa').val('');
+                    // Check if both amount and interestRate are valid numbers
+            if (!isNaN(amount) && !isNaN(interestRate)) {
+                const totalAmount = amount + (amount * (interestRate / 100));
+                $('#sifa_total_amount').val(totalAmount.toFixed(2));
+            } else {
+                // Clear the total amount field if inputs are invalid
+                $('#sifa_total_amount').val(''); 
+            }
+        });
+
+        // Calculate Monthly EMI when No of EMI changes
+        $('#no_of_emi_sifa').on('change', function() {
+            const noOfEmi = parseFloat($(this).val());  // Correct variable name
+            const totalAmount = parseFloat($('#sifa_total_amount').val());
+            alert(noOfEmi)
+            // Check if both totalAmount and noOfEmi are valid numbers
+            if (!isNaN(totalAmount) && totalAmount > 0 && !isNaN(noOfEmi) && noOfEmi > 0) {
+                const emiAmount = totalAmount / noOfEmi;
+                $('#monthly_emi_amount_sifa').val(emiAmount.toFixed(2));
+            } else {
+                $('#monthly_emi_amount_sifa').val(''); // Clear if inputs are invalid
+            }
+        });
+
+    });
+</script>
+@endpush
