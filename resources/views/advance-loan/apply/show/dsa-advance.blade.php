@@ -40,8 +40,8 @@
 <div class="row">
     <div class="col-md-4">
         <div class="form-group">
-            <label for="purpose">Purpose</label>
-            <input type="text" class="form-control" id="purpose" value="{{ $advance->purpose }}" readonly>
+            <label for="remark">Remark</label>
+            <input type="text" class="form-control" id="remark" value="{{ $advance->remark }}" readonly>
         </div>
     </div>
     <div class="col-md-4">

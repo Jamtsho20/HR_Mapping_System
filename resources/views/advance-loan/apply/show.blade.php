@@ -54,6 +54,9 @@
                     @elseif($advance->advanceType->name === 'SIFA LOAN')
                     @include('advance-loan.apply.show.sifa-loan')
                     
+                    @elseif($advance->advanceType->name === 'Salary Advance')
+                    @include('advance-loan.apply.show.salary-advance')
+                    
                     @endif
                     @endif
                 </div>
