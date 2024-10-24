@@ -141,7 +141,9 @@ class ExpenseApplicationController extends Controller
      */
     public function edit($id)
     {
-        //
+        $expenses = MasExpenseType::all();
+        $expenseApplication = ExpenseApplication::findOrfail($id);
+        return view('expense.apply.edit', compact('expenses', 'expenseApplication'));
     }
 
     /**
@@ -164,28 +166,30 @@ class ExpenseApplicationController extends Controller
         try {
             DB::beginTransaction();
             $expenseApplication->update([
-
                 'mas_employee_id' => $expenseApplication->mas_employee_id,
-                'mas_leave_type_id' => $request->leave_type,
-                'from_day' => $request->from_day,
-                'to_day' => $request->to_day,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
-                'no_of_days' => $request->no_of_days,
-                'remarks' => $request->remarks,
-                'attachment' => $result['attachment'],
-                'status' => $expenseApplication->status,
+                'mas_expense_type_id' => $request->expense_type,
+                'date' => $request->date,
+                'expense_amount' => $request->amount,
+                'description' => $request->description,
+                'file' => $result['attachment'] ?? $expenseApplication->file,
+                'travel_type' => $request->travel_type,
+                'travel_mode' => $request->mode_of_travel,
+                'travel_from_date' => $request->travel_from_date,
+                'travel_to_date' => $request->travel_to_date,
+                'travel_from' => $request->travel_from,
+                'travel_to' => $request->travel_to,
+                'status' => $request->status ?? 1,
             ]);
-    
+
             // Create a history record
             $expenseApplication->histories()->create([
                 'level' => 'Test Level',
                 'status' => $expenseApplication->status,
                 'remarks' => $request->remarks,
-                'created_by' => $expenseApplication->created_by,
+                'created_by' => $expenseApplication->mas_employee_id,
                 'updated_by' => loggedInUser()
             ]);
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -193,7 +197,7 @@ class ExpenseApplicationController extends Controller
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect('leave/leave-apply')->with('msg_success', 'Expense application has been updated successfully!.');  
+        return redirect('expense/apply-expense')->with('msg_success', 'Expense application has been updated successfully!.');
     }
 
     /**
@@ -210,27 +214,27 @@ class ExpenseApplicationController extends Controller
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
     { //common function to handle store and update of expense
         /// query to fetch employee grade step and region
-        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); 
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         // dd($empJobDetail);
         $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
         //query to expense policy details
-        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use ($request, $empJobDetail, $loggedInUserRegion) {
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($request, $empJobDetail, $loggedInUserRegion) {
             // Filter rateDefinition by travel type
             $query->where('travel_type', $request->travel_type ?? DOMESTIC_TRAVEL_TYPE)
-                  ->with(['expenseRateLimits' => function($q) use($empJobDetail, $loggedInUserRegion) {
-                      // Filter expenseRateLimits by grade step and region
-                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
+                    // Filter expenseRateLimits by grade step and region
+                    $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
                         ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
-                  }]);
+                }]);
         }, 'policyEnforcement'])
-        ->where('mas_expense_type_id', $request->expense_type)
-        ->whereStatus(1)
-        ->first();
+            ->where('mas_expense_type_id', $request->expense_type)
+            ->whereStatus(1)
+            ->first();
         //check weather attachment is required while applying expense from expense policy                              
         $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
-            
+
         //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
@@ -255,6 +259,6 @@ class ExpenseApplicationController extends Controller
 
         return [
             'attachment' => $attachment
-        ];   
+        ];
     }
 }

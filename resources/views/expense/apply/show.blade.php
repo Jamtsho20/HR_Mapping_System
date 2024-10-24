@@ -137,9 +137,9 @@
         </div>
     </div>
     <!-- Expense Job related -->
+</div>
 
+@endsection
+@push('page_scripts')
 
-    @endsection
-    @push('page_scripts')
-
-    @endpush
+@endpush
