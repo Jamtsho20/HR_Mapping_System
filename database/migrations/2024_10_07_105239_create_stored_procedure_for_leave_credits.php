@@ -35,7 +35,7 @@ return new class extends Migration
                         t1.name
                     FROM mas_leave_types t1
                         JOIN mas_leave_policies t2 ON t1.id = t2.mas_leave_type_id
-                    WHERE t2.status = 1 AND t2.is_information_only = 1;
+                    WHERE t2.status = 1 AND t2.is_information_only = 0;
 
                 -- Continue handler for cursor
                 DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
@@ -65,7 +65,7 @@ return new class extends Migration
                         LEFT JOIN leave_policy_rules t3 ON t2.id = t3.leave_policy_plan_id
                     WHERE t1.mas_leave_type_id = leave_id
                         AND t1.status = 1
-                        AND t1.is_information_only = 1
+                        AND t1.is_information_only = 0
                         AND t3.mas_grade_step_id = grade_step_id
                         AND (t3.mas_employment_type_id = 1 OR t3.mas_employment_type_id = emp_type_id)
                         AND (t2.gender = 3 OR t2.gender = emp_gender)

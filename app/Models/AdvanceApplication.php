@@ -16,7 +16,7 @@ class AdvanceApplication extends Model
         'advance_no',
         'date',
         'advance_type',
-        'mas_employee_id',
+        // 'mas_employee_id',
         'mode_of_travel',
         'from_location',
         'to_location',

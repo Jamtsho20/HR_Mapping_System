@@ -88,7 +88,7 @@ class ExpenseApplicationController extends Controller
             DB::beginTransaction();
 
             $expenseApplication = ExpenseApplication::create([
-                'mas_employee_id' => loggedInUser(),
+                // 'mas_employee_id' => loggedInUser(),
                 'mas_expense_type_id' => $request->expense_type,
                 'date' => $request->date,
                 'expense_amount' => $request->amount,
