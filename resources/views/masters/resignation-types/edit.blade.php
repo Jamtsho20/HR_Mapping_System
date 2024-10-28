@@ -19,14 +19,16 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-check"></i> UPDATE
-                </button>
-                <a href="{{ url('master/resignation-types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+                @include('layouts.includes.buttons', [
+                'buttonName' => 'UPDATE',
+                'cancelUrl' =>url('master/resignation-types'),
+                'cancelName' => 'CANCEL'
+                ])
+             
             </div>
         </div>
     </div>
-        
+
 </form>
 @include('layouts.includes.delete-modal')
 @endsection

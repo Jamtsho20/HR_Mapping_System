@@ -70,11 +70,13 @@
             @endif
         </div>
 
-
-
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update Expense</button>
-            <a href="{{ url('expense/apply-expense') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'Update Expense',
+            'cancelUrl' => url('expense/apply-expense'),
+            'cancelName' => 'CANCEL'
+            ])
+          
         </div>
 
     </div>

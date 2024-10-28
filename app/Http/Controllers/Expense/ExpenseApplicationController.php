@@ -88,7 +88,7 @@ class ExpenseApplicationController extends Controller
             DB::beginTransaction();
 
             $expenseApplication = ExpenseApplication::create([
-                'mas_employee_id' => loggedInUser(),
+                // 'mas_employee_id' => loggedInUser(),
                 'mas_expense_type_id' => $request->expense_type,
                 'date' => $request->date,
                 'expense_amount' => $request->amount,
@@ -232,7 +232,7 @@ class ExpenseApplicationController extends Controller
             ->whereStatus(1)
             ->first();
         //check weather attachment is required while applying expense from expense policy                              
-        $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
+        $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
 
         //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)

@@ -12,7 +12,7 @@
                         <select class="form-control" id="example-select" name="mas_department_id" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($departments as $department)
-                                <option value="{{ $department->id }}">{{ $department->name }}</option>
+                            <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -31,9 +31,9 @@
                         <select class="form-control" name="mas_employee_id">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach (employeeList() as $employee)
-                                <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>
-                                    {{ $employee->name }}
-                                </option>
+                            <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->name }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -42,8 +42,12 @@
         </div>
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> CREATE</button>
-            <a href="{{ url('master/section') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'SAVE',
+            'cancelUrl' => url('master/section') ,
+            'cancelName' => 'CANCEL'
+            ])
+           
         </div>
     </div>
 </form>

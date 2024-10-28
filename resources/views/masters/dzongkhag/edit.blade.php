@@ -13,10 +13,11 @@
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary">
-                <i class="fa fa-check"></i>UPDATE
-            </button>
-            <a href="{{ url('master/dzongkhags') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' => url('master/dzongkhags') ,
+            'cancelName' => 'CANCEL'
+            ])
 
         </div>
     </div>

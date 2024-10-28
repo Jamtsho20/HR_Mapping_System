@@ -51,8 +51,12 @@
             </div>
 
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
-                <a href="{{ url('master/offices') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+                @include('layouts.includes.buttons', [
+                'buttonName' => 'SAVE',
+                'cancelUrl' => url('master/offices') ,
+                'cancelName' => 'CANCEL'
+                ])
+            
             </div>
         </div>
     </div>

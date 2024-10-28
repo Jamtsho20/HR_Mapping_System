@@ -31,26 +31,30 @@
                         </select>
                     </div>
                     <div class="col-md-64">
-                    <div class="form-group "></div>
-                    <label class="custom-switch">
-                        <!-- Hidden input to pass '0' when checkbox is unchecked -->
-                        <input type="hidden" name="status[is_active]" value="0">
-                        <!-- Checkbox to pass '1' when checked -->
-                        <input type="checkbox"
-                            name="status[is_active]"
-                            class="custom-switch-input form-control form-control-sm"
-                            value="1"
-                            {{ old('status.is_active', $office->status) == 1 ? 'checked' : '' }} />
-                        <span class="custom-switch-indicator"></span>
-                        <span class="custom-switch-description">is Active</span>
-                    </label>
-                </div>
+                        <div class="form-group "></div>
+                        <label class="custom-switch">
+                            <!-- Hidden input to pass '0' when checkbox is unchecked -->
+                            <input type="hidden" name="status[is_active]" value="0">
+                            <!-- Checkbox to pass '1' when checked -->
+                            <input type="checkbox"
+                                name="status[is_active]"
+                                class="custom-switch-input form-control form-control-sm"
+                                value="1"
+                                {{ old('status.is_active', $office->status) == 1 ? 'checked' : '' }} />
+                            <span class="custom-switch-indicator"></span>
+                            <span class="custom-switch-description">is Active</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="card-footer text-center">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-            <a href="{{ url('master/offices') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' => url('master/offices') ,
+            'cancelName' => 'CANCEL'
+            ])
+              
         </div>
     </div>
 </form>

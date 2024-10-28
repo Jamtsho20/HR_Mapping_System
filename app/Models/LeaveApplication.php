@@ -10,7 +10,7 @@ class LeaveApplication extends Model
 {
     use HasFactory, CreatedByTrait;
     protected $fillable = [
-        'mas_employee_id', 'mas_leave_type_id', 'from_day', 'to_day', 'from_date', 'to_date', 'no_of_days', 'remarks', 'attachment', 'status'
+        'mas_leave_type_id', 'from_day', 'to_day', 'from_date', 'to_date', 'no_of_days', 'remarks', 'attachment', 'status'
     ];
 
     public function histories()
