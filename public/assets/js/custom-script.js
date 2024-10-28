@@ -1,7 +1,7 @@
-var hrms = function() {
+var hrms = function () {
     function initialize() {
         //Ajax to fetch gewogs based on dzongkhag section
-        $(document).on("change", "#dzongkhag_search", function() {
+        $(document).on("change", "#dzongkhag_search", function () {
             var dzongkhagId = $("#dzongkhag_search").val();
             if (dzongkhagId !== '') {
                 //ajax call
@@ -9,13 +9,13 @@ var hrms = function() {
                     url: "/getgewogbydzongkhag/" + dzongkhagId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var gewogs = data;
                         var html = "<option value='' disabled selected hidden>Select Dzongkhag</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]
-                                .name + "</option>";
+                                    .name + "</option>";
                         }
                         $("#gewog_search").html(html);
                     }
@@ -25,7 +25,7 @@ var hrms = function() {
             }
         });
 
-        $(document).on("change", "#dzongkhag_id", function() {
+        $(document).on("change", "#dzongkhag_id", function () {
             var dzongkhagId = $("#dzongkhag_id").val();
             if (dzongkhagId !== '') {
                 //ajax call
@@ -33,13 +33,13 @@ var hrms = function() {
                     url: "/getgewogbydzongkhag/" + dzongkhagId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var gewogs = data;
                         var html = "<option value='' disabled selected hidden>Select a gewog</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]
-                                .name + "</option>";
+                                    .name + "</option>";
                         }
                         $("#gewog_id").html(html);
                     }
@@ -50,7 +50,7 @@ var hrms = function() {
         });
 
         //populate village based on selection of gewogs
-        $(document).on("change", "#gewog_id", function() {
+        $(document).on("change", "#gewog_id", function () {
             var gewogId = $("#gewog_id").val();
             if (gewogId !== '') {
                 //ajax call
@@ -58,13 +58,13 @@ var hrms = function() {
                     url: "/getvillagebygewog/" + gewogId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var gewogs = data;
                         var html = "<option value='' disabled selected hidden>Select a gewog</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]
-                                .village + "</option>";
+                                    .village + "</option>";
                         }
                         $("#village_id").html(html);
                     }
@@ -75,7 +75,7 @@ var hrms = function() {
         });
 
         //dzongkhag and gewog population for present address
-        $(document).on("change", "#mas_dzongkhag_id", function() {
+        $(document).on("change", "#mas_dzongkhag_id", function () {
             var dzongkhagId = $("#mas_dzongkhag_id").val();
             if (dzongkhagId !== '') {
                 //ajax call
@@ -83,13 +83,13 @@ var hrms = function() {
                     url: "/getgewogbydzongkhag/" + dzongkhagId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var gewogs = data;
                         var html = "<option value='' disabled selected hidden>Select a gewog</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]
-                                .name + "</option>";
+                                    .name + "</option>";
                         }
                         $("#mas_gewog_id").html(html);
                     }
@@ -100,7 +100,7 @@ var hrms = function() {
         });
 
         //populate village based on selection of gewogs
-        $(document).on("change", "#gewog_id", function() {
+        $(document).on("change", "#gewog_id", function () {
             var gewogId = $("#gewog_id").val();
             if (gewogId !== '') {
                 //ajax call
@@ -108,13 +108,13 @@ var hrms = function() {
                     url: "/getvillagebygewog/" + gewogId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var gewogs = data;
                         var html = "<option value='' disabled selected hidden>Select a village</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]
-                                .village + "</option>";
+                                    .village + "</option>";
                         }
                         $("#village_id").html(html);
                     }
@@ -125,7 +125,7 @@ var hrms = function() {
         });
 
         //populate section based on selection of department
-        $(document).on("change", "#department_id", function() {
+        $(document).on("change", "#department_id", function () {
             var departmentId = $("#department_id").val();
             if (departmentId !== '') {
                 //ajax call
@@ -133,13 +133,13 @@ var hrms = function() {
                     url: "/getsectionbydepartment/" + departmentId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var section = data;
                         var html = "<option value='' disabled selected hidden>Select a section</option>";
                         for (var x in data) {
                             html += "<option value='" +
                                 data[x].id + "'>" + data[x]
-                                .name + "</option>";
+                                    .name + "</option>";
                         }
                         $("#section_id").html(html);
                         // $("#section_id").prop('disabled', false);
@@ -152,7 +152,7 @@ var hrms = function() {
         });
 
         //populate grade step based on selection of grade
-        $(document).on("change", "#grade_id", function() {
+        $(document).on("change", "#grade_id", function () {
             var gradeId = $("#grade_id").val();
             var gradeStepSelect = $("#grade_step_id");
             // var stepPointSelect = $("#step_point");
@@ -162,7 +162,7 @@ var hrms = function() {
                     url: "/getgradestepbygrade/" + gradeId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         var gradeStep = data;
                         var html = "<option value='' data-starting-salary='' data-point='' disabled selected hidden>Select a grade step</option>";
                         for (var x in data) {
@@ -178,7 +178,7 @@ var hrms = function() {
         });
 
         //populate payscale and basic pay based on gradestep
-        $(document).on("change", "#grade_step_id", function() {
+        $(document).on("change", "#grade_step_id", function () {
             var gradeStepId = $("#grade_step_id").val();
             if (gradeStepId !== '') {
                 //ajax call
@@ -186,7 +186,7 @@ var hrms = function() {
                     url: "/getpayscalebygradestep/" + gradeStepId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         // var payScale = data.pay_scale;
                         $("#pay_scale").val(data[0].starting_salary + ' - ' + data[0].increment + ' - ' + data[0].ending_salary); // set the value for pay scale
                         $("#basic_pay").val(data[0].starting_salary); // set the value for pay scale
@@ -199,7 +199,7 @@ var hrms = function() {
         });
 
         //populate leave balnce based on selection of leaveType
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Function to populate leave balance based on leaveType
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
@@ -210,7 +210,7 @@ var hrms = function() {
                         url: "/getleavebalancebyleavetype/" + leaveType,
                         dataType: "JSON",
                         type: "GET",
-                        success: function(data) {
+                        success: function (data) {
                             $("#leave_balance").val(data.balance); // set the value for leave balance
                             // Disable form fields if balance is 0
                             if (data.balance == 0) {
@@ -232,18 +232,18 @@ var hrms = function() {
                     $("#leave_balance").val('');
                 }
             }
-        
+
             // Trigger on page load (during edit)
             populateLeaveBalance();
-        
+
             // Trigger on change of leave type
-            $(document).on("change", "#leave_type", function() {
+            $(document).on("change", "#leave_type", function () {
                 populateLeaveBalance();
             });
         });
 
         //calculate no of leave days based on from date, to date, excluding holidays
-        $(document).on("change", "#from_date, #to_date, #ddl_from_day, #ddl_to_day", function() {
+        $(document).on("change", "#from_date, #to_date, #ddl_from_day, #ddl_to_day", function () {
             var fromDate = $("#from_date").val();
             var toDate = $("#to_date").val();
             var fromDay = $("#ddl_from_day").val();
@@ -253,10 +253,10 @@ var hrms = function() {
                 //ajax call
                 $.ajax({
                     url: "/getnoofdaysbydate/",
-                    data: { fromDate: fromDate, toDate: toDate, fromDay: fromDay, toDay: toDay},
+                    data: { fromDate: fromDate, toDate: toDate, fromDay: fromDay, toDay: toDay },
                     dataType: "JSON",
                     type: "GET",
-                    success: function(data) {
+                    success: function (data) {
                         $("#no_of_days").val(data); // set the value for leave balance
                     }
                 });
@@ -267,29 +267,29 @@ var hrms = function() {
 
         //show employee field for hierarchy level based on selection of approving authority
         // employee_select
-        $(document).on("change", ".approving-authority-select", function() {
+        $(document).on("change", ".approving-authority-select", function () {
             var approvingAuthorityId = $(this).val();
             var row = $(this).closest('tr');  // Get the current row
             var employeeSelect = row.find('.employee-select');
-            
+
             // Show the employee dropdown by default
             employeeSelect.show();
-        
+
             if (approvingAuthorityId !== '') {
                 // Make an AJAX request to fetch employees based on approving authority
                 $.ajax({
                     url: "/getemployeebyapprovingauthority/" + approvingAuthorityId,
                     dataType: "JSON",
                     type: "GET",
-                    success: function(response) {
+                    success: function (response) {
                         if (response.has_employee_field) {
                             // If there are employees, populate the dropdown
                             if (response.employees.length > 0) {
                                 employeeSelect.empty();
                                 employeeSelect.append('<option value="" disabled selected hidden>Select Employee</option>');
-                                
+
                                 // Populate the employee select with data from the response
-                                $.each(response.employees, function(index, employee) {
+                                $.each(response.employees, function (index, employee) {
                                     employeeSelect.append('<option value="' + employee.id + '">' + employee.username + ' - ' + employee.name + '</option>');
                                 });
                             } else {
@@ -306,7 +306,7 @@ var hrms = function() {
                             // employeeSelect.hide();
                         }
                     },
-                    error: function() {
+                    error: function () {
                         employeeSelect.empty();
                         employeeSelect.append('<option value="" disabled selected hidden>Error loading employees</option>');
                     }
@@ -319,34 +319,34 @@ var hrms = function() {
         });
 
         //generating advance no based on advance types
-        $(document).on('change', '#advance_type', function(){
+        $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();
-            if(advanceTypeId !== ''){
+            if (advanceTypeId !== '') {
                 $.ajax({
                     url: "/getadvancenobyadvancetype/" + advanceTypeId,
                     dataType: "JSON",
                     type: "GET",
 
-                    success: function(response) {
-                        $('#advance_no').val(response.advance_no) 
-                        if(response.sifa_interest_rate != 0){
+                    success: function (response) {
+                        $('#advance_no').val(response.advance_no)
+                        if (response.sifa_interest_rate != 0) {
                             $('#interest_rate_sifa').val(response.sifa_interest_rate);
                         }
                     },
-                    error: function(response) {
+                    error: function (response) {
                         alert('Something went wrong, please contact system admin for further information!');
                     }
                 });
-                if(advanceTypeId == 4){ // external api from SOMs will be called here to get Item Types(name, code and amount)
+                if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
                     $.ajax({
                         url: 'https://external-application.com/api/endpoint', // External API URL
                         dataType: 'JSON',
                         type: 'GET',
-                        success: function(response) {
+                        success: function (response) {
                             // Handle the response from the external API
                             // $('#item_type').val(response.advance_no); // Example field for external response
                         },
-                        error: function(response) {
+                        error: function (response) {
                             console.log(response.error);
                             alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
                         }
@@ -355,78 +355,78 @@ var hrms = function() {
             }
         })
 
-        //populate expense details based on selection of expense types for validation purpose
-        $(document).ready(function() {
-            // Function to populate leave balance based on leaveType
+       //APPLY EXPENSE POLICY RULES
+        $(document).ready(function () {
             function getExpenseDetails() {
-                var expenseType = $("#expense-type").val();
-                var formId = $("#apply-expense");
-                var expenseAmount = $("#expense-amount").val();
-                if (expenseType !== '') {
-                    // ajax call
-                    $.ajax({
-                        url: "/getmaxexpenseamountbyexpensetype/" + expenseType,
-                        dataType: "JSON",
-                        type: "GET",
-                        success: function(data) {
-                            $("#leave_balance").val(data.balance); // set the value for leave balance
-                            // Disable form fields if balance is 0
-                            if (data.balance == 0) {
-                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
-                                $("#leave_type").prop("disabled", false);
-                            } else {
-                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
-                            }
-                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                                $("#attachment").attr("required", "required");
-                                $("#attachment_required").show();
-                            } else {
-                                $("#attachment").removeAttr("required");
-                                $("#attachment_required").hide();
-                            }
-                        }
-                    });
-                } else {
-                    $("#leave_balance").val('');
+                const expenseType = $("#expense_type").val();
+                const formId = $("#apply_expense");
+
+                if (!expenseType) {
+                    $("#amount").val('').removeAttr("max");
+                    return;
                 }
+
+                $.ajax({
+                    url: `/getmaxexpenseamountbyexpensetype/${expenseType}`,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function (data) {
+                        const currentAmount = parseFloat($('#amount').val());
+
+                        if (currentAmount > data.limit_amount) {
+                            formId.find("input, select, textarea").prop("disabled", true);
+                            $("#expense_type").prop("disabled", false);
+                            $("#amount").prop('disabled', false);
+                            alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
+                        } else {
+                            formId.find("input, select, textarea").prop("disabled", false);
+                        }
+
+                        // Handle attachment requirement
+                        if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                            $("#attachment").attr("required", "required");
+                            $("#attachment_required").show();
+                        } else {
+                            $("#attachment").removeAttr("required");
+                            $("#attachment_required").hide();
+                        }
+                    }
+                });
             }
-        
-            // Trigger on page load (during edit)
+
+            // Trigger on page load and when expense type or amount changes
             getExpenseDetails();
-        
-            // Trigger on change of leave type
-            $(document).on("change", "#expense_type", function() {
-                getExpenseDetails();
-            });
+            $(document).on("change", "#expense_type, #amount", getExpenseDetails);
         });
-        
+
+
         //END
 
         //turn off all the autocomplete feature within the forms
         $('form').find('input').attr('autocomplete', 'off');
 
         //reset filters
-        $('#form-reset').on('click', function() {
+        $('#form-reset').on('click', function () {
             let form = $('#filter-form');
-            form.find('select').each(function() {
+            form.find('select').each(function () {
                 $(this).prop('selectedIndex', 0);
             });
-            form.find('input').each(function() {
+            form.find('input').each(function () {
                 $(this).val('');
             });
             form.submit();
         });
 
         // edit modal script
-        $('.edit-btn').click(function(e) {
+        $('.edit-btn').click(function (e) {
             e.preventDefault(); // Prevent the default action if needed
             var url = $(this).data('url');
             var updateUrl = $(this).data('update-url');
 
             $.get(url)
-                .done(function(data) {
+                .done(function (data) {
                     // Populate form fields with the fetched data
-                    $.each(data, function(key, value) {
+                    $.each(data, function (key, value) {
                         var field = $('#edit-modal-form').find('[name="' + key + '"]');
                         if (field.length) {
                             field.val(value || '');
@@ -439,36 +439,36 @@ var hrms = function() {
                     // Show the modal
                     $('#edit-modal').modal('show');
                 })
-                .fail(function(error) {
+                .fail(function (error) {
                     console.error('Error:', error);
                 });
         });
-// add modal script
-$('.add-btn').click(function(e) {
-    e.preventDefault(); // Prevent the default action if needed
-    var url = $(this).data('url');
-    var updateUrl = $(this).data('update-url');
+        // add modal script
+        $('.add-btn').click(function (e) {
+            e.preventDefault(); // Prevent the default action if needed
+            var url = $(this).data('url');
+            var updateUrl = $(this).data('update-url');
 
-    $.get(url)
-        .done(function(data) {
-            // Populate form fields with the fetched data
-            $.each(data, function(key, value) {
-                var field = $('#add-modal-form').find('[name="' + key + '"]');
-                if (field.length) {
-                    field.val(value || '');
-                }
-            });
+            $.get(url)
+                .done(function (data) {
+                    // Populate form fields with the fetched data
+                    $.each(data, function (key, value) {
+                        var field = $('#add-modal-form').find('[name="' + key + '"]');
+                        if (field.length) {
+                            field.val(value || '');
+                        }
+                    });
 
-            // Set the form's action URL
-            $('#add-modal-form').attr('action', updateUrl);
+                    // Set the form's action URL
+                    $('#add-modal-form').attr('action', updateUrl);
 
-            // Show the modal
-            $('#add-modal').modal('show');
-        })
-        .fail(function(error) {
-            console.error('Error:', error);
+                    // Show the modal
+                    $('#add-modal').modal('show');
+                })
+                .fail(function (error) {
+                    console.error('Error:', error);
+                });
         });
-});
 
     }
     return {
@@ -476,7 +476,7 @@ $('.add-btn').click(function(e) {
     }
 }();
 
-$(document).ready(function() {
+$(document).ready(function () {
     hrms.Initialize();
 });
 

@@ -32,11 +32,14 @@
                     </div>
                 </div>
             </div>
-        <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
-            <a href="{{ url('master/leave-types') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            <div class="card-footer">
+                @include('layouts.includes.buttons', [
+                'buttonName' => 'SAVE',
+                'cancelUrl' => url('master/leave-types'),
+                'cancelName' => 'CANCEL'
+                ])                
+            </div>
         </div>
-    </div>
 </form>
 
 @include('layouts.includes.delete-modal')

@@ -41,9 +41,13 @@
                 </div>
             </div>
         </div>
-        <div class="card-footer text-center">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-            <a href="{{ url('master/regions') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        <div class="card-footer">
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' =>url('master/regions'),
+            'cancelName' => 'CANCEL'
+            ])
+           
         </div>
     </div>
 </form>
@@ -54,5 +58,5 @@
 
 
 
-    @include('layouts.includes.delete-modal')
-    @endsection
+@include('layouts.includes.delete-modal')
+@endsection

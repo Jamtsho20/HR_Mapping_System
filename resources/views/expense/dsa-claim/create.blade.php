@@ -69,7 +69,7 @@
                                                         </select>
                                                         entries
                                                     </label>
-                                                </div>
+                                                </div>   
                                                 <div class="dataTables_scroll">
                                                     <div class="dataTables_scrollHead"
                                                         style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -86,7 +86,7 @@
                                                                         <th>
                                                                             From Location
                                                                         </th>
-                                                                        <th>
+                                                                         <th>
                                                                             To Date
                                                                         </th>
                                                                         <th>

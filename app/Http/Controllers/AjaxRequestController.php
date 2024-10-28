@@ -9,6 +9,7 @@ use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
 use App\Models\AdvanceApplication;
 use App\Models\MasEmployeeJob;
+use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
@@ -87,7 +88,8 @@ class AjaxRequestController extends Controller
         return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
     }
 
-    public function getNoOfDays(Request $request){
+    public function getNoOfDays(Request $request)
+    {
         // $loggedInUserId = auth()->user()->id;
         // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
         // $loggedInUserRegion = DB::select(
@@ -165,7 +167,8 @@ class AjaxRequestController extends Controller
         return $totalDays;
     }
 
-    public function getEmployeeSelect($id) {
+    public function getEmployeeSelect($id)
+    {
         $approvingAuthority = ApprovingAuthority::where('id', $id)->whereStatus(1)->first();
         $employeeSelect = [];
 
@@ -181,13 +184,14 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getAdvanceNumber($id) {
+    public function getAdvanceNumber($id)
+    {
         $sifaInterestRate = 0;
         $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
 
         $latestTransaction = AdvanceApplication::where('advance_type_id', $id)
-                            ->latest('id') // Orders by id in descending order
-                            ->first();
+            ->latest('id') // Orders by id in descending order
+            ->first();
 
         // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
         $nextSequence = $latestTransaction ? (int)substr($latestTransaction->advance_no, -4) + 1 : 1;
@@ -196,7 +200,7 @@ class AjaxRequestController extends Controller
         $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
 
         // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
-        if($id == SIFA_LOAN){
+        if ($id == SIFA_LOAN) {
             $sifaInterestRate = SIFA_INTEREST_RATE;
         }
 
@@ -206,8 +210,27 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getExpenseAmount($id) {
+    public function getExpenseAmount($id)
+    {
+        // dd($id);
+        $loggedInUserRegion = loggedInUserRegion();
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($id, $empJobDetail, $loggedInUserRegion) {
+            $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
+                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
+                    $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
+                        ->whereStatus(1);
+                }]);
+        }])
+        ->where('mas_expense_type_id', $id)
+        ->whereStatus(1)
+        ->first();
 
+        $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
+        $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
+
+        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
     }
 
     public function getApprovalHeadTypes($id)
@@ -241,13 +264,15 @@ class AjaxRequestController extends Controller
         return $field;
     }
 
-    public function getEmployees() {
+    public function getEmployees()
+    {
         $employees = User::select('id', 'name', 'employee_id')->get();
 
         return $employees;
     }
 
-    public function getSystemHierarchyLevels($id) {
+    public function getSystemHierarchyLevels($id)
+    {
         $levels = SystemHierarchyLevel::whereSystemHierarchyId($id)->select('id', 'level')->get();
 
         return $levels;

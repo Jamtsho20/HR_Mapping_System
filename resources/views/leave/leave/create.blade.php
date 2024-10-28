@@ -140,7 +140,7 @@
         }
 
         // Total days calculation
-        var totalDays;
+        var totalDays;e
 
         if (dayDifference === 0) {
             // If fromDate and toDate are the same day

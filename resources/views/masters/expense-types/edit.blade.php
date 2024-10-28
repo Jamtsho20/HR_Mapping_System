@@ -61,8 +61,12 @@
             </div>
         </div>
         <div class="card-body font-size-sm" style="text-align: right;">
-            <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> UPDATE</button>
-            <a href="{{ url('master/expense-types') }}" class="btn btn-danger btn-sm"> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'Update',
+            'cancelUrl' => url('master/expense-types') ,
+            'cancelName' => 'CANCEL'
+            ])
+
         </div>
     </div>
 </form>
