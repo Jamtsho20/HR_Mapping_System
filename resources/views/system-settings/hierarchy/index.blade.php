@@ -42,8 +42,8 @@
                                                     <tbody>
                                                         <tr>
                                                             <th>Level</th>
-                                                            <th>Value</th>
                                                             <th>Approver</th>
+                                                            <th>Employee</th>
                                                             <th>Start Date</th>
                                                             <th>End Date</th>
                                                             <th>Status</th>

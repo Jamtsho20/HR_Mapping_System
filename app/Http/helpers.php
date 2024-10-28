@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use Intervention\Image\Facades\Image as Image;
 /**
@@ -247,5 +248,20 @@ if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id ba
                                         left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
                                         where t1.id = ?", [$loggedInUserOfficeId]);
         return $loggedInUserRegion;
+    }
+}
+
+if(!function_exists('approvalHeadConditionField')){
+    function approvalHeadConditionFields($approvalHeadId, $request) {
+        $conditionFields = MasConditionField::where('mas_approval_head_id', $approvalHeadId)->get(['id', 'name', 'has_employee_field'])->toArray();
+        foreach($conditionFields as &$field){
+            if($request->has($field['name'])){
+                $field['value'] = $request->input($field['name']);
+                // $field['value'] = $request   
+            }else {// Set 'value' to null if not present in the request
+                $field['value'] = null;
+            }
+        }
+        return $conditionFields;
     }
 }

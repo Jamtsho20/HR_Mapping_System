@@ -13,12 +13,19 @@ class HierarchyController extends Controller
 {
     private $rules = [
         'name' => 'required',
-        'hierarchies.*.level' => 'required'
+        'hierarchies.*.level' => 'required',
+        'hierarchies.*.start_date' => 'required',
+        'hierarchies.*.approving_authority' => 'required',
+        'hierarchies.*.employee' => 'required_if:approving_authority,' . !IMMEDIATE_HEAD || !DEPARTMENT_HEAD,
     ];
 
     private $messages = [
-        'hierarchies.*.level.required' => 'Level field is required',
+        'hierarchies.*.level.required' => 'Level field is required.',
+        'hierarchies.*.start_date.required' => 'Start date field is required.',
+        'hierarchies.*.approving_authority.required' => 'Approving authority field is required.',
+        'hierarchies.*.employee.required' => 'Employee field is required for selected approving authority.',
     ];
+
     public function __construct()
     {
         $this->middleware('permission:system-setting/hierarchies,view')->only('index');

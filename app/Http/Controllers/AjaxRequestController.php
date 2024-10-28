@@ -9,6 +9,7 @@ use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
 use App\Models\AdvanceApplication;
 use App\Models\MasEmployeeJob;
+use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;

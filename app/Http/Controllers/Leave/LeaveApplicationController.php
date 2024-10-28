@@ -8,6 +8,7 @@ use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\EmployeeLeave;
 use App\Models\MasEmployeeJob;
+use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -78,6 +79,8 @@ class LeaveApplicationController extends Controller
         }
 
         $this->validate($request, $this->rules, $this->messages);
+        $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        // dd($conditionFields);
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
@@ -100,6 +103,10 @@ class LeaveApplicationController extends Controller
                 'remarks' => $request->remarks,
                 'created_by' => loggedInUser(),
             ]);
+
+            // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
+            $approvalService = new ApprovalService();
+            $approvalService->notifyApprover($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -285,4 +292,5 @@ class LeaveApplicationController extends Controller
             'attachment' => $attachment
         ];   
     }
+
 }
