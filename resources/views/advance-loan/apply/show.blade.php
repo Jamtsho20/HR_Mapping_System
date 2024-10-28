@@ -1,64 +1,81 @@
 @extends('layouts.app')
+@section('page-title', 'Advance Loan Application Details')
+@section('buttons')
+<a href="{{ route('apply.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Advance Loan List</a>
+@endsection
 
 @section('content')
-<div class="container">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3>Advance Loan Application Details</h3>
-            <a href="{{ route('apply.index') }}" class="close custom-close-btn" id="btn_addClose" aria-label="Close">
-                <span aria-hidden="true">×</span>
-            </a>
-        </div>
-        <div class="card-body">
-            <form>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
                 <div class="row">
+
                     <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="advance_no">Advance No <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="advance_no" value="{{ $advance->advance_no }}" readonly>
-                        </div>
+                        <ul class="list-group list-group-unbordered">
+                            <li class="list-group-item">
+                                <b>Advance No</b> <a class="pull-right">{{ $advance->advance_no }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Date</b> <a class="pull-right">{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Advance Type</b> <a class="pull-right">{{ optional($advance->advanceType)->name ?? 'N/A' }}</a>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="date">Date <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="date" value="{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}" readonly>
-                        </div>
+
+                    <div class="col-md-8">
+                        <ul class="list-group list-group-unbordered">
+                            <!-- Include dynamic fields based on advance type -->
+                            <li class="list-group-item">
+                                <a class="pull-right">
+                                    @if($advance->advanceType)
+                                        @if($advance->advanceType->name === 'Advance to Staff')
+                                            @include('advance-loan.apply.show.advance-to-staff')
+                                        @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
+                                            @include('advance-loan.apply.show.dsa-advance')
+                                        @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
+                                            @include('advance-loan.apply.show.electricity-imprest')
+                                        @elseif($advance->advanceType->name === 'Imprest Advance')
+                                            @include('advance-loan.apply.show.general-imprest')
+                                        @elseif($advance->advanceType->name === 'Gadget EMI')
+                                            @include('advance-loan.apply.show.gadget-emi')
+                                        @elseif($advance->advanceType->name === 'SIFA LOAN')
+                                            @include('advance-loan.apply.show.sifa-loan')
+                                        @elseif($advance->advanceType->name === 'Salary Advance')
+                                            @include('advance-loan.apply.show.salary-advance')
+                                        @endif
+                                    @endif
+                                </a>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="advance_type">Advance Type <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="advance_type" value="{{ optional($advance->advanceType)->name ?? 'N/A' }}" readonly>
-                        </div>
-                    </div>
+
                 </div>
+            </div>
+            <div class="card-footer">
+                <ul class="list-group list-group-unbordered">
 
-                <!-- Dynamic fields based on advance type -->
-                <div id="dynamic-fields">
-                    @if($advance->advanceType)
+                    <li class="list-group-item">
+                        <b>Approved By</b>
+                        <a class="pull-right"></a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Rejected By</b> <a class="pull-right"></a>
 
-                    @if($advance->advanceType->name === 'Advance to Staff')
-                    @include('advance-loan.apply.show.advance-to-staff')
+                    </li>
 
-                    @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
-                    @include('advance-loan.apply.show.dsa-advance')
 
-                    @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
-                    @include('advance-loan.apply.show.electricity-imprest')
+                </ul>
+            </div>
 
-                    @elseif($advance->advanceType->name === 'Imprest Advance')
-                    @include('advance-loan.apply.show.general-imprest')
-
-                    @elseif($advance->advanceType->name === 'Gadget EMI')
-                    @include('advance-loan.apply.show.gadget-emi')
-
-                    @elseif($advance->advanceType->name === 'SIFA LOAN')
-                    @include('advance-loan.apply.show.sifa-loan')
-                    
-                    @endif
-                    @endif
-                </div>
-            </form>
         </div>
     </div>
 </div>
+
 @endsection
+
+@push('page_scripts')
+@endpush

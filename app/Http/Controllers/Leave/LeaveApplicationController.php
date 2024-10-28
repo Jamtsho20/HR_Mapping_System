@@ -79,7 +79,7 @@ class LeaveApplicationController extends Controller
         }
 
         $this->validate($request, $this->rules, $this->messages);
-        $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        // $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         // dd($conditionFields);
         try {
             DB::beginTransaction();
@@ -105,8 +105,8 @@ class LeaveApplicationController extends Controller
             ]);
 
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
-            $approvalService = new ApprovalService();
-            $approvalService->notifyApprover($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+            // $approvalService = new ApprovalService();
+            // $approvalService->notifyApprover($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -249,7 +249,7 @@ class LeaveApplicationController extends Controller
                 2 => 'months',
                 default => 'days',
             };
-            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . 'in a row for' . $leaveType . '.');
+            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
         }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {

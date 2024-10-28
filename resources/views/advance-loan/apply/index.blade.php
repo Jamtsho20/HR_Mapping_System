@@ -13,7 +13,7 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="col-8 form-group">
-        <input type="text" name="applyadvance" class="form-control" value="{{ request()->get('applyadvance') }}" placeholder="Search">
+        <input type="text" name="advance_type" class="form-control" value="{{ request()->get('advance_type') }}" placeholder="Advance Type">
     </div>
     @endcomponent
 
@@ -46,15 +46,31 @@
                                                     <td>{{ $advance->advanceType->name }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}</td>
                                                     <td>{{ number_format($advance->amount, 2) }}</td>
-                                                    <td class="text-center">
-                                                        <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $advance->status == 1 ? 'primary' : ($advance->status == -1 ? 'danger' : ($advance->status == 2 ? 'success' : 'secondary')) }}">
-                                                            {{ $advance->status_name }} <!-- Use the accessor here -->
-                                                        </span>
+                                                    <td>
+                                                        @if($advance->status == 1)
+                                                        <span class="badge bg-primary">Applied</span>
+                                                        @elseif($advance->status == 2)
+                                                        <span class="badge bg-summary">Approved</span>
+                                                        @elseif($advance->status == 0)
+                                                        <span class="badge bg-warning">Cancelled</span>
+                                                        @elseif($advance->status == -1)
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                        @else
+                                                        <span class="badge bg-secondary">Unknown Status</span>
+                                                        @endif
                                                     </td>
                                                     <td class="text-center">
-                                                        <a href="{{ url('advance-loan/apply/' . $advance->id) }}" class="fa fa-eye m-r-5"></a>
+                                                        @if ($privileges->view)
+                                                        <a href="{{ url('advance-loan/apply/' . $advance->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                        @endif
+                                                        @if ($privileges->edit)
+                                                        <a href="{{ route('apply.edit', $advance->id) }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                        @endif
+                                                        @if ($privileges->delete)
+                                                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('advance-loan/apply/' . $advance->id) }}"> <i class="fa fa-trash"></i> DELETE
+                                                        </a>
+                                                        @endif
                                                     </td>
-
                                                 </tr>
                                                 @empty
                                                 <tr>

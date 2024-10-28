@@ -150,47 +150,53 @@
         });
     }
 
+
+
     function saveFormData() {
         const form = document.getElementById('leave-form');
         const formData = new FormData(form);
         const data = {};
 
         formData.forEach((value, key) => {
-            // If key already exists in data object, convert to array or append new values
+            // Initialize or check for an existing key in the data object
             if (data[key]) {
                 // If not already an array, convert it to an array
                 if (!Array.isArray(data[key])) {
-                    data[key] = [data[key]];
+                    data[key] = [data[key]]; // Convert single value to an array
                 }
-                data[key].push(value); // Add new value to the array
+                // Avoid repeating the same step, only push if value doesn't already exist
+                if (!data[key].includes(value)) {
+                    data[key].push(value); // Add new value if not already in array
+                }
             } else {
-                // Handle checkboxes
+                // Handle checkboxes specifically
                 if (form.elements[key] && form.elements[key].type === 'checkbox') {
-                    data[key] = form.elements[key].checked ? '1' : '0';
+                    data[key] = form.elements[key].checked ? '1' : '0'; // Save '1' if checked, '0' otherwise
+                } else if (form.elements[key] && form.elements[key].multiple) {
+                    // Handle multiple select inputs
+                    const selectedOptions = [...form.elements[key].options].filter(option => option.selected);
+                    data[key] = selectedOptions.map(option => option.value);
                 } else {
-                    data[key] = value; // Set initial value
+                    // Set initial value for non-checkbox elements
+                    data[key] = value;
                 }
             }
         });
 
-        // Save the entire data object as a JSON string in localStorage
-        localStorage.setItem('formData', JSON.stringify(data));
 
+
+        localStorage.setItem('formData', JSON.stringify(data));
         updateSummary(); // Ensure summary is updated right away
     }
 
-
-
-
-
+    // Setup real-time saving for all form inputs
     function setupRealTimeSaving() {
         const form = document.getElementById('leave-form');
         if (form) {
             const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.addEventListener('change', saveFormData);
-                // For text inputs, also listen for keyup events
-                if (input.type === 'text' || input.type === 'textarea') {
+                if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
                     input.addEventListener('keyup', saveFormData);
                 }
             });

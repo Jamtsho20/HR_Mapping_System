@@ -23,7 +23,7 @@ class AdvanceApplication extends Model
         'from_date',
         'to_date',
         'amount',
-        'purpose',
+        'remark',
         'attachment',
         'interest_rate',
         'total_amount', 

@@ -69,12 +69,13 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Third Row -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="remarks">Remarks</label>
-                            <textarea class="form-control" name="remarks" value="{{ $leave->remarks }}"></textarea>
+                            <textarea class="form-control" name="remarks">{{ $leave->remarks }}</textarea>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -88,7 +89,6 @@
                                     </a>
                                 </div>
                             @endif
-                            {{-- <small id="hint_text" class="form-text text-muted" style="display:none;"></small> --}}
                         </div>
                     </div>
                 </div>
@@ -101,25 +101,62 @@
     </form>
     @include('layouts.includes.delete-modal')
 @endsection
+
 @push('page_scripts')
 <script>
     document.getElementById('ddl_from_day').addEventListener('change', function(){
-        var fromDay = this.value
-        var fromDate = document.getElementById('from_date').value
+        var fromDay = this.value;
+        var fromDate = document.getElementById('from_date').value;
         if(fromDay !== '1' && !fromDate){
-            alert('From date cannot be empty!')
-            this.value = '1'
+            alert('From date cannot be empty!');
+            this.value = '1';
         }
-    })
+    });
+
     document.getElementById('ddl_to_day').addEventListener('change', function() {
-        var toDay = this.value
-        var toDate = document.getElementById('to_date').value
-        var fromDate = document.getElementById('from_date').value
+        var toDay = this.value;
+        var toDate = document.getElementById('to_date').value;
+        var fromDate = document.getElementById('from_date').value;
 
         if (toDay !== '1' && (!toDate || !fromDate)) {
-            alert('From date and To date cannot be empty!')
-            this.value = '1'
+            alert('From date and To date cannot be empty!');
+            this.value = '1';
         }
-    })
+    });
+
+    // Calculate leave days using AJAX
+    document.getElementById('ddl_from_day').addEventListener('change', calculateLeaveDays);
+    document.getElementById('ddl_to_day').addEventListener('change', calculateLeaveDays);
+    document.getElementById('from_date').addEventListener('change', calculateLeaveDays);
+    document.getElementById('to_date').addEventListener('change', calculateLeaveDays);
+
+    function calculateLeaveDays() {
+        var fromDate = document.getElementById('from_date').value;
+        var toDate = document.getElementById('to_date').value;
+        var fromDay = document.getElementById('ddl_from_day').value;
+        var toDay = document.getElementById('ddl_to_day').value;
+
+        // Send the data via AJAX
+        if (fromDate && toDate) {
+            $.ajax({
+                url: "{{ url('getnoofdaysbydate') }}", // The route you defined
+                method: 'GET',
+                data: {
+                    from_date: fromDate,
+                    to_date: toDate,
+                    from_day: fromDay,
+                    to_day: toDay
+                },
+                success: function(response) {
+                    document.getElementById('no_of_days').value = response.total_days;
+                },
+                error: function() {
+                    alert('Error calculating leave days.');
+                }
+            });
+        } else {
+            document.getElementById('no_of_days').value = '';
+        }
+    }
 </script>
 @endpush
