@@ -39,8 +39,12 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
-                    <a href="{{ route('region-location.index') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+                    @include('layouts.includes.buttons', [
+                    'buttonName' => 'SAVE',
+                    'cancelUrl' =>route('region-location.index'),
+                    'cancelName' => 'CANCEL'
+                    ])
+
                 </div>
             </div>
         </form>

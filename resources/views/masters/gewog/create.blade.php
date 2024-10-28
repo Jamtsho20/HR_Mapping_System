@@ -13,7 +13,7 @@
                         <select class="form-control" name="mas_dzongkhag_id" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($dzongkhags as $dzongkhag)
-                                <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag }}</option>
+                            <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -27,8 +27,12 @@
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> CREATE</button>
-            <a href="{{ url('master/gewogs') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'SAVE',
+            'cancelUrl' => url('master/gewogs') ,
+            'cancelName' => 'CANCEL'
+            ])
+
         </div>
     </div>
 </form>

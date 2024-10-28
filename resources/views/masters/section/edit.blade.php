@@ -14,9 +14,9 @@
                         <select name="mas_department_id" class="form-control" required>
                             <option value="" disabled>Select your option</option>
                             @foreach ($departments as $department)
-                                <option value="{{ $department->id }}" {{ $section->mas_department_id == $department->id ? 'selected' : '' }}>
-                                    {{ $department->name }}
-                                </option>
+                            <option value="{{ $department->id }}" {{ $section->mas_department_id == $department->id ? 'selected' : '' }}>
+                                {{ $department->name }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -33,9 +33,9 @@
                         <select class="form-control" name="mas_employee_id">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach (employeeList() as $employee)
-                                <option value="{{ $employee->id }}" {{ $section->mas_employee_id == $employee->id ? 'selected' : '' }}>
-                                    {{ $employee->name }}
-                                </option>
+                            <option value="{{ $employee->id }}" {{ $section->mas_employee_id == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->name }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -44,9 +44,12 @@
         </div>
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
-            <a href="{{ url('master/section') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-        </div>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' => url('master/section') ,
+            'cancelName' => 'CANCEL'
+            ])
+           
     </div>
 </form>
 

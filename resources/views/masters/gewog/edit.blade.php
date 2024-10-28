@@ -14,10 +14,10 @@
                         <select name="mas_dzongkhag_id" class="form-control" id="dzongkhag1" required>
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($dzongkhags as $dzongkhag)
-                                <option value="{{ $dzongkhag->id }}" 
-                                    {{ $gewog->mas_dzongkhag_id == $dzongkhag->id ? 'selected' : '' }}>
-                                    {{ $dzongkhag->dzongkhag }}
-                                </option>
+                            <option value="{{ $dzongkhag->id }}"
+                                {{ $gewog->mas_dzongkhag_id == $dzongkhag->id ? 'selected' : '' }}>
+                                {{ $dzongkhag->dzongkhag }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -31,12 +31,13 @@
                 </div>
             </div>
         </div>
-        <div class="card-footer text-left">
-            <button type="submit" class="btn btn-primary mr-2">
-                <i class="fa fa-check"></i> Update
-            </button>
-            <a href="{{ url('master/gewogs') }}" class="btn btn-danger">
-                <i class="fa fa-undo"></i> Cancel
+        <div class="card-footer">
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' => url('master/gewogs') ,
+            'cancelName' => 'CANCEL'
+            ])
+   
             </a>
         </div>
     </div>
