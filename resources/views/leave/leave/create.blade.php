@@ -95,5 +95,41 @@
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
-<script src="{{ asset('js/custom.js') }}"></script>
+<script>
+    document.getElementById('ddl_from_day').addEventListener('change', calculateLeaveDays);
+    document.getElementById('ddl_to_day').addEventListener('change', calculateLeaveDays);
+    document.getElementById('from_date').addEventListener('change', calculateLeaveDays);
+    document.getElementById('to_date').addEventListener('change', calculateLeaveDays);
+
+    function calculateLeaveDays() {
+        var fromDate = document.getElementById('from_date').value;
+        var toDate = document.getElementById('to_date').value;
+        var fromDay = document.getElementById('ddl_from_day').value;
+        var toDay = document.getElementById('ddl_to_day').value;
+
+        // Send the data via AJAX
+        if (fromDate && toDate) {
+            $.ajax({
+                url: '/getnoofdaysbydate', // Update with the correct path
+                method: 'GET',
+                data: {
+                    from_date: fromDate,
+                    to_date: toDate,
+                    from_day: fromDay,
+                    to_day: toDay
+                },
+                success: function (response) {
+                    document.getElementById('no_of_days_leave').value = response.total_days;
+                },
+                error: function () {
+                    alert('Error calculating leave days.');
+                }
+            });
+        } else {
+            document.getElementById('no_of_days_leave').value = '';
+        }
+    }
+</script>
+
+
 @endpush

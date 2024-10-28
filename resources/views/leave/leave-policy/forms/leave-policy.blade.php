@@ -72,6 +72,6 @@
 <div class="row">
     <span class="col-sm-4 "> Is Information Only </span>
     <div class="col-sm-4 ">
-        <input type="checkbox" id="chkIsInformationOnly" value="1" name="leave_policy[is_information_only]" {{ old('leave_policy.is_information_only') ? 'checked' : '' }} />
+        <input type="checkbox" id="chkIsInformationOnly" value="1" {{ old('leave_policy.is_information_only', 1) ? 'checked' : '' }} name="leave_policy[is_information_only]" />
     </div>
 </div>
