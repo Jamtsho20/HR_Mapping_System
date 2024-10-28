@@ -9,7 +9,6 @@ use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
 use App\Models\AdvanceApplication;
 use App\Models\MasEmployeeJob;
-use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
@@ -88,93 +87,46 @@ class AjaxRequestController extends Controller
         return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
     }
 
-    // public function getNoOfDays(Request $request){
-    //     // $loggedInUserId = auth()->user()->id;
-    //     // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
-    //     // $loggedInUserRegion = DB::select(
-    //     //                                 "select
-    //     //                                     t3.mas_region_id as region_id
-    //     //                                 from mas_offices t1
-    //     //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
-    //     //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-    //     //                                 where t1.id = ?", [$loggedInUserOfficeId]);
     public function getNoOfDays(Request $request)
     {
-        // $loggedInUserId = auth()->user()->id;
-        // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
-        // $loggedInUserRegion = DB::select(
-        //                                 "select
-        //                                     t3.mas_region_id as region_id
-        //                                 from mas_offices t1
-        //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
-        //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-        //                                 where t1.id = ?", [$loggedInUserOfficeId]);
+        $fromDate = new \DateTime($request->input('from_date'));
+        $toDate = new \DateTime($request->input('to_date'));
+        $fromDay = (int) $request->input('from_day');
+        $toDay = (int) $request->input('to_day');
 
-    //     $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
+        // Calculate the difference in days
+        $dayDifference = $toDate->diff($fromDate)->days;
 
-    //     $fromDate = Carbon::parse($request->fromDate);
-    //     $toDate = Carbon::parse($request->toDate);
-    //     // dd($fromDate, $toDate);
-    //     $fromDay = (int) $request->fromDay;
-    //     $toDay = (int) $request->toDay;
-    //     // dd(gettype($fromDay));
-    //     $holidays = WorkHolidayList::whereJsonContains('region_id', (string) $loggedInUserRegion[0]->region_id)->get();
-    //     $holidayDates = [];
-    //     $totalDays = 0;
-    //     // Create an array of all holiday dates
-    //     foreach ($holidays as $holiday) {
-    //         $holidayStart = Carbon::parse($holiday->start_date);
-    //         $holidayEnd = Carbon::parse($holiday->end_date);
-    //         // Add each day of the holiday period to the array
-    //         for ($date = $holidayStart; $date->lte($holidayEnd); $date->addDay()) {
-    //             $holidayDates[] = $date->format('Y-m-d');
-    //         }
-    //     }
+        // Adjust based on day selections (full day, half day, etc.)
+        $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
+        $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
 
-    //     for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
-    //         // Skip if the day is a holiday
+        // Calculate total days
+        $totalDays = ($dayDifference === 0)
+            ? $fromDayAdjustment + $toDayAdjustment - 1
+            : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
-            if (in_array($date->format('Y-m-d'), $holidayDates)) {
-                continue;
+        // Count weekends (Saturdays, Sundays) and adjust
+        $sundays = 0;
+        $saturdays = 0;
+
+        $currentDate = clone $fromDate;
+        while ($currentDate <= $toDate) {
+            if ($currentDate->format('w') == 0) { // Sunday
+                $sundays++;
             }
-            // If it's Saturday, count as half day
-            if ($date->isSaturday()) {
-                $totalDays += 0.5;
-                continue;
+            if ($currentDate->format('w') == 6) { // Saturday
+                $saturdays++;
             }
-            // If it's Sunday, skip the day
-            if ($date->isSunday()) {
-                continue;
-            }
-            // Handle the first day (fromDate)
-            if ($date->eq($fromDate)) {
-                if ($fromDay == 1) {
-                    $totalDays += 1; // Full day
-                } elseif ($fromDay == 2) {
-                    $totalDays += 0.5; // First half (morning)
-                } elseif ($fromDay == 3) {
-                    // If the leave starts from the second half, we should skip this day and start the next day as full.
-                    $totalDays += 0.5; // Second half (afternoon)
-                }
-            }
-            // Handle the last day (toDate)
-            elseif ($date->eq($toDate)) {
-                if ($toDay == 1) {
-                    $totalDays += 1; // Full day
-                } elseif ($toDay == 2) {
-                    // If the leave ends on the first half, we only count the first half
-                    $totalDays += 0.5; // First half (morning)
-                } elseif ($toDay == 3) {
-                    $totalDays += 0.5; // Second half (afternoon)
-                }
-            }
-            // Handle normal weekdays in between fromDate and toDate
-            else {
-                $totalDays += 1;
-            }
+            $currentDate->modify('+1 day');
         }
 
-        return $totalDays;
+        // Adjust the total days by excluding weekends
+        $totalDays -= $sundays;
+        $totalDays -= ($saturdays * 0.5);
+
+        // Return the calculated leave days
+        return response()->json(['total_days' => max($totalDays, 0)]);
     }
 
     public function getEmployeeSelect($id)
@@ -220,28 +172,7 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getExpenseAmount($id)
-    {
-        // dd($id);
-        $loggedInUserRegion = loggedInUserRegion();
-        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
-        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($id, $empJobDetail, $loggedInUserRegion) {
-            $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
-                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
-                    $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
-                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
-                        ->whereStatus(1);
-                }]);
-        }])
-        ->where('mas_expense_type_id', $id)
-        ->whereStatus(1)
-        ->first();
-
-        $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
-        $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
-
-        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
-    }
+    public function getExpenseAmount($id) {}
 
     public function getApprovalHeadTypes($id)
     {
