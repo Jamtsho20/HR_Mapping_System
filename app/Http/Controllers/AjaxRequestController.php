@@ -98,17 +98,6 @@ class AjaxRequestController extends Controller
     //     //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
     //     //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
     //     //                                 where t1.id = ?", [$loggedInUserOfficeId]);
-    public function getNoOfDays(Request $request)
-    {
-        // $loggedInUserId = auth()->user()->id;
-        // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
-        // $loggedInUserRegion = DB::select(
-        //                                 "select
-        //                                     t3.mas_region_id as region_id
-        //                                 from mas_offices t1
-        //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
-        //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-        //                                 where t1.id = ?", [$loggedInUserOfficeId]);
 
     //     $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
 
@@ -134,47 +123,88 @@ class AjaxRequestController extends Controller
     //     for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
     //         // Skip if the day is a holiday
 
-            if (in_array($date->format('Y-m-d'), $holidayDates)) {
-                continue;
+    //         if (in_array($date->format('Y-m-d'), $holidayDates)) {
+    //             continue;
+    //         }
+    //         // If it's Saturday, count as half day
+    //         if ($date->isSaturday()) {
+    //             $totalDays += 0.5;
+    //             continue;
+    //         }
+    //         // If it's Sunday, skip the day
+    //         if ($date->isSunday()) {
+    //             continue;
+    //         }
+    //         // Handle the first day (fromDate)
+    //         if ($date->eq($fromDate)) {
+    //             if ($fromDay == 1) {
+    //                 $totalDays += 1; // Full day
+    //             } elseif ($fromDay == 2) {
+    //                 $totalDays += 0.5; // First half (morning)
+    //             } elseif ($fromDay == 3) {
+    //                 // If the leave starts from the second half, we should skip this day and start the next day as full.
+    //                 $totalDays += 0.5; // Second half (afternoon)
+    //             }
+    //         }
+    //         // Handle the last day (toDate)
+    //         elseif ($date->eq($toDate)) {
+    //             if ($toDay == 1) {
+    //                 $totalDays += 1; // Full day
+    //             } elseif ($toDay == 2) {
+    //                 // If the leave ends on the first half, we only count the first half
+    //                 $totalDays += 0.5; // First half (morning)
+    //             } elseif ($toDay == 3) {
+    //                 $totalDays += 0.5; // Second half (afternoon)
+    //             }
+    //         }
+    //         // Handle normal weekdays in between fromDate and toDate
+    //         else {
+    //             $totalDays += 1;
+    //         }
+    //     }
+
+    //     return $totalDays;
+    // }
+    public function getNoOfDays(Request $request)
+    {
+        $fromDate = new \DateTime($request->input('from_date'));
+        $toDate = new \DateTime($request->input('to_date'));
+        $fromDay = (int) $request->input('from_day');
+        $toDay = (int) $request->input('to_day');
+
+        // Calculate the difference in days
+        $dayDifference = $toDate->diff($fromDate)->days;
+
+        // Adjust based on day selections (full day, half day, etc.)
+        $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
+        $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
+
+        // Calculate total days
+        $totalDays = ($dayDifference === 0)
+            ? $fromDayAdjustment + $toDayAdjustment - 1
+            : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
+
+        // Count weekends (Saturdays, Sundays) and adjust
+        $sundays = 0;
+        $saturdays = 0;
+
+        $currentDate = clone $fromDate;
+        while ($currentDate <= $toDate) {
+            if ($currentDate->format('w') == 0) { // Sunday
+                $sundays++;
             }
-            // If it's Saturday, count as half day
-            if ($date->isSaturday()) {
-                $totalDays += 0.5;
-                continue;
+            if ($currentDate->format('w') == 6) { // Saturday
+                $saturdays++;
             }
-            // If it's Sunday, skip the day
-            if ($date->isSunday()) {
-                continue;
-            }
-            // Handle the first day (fromDate)
-            if ($date->eq($fromDate)) {
-                if ($fromDay == 1) {
-                    $totalDays += 1; // Full day
-                } elseif ($fromDay == 2) {
-                    $totalDays += 0.5; // First half (morning)
-                } elseif ($fromDay == 3) {
-                    // If the leave starts from the second half, we should skip this day and start the next day as full.
-                    $totalDays += 0.5; // Second half (afternoon)
-                }
-            }
-            // Handle the last day (toDate)
-            elseif ($date->eq($toDate)) {
-                if ($toDay == 1) {
-                    $totalDays += 1; // Full day
-                } elseif ($toDay == 2) {
-                    // If the leave ends on the first half, we only count the first half
-                    $totalDays += 0.5; // First half (morning)
-                } elseif ($toDay == 3) {
-                    $totalDays += 0.5; // Second half (afternoon)
-                }
-            }
-            // Handle normal weekdays in between fromDate and toDate
-            else {
-                $totalDays += 1;
-            }
+            $currentDate->modify('+1 day');
         }
 
-        return $totalDays;
+        // Adjust the total days by excluding weekends
+        $totalDays -= $sundays;
+        $totalDays -= ($saturdays * 0.5);
+
+        // Return the calculated leave days
+        return response()->json(['total_days' => max($totalDays, 0)]);
     }
 
     public function getEmployeeSelect($id)
