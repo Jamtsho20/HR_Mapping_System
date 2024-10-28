@@ -46,9 +46,11 @@
     </div>
     <div class="col-md-4">
         <div class="form-group">
-            <label for="attachment">Attachment</label>
             @if($advance->attachment)
-            <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+            <br>
+            <a href="{{ asset($advance->attachment) }}" class="btn-sm btn-primary pull-left"
+                target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                &nbsp; Attachment</a>
             @else
             <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
             @endif

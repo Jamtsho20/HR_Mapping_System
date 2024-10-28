@@ -243,27 +243,61 @@ var hrms = function () {
         });
 
         //calculate no of leave days based on from date, to date, excluding holidays
-        $(document).on("change", "#from_date, #to_date, #ddl_from_day, #ddl_to_day", function () {
-            var fromDate = $("#from_date").val();
-            var toDate = $("#to_date").val();
-            var fromDay = $("#ddl_from_day").val();
-            var toDay = $("#ddl_to_day").val();
+        // $(document).on("change", "#from_date, #to_date, #ddl_from_day, #ddl_to_day", function() {
+        //     var fromDate = $("#from_date").val();
+        //     var toDate = $("#to_date").val();
+        //     var fromDay = $("#ddl_from_day").val();
+        //     var toDay = $("#ddl_to_day").val();
 
-            if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
-                //ajax call
+        //     if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
+        //         //ajax call
+        //         $.ajax({
+        //             url: "/getnoofdaysbydate/",
+        //             data: { fromDate: fromDate, toDate: toDate, fromDay: fromDay, toDay: toDay},
+        //             dataType: "JSON",
+        //             type: "GET",
+        //             success: function(data) {
+        //                 $("#no_of_days").val(data); // set the value for leave balance
+        //             }
+        //         });
+        //     } else {
+        //         $("#no_of_days").val('');
+        //     }
+        // });
+        document.getElementById('ddl_from_day').addEventListener('change', calculateLeaveDays);
+        document.getElementById('ddl_to_day').addEventListener('change', calculateLeaveDays);
+        document.getElementById('from_date').addEventListener('change', calculateLeaveDays);
+        document.getElementById('to_date').addEventListener('change', calculateLeaveDays);
+
+        function calculateLeaveDays() {
+            var fromDate = document.getElementById('from_date').value;
+            var toDate = document.getElementById('to_date').value;
+            var fromDay = document.getElementById('ddl_from_day').value;
+            var toDay = document.getElementById('ddl_to_day').value;
+
+            // Send the data via AJAX
+            if (fromDate && toDate) {
                 $.ajax({
-                    url: "/getnoofdaysbydate/",
-                    data: { fromDate: fromDate, toDate: toDate, fromDay: fromDay, toDay: toDay },
-                    dataType: "JSON",
-                    type: "GET",
-                    success: function (data) {
-                        $("#no_of_days").val(data); // set the value for leave balance
+                    url: '/getnoofdaysbydate', // Update with the correct path
+                    method: 'GET',
+                    data: {
+                        from_date: fromDate,
+                        to_date: toDate,
+                        from_day: fromDay,
+                        to_day: toDay
+                    },
+                    success: function (response) {
+                        document.getElementById('no_of_days_leave').value = response.total_days;
+                    },
+                    error: function () {
+                        alert('Error calculating leave days.');
                     }
                 });
             } else {
-                $("#no_of_days").val('');
+                document.getElementById('no_of_days_leave').value = '';
             }
-        });
+        }
+
 
         //show employee field for hierarchy level based on selection of approving authority
         // employee_select
@@ -355,50 +389,50 @@ var hrms = function () {
             }
         })
 
-       //APPLY EXPENSE POLICY RULES
+        //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
+            // Function to populate leave balance based on leaveType
             function getExpenseDetails() {
-                const expenseType = $("#expense_type").val();
-                const formId = $("#apply_expense");
-
-                if (!expenseType) {
-                    $("#amount").val('').removeAttr("max");
-                    return;
+                var expenseType = $("#expense-type").val();
+                var formId = $("#apply-expense");
+                var expenseAmount = $("#expense-amount").val();
+                if (expenseType !== '') {
+                    // ajax call
+                    $.ajax({
+                        url: "/getmaxexpenseamountbyexpensetype/" + expenseType,
+                        dataType: "JSON",
+                        type: "GET",
+                        success: function (data) {
+                            $("#leave_balance").val(data.balance); // set the value for leave balance
+                            // Disable form fields if balance is 0
+                            if (data.balance == 0) {
+                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
+                                $("#leave_type").prop("disabled", false);
+                            } else {
+                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
+                            }
+                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                $("#attachment").attr("required", "required");
+                                $("#attachment_required").show();
+                            } else {
+                                $("#attachment").removeAttr("required");
+                                $("#attachment_required").hide();
+                            }
+                        }
+                    });
+                } else {
+                    $("#leave_balance").val('');
                 }
-
-                $.ajax({
-                    url: `/getmaxexpenseamountbyexpensetype/${expenseType}`,
-                    dataType: "JSON",
-                    type: "GET",
-                    success: function (data) {
-                        const currentAmount = parseFloat($('#amount').val());
-
-                        if (currentAmount > data.limit_amount) {
-                            formId.find("input, select, textarea").prop("disabled", true);
-                            $("#expense_type").prop("disabled", false);
-                            $("#amount").prop('disabled', false);
-                            alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
-                        } else {
-                            formId.find("input, select, textarea").prop("disabled", false);
-                        }
-
-                        // Handle attachment requirement
-                        if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                            $("#attachment").attr("required", "required");
-                            $("#attachment_required").show();
-                        } else {
-                            $("#attachment").removeAttr("required");
-                            $("#attachment_required").hide();
-                        }
-                    }
-                });
             }
 
-            // Trigger on page load and when expense type or amount changes
+            // Trigger on page load (during edit)
             getExpenseDetails();
-            $(document).on("change", "#expense_type, #amount", getExpenseDetails);
-        });
 
+            // Trigger on change of leave type
+            $(document).on("change", "#expense_type", function () {
+                getExpenseDetails();
+            });
+        });
 
         //END
 

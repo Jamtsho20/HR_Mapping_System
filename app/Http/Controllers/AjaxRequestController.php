@@ -88,6 +88,16 @@ class AjaxRequestController extends Controller
         return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
     }
 
+    // public function getNoOfDays(Request $request){
+    //     // $loggedInUserId = auth()->user()->id;
+    //     // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
+    //     // $loggedInUserRegion = DB::select(
+    //     //                                 "select
+    //     //                                     t3.mas_region_id as region_id
+    //     //                                 from mas_offices t1
+    //     //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
+    //     //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
+    //     //                                 where t1.id = ?", [$loggedInUserOfficeId]);
     public function getNoOfDays(Request $request)
     {
         // $loggedInUserId = auth()->user()->id;
@@ -100,29 +110,29 @@ class AjaxRequestController extends Controller
         //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
         //                                 where t1.id = ?", [$loggedInUserOfficeId]);
 
-        $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
+    //     $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
 
-        $fromDate = Carbon::parse($request->fromDate);
-        $toDate = Carbon::parse($request->toDate);
-        // dd($fromDate, $toDate);
-        $fromDay = (int) $request->fromDay;
-        $toDay = (int) $request->toDay;
-        // dd(gettype($fromDay));
-        $holidays = WorkHolidayList::whereJsonContains('region_id', (string) $loggedInUserRegion[0]->region_id)->get();
-        $holidayDates = [];
-        $totalDays = 0;
-        // Create an array of all holiday dates
-        foreach ($holidays as $holiday) {
-            $holidayStart = Carbon::parse($holiday->start_date);
-            $holidayEnd = Carbon::parse($holiday->end_date);
-            // Add each day of the holiday period to the array
-            for ($date = $holidayStart; $date->lte($holidayEnd); $date->addDay()) {
-                $holidayDates[] = $date->format('Y-m-d');
-            }
-        }
+    //     $fromDate = Carbon::parse($request->fromDate);
+    //     $toDate = Carbon::parse($request->toDate);
+    //     // dd($fromDate, $toDate);
+    //     $fromDay = (int) $request->fromDay;
+    //     $toDay = (int) $request->toDay;
+    //     // dd(gettype($fromDay));
+    //     $holidays = WorkHolidayList::whereJsonContains('region_id', (string) $loggedInUserRegion[0]->region_id)->get();
+    //     $holidayDates = [];
+    //     $totalDays = 0;
+    //     // Create an array of all holiday dates
+    //     foreach ($holidays as $holiday) {
+    //         $holidayStart = Carbon::parse($holiday->start_date);
+    //         $holidayEnd = Carbon::parse($holiday->end_date);
+    //         // Add each day of the holiday period to the array
+    //         for ($date = $holidayStart; $date->lte($holidayEnd); $date->addDay()) {
+    //             $holidayDates[] = $date->format('Y-m-d');
+    //         }
+    //     }
 
-        for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
-            // Skip if the day is a holiday
+    //     for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
+    //         // Skip if the day is a holiday
 
             if (in_array($date->format('Y-m-d'), $holidayDates)) {
                 continue;
