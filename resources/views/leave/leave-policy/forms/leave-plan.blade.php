@@ -141,7 +141,7 @@
 
                             </td>
                             <td class="text-center">
-                                <input type="number" min="0" maxlength="5" name="leave_policy_rule[AAAAA][duration]"
+                                <input type="text" min="0" maxlength="5" name="leave_policy_rule[AAAAA][duration]"
                                     class="form-control resetKeyForNew" id="duration" placeholder="Duration"
                                     value="{{ old('leave_policy_rule.AAAAA.duration') }}">
                             </td>
