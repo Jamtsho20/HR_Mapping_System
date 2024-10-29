@@ -162,7 +162,7 @@ class LeaveApplicationController extends Controller
     
             DB::beginTransaction();
             $leaveApplication->update([
-                'mas_employee_id' => $leaveApplication->mas_employee_id,
+                // 'mas_employee_id' => $leaveApplication->mas_employee_id,
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,

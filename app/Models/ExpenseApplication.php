@@ -26,7 +26,7 @@ class ExpenseApplication extends Model
     ];
     public function employee()
     {
-        return $this->belongsTo(User::class, 'mas_employee_id');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function histories()

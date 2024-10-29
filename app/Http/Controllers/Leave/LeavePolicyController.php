@@ -72,6 +72,7 @@ class LeavePolicyController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate($request, $this->rules);
         DB::beginTransaction();
         // dd($request->year_end_processing);
@@ -152,7 +153,7 @@ class LeavePolicyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id)
+    public function destroy($id)
     {
         try {
             MasLeavePolicy::findOrFail($id)->delete();
@@ -164,6 +165,7 @@ class LeavePolicyController extends Controller
     }
 
     private function saveLeavePolicy($policy, $id)
+
     {
         $leavePolicyData = [
             'mas_leave_type_id' => $policy['mas_leave_type_id'],
@@ -172,8 +174,7 @@ class LeavePolicyController extends Controller
             'start_date' => $policy['start_date'],
             'end_date' => $policy['end_date'],
             'status' => $policy['status'],
-            // 'is_information_only' => isset($policy['is_information_only']) ? $policy['is_information_only'] : 0
-            'is_information_only' => $policy['is_information_only']
+            'is_information_only' => isset($policy['is_information_only']) ? $policy['is_information_only'] : 0
         ];
 
         $leavePolicy = MasLeavePolicy::updateOrCreate(
@@ -188,7 +189,7 @@ class LeavePolicyController extends Controller
 
     private function saveLeavePolicyPlan($policyPlan, $leavePolicyId)
     {
-     
+
 
         $leavePolicyPlanData = [
             'mas_leave_policy_id' => $leavePolicyId,
@@ -232,7 +233,6 @@ class LeavePolicyController extends Controller
 
     private function saveLeavePolicyRule($policyRule, $leavePolicyPlanId, $isUpdate = false)
     {
-     
         if ($isUpdate) {
             // Handle single selection update
             foreach ($policyRule as $key => $rule) {
@@ -290,6 +290,7 @@ class LeavePolicyController extends Controller
             }
         } else {
             // Handle multiple selection creation
+                // dd($policyRule);
             foreach ($policyRule as $key => $rule) {
                 // Check if mas_grade_step_id exists in $rule
                 if (!isset($rule['mas_grade_step_id']) || !is_array($rule['mas_grade_step_id'])) {
@@ -319,5 +320,4 @@ class LeavePolicyController extends Controller
             }
         }
     }
-
 }

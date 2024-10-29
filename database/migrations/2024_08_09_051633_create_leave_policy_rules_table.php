@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('leave_policy_plan_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('mas_grade_step_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->unsignedTinyInteger('uom')->comment('1 => day, 2 => month, 3 => year; unit of measurement(uom)');
-            $table->unsignedInteger('duration');
+            $table->decimal('duration', 4, 1);
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->boolean('is_loss_of_pay')->comment('whether applying this leave affects pay or not.');
