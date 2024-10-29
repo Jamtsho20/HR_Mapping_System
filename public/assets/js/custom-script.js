@@ -400,7 +400,8 @@ var hrms = function () {
 
             // Trigger on page load and when expense type or amount changes
             getExpenseDetails();
-            $(document).on("change", "#expense_type, #amount", getExpenseDetails);
+            $(document).on("change", "#expense_type", getExpenseDetails);
+            $(document).on("change", "#amount", getExpenseDetails);
         });
 
 
