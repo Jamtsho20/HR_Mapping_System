@@ -233,7 +233,7 @@ class LeavePolicyController extends Controller
 
     private function saveLeavePolicyRule($policyRule, $leavePolicyPlanId, $isUpdate = false)
     {
-
+       
 
         if ($isUpdate) {
             // Handle single selection update
@@ -292,6 +292,7 @@ class LeavePolicyController extends Controller
             }
         } else {
             // Handle multiple selection creation
+                // dd($policyRule);
             foreach ($policyRule as $key => $rule) {
                 // Check if mas_grade_step_id exists in $rule
                 if (!isset($rule['mas_grade_step_id']) || !is_array($rule['mas_grade_step_id'])) {

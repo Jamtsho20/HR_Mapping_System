@@ -166,7 +166,7 @@ class ExpenseApplicationController extends Controller
         try {
             DB::beginTransaction();
             $expenseApplication->update([
-                'mas_employee_id' => $expenseApplication->mas_employee_id,
+                // 'mas_employee_id' => $expenseApplication->mas_employee_id,
                 'mas_expense_type_id' => $request->expense_type,
                 'date' => $request->date,
                 'expense_amount' => $request->amount,
