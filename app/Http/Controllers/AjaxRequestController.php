@@ -94,7 +94,7 @@ class AjaxRequestController extends Controller
     //     // $loggedInUserRegion = DB::select(
     //     //                                 "select
     //     //                                     t3.mas_region_id as region_id
-    //     //                                 from mas_offices t1
+    //     //                                 from mas_offices t1` 
     //     //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
     //     //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
     //     //                                 where t1.id = ?", [$loggedInUserOfficeId]);
