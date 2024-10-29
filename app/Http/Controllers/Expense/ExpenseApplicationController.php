@@ -244,10 +244,12 @@ class ExpenseApplicationController extends Controller
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+        // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $this->validate($request, [
-                'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-            ]);
+            $this->validate($request, 
+                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
+                ['file.required' => 'The file is required. Please upload a file.']
+            );
         }
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');

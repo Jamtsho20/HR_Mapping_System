@@ -339,6 +339,7 @@ class EmployeeController extends Controller
     {
         // dd($job);
         $messages = [
+            'mas_office_id.required' => 'Job location field is required',
             'job.bank.required_if' => 'The bank field is required when the salary disbursement mode is saving account.',
             'job.account_number.requiredif' => 'The account number field is required when the salary disbursement mode is saving account.'
         ];
@@ -350,6 +351,7 @@ class EmployeeController extends Controller
             'job.mas_grade_step_id' => 'required',
             'job.mas_employment_type_id' => 'required',
             'job.basic_pay' => 'required',
+            'job.mas_office_id' => 'required',
             'job.salary_disbursement_mode' => 'required',
             'job.bank' => 'required_if:job.salary_disbursement_mode,2',
             'job.account_number' => 'requiredif:salary_disbursement_mode,2',
