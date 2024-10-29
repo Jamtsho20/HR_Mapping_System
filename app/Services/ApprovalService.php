@@ -45,8 +45,6 @@ class ApprovalService
 							return $level;
 						});
 
-						dd($parsedLevels);
-
 						// Sort by `numeric_level` descending
 						$sortedLevels = $parsedLevels->sortByDesc('numeric_level')->values();
 
