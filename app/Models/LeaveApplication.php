@@ -30,7 +30,7 @@ class LeaveApplication extends Model
         if ($request->has('leave_type') && $request->query('leave_type') != '') {
             $query->where('mas_leave_type_id', $request->query('leave_type'));
         }
-        $query->where('mas_employee_id', auth()->user()->id);
+        $query->where('created_by', auth()->user()->id);
     }
 
     public function getStatusNameAttribute() {

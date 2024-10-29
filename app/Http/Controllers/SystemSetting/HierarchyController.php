@@ -16,14 +16,15 @@ class HierarchyController extends Controller
         'hierarchies.*.level' => 'required',
         'hierarchies.*.start_date' => 'required',
         'hierarchies.*.approving_authority' => 'required',
-        'hierarchies.*.employee' => 'required_if:approving_authority,' . !IMMEDIATE_HEAD || !DEPARTMENT_HEAD,
+        // 'hierarchies.*.employee' => 'required_unless:approving_authority,' . IMMEDIATE_HEAD . ',' . DEPARTMENT_HEAD,
     ];
 
     private $messages = [
         'hierarchies.*.level.required' => 'Level field is required.',
         'hierarchies.*.start_date.required' => 'Start date field is required.',
         'hierarchies.*.approving_authority.required' => 'Approving authority field is required.',
-        'hierarchies.*.employee.required' => 'Employee field is required for selected approving authority.',
+        // 'hierarchies.*.employee.required_unless' => 'Employee field is required for selected approving authority.',
+        // 'hierarchies.*.employee.required_unless' => 'Employee field is required unless the approving authority is Immediate Head or Department Head.',
     ];
 
     public function __construct()
@@ -41,7 +42,6 @@ class HierarchyController extends Controller
     {
         $privileges = $request->instance();
         $hierarchies = SystemHierarchy::filter($request)->with('hierarchyLevels')->paginate(10)->withQueryString();
-        // dd($hierarchies);
         return view('system-settings.hierarchy.index', compact('privileges', 'hierarchies'));
     }
 
@@ -116,7 +116,6 @@ class HierarchyController extends Controller
      */
     public function update(Request $request,  $id)
     {
-        // dd($request->all());
         $this->validate($request, $this->rules, $this->messages);
 
         DB::transaction(function () use ($request, $id) {
