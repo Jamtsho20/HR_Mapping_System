@@ -388,8 +388,8 @@ class EmployeeController extends Controller
                 $empGroupMaps[] = [
                     'mas_employee_id' => $employeeId,
                     'mas_employee_group_id' => $value,
-                    // 'created_by' => $request->user()->id,
-                    // 'updated_by' => $request->user()->id,
+                    'created_by' => $request->user()->id,
+                    'updated_by' => $request->user()->id,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
