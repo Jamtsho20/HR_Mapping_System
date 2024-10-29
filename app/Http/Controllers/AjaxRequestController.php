@@ -252,7 +252,6 @@ class AjaxRequestController extends Controller
 
     public function getExpenseAmount($id)
     {
-        // dd($id);
         $loggedInUserRegion = loggedInUserRegion();
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($id, $empJobDetail, $loggedInUserRegion) {
@@ -267,10 +266,12 @@ class AjaxRequestController extends Controller
         }])
         ->where('mas_expense_type_id',  $id
         )
-            ->whereStatus(1)
-            ->first();
+        ->whereStatus(1)
+        ->first();
+        // dd($expensePolicy);
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
+        // dd($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount);
         return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
     }
 
@@ -289,10 +290,6 @@ class AjaxRequestController extends Controller
         }
 
         return null;
-    }
-
-    public function getAdvanceNo(){
-
     }
 
     public function getApprovalRuleConditionFields($id)

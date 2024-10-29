@@ -378,7 +378,7 @@ var hrms = function () {
                     type: "GET",
                     success: function (data) {
                         const currentAmount = parseFloat($('#amount').val());
-
+                        // console.log(data)
                         if (currentAmount > data.limit_amount) {
                             formId.find("input, select, textarea").prop("disabled", true);
                             $("#expense_type").prop("disabled", false);
@@ -389,10 +389,12 @@ var hrms = function () {
                         }
 
                         // Handle attachment requirement
-                        if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                            $("#attachment").attr("required", "required").show();
+                        if (data.attachment_required) {
+                            $("#attachment").attr("required", "required");
+                            $("#attachment_required").show();
                         } else {
-                            $("#attachment").removeAttr("required").hide();
+                            $("#attachment").removeAttr("required");
+                            $("#attachment_required").hide();
                         }
                     }
                 });

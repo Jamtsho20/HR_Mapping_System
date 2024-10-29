@@ -104,8 +104,8 @@ class LeaveApplicationController extends Controller
                 'created_by' => loggedInUser(),
             ]);
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
-            $approvalService = new ApprovalService();
-            $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+            // $approvalService = new ApprovalService();
+            // $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
 
             DB::commit();
         } catch (\Exception $e) {
