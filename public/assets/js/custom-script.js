@@ -363,50 +363,46 @@ var hrms = function () {
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
-            // Function to populate leave balance based on leaveType
             function getExpenseDetails() {
-                var expenseType = $("#expense-type").val();
-                var formId = $("#apply-expense");
-                var expenseAmount = $("#expense-amount").val();
-                if (expenseType !== '') {
-                    // ajax call
-                    $.ajax({
-                        url: "/getmaxexpenseamountbyexpensetype/" + expenseType,
-                        dataType: "JSON",
-                        type: "GET",
-                        success: function (data) {
-                            const currentAmount = parseFloat($('#amount').val());
-                            if (currentAmount > data.limit_amount) {
-                                formId.find("input, select, textarea").prop("disabled", true);
-                                $("#expense_type").prop("disabled", false);
-                                $("#amount").prop('disabled', false);
-                                alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
-                            } else {
-                                formId.find("input, select, textarea").prop("disabled", false);
-                            }
-                            // Handle attachment requirement
-                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                                $("#attachment").attr("required", "required");
-                                $("#attachment_required").show();
-                            } else {
-                                $("#attachment").removeAttr("required");
-                                $("#attachment_required").hide();
-                            }
-                        }
-                    });
-                } else {
-                    $("#leave_balance").val('');
+                const expenseType = $("#expense_type").val();
+                const formId = $("#apply_expense");
+
+                if (!expenseType) {
+                    $("#amount").val('').removeAttr("max");
+                    return;
                 }
+
+                $.ajax({
+                    url: `/getmaxexpenseamountbyexpensetype/${expenseType}`,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function (data) {
+                        const currentAmount = parseFloat($('#amount').val());
+
+                        if (currentAmount > data.limit_amount) {
+                            formId.find("input, select, textarea").prop("disabled", true);
+                            $("#expense_type").prop("disabled", false);
+                            $("#amount").prop('disabled', false);
+                            alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
+                        } else {
+                            formId.find("input, select, textarea").prop("disabled", false);
+                        }
+
+                        // Handle attachment requirement
+                        if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                            $("#attachment").attr("required", "required").show();
+                        } else {
+                            $("#attachment").removeAttr("required").hide();
+                        }
+                    }
+                });
             }
 
-            // Trigger on page load (during edit)
+            // Trigger on page load and when expense type or amount changes
             getExpenseDetails();
-
-            // Trigger on change of leave type
-            $(document).on("change", "#expense_type", function () {
-                getExpenseDetails();
-            });
+            $(document).on("change", "#expense_type, #amount", getExpenseDetails);
         });
+
 
         //END
 
