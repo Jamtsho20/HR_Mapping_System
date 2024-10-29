@@ -375,14 +375,16 @@ var hrms = function () {
                         dataType: "JSON",
                         type: "GET",
                         success: function (data) {
-                            $("#leave_balance").val(data.balance); // set the value for leave balance
-                            // Disable form fields if balance is 0
-                            if (data.balance == 0) {
-                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
-                                $("#leave_type").prop("disabled", false);
+                            const currentAmount = parseFloat($('#amount').val());
+                            if (currentAmount > data.limit_amount) {
+                                formId.find("input, select, textarea").prop("disabled", true);
+                                $("#expense_type").prop("disabled", false);
+                                $("#amount").prop('disabled', false);
+                                alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
                             } else {
-                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
+                                formId.find("input, select, textarea").prop("disabled", false);
                             }
+                            // Handle attachment requirement
                             if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
                                 $("#attachment").attr("required", "required");
                                 $("#attachment_required").show();
