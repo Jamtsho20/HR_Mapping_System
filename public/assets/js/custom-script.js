@@ -293,17 +293,22 @@ var hrms = function () {
                                 $.each(response.employees, function (index, employee) {
                                     employeeSelect.append('<option value="' + employee.id + '">' + employee.username + ' - ' + employee.name + '</option>');
                                 });
+                                // Add the required attribute if has_employee_field is true
+                                employeeSelect.attr('required', 'required');
                             } else {
                                 alert('Employee has not been set for selected approver, please contact system admin for further information!')
                                 // If no employees found, clear and show a placeholder
                                 employeeSelect.empty();
                                 employeeSelect.append('<option value="" disabled selected hidden>No employees found</option>');
+                                // Add the required attribute if has_employee_field is true
+                                employeeSelect.attr('required', 'required');
                             }
                         } else {
                             // If 'has_employee_field' is false, hide and clear the dropdown
                             alert('You don`t need to select employee for selected approver!')
                             employeeSelect.empty();
                             employeeSelect.append('<option value="" disabled selected hidden>No employees found</option>');
+                            employeeSelect.removeAttr('required'); // Remove required attribute if not needed
                             // employeeSelect.hide();
                         }
                     },
@@ -318,7 +323,7 @@ var hrms = function () {
                 employeeSelect.hide();
             }
         });
-
+        
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();

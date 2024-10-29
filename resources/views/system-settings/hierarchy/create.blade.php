@@ -52,18 +52,18 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control form-control-sm employee-select resetKeyForNew" name="hierarchies[AAAAA][employee]">
+                                        <select class="form-control form-control-sm employee-select resetKeyForNew" name="hierarchies[AAAAA][employee]" required>
                                             <option value="" disabled selected hidden>Select Employee</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew">
+                                        <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew" required>
                                     </td>
                                     <td>
                                         <input type="date" name="hierarchies[AAAAA][end_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
-                                        <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][status]">
+                                        <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][status]" required>
                                             <option value="" disabled selected hidden>Select Level</option>
                                             @foreach (config('global.status') as $key => $type)
                                                 <option value="{{ $key}}">{{ $type }}</option>

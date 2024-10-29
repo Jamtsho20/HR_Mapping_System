@@ -50,7 +50,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
-                <label for="purpose">Remark</label>
+                <label for="adv_to_staff_remark">Remark</label>
                 <textarea rows="2" class="form-control" name="remark">{{ old('remark') }}</textarea>
             </div>
         </div>

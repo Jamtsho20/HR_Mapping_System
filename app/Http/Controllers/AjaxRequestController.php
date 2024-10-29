@@ -224,53 +224,26 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getAdvanceNumber($id)
-    {
-        $sifaInterestRate = 0;
-        $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
 
-        $latestTransaction = AdvanceApplication::where('advance_type_id', $id)
-            ->latest('id') // Orders by id in descending order
-            ->first();
-
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->advance_no, -4) + 1 : 1;
-
-        // Generate the new advance number with the incremented sequence
-        $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
-
-        // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
-        if ($id == SIFA_LOAN) {
-            $sifaInterestRate = SIFA_INTEREST_RATE;
-        }
-
-        return response()->json([
-            'advance_no' => $advanceNo,
-            'sifa_interest_rate' => $sifaInterestRate
-        ]);
-    }
-
-    public function getExpenseAmount($id)
-    {
-        // dd($id);
+    public function getExpenseAmount($id) { // based on expense type check weather attachment is required in form and maximum amount limit
         $loggedInUserRegion = loggedInUserRegion();
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
-        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($id, $empJobDetail, $loggedInUserRegion) {
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use ($empJobDetail, $loggedInUserRegion) {
+            // Filter rateDefinition by travel type
             $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
-                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
-                    $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                  ->with(['expenseRateLimits' => function($q) use($empJobDetail, $loggedInUserRegion) {
+                      // Filter expenseRateLimits by grade step and region
+                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
                         ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
-                }]);
+                  }]);
         }])
         ->where('mas_expense_type_id', $id)
         ->whereStatus(1)
         ->first();
-
-        $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
-        $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
-
-        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        //check weather attachment is required while applying expense from expense policy                              
+        $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
+        return ['attachment_required' => $attachmentRequired, 'expense_policy' => $expensePolicy];
     }
 
     public function getApprovalHeadTypes($id)
