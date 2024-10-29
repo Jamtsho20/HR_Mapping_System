@@ -84,7 +84,7 @@ class LeaveApplicationController extends Controller
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
-                'mas_employee_id' => loggedInUser(),
+                // 'mas_employee_id' => loggedInUser(),
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
