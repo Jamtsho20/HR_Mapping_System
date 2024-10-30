@@ -64,7 +64,7 @@ class ExpenseApplicationController extends Controller
     {
         $privileges = $request->instance();
 
-        $expenseApplication = ExpenseApplication::filter($request)->paginate(30);
+        $expenseApplication = ExpenseApplication::filter($request) ->createdBy() ->paginate(30);
 
         return view('expense.apply.index', compact('expenseApplication', 'privileges'));
     }
