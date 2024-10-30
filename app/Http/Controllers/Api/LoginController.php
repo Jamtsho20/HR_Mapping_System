@@ -18,7 +18,25 @@ class LoginController extends Controller
         ]);
 
         try {
-            $user = User::with('empJob')->where('email', $request->username)->orWhere('username', $request->username)->first();
+            // $user = User::with('empJob')->where('email', $request->username)->orWhere('username', $request->username)->first();
+            $user = User::with([
+                'empJob.department:id,name',      // Only load the department name
+                'empJob.section:id,name',         // Only load the section name
+                'empJob.designation:id,name',     // Only load the designation name
+                'empJob.grade:id,name',           // Only load the grade name
+                'empJob.gradeStep:id,name',       // Only load the grade step name
+                'empJob.empType:id,name',         // Only load the employment type name
+                'empJob.supervisor:id,name,username', // Only load the supervisor's name
+                'empJob.office:id,name'           // Only load the office name
+            ])->where('email', $request->username)
+              ->orWhere('username', $request->username)
+              ->first();
+          
+            // If user found, return as JSON
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+            
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'message' => 'Invalid username or password.'
@@ -26,7 +44,6 @@ class LoginController extends Controller
             }
 
             $token = $user->createToken($request->username)->plainTextToken;
-            
             return response()->json([ 
                 'message' => 'Authenticated',
                 'user' => $user,
