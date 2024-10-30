@@ -4,7 +4,8 @@ namespace App\Traits;
 
 use App\Models\User;
 
-trait CreatedByTrait {
+trait CreatedByTrait
+{
 
 	public function creator()
 	{
@@ -20,5 +21,10 @@ trait CreatedByTrait {
 		static::updating(function ($model) {
 			$model->updated_by = auth()->user()->id;
 		});
+	}
+	// In CreatedByTrait.php
+	public function scopeCreatedBy($query)
+	{
+		return $query->where('created_by', auth()->id());
 	}
 }

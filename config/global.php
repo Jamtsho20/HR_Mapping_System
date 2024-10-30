@@ -9,15 +9,21 @@ return [
 
     'holiday_types' => ['Government', 'Private'],
 
-    'level' => ['level 1', 'level 2','level 3'],
-    'level_with_all' => ['ALL','level 1', 'level 2', 'level 3'],
+    'level' => ['level 1', 'level 2', 'level 3'],
+    'level_with_all' => ['ALL', 'level 1', 'level 2', 'level 3'],
 
     'value' => [
-        'Immediate Supervisor','Section Head','Department Head','Management','Human Resource','Finance Head'
+        'Immediate Supervisor',
+        'Section Head',
+        'Department Head',
+        'Management',
+        'Human Resource',
+        'Finance Head'
     ],
 
     'status' => [
-        1 =>'active', 0=>'inactive'
+        1 => 'active',
+        0 => 'inactive'
     ],
 
     'regular_emp_type_id' => 2,
@@ -27,8 +33,8 @@ return [
         1 => 'Include Public Holidays',
         2 => 'Can be clubbed with CL',
         3 => 'Include Weekends',
-        4=> 'Can be half day',
-        5=> 'Can be clubbed with EL'
+        4 => 'Can be half day',
+        5 => 'Can be clubbed with EL'
 
     ],
 
@@ -64,7 +70,7 @@ return [
 
     'nationality' => ['Bhutanese', 'Indian', 'Canadian'],
 
-    'title' => ['Mr.','Miss', 'Mrs.', 'Dr.', 'Dasho'],
+    'title' => ['Mr.', 'Miss', 'Mrs.', 'Dr.', 'Dasho'],
 
     'bank' => [
         'BoB' => 'Bank of Bhutan',
@@ -84,7 +90,7 @@ return [
         6 => 'By Formula',
         7 => 'Employee Wise',
     ],
-// 1 for Basic Pay, 2 for Gross Pay, 3 for Net Pay, 4 for PIT Net Pay, 5 for By Formula, 6 for Pay Scale Base Pay
+    // 1 for Basic Pay, 2 for Gross Pay, 3 for Net Pay, 4 for PIT Net Pay, 5 for By Formula, 6 for Pay Scale Base Pay
     'calculated_on' => [ // for payheads
         1 => 'Basic Pay',
         2 => 'Gross Pay',
@@ -120,7 +126,7 @@ return [
 
     'salary_disbursement_mode' => [
         1 => 'Cash',
-        2 => 'Saving Account'    
+        2 => 'Saving Account'
     ],
 
     'travel_modes' => [
@@ -140,7 +146,7 @@ return [
         6 => '6 Months',
         9 => '9 Months',
         12 => '12 Months',
-    ], 
+    ],
 
     'rate_limits' => [
         1 => 'Daily',
@@ -153,5 +159,4 @@ return [
         2 => 'Medium',
         3 => 'Heavy'
     ]
-
 ];

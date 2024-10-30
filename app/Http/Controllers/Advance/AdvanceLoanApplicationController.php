@@ -75,7 +75,9 @@ class AdvanceLoanApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $advances = AdvanceApplication::with('advanceType')->paginate(10);
+        $advances = AdvanceApplication::with('advanceType')
+        ->createdBy() // Apply the createdBy scope
+        ->paginate(10);
         foreach ($advances as $advance) {
             $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
         }
@@ -161,6 +163,7 @@ class AdvanceLoanApplicationController extends Controller
     public function edit($id)
     {
         $advance = AdvanceApplication::findOrFail($id);
+     
         $advanceTypes = MasAdvanceTypes::all(); // Fetch advance types
         return view('advance-loan.apply.edit', compact('advance', 'advanceTypes'));
     }
@@ -248,9 +251,9 @@ class AdvanceLoanApplicationController extends Controller
             try {
                 AdvanceApplication::findOrFail($id)->delete();
     
-                return back()->with('msg_success', 'Advance type has been deleted');
+                return back()->with('msg_success', 'Advance Applicaton has been deleted');
             } catch (\Exception $e) {
-                return back()->with('msg_error', 'Advance type cannot be deleted as it is used by other modules.');
+                return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
             }
         }
     }

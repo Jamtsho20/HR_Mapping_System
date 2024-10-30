@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Delegation')
+@section('page-title', 'Approval Rule')
 @if ($privileges->create)
     @section('buttons')
         <a href="{{ url('system-setting/approval-rules/create') }}" class="btn btn-primary"><i class="fa fa-plus"></i>Add
