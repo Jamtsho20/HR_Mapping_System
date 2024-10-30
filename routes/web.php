@@ -81,6 +81,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('expense-types', 'ExpenseTypeController');
         Route::resource('advance-loans', 'AdvanceLoanController');
         Route::resource('offices', 'OfficeController');
+        Route::resource('vehicles', 'VehicleController');
+
     });
 
     // WORK STRUCTURE
