@@ -146,6 +146,12 @@ return [
         1 => 'Daily',
         2 => 'Monthly',
         3 => 'Yearly',
+    ], 
+
+    'vehicle_types' => [
+        1 => 'Light',
+        2 => 'Medium',
+        3 => 'Heavy'
     ]
 
 ];
