@@ -157,6 +157,7 @@ return [
     'vehicle_types' => [
         1 => 'Light',
         2 => 'Medium',
-        3 => 'Heavy'
+        3 => 'Heavy',
+        4 => 'Two Wheeler'
     ]
 ];

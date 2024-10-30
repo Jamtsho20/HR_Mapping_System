@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->index();
             $table->string('vihicle_no')->index();
-            $table->unsignedTinyInteger('vehicle_type')->index()->comment('1 => Light, 2 => Medium, 3 => Heavy');
+            $table->unsignedTinyInteger('vehicle_type')->index()->comment('1 => Light, 2 => Medium, 3 => Heavy, 4 => Two Wheeler');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

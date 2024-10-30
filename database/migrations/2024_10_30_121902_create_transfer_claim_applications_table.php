@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('transfer_claim');
             $table->foreign('transfer_claim') // Defining the foreign key
                 ->references('name') // Referencing the 'name' column in the parent table
-                ->on('transfer_claim_types') // Parent table name
+                ->on('transfer_claims') // Parent table name
                 ->onDelete('restrict')
                 ->onUpdate('cascade'); // Optional: Define behavior on delete
             $table->string('current_location');

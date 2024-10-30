@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_transfer_claim_types', function (Blueprint $table) {
+        Schema::create('mas_transfer_claims', function (Blueprint $table) {
             $table->string('name')->unique();
             $table->text('description')->nullable();
             $table->timestamps();
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_transfer_claim_types');
+        Schema::dropIfExists('mas_transfer_claims');
     }
 };
