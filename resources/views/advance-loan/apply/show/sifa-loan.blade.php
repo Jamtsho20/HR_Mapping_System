@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <div class="form-group">
             <label for="amount">Amount</label>
-            <input type="text" class="form-control" id="amount" value="{{ number_format($advance->amount, 2) }}"
+            <input type="text" class="form-control"  value="{{ number_format($advance->amount, 2) }}"
                 readonly>
         </div>
     </div>

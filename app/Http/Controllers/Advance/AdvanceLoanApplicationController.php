@@ -163,6 +163,7 @@ class AdvanceLoanApplicationController extends Controller
     public function edit($id)
     {
         $advance = AdvanceApplication::findOrFail($id);
+     
         $advanceTypes = MasAdvanceTypes::all(); // Fetch advance types
         return view('advance-loan.apply.edit', compact('advance', 'advanceTypes'));
     }
@@ -250,9 +251,9 @@ class AdvanceLoanApplicationController extends Controller
             try {
                 AdvanceApplication::findOrFail($id)->delete();
     
-                return back()->with('msg_success', 'Advance type has been deleted');
+                return back()->with('msg_success', 'Advance Applicaton has been deleted');
             } catch (\Exception $e) {
-                return back()->with('msg_error', 'Advance type cannot be deleted as it is used by other modules.');
+                return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
             }
         }
     }
