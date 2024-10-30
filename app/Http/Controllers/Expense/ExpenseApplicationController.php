@@ -25,18 +25,28 @@ class ExpenseApplicationController extends Controller
         $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
     }
 
-    protected $rules = [
-        'expense_type' => 'required',
-        'date' => 'required|date',
-        'amount' => 'required|numeric',
-        'description' => 'required',
-        'travel_type' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'mode_of_travel' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_from_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_to_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE . '|date|after_or_equal:travel_from_date',
-        'travel_from' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_to' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-    ];
+    protected function rules(Request $request)
+    {
+        $rules = [
+            'expense_type' => 'required',
+            'date' => 'required|date',
+            'amount' => 'required|numeric',
+            'description' => 'required',
+        ];
+
+        // Add conveyance-specific rules if the expense type is CONVEYANCE_EXPENSE
+        if ($request->input('expense_type') == CONVEYANCE_EXPENSE) {
+            $rules['travel_type'] = 'required';
+            $rules['mode_of_travel'] = 'required';
+            $rules['travel_from_date'] = 'required|date';
+            $rules['travel_to_date'] = 'required|date|after_or_equal:travel_from_date';
+            $rules['travel_from'] = 'required';
+            $rules['travel_to'] = 'required';
+        }
+
+        return $rules;
+    }
+
 
     protected $messages = [
         'travel_type.required_if' => 'Travel type is required for the selected expense type.',
@@ -54,7 +64,7 @@ class ExpenseApplicationController extends Controller
     {
         $privileges = $request->instance();
 
-        $expenseApplication = ExpenseApplication::filter($request)->paginate(30);
+        $expenseApplication = ExpenseApplication::filter($request) ->createdBy() ->paginate(30);
 
         return view('expense.apply.index', compact('expenseApplication', 'privileges'));
     }
@@ -78,12 +88,13 @@ class ExpenseApplicationController extends Controller
     public function store(Request $request)
     {
         $result = $this->handleExpenseApplication($request);
+
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return $result;
         }
 
-        $this->validate($request, $this->rules, $this->messages);
+         $validatedData = $request->validate($this->rules($request));
         try {
             DB::beginTransaction();
 
@@ -93,7 +104,7 @@ class ExpenseApplicationController extends Controller
                 'date' => $request->date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
-                'file' => $result['attachment'],
+                'file' => $result['file'],
                 'travel_type' => $request->travel_type,
                 'travel_mode' => $request->mode_of_travel,
                 'travel_from_date' => $request->travel_from_date,
@@ -156,13 +167,14 @@ class ExpenseApplicationController extends Controller
     public function update(Request $request, $id)
     {
         $expenseApplication = ExpenseApplication::findOrFail($id);
+        
         $result = $this->handleExpenseApplication($request, $expenseApplication);
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return $result;
         }
 
-        $this->validate($request, $this->rules, $this->messages);
+        $validatedData = $request->validate($this->rules($request));
         try {
             DB::beginTransaction();
             $expenseApplication->update([
@@ -179,14 +191,14 @@ class ExpenseApplicationController extends Controller
                 'travel_from' => $request->travel_from,
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
-            ]);
+            ]);        
 
             // Create a history record
             $expenseApplication->histories()->create([
                 'level' => 'Test Level',
                 'status' => $expenseApplication->status,
                 'remarks' => $request->remarks,
-                'created_by' => $expenseApplication->mas_employee_id,
+                'created_by' => $expenseApplication->created_by,
                 'updated_by' => loggedInUser()
             ]);
 
@@ -208,7 +220,15 @@ class ExpenseApplicationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        {
+            try {
+                ExpenseApplication::findOrFail($id)->delete();
+    
+                return back()->with('msg_success', 'Expense Applicaton has been deleted');
+            } catch (\Exception $e) {
+                return back()->with('msg_error', 'Expense Applicaton cannot be deleted as it is used by other modules.');
+            }
+        }
     }
 
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
@@ -251,8 +271,8 @@ class ExpenseApplicationController extends Controller
                 ['file.required' => 'The file is required. Please upload a file.']
             );
         }
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
             if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
                 delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
             }
@@ -260,7 +280,7 @@ class ExpenseApplicationController extends Controller
         }
 
         return [
-            'attachment' => $attachment
+            'file' => $attachment
         ];
     }
 }
