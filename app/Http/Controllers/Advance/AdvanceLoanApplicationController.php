@@ -75,7 +75,9 @@ class AdvanceLoanApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $advances = AdvanceApplication::with('advanceType')->paginate(10);
+        $advances = AdvanceApplication::with('advanceType')
+        ->createdBy() // Apply the createdBy scope
+        ->paginate(10);
         foreach ($advances as $advance) {
             $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
         }
