@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
-        Route::resource('approval-conditions', 'ApprovalConditionController');
+        Route::resource('condition-fields', 'ConditionFieldController');
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
