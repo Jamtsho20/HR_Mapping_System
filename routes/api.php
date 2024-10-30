@@ -19,7 +19,11 @@ Route::middleware('api.access.log')->group(function () {
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
     
     //other app related route
-    Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-        return $request->user();
+    // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    //     return $request->user();
+    // });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::put('change-password', [LoginController::class, 'handleChangePassword']);
     });
 });

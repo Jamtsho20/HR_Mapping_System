@@ -152,10 +152,12 @@ return [
         1 => 'Daily',
         2 => 'Monthly',
         3 => 'Yearly',
-    ],
-    'transfer_claim' => [
-        1 => 'Transfer Grant',
-        2 => 'Carrage Charge',
+    ], 
 
+    'vehicle_types' => [
+        1 => 'Light',
+        2 => 'Medium',
+        3 => 'Heavy',
+        4 => 'Two Wheeler'
     ]
 ];
