@@ -12,12 +12,14 @@
                         <label for="employeeid">Employee ID </label>
                         <input type="text" class="form-control" name="employee" value="{{ auth()->user()->emplusernameoyee_id }}"
                             placeholder="{{ auth()->user()->username }}" disabled>
+
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Designation</label>
                         <input type="text" class="form-control" name="designation" value="" placeholder="{{isset( auth()->user()->empJob->designation->name )? auth()->user()->empJob->designation->name:'NA'}}" disabled>
+
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -36,10 +38,10 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="transferclaim">Transfer Claim <span class="text-danger">*</span></label>
-                        <select name="type" id="transferclaim" class="form-control form-control-sm" required>
+                        <select name="transfer_claim" id="transferclaim" class="form-control form-control-sm" required>
                             <option value="" disabled selected>Select an option</option>s
-                            @foreach(config('global.transfer_claim') as $key =>$value)
-                            <option value="{{$key}}">{{$value}}</option>
+                            @foreach($travels as $travel)
+                            <option value="{{$travel->name}}">{{$travel->name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -50,31 +52,31 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Current Location <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="currentlocation" value="">
+                        <input type="text" class="form-control" name="current_location" value="">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">New Location <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="newlocation" value="">
+                        <input type="text" class="form-control" name="new_location" value="">
                     </div>
                 </div>
                 <div class="col-md-6" id="distanceField" style="display: none;">
                     <div class="form-group">
                         <label for="distance">Distance (KM) <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="newlocation" value="">
+                        <input type="text" class="form-control" name="distance_travelled" value="">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Amount Claimed <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="amtclaimed" value="">
+                        <input type="text" class="form-control" name="amount_claimed" value="">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Attachment</label>
-                        <input type="file" class="form-control" name="attachment" value="">
+                        <input type="file" class="form-control" name="attachment" >
                     </div>
                 </div>
             </div>
@@ -88,14 +90,14 @@
         ])
 
     </div>
-   
+
 </form>
 <script>
     document.getElementById('transferclaim').addEventListener('change', function() {
         var selectedValue = this.value;
         var distanceField = document.getElementById('distanceField');
 
-        if (selectedValue === '2') {
+        if (selectedValue === 'Carriage Charge') {
             distanceField.style.display = 'block';
         } else {
             distanceField.style.display = 'none';

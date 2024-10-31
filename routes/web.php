@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'show', 'edit');
-        Route::resource('transfer-claim', 'TransferClaimController');
+        Route::resource('transfer-claim', 'TransferClaimApplicationController');
         Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');
         Route::resource('expense-fuel', 'ExpenseFuelController');
         Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
