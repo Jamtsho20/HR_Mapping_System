@@ -81,6 +81,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('expense-types', 'ExpenseTypeController');
         Route::resource('advance-loans', 'AdvanceLoanController');
         Route::resource('offices', 'OfficeController');
+        Route::resource('vehicles', 'VehicleController');
+
     });
 
     // WORK STRUCTURE
@@ -102,7 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
-        Route::resource('dsa-claim-settlement', 'DSAClaimController');
+        Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'show', 'edit');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');
         Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');

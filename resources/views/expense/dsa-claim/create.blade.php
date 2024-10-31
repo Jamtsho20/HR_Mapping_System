@@ -12,8 +12,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="employee_name">Employee name/With Code Type </label>
-                        <input type="text" class="form-control" name="employee" value="{{ auth()->user()->name }}"
-                            placeholder="{{ auth()->user()->name }}" disabled>
+                        <input type="text" class="form-control" name="employee" value="{{ $empIdName }}" disabled>
                     </div>
                 </div>
                 <div class="col-md-2">

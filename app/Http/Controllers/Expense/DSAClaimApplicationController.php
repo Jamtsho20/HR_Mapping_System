@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasExpenseType;
+use App\Models\User;
 use Illuminate\Http\Request;
 
-class DSAClaimController extends Controller
+class DSAClaimApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,11 @@ class DSAClaimController extends Controller
      */
     public function create()
     {
-        return view('expense.dsa-claim.create');
+        //common function to generate combination of loggedInUser employeeId and username
+        $empIdName = LoggedInUserEmpIdName(); 
+        //get dsa advance which has been approved for settlement
+        // $dsaAdvance = 
+        return view('expense.dsa-claim.create', compact('empIdName'));
 
     }
 
