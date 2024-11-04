@@ -124,7 +124,7 @@
         </div>
         <div class="form-group col-md-4">
             <label for="cid_copy">CID Copy <span class="text-danger">*</span></label>
-            <input type="file" class="form-control form-control-sm" name="personal[cid_copy]"
+            <input type="file" class="form-control form-control-sm" name="personal[cid_copy]" id="imageInput" accept="image/*
                 @if(empty($employee->cid_copy)) required @endif>
             @if(!empty($employee->cid_copy))
                 <div class="mt-2">
@@ -136,7 +136,7 @@
         </div>
         <div class="form-group col-md-4">
             <label for="profile_pic">Profile Picture</label>
-            <input type="file" class="form-control form-control-sm" name="personal[profile_pic]">
+            <input type="file" class="form-control form-control-sm" name="personal[profile_pic]" > 
             @if(!empty($employee->profile_picture))
                 <div class="mt-2">
                     <img src="{{$employee->profile_picture}}" alt="Profile" class="img-thumbnail">

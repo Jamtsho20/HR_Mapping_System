@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Models\PaySlip;
+use App\Http\Controllers\Profile\ProfileController;
 use App\Services\PayrollService;
 
 /*
@@ -226,6 +227,13 @@ Route::middleware('auth')->group(function () {
     Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
         Route::resource('employee-create', 'EmployeeGroupController');
     });
+
+    //ProfileController
+    Route::namespace('Profile')->prefix('user-profile')->group(function () {
+        Route::resource('user-profile', 'ProfileController');
+        Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
+    });
+    
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');

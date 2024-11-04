@@ -88,6 +88,34 @@ if (!function_exists('delete_image')) {
         return true;
     }
 }
+// app/Helpers/ImageHelper.php
+
+if (!function_exists('updateImage')) {
+    function updateImage($request, $employee, $fieldName, $directory)
+    {
+        // Check if the employee already has an image and delete the old one
+        if ($employee->$fieldName) {
+            $oldImagePath = public_path($employee->$fieldName);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath); // Delete the old image file
+            }
+        }
+
+        // Check if a new image file is uploaded
+        if ($request->hasFile($fieldName)) {
+            $image = $request->file($fieldName);
+
+            // Generate a new file name
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path($directory), $imageName); // Move the file to the desired directory
+
+            // Update the employee's record with the new image path
+            $employee->$fieldName = '/' . $directory . '/' . $imageName;
+            $employee->save(); // Save the updated record
+        }
+    }
+}
+
 
 if (!function_exists('comma_separated_to_array')) {
     function comma_separated_to_array($value, $separator = ',')

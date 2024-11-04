@@ -558,7 +558,40 @@ $(document).ready(function () {
             updateNavigationButtons();
         }
     });
-
+    //function to check image size
+    function validateImage(fileInput) {
+        // Check if any file is selected
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert("No file selected!");
+            return false; // Return false if no file is selected
+        }
+    
+        // Get the first file from the input (assumes only one file is allowed)
+        const file = fileInput.files[0];
+    
+        // Set the maximum allowed size for the image in megabytes (MB)
+        const maxSizeInMB = 2; // Maximum size is now 2 MB
+    
+        // Convert the maximum size from megabytes (MB) to bytes
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 2 MB = 2 * 1024 * 1024 bytes
+    
+        // Validate the file size
+        if (file.size > maxSizeInBytes) {
+            // If the file size exceeds the maximum limit, display an alert and return false
+            alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+            return false;
+        }
+    
+        // If the file size is valid, display a confirmation and return true
+        alert("File is valid!");
+        return true;
+    }
+    
+    // Usage example: attach an event listener to the file input element
+    document.getElementById("imageInput").addEventListener("change", function () {
+        validateImage(this); // Call the function with the current file input as the parameter
+    });
+    
     $('#previous-button').on('click', function (e) {
         e.preventDefault();
 
