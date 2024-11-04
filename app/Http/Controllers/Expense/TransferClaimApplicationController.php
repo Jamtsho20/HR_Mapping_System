@@ -21,12 +21,13 @@ class TransferClaimApplicationController extends Controller
         $this->middleware('permission:expense/transfer-claim,edit')->only('update');
         $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
     }
+    private $filePath = 'images/files/';
 
     protected $rules = [
-        'transfer_cliam' => 'required',
+        'transfer_claim' => 'required',
         'current_location' => 'required',
         'new_location' => 'required',
-        'distance_travelled' => 'required_if:transfer_cliam,Carriage Charge',
+        'distance_travelled' => 'required_if:transfer_claim,Carriage Charge',
         'amount_claimed' => 'required',
     ];
 
@@ -35,8 +36,12 @@ class TransferClaimApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-               
-        return view('expense.transfer-claim.index', compact( 'privileges'));
+        $empIdName = LoggedInUserEmpIdName();
+        $user = loggedInUser();
+
+        $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
+
+        return view('expense.transfer-claim.index', compact('privileges', 'transferClaims', 'empIdName'));
     }
 
     /**
@@ -46,8 +51,9 @@ class TransferClaimApplicationController extends Controller
      */
     public function create()
     {
-        $travels=MasTransferClaim::get();
-        return view('expense.transfer-claim.create',compact('travels'));
+        $empIdName = LoggedInUserEmpIdName();
+        $trasnferClaim = MasTransferClaim::get();
+        return view('expense.transfer-claim.create', compact('transfer_claim', 'empIdName'));
     }
 
     /**
@@ -58,17 +64,32 @@ class TransferClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {
+
+
         $this->validate($request, $this->rules, $this->messages);
         $transfer = new TransferClaimApplication();
-        $transfer->transfer_cliam = $request->transfer_cliam;
+
+        if ($request->hasFile('attachment')) {
+            // Upload file and get the file path
+            $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+
+            // Store it as a JSON array
+            $attachment = json_encode([$attachmentPath]);
+        } else {
+            $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
+        }
+
+
+        $transfer->transfer_claim = $request->transfer_claim;
         $transfer->current_location = $request->current_location;
         $transfer->new_location = $request->new_location;
         $transfer->distance_travelled = $request->distance_travelled;
         $transfer->amount_claimed = $request->amount_claimed;
+        $transfer->attachment = $attachment;
         $transfer->status = 1;
         $transfer->save();
 
-        return redirect('expense/transfer-claim')->with('msg_success', 'Dzongkhag created successfully');
+        return redirect('expense/transfer-claim')->with('msg_success', 'Transfer Claim applied successfully');
     }
 
     /**
@@ -79,7 +100,10 @@ class TransferClaimApplicationController extends Controller
      */
     public function show($id)
     {
-        //
+        $empIdName = LoggedInUserEmpIdName();
+        $transfer = TransferClaimApplication::findOrfail($id);
+
+        return view('expense.transfer-claim.show', compact('transfer', 'empIdName'));
     }
 
     /**
@@ -90,7 +114,11 @@ class TransferClaimApplicationController extends Controller
      */
     public function edit($id)
     {
-        //
+        $empIdName = LoggedInUserEmpIdName();
+        $trasnferClaim = MasTransferClaim::get();
+        $transfer = TransferClaimApplication::findOrfail($id);
+
+        return view('expense.transfer-claim.edit', compact('transfer', 'empIdName', 'trasnferClaim'));
     }
 
     /**
@@ -102,7 +130,28 @@ class TransferClaimApplicationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, $this->rules, $this->messages);
+        $transfer = TransferClaimApplication::findOrFail($id);
+
+        if ($request->hasFile('attachment')) {
+            // Upload file and get the file path
+            $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+
+            // Store it as a JSON array
+            $attachment = json_encode([$attachmentPath]);
+        } else {
+            $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
+        }
+
+        $transfer->transfer_claim = $request->transfer_claim;
+        $transfer->current_location = $request->current_location;
+        $transfer->new_location = $request->new_location;
+        $transfer->distance_travelled = $request->distance_travelled;
+        $transfer->amount_claimed = $request->amount_claimed;
+        $transfer->attachment = $attachment ?? $transfer->attachment;
+        $transfer->save();
+
+        return redirect('expense/transfer-claim')->with('msg_success', 'Transfer Claim Updated successfully');
     }
 
     /**
@@ -113,6 +162,12 @@ class TransferClaimApplicationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            TransferClaimApplication::findOrFail($id)->delete();
+
+            return back()->with('msg_success', 'Transfer Claim Application has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Transfer Claim Application cannot be deleted as it is used by other modules.');
+        }
     }
 }
