@@ -63,6 +63,29 @@
                     @endif
                     @endif
                 </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="remark">Remark</label>
+                            <input type="text" class="form-control" id="remark" name="remark" value="{{ $advance->remark }}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="attachment">Attachment</label>
+                            @if($advance->attachment)
+                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf">
+                            <a href="{{ asset($advance->attachment) }}" target="_blank" class="btn btn-link">
+                                <i class="fas fa-file-alt"></i> View Attachment
+                            </a><br>
+                            <small class="text-muted">Leave blank if you don't want to change the attachment.</small>
+                            @else
+                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf">
+                            @endif
+                        </div>
+                    </div>
+                </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
                     <a href="{{ url('advance-loan/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>

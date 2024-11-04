@@ -588,9 +588,13 @@ $(document).ready(function () {
     }
     
     // Usage example: attach an event listener to the file input element
-    document.getElementById("imageInput").addEventListener("change", function () {
-        validateImage(this); // Call the function with the current file input as the parameter
+    // Select all input elements of type "file"
+    document.querySelectorAll('input[type="file"]').forEach(function (fileInput) {
+        fileInput.addEventListener("change", function () {
+            validateImage(this); // Call the function with the current file input as the parameter
+        });
     });
+
     
     $('#previous-button').on('click', function (e) {
         e.preventDefault();

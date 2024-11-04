@@ -6,12 +6,12 @@
 @endsection
 @section('content')
 @if ($canUpdate === 1)
-    <div class="d-flex flex-row-reverse">
-        <a href="{{ url('employee/employee-lists/' . $employee->id . '/edit') }}"
-            class="col-sm-2 btn btn-outline-primary btn-block btn-sm "><b><i class="fa fa-edit"></i> Edit Record</b>
-        </a>
-    </div>
-    <br>
+<div class="d-flex flex-row-reverse">
+    <a href="{{ url('employee/employee-lists/' . $employee->id . '/edit') }}"
+        class="col-sm-2 btn btn-outline-primary btn-block btn-sm "><b><i class="fa fa-edit"></i> Edit Record</b>
+    </a>
+</div>
+<br>
 
 @endif
 <div class="row">
@@ -169,14 +169,14 @@
                                 <b>Employee Group (s)</b> <a class="pull-right">{{ convert_array_to_string($employeeGroupNames, ', ') }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Supervisor</b> 
+                                <b>Supervisor</b>
                                 <a class="pull-right">{{ $employee->empJob->supervisor->emp_id_name ?? config('global.null_value') }}</a>
                             </li>
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <li class="list-group-item">
-                            <b>Job Location</b> 
+                            <b>Job Location</b>
                             <a class="pull-right">{{ $employee->empJob->office->name }} ({{$employee->empJob->office->dzongkhag->dzongkhag}})</a>
                         </li>
                         <li class="list-group-item">
@@ -229,19 +229,19 @@
                         </thead>
                         <tbody>
                             @forelse($employee->empQualifications as $qualification)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $qualification->qualification->name }}</td>
-                                    <td>{{ $qualification->school }}</td>
-                                    <td>{{ $qualification->subject }}</td>
-                                    <td>{{ $qualification->completion_year }}</td>
-                                    <td>{{ $qualification->aggregate_score }}</td>
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $qualification->qualification->name??'-' }}</td>
+                                <td>{{ $qualification->school ?? '-' }}</td>
+                                <td>{{ $qualification->subject ?? '-'}}</td>
+                                <td>{{ $qualification->completion_year?? '-' }}</td>
+                                <td>{{ $qualification->aggregate_score?? '-' }}</td>
 
-                                </tr>
+                            </tr>
                             @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-danger">No qualification found</td>
-                                </tr>
+                            <tr>
+                                <td colspan="6" class="text-center text-danger">No qualification found</td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -272,28 +272,28 @@
                         </thead>
                         <tbody>
                             @forelse($employee->empTrainings as $training)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $training->title }}</td>
-                                    <td>{{ $training->start_date }}</td>
-                                    <td>{{ $training->end_date }}</td>
-                                    <td>{{ $training->duration }}</td>
-                                    <td>{{ $training->location }}</td>
-                                    <td>
-                                        @if($training->certificate)
-                                            <a href="{{ asset($training->certificate) }}" target="_blank" class="btn btn-link">
-                                                <i class="fas fa-file-alt"></i> View
-                                            </a>
-                                        @endif
-                                    </td>
-                                    <td class="{{ !$training->description ? 'text-center' : '' }}">
-                                        {{ $training->description ?? config('global.null_value') }}
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $training->title }}</td>
+                                <td>{{ $training->start_date }}</td>
+                                <td>{{ $training->end_date }}</td>
+                                <td>{{ $training->duration }}</td>
+                                <td>{{ $training->location }}</td>
+                                <td>
+                                    @if($training->certificate)
+                                    <a href="{{ asset($training->certificate) }}" target="_blank" class="btn btn-link">
+                                        <i class="fas fa-file-alt"></i> View
+                                    </a>
+                                    @endif
+                                </td>
+                                <td class="{{ !$training->description ? 'text-center' : '' }}">
+                                    {{ $training->description ?? config('global.null_value') }}
+                                </td>
+                            </tr>
                             @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-danger">No training found</td>
-                                </tr>
+                            <tr>
+                                <td colspan="8" class="text-center text-danger">No training found</td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -324,19 +324,19 @@
                         </thead>
                         <tbody>
                             @forelse($employee->empExperiences as $experience)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $experience->organization }}</td>
-                                    <td>{{ $experience->place }}</td>
-                                    <td>{{ $experience->designation }}</td>
-                                    <td>{{ $experience->start_date }}</td>
-                                    <td>{{ $experience->end_date }}</td>
-                                    <td>{{ $experience->description }}</td>
-                                </tr>
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $experience->organization }}</td>
+                                <td>{{ $experience->place }}</td>
+                                <td>{{ $experience->designation }}</td>
+                                <td>{{ $experience->start_date }}</td>
+                                <td>{{ $experience->end_date }}</td>
+                                <td>{{ $experience->description }}</td>
+                            </tr>
                             @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-danger">No experience found</td>
-                                </tr>
+                            <tr>
+                                <td colspan="7" class="text-center text-danger">No experience found</td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -368,11 +368,11 @@
                             target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
                             &nbsp; Job Responsibilities</a>
                         @if($employee->empDoc->other)
-                            @foreach(json_decode($employee->empDoc->other) as $other)
-                                <a href="{{ asset($other) }}" class="btn btn-primary" target="_blank"><i
-                                        class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
-                                    &nbsp; Others</a>
-                            @endforeach
+                        @foreach(json_decode($employee->empDoc->other) as $other)
+                        <a href="{{ asset($other) }}" class="btn btn-primary" target="_blank"><i
+                                class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                            &nbsp; Others</a>
+                        @endforeach
                         @endif
 
                     </div>
@@ -383,12 +383,12 @@
     </div>
     @endsection
     @push('page_scripts')
-        <script>
-            $(document).ready(function () {
-                $('.btn-tool').on('click', function () {
-                    var icon = $(this).find('i');
-                    icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
-                });
+    <script>
+        $(document).ready(function() {
+            $('.btn-tool').on('click', function() {
+                var icon = $(this).find('i');
+                icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
             });
-        </script>
+        });
+    </script>
     @endpush

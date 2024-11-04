@@ -1,5 +1,5 @@
 <!-- Dynamic Form Sections -->
-<div id="sifa-loan-form" class="dynamic-form" style="display: none; padding-left: 25px; padding-right: 15px;">
+<div id="sifa-loan-form" class="dynamic-form" style="display: none; ">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
@@ -46,20 +46,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="purpose">Remark</label>
-                <textarea rows="2" class="form-control" name="remark" id="remark">{{ old('remark') }}</textarea>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
-                <label for="attachment">Attachment <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" name="attachment" required />
-            </div>
-        </div>
-    </div>
+   
 </div>
 @push('page_scripts')
 <script>

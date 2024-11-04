@@ -41,7 +41,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="file">Upload File <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
-                        <input type="file" id="attachment" class="form-control" name="file">
+                        <input type="file" id="attachment" class="form-control" name="file" accept="image/*">
                     </div>
                 </div>
 
