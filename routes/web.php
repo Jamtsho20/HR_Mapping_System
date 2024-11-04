@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
-        Route::resource('approval-conditions', 'ApprovalConditionController');
+        Route::resource('condition-fields', 'ConditionFieldController');
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
@@ -105,9 +105,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
-        Route::resource('dsa-claim-settlement', 'DSAClaimController');
+        Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'show', 'edit');
-        Route::resource('transfer-claim', 'TransferClaimController');
+        Route::resource('transfer-claim', 'TransferClaimApplicationController');
         Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');
         Route::resource('expense-fuel', 'ExpenseFuelController');
         Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');

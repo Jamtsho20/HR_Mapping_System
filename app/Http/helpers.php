@@ -2,6 +2,7 @@
 
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
+use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
@@ -251,6 +252,13 @@ if (!function_exists('modifyFormRequest')) {
 if(!function_exists('loggedInUser')){ 
     function loggedInUser(){
         return auth()->user()->id;
+    }
+}
+
+if(!function_exists('LoggedInUserEmpIdName')) {
+    function LoggedInUserEmpIdName() {
+        $user = User::find(loggedInUser());
+        return $user->emp_id_name;
     }
 }
 

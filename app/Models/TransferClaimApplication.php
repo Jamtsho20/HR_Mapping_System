@@ -16,4 +16,8 @@ class TransferClaimApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+
+    public function user(){
+        return $this->belongsTo(User::class,'created_by');
+    }
 }
