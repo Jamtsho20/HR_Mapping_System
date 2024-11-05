@@ -560,12 +560,13 @@ class EmployeeController extends Controller
         if (isset($doc['other'])) {
             // Remove old files for 'other' documents
             if ($empDocument->other) {
-                $existingOtherDocs = json_decode($empDocument->other, true);
-                foreach ($existingOtherDocs as $oldFile) {
-                    if ($oldFile) {
-                        delete_image($oldFile);
-                    }
-                }
+                delete_image($empDocument->other);
+                // $existingOtherDocs = json_decode($empDocument->other, true);
+                // foreach ($existingOtherDocs as $oldFile) {
+                //     if ($oldFile) {
+                //         delete_image($oldFile);
+                //     }
+                // }
             }
             $otherDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other']);
         } else {
