@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
     Route::get('profile', 'HomeController@getProfile');
-    Route::get('change-password', 'HomeController@getChangePassword');
+    Route::get('change-password', 'HomeController@getChangePassword')->name('change-password');
     Route::post('change-password', 'HomeController@postChangePassword');
 
     // SYSTEM SETTINGS
