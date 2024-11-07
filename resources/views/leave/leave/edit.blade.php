@@ -85,7 +85,7 @@
                             @if($leave->attachment)
                                 <div class="mt-2">
                                     <a href="{{ asset($leave->attachment) }}" target="_blank" class="btn btn-link">
-                                        <i class="fas fa-file-alt"></i> View Current CID Copy
+                                        <i class="fas fa-file-alt"></i> View your Attachment
                                     </a>
                                 </div>
                             @endif
