@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('page-title', 'Leave Balance Report')
+@section('page-title', 'Vehicle Fuel Report')
 @section('content')
 
 
 <div class="col-sm-6">
-    <h5>Leave Availed Report</h5>
+    <h5>Vehicle Fuel Report</h5>
 </div>
 <br>
 <div class="row">
@@ -54,7 +54,7 @@
 
                     <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
-                            <label class="control-label">Leave Type</label>
+                            <label class="control-label">Employee</label>
                             <select class="form-control" name="leavetype">
                                 <option value="" disabled selected hidden>Select</option>
                                 <option value="1">Bereavement Leave (BL)</option>
@@ -71,6 +71,42 @@
 
                     <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
+                            <label class="control-label">Vechicle Number</label>
+                            <select class="form-control" name="department">
+                                <option value="" disabled selected hidden>Select</option>
+                                <option value="1">Strategic Planning and Projects</option>
+                                <option value="2">Core Network and Carrier Services</option>
+                                <option value="4">Finance</option>
+                                <option value="7">Management Information System</option>
+                                <option value="8">Commercial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group form-focus select-focus">
+                            <label class="control-label">Vehicle Type</label>
+                            <select class="form-control" name="department">
+                                <option value="14">ISP Access</option>
+                                <option value="32">Power &amp; Utilities</option>
+                                <option value="49">Access Network</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group form-focus select-focus">
+                            <label class="control-label">Region Name</label>
+                            <select class="form-control" name="department">
+                                <option value="14">ISP Access</option>
+                                <option value="32">Power &amp; Utilities</option>
+                                <option value="49">Access Network</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group form-focus select-focus">
                             <label class="control-label">Department</label>
                             <select class="form-control" name="department">
                                 <option value="" disabled selected hidden>Select</option>
@@ -83,52 +119,12 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
                             <label class="control-label">Section</label>
                             <select class="form-control" name="department">
                                 <option value="14">ISP Access</option>
                                 <option value="32">Power &amp; Utilities</option>
-                                <option value="49">Access Network</option>
-                                <option value="81">Power &amp; Utility</option>
-                                <option value="13">Samsung</option>
-                                <option value="37">Commercial</option>
-                                <option value="38">Region</option>
-                                <option value="59">Marketing</option>
-                                <option value="80">Customer Care Centre, Thimphu</option>
-                                <option value="83">Customer Care Center,Paro</option>
-                                <option value="84">Sales and Operations</option>
-                                <option value="85">Customer Care Center,Samtse</option>
-                                <option value="86">Customer Care Center,Wangdue</option>
-                                <option value="87">Customer Care Center,Gelephu</option>
-                                <option value="88">Customer Care Center,Bumthang</option>
-                                <option value="89">Customer Care Center,Mongar</option>
-                                <option value="90">Customer Care Center,T/gang</option>
-                                <option value="91">Customer Care Center,SJ.</option>
-                                <option value="92">Customer Care Center,P/ling</option>
-                                <option value="93">Customer Care Center,Tsirang</option>
-                                <option value="36">Core Network &amp; ISP</option>
-                                <option value="52">Core Network</option>
-                                <option value="57">ISP</option>
-                                <option value="68">International Services</option>
-                                <option value="19">Procurement and Inventory</option>
-                                <option value="20">Revenue and Follow Up</option>
-                                <option value="21">Payment</option>
-                                <option value="22">Internal Audit</option>
-                                <option value="42">Finance</option>
-                                <option value="65">Revenue</option>
-                                <option value="15">Human Resource&amp;Administration</option>
-                                <option value="28">Human Resources</option>
-                                <option value="29">Public Relations &amp; Media</option>
-                                <option value="50">Administration</option>
-                                <option value="74">Phuentsholing Regional Office</option>
-                                <option value="7">Value Added Services (VAS)</option>
-                                <option value="23">ERP, CC and IT Support</option>
-                                <option value="24">CBS and PRM</option>
-                                <option value="25">Value Added Services</option>
-                                <option value="33">Management Information System</option>
-                                <option value="11">B2B</option>
-                                <option value="12">B2C</option>
                             </select>
                         </div>
                     </div>
@@ -145,7 +141,6 @@
                                 <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                                     <div class="row">
                                         <div class="col-sm-12">
-
                                             <label data-select2-id="26">
                                                 Show
                                                 <select class="select2">
@@ -174,31 +169,29 @@
                                                             DESIGNATION
                                                         </th>
                                                         <th>
-                                                            DEPARTMENT
+                                                            Region Name
                                                         </th>
                                                         <th>
-                                                            LOCATION
+                                                            date of entry
                                                         </th>
                                                         <th>
-                                                            Leave TYPE
+                                                            vehicle type
                                                         </th>
                                                         <th>
-                                                            OPENING BAL
+                                                            vehicle number
                                                         </th>
                                                         <th>
-                                                        CURRENT ENTITLEMENT 
+                                                           mileage
                                                         </th>
                                                         <th>
-                                                           LEAVES AVAILED
+                                                            amount
                                                         </th>
-                                                        <th>
-                                                           CLOSING BALANCE
-                                                        </th>
+                                                       
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td colspan="11" class="text-center text-danger">No Leave balance report found</td>
+                                                        <td colspan="10" class="text-center text-danger">No Vehicle Fuel report found</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

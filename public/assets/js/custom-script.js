@@ -626,8 +626,9 @@ $(document).ready(function () {
             alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
             return false;
         }
-
-        // If both file size and type are valid, display a confirmation and return true
+    
+        // // If the file size is valid, display a confirmation and return true
+        // alert("File is valid!");
         return true;
     }
 
