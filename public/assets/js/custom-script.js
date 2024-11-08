@@ -582,8 +582,8 @@ $(document).ready(function () {
             return false;
         }
     
-        // If the file size is valid, display a confirmation and return true
-        alert("File is valid!");
+        // // If the file size is valid, display a confirmation and return true
+        // alert("File is valid!");
         return true;
     }
     

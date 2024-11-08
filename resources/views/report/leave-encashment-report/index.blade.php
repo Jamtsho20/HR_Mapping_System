@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Leave Balance Report')
+@section('page-title', 'Leave Encashment Report')
 @section('content')
 
 
@@ -52,22 +52,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Leave Type</label>
-                            <select class="form-control" name="leavetype">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="1">Bereavement Leave (BL)</option>
-                                <option value="2">Casual Leave (CL)</option>
-                                <option value="3">Earned Leave (EL)</option>
-                                <option value="4">Extra-ordinary Leave (EOL)</option>
-                                <option value="5">Medical Leave (ML)</option>
-                                <option value="6">Maternity Leave (MTL)</option>
-                                <option value="7">Paternity Leave (PL)</option>
-                                <option value="8">Study Leave (SL)</option>
-                            </select>
-                        </div>
-                    </div>
+                   
 
                     <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
@@ -180,25 +165,20 @@
                                                             LOCATION
                                                         </th>
                                                         <th>
-                                                            Leave TYPE
+                                                            ENCASHMENT
                                                         </th>
                                                         <th>
-                                                            OPENING BAL
+                                                            EL CLOSING BAL
                                                         </th>
                                                         <th>
-                                                        CURRENT ENTITLEMENT 
+                                                            BASIC PAY
                                                         </th>
-                                                        <th>
-                                                           LEAVES AVAILED
-                                                        </th>
-                                                        <th>
-                                                           CLOSING BALANCE
-                                                        </th>
+                                                   
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td colspan="11" class="text-center text-danger">No Leave balance report found</td>
+                                                        <td colspan="9" class="text-center text-danger">No Leave balance report found</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

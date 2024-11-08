@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Leave Balance Report')
+@section('page-title', 'Advance Loan')
 @section('content')
 
 
@@ -54,7 +54,7 @@
 
                     <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
-                            <label class="control-label">Leave Type</label>
+                            <label class="control-label">Employee</label>
                             <select class="form-control" name="leavetype">
                                 <option value="" disabled selected hidden>Select</option>
                                 <option value="1">Bereavement Leave (BL)</option>
@@ -71,6 +71,19 @@
 
                     <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
+                            <label class="control-label">Adv. Loan Type</label>
+                            <select class="form-control" name="department">
+                                <option value="" disabled selected hidden>Select</option>
+                                <option value="1">Strategic Planning and Projects</option>
+                                <option value="2">Core Network and Carrier Services</option>
+                                <option value="4">Finance</option>
+                                <option value="7">Management Information System</option>
+                                <option value="8">Commercial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group form-focus select-focus">
                             <label class="control-label">Department</label>
                             <select class="form-control" name="department">
                                 <option value="" disabled selected hidden>Select</option>
@@ -82,8 +95,7 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <div class="form-group form-focus select-focus">
                             <label class="control-label">Section</label>
                             <select class="form-control" name="department">
@@ -180,25 +192,35 @@
                                                             LOCATION
                                                         </th>
                                                         <th>
-                                                            Leave TYPE
+                                                           ADVANCE LOAN TYPE
                                                         </th>
                                                         <th>
-                                                            OPENING BAL
+                                                            DATE OF CLAIM
                                                         </th>
                                                         <th>
-                                                        CURRENT ENTITLEMENT 
+                                                            AMOUNT
                                                         </th>
                                                         <th>
-                                                           LEAVES AVAILED
+                                                            EMI START DATE
                                                         </th>
                                                         <th>
-                                                           CLOSING BALANCE
+                                                           NO OF EMI
                                                         </th>
+                                                        <th>
+                                                            EMI END DATE
+                                                        </th>
+                                                        <th>
+                                                            APPROVED BY
+                                                        </th>
+                                                        <th>
+                                                            APPROVAL DATE
+                                                        </th>
+                                                        
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td colspan="11" class="text-center text-danger">No Leave balance report found</td>
+                                                        <td colspan="14" class="text-center text-danger">No Advance Loan report found</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
