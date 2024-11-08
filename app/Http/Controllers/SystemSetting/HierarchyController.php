@@ -17,6 +17,7 @@ class HierarchyController extends Controller
         'hierarchies.*.start_date' => 'required',
         'hierarchies.*.approving_authority' => 'required',
         // 'hierarchies.*.employee' => 'required_unless:approving_authority,' . IMMEDIATE_HEAD . ',' . DEPARTMENT_HEAD,
+        'hierarchies.*.sequence' => 'required|integer',
     ];
 
     private $messages = [
@@ -76,6 +77,7 @@ class HierarchyController extends Controller
                     'mas_employee_id' => $value['employee'] ?? null,
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
+                    'sequence' => $value['sequence'],
                     'status' => $value['status']
                 ];
             }
@@ -132,6 +134,7 @@ class HierarchyController extends Controller
                     'mas_employee_id' => $value['employee'] ?? null,
                     'start_date' => $value['start_date'],
                     'end_date' => $value['end_date'],
+                    'sequence' => $value['sequence'],
                     'status' => $value['status']
                 ]);
             }

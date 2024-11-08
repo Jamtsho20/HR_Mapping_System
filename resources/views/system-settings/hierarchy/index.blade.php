@@ -2,7 +2,7 @@
 @section('page-title', 'Hierarchy')
 @if ($privileges->create)
     @section('buttons')
-        <a href="{{ url('system-setting/hierarchies/create') }}" class="btn btn-primary"><i class="fa fa-plus"></i>New
+        <a href="{{ url('system-setting/hierarchies/create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> New
             Hierarchy</a>
     @endsection
 @endif
@@ -46,6 +46,7 @@
                                                             <th>Employee</th>
                                                             <th>Start Date</th>
                                                             <th>End Date</th>
+                                                            <th>Sequence</th>
                                                             <th>Status</th>
                                                         </tr>
                                                         @foreach ($hierarchy->hierarchyLevels as $level)
@@ -55,6 +56,7 @@
                                                                 <td>{{ $level->approver->emp_id_name ?? config('global.null_value') }}</td>
                                                                 <td>{{ $level->start_date }}</td>
                                                                 <td>{{ $level->end_date }}</td>
+                                                                <td>{{ $level->sequence }}</td>
                                                                 @if ($level->status == 1)
                                                                     <td>Active</td>
                                                                 @else( $level -> value == 0)
