@@ -25,34 +25,6 @@ class ProfileController extends Controller
         return view('profile.edit', compact('employee'));
     }
 
-    // public function updateImage(Request $request, $id)
-    // {
-    //     $request->validate([
-    //         'profile_pic' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation as needed
-    //     ]);
-
-    //     $employee = User::findOrFail($id);
-
-    //     // Check if the employee already has a profile picture and delete the old one
-    //     if ($employee->profile_pic && file_exists(public_path($employee->profile_pic))) {
-    //         unlink(public_path($employee->profile_pic));
-    //     }
-
-    //     if ($request->hasFile('profile_pic')) {
-    //         $image = $request->file('profile_pic');
-
-    //         // Store the image in `public/images/users`
-    //         $imageName = time() . '_' . $image->getClientOriginalName();
-    //         $image->move(public_path('images/users'), $imageName);
-
-    //         // Update the path in the database
-    //         $employee->profile_pic = '/images/users/' . $imageName;
-    //         $employee->save();
-    //     }
-
-    //     return redirect()->back()->with('success', 'Profile picture updated successfully.');
-    // }
-
     public function updateImage(Request $request, $id)
     {
         // Validate the incoming request
@@ -61,12 +33,22 @@ class ProfileController extends Controller
         ]);
 
         // Find the employee by ID
-        $employee = User::findOrFail($id);
-
-        // Use the helper function to update the image
-        updateImage($request, $employee, 'profile_pic', 'images/users');
+        $user = User::findOrFail($id);
+        if ($request->profile_pic) {
+            // Delete existing profile pic if it exists
+            if ($user && $user->profile_pic) {
+                $deleteImage = delete_image($user->profile_pic);
+                if(!$deleteImage){
+                    return redirect()->back()->with('msg_error', 'Profile picture couldnot be updated, please try again later.');
+                } 
+            }
+            // Upload new profile picture and update the path
+            $profilePic = uploadImageToDirectory($request->profile_pic, 'images/users/');
+            $user->profile_pic = $profilePic;
+            $user->save();
+        }
 
         // Redirect back with a success message
-        return redirect()->back()->with('success', 'Profile picture updated successfully.');
+        return redirect()->back()->with('msg_success', 'Profile picture updated successfully.');
     }
 }

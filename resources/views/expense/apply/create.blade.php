@@ -44,13 +44,10 @@
                         <input type="file" id="attachment" class="form-control" name="file" accept="image/*">
                     </div>
                 </div>
-
             </div>
+            <!--Conveyance Form-->
+            @include('expense.apply.types.conveyance')
         </div>
-        <!--Conveyance Form-->
-        @include('expense.apply.types.conveyance')
-
-
         <div class="card-footer">
             @include('layouts.includes.buttons', [
             'buttonName' => 'Apply Expense',
@@ -59,7 +56,6 @@
             ])
 
         </div>
-
     </div>
 </form>
 

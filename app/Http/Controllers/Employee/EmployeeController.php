@@ -249,7 +249,7 @@ class EmployeeController extends Controller
         if (isset($personalInfo['profile_pic'])) {
             // Delete existing profile pic if it exists
             if ($user && $user->profile_pic) {
-                delete_image($user->profile_pic); // Deletes the old profile pic from storage
+                unlink($user->profile_pic); // Deletes the old profile pic from storage
             }
             // Upload new profile picture and update the path
             $profilePic = uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/');
@@ -261,7 +261,7 @@ class EmployeeController extends Controller
         if (isset($personalInfo['cid_copy'])) {
             // Delete existing CID copy if it exists
             if ($user && $user->cid_copy) {
-                delete_image($user->cid_copy); // Deletes the old CID copy from storage
+                unlink($user->cid_copy); // Deletes the old CID copy from storage
             }
             // Upload new CID copy and update the path
             $empCidCopy = uploadImageToDirectory($personalInfo['cid_copy'], $this->filePath);
@@ -563,7 +563,7 @@ class EmployeeController extends Controller
         if (isset($doc['employment_contract'])) {
             // Remove old file if exists
             if ($empDocument->employment_contract) {
-                delete_image($empDocument->employment_contract);
+                unlink($empDocument->employment_contract);
             }
             $empContract = uploadImageToDirectory($doc['employment_contract'], $this->filePath);
         } else {
@@ -573,7 +573,7 @@ class EmployeeController extends Controller
         // Handle non-disclosure agreement
         if (isset($doc['non_disclosure_aggrement'])) {
             if ($empDocument->non_disclosure_aggrement) {
-                delete_image($empDocument->non_disclosure_aggrement);
+                unlink($empDocument->non_disclosure_aggrement);
             }
             $empNonDisclosureAggrement = uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath);
         } else {
@@ -583,7 +583,7 @@ class EmployeeController extends Controller
         // Handle job responsibilities
         if (isset($doc['job_responsibilities'])) {
             if ($empDocument->job_responsibilities) {
-                delete_image($empDocument->job_responsibilities);
+                unlink($empDocument->job_responsibilities);
             }
             $jobResponsibilities = uploadImageToDirectory($doc['job_responsibilities'], $this->filePath);
         } else {
@@ -594,12 +594,13 @@ class EmployeeController extends Controller
         if (isset($doc['other'])) {
             // Remove old files for 'other' documents
             if ($empDocument->other) {
-                $existingOtherDocs = json_decode($empDocument->other, true);
-                foreach ($existingOtherDocs as $oldFile) {
-                    if ($oldFile) {
-                        delete_image($oldFile);
-                    }
-                }
+                delete_image($empDocument->other);
+                // $existingOtherDocs = json_decode($empDocument->other, true);
+                // foreach ($existingOtherDocs as $oldFile) {
+                //     if ($oldFile) {
+                //         delete_image($oldFile);
+                //     }
+                // }
             }
             $otherDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other']);
         } else {
@@ -617,9 +618,7 @@ class EmployeeController extends Controller
             ]
         );
     }
-
-    private function assignRoles($roles, $id, $request)
-    {
+    private function assignRoles($roles, $id, $request){
         $user = User::findOrFail($id);
         $rolesAssigned = [];
         foreach ($request->roles as $key => $value) {

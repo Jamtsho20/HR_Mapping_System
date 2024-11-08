@@ -76,8 +76,8 @@ class AdvanceLoanApplicationController extends Controller
     {
         $privileges = $request->instance();
         $advances = AdvanceApplication::with('advanceType')
-        ->createdBy() // Apply the createdBy scope
-        ->paginate(10);
+            ->createdBy() // Apply the createdBy scope
+            ->paginate(10);
         foreach ($advances as $advance) {
             $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
         }
@@ -163,7 +163,7 @@ class AdvanceLoanApplicationController extends Controller
     public function edit($id)
     {
         $advance = AdvanceApplication::findOrFail($id);
-     
+
         $advanceTypes = MasAdvanceTypes::all(); // Fetch advance types
         return view('advance-loan.apply.edit', compact('advance', 'advanceTypes'));
     }
@@ -202,7 +202,17 @@ class AdvanceLoanApplicationController extends Controller
         ]);
 
         // Handle file upload for the attachment
+        // Handle file upload for the attachment
         if ($request->hasFile('attachment')) {
+            // Check if there is an existing file and delete it
+            if ($advanceApplication->attachment) {
+                $existingFilePath = public_path($advanceApplication->attachment);
+                if (file_exists($existingFilePath) && is_file($existingFilePath)) {
+                    unlink($existingFilePath); // Delete the existing file
+                }
+            }
+
+            // Upload the new file and save the path
             $file = $request->file('attachment');
             $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
             $validatedData['attachment'] = $path; // Save the relative path
@@ -210,6 +220,7 @@ class AdvanceLoanApplicationController extends Controller
             // If no new file is uploaded, keep the existing attachment path
             $validatedData['attachment'] = $advanceApplication->attachment; // Maintain the existing path
         }
+
 
         try {
             DB::beginTransaction();
@@ -246,11 +257,10 @@ class AdvanceLoanApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        {
+    { {
             try {
                 AdvanceApplication::findOrFail($id)->delete();
-    
+
                 return back()->with('msg_success', 'Advance Applicaton has been deleted');
             } catch (\Exception $e) {
                 return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');

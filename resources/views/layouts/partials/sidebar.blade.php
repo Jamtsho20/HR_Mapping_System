@@ -45,6 +45,7 @@
                                             </div>
                                             <div class="dropdown-divider m-0"></div>
                                             <a class="dropdown-item" href="{{ route('user-profile.show', Auth::id()) }}"><i class="dropdown-icon fe fe-user"></i> Profile </a>
+                                            <a class="dropdown-item" href="{{ route('change-password') }}"><i class="dropdown-icon fe fe-lock"></i> Change Password </a>
                                             <form method="POST" action="{{ route('logout') }}">
                                                 @csrf
                                                 <a class="dropdown-item"

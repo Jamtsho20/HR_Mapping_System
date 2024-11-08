@@ -269,27 +269,52 @@ class LeaveApplicationController extends Controller
             return back()->withInput()->with('msg_error', $msg);
         }
 
-        // Handle file upload if required based on defined in leave policy
-        $attachment = $leaveApplication ? $leaveApplication->attachment : '';
-        if ($attachmentRequired && !$attachment) {
-            $this->validate($request, [
-                'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-            ]);
-        }
+        // Handle file upload if required based on defined in leave policy(old code)
+        // $attachment = $leaveApplication ? $leaveApplication->attachment : '';
+        // if ($attachmentRequired && !$attachment) {
+        //     $this->validate($request, [
+        //         'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
+        //     ]);
+        // }
+        // if ($request->hasFile('attachment')) {
+        //     $file = $request->file('attachment');
+        //     if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
+        //         delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
+        //     }
+        //     $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        // }
+
+        // return [
+        //     'leaveBalance' => $leaveBalance,
+        //     'maxLeaveDays' => $maxLeaveDays,
+        //     'leaveType' => $leaveType,
+        //     'attachment' => $attachment
+        // ]; 
         if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
-                delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
+            // Check if there is an existing file and delete it
+            if ($leaveApplication && $leaveApplication->attachment) {
+                $existingFilePath = public_path($leaveApplication->attachment);
+                if (file_exists($existingFilePath) && is_file($existingFilePath)) {
+                    unlink($existingFilePath); // Delete the existing file
+                }
             }
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+
+            // Upload the new file and save the path
+            $file = $request->file('attachment');
+            $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
+            $validatedData['attachment'] = $path; // Save the relative path
+        } else {
+            // If no new file is uploaded, keep the existing attachment path
+            $validatedData['attachment'] = $leaveApplication ? $leaveApplication->attachment : ''; // Maintain existing or set to empty if none
         }
 
+        // Return the updated data or response as needed
         return [
             'leaveBalance' => $leaveBalance,
             'maxLeaveDays' => $maxLeaveDays,
             'leaveType' => $leaveType,
-            'attachment' => $attachment
-        ];   
+            'attachment' => $validatedData['attachment']
+        ];  
     }
 
 }
