@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dsa_claim_details', function (Blueprint $table) {
+        Schema::create('dsa_claim_details', function (Blueprint $table) { //no of days(3,1)
             $table->id();
             $table->foreignId('dsa_claim_id')->constrained('dsa_claim_applications')->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('from_date');

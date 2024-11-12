@@ -11,6 +11,8 @@ use App\Models\MasEmployeeJob;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 
 class LeaveApplicationController extends Controller
 {
@@ -80,7 +82,9 @@ class LeaveApplicationController extends Controller
 
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-        // dd($conditionFields);
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+        // dd($approverByHierarchy['approval_option']);
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
@@ -93,21 +97,27 @@ class LeaveApplicationController extends Controller
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
-                'status' => $request->status ?? 1,
+                'status' => $request->status ?? 1,    
             ]);
-
             // Create a history record
             $leaveApplication->histories()->create([
-                'level' => 'Test Level',
+                'approval_option' => $approverByHierarchy['approval_option'],
+                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
                 'status' => 1,
                 'remarks' => $request->remarks,
-                'created_by' => loggedInUser(),
+                'action_performed_by' => loggedInUser(),
             ]);
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
-            // $approvalService = new ApprovalService();
-            // $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-
             DB::commit();
+            if(isset($approverByHierarchy['approver_details'])){
+                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days.';
+                $emailSubject = 'Leave Application';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());

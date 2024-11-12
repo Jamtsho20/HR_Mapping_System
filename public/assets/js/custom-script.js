@@ -406,7 +406,75 @@ var hrms = function () {
             $(document).on("change", "#amount", getExpenseDetails);
         });
 
+        //get dsa advance details based on select of dsa advance id
+        $(document).ready(function () {
+            function getDsaAdvanceDetails() {
+                const advanceId = $("#advance_no").val();
+                
+                if (advanceId !== '') {
+                    $.ajax({
+                        url: `/getdsaadvancedetailsbyadvanceid/${advanceId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function (data) {
+                            console.log(data)
+                            if (data['advance_detail'][0].attachment) { // assuming 'file_url' is the URL or path in your response data
+                                $('#uploaded-file').html(`
+                                    <p>Current Attachment:</p>
+                                    <a href="${data['advance_detail'][0].attachment}" target="_blank">View Attachment</a>
+                                `);
+                            } else {
+                                $('#uploaded-file').html('<p>No attachment available.</p>');
+                            }
+                            // Populate the form fields with the returned data
+                            $("#advance_amount").val(parseInt(data['advance_detail'][0].amount) || 0);
+                            // $("#total_amount").val(parseInt(data['advance_detail'][0].total_amount) || 0);
+        
+                            // Populate table rows
+                            $("input[name='dsa_claim_detail[AAAAA][from_date]']").val(data['advance_detail'][0].from_date);
+                            $("input[name='dsa_claim_detail[AAAAA][from_location]']").val(data['advance_detail'][0].from_location);
+                            $("input[name='dsa_claim_detail[AAAAA][to_date]']").val(data['advance_detail'][0].to_date);
+                            $("input[name='dsa_claim_detail[AAAAA][to_location]']").val(data['advance_detail'][0].to_location);
+        
+                            // Calculate the total days between from_date and to_date, if needed
+                            const fromDate = new Date(data['advance_detail'][0].from_date);
+                            const toDate = new Date(data['advance_detail'][0].to_date);
+                            const totalDays = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
+                            $("input[name='dsa_claim_detail[AAAAA][total_days]']").val(totalDays);
+        
+                            // Calculate and update the total amount
+                            calculateTotalAmount();
+                            // Populate the remarks if provided
+                            $("textarea[name='dsa_claim_detail[AAAAA][remark]']").val(data['advance_detail'][0].remark);
+                        },
+                        error: function (error) {
+                            console.log("Error fetching data", error);
+                        }
+                    });
+                }
+            }
+        
+            // Function to calculate total amount based on daily and travel allowances
+            function calculateTotalAmount() {
+                const dailyAllowance = parseInt($("input[name='dsa_claim_detail[AAAAA][daily_allowance]']").val()) || DAILY_ALLOWANCE;
+                const travelAllowance = parseInt($("input[name='dsa_claim_detail[AAAAA][travel_allowance]']").val()) || 0;
+                const totalDays = parseInt($("input[name='dsa_claim_detail[AAAAA][total_days]']").val()) || 0;
+                
+                // Calculate the total amount
+                const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+                $("input[name='dsa_claim_detail[AAAAA][total_amount]']").val(totalAmount);
 
+            }
+        
+            // Trigger on change of advance_no
+            $(document).on("change", "#advance_no", getDsaAdvanceDetails);
+        
+            // Trigger calculation only on travel_allowance change
+            $(document).on("input", "input[name='dsa_claim_detail[AAAAA][travel_allowance]']", calculateTotalAmount);
+
+            // trigger calculation of net payable amount on change of total_amount_adjusted
+        });
+        
         //END
 
         //turn off all the autocomplete feature within the forms

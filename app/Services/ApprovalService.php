@@ -2,14 +2,17 @@
 
 namespace App\Services;
 
-// use App\Models\MasApprovalHead;
-
+use App\Models\ApplicationHistory;
+use App\Models\ApprovingAuthority;
 use App\Models\MasApprovalRule;
 use App\Models\MasApprovalRuleConditionOperator;
+use App\Models\MasEmployeeJob;
 use App\Models\SystemHierarchy;
+use App\Models\User;
 
 class ApprovalService
 {
+	// for the first time to get approver we need to check using approval option as well as using approval rule so it is done differently
 	public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
 	{ // parameter need to be passed from wherever this class is being invoked
 		$approvalRule = MasApprovalRule::with('approvalConditions')
@@ -33,31 +36,24 @@ class ApprovalService
 					if($appvlCondition->approval_option == HIERARCHICAL_APPVL_OPTION){
 						//get matching hierarchy and its level
 						$systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function($query) {
-															$query->whereStatus(1)->orderBy('level');
+															$query->whereStatus(1)->orderBy('sequence');
 														}])
 														->where('id', $appvlCondition->system_hierarchy_id)->first();
-
+														
 						// Get the numeric level of `max_level_id` from `hierarchyLevels`
     					$maxLevel = $systemHierarchy->hierarchyLevels->firstWhere('id', $appvlCondition->max_level_id);
+						//get the level below max level
+						$levelsBelowOrEqualMax = $systemHierarchy->hierarchyLevels
+							->filter(function ($level) use ($maxLevel) {
+								return $level->sequence <= $maxLevel->sequence;
+							})
+							->sortBy('sequence')
+							->values();
+						// next level is level where the application will be forwarded
+						$nextLevel = $levelsBelowOrEqualMax->first();
 
-						// Convert the `level` field to an integer for comparison 
-						$parsedLevels = $systemHierarchy->hierarchyLevels->map(function($level) {
-							$level->numeric_level = (int) filter_var($level->level, FILTER_SANITIZE_NUMBER_INT);
-							return $level;
-						});
-
-						// Sort by `numeric_level` that has been assigned above by $parsedLevels & order by descending
-						$sortedLevels = $parsedLevels->sortByDesc('numeric_level')->values();
-						
-						// Filter levels below the max level's numeric level 
-						$levelsBelowMax = $sortedLevels->filter(function($level) use ($maxLevel) {
-							return $level->numeric_level < $maxLevel->numeric_level;
-						})->sortByDesc('numeric_level')->values();
-
-						// Check if we have any levels below max, otherwise take the max level itself
-						$lowestLevel = $levelsBelowMax->isNotEmpty() ? $levelsBelowMax->sortBy('numeric_level')->first() : $maxLevel;
-						$this->getApproverDetail($lowestLevel);
-						// return $lowestLevel;
+						$approverDetail = $this->getApproverDetail($nextLevel);
+						return ['next_level' => $nextLevel, 'approver_details' => $approverDetail, 'hierarchy_id' => $systemHierarchy->id, 'approval_option' => HIERARCHICAL_APPVL_OPTION];
 
 					}else if($appvlCondition->approval_option == SINGLE_USER_APPVL_OPTION){ // then it will be approved in level 1 it self
 
@@ -67,19 +63,55 @@ class ApprovalService
 				}
 			}
 		}
+		//if lowest level not found
+		return null;
 	}
 
-	private function getApproverDetail($lowestLevel){
-		$loggedInUserDetails = loggedInUser();
-		
-		if($lowestLevel->approving_authority_id == IMMEDIATE_HEAD){
+	// after completion of applying and forwarding to user based on approval options and 
+	// using other parameters then we no need to check for those parameter can do directly with the help of application_histories table
+	public function applicationForwardedTo($id, $applicationType){
+		$applicationHistory = ApplicationHistory::where('application_type', $applicationType)->where('application_id', $id)->where('approver_emp_id', auth()->user()->id)->first();
+		if($applicationHistory && $applicationHistory->approval_option == HIERARCHICAL_APPVL_OPTION){
+			$systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function($query) {
+				$query->whereStatus(1)->orderBy('sequence');
+			}])
+			->where('id', $applicationHistory->hierarchy_id)->first();
+			
+			if($systemHierarchy){
+				$currentLevel = $applicationHistory->level_id;
+				$currentLevelSequence = $systemHierarchy->hierarchyLevels
+														->where('id', $currentLevel)
+														->first()
+														->sequence ?? null;
+				// Find the next level based on the sequence
+				$nextLevel = $systemHierarchy->hierarchyLevels
+					->where('sequence', $currentLevelSequence + 1)
+					->first();
+			}
+			if($nextLevel){
+				$approverDetail = $this->getApproverDetail($nextLevel);
+				return ['next_level' => $nextLevel, 'approver_details' => $approverDetail];
+			}else{
 
+			}
 		}
-		dd($lowestLevel);
-
 	}
 
-	private function sentEmailToApprover() {
-
+	private function getApproverDetail($nextLevel){
+		// dd($nextLevel);
+		$loggedInUserDeptIdAndSecId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->get(['mas_department_id', 'mas_section_id'])[0];
+		// dd($loggedInUserDeptIdAndSecId);
+		$approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)->pluck('role_id')[0];
+		// dd($approvingAuthorityRoleId); 
+		$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
+			$query->where('roles.id', $approvingAuthorityRoleId);
+		})
+		->whereHas('empJob', function ($query) use ($loggedInUserDeptIdAndSecId) {
+			$query->where('mas_department_id', $loggedInUserDeptIdAndSecId->mas_department_id)
+				  ->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
+		})
+		->first();
+		// dd($userWithApprovingRole);
+		return ['user_with_approving_role' => $userWithApprovingRole, 'approver_role_id' => $approvingAuthorityRoleId];
 	}
 }
