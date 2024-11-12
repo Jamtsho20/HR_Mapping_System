@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\DummyApi;
+use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +30,12 @@ Route::middleware('api.access.log')->group(function () {
         Route::put('change-password', [LoginController::class, 'handleChangePassword']);
     });
 });
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
+//     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);
+//     Route::post('advance-applications', [AdvanceLoanApplicationApiController::class, 'store']);
+//     Route::put('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'update']);
+//     Route::delete('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'destroy']);
+// });
+
+Route::middleware('auth:sanctum')->resource('advance-applications', AdvanceLoanApplicationApiController::class);
