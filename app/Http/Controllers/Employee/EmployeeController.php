@@ -171,7 +171,6 @@ class EmployeeController extends Controller
             $this->saveExperiences($request->experiences, $id, $request);
         } elseif ($tab === 'document') {
             $this->saveDocuments($request->documents, $id, $request);
-
         } else if ($tab === 'role') {
 
             // $this->assignRoles($request->roles, $id, $request);
@@ -224,7 +223,6 @@ class EmployeeController extends Controller
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
         $user = $employeeId ? User::findOrFail($employeeId): "";
-
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -242,7 +240,7 @@ class EmployeeController extends Controller
         ];
         $request->validate($rules);
 
-        if(!$user || !isset($personalInfo['cid_copy'])){
+        if (!$user || !isset($personalInfo['cid_copy'])) {
             $rules['personal.cid_copy'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
         }
 
