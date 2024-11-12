@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Services\PayrollService;
@@ -144,6 +145,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
+    });
+
+    // TRAVEL_AUTHORIZATION
+    Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function (){
+        Route::resource('apply-travel-authorization', 'TravelAuthorizationApplicationController');
+        Route::resource('travel-authorization-approval', 'TravelAuthorizationApprovalController');
+
     });
 
     //SIFAREG
