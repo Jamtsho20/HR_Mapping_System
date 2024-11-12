@@ -2,17 +2,19 @@
     <div class="col-md-4">
         <div class="form-group">
             <label for="amount">Amount</label>
-            <input type="text" class="form-control" id="amount" value="{{ number_format($advance->amount, 2) }}"
+            <input type="text" class="form-control"  value="{{ number_format($advance->amount, 2) }}"
                 readonly>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="form-group">
-            <label for="interest_rate">Interest Rate</label>
-            <input type="text" class="form-control" id="interest_rate"
-                value="{{ $advance->interest_rate ?? 'N/A' }}%" readonly>
-        </div>
+    <div class="form-group">
+        <label for="interest_rate">Interest Rate (%) <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" name="interest_rate" 
+               value="{{ old('interest_rate', $advance->interest_rate ?? SIFA_INTEREST_RATE) }}" 
+               id="interest_rate_sifa" readonly />
     </div>
+</div>
+
     <div class="col-md-4">
         <div class="form-group">
             <label for="total_amount">Total Amount</label>
@@ -49,17 +51,19 @@
 <div class="row">
     <div class="col-md-4">
         <div class="form-group">
-            <label for="purpose">Purpose</label>
-            <input type="text" class="form-control" id="purpose" value="{{ $advance->purpose }}" readonly>
+            <label for="remark">Remark</label>
+            <input type="text" class="form-control" id="remark" value="{{ $advance->remark }}" readonly>
         </div>
     </div>
     <div class="col-md-4">
         <div class="form-group">
-            <label for="attachment">Attachment</label>
-            @if ($advance->attachment)
-                <a href="{{ asset($advance->attachment) }}" class="form-control" target="_blank">View Attachment</a>
+            @if($advance->attachment)
+            <br>
+            <a href="{{ asset($advance->attachment) }}" class="btn-sm btn-primary pull-left"
+                target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
+                &nbsp; Attachment</a>
             @else
-                <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
+            <input type="text" class="form-control" id="attachment" value="No Attachment" readonly>
             @endif
         </div>
     </div>

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class MasLeavePolicy extends Model
 {
     use HasFactory, CreatedByTrait;
-    protected $fillable = ['mas_leave_type_id','name','description','start_date','end_date','status']; 
+    protected $fillable = ['mas_leave_type_id','name','description','is_information_only','start_date','end_date','status']; 
 
 
     //realtions

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use Intervention\Image\Facades\Image as Image;
 /**
@@ -63,30 +64,35 @@ if (!function_exists('get_image')) {
 if (!function_exists('delete_image')) {
     function delete_image($path)
     {
-        // Check if the file exists before trying to delete
-        if (file_exists($path) && is_file($path)) {
-            // Attempt to delete the original file
-            if (!@unlink($path)) {
-                // Log error or handle failure if needed
-                return false;
+        if ($path) {
+            // unlink(public_path($path)); //incase if path not found provide meaningful message to user to avoid confusion
+            $decodedString = decoded_string($path);
+            // dd($decodedString);
+            if($decodedString){
+                foreach($decodedString as $string){//incase if path not found provide meaningful message to user to avoid confusion
+                    unlink(public_path($string));
+                }
+            }else{
+                unlink(public_path($path));
             }
-        }
-        //delete the original file
-        // @unlink($path);
-        //delete other size variations of the same file
-        $fileNameArray = explode('.', $path);
-        $extension = array_pop($fileNameArray);
-        //variables will be in the form of  example-file-blah-blah_100_20.jpg
-        //the path will be example-file-blah-blah.jpg
-        //first remove extension, replace extension with blank
-        //then add the wildcard pattern
-        $pattern = str_replace(".$extension", "", $path) . "_*_*" . ".$extension";
-        foreach (glob($pattern) as $file) {
-            @unlink($file);
+        }else{
+            return false;
         }
         return true;
     }
 }
+
+if (!function_exists('decoded_string')) {
+    function decoded_string($string){
+        $decodedString = json_decode($string); // Attempt to decode the JSON string
+        if($decodedString){
+            return $decodedString;
+        }else{
+            return false;
+        }
+    }
+}
+
 
 if (!function_exists('comma_separated_to_array')) {
     function comma_separated_to_array($value, $separator = ',')
@@ -247,5 +253,20 @@ if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id ba
                                         left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
                                         where t1.id = ?", [$loggedInUserOfficeId]);
         return $loggedInUserRegion;
+    }
+}
+
+if(!function_exists('approvalHeadConditionField')){
+    function approvalHeadConditionFields($approvalHeadId, $request) {
+        $conditionFields = MasConditionField::where('mas_approval_head_id', $approvalHeadId)->get(['id', 'name', 'has_employee_field'])->toArray();
+        foreach($conditionFields as &$field){
+            if($request->has($field['name'])){
+                $field['value'] = $request->input($field['name']);
+                // $field['value'] = $request   
+            }else {// Set 'value' to null if not present in the request
+                $field['value'] = null;
+            }
+        }
+        return $conditionFields;
     }
 }

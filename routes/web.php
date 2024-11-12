@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
+use App\Http\Controllers\Profile\ProfileController;
 use App\Services\PayrollService;
 
 /*
@@ -39,7 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
     Route::get('profile', 'HomeController@getProfile');
-    Route::get('change-password', 'HomeController@getChangePassword');
+    Route::get('change-password', 'HomeController@getChangePassword')->name('change-password');
     Route::post('change-password', 'HomeController@postChangePassword');
 
     // SYSTEM SETTINGS
@@ -53,6 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
+        Route::resource('condition-fields', 'ConditionFieldController');
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
@@ -80,6 +83,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('expense-types', 'ExpenseTypeController');
         Route::resource('advance-loans', 'AdvanceLoanController');
         Route::resource('offices', 'OfficeController');
+        Route::resource('vehicles', 'VehicleController');
+
     });
 
     // WORK STRUCTURE
@@ -101,9 +106,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
-        Route::resource('dsa-claim-settlement', 'DSAClaimController');
+        Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'show', 'edit');
-        Route::resource('transfer-claim', 'TransferClaimController');
+        Route::resource('transfer-claim', 'TransferClaimApplicationController');
         Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');
         Route::resource('expense-fuel', 'ExpenseFuelController');
         Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
@@ -122,6 +127,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         Route::get('leave-encashment', 'LeaveApplicationController@leaveEncashment')->name('leave.leave-encashment');
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
+        // Custom route for bulk approval/rejection
+        Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
     });
 
     // DELEGATION APPROVAL
@@ -140,6 +147,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
+    });
+
+    // TRAVEL_AUTHORIZATION
+    Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function (){
+        Route::resource('apply-travel-authorization', 'TravelAuthorizationApplicationController');
+        Route::resource('travel-authorization-approval', 'TravelAuthorizationApprovalController');
+
     });
 
     //SIFAREG
@@ -165,10 +179,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
-        // Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
-        // Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
-        // Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
-        // Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
+        Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
+        Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
+        Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
+        Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
     });
 
     //AssetsReport
@@ -232,6 +246,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('employee-create', 'EmployeeGroupController');
     });
 
+    //ProfileController
+    Route::namespace('Profile')->prefix('user-profile')->group(function () {
+        Route::resource('user-profile', 'ProfileController');
+        Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
+    });
+    
+
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
     Route::get('getvillagebygewog/{id}', 'AjaxRequestController@getVillage');
@@ -251,4 +272,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
+    Route::get('getdsaadvancedetailsbyadvanceid/{id}', 'AjaxRequestController@getAdvanceDetail');
 });

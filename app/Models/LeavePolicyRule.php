@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class LeavePolicyRule extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'leave_policy_plan_id',
         'mas_grade_step_id',
@@ -19,7 +20,6 @@ class LeavePolicyRule extends Model
         'mas_employment_type_id',
         'status',
     ];
-
 
     public function leavePolicyPlan()
     {

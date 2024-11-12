@@ -12,10 +12,14 @@
             </div>
         </div>
         <div class="card-footer">
-        <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> CREATE</button>
-        <a href="{{ url('master/dzongkhags') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'SAVE',
+            'cancelUrl' => url('master/dzongkhags'),
+            'cancelName' => 'CANCEL'
+            ])
 
-    </div>
+
+        </div>
     </div>
 
 </form>

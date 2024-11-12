@@ -27,6 +27,7 @@
                                     <th>Employee</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
+                                    <th>Sequence</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -47,6 +48,9 @@
                                     <td>
                                         <select class="form-control form-control-sm approving-authority-select form-control-sm approving-authority-select resetKeyForNew" name="hierarchies[AAAAA][approving_authority]">
                                             <option value="" disabled selected hidden>Select Approving Authority</option>
+                                            @foreach ($approvingAuthorities as $authority)
+                                                <option value="{{ $authority->id }}">{{ $authority->name }}</option>
+                                            @endforeach
                                         </select>
                                     </td>
                                     <td>
@@ -55,13 +59,16 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew">
+                                        <input type="date" name="hierarchies[AAAAA][start_date]" class="form-control form-control-sm resetKeyForNew" required>
                                     </td>
                                     <td>
                                         <input type="date" name="hierarchies[AAAAA][end_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
-                                        <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][status]">
+                                        <input type="number" name="hierarchies[AAAAA][sequence]" class="form-control form-control-sm resetKeyForNew">
+                                    </td>
+                                    <td>
+                                        <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][status]" required>
                                             <option value="" disabled selected hidden>Select Status</option>
                                             @foreach (config('global.status') as $key => $type)
                                                 <option value="{{ $key }}">{{ $type }}</option>
@@ -107,6 +114,9 @@
                                         <input type="date" name="hierarchies[AAAAA{{ $key }}][end_date]" class="form-control form-control-sm resetKeyForNew" value="{{ old('end_date', $value['end_date']) }}">
                                     </td>
                                     <td>
+                                        <input type="number" name="hierarchies[AAAAA{{ $key }}][sequence]" class="form-control form-control-sm resetKeyForNew" value="{{ old('sequence', $value['sequence']) }}">
+                                    </td>
+                                    <td>
                                         <select name="hierarchies[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
                                             @foreach (config('global.status') as $statusKey => $type)
                                                 <option value="{{ $statusKey }}" {{ old('status', $value['status']) == $statusKey ? 'selected' : '' }}>{{ $type }}</option>
@@ -117,7 +127,7 @@
                                 @endforeach
                                 @endif
                                 <tr class="notremovefornew">
-                                    <td colspan="6"></td>
+                                    <td colspan="7"></td>
                                     <td class="text-right">
                                         <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                     </td>

@@ -24,7 +24,7 @@
                                 <div class="d-flex order-lg-2">
                                     <!-- Theme-Layout -->
 
-                                    
+
                                     <div class="dropdown d-md-flex">
                                         <a class="nav-link icon full-screen-link nav-link-bg">
                                             <i class="fe fe-minimize fullscreen-button"></i>
@@ -44,7 +44,8 @@
                                                 </div>
                                             </div>
                                             <div class="dropdown-divider m-0"></div>
-                                            <a class="dropdown-item" href="profile.html"><i class="dropdown-icon fe fe-user"></i> Profile </a>
+                                            <a class="dropdown-item" href="{{ route('user-profile.show', Auth::id()) }}"><i class="dropdown-icon fe fe-user"></i> Profile </a>
+                                            <a class="dropdown-item" href="{{ route('change-password') }}"><i class="dropdown-icon fe fe-lock"></i> Change Password </a>
                                             <form method="POST" action="{{ route('logout') }}">
                                                 @csrf
                                                 <a class="dropdown-item"
@@ -57,7 +58,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                  
+
                                     <!-- SIDE-MENU -->
                                 </div>
                             </div>
@@ -88,37 +89,45 @@
                     </div>
 
                     <ul class="side-menu open" style="margin-right: 0px;">
-                        <li class="sub-category"><h3>Menu</h3></li>
+                        <li class="sub-category">
+                            <h3>Menu</h3>
+                        </li>
                         <li class="slide">
                             {{-- <a class="side-menu__item {{ str_before('dashboard', '/') == Request::segment(1) ? 'active' : '' }}" data-bs-toggle="slide" href="{{ route('dashboard') }}"> --}}
                             <a class="side-menu__item" data-bs-toggle="slide" href="{{ route('dashboard') }}">
-                            <i class="side-menu__icon fe fe-home"></i>
+                                <i class="side-menu__icon fe fe-home"></i>
                                 <span class="side-menu__label">Dashboard</span>
                             </a>
                         </li>
                         @foreach ($menus as $menuKey => $menu)
-                            <li class="slide">
-                                <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0);">
-                                    <i class="side-menu__icon fa {{ $menu->icon }}"></i>
-                                    <span class="side-menu__label">{{ $menu->name }}</span>
-                                    <i class="angle fa fa-angle-right"></i>
-                                </a>
-                                <ul class="slide-menu">
-                                    @foreach ($menu->systemSubMenus as $systemSubMenu)
-                                        <li>
-                                            <a href="{{ url($systemSubMenu->route) }}" class="slide-item">{{ $systemSubMenu->name }}</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </li>
+                        <li class="slide">
+                            <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0);">
+                                <i class="side-menu__icon fa {{ $menu->icon }}"></i>
+                                <span class="side-menu__label">{{ $menu->name }}</span>
+                                <i class="angle fa fa-angle-right"></i>
+                            </a>
+                            <ul class="slide-menu">
+                                @foreach ($menu->systemSubMenus as $systemSubMenu)
+                                <li>
+                                    <a href="{{ url($systemSubMenu->route) }}" class="slide-item">{{ $systemSubMenu->name }}</a>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </li>
                         @endforeach
                     </ul>
                     <div class="slide-right" id="slide-right">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"><path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z"></path>
+                        </svg>
                     </div>
                 </div>
-                <div class="ps__rail-x" style="left: 0px; bottom: -380px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div>
-                <div class="ps__rail-y" style="top: 380px; height: 492px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 164px; height: 212px;"></div></div>
+                <div class="ps__rail-x" style="left: 0px; bottom: -380px;">
+                    <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+                </div>
+                <div class="ps__rail-y" style="top: 380px; height: 492px; right: 0px;">
+                    <div class="ps__thumb-y" tabindex="0" style="top: 164px; height: 212px;"></div>
+                </div>
             </aside>
         </div>
         <!--/APP-SIDEBAR-->

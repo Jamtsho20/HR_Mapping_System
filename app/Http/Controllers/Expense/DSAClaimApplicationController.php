@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\DsaClaimApplication;
 use Illuminate\Http\Request;
 
-class TransferClaimController extends Controller
+class DSAClaimApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,16 +16,25 @@ class TransferClaimController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/transfer-claim,view')->only('index');
-        $this->middleware('permission:expense/transfer-claim,create')->only('store');
-        $this->middleware('permission:expense/transfer-claim,edit')->only('update');
-        $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
+        $this->middleware('permission:expense/dsa-claim-settlement,view')->only('index');
+        $this->middleware('permission:expense/dsa-claim-settlement,create')->only('store');
+        $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
+        $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
     }
+
+    protected $rules = [
+
+    ];
+
+    protected $messages = [
+
+    ];
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
                
-        return view('expense.transfer-claim.index', compact( 'privileges'));
+        return view('expense.dsa-claim.index', compact( 'privileges'));
     }
 
     /**
@@ -33,7 +44,18 @@ class TransferClaimController extends Controller
      */
     public function create()
     {
-        return view('expense.transfer-claim.create');
+        //common function to generate combination of loggedInUser employeeId and username
+        $empIdName = LoggedInUserEmpIdName(); 
+        //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
+        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+        //get dsa advance which has been approved for settlement
+        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+                                        ->where('created_by', loggedInUser())
+                                        ->whereNotIn('id', $excludedAdvanceIds)
+                                        ->get(['id', 'advance_no'])
+                                        ->toArray();
+        return view('expense.dsa-claim.create', compact('empIdName', 'advances'));
+
     }
 
     /**
@@ -44,7 +66,7 @@ class TransferClaimController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**

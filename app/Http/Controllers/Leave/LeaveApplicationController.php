@@ -8,8 +8,11 @@ use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\EmployeeLeave;
 use App\Models\MasEmployeeJob;
+use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 
 class LeaveApplicationController extends Controller
 {
@@ -78,10 +81,14 @@ class LeaveApplicationController extends Controller
         }
 
         $this->validate($request, $this->rules, $this->messages);
+        $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+        // dd($approverByHierarchy['approval_option']);
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
-                'mas_employee_id' => loggedInUser(),
+                // 'mas_employee_id' => loggedInUser(),
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
@@ -90,18 +97,27 @@ class LeaveApplicationController extends Controller
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
-                'status' => $request->status ?? 1,
+                'status' => $request->status ?? 1,    
             ]);
-
             // Create a history record
             $leaveApplication->histories()->create([
-                'level' => 'Test Level',
+                'approval_option' => $approverByHierarchy['approval_option'],
+                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
                 'status' => 1,
                 'remarks' => $request->remarks,
-                'created_by' => loggedInUser(),
+                'action_performed_by' => loggedInUser(),
             ]);
-
+            // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
+            if(isset($approverByHierarchy['approver_details'])){
+                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days.';
+                $emailSubject = 'Leave Application';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -156,7 +172,7 @@ class LeaveApplicationController extends Controller
     
             DB::beginTransaction();
             $leaveApplication->update([
-                'mas_employee_id' => $leaveApplication->mas_employee_id,
+                // 'mas_employee_id' => $leaveApplication->mas_employee_id,
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
@@ -242,7 +258,7 @@ class LeaveApplicationController extends Controller
                 2 => 'months',
                 default => 'days',
             };
-            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . 'in a row for' . $leaveType . '.');
+            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
         }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
@@ -263,26 +279,52 @@ class LeaveApplicationController extends Controller
             return back()->withInput()->with('msg_error', $msg);
         }
 
-        // Handle file upload if required based on defined in leave policy
-        $attachment = $leaveApplication ? $leaveApplication->attachment : '';
-        if ($attachmentRequired && !$attachment) {
-            $this->validate($request, [
-                'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-            ]);
-        }
+        // Handle file upload if required based on defined in leave policy(old code)
+        // $attachment = $leaveApplication ? $leaveApplication->attachment : '';
+        // if ($attachmentRequired && !$attachment) {
+        //     $this->validate($request, [
+        //         'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
+        //     ]);
+        // }
+        // if ($request->hasFile('attachment')) {
+        //     $file = $request->file('attachment');
+        //     if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
+        //         delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
+        //     }
+        //     $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        // }
+
+        // return [
+        //     'leaveBalance' => $leaveBalance,
+        //     'maxLeaveDays' => $maxLeaveDays,
+        //     'leaveType' => $leaveType,
+        //     'attachment' => $attachment
+        // ]; 
         if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
-                delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
+            // Check if there is an existing file and delete it
+            if ($leaveApplication && $leaveApplication->attachment) {
+                $existingFilePath = public_path($leaveApplication->attachment);
+                if (file_exists($existingFilePath) && is_file($existingFilePath)) {
+                    unlink($existingFilePath); // Delete the existing file
+                }
             }
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+
+            // Upload the new file and save the path
+            $file = $request->file('attachment');
+            $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
+            $validatedData['attachment'] = $path; // Save the relative path
+        } else {
+            // If no new file is uploaded, keep the existing attachment path
+            $validatedData['attachment'] = $leaveApplication ? $leaveApplication->attachment : ''; // Maintain existing or set to empty if none
         }
 
+        // Return the updated data or response as needed
         return [
             'leaveBalance' => $leaveBalance,
             'maxLeaveDays' => $maxLeaveDays,
             'leaveType' => $leaveType,
-            'attachment' => $attachment
-        ];   
+            'attachment' => $validatedData['attachment']
+        ];  
     }
+
 }

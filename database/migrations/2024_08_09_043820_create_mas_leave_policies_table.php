@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->boolean('status')->default(0)->comment('0 => draft, 1 => enforced');
-            $table->boolean('is_information_only')->default(0)->comment('0 => just for information, 1 => used in later part of the application');
+            $table->boolean('is_information_only')->default(1)->comment('1 => just for information, 0 => used in later part of the application');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
 

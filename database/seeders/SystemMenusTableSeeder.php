@@ -31,6 +31,7 @@ class SystemMenusTableSeeder extends Seeder
             ['id' => 13, 'name' => 'Asset', 'icon' => 'fa-pie-chart', 'display_order' => 13],
             ['id' => 14, 'name' => 'Payroll', 'icon' => 'fa-money', 'display_order' => 14],
             ['id' => 15, 'name' => 'LTC', 'icon' => 'fa-money', 'display_order' => 15],
+            ['id' => 15, 'name' => 'Report', 'icon' => 'fa-file', 'display_order' => 16],
         ]);
     }
 }

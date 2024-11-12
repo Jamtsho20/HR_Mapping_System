@@ -80,7 +80,7 @@
 <div class="row">
     <span class="col-sm-4">Can Avail In</span>
     @foreach($employmentTypes as $employmentType)
-    @if($employmentType->id != 0)
+    @if($employmentType->id != 1)
     <div class="col-sm-2">
         <div class="form-check">
             <label class="form-check-label" style="font-weight: 400;">

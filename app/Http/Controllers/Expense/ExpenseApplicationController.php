@@ -25,18 +25,28 @@ class ExpenseApplicationController extends Controller
         $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
     }
 
-    protected $rules = [
-        'expense_type' => 'required',
-        'date' => 'required|date',
-        'amount' => 'required|numeric',
-        'description' => 'required',
-        'travel_type' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'mode_of_travel' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_from_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_to_date' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE . '|date|after_or_equal:travel_from_date',
-        'travel_from' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-        'travel_to' => 'required_if:expense_type,' . CONVEYANCE_EXPENSE,
-    ];
+    protected function rules(Request $request)
+    {
+        $rules = [
+            'expense_type' => 'required',
+            'date' => 'required|date',
+            'amount' => 'required|numeric',
+            'description' => 'required',
+        ];
+
+        // Add conveyance-specific rules if the expense type is CONVEYANCE_EXPENSE
+        if ($request->input('expense_type') == CONVEYANCE_EXPENSE) {
+            $rules['travel_type'] = 'required';
+            $rules['mode_of_travel'] = 'required';
+            $rules['travel_from_date'] = 'required|date';
+            $rules['travel_to_date'] = 'required|date|after_or_equal:travel_from_date';
+            $rules['travel_from'] = 'required';
+            $rules['travel_to'] = 'required';
+        }
+
+        return $rules;
+    }
+
 
     protected $messages = [
         'travel_type.required_if' => 'Travel type is required for the selected expense type.',
@@ -54,7 +64,7 @@ class ExpenseApplicationController extends Controller
     {
         $privileges = $request->instance();
 
-        $expenseApplication = ExpenseApplication::filter($request)->paginate(30);
+        $expenseApplication = ExpenseApplication::filter($request) ->createdBy() ->paginate(30);
 
         return view('expense.apply.index', compact('expenseApplication', 'privileges'));
     }
@@ -78,22 +88,23 @@ class ExpenseApplicationController extends Controller
     public function store(Request $request)
     {
         $result = $this->handleExpenseApplication($request);
+
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return $result;
         }
 
-        $this->validate($request, $this->rules, $this->messages);
+         $validatedData = $request->validate($this->rules($request));
         try {
             DB::beginTransaction();
 
             $expenseApplication = ExpenseApplication::create([
-                'mas_employee_id' => loggedInUser(),
+                // 'mas_employee_id' => loggedInUser(),
                 'mas_expense_type_id' => $request->expense_type,
                 'date' => $request->date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
-                'file' => $result['attachment'],
+                'file' => $result['file'],
                 'travel_type' => $request->travel_type,
                 'travel_mode' => $request->mode_of_travel,
                 'travel_from_date' => $request->travel_from_date,
@@ -141,7 +152,9 @@ class ExpenseApplicationController extends Controller
      */
     public function edit($id)
     {
-        //
+        $expenses = MasExpenseType::all();
+        $expenseApplication = ExpenseApplication::findOrfail($id);
+        return view('expense.apply.edit', compact('expenses', 'expenseApplication'));
     }
 
     /**
@@ -154,29 +167,32 @@ class ExpenseApplicationController extends Controller
     public function update(Request $request, $id)
     {
         $expenseApplication = ExpenseApplication::findOrFail($id);
+        
         $result = $this->handleExpenseApplication($request, $expenseApplication);
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return $result;
         }
 
-        $this->validate($request, $this->rules, $this->messages);
+        $validatedData = $request->validate($this->rules($request));
         try {
             DB::beginTransaction();
             $expenseApplication->update([
+                // 'mas_employee_id' => $expenseApplication->mas_employee_id,
+                'mas_expense_type_id' => $request->expense_type,
+                'date' => $request->date,
+                'expense_amount' => $request->amount,
+                'description' => $request->description,
+                'file' => $result['attachment'] ?? $expenseApplication->file,
+                'travel_type' => $request->travel_type,
+                'travel_mode' => $request->mode_of_travel,
+                'travel_from_date' => $request->travel_from_date,
+                'travel_to_date' => $request->travel_to_date,
+                'travel_from' => $request->travel_from,
+                'travel_to' => $request->travel_to,
+                'status' => $request->status ?? 1,
+            ]);        
 
-                'mas_employee_id' => $expenseApplication->mas_employee_id,
-                'mas_leave_type_id' => $request->leave_type,
-                'from_day' => $request->from_day,
-                'to_day' => $request->to_day,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
-                'no_of_days' => $request->no_of_days,
-                'remarks' => $request->remarks,
-                'attachment' => $result['attachment'],
-                'status' => $expenseApplication->status,
-            ]);
-    
             // Create a history record
             $expenseApplication->histories()->create([
                 'level' => 'Test Level',
@@ -185,7 +201,7 @@ class ExpenseApplicationController extends Controller
                 'created_by' => $expenseApplication->created_by,
                 'updated_by' => loggedInUser()
             ]);
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -193,7 +209,7 @@ class ExpenseApplicationController extends Controller
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect('leave/leave-apply')->with('msg_success', 'Expense application has been updated successfully!.');  
+        return redirect('expense/apply-expense')->with('msg_success', 'Expense application has been updated successfully!.');
     }
 
     /**
@@ -204,33 +220,41 @@ class ExpenseApplicationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        {
+            try {
+                ExpenseApplication::findOrFail($id)->delete();
+    
+                return back()->with('msg_success', 'Expense Applicaton has been deleted');
+            } catch (\Exception $e) {
+                return back()->with('msg_error', 'Expense Applicaton cannot be deleted as it is used by other modules.');
+            }
+        }
     }
 
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
     { //common function to handle store and update of expense
         /// query to fetch employee grade step and region
-        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first(); 
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         // dd($empJobDetail);
         $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
         //query to expense policy details
-        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function($query) use ($request, $empJobDetail, $loggedInUserRegion) {
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($request, $empJobDetail, $loggedInUserRegion) {
             // Filter rateDefinition by travel type
             $query->where('travel_type', $request->travel_type ?? DOMESTIC_TRAVEL_TYPE)
-                  ->with(['expenseRateLimits' => function($q) use($empJobDetail, $loggedInUserRegion) {
-                      // Filter expenseRateLimits by grade step and region
-                      $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
+                    // Filter expenseRateLimits by grade step and region
+                    $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
                         ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
-                  }]);
+                }]);
         }, 'policyEnforcement'])
-        ->where('mas_expense_type_id', $request->expense_type)
-        ->whereStatus(1)
-        ->first();
+            ->where('mas_expense_type_id', $request->expense_type)
+            ->whereStatus(1)
+            ->first();
         //check weather attachment is required while applying expense from expense policy                              
-        $attachmentRequired = $expensePolicy && $expensePolicy->ExpensePolicyRule ? $expensePolicy->ExpensePolicyRule->attachment_required : 0;
+        $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
-            
+
         //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
@@ -240,13 +264,15 @@ class ExpenseApplicationController extends Controller
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+        // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $this->validate($request, [
-                'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-            ]);
+            $this->validate($request, 
+                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
+                ['file.required' => 'The file is required. Please upload a file.']
+            );
         }
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
             if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
                 delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
             }
@@ -254,7 +280,7 @@ class ExpenseApplicationController extends Controller
         }
 
         return [
-            'attachment' => $attachment
-        ];   
+            'file' => $attachment
+        ];
     }
 }

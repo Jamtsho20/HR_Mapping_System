@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Expense;
-
+namespace App\Http\Controllers\TravelAuthorization;
 use App\Http\Controllers\Controller;
-use App\Models\MasExpenseType;
+use App\Models\TravelAuthorization;
 use Illuminate\Http\Request;
 
-class DSAClaimController extends Controller
+class TravelAuthorizationApprovalController extends Controller
 {
+         
     /**
      * Display a listing of the resource.
      *
@@ -15,17 +15,21 @@ class DSAClaimController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/dsa-claim-settlement,view')->only('index');
-        $this->middleware('permission:expense/dsa-claim-settlement,create')->only('store');
-        $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
-        $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,view')->only('index');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,create')->only('store');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,edit')->only('update');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,delete')->only('destroy');
     }
+
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
-               
-        return view('expense.dsa-claim.index', compact( 'privileges'));
+        $travelAuthorizations = TravelAuthorization::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
+        ->withQueryString();
+        return view('travel-authorizations.approval.index', compact( 'privileges', 'travelAuthorizations'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -34,8 +38,7 @@ class DSAClaimController extends Controller
      */
     public function create()
     {
-        return view('expense.dsa-claim.create');
-
+        //
     }
 
     /**

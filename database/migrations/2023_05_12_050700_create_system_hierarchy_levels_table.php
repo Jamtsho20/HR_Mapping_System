@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('level');
             $table->foreignId('approving_authority_id')->index()->constrained('approving_authorities')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
+            $table->unsignedInteger('sequence')->index();
             $table->date('start_date');
             $table->date('end_date')->nullable();
+            $table->integer('sequence');
             $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');

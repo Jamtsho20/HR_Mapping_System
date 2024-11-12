@@ -80,13 +80,13 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="attachment">Attachment <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
-                        <input type="file" id="attachment" class="form-control" name="attachment">
+                        <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*">
                         {{-- <small id="hint_text" class="form-text text-muted" style="display:none;"></small> --}}
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer">    
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
@@ -104,56 +104,32 @@
     function calculateLeaveDays() {
         var fromDate = document.getElementById('from_date').value;
         var toDate = document.getElementById('to_date').value;
-        var fromDay = parseInt(document.getElementById('ddl_from_day').value);
-        var toDay = parseInt(document.getElementById('ddl_to_day').value);
+        var fromDay = document.getElementById('ddl_from_day').value;
+        var toDay = document.getElementById('ddl_to_day').value;
 
-        // If dates are missing, reset the no_of_days and return
-        if (!fromDate || !toDate) {
-            document.getElementById('no_of_days_leave').value = '';
-            return;
-        }
-
-        // Parse dates
-        var fromDateObj = new Date(fromDate);
-        var toDateObj = new Date(toDate);
-
-        // Calculate difference in days
-        var timeDiff = toDateObj - fromDateObj;
-        var dayDifference = timeDiff / (1000 * 3600 * 24); // Difference in days
-
-        // Adjust based on day selections
-        var fromDayAdjustment = 1; // Default full day
-        var toDayAdjustment = 1; // Default full day
-
-        // Adjust 'from' day
-        if (fromDay === 2) {
-            fromDayAdjustment = 0.5; // First Half
-        } else if (fromDay === 3) {
-            fromDayAdjustment = 0.5; // Second Half
-        }
-
-        // Adjust 'to' day
-        if (toDay === 2) {
-            toDayAdjustment = 0.5; // First Half
-        } else if (toDay === 3) {
-            toDayAdjustment = 0.5; // Second Half
-        }
-
-        // Total days calculation
-        var totalDays;
-
-        if (dayDifference === 0) {
-            // If fromDate and toDate are the same day
-            totalDays = fromDayAdjustment + toDayAdjustment - 1; // Don't double count the day
+        // Send the data via AJAX
+        if (fromDate && toDate) {
+            $.ajax({
+                url: '/getnoofdaysbydate', // Update with the correct path
+                method: 'GET',
+                data: {
+                    from_date: fromDate,
+                    to_date: toDate,
+                    from_day: fromDay,
+                    to_day: toDay
+                },
+                success: function(response) {
+                    document.getElementById('no_of_days_leave').value = response.total_days;
+                },
+                error: function() {
+                    alert('Error calculating leave days.');
+                }
+            });
         } else {
-            totalDays = dayDifference + fromDayAdjustment - 1 + toDayAdjustment;
+            document.getElementById('no_of_days_leave ').value = '';
         }
-
-        // Prevent recalculations from overwriting correct value
-        var totalDaysFinal = Math.max(totalDays, 0).toFixed(1);
-
-        // Output final total days
-        document.getElementById('no_of_days_leave').value = totalDaysFinal;
     }
 </script>
+
+
 @endpush

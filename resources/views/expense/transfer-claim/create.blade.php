@@ -2,63 +2,107 @@
 @section('page-title', 'Transfer Claim')
 @section('content')
 
-<form action="{{ route('transfer-claim.store') }}" method="POST">
+<form action="{{ route('transfer-claim.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="employeeid">Employee ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="employeeid" value="" required="required">
-                    </div>
-                    <div class="form-group">
-                        <label for="">Designation</label>
-                        <input type="text" class="form-control" name="designation" value="" required="required">
-                    </div>
-                    <div class="form-group">
-                        <label for="">Department</label>
-                        <input type="text" class="form-control" name="department" value="" required="required">
-                    </div>
-                    <div class="form-group">
-                        <label for="">Basic Pay</label>
-                        <input type="text" class="form-control" name="basicpay" value="" required="required">
-                    </div>
-                    <div class="form-group">
-                        <label for="transferclaim">Transfer Claim</label>
-                        <select name="type" id="transferclaim" class="form-control form-control-sm" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="1">Transfer Grant</option>
-                            <option value="2">Carriage Charge</option>
-                        </select>
+                        <label for="employeeid">Employee ID </label>
+                        <input type="text" class="form-control" name="employee" value="{{ $empIdName }}" disabled />
+
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="">Current Location</label>
-                        <input type="text" class="form-control" name="currentlocation" value="" required="required">
+                        <label for="">Designation</label>
+                        <input type="text" class="form-control" name="designation" value="" placeholder="{{isset( auth()->user()->empJob->designation->name ) ? auth()->user()->empJob->designation->name:'NA'}}" disabled>
+
                     </div>
+                </div>
+                <div class="col-md-6">
                     <div class="form-group">
-                        <label for="">New Location</label>
-                        <input type="text" class="form-control" name="newlocation" value="" required="required">
+                        <label for="">Department</label>
+                        <input type="text" class="form-control" name="department" value="" placeholder="{{isset( auth()->user()->empJob->department->name )? auth()->user()->empJob->department->name:'NA'}}" disabled>
                     </div>
+                </div>
+                <div class=" col-md-6">
                     <div class="form-group">
-                        <label for="">Amount Claimed</label>
-                        <input type="text" class="form-control" name="amtclaimed" value="" required="required">
+                        <label for="">Basic Pay</label>
+                        <input type="text" class="form-control" name="basicpay" value="" placeholder="{{isset( auth()->user()->empJob->basic_pay )? auth()->user()->empJob->basic_pay:'NA'}}" disabled>
                     </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="transferclaim">Transfer Claim <span class="text-danger">*</span></label>
+                        <select name="transfer_claim" id="transferclaim" class="form-control form-control-sm" required>
+                            <option value="" disabled selected>Select an option</option>s
+                            @foreach($trasnferClaim as $transfer)
+                            <option value="{{$transfer->name}}" {{ old('transfer_claim') == $transfer->name ? 'selected' : '' }}>{{$transfer->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Current Location <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="current_location" value="{{old('current_location')}}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">New Location <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="new_location" value="{{old('new_location')}}">
+                    </div>
+                </div>
+                <div class="col-md-6" id="distanceField" style="display: none;">
+                    <div class="form-group">
+                        <label for="distance">Distance (KM) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="distance_travelled" value="{{old('distance_travelled')}}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Amount Claimed <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="amount_claimed" value="{{old('amount_claimed')}}">
+                    </div>
+                </div>
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Attachment</label>
-                        <input type="file" class="form-control" name="attachment" value="" required="required">
+                        <input type="file" class="form-control" name="attachment">
                     </div>
                 </div>
             </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Save</button>
-                <a href="{{ url('expense/transfer-claim') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-            </div>
         </div>
-</div>
+    </div>
+    <div class="card-footer">
+        @include('layouts.includes.buttons', [
+        'buttonName' => 'SUBMIT',
+        'cancelUrl' => url('expense/transfer-claim'),
+        'cancelName' => 'CANCEL'
+        ])
+
+    </div>
+
 </form>
+<script>
+    document.getElementById('transferclaim').addEventListener('change', function() {
+        var selectedValue = this.value;
+        var distanceField = document.getElementById('distanceField');
+
+        if (selectedValue === 'Carriage Charge') {
+            distanceField.style.display = 'block';
+        } else {
+            distanceField.style.display = 'none';
+        }
+    });
+</script>
 
 @include('layouts.includes.delete-modal')
 @endsection

@@ -153,7 +153,7 @@ class LeavePolicyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id)
+    public function destroy($id)
     {
         try {
             MasLeavePolicy::findOrFail($id)->delete();
@@ -165,19 +165,8 @@ class LeavePolicyController extends Controller
     }
 
     private function saveLeavePolicy($policy, $id)
+
     {
-
-        // $leavePolicy = new MasLeavePolicy();
-        // $leavePolicy->mas_leave_type_id = $policy['mas_leave_type_id'];
-        // $leavePolicy->name = $policy['name'];
-        // $leavePolicy->description = $policy['description'];
-        // $leavePolicy->start_date = $policy['start_date'];
-        // $leavePolicy->end_date = $policy['end_date'];
-        // $leavePolicy->status = $policy['status'];
-        // $leavePolicy->is_information_only = isset($policy['is_information_only']) ? $policy['is_information_only'] : 0;
-        // $leavePolicy->save();
-
-
         $leavePolicyData = [
             'mas_leave_type_id' => $policy['mas_leave_type_id'],
             'name' => $policy['name'],
@@ -200,7 +189,7 @@ class LeavePolicyController extends Controller
 
     private function saveLeavePolicyPlan($policyPlan, $leavePolicyId)
     {
-     
+
 
         $leavePolicyPlanData = [
             'mas_leave_policy_id' => $leavePolicyId,
@@ -224,17 +213,6 @@ class LeavePolicyController extends Controller
 
     private function saveYearEndProcessing($yearEndProcessing, $leavePolicyId)
     {
-        // $leaveYearEndProcessing = new LeavePolicyYearEndProcessing();
-        // $leaveYearEndProcessing->mas_leave_policy_id = $leavePolicyId;
-        // $leaveYearEndProcessing->allow_carryover = $yearEndProcessing['allow_carry_over'] ?? 0;
-        // $leaveYearEndProcessing->carryover_limit = $yearEndProcessing['carryover_limit'] ?? 0;
-        // $leaveYearEndProcessing->pay_at_year_end = $yearEndProcessing['pay_at_year_end'] ?? 0;
-        // $leaveYearEndProcessing->min_balance_required = $yearEndProcessing['min_balance_required'] ?? 0;
-        // $leaveYearEndProcessing->min_encashment_per_year = $yearEndProcessing['min_encashment_per_year'] ?? 0;
-        // $leaveYearEndProcessing->carry_forward_to_el = $yearEndProcessing['carry_forward_to_el'] ?? 0;
-        // $leaveYearEndProcessing->carry_forward_limit = $yearEndProcessing['carry_forward_limit'] ?? 0;
-        // $leaveYearEndProcessing->save();
-
         $leaveYearEndProcessingData = [
             'mas_leave_policy_id' => $leavePolicyId,
             'allow_carryover' => $yearEndProcessing['allow_carry_over'] ?? 0,
@@ -253,39 +231,8 @@ class LeavePolicyController extends Controller
         return $leaveYearEndProcessing->id;
     }
 
-
-    // private function saveLeavePolicyRule($policyRule, $leavePolicyPlanId)
-    // {
-    //     $data = [];
-
-    //     foreach ($policyRule as $key => $rule) {
-    //         // Check if 'mas_grade_step_id' is an array (because of multiple select)
-    //         if (isset($rule['mas_grade_step_id']) && is_array($rule['mas_grade_step_id'])) {
-    //             foreach ($rule['mas_grade_step_id'] as $gradeStepId) {
-    //                 $data[] = [
-    //                     'leave_policy_plan_id' => $leavePolicyPlanId,
-    //                     'mas_grade_step_id' => $gradeStepId, // Each selected grade step gets a new record
-    //                     'uom' => $rule['uom'],
-    //                     'duration' => $rule['duration'],
-    //                     'start_date' => $rule['start_date'],
-    //                     'end_date' => $rule['end_date'],
-    //                     'is_loss_of_pay' => $rule['is_loss_of_pay'],
-    //                     'mas_employment_type_id' => $rule['mas_employment_type_id'],
-    //                     'status' => $rule['status'],
-    //                 ];
-    //             }
-    //         }
-    //     }
-
-    //     // Insert all the records at once
-    //     LeavePolicyRule::UpdateOrCreate([
-    //             'leave_policy_plan_id' => $leavePolicyPlanId,
-    //         ],
-    //         $data);
-    // }
     private function saveLeavePolicyRule($policyRule, $leavePolicyPlanId, $isUpdate = false)
     {
-     
         if ($isUpdate) {
             // Handle single selection update
             foreach ($policyRule as $key => $rule) {
@@ -343,6 +290,7 @@ class LeavePolicyController extends Controller
             }
         } else {
             // Handle multiple selection creation
+                // dd($policyRule);
             foreach ($policyRule as $key => $rule) {
                 // Check if mas_grade_step_id exists in $rule
                 if (!isset($rule['mas_grade_step_id']) || !is_array($rule['mas_grade_step_id'])) {
@@ -372,5 +320,4 @@ class LeavePolicyController extends Controller
             }
         }
     }
-
 }

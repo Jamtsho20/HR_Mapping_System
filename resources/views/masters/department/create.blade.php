@@ -26,9 +26,9 @@
                         <select class="form-control" name="mas_employee_id">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach (employeeList() as $employee)
-                                <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>
-                                    {{ $employee->name }}
-                                </option>
+                            <option value="{{ $employee->id }}" {{ old('mas_employee_id') == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->name }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -36,8 +36,12 @@
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> CREATE</button>
-            <a href="{{ url('master/departments') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'SAVE',
+            'cancelUrl' => url('master/departments') ,
+            'cancelName' => 'CANCEL'
+            ])
+           
         </div>
     </div>
 </form>

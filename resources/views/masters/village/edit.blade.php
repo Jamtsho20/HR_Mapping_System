@@ -13,9 +13,9 @@
                         <label for="mas_gewog_id">Gewog <span class="text-danger">*</span></label>
                         <select name="mas_gewog_id" class="form-control">
                             @foreach ($gewogs as $gewog)
-                                <option value="{{ $gewog->id }}" {{ $village->mas_gewog_id == $gewog->id ? 'selected' : '' }}>
-                                    {{ $gewog->name }}
-                                </option>
+                            <option value="{{ $gewog->id }}" {{ $village->mas_gewog_id == $gewog->id ? 'selected' : '' }}>
+                                {{ $gewog->name }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -29,10 +29,11 @@
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary">
-                <i class="fa fa-check"></i> UPDATE
-            </button>
-            <a href="{{ url('master/villages') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' =>url('master/villages'),
+            'cancelName' => 'CANCEL'
+            ])
         </div>
     </div>
 </form>

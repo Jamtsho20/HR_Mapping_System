@@ -122,12 +122,12 @@
                             </td>
                             <td class="text-center">
                                 <label class="custom-control custom-checkbox">
-                                    <input id="select-all" type="checkbox" class="custom-control-input"
+                                    <input id="select-all" type="checkbox" class="custom-control-input resetKeyForNew"
                                         name="example-checkbox1" value=""> <span
                                         class="custom-control-label">Select All</span>
                                 </label>
 
-                                <select class="form-control select2 select2-hidden-accessible"
+                                <select class="form-control select2 select2-hidden-accessible resetKeyForNew"
                                     data-placeholder="Choose Grade" multiple tabindex="-1" style="width: 100%"
                                     aria-hidden="true" name="leave_policy_rule[AAAAA][mas_grade_step_id][]">
                                     @foreach($gradeSteps as $step)
@@ -142,12 +142,12 @@
                             </td>
                             <td class="text-center">
                                 <input type="text" min="0" maxlength="5" name="leave_policy_rule[AAAAA][duration]"
-                                    class="form-control" id="duration" placeholder="Duration"
+                                    class="form-control resetKeyForNew" id="duration" placeholder="Duration"
                                     value="{{ old('leave_policy_rule.AAAAA.duration') }}">
                             </td>
 
                             <td class="text-center">
-                                <select class="form-control" id="UOM" name="leave_policy_rule[AAAAA][uom]">
+                                <select class="form-control resetKeyForNew" id="UOM" name="leave_policy_rule[AAAAA][uom]">
                                     <option value="" disabled selected hidden>Select your option</option>
                                     <option value="1" {{ old('leave_policy_rule.AAAAA.uom') == 1 ? 'selected' : '' }}>Day</option>
                                     <option value="2" {{ old('leave_policy_rule.AAAAA.uom') == 2 ? 'selected' : '' }}>Month</option>
@@ -156,21 +156,21 @@
                             </td>
 
                             <td class="text-center">
-                                <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker"
+                                <input type="date" placeholder="dd-mmm-yyyy" class="resetKeyForNew form-control mycal hasDatepicker"
                                     style="background-color: rgb(255, 255, 255);"
                                     name="leave_policy_rule[AAAAA][start_date]"
                                     value="{{ old('leave_policy_rule.AAAAA.start_date') }}">
                             </td>
 
                             <td class="text-center">
-                                <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker"
+                                <input type="date" placeholder="dd-mmm-yyyy" class="form-control mycal hasDatepicker resetKeyForNew"
                                     style="background-color: rgb(255, 255, 255);"
                                     name="leave_policy_rule[AAAAA][end_date]"
                                     value="{{ old('leave_policy_rule.AAAAA.end_date') }}">
                             </td>
 
                             <td class="text-center">
-                                <select class="form-control" id="ddlislossofpay" name="leave_policy_rule[AAAAA][is_loss_of_pay]">
+                                <select class="form-control resetKeyForNew" id="ddlislossofpay" name="leave_policy_rule[AAAAA][is_loss_of_pay]">
                                     <option value="" disabled {{ old('leave_policy_rule.AAAAA.is_loss_of_pay') === null ? 'selected' : '' }} hidden>Select your option</option>
                                     <option value="1" {{ old('leave_policy_rule.AAAAA.is_loss_of_pay') === '1' ? 'selected' : '' }}>Yes</option>
                                     <option value="0" {{ old('leave_policy_rule.AAAAA.is_loss_of_pay') === '0' ? 'selected' : '' }}>No</option>
@@ -178,7 +178,7 @@
                             </td>
 
                             <td class="text-center">
-                                <select class="form-control" id="Employeetype" name="leave_policy_rule[AAAAA][mas_employment_type_id]">
+                                <select class="form-control resetKeyForNew" id="Employeetype" name="leave_policy_rule[AAAAA][mas_employment_type_id]">
                                     <option value="" disabled selected hidden>Select your option</option>
                                     @foreach($employmentTypes as $employmentType)
                                     <option value="{{$employmentType->id}}"
@@ -190,7 +190,7 @@
                             </td>
 
                             <td class="text-center">
-                                <select class="form-control" name="leave_policy_rule[AAAAA][status]">
+                                <select class="form-control resetKeyForNew" name="leave_policy_rule[AAAAA][status]">
                                     <option value="" disabled {{ old('leave_policy_rule.AAAAA.status') === null ? 'selected' : '' }}>Select your option</option>
                                     @foreach(config('global.status') as $key => $value)
                                     <option value="{{ $key }}" {{ old('leave_policy_rule.AAAAA.status') == $key ? 'selected' : '' }}>
@@ -200,6 +200,12 @@
                                 </select>
                             </td>
 
+                        </tr>
+                        <tr class="notremovefornew">
+                            <td colspan="8"></td>
+                            <td class="text-right">
+                                <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
+                            </td>
                         </tr>
 
                     </tbody>

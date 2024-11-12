@@ -176,7 +176,7 @@
         const savedData = localStorage.getItem('formData');
         if (savedData) {
             const data = JSON.parse(savedData);
-            console.log('Saved Data:', data); // Debugging statement
+            // console.log('Saved Data:', data); // Debugging statement
 
             // Display Leave Policy Data
             document.getElementById('summary_leave_type').textContent = leavesMap[data['leave_policy[mas_leave_type_id]']] || 'N/A';
@@ -312,6 +312,8 @@
 
             if (latestRule && Array.isArray(latestRule.mas_grade_step_id) && latestRule.mas_grade_step_id.length > 0) {
                 const gradeStepIds = latestRule.mas_grade_step_id.map(id => gradeStepMap[id]).join(', ');
+                console.log(gradeStepIds);
+                
                 const newRow = `
                     <tr>
                         <td>${gradeStepIds}</td>

@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExpenseApplication extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
     protected $fillable = [
-        'mas_employee_id',
+        // 'mas_employee_id',
         'mas_expense_type_id',
         'date',
         'expense_amount',
@@ -25,7 +26,7 @@ class ExpenseApplication extends Model
     ];
     public function employee()
     {
-        return $this->belongsTo(User::class, 'mas_employee_id');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function histories()
