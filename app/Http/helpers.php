@@ -2,7 +2,6 @@
 
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
-use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
@@ -65,30 +64,35 @@ if (!function_exists('get_image')) {
 if (!function_exists('delete_image')) {
     function delete_image($path)
     {
-        // Check if the file exists before trying to delete
-        if (file_exists($path) && is_file($path)) {
-            // Attempt to delete the original file
-            if (!@unlink($path)) {
-                // Log error or handle failure if needed
-                return false;
+        if ($path) {
+            // unlink(public_path($path)); //incase if path not found provide meaningful message to user to avoid confusion
+            $decodedString = decoded_string($path);
+            // dd($decodedString);
+            if($decodedString){
+                foreach($decodedString as $string){//incase if path not found provide meaningful message to user to avoid confusion
+                    unlink(public_path($string));
+                }
+            }else{
+                unlink(public_path($path));
             }
-        }
-        //delete the original file
-        // @unlink($path);
-        //delete other size variations of the same file
-        $fileNameArray = explode('.', $path);
-        $extension = array_pop($fileNameArray);
-        //variables will be in the form of  example-file-blah-blah_100_20.jpg
-        //the path will be example-file-blah-blah.jpg
-        //first remove extension, replace extension with blank
-        //then add the wildcard pattern
-        $pattern = str_replace(".$extension", "", $path) . "_*_*" . ".$extension";
-        foreach (glob($pattern) as $file) {
-            @unlink($file);
+        }else{
+            return false;
         }
         return true;
     }
 }
+
+if (!function_exists('decoded_string')) {
+    function decoded_string($string){
+        $decodedString = json_decode($string); // Attempt to decode the JSON string
+        if($decodedString){
+            return $decodedString;
+        }else{
+            return false;
+        }
+    }
+}
+
 
 if (!function_exists('comma_separated_to_array')) {
     function comma_separated_to_array($value, $separator = ',')
@@ -224,13 +228,6 @@ if (!function_exists('modifyFormRequest')) {
 if(!function_exists('loggedInUser')){ 
     function loggedInUser(){
         return auth()->user()->id;
-    }
-}
-
-if(!function_exists('LoggedInUserEmpIdName')) {
-    function LoggedInUserEmpIdName() {
-        $user = User::find(loggedInUser());
-        return $user->emp_id_name;
     }
 }
 

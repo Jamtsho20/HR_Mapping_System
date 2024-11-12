@@ -211,20 +211,30 @@ var hrms = function () {
                         dataType: "JSON",
                         type: "GET",
                         success: function (data) {
-                            $("#leave_balance").val(data.balance); // set the value for leave balance
-                            // Disable form fields if balance is 0
-                            if (data.balance == 0) {
+                            if(data.leavePolicy && !data.leavePolicy.status){
+                                alert('You cannot apply leave as leave policy for this leave type has not been enforced, please contact system admin for further information!')
                                 formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
                                 $("#leave_type").prop("disabled", false);
-                            } else {
-                                $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
-                            }
-                            if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                                $("#attachment").attr("required", "required");
-                                $("#attachment_required").show();
-                            } else {
-                                $("#attachment").removeAttr("required");
-                                $("#attachment_required").hide();
+                            }else if(data.leavePolicy && data.leavePolicy.is_information_only){
+                                alert('You cannot apply leave as leave policy for this leave type is for information purpose only, please contact system admin for further information!')
+                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
+                                $("#leave_type").prop("disabled", false);
+                            }else{
+                                $("#leave_balance").val(data.balance); // set the value for leave balance
+                                // Disable form fields if balance is 0
+                                if (data.balance == 0) {
+                                    formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
+                                    $("#leave_type").prop("disabled", false);
+                                } else {
+                                    $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
+                                }
+                                if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                    $("#attachment").attr("required", "required");
+                                    $("#attachment_required").show();
+                                } else {
+                                    $("#attachment").removeAttr("required");
+                                    $("#attachment_required").hide();
+                                }
                             }
                         }
                     });
@@ -323,7 +333,7 @@ var hrms = function () {
                 employeeSelect.hide();
             }
         });
-        
+
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();
@@ -626,6 +636,79 @@ $(document).ready(function () {
             updateNavigationButtons();
         }
     });
+    //function to check image size
+    //    function validateImage(fileInput) {
+    //         // Check if any file is selected
+    //         if (!fileInput.files || fileInput.files.length === 0) {
+    //             alert("No file selected!");
+    //             return false; // Return false if no file is selected
+    //         }
+
+    //         // Get the first file from the input (assumes only one file is allowed)
+    //         const file = fileInput.files[0];
+
+    //         // Set the maximum allowed size for the image in megabytes (MB)
+    //         const maxSizeInMB = 2; // Maximum size is now 2 MB
+
+    //         // Convert the maximum size from megabytes (MB) to bytes
+    //         const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 2 MB = 2 * 1024 * 1024 bytes
+
+    //         // Validate the file size
+    //         if (file.size > maxSizeInBytes) {
+    //             // If the file size exceeds the maximum limit, display an alert and return false
+    //             alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+    //              return false;
+    //         }
+
+    //         // If the file size is valid, display a confirmation and return true
+    //         return true;
+    //     }
+    function validateImage(fileInput) {
+        // Check if any file is selected
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert("No file selected!");
+            return false; // Return false if no file is selected
+        }
+
+        // Get the first file from the input (assumes only one file is allowed)
+        const file = fileInput.files[0];
+
+        // Set the maximum allowed size for the image in megabytes (MB)
+        const maxSizeInMB = 2; // Maximum size is now 2 MB
+
+        // Convert the maximum size from megabytes (MB) to bytes
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 2 MB = 2 * 1024 * 1024 bytes
+
+        // Set allowed file types (MIME types)
+        const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+
+        // Validate the file type
+        if (!allowedFileTypes.includes(file.type)) {
+            alert(`Invalid file type. Allowed file types are: PDF, JPEG, PNG.`);
+            return false; // Return false if the file type is not allowed
+        }
+
+        // Validate the file size
+        if (file.size > maxSizeInBytes) {
+            // If the file size exceeds the maximum limit, display an alert and return false
+            alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+            return false;
+        }
+    
+        // // If the file size is valid, display a confirmation and return true
+        // alert("File is valid!");
+        return true;
+    }
+
+
+    // Usage example: attach an event listener to the file input element
+    // Select all input elements of type "file"
+    document.querySelectorAll('input[type="file"]').forEach(function (fileInput) {
+        fileInput.addEventListener("change", function () {
+            validateImage(this); // Call the function with the current file input as the parameter
+        });
+    });
+
 
     $('#previous-button').on('click', function (e) {
         e.preventDefault();

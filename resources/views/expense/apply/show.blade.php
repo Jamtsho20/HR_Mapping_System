@@ -43,7 +43,7 @@
                                 <b>File</b>
                                 <a href="{{ asset($expense->file) }}" class="btn-sm btn-primary pull-right"
                                     target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
-                                    &nbsp; Attachement</a>
+                                    &nbsp; attachment</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Status</b> <a class="pull-right"> @if($expense->status == 1)

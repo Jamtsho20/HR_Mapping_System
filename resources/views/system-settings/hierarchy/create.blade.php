@@ -26,6 +26,7 @@
                                     <th>Employee</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
+                                    <th>Sequence</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -61,6 +62,9 @@
                                     </td>
                                     <td>
                                         <input type="date" name="hierarchies[AAAAA][end_date]" class="form-control form-control-sm resetKeyForNew">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="hierarchies[AAAAA][sequence]" class="form-control form-control-sm resetKeyForNew" placeholder="Enter">
                                     </td>
                                     <td>
                                         <select class="form-control form-control-sm resetKeyForNew" name="hierarchies[AAAAA][status]" required>
@@ -113,6 +117,9 @@
                                         <input type="date" name="hierarchies[AAAAA{{ $key }}][end_date]" class="form-control form-control-sm resetKeyForNew">
                                     </td>
                                     <td>
+                                        <input type="number" name="hierarchies[AAAAA{{ $key }}][sequence]" class="form-control form-control-sm resetKeyForNew">
+                                    </td>
+                                    <td>
                                         <select name="grade_steps[AAAAA{{ $key }}][status]" class="form-control form-control-sm resetKeyForNew">
                                             @foreach (config('global.status') as $key => $label)
                                                 <option value="{{ $key}}" {{ old('status', $value['status'] ?? '') == $key ? 'selected' : $key }}>{{ $label }}</option>
@@ -124,7 +131,7 @@
                                 @endforeach
                                 @endif
                                 <tr class="notremovefornew">
-                                    <td colspan="6"></td>
+                                    <td colspan="7"></td>
                                     <td class="text-right">
                                         <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                     </td>

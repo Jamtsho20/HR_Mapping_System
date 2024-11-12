@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendCredentialsMail;
 use App\Models\MasDepartment;
 use App\Models\MasDesignation;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ use App\Models\MasSection;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeController extends Controller
 {
@@ -97,12 +99,12 @@ class EmployeeController extends Controller
         $canUpdate = (int) $instance->edit;
         $employee = User::findOrFail($id);
         $employeeGroupNames = MasEmployeeGroupMap::with('masEmpGroup')
-                                                ->where('mas_employee_id', $id)
-                                                ->get()
-                                                ->map(function ($groupMap) {
-                                                    return $groupMap->masEmpGroup->name; // Assuming 'name' is the field you want from masEmpGroup
-                                                })
-                                                ->toArray();
+            ->where('mas_employee_id', $id)
+            ->get()
+            ->map(function ($groupMap) {
+                return $groupMap->masEmpGroup->name; // Assuming 'name' is the field you want from masEmpGroup
+            })
+            ->toArray();
         if ($employee->status == 'Draft') {
             return back()->with('msg_error', 'Application status is in draft, so fill up all the detials to view.');
         }
@@ -132,7 +134,7 @@ class EmployeeController extends Controller
         $increment = 0;
         $endingSalary = 0;
         $selectedPoint = 0;
-        if(!is_null($employee->empJob) && $employee->empJob->mas_grade_step_id){
+        if (!is_null($employee->empJob) && $employee->empJob->mas_grade_step_id) {
             $gradeStep = MasGradeStep::where('id', $employee->empJob->mas_grade_step_id)->first();
             $startingSalary = $gradeStep->starting_salary;
             $endingSalary = $gradeStep->ending_salary;
@@ -150,10 +152,10 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-                
+
         $tab = $request->input('current_tab');
         $this->savePersonalInfo($request->personal, $request, $id);
-        if($tab == null){
+        if ($tab == null) {
             $nextTab = 'address';
             return redirect()->route('employee-lists.edit', ['employee_list' => $id, 'tab' => $nextTab])->with('msg_success', 'Data saved successfully.');
         }
@@ -169,19 +171,22 @@ class EmployeeController extends Controller
             $this->saveExperiences($request->experiences, $id, $request);
         } elseif ($tab === 'document') {
             $this->saveDocuments($request->documents, $id, $request);
-                
         } else if ($tab === 'role') {
+
             // $this->assignRoles($request->roles, $id, $request);
             if (!$request->roles) {
                 return redirect()->back()->with('msg_error', 'You need to select at least one role');
             }
             try {
                 DB::beginTransaction();
-                
+
                 $this->assignRoles($request->documents, $id, $request);
+
                 // $applicationStatus = User::where('id', $id)->value('status');
                 // if($applicationStatus === 'Draft'){
                 DB::table('mas_employees')->where('id', $id)->whereStatus(0)->update(['status' => 1]);
+
+
                 // }
                 DB::commit();
             } catch (\Exception $e) {
@@ -189,6 +194,12 @@ class EmployeeController extends Controller
                 return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
                 // return back()->withInput()->with('msg_error', $e->getMessage());
             }
+            $employee = User::where('id', $id)->first();
+
+            if ($employee->status == 'Completed') {
+                Mail::to($employee->email)->send(new SendCredentialsMail($employee, config('global.default_password')));
+            }
+
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');
         }
         $nextTab = $this->getNextTab($tab);
@@ -211,8 +222,8 @@ class EmployeeController extends Controller
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
-        $user = $employeeId ? User::findOrFail($employeeId): "";
-       
+        $user = $employeeId ? User::findOrFail($employeeId) : "";
+
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -229,8 +240,8 @@ class EmployeeController extends Controller
             'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png|max:2048',
         ];
         $request->validate($rules);
-        
-        if(!$user || !isset($personalInfo['cid_copy'])){
+
+        if (!$user || !isset($personalInfo['cid_copy'])) {
             $rules['personal.cid_copy'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
         }
 
@@ -238,7 +249,7 @@ class EmployeeController extends Controller
         if (isset($personalInfo['profile_pic'])) {
             // Delete existing profile pic if it exists
             if ($user && $user->profile_pic) {
-                delete_image($user->profile_pic); // Deletes the old profile pic from storage
+                unlink($user->profile_pic); // Deletes the old profile pic from storage
             }
             // Upload new profile picture and update the path
             $profilePic = uploadImageToDirectory($personalInfo['profile_pic'], 'images/users/');
@@ -250,7 +261,7 @@ class EmployeeController extends Controller
         if (isset($personalInfo['cid_copy'])) {
             // Delete existing CID copy if it exists
             if ($user && $user->cid_copy) {
-                delete_image($user->cid_copy); // Deletes the old CID copy from storage
+                unlink($user->cid_copy); // Deletes the old CID copy from storage
             }
             // Upload new CID copy and update the path
             $empCidCopy = uploadImageToDirectory($personalInfo['cid_copy'], $this->filePath);
@@ -270,7 +281,7 @@ class EmployeeController extends Controller
             'name' => trim($personalInfo['first_name'] . ' ' . ($personalInfo['middle_name'] ?? '') . ' ' . ($personalInfo['last_name'] ?? '')),
             'username' => $user->username ?? fixEmployeeId($this->fetchHighestEmpId() + 1),
             'employee_id' => $user->employee_id ?? $this->fetchHighestEmpId() + 1,
-            'password' => bcrypt('password'),
+            'password' => bcrypt(config('global.default_password')),
             'email' => $personalInfo['email'],
             'cid_no' => $personalInfo['cid_no'],
             'gender' => $personalInfo['gender'],
@@ -284,14 +295,14 @@ class EmployeeController extends Controller
             'is_active' => $personalInfo['is_active'],
             'profile_pic' => $profilePic,
             'cid_copy' => $empCidCopy,
-            'status' => $request->status ??($user->status == 'Completed' ? 1 : 0),
+            'status' => $request->status ?? ($user->status == 'Completed' ? 1 : 0),
         ];
         // Update or create the user
         $user = User::updateOrCreate(
             ['id' => $employeeId], // Conditions to find the user
             $userData // Data to update or create
         );
-        
+
         return $user->id;
     }
 
@@ -403,9 +414,15 @@ class EmployeeController extends Controller
 
     private function saveQualifications($qualifications, $employeeId, $request)
     {
+        $filteredQualifications = array_filter($qualifications, function ($qualification) {
+            return !empty($qualification['school']) ||
+                !empty($qualification['completion_year']) ||
+                !empty($qualification['subject']) ||
+                !empty($qualification['aggregate_score']);
+        });
         $qualificationIdsInRequest = []; // Track IDs from the request
 
-        foreach ($qualifications as $key => $value) {
+        foreach ($filteredQualifications as $key => $value) {
             $qualificationId = $value['mas_qualification_id'] ?? null;
             $qualificationIdsInRequest[] = $qualificationId;
 
@@ -434,9 +451,18 @@ class EmployeeController extends Controller
 
     private function saveTrainings($trainings, $employeeId, $request)
     {
+        $filteredTrainings = array_filter($trainings, function ($training) {
+            return !empty($training['title']) ||
+                !empty($training['start_date']) ||
+                !empty($training['end_date']) ||
+                !empty($training['duration']) ||
+                !empty($training['location']) ||
+                !empty($training['description']) ||
+                !empty($training['certificate']);
+        });
         $trainingIdsInRequest = []; // Track IDs from the request
 
-        foreach ($trainings as $key => $value) {
+        foreach ($filteredTrainings as $key => $value) {
             $trainingId = $value['id'] ?? null; // Assume the form might include an id for existing records
             $trainingCertificate = isset($value['certificate']) ? uploadImageToDirectory($value['certificate'], $this->filePath) : null;
 
@@ -471,9 +497,17 @@ class EmployeeController extends Controller
 
     private function saveExperiences($experiences, $employeeId, $request)
     {
+        $filteredExperiences = array_filter($experiences, function ($experience) {
+            return !empty($experience['organization']) ||
+            !empty($experience['place']) ||
+            !empty($experience['designation']) ||
+            !empty($experience['start_date']) ||
+            !empty($experience['end_date']) ||            
+            !empty($experience['certificate']);
+        });
         $experienceIdsInRequest = []; // Track IDs from the request
 
-        foreach ($experiences as $value) {
+        foreach ($filteredExperiences as $value) {
             $experienceId = $value['id'] ?? null; // Use null if 'id' is not set
 
             // Use updateOrCreate to either update the existing record or create a new one
@@ -516,56 +550,57 @@ class EmployeeController extends Controller
 
         // Fetch existing employee document, or create an empty object if none exists
         $empDocument = MasEmployeeDocument::whereMasEmployeeId($employeeId)->first() ?? new MasEmployeeDocument();
-        if(!$empDocument->employment_contract || !isset($doc['employment_contract'])){
+        if (!$empDocument->employment_contract || !isset($doc['employment_contract'])) {
             $rules['documents.employment_contract'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
         }
-        if(!$empDocument->non_disclosure_aggrement || !isset($doc['non_disclosure_aggrement'])){
+        if (!$empDocument->non_disclosure_aggrement || !isset($doc['non_disclosure_aggrement'])) {
             $rules['documents.non_disclosure_aggrement'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
         }
-        if(!$empDocument->job_responsibilities || !isset($doc['job_responsibilities'])){
+        if (!$empDocument->job_responsibilities || !isset($doc['job_responsibilities'])) {
             $rules['documents.job_responsibilities'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
         }
 
         if (isset($doc['employment_contract'])) {
             // Remove old file if exists
             if ($empDocument->employment_contract) {
-                delete_image($empDocument->employment_contract);
+                unlink($empDocument->employment_contract);
             }
             $empContract = uploadImageToDirectory($doc['employment_contract'], $this->filePath);
         } else {
             $empContract = $empDocument->employment_contract;
         }
-    
+
         // Handle non-disclosure agreement
         if (isset($doc['non_disclosure_aggrement'])) {
             if ($empDocument->non_disclosure_aggrement) {
-                delete_image($empDocument->non_disclosure_aggrement);
+                unlink($empDocument->non_disclosure_aggrement);
             }
             $empNonDisclosureAggrement = uploadImageToDirectory($doc['non_disclosure_aggrement'], $this->filePath);
         } else {
             $empNonDisclosureAggrement = $empDocument->non_disclosure_aggrement;
         }
-    
+
         // Handle job responsibilities
         if (isset($doc['job_responsibilities'])) {
             if ($empDocument->job_responsibilities) {
-                delete_image($empDocument->job_responsibilities);
+                unlink($empDocument->job_responsibilities);
             }
             $jobResponsibilities = uploadImageToDirectory($doc['job_responsibilities'], $this->filePath);
         } else {
             $jobResponsibilities = $empDocument->job_responsibilities;
         }
-    
+
         // Handle 'other' documents
         if (isset($doc['other'])) {
             // Remove old files for 'other' documents
             if ($empDocument->other) {
-                $existingOtherDocs = json_decode($empDocument->other, true);
-                foreach ($existingOtherDocs as $oldFile) {
-                    if ($oldFile) {
-                        delete_image($oldFile);
-                    }
-                }
+                delete_image($empDocument->other);
+                // $existingOtherDocs = json_decode($empDocument->other, true);
+                // foreach ($existingOtherDocs as $oldFile) {
+                //     if ($oldFile) {
+                //         delete_image($oldFile);
+                //     }
+                // }
             }
             $otherDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other']);
         } else {
@@ -583,11 +618,10 @@ class EmployeeController extends Controller
             ]
         );
     }
-
     private function assignRoles($roles, $id, $request){
         $user = User::findOrFail($id);
         $rolesAssigned = [];
-        foreach($request->roles as $key => $value) {
+        foreach ($request->roles as $key => $value) {
             $rolesAssigned[$value] = [
                 'created_by' => $request->user()->id,
                 'updated_by' => $request->user()->id,

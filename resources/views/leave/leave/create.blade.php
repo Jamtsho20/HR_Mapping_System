@@ -80,13 +80,13 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="attachment">Attachment <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
-                        <input type="file" id="attachment" class="form-control" name="attachment">
+                        <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*">
                         {{-- <small id="hint_text" class="form-text text-muted" style="display:none;"></small> --}}
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer">    
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
@@ -118,15 +118,15 @@
                     from_day: fromDay,
                     to_day: toDay
                 },
-                success: function (response) {
+                success: function(response) {
                     document.getElementById('no_of_days_leave').value = response.total_days;
                 },
-                error: function () {
+                error: function() {
                     alert('Error calculating leave days.');
                 }
             });
         } else {
-            document.getElementById('no_of_days_leave').value = '';
+            document.getElementById('no_of_days_leave ').value = '';
         }
     }
 </script>

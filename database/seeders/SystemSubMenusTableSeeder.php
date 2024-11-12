@@ -25,7 +25,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 1, 'name' => 'Notification', 'route' => 'system-setting/notifications', 'display_order' => 6],
             ['system_menu_id' => 1, 'name' => 'Approval Rules', 'route' => 'system-setting/approval-rules', 'display_order' => 7],
             ['system_menu_id' => 1, 'name' => 'Approving Authority', 'route' => 'system-setting/approving-authorities', 'display_order' => 8],
-            ['system_menu_id' => 1, 'name' => 'Approval Condition Field', 'route' => 'system-setting/approval-conditions', 'display_order' => 9],
+            ['system_menu_id' => 1, 'name' => 'Approval Condition Field', 'route' => 'system-setting/condition-fields', 'display_order' => 9],
 
             //sub menu for master
             ['system_menu_id' => 2, 'name' => 'Employment Types', 'route' => 'master/employment-types', 'display_order' => 1],
@@ -126,6 +126,16 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
             ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
             ['system_menu_id' => 14, 'name' => 'Payslip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
+
+            //submenu for Report
+            ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'report/ltc', 'display_order' => 1],
+            ['system_menu_id' => 15, 'name' => 'Leave Availed Report', 'route' => 'report/leave-availed-report', 'display_order' => 1],
+            ['system_menu_id' => 15, 'name' => 'Leave Balance Report', 'route' => 'report/leave-balance-report', 'display_order' => 2],
+            ['system_menu_id' => 15, 'name' => 'Leave Encashment Report', 'route' => 'report/leave-encashment-report', 'display_order' => 3],
+            ['system_menu_id' => 15, 'name' => 'Vehicle Fuel Report', 'route' => 'report/vehicle-fuel-report', 'display_order' => 4],
+            ['system_menu_id' => 15, 'name' => 'Advance Loan Report', 'route' => 'report/advance-loan-report', 'display_order' => 5],
+            ['system_menu_id' => 15, 'name' => 'Expense & Advance Report', 'route' => 'report/expense-and-advance-report', 'display_order' => 6],
+
         ]);
     }
 }

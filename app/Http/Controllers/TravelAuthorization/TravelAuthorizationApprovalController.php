@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Expense;
-
+namespace App\Http\Controllers\TravelAuthorization;
 use App\Http\Controllers\Controller;
+use App\Models\TravelAuthorization;
 use Illuminate\Http\Request;
 
-class TransferClaimController extends Controller
+class TravelAuthorizationApprovalController extends Controller
 {
+         
     /**
      * Display a listing of the resource.
      *
@@ -14,17 +15,21 @@ class TransferClaimController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/transfer-claim,view')->only('index');
-        $this->middleware('permission:expense/transfer-claim,create')->only('store');
-        $this->middleware('permission:expense/transfer-claim,edit')->only('update');
-        $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,view')->only('index');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,create')->only('store');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,edit')->only('update');
+        $this->middleware('permission:travel-authorization/travel-authorization-approval,delete')->only('destroy');
     }
+
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
-               
-        return view('expense.transfer-claim.index', compact( 'privileges'));
+        $travelAuthorizations = TravelAuthorization::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
+        ->withQueryString();
+        return view('travel-authorizations.approval.index', compact( 'privileges', 'travelAuthorizations'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -33,7 +38,7 @@ class TransferClaimController extends Controller
      */
     public function create()
     {
-        return view('expense.transfer-claim.create');
+        //
     }
 
     /**

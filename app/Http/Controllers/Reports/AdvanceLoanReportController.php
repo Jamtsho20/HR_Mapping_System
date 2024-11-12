@@ -1,28 +1,27 @@
 <?php
 
-namespace App\Http\Controllers\SystemSetting;
+namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ApprovalConditionController extends Controller
+class AdvanceLoanReportController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function __construct()
     {
-        $this->middleware('permission:system-setting/approval-conditions,view')->only('index');
-        $this->middleware('permission:system-setting/approval-conditions,create')->only('store');
-        $this->middleware('permission:system-setting/approval-conditions,edit')->only('update');
-        $this->middleware('permission:system-setting/approval-conditions,delete')->only('destroy');
+        $this->middleware('permission:report/advance-loan-report,view')->only('index');
+        $this->middleware('permission:report/advance-loan-report,create')->only('store');
+        $this->middleware('permission:report/advance-loan-report,edit')->only('update');
+        $this->middleware('permission:report/advance-loan-report,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        
 
-        return view('system-settings.approval-conditions.index', compact('privileges'));
+        return view('report.advance-loan-report.index', compact('privileges'));
     }
 
     /**

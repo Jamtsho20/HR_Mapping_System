@@ -1,34 +1,65 @@
 @extends('layouts.app')
 @section('page-title', 'Change Password')
 @section('content')
-<form action="{{ url('change-password') }}" method="POST">
-@csrf
-    <div class="row">
-        <div class="col-md-4 col-xs-12">
-            <div class="block">
-                <div class="block-header block-header-default">
-                    <h3 class="block-title">Change Your Password</h3>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <form action="{{ url('change-password') }}" method="POST">
+                @csrf
+                <div class="form-group position-relative col-md-4">
+                    <label for="old_password">Old Password</label>
+                    <input type="password" id="old_password" name="old_password" class="form-control" required>
+                    <span class="position-absolute toggle-password"
+                        onclick="togglePasswordVisibility('old_password', this)"
+                        style="right: 30px; top: 35px; cursor: pointer;">
+                        <i class="fa fa-eye"></i>
+                    </span>
                 </div>
-                <div class="block-content">
-                    <div class="form-group">
-                        <label for="name">Old Password</label>
-                        <input type="password" name="old_password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">New Password</label>
-                        <input type="password" name="new_password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Confirm Password</label>
-                        <input type="password" name="confirm_password" class="form-control" required>
-                    </div>
+                <div class="form-group position-relative col-md-4">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" class="form-control" required>
+                    <span class="position-absolute toggle-password"
+                        onclick="togglePasswordVisibility('new_password', this)"
+                        style="right: 30px; top: 35px; cursor: pointer;">
+                        <i class="fa fa-eye"></i>
+                    </span>
                 </div>
-                <div class="block-content block-content-full block-content-sm text-center">
-                    <button type="submit" class="btn btn-success btn-flat btn-sm"><i class="fa fa-upload"></i> UPDATE PASSWORD</button>
-                    <a href="{{ url('dashboard') }}" class="btn btn-danger btn-flat btn-sm"><i class="fa fa-undo"></i> CANCEL</a>
+                <div class="form-group position-relative col-md-4">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                    <span class="position-absolute toggle-password"
+                        onclick="togglePasswordVisibility('confirm_password', this)"
+                        style="right: 30px; top: 35px; cursor: pointer;">
+                        <i class="fa fa-eye"></i>
+                    </span>
                 </div>
-            </div>
+                <div class="card-footer">
+                    @include('layouts.includes.buttons', [
+                    'buttonName' => 'UPDATE PASSWORD',
+                    'cancelUrl' => url('dashboard'),
+                    'cancelName' => 'CANCEL'
+                    ])
+                </div>
+
+            </form>
         </div>
     </div>
-</form>
+</div>
+
+<script>
+    function togglePasswordVisibility(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        const icon = iconElement.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
 @endsection
