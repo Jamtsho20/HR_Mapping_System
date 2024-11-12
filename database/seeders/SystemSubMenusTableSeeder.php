@@ -124,6 +124,9 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 14, 'name' => 'Other Pay Changes', 'route' => 'payroll/other-pay-changes', 'display_order' => 2],
             ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
             ['system_menu_id' => 14, 'name' => 'Payslip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
+
+            // LTC
+            ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'ltc/ltc', 'display_order' => 1],
         ]);
     }
 }

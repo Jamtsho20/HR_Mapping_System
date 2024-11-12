@@ -19,18 +19,18 @@ use App\Services\PayrollService;
 require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
 
-Route::get('/test-payslip', function () {
- return   PayrollService::checkFormulaValidity(
-"IF (['EMPLOYMENT_TYPE'] == 'Regular')
-THEN ([BASIC_PAY] * 0.15)
-ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
-THEN ([BASIC_PAY] * 0.15)
-ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
-THEN ([BASIC_PAY] * 0.05)
-ELSE
-THEN 0
-ENDIF"
-    );
+Route::get('/test', function () {
+        return   PayrollService::checkFormulaValidity(
+        "IF (['EMPLOYMENT_TYPE'] == 'Regular')
+        THEN ([BASIC_PAY] * 0.15)
+        ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
+        THEN ([BASIC_PAY] * 0.15)
+        ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
+        THEN ([BASIC_PAY] * 0.05)
+        ELSE
+        THEN 0
+        ENDIF"
+            );
 });
 
 Route::get('login-as-employee/{id}','Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -152,9 +152,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('employee-lists', 'EmployeeController');
     });
 
+    // LTC
+    Route::namespace('LTC')->prefix('ltc')->group(function () {
+        Route::resource('ltc', 'LTCController');
+        Route::patch('ltc-toggle-status', 'LTCController@toggleStatus')->name('ltc.toggles-status');
+        Route::patch('ltc-update-remarks', 'LTCController@updateRemarks')->name('ltc.update-remarks');
+        Route::get('ltc-finalize/{id}', 'LTCController@finalizeLtc')->name('ltc.finalize');
+    });
+
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
-        Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
+        Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         // Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');

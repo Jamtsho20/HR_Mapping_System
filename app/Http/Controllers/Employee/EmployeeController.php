@@ -150,7 +150,7 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-                
+
         $tab = $request->input('current_tab');
         $this->savePersonalInfo($request->personal, $request, $id);
         if($tab == null){
@@ -169,7 +169,7 @@ class EmployeeController extends Controller
             $this->saveExperiences($request->experiences, $id, $request);
         } elseif ($tab === 'document') {
             $this->saveDocuments($request->documents, $id, $request);
-                
+
         } else if ($tab === 'role') {
             // $this->assignRoles($request->roles, $id, $request);
             if (!$request->roles) {
@@ -177,7 +177,7 @@ class EmployeeController extends Controller
             }
             try {
                 DB::beginTransaction();
-                
+
                 $this->assignRoles($request->documents, $id, $request);
                 // $applicationStatus = User::where('id', $id)->value('status');
                 // if($applicationStatus === 'Draft'){
@@ -212,7 +212,7 @@ class EmployeeController extends Controller
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
         $user = $employeeId ? User::findOrFail($employeeId): "";
-       
+
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -229,7 +229,7 @@ class EmployeeController extends Controller
             'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png|max:2048',
         ];
         $request->validate($rules);
-        
+
         if(!$user || !isset($personalInfo['cid_copy'])){
             $rules['personal.cid_copy'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
         }
@@ -291,7 +291,7 @@ class EmployeeController extends Controller
             ['id' => $employeeId], // Conditions to find the user
             $userData // Data to update or create
         );
-        
+
         return $user->id;
     }
 
@@ -366,6 +366,7 @@ class EmployeeController extends Controller
                 'mas_designation_id' => $job['mas_designation_id'],
                 'mas_grade_id' => $job['mas_grade_id'],
                 'mas_grade_step_id' => $job['mas_grade_step_id'],
+                'has_probation' => $job['mas_employment_type_id'] == 2 ? 1 : 0,
                 'mas_employment_type_id' => $job['mas_employment_type_id'],
                 'immediate_supervisor' => $job['immediate_supervisor'] ?? null,
                 'mas_office_id' => $job['mas_office_id'],
@@ -533,7 +534,7 @@ class EmployeeController extends Controller
         } else {
             $empContract = $empDocument->employment_contract;
         }
-    
+
         // Handle non-disclosure agreement
         if (isset($doc['non_disclosure_aggrement'])) {
             if ($empDocument->non_disclosure_aggrement) {
@@ -543,7 +544,7 @@ class EmployeeController extends Controller
         } else {
             $empNonDisclosureAggrement = $empDocument->non_disclosure_aggrement;
         }
-    
+
         // Handle job responsibilities
         if (isset($doc['job_responsibilities'])) {
             if ($empDocument->job_responsibilities) {
@@ -553,7 +554,7 @@ class EmployeeController extends Controller
         } else {
             $jobResponsibilities = $empDocument->job_responsibilities;
         }
-    
+
         // Handle 'other' documents
         if (isset($doc['other'])) {
             // Remove old files for 'other' documents

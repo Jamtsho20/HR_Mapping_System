@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('nationality', 50);
             $table->date('date_of_appointment')->default(now());
             $table->string('cid_copy');
+            $table->tinyInteger('no_probation')->default(0);
             $table->tinyInteger('status')->default(0);
         });
     }
