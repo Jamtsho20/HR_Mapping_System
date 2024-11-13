@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('page-title', 'LTC')
+@section('page-title', 'SSS')
 @section('content')
 
 
 <div class="col-sm-6">
-    <h5>Leave Travel Concession (LTC) Report</h5>
+    <h5>Salary Saving Sheme (SSS) Report</h5>
 </div>
 <br>
 
@@ -15,8 +15,7 @@
                 @component('layouts.includes.filter')
                 <div class="col-4 form-group">
                     <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}" placeholder="Year">
-                </div>
-           
+                </div>           
                 @endcomponent
 
             </div>
@@ -44,34 +43,20 @@
                                                     #
                                                 </th>
                                                 <th>
-                                                    CODE
+                                                    Full name
                                                 </th>
                                                 <th>
-                                                    NAME
+                                                    policy number
                                                 </th>
                                                 <th>
-                                                    DESIGNATION
+                                                    sss amount
                                                 </th>
-                                                <th>
-                                                    LOCATION
-                                                </th>
-                                                <th>
-                                                    D.O.A
-                                                </th>
-                                                <th>
-                                                    GRADE
-                                                </th>
-                                                <th>
-                                                    BASIC PAY
-                                                </th>
-                                                <th>
-                                                    DUE DATE
-                                                </th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colspan="8" class="text-center text-danger">No LTC Reports found</td>
+                                                <td colspan="4" class="text-center text-danger">No SSS Reports found</td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -127,6 +127,8 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 14, 'name' => 'Loan / Device EMI', 'route' => 'payroll/loan-emi-deductions', 'display_order' => 3],
             ['system_menu_id' => 14, 'name' => 'Payslip', 'route' => 'payroll/pay-slips', 'display_order' => 4],
 
+            // LTC
+            ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'ltc/ltc', 'display_order' => 1],
             //submenu for Report
             ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'report/ltc', 'display_order' => 1],
             ['system_menu_id' => 15, 'name' => 'Leave Availed Report', 'route' => 'report/leave-availed-report', 'display_order' => 1],
@@ -135,6 +137,9 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 15, 'name' => 'Vehicle Fuel Report', 'route' => 'report/vehicle-fuel-report', 'display_order' => 4],
             ['system_menu_id' => 15, 'name' => 'Advance Loan Report', 'route' => 'report/advance-loan-report', 'display_order' => 5],
             ['system_menu_id' => 15, 'name' => 'Expense & Advance Report', 'route' => 'report/expense-and-advance-report', 'display_order' => 6],
+            ['system_menu_id' => 15, 'name' => 'Salary Saving Scheme', 'route' => 'report/salary-saving-scheme', 'display_order' => 7],
+            ['system_menu_id' => 15, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
+            ['system_menu_id' => 15, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
 
         ]);
     }

@@ -1,8 +1,7 @@
 @extends('layouts.app')
-@section('page-title', 'Showing Annual Increment Details')
+@section('page-title', 'Showing LTC Details')
 @section('buttons')
-    <a href="{{ route('annual-increment.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Annual
-        Increment
+    <a href="{{ route('ltc.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to LTC
         List</a>
 @endsection
 @section('content')
@@ -11,8 +10,8 @@
             <div class="card-body">
                 <div class="form-group col-md-6">
                     <label for="for_month">For Month <span class="text-danger">*</span></label>
-                    <input type="month" class="form-control" name="for_month"
-                        value="{{ substr($annualIncrement->for_month, 0, 7) }}" required="required">
+                    <input type="month" class="form-control" name="for_month" value="{{ substr($ltc->for_month, 0, 7) }}"
+                        required="required">
                 </div>
             </div>
         </div>
@@ -96,7 +95,7 @@
             var status = element.checked ? 1 : 0;
 
             $.ajax({
-                url: '{{ route('annual-increment.toggles-status') }}',
+                url: '{{ route('ltc.toggles-status') }}',
                 type: 'PATCH',
                 data: {
                     _token: '{{ csrf_token() }}',
@@ -122,7 +121,7 @@
             var remarks = $(this).val();
 
             $.ajax({
-                url: '{{ route('annual-increment.update-remarks') }}',
+                url: '{{ route('ltc.update-remarks') }}',
                 type: 'PATCH',
                 data: {
                     id: recordId,

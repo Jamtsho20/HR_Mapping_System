@@ -34,7 +34,7 @@ class AnnualIncrementController extends Controller
         if (!$annualIncrement) {
             $annualIncrement = AnnualIncrement::create([
                 "for_month" => "$year-$month-01",
-                "status" => 1,
+                "status" => 0,
             ]);
         }
 
@@ -163,7 +163,7 @@ class AnnualIncrementController extends Controller
 
             DB::beginTransaction();
 
-            $record->status = 4;
+            $record->status = 2;
             $record->save();
 
             $details = $record->incrementDetails()->whereRaw("coalesce(status,0) = 1")->get();
