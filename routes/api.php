@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,4 +29,13 @@ Route::middleware('api.access.log')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::put('change-password', [LoginController::class, 'handleChangePassword']);
     });
+});
+
+Route::namespace('Api\Expense')->prefix('expense')->middleware('auth:sanctum')->group(function () {
+    // Route::resource('apply-expense', 'ExpenseApplicationController');
+    Route::get('expense/apply-expense', [ExpenseApplicationController::class, 'index']);
+    Route::get('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'show']);
+    Route::put('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'update']);
+    Route::post('expense/apply-expense', [ExpenseApplicationController::class, 'store']);
+    Route::delete('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'destroy']);
 });
