@@ -183,6 +183,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
         Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
+        Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
+        Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
+        Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
     });
 
     //AssetsReport
