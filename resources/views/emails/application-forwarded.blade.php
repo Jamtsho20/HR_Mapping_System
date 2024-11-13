@@ -1,11 +1,15 @@
 <x-mail::message>
 
-Dear {{$employeeName}}, <br/>
+Dear {{ $approvingEmpName }}, <br/>
 Greetings for the day!! <br/>
 
-The attached file contains your pay slip for the month of {{$monthFriendly}}. <br/><br/>
+{{ $reqEmpName }} {{ $emailContent }} <br/><br/>
 
-Sincerely <br/>
-ERP section
+To review and approve, please click the link below:<br/>
+@component('mail::button', ['url' => url('/')])
+    Approve Leave Request
+@endcomponent
+Thanks, <br/>
+TIPL HRMS.
 
 </x-mail::message>

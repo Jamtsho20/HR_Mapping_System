@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,12 +14,20 @@ class ApplicationForwardedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    // protected $requestingUserId;
+    protected $approvingEmpName;
+    protected $reqEmpName;
+    protected $emailContent;
+    protected $emailSubject;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($requestingUserId, $approvingEmpName, $emailContent, $emailSubject)
     {
-        //
+        $this->reqEmpName = User::where('id', $requestingUserId)->value('name');
+        $this->approvingEmpName = $approvingEmpName;
+        $this->emailContent = $emailContent;
+        $this->emailSubject = $emailSubject;
     }
 
     /**
@@ -27,7 +36,8 @@ class ApplicationForwardedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Application Forwarded Mail',
+            subject: $this->emailSubject,
+            // subject: 'Application Forwarded Mail',
         );
     }
 
@@ -37,7 +47,13 @@ class ApplicationForwardedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            markdown: 'emails.application-forwarded',
+            with: [
+                'reqEmpName'=> $this->reqEmpName,
+                'approvingEmpName' => $this->approvingEmpName,
+                'emailContent' => $this->emailContent,
+                // 'emailSubject' => $this->emailSubject
+            ]
         );
     }
 

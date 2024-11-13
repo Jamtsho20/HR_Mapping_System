@@ -61,6 +61,7 @@
 <script src="{{ asset('assets/js/custom.js') }}"></script>
 <script src="{{ asset('assets/js/add-new-row.js') }}"></script>
 <script src="{{ asset('assets/js/custom-script.js') }}"></script>
+{{-- <script src="{{ asset('assets/js/bulk-approval-rejection.js') }}"></script> --}}
 <script>
     $(document).ready(function() {
         $('form').find('input').attr('autocomplete', 'off');

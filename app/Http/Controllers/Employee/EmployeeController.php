@@ -222,8 +222,7 @@ class EmployeeController extends Controller
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
-        $user = $employeeId ? User::findOrFail($employeeId) : "";
-
+        $user = $employeeId ? User::findOrFail($employeeId): "";
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -379,6 +378,7 @@ class EmployeeController extends Controller
                 'mas_designation_id' => $job['mas_designation_id'],
                 'mas_grade_id' => $job['mas_grade_id'],
                 'mas_grade_step_id' => $job['mas_grade_step_id'],
+                'has_probation' => $job['mas_employment_type_id'] == 2 ? 1 : 0,
                 'mas_employment_type_id' => $job['mas_employment_type_id'],
                 'immediate_supervisor' => $job['immediate_supervisor'] ?? null,
                 'mas_office_id' => $job['mas_office_id'],
@@ -502,7 +502,7 @@ class EmployeeController extends Controller
             !empty($experience['place']) ||
             !empty($experience['designation']) ||
             !empty($experience['start_date']) ||
-            !empty($experience['end_date']) ||            
+            !empty($experience['end_date']) ||
             !empty($experience['certificate']);
         });
         $experienceIdsInRequest = []; // Track IDs from the request

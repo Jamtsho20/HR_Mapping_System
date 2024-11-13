@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('page-title', 'LTC')
+@section('page-title', 'sifa')
 @section('content')
 
 
 <div class="col-sm-6">
-    <h5>Leave Travel Concession (LTC) Report</h5>
+    <h5>SIFA Contribution</h5>
 </div>
 <br>
 
@@ -16,7 +16,6 @@
                 <div class="col-4 form-group">
                     <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}" placeholder="Year">
                 </div>
-           
                 @endcomponent
 
             </div>
@@ -44,34 +43,23 @@
                                                     #
                                                 </th>
                                                 <th>
-                                                    CODE
+                                                   Date
                                                 </th>
                                                 <th>
-                                                    NAME
+                                                    element name
                                                 </th>
                                                 <th>
-                                                    DESIGNATION
+                                                    unit of measurement
                                                 </th>
                                                 <th>
-                                                    LOCATION
+                                                    amount
                                                 </th>
-                                                <th>
-                                                    D.O.A
-                                                </th>
-                                                <th>
-                                                    GRADE
-                                                </th>
-                                                <th>
-                                                    BASIC PAY
-                                                </th>
-                                                <th>
-                                                    DUE DATE
-                                                </th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colspan="8" class="text-center text-danger">No LTC Reports found</td>
+                                                <td colspan="5" class="text-center text-danger">No SIFA contributon Reports found</td>
                                             </tr>
                                         </tbody>
                                     </table>
