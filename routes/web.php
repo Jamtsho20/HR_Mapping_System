@@ -60,7 +60,7 @@ Route::middleware('auth')->group(function () {
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
         Route::get('approvalrulesaddcondition/{id}/edit', 'ApprovalRuleController@getEditCondition')->name('approval-rule-conditions.edit');
-        Route::patch('approvalrulesaddcondition/{id}', 'ApprovalRuleController@updateCondition')->name('approval-rule-conditions.update');
+        Route::put('approvalrulesaddcondition/{id}', 'ApprovalRuleController@updateCondition')->name('approval-rule-conditions.update');
     });
 
     // MASTERS
@@ -254,7 +254,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('user-profile', 'ProfileController');
         Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
     });
-    
+
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');

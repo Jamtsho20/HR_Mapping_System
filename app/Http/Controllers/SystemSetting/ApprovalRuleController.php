@@ -303,9 +303,15 @@ class ApprovalRuleController extends Controller
                     if ($approvalOption == 1) {
                         $condition->system_hierarchy_id = $request->system_hierarchy_id;
                         $condition->max_level_id = $request->max_level_id;
+
+                        $condition->is_single_user = 0;
+                        $condition->appvl_employee_id = null;
                     } elseif ($approvalOption == 2) {
                         $condition->is_single_user = 1;
                         $condition->appvl_employee_id = $request->appvl_employee_id;
+
+                        $condition->system_hierarchy_id = null;
+                        $condition->max_level_id = null;
                     } else {
                         $condition->auto_approval = 1;
                     }
