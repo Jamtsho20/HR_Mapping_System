@@ -116,7 +116,7 @@ class HierarchyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,  $id)
+    public function update(Request $request, $id)
     {
         $this->validate($request, $this->rules, $this->messages);
 
@@ -125,25 +125,43 @@ class HierarchyController extends Controller
             $hierarchy->name = $request->name;
             $hierarchy->save();
 
-            $hierarchy->hierarchyLevels()->delete();
-
-            foreach ($request->hierarchies as $key => $value) {
-                $hierarchy->hierarchyLevels()->create([
-                    'level' => $value['level'],
-                    'approving_authority_id' => $value['approving_authority'],
-                    'mas_employee_id' => $value['employee'] ?? null,
-                    'start_date' => $value['start_date'],
-                    'end_date' => $value['end_date'],
-                    'sequence' => $value['sequence'],
-                    'status' => $value['status']
-                ]);
+            $existingIds = $hierarchy->hierarchyLevels->pluck('id')->toArray();
+            // dd($existingIds);
+            foreach ($request->hierarchies as $value) {
+                if (isset($value['id']) && in_array($value['id'], $existingIds)) {
+                    // Update existing hierarchy level
+                    $hierarchy->hierarchyLevels()->where('id', $value['id'])->update([
+                        'level' => $value['level'],
+                        'approving_authority_id' => $value['approving_authority'],
+                        'mas_employee_id' => $value['employee'] ?? null,
+                        'start_date' => $value['start_date'],
+                        'end_date' => $value['end_date'],
+                        'sequence' => $value['sequence'],
+                        'status' => $value['status'],
+                    ]);
+                    // Remove updated ID from existing IDs array
+                    $existingIds = array_diff($existingIds, [$value['id']]);
+                } else {
+                    // Create new hierarchy level
+                    $hierarchy->hierarchyLevels()->create([
+                        'level' => $value['level'],
+                        'approving_authority_id' => $value['approving_authority'],
+                        'mas_employee_id' => $value['employee'] ?? null,
+                        'start_date' => $value['start_date'],
+                        'end_date' => $value['end_date'],
+                        'sequence' => $value['sequence'],
+                        'status' => $value['status'],
+                    ]);
+                }
             }
+
+            // Delete any hierarchy levels not present in the request
+            $hierarchy->hierarchyLevels()->whereIn('id', $existingIds)->delete();
         });
 
-        return redirect('system-setting/hierarchies')->with('msg_success', 'Hierarchy have been updated successfully.');
-
-
+        return redirect('system-setting/hierarchies')->with('msg_success', 'Hierarchy has been updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.
