@@ -50,6 +50,7 @@ class LeaveApplicationController extends Controller
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
         $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+        // dd($leaveApplications);
 
         return view('leave.leave.index',compact('privileges','leaveTypes', 'leaveApplications'));
 

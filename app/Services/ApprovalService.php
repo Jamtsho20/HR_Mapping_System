@@ -92,7 +92,8 @@ class ApprovalService
 				$approverDetail = $this->getApproverDetail($nextLevel);
 				return ['next_level' => $nextLevel, 'approver_details' => $approverDetail];
 			}else{
-
+				// return status or sth to indicate application has reached its maximum level
+				return ['status' => 'max_level_reached'];
 			}
 		}
 	}
