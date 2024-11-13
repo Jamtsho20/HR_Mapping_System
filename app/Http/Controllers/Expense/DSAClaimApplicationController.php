@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\Controller;
-use App\Models\MasExpenseType;
-use App\Models\User;
+use App\Models\AdvanceApplication;
+use App\Models\DsaClaimApplication;
 use Illuminate\Http\Request;
 
 class DSAClaimApplicationController extends Controller
@@ -21,6 +21,15 @@ class DSAClaimApplicationController extends Controller
         $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
         $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
     }
+
+    protected $rules = [
+
+    ];
+
+    protected $messages = [
+
+    ];
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
@@ -37,9 +46,15 @@ class DSAClaimApplicationController extends Controller
     {
         //common function to generate combination of loggedInUser employeeId and username
         $empIdName = LoggedInUserEmpIdName(); 
+        //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
+        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
         //get dsa advance which has been approved for settlement
-        // $dsaAdvance = 
-        return view('expense.dsa-claim.create', compact('empIdName'));
+        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+                                        ->where('created_by', loggedInUser())
+                                        ->whereNotIn('id', $excludedAdvanceIds)
+                                        ->get(['id', 'advance_no'])
+                                        ->toArray();
+        return view('expense.dsa-claim.create', compact('empIdName', 'advances'));
 
     }
 
@@ -51,7 +66,7 @@ class DSAClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**

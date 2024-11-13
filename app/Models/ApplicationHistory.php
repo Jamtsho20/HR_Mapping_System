@@ -10,7 +10,7 @@ class ApplicationHistory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'level', 'status', 'remarks', 'created_by', 'approved_by', 'rejected_by', 'cancelled_by', 'updated_by'
+        'approval_option', 'hierarchy_id', 'level_id', 'approver_role_id', 'approver_emp_id', 'level_sequence', 'status', 'remarks', 'action_performed_by'
     ];
 
     public function application()

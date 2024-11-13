@@ -81,7 +81,7 @@ class AjaxRequestController extends Controller
 
     public function getLeaveBalance($id)
     {
-        $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
+        $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance'); 
         $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
 
@@ -318,5 +318,11 @@ class AjaxRequestController extends Controller
         $levels = SystemHierarchyLevel::whereSystemHierarchyId($id)->select('id', 'level')->get();
 
         return $levels;
+    }
+
+    public function getAdvanceDetail($id) 
+    {
+        $advanceDetail = AdvanceApplication::where('id', $id)->get();
+        return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]); 
     }
 }

@@ -77,7 +77,4 @@
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
-
-
-
 @endpush
