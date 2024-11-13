@@ -41,4 +41,13 @@ trait JsonResponseTrait
             'errors' => $errors,
         ], $status);
     }
+
+    // protected function validationErrorResponse($errors, string $message = 'Validation error', int $status = 422): JsonResponse
+    // {
+    //     return response()->json([
+    //         'status' => 'fail',
+    //         'message' => $message,
+    //         'errors' => $errors,
+    //     ], $status);
+    // }
 }
