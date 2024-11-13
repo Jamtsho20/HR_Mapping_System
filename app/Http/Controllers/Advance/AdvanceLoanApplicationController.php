@@ -39,8 +39,8 @@ class AdvanceLoanApplicationController extends Controller
         'item_type' => 'required_if:advance_type,' . GADGET_EMI,
         'amount' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
             '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
-        'attachment' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
-            '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|mimes:jpg,png,pdf|max:2048',
+        // 'attachment' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
+            // '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|mimes:jpg,png,pdf|max:2048',
         'interest_rate' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
         'total_amount' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
         'no_of_emi' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN,
@@ -56,7 +56,7 @@ class AdvanceLoanApplicationController extends Controller
         'to_date.required_if' => 'To date is required for the selected advance type and must be after or equal to the from date.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
         'amount.required_if' => 'Amount is required for the selected advance type.',
-        'attachment.required_if' => 'Attachment is required for the selected advance type and must be a valid file (jpg, png, pdf).',
+        // 'attachment.required_if' => 'Attachment is required for the selected advance type and must be a valid file (jpg, png, pdf).',
         'interest_rate.required_if' => 'Interest rate is required for the selected advance type.',
         'total_amount.required_if' => 'Total amount is required for the selected advance type.',
         'no_of_emi.required_if' => 'Number of EMIs is required for the selected advance type.',
@@ -95,7 +95,7 @@ class AdvanceLoanApplicationController extends Controller
     public function store(Request $request)
     {
         $advanceApplication = new AdvanceApplication();
-        $this->validate($request, $this->rules, $this->messages);
+        // $this->validate($request, $this->rules, $this->messages);
         $attachment = "";
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -175,34 +175,87 @@ class AdvanceLoanApplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    // public function update(Request $request, $id)
+    // {
+    //     // dd($request->all());
+    //     // Find the advance application record by ID or fail if not found
+    //     $advanceApplication = AdvanceApplication::findOrFail($id);
+
+    //     // Define validation rules and messages (you can move them to class properties if reused)
+    //     $validatedData = $request->validate([
+    //         'advance_no' => 'sometimes|required',
+    //         'date' => 'sometimes|required|date',
+    //         'advance_type_id' => 'sometimes|required',
+    //         'mode_of_travel' => 'nullable',
+    //         'from_location' => 'nullable|string',
+    //         'to_location' => 'nullable|string',
+    //         'from_date' => 'nullable|date',
+    //         'to_date' => 'nullable|date|after_or_equal:from_date',
+    //         'amount' => 'nullable|numeric|min:0',
+    //         'attachment' => 'nullable|mimes:jpg,png,pdf|max:2048',
+    //         'total_amount' => 'nullable|numeric|min:0',
+    //         'no_of_emi' => 'nullable|integer',
+    //         'monthly_emi_amount' => 'nullable|numeric',
+    //         'deduction_from_period' => 'nullable|date_format:Y-m',
+    //         'item_type' => 'nullable|string',
+    //         'remark' => 'nullable|string|max:255',
+    //     ]);
+
+    //     // Handle file upload for the attachment
+    //     // Handle file upload for the attachment
+    //     if ($request->hasFile('attachment')) {
+    //         // Check if there is an existing file and delete it
+    //         if ($advanceApplication->attachment) {
+    //             $existingFilePath = public_path($advanceApplication->attachment);
+    //             if (file_exists($existingFilePath) && is_file($existingFilePath)) {
+    //                 unlink($existingFilePath); // Delete the existing file
+    //             }
+    //         }
+
+    //         // Upload the new file and save the path
+    //         $file = $request->file('attachment');
+    //         $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
+    //         $validatedData['attachment'] = $path; // Save the relative path
+    //     } else {
+    //         // If no new file is uploaded, keep the existing attachment path
+    //         $validatedData['attachment'] = $advanceApplication->attachment; // Maintain the existing path
+    //     }
+
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         // Use fill() method to update all fields at once
+    //         $advanceApplication->fill($validatedData);
+
+    //         // Save the updated model
+    //         $advanceApplication->save();
+
+    //         // Optionally create a corresponding history record for the advance
+    //         $advanceApplication->histories()->create([
+    //             'level' => 'Test Level',
+    //             'status' => 1,
+    //             'remarks' => $request->remark ?? $advanceApplication->remark,
+    //             'created_by' => loggedInUser(),
+    //         ]);
+
+    //         DB::commit();
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return back()->withInput()->with('msg_error', $e->getMessage());
+    //     }
+
+    //     return redirect()->route('apply.index')->with('msg_success', 'Advance application updated successfully!');
+    // }
+
     public function update(Request $request, $id)
     {
-        // dd($request->all());
         // Find the advance application record by ID or fail if not found
         $advanceApplication = AdvanceApplication::findOrFail($id);
-
-        // Define validation rules and messages (you can move them to class properties if reused)
-        $validatedData = $request->validate([
-            'advance_no' => 'sometimes|required',
-            'date' => 'sometimes|required|date',
-            'advance_type_id' => 'sometimes|required',
-            'mode_of_travel' => 'nullable',
-            'from_location' => 'nullable|string',
-            'to_location' => 'nullable|string',
-            'from_date' => 'nullable|date',
-            'to_date' => 'nullable|date|after_or_equal:from_date',
-            'amount' => 'nullable|numeric|min:0',
-            'attachment' => 'nullable|mimes:jpg,png,pdf|max:2048',
-            'total_amount' => 'nullable|numeric|min:0',
-            'no_of_emi' => 'nullable|integer',
-            'monthly_emi_amount' => 'nullable|numeric',
-            'deduction_from_period' => 'nullable|date_format:Y-m',
-            'item_type' => 'nullable|string',
-            'remark' => 'nullable|string|max:255',
-        ]);
-
-        // Handle file upload for the attachment
-        // Handle file upload for the attachment
+    
+        // Initialize the $validatedData array
+        $validatedData = [];
+    
         if ($request->hasFile('attachment')) {
             // Check if there is an existing file and delete it
             if ($advanceApplication->attachment) {
@@ -211,7 +264,7 @@ class AdvanceLoanApplicationController extends Controller
                     unlink($existingFilePath); // Delete the existing file
                 }
             }
-
+    
             // Upload the new file and save the path
             $file = $request->file('attachment');
             $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
@@ -220,35 +273,55 @@ class AdvanceLoanApplicationController extends Controller
             // If no new file is uploaded, keep the existing attachment path
             $validatedData['attachment'] = $advanceApplication->attachment; // Maintain the existing path
         }
-
-
+    
         try {
+            // Start a database transaction to ensure atomicity
             DB::beginTransaction();
-
-            // Use fill() method to update all fields at once
-            $advanceApplication->fill($validatedData);
-
-            // Save the updated model
-            $advanceApplication->save();
-
-            // Optionally create a corresponding history record for the advance
-            $advanceApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => 1,
-                'remarks' => $request->remark ?? $advanceApplication->remark,
-                'created_by' => loggedInUser(),
+    
+            // Update the advance application fields
+            $advanceApplication->update([
+                'advance_no' => $request->advance_no ?? $advanceApplication->advance_no,
+                'date' => $request->date,
+                'advance_type_id' => $request->advance_type_id,
+                'mode_of_travel' => $request->mode_of_travel,
+                'from_location' => $request->from_location,
+                'to_location' => $request->to_location,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+                'amount' => $request->amount,
+                'total_amount' => $request->total_amount,
+                'no_of_emi' => $request->no_of_emi,
+                'monthly_emi_amount' => $request->monthly_emi_amount,
+                'deduction_from_period' => $request->deduction_from_period,
+                'item_type' => $request->item_type,
+                'remark' => $request->remark,
+                'status' => $request->status ?? 1,
+                'attachment' => $validatedData['attachment'], // Use the validated attachment data
             ]);
-
+    
+            // Optionally create a history record for the advance application
+            $advanceApplication->histories()->create([
+                'level' => 'Test Level', // This could be dynamic, depending on the use case
+                'status' => $advanceApplication->status,
+                'remarks' => $request->remark ?? $advanceApplication->remark,
+                'created_by' => loggedInUser(),  // Assuming loggedInUser() fetches the current user's ID
+                'updated_by' => loggedInUser(),
+            ]);
+    
+            // Commit the transaction
             DB::commit();
         } catch (\Exception $e) {
+            // Rollback the transaction in case of any error
             DB::rollBack();
+            
+            // Handle the error by returning back with error message
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
-
+    
+        // Return a success response after the update is complete
         return redirect()->route('apply.index')->with('msg_success', 'Advance application updated successfully!');
     }
-
-
+    
 
     /**
      * Remove the specified resource from storage.
