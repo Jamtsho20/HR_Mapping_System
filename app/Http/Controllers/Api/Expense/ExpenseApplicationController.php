@@ -7,6 +7,7 @@ use App\Models\ExpenseApplication;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
+use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ExpenseApplicationController extends Controller
 {
+
+    use JsonResponseTrait;
     public function __construct()
     {
         $this->middleware('auth:api'); 
@@ -46,23 +49,27 @@ class ExpenseApplicationController extends Controller
 
     public function index(Request $request)
     {
+        try {
         $expenseApplications = ExpenseApplication::filter($request)
             ->createdBy()
             ->paginate(30);
-            
-
-        return response()->json([
-            'data' => $expenseApplications
-        ]);
+        
+            return $this->successResponse($expenseApplications, 'Expense applications retrieved successfully');
+            } catch (\Exception $e) {
+                return $this->errorResponse('Failed to retrieve applications', 500);
+            }
     }
 
 
     public function show($id)
     {
-        $expense = ExpenseApplication::findOrfail($id);
-        return response()->json([
-            'data' => $expense
-        ]);
+
+        try {
+            $expense = ExpenseApplication::findOrFail($id);
+            return $this->successResponse($expense, 'Expense application retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve expense application', 404);
+        }
     }
 
     public function store(Request $request)
@@ -70,19 +77,15 @@ class ExpenseApplicationController extends Controller
 
     $validatedData = $request->validate($this->rules($request));
 
-    
     $result = $this->handleExpenseApplication($request);
-
-
+    
     if ($result instanceof \Illuminate\Http\RedirectResponse) {
-        return response()->json([
-            'error' => 'File upload failed.',
-        ], 400);
+        return $this->errorResponse('File upload failed.', 400);
     }
-
+    
     try {
         DB::beginTransaction();
-
+    
         $expenseApplication = ExpenseApplication::create([
             'mas_expense_type_id' => $request->expense_type,
             'date' => $request->date,
@@ -97,33 +100,28 @@ class ExpenseApplicationController extends Controller
             'travel_to' => $request->travel_to,
             'status' => $request->status ?? 1, 
         ]);
-
-       
-        $expenseApplication->histories()->create([
-            'level' => 'Test Level', 
-            'status' => 1,
-            'remarks' => $request->remarks,
-            'created_by' => loggedInUser(),
-        ]);
-
+    
+        // $expenseApplication->histories()->create([
+        //     'level' => 'Test Level', 
+        //     'status' => 1,
+        //     'remarks' => $request->remarks,
+        //     'created_by' => loggedInUser(),
+        // ]);
+    
         DB::commit();
-
-     
-        return response()->json([
-            'message' => 'Expense application has been successfully created.',
-            'data' => $expenseApplication,
-        ], 201); 
-
+    
+        return $this->successResponse($expenseApplication, 'Expense application has been successfully created.', 201); 
+    
     } catch (\Exception $e) {
         DB::rollBack();
-
+    
         \Log::error('Error creating expense application: ' . $e->getMessage());
-
-        return response()->json([
-            'error' => 'An error occurred while processing your request.',
+    
+        return $this->errorResponse('An error occurred while processing your request.', 500, [
             'details' => $e->getMessage(),
-        ], 500);
+        ]);
     }
+    
 }
 
 
@@ -137,9 +135,7 @@ public function update(Request $request, $id)
         
         
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return response()->json([
-                'error' => 'File upload failed.',
-            ], 400);
+            return $this->errorResponse('File upload failed.', 400);
         }
 
         $validatedData = $request->validate($this->rules($request));
@@ -163,26 +159,23 @@ public function update(Request $request, $id)
             ]);
 
         
-            $expenseApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => $expenseApplication->status,
-                'remarks' => $request->remarks,
-                'created_by' => $expenseApplication->created_by,
-                'updated_by' => loggedInUser()
-            ]);
+            // $expenseApplication->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => $expenseApplication->status,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => $expenseApplication->created_by,
+            //     'updated_by' => loggedInUser()
+            // ]);
 
            
             DB::commit();
 
-            
-            return response()->json([
-                'message' => 'Expense application has been updated successfully!',
-                'data' => $expenseApplication
-            ], 200); 
 
+            return $this->successResponse($expenseApplication, 'Expense application has been successfully updated.'); 
+           
         } catch (\Exception $e) {
             DB::rollBack();
-            
+            return $this->errorResponse('An error occurred while processing your request.', 500);
             return response()->json([
                 'error' => $e->getMessage()
             ], 400); 
@@ -196,16 +189,11 @@ public function update(Request $request, $id)
             $expenseApplication = ExpenseApplication::findOrFail($id);
             $expenseApplication->delete();
 
-            
-            return response()->json([
-                'message' => 'Expense application has been deleted successfully!'
-            ], 200); 
+            return $this->successResponse($expenseApplication, 'Expense application has been deleted successfully!'); 
+           
 
         } catch (\Exception $e) {
-            
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 400); 
+            return $this->errorResponse('An error occurred while processing your request.', 500);
         }
     }
 

@@ -114,13 +114,13 @@ class ExpenseApplicationController extends Controller
                 'status' => $request->status ?? 1,
             ]);
 
-            // Create a history record
-            $expenseApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => 1,
-                'remarks' => $request->remarks,
-                'created_by' => loggedInUser(),
-            ]);
+            // // Create a history record
+            // $expenseApplication->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => 1,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => loggedInUser(),
+            // ]);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -193,14 +193,14 @@ class ExpenseApplicationController extends Controller
                 'status' => $request->status ?? 1,
             ]);        
 
-            // Create a history record
-            $expenseApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => $expenseApplication->status,
-                'remarks' => $request->remarks,
-                'created_by' => $expenseApplication->created_by,
-                'updated_by' => loggedInUser()
-            ]);
+            // // Create a history record
+            // $expenseApplication->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => $expenseApplication->status,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => $expenseApplication->created_by,
+            //     'updated_by' => loggedInUser()
+            // ]);
 
             DB::commit();
         } catch (\Exception $e) {

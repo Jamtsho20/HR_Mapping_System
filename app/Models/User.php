@@ -180,7 +180,7 @@ class User extends Authenticatable
     }
 
     public function getEmpIdNameAttribute(){
-        return $this->username . ' - ' . $this->name;
+        return $this->username . ' - ' . $this->title . ' ' . $this->name;
     }
 
     public function getMaritalStatusNameAttribute() {

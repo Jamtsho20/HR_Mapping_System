@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
 
+use App\Http\Controllers\Api\DummyApi;
+use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 
 
 /*
@@ -39,3 +41,12 @@ Route::namespace('Api\Expense')->prefix('expense')->middleware('auth:sanctum')->
     Route::post('expense/apply-expense', [ExpenseApplicationController::class, 'store']);
     Route::delete('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'destroy']);
 });
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
+//     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);
+//     Route::post('advance-applications', [AdvanceLoanApplicationApiController::class, 'store']);
+//     Route::put('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'update']);
+//     Route::delete('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'destroy']);
+// });
+
+Route::middleware('auth:sanctum')->resource('advance-applications', AdvanceLoanApplicationApiController::class);
