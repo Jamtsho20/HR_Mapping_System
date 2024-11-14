@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
-use App\Models\ApplicationHistory;
 use App\Models\LeaveApplication;
-use App\Services\ApprovalListService;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,8 +32,8 @@ class LeaveApprovalController extends Controller
         //   ->get();
         $leaves = LeaveApplication::whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
-                  ->where('application_type', 'App\Models\LeaveApplication');
-        })->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+                ->where('application_type', 'App\Models\LeaveApplication');
+        })->whereNotIn('status', [-1, 3])->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
         return view('leave.approval.index', compact('privileges', 'leaves'));
     }
 
@@ -105,54 +103,69 @@ class LeaveApprovalController extends Controller
         //
     }
 
-    public function bulkApprovalRejection(Request $request) {
+    public function bulkApprovalRejection(Request $request)
+    {
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
-
+        $rejectRemarks = $request->input('reject_remarks', '');
+        $userId = auth()->id();
+        // dd($itemIds);
         DB::beginTransaction();
-        try{
-            foreach($itemIds as $id){
-                $leaveApplication = LeaveApplication::findOrFail($id);
-                if($action == 'approve'){
-                    $approvalService = new ApprovalService();
-                    $applicationForwardedTo = $approvalService->applicationForwardedTo($request->item_ids, \App\Models\LeaveApplication::class);
-                    $applicationHistory = $leaveApplication->histories->where('application_type', 'App\Models\LeaveApplication')->where('application_id', $id)->first();
-                    if($applicationHistory){
-                        $applicationHistory->update([
-                            // 'level_id' => $applicationForwardedTo->level_id,
-                            // 'approver_role_id' => $applicationForwardedTo->level_id,
-                            // 'approver_emp_id' => $applicationForwardedTo->level_id,
-                            'status' => $status,
-                            'remarks' => $request->input('remarks', ''),
-                            'action_performed_by' => auth()->id(),
-                        ]);
-                    }
-                }else{
+        try {
+            $approvalService = new ApprovalService();
 
+            foreach ($itemIds as $id) {
+                $leaveApplication = LeaveApplication::findOrFail($id);
+                $applicationHistory = $leaveApplication->histories
+                    ->where('application_type', LeaveApplication::class)
+                    ->where('application_id', $id)
+                    ->first();
+
+                // Update leave application status
+                $leaveApplication->update([
+                    'status' => $status,
+                    'updated_by' => $userId,
+                ]);
+
+                // Forward application if approved
+                $updateData = [
+                    'status' => $status,
+                    'remarks' => $rejectRemarks,
+                    'action_performed_by' => $userId,
+                ];
+
+                if ($action === 'approve' && $applicationHistory) {
+                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, LeaveApplication::class);
+                    // dd($applicationForwardedTo);
+                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+                        $updateData = array_merge($updateData, [
+                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
+                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
+                        ]);
+                    }elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['status'] === 'max_level_reached') {
+                        // Finalize approval if it's at the maximum level
+                        $leaveApplication->update([
+                            'status' => 3, // 3 could represent 'final approved'
+                            'updated_by' => $userId,
+                        ]);
+                        $updateData['status'] = 3; // Mark the history entry as final approved
+                    }
+                }
+                // Update application history
+                if ($applicationHistory) {
+                    $applicationHistory->update($updateData);
                 }
             }
 
-        }catch(\Exception $e){
+            DB::commit();
+            return response()->json(['message' => 'All leave has been successfully approved.'], 200);
+        } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-            return response()->json(['message' => 'An error occurred during bulk operation.'], 500);
+            return response()->json(['message' => 'An error occurred during the operation.'], 500);
         }
-        // if($request->action !== 'reject'){
-        //     $approvalService = new ApprovalService();
-        //     $applicationForwardedTo = $approvalService->applicationForwardedTo($request->item_ids);
-        //     $leaveApplication = new LeaveApplication();
-        // }else{
-        //     try{
-        //         // foreach($request->){
-
-        //         // }
-        //     }catch(\Exception $e) {
-        //         DB::rollBack();
-        //         \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-        //         return response()->json(['message' => 'An error occurred during bulk operation.'], 500);
-        //     }
-        // }
-        // dd($request->all());
     }
 }

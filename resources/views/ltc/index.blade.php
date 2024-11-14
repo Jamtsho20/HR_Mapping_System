@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Annual Increment')
+@section('page-title', 'Leave Travel Concession')
 @section('content')
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Annual Increment</h3>
+                        <h3 class="card-title">Leave Travel Concession</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -61,7 +61,7 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @forelse($increments as $record)
+                                                            @forelse($ltcs as $record)
                                                                 <tr>
                                                                     <td>{{ \Carbon\Carbon::parse($record->for_month)->format('M, Y') }}
                                                                     </td>
@@ -74,13 +74,13 @@
                                                                     <td>
                                                                         @if ($privileges->edit)
                                                                             @if ($record->status['key'] == 0)
-                                                                                <a href="{{ route('annual-increment.show', $record->id) }}"
+                                                                                <a href="{{ route('ltc.show', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-spinner"></i>
                                                                                     PROCESS
                                                                                 </a>
-                                                                           
-                                                                                <a href="{{ route('annual-increment.finalize', $record->id) }}"
+
+                                                                                <a href="{{ route('ltc.finalize', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-primary"
                                                                                     id="finalize-btn">
                                                                                     <i class="fa fa-check"></i> FINALIZE
@@ -92,7 +92,7 @@
                                                             @empty
                                                                 <tr>
                                                                     <td colspan="6" class="text-center text-danger">No
-                                                                        increments found</td>
+                                                                        Payslips found</td>
                                                                 </tr>
                                                             @endforelse
                                                         </tbody>
@@ -121,8 +121,8 @@
                 var finalizeUrl = $(this).attr('href');
 
                 $.confirm({
-                    title: 'Approve Annual Increment',
-                    content: "Are you sure to approve the Annual Increment for this month? This will change employee's Basic Pay and cannot be undone.",
+                    title: 'Approve LTC',
+                    content: "Are you sure to approve the LTC for this month?",
                     buttons: {
                         confirm: {
                             text: 'Yes, I confirm',

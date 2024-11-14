@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AjaxRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
@@ -30,6 +31,9 @@ Route::middleware('api.access.log')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::put('change-password', [LoginController::class, 'handleChangePassword']);
+        Route::resource('advance-applications', AdvanceLoanApplicationApiController::class);
+        //generate advance no based on selection of advance type
+        Route::get('generate-advancenumber/{id}', [AjaxRequestController::class,'getAdvanceNumber']);
     });
 });
 
@@ -48,5 +52,3 @@ Route::namespace('Api\Expense')->prefix('expense')->middleware('auth:sanctum')->
 //     Route::put('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'update']);
 //     Route::delete('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'destroy']);
 // });
-
-Route::middleware('auth:sanctum')->resource('advance-applications', AdvanceLoanApplicationApiController::class);

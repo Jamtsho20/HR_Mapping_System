@@ -76,7 +76,7 @@ class ExpenseApplicationController extends Controller
      */
     public function create()
     {
-        $expenses = MasExpenseType::all();
+        $expenses = MasExpenseType::whereNotNull('mas_expense_type_id')->get();
         return view('expense.apply.create', compact('expenses'));
     }
     /**
@@ -167,7 +167,7 @@ class ExpenseApplicationController extends Controller
     public function update(Request $request, $id)
     {
         $expenseApplication = ExpenseApplication::findOrFail($id);
-        
+
         $result = $this->handleExpenseApplication($request, $expenseApplication);
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
@@ -191,7 +191,7 @@ class ExpenseApplicationController extends Controller
                 'travel_from' => $request->travel_from,
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
-            ]);        
+            ]);
 
             // // Create a history record
             // $expenseApplication->histories()->create([
@@ -223,7 +223,7 @@ class ExpenseApplicationController extends Controller
         {
             try {
                 ExpenseApplication::findOrFail($id)->delete();
-    
+
                 return back()->with('msg_success', 'Expense Applicaton has been deleted');
             } catch (\Exception $e) {
                 return back()->with('msg_error', 'Expense Applicaton cannot be deleted as it is used by other modules.');
@@ -251,7 +251,7 @@ class ExpenseApplicationController extends Controller
             ->where('mas_expense_type_id', $request->expense_type)
             ->whereStatus(1)
             ->first();
-        //check weather attachment is required while applying expense from expense policy                              
+        //check weather attachment is required while applying expense from expense policy
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
 
@@ -266,7 +266,7 @@ class ExpenseApplicationController extends Controller
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $this->validate($request, 
+            $this->validate($request,
                 ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
                 ['file.required' => 'The file is required. Please upload a file.']
             );

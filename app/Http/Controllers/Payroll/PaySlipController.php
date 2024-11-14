@@ -146,7 +146,7 @@ class PaySlipController extends Controller
 
     public function processPaySlip($id, Request $request)
     {
-        try {
+        // try {
             $status = $request->query('status');
             $paySlip = PaySlip::where('status', 1)->find($id);
 
@@ -166,11 +166,11 @@ class PaySlipController extends Controller
             $month = Carbon::parse($paySlip->for_month)->format('F Y');
 
             return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error processing payslip: ' . $e->getMessage());
+        // } catch (\Exception $e) {
+        //     Log::error('Error processing payslip: ' . $e->getMessage());
 
-            return redirect()->back()->with('msg_error', 'An unexpected error occurred while processing the payslip.');
-        }
+        //     return redirect()->back()->with('msg_error', 'An unexpected error occurred while processing the payslip.');
+        // }
     }
 
     public function verifyPaySlip($id, Request $request)

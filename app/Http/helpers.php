@@ -231,6 +231,12 @@ if(!function_exists('loggedInUser')){
     }
 }
 
+if (!function_exists('LoggedInUserEmpIdName')) {
+    function LoggedInUserEmpIdName()
+    {
+        return auth()->user()->username;
+    }
+}
 if(!function_exists('generateTransactionNumber')){
     function generateTransactionNumber($code, $nextSequence){
         //include cureent Ymd in while generating transaction number

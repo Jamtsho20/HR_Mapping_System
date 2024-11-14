@@ -6,7 +6,7 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="payhead_type">Pay Head Type <span class="text-danger">*</span></label>
                         <select name="payhead_type" id="payhead_type" class="form-control" required>
@@ -16,7 +16,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="account_head_id">Account Head <span class="text-danger">*</span></label>
                         <select name="account_head_id" id="account_head_id" class="form-control" required>
@@ -25,6 +25,12 @@
                             <option value="{{ $accountHead->id }}">{{ $accountHead->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="gl_code">GL Code <span class="text-danger">*</span></label>
+                        <input type="text" name="gl_code" id="gl_code" class="form-control"   >
                     </div>
                 </div>
             </div>

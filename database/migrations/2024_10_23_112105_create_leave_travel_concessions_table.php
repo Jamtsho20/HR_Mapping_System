@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('annual_increments', function (Blueprint $table) {
+        Schema::create('leave_travel_concessions', function (Blueprint $table) {
             $table->id();
             $table->date("for_month")->index();
             $table->tinyInteger("status")->comment("0 for Cancelled, 1 for New, 2 for Verified, 3 for Approved")->default(1);
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('annual_increments');
+        Schema::dropIfExists('leave_travel_concessions');
     }
 };

@@ -15,6 +15,7 @@ class ApprovalService
 	// for the first time to get approver we need to check using approval option as well as using approval rule so it is done differently
 	public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
 	{ // parameter need to be passed from wherever this class is being invoked
+		//here need to check if condition field not defined
 		$approvalRule = MasApprovalRule::with('approvalConditions')
 										->where('approvable_id', $approvableId)
 										->where('approvable_type', $approvableType)
@@ -92,25 +93,31 @@ class ApprovalService
 				$approverDetail = $this->getApproverDetail($nextLevel);
 				return ['next_level' => $nextLevel, 'approver_details' => $approverDetail];
 			}else{
-
+				// return status or sth to indicate application has reached its maximum level
+				return ['status' => 'max_level_reached'];
 			}
 		}
 	}
 
-	private function getApproverDetail($nextLevel){
-		// dd($nextLevel);
-		$loggedInUserDeptIdAndSecId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->get(['mas_department_id', 'mas_section_id'])[0];
-		// dd($loggedInUserDeptIdAndSecId);
+	private function getApproverDetail($nextLevel){//if next level donot have has_employee_field
 		$approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)->pluck('role_id')[0];
-		// dd($approvingAuthorityRoleId); 
-		$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
-			$query->where('roles.id', $approvingAuthorityRoleId);
-		})
-		->whereHas('empJob', function ($query) use ($loggedInUserDeptIdAndSecId) {
-			$query->where('mas_department_id', $loggedInUserDeptIdAndSecId->mas_department_id)
-				  ->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
-		})
-		->first();
+		if(!$nextLevel->mas_employee_id) {
+			$loggedInUserDeptIdAndSecId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->get(['mas_department_id', 'mas_section_id'])[0];
+			// dd($loggedInUserDeptIdAndSecId);
+			// dd($approvingAuthorityRoleId); 
+			$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
+				$query->where('roles.id', $approvingAuthorityRoleId);
+			})
+			->whereHas('empJob', function ($query) use ($loggedInUserDeptIdAndSecId) {
+				$query->where('mas_department_id', $loggedInUserDeptIdAndSecId->mas_department_id)
+					  ->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
+			})
+			->first();
+		}else {
+			$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
+				$query->where('roles.id', $approvingAuthorityRoleId);
+			})->where('id', $nextLevel->mas_employee_id)->first();
+		}
 		// dd($userWithApprovingRole);
 		return ['user_with_approving_role' => $userWithApprovingRole, 'approver_role_id' => $approvingAuthorityRoleId];
 	}

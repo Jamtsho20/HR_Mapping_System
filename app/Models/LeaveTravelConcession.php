@@ -6,7 +6,7 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AnnualIncrement extends Model
+class LeaveTravelConcession extends Model
 {
     use HasFactory, CreatedByTrait;
 
@@ -16,15 +16,15 @@ class AnnualIncrement extends Model
     {
         $statuses = [
             0 => 'New',
-            1 => 'Approved',
+            1 => 'Processed',
             2 => 'Finalized',
         ];
 
         return ['key' => $value, 'label' => $statuses[$value] ?? 'Unknown'];
     }
 
-    public function incrementDetails()
+    public function ltcDetails()
     {
-        return $this->hasMany(AnnualIncrementDetail::class, 'annual_increment_id');
+        return $this->hasMany(LeaveTravelConcessionDetail::class, 'ltc_id');
     }
 }
