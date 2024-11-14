@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
         Route::resource('condition-fields', 'ConditionFieldController');
+       
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
@@ -66,7 +67,6 @@ Route::middleware('auth')->group(function () {
     // MASTERS
     Route::namespace('Master')->prefix('master')->group(function () {
         Route::resource('employment-types', 'EmploymentTypeController');
-
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('advance-loans', 'AdvanceLoanController');
         Route::resource('offices', 'OfficeController');
         Route::resource('vehicles', 'VehicleController');
+        Route::resource('budget-code', 'BudgetCodeController');
 
     });
 
@@ -146,6 +147,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
+        Route::post('approval/bulk', 'AdvanceLoanApplicationController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
 
     // TRAVEL_AUTHORIZATION

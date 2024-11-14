@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Advance;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Models\MasAdvanceTypes;
+use App\Models\MasLeaveType;
+use App\Services\ApprovalService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -96,6 +98,10 @@ class AdvanceLoanApplicationController extends Controller
     {
         $advanceApplication = new AdvanceApplication();
         // $this->validate($request, $this->rules, $this->messages);
+        $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+        
         $attachment = "";
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -124,11 +130,17 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->save();
 
             // Create a corresponding history record for advance
+            // Create a history record
             $advanceApplication->histories()->create([
-                'level' => 'Test Level',
+                'approval_option' => $approverByHierarchy['approval_option'],
+                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
                 'status' => 1,
-                'remarks' => $request->remark,
-                'created_by' => loggedInUser(),
+                'remarks' => $request->remarks,
+                'action_performed_by' => loggedInUser(),
             ]);
 
             DB::commit();

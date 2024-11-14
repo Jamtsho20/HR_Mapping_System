@@ -13,13 +13,13 @@ use Illuminate\Support\Facades\DB;
 class AdvanceLoanApplicationApiController extends Controller
 {
     use JsonResponseTrait;
-    public function __construct()
-    {
-        $this->middleware('permission:advance-loan/apply,view')->only('index', 'show');
-        $this->middleware('permission:advance-loan/apply,create')->only('store');
-        $this->middleware('permission:advance-loan/apply,edit')->only('update');
-        $this->middleware('permission:advance-loan/apply,delete')->only('destroy');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:advance-loan/apply,view')->only('index', 'show');
+    //     $this->middleware('permission:advance-loan/apply,create')->only('store');
+    //     $this->middleware('permission:advance-loan/apply,edit')->only('update');
+    //     $this->middleware('permission:advance-loan/apply,delete')->only('destroy');
+    // }
 
     private $attachmentPath = 'images/advance/';
 

@@ -101,6 +101,7 @@ class ApprovalService
 
 	private function getApproverDetail($nextLevel){//if next level donot have has_employee_field
 		$approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)->pluck('role_id')[0];
+		// dd($nextLevel->mas_employee_id);
 		if(!$nextLevel->mas_employee_id) {
 			$loggedInUserDeptIdAndSecId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->get(['mas_department_id', 'mas_section_id'])[0];
 			// dd($loggedInUserDeptIdAndSecId);
