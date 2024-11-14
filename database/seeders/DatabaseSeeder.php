@@ -54,5 +54,7 @@ class DatabaseSeeder extends Seeder
         $this->call(InterestRateSeeder::class);
         $this->call(MasVehicleSeeder::class);
         $this->call(TransferClaimSeeder::class);
+        $this->call(BudgetTypesSeeder::class);
+        $this->call(BudgetCodeSeeder::class);
     }
 }

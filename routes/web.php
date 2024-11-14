@@ -21,18 +21,18 @@ use App\Services\PayrollService;
 require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
 
-Route::get('/test', function () {
-        return   PayrollService::checkFormulaValidity(
-        "IF (['EMPLOYMENT_TYPE'] == 'Regular')
-        THEN ([BASIC_PAY] * 0.15)
-        ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
-        THEN ([BASIC_PAY] * 0.15)
-        ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
-        THEN ([BASIC_PAY] * 0.05)
-        ELSE
-        THEN 0
-        ENDIF"
-            );
+Route::get('/test-payslip', function () {
+ return   PayrollService::checkFormulaValidity(
+"IF (['EMPLOYMENT_TYPE'] == 'Regular')
+THEN ([BASIC_PAY] * 0.15)
+ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
+THEN ([BASIC_PAY] * 0.15)
+ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
+THEN ([BASIC_PAY] * 0.05)
+ELSE
+THEN 0
+ENDIF"
+    );
 });
 
 Route::get('login-as-employee/{id}','Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
         Route::resource('condition-fields', 'ConditionFieldController');
+       
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
@@ -66,7 +67,6 @@ Route::middleware('auth')->group(function () {
     // MASTERS
     Route::namespace('Master')->prefix('master')->group(function () {
         Route::resource('employment-types', 'EmploymentTypeController');
-
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('advance-loans', 'AdvanceLoanController');
         Route::resource('offices', 'OfficeController');
         Route::resource('vehicles', 'VehicleController');
+        Route::resource('budget-code', 'BudgetCodeController');
 
     });
 
@@ -116,8 +117,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
     });
-
-    // LEAVE
+   // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
         Route::resource('leave-policy', 'LeavePolicyController');
         Route::resource('leave-apply', 'LeaveApplicationController');
@@ -147,6 +147,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
+        Route::post('approval/bulk', 'AdvanceLoanApplicationController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
 
     // TRAVEL_AUTHORIZATION
@@ -166,26 +167,15 @@ Route::middleware('auth')->group(function () {
         Route::resource('employee-lists', 'EmployeeController');
     });
 
-    // LTC
-    Route::namespace('LTC')->prefix('ltc')->group(function () {
-        Route::resource('ltc', 'LTCController');
-        Route::patch('ltc-toggle-status', 'LTCController@toggleStatus')->name('ltc.toggles-status');
-        Route::patch('ltc-update-remarks', 'LTCController@updateRemarks')->name('ltc.update-remarks');
-        Route::get('ltc-finalize/{id}', 'LTCController@finalizeLtc')->name('ltc.finalize');
-    });
-
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
-        Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');
+        Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
         Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
         Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
-        Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
-        Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
-        Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
     });
 
     //AssetsReport
@@ -275,5 +265,4 @@ Route::middleware('auth')->group(function () {
     Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
-    Route::get('getdsaadvancedetailsbyadvanceid/{id}', 'AjaxRequestController@getAdvanceDetail');
 });
