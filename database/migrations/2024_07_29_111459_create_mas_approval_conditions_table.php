@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('formula_display', 500)->nullable();
             $table->tinyInteger('approval_option')->comment('1 => hierarchical, 2 => single user, 3 => auto approval');
             $table->foreignId('system_hierarchy_id')->nullable()->constrained();
-            $table->foreignId('max_level_id')->constrained('system_hierarchy_levels')->references('id');
+            $table->foreignId('max_level_id')->nullable()->constrained('system_hierarchy_levels')->references('id');
             $table->unsignedTinyInteger('auto_approval')->default(0);
             $table->unsignedTinyInteger('is_single_user')->default(0);
             $table->foreignId('appvl_employee_id')->nullable()->constrained('mas_employees')->comment('Employee Id for approval, when approval type is single user.');

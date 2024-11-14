@@ -110,6 +110,7 @@ class LeaveApprovalController extends Controller
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $userId = auth()->id();
+        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
         // dd($itemIds);
         DB::beginTransaction();
         try {
@@ -145,13 +146,19 @@ class LeaveApprovalController extends Controller
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
                         ]);
-                    }elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['status'] === 'max_level_reached') {
+                    }elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
                         $leaveApplication->update([
                             'status' => 3, // 3 could represent 'final approved'
                             'updated_by' => $userId,
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
+                    }elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3){
+                        $leaveApplication->update([
+                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+                            'updated_by' => $userId,
+                        ]);
+                        $updateData['status'] = $applicationForwardedTo['application_status'];
                     }
                 }
                 // Update application history
@@ -161,7 +168,7 @@ class LeaveApprovalController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'All leave has been successfully approved.'], 200);
+            return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
