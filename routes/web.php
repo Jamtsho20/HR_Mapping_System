@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reports\SalaryReportController;
 use App\Services\PayrollService;
 
 /*
@@ -176,7 +177,7 @@ Route::middleware('auth')->group(function () {
 
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
-        Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');
+        Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
@@ -187,6 +188,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
     });
+
+    //reportexport routes
+    Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
+    Route::get('/export-salary-excel-report', [SalaryReportController::class, 'exportSalaryExcel'])->name('salary-report-excel.export');
 
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
