@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\TravelAuthorization;
 use App\Http\Controllers\Controller;
-use App\Models\TravelAuthorization;
+use App\Models\TravelAuthorizationApplication;
 use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,31 +26,32 @@ class TravelAuthorizationApplicationController extends Controller
      }
   
      protected $rules = [
-      'date' => 'required|date',
-      'mode_of_travel' => 'required',
-      'from_location' => 'required',
-      'to_location' => 'required',
-      'from_date' => 'required',
-      'to_date' => 'required',
-      'advance_amount' => 'nullable',
-      'purpose' => 'nullable|string|max:500',
-  ];
-  
-  protected $messages = [
-      'mode_of_travel.required_if' => 'Mode of travel is required for the selected travel type.',
-      'from_location.required_if' => 'From location is required for the selected travel type.',
-      'to_location.required_if' => 'To location is required for the selected travel type.',
-      'from_date.required_if' => 'From date is required for the selected travel type.',
-      'to_date.required_if' => 'To date is required for the selected travel type and must be after or equal to the from date.',
-      'amount.required_if' => 'Amount is required for the selected travel type.',
-      'attachment.required_if' => 'Attachment is required for the selected travel type and must be a valid file (jpg, png, pdf).',
-      'remark.max' => 'Remark should not exceed 500 characters.',
-  ];
+        'date' => 'required|date',
+        'details.*.mode_of_travel' => 'required|string',
+        'details.*.from_location' => 'required|string',
+        'details.*.to_location' => 'required|string',
+        'details.*.from_date' => 'required|date',
+        'details.*.to_date' => 'required|date|after_or_equal:details.*.from_date',
+        'advance_amount' => 'nullable|numeric',
+        'details.*.purpose' => 'nullable|string|max:500',
+    ];
+    
+    protected $messages = [
+        'date.required' => 'The main travel date is required.',
+        'details.*.mode_of_travel.required' => 'Mode of travel is required for each travel detail.',
+        'details.*.from_location.required' => 'From location is required for each travel detail.',
+        'details.*.to_location.required' => 'To location is required for each travel detail.',
+        'details.*.from_date.required' => 'From date is required for each travel detail.',
+        'details.*.to_date.required' => 'To date is required for each travel detail.',
+        'details.*.to_date.after_or_equal' => 'To date must be after or equal to the from date for each travel detail.',
+        'advance_amount.numeric' => 'Advance amount should be a numeric value.',
+        'details.*.purpose.max' => 'Purpose should not exceed 500 characters for each travel detail.',
+    ];
   
 public function index(Request $request)
       {
           $privileges = $request->instance();
-          $travelAuthorizations = TravelAuthorization::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
+          $travelAuthorizations = TravelAuthorizationApplication::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
           ->withQueryString();
   
           return view('travel-authorizations.apply.index', compact('privileges', 'travelAuthorizations'));
@@ -61,39 +62,50 @@ public function create()
         require_once base_path('app/Http/constants.php');
 
         $dailyAllowance = DAILY_ALLOWANCE;
-        return view('travel-authorizations.apply.create', compact('dailyAllowance'));
+        $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
+        return view('travel-authorizations.apply.create', compact('dailyAllowance', 'travelAuthorizationNumber'));
       }
 
 
 public function store(Request $request)
     {
-        $travelAuthorization = new TravelAuthorization();
+        $travelAuthorization = new  TravelAuthorizationApplication();
         $this->validate($request, $this->rules, $this->messages);
+
+        
         try {
             DB::beginTransaction();
-
+            $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
             $travelAuthorization->date = $request->date;
-            $travelAuthorization->from_date = $request->from_date;
-            $travelAuthorization->to_date = $request->to_date;
-            $travelAuthorization->from_location = $request->from_location;
-            $travelAuthorization->to_location = $request->to_location;
-            $travelAuthorization->mode_of_travel = $request->mode_of_travel;
             $travelAuthorization->advance_amount = $request->advance_required;
             $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
-            $travelAuthorization->purpose = $request->remark ?? null;
             $travelAuthorization->status = 1;
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
-        
 
             $travelAuthorization->save();
+            if ($request->has('details')) {
+                foreach ($request->details as $detail) {
+                    $travelAuthorization->details()->create([
+                        'mode_of_travel' => $detail['mode_of_travel'],
+                        'from_location' => $detail['from_location'],
+                        'to_location' => $detail['to_location'],
+                        'from_date' => $detail['from_date'],
+                        'to_date' => $detail['to_date'],
+                        'purpose' => $detail['purpose'],
+                    ]);
+                }
+            }
+        
 
-            $travelAuthorization->histories()->create([
-                'level' => 'Test Level',
-                'status' => 1,
-                'remarks' => $request->remarks,
-                'created_by' => loggedInUser(),
-            ]);
+            
+
+            // $travelAuthorization->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => 1,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => loggedInUser(),
+            // ]);
 
 
             DB::commit();
@@ -109,7 +121,7 @@ public function store(Request $request)
     public function show($id, Request $request)
     {
         $instance = $request->instance();
-        $travelAuthorization = TravelAuthorization::findOrFail($id);         
+        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);         
         return view('travel-authorizations.apply.show', compact('travelAuthorization'));
 
     }
@@ -118,52 +130,118 @@ public function store(Request $request)
     
     public function edit($id)
     {
-        $travelAuthorization = TravelAuthorization::findOrfail($id);
-        return view('travel-authorizations.apply.edit', compact('travelAuthorization'));
+        $travelAuthorizations =  TravelAuthorizationApplication::findOrfail($id);
+        $dailyAllowance = DAILY_ALLOWANCE;
+        return view('travel-authorizations.apply.edit', compact('travelAuthorizations', 'dailyAllowance'));
    
     }
 
    
     public function update(Request $request, $id)
     {   
-        $travelAuthorization = TravelAuthorization::findOrFail($id);
+        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'date' => 'sometimes|required|date',
-            'mode_of_travel' => 'sometimes|required',
-            'from_location' => 'required',
-            'to_location' => 'required',
-            'from_date' => 'sometimes|required',
-            'to_date' => 'sometimes|required',
-            'advance_amount' => 'nullable',
-            'estimated_travel_expenses' => 'sometimes|required',
-            'purpose' => 'nullable|string|max:500',
-            'daily_allowance' => 'nullable',
-        ]);
+        $this->validate($request, $this->rules, $this->messages);
+
         try {
+        
             DB::beginTransaction();
-            $travelAuthorization->fill($validatedData);
-            $travelAuthorization->save();
 
-            $travelAuthorization->histories()->create([
-                'level' => 'Test Level',
+            // $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
+            // $travelAuthorization->date = $request->date;
+            // $travelAuthorization->advance_amount = $request->advance_required;
+            // $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
+            // $travelAuthorization->status = 1;  
+            // $travelAuthorization->daily_allowance = $request->daily_allowance;
+            // $travelAuthorization->updated_by = Auth::id();
+            // $travelAuthorization->save();
+
+            $travelAuthorization->update([
+                'travel_authorization_no' => $request->travel_authorization_no,
+                'date' => $request->date,
+                'advance_amount' => $request->advance_required,
+                'estimated_travel_expenses' => $request->estimated_travel_expenses,
                 'status' => 1,
-                'remarks' => $request->remark ?? $travelAuthorization->remark,
-                'created_by' => loggedInUser(),
+                'daily_allowance' => $request->daily_allowance,
+                'updated_by' => Auth::id(),
             ]);
+            
+            if ($request->has('details')) {
+                // Collect IDs of updated or existing details from the request
+                $updatedDetailIds = [];
+            
+                foreach ($request->details as $index => $detail) {
+                    if (isset($detail['id'])) {
+                        $travelDetail = $travelAuthorization->details()->find($detail['id']);
+                        if ($travelDetail) {
+                            $travelDetail->update([
+                                'mode_of_travel' => $detail['mode_of_travel'],
+                                'from_location' => $detail['from_location'],
+                                'to_location' => $detail['to_location'],
+                                'from_date' => $detail['from_date'],
+                                'to_date' => $detail['to_date'],
+                                'purpose' => $detail['purpose'],
+                            ]);
+                            $updatedDetailIds[] = $detail['id'];
+                        }
+                    } else {
+                        // Create new detail if no ID is provided
+                        $newDetail = $travelAuthorization->details()->create([
+                            'mode_of_travel' => $detail['mode_of_travel'],
+                            'from_location' => $detail['from_location'],
+                            'to_location' => $detail['to_location'],
+                            'from_date' => $detail['from_date'],
+                            'to_date' => $detail['to_date'],
+                            'purpose' => $detail['purpose'],
+                        ]);
+                        $updatedDetailIds[] = $newDetail->id;
+                    }
+                }
+            
+                // Delete details that weren't included in the request
+                $travelAuthorization->details()->whereNotIn('id', $updatedDetailIds)->delete();
+            }
+    
             DB::commit();
+            // if ($request->has('details')) {
+        
+            //     $travelAuthorization->details()->forceDelete();
+            //     foreach ($request->details as $detail) {
+            //         $travelAuthorization->details()->create([
+            //             'mode_of_travel' => $detail['mode_of_travel'],
+            //             'from_location' => $detail['from_location'],
+            //             'to_location' => $detail['to_location'],
+            //             'from_date' => $detail['from_date'],
+            //             'to_date' => $detail['to_date'],
+            //             'purpose' => $detail['purpose'],
+            //         ]);
+            //     }
+            // }
+
+           
+            // $travelAuthorization->histories()->create([
+            //     'level' => 'Test Level', // Adjust this according to your requirements
+            //     'status' => 1, // Adjust as needed
+            //     'remarks' => $request->remarks,
+            //     'created_by' => loggedInUser(),
+            // ]);
+
+           
+            // DB::commit();
+
         } catch (\Exception $e) {
             DB::rollBack();
+            
             return back()->withInput()->with('msg_error', $e->getMessage());
-            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
         return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization updated successfully!');
     }
+
     
     public function destroy($id)
     {
         try {
-            TravelAuthorization::findOrFail($id)->delete();
+            TravelAuthorizationApplication::findOrFail($id)->delete();
             // dd(TravelAuthorization::findOrFail($id));
             return back()->with('msg_success', 'Travel Authorization has been deleted');
         } catch (\Exception $e) {
@@ -171,5 +249,25 @@ public function store(Request $request)
         }
     
     }
+
+    public function getTravelAuthorizationNumber()
+{
+    
+    
+     $travelAuthPrefix = 'TA';
+
+     
+     $latestTransaction =  TravelAuthorizationApplication::latest('id')->first();
+
+     $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+     
+ 
+   
+     $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
+ 
+     // Return the generated Travel Authorization number
+     return $authorizationNo;
+     
+}
 }
 

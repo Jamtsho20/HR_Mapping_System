@@ -1,117 +1,175 @@
 @extends('layouts.app')
-@section('page-title', 'salary report')
+@section('page-title', 'Salary Report')
 @section('content')
 
-
-<div class="col-sm-6">
-    <h5>Salary Report</h5>
+<div class="col-md-12 d-flex justify-content-end gap-2">
+    <div class="d-flex gap-2">
+        <a href="{{route('salary-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('salary-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href=""><span><i class="fa fa-print fa-lg"></i></span></a>
+    </div>
 </div>
+
 <br>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="block">
-            <div class="block-header block-header-default">
-                @component('layouts.includes.filter')
-                <div class="col-4 form-group">
-                    <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}" placeholder="Year">
+<div class="block-header block-header-default">
+    @component('layouts.includes.filter')
+    <div class="col-3 form-group">
+        <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+    </div>
+    <div class="col-3 form-group">
+        <select name="employee_id" class="form-control ">
+            <option value="" disabled="" selected="" hidden="">Select Employee ID</option>
+            @foreach($employee as $name)
+            <option value="{{  $name->id }}" {{ request()->get('employee_id') ==  $name->id ? 'selected' : '' }}>
+                {{$name->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
+    @endcomponent
+    <div class="row row-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Salary Report</h3>
                 </div>
-                @endcomponent
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div class="col-sm-12">
 
-            </div>
-            <br>
-            <div class="row row-sm">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <div class="col-sm-12">
-                                <label>
-                                    Show
-                                    <select class="select2">
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                    entries
-                                </label>
-                                <div class="dataTables_scroll">
-                                    <div class="dataTables_scrollHead"
-                                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                        <div class="dataTables_scrollHeadInner"
-                                            style="box-sizing: content-box; padding-right: 0px;">
-                                            <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
-                                                <thead class="thead-light">
-                                                    <tr role="row">
-                                                        <th>
-                                                            #
-                                                        </th>
-                                                        <th>
-                                                            Employee Name
-                                                        </th>
-                                                        <th>
-                                                            Job title
-                                                        </th>
-                                                        <th>
-                                                            job nature
-                                                        </th>
-                                                        <th>
-                                                            basic pay
-                                                        </th>
-                                                        <th>
-                                                            house all.
-                                                        </th>
-                                                        <th>
-                                                            medical all.
-                                                        </th>
-                                                        <th>
-                                                            add. work all.
-                                                        </th>
-                                                        <th>
-                                                            coporate all.
-                                                        </th>
-                                                        <th>
-                                                            diff. all.
-                                                        </th>
-                                                        <th>
-                                                            gross earning
-                                                        </th>
+                            <div class="dataTables_scroll">
+                                <div class="dataTables_scrollHead"
+                                    style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                    <div class="dataTables_scrollHeadInner"
+                                        style="box-sizing: content-box; padding-right: 0px;">
+                                        <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
+                                            <thead class="thead-light">
+                                                <tr role="row">
+                                                    <th>
+                                                        #
+                                                    </th>
+                                                    <th>
+                                                        Employee Name
+                                                    </th>
+                                                    <th>
+                                                        Job title
+                                                    </th>
+                                                    <th>
+                                                        job nature
+                                                    </th>
+                                                    <th>
+                                                        Salary month
+                                                    </th>
+                                                    <th>
+                                                        basic pay
+                                                    </th>
+                                                    <th>
+                                                        house all.
+                                                    </th>
+                                                    <th>
+                                                        medical all.
+                                                    </th>
+                                                    <th>
+                                                        add. work all.
+                                                    </th>
+                                                    <th>
+                                                        coporate all.
+                                                    </th>
+                                                    <th>
+                                                        diff. all.
+                                                    </th>
+                                                    <th>
+                                                        critical all.
+                                                    </th>
+                                                    <th>
+                                                        gross earning
+                                                    </th>
 
-                                                    </tr>
-                                                </thead>
+                                                    <th>
+                                                        samsung
+                                                    </th>
+                                                    <th>
+                                                        gis
+                                                    </th>
 
-                                                <tbody>
-                                                    @forelse($salaries as $salary)
-                                                    <tr>
-                                                        <td>{{$loop->iteration}}</td>
-                                                        <td>{{$salary->employee->name}}</td>
-                                                        <td>{{$salary->employee->empJob->designation->name}}</td>
-                                                        <td>{{$salary->employee->empJob->empType->name}}</td>
-                                                        <td>{{$salary->employee->empJob->basic_pay}}</td>
-                                                        <td>{{ $salary->details['allowances']['House ALL'] ?? 'NA'}}</td>
-                                                        <td>{{ $salary->details['allowances']['Medical ALL'] ?? 'NA'}}</td>
-                                                        <td>{{ $salary->details['allowances']['Overtime ALL'] ?? 'NA'}}</td>
-                                                        <td>{{ $salary->details['allowances']['Corporate  ALL'] ?? 'NA'}}</td>
-                                                    </tr>
-                                                    @empty
-                                                    <tr>
-                                                        <td colspan="11" class="text-center text-danger">No Salary Reports found</td>
-                                                    </tr>
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                    <th>
+                                                        bob loan
+                                                    </th>
+
+                                                    <th>
+                                                        tbank loan
+                                                    </th>
+                                                    <th>
+                                                        PF
+                                                    </th>
+                                                    <th>
+                                                        sifa
+                                                    </th>
+                                                    <th>
+                                                        tds
+                                                    </th>
+                                                    <th>
+                                                        H/Tax
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                @forelse($salaries as $salary)
+                                                <tr>
+                                                    <td>{{$loop->iteration}}</td>
+                                                    <td>{{$salary->employee->name}}</td>
+                                                    <td>{{$salary->employee->empJob->designation->name}}</td>
+                                                    <td>{{$salary->employee->empJob->empType->name}}</td>
+                                                    <td>{{$salary->for_month}}</td>
+                                                    <td>{{$salary->employee->empJob->basic_pay}}</td>
+                                                    <td>{{ $salary->details['allowances']['House ALL'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['allowances']['Medical ALL'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['allowances']['Overtime ALL'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['allowances']['Corporate ALL'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['allowances']['Difficulty ALL'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['allowances']['Critical ALL'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
+                                                    <td>{{ $salary->details['deductions']['Device EMI'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['GSLI'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['BOB_Loan'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['TBank_Loan'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['PF'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['SIFA'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['TDS'] ?? '0'}}</td>
+                                                    <td>{{ $salary->details['deductions']['H/Tax'] ?? '0'}}</td>
+
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="21" class="text-center text-danger">No Salary Reports found</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                @if ($salaries->hasPages())
+                <div class="card-footer">
+                    {{ $salaries->links() }}
+                </div>
+                @endif
             </div>
-
         </div>
     </div>
 </div>
+
+
+
+
+
+
 
 
 @endsection

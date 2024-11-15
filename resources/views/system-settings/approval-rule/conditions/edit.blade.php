@@ -93,18 +93,28 @@
                         </div>
                         <div class="form-group col-4">
                             <label for="system-hierarchy-id">Name </label>
-                            <select name="system_hierarchy_id" id="system_hierarchy_id" class="form-control" {{ $condition->approval_option == 1 ? '' : 'disabled' }}>
+                            <select name="system_hierarchy_id" id="system_hierarchy_id" class="form-control"
+                                {{ $condition->approval_option == 1 ? '' : 'disabled' }}>
                                 <option value="" disabled selected hidden>Select your option</option>
                                 @foreach ($hierarchies as $hierarchy)
-                                    <option value="{{ $hierarchy->id }}" {{ $hierarchy->id == $condition->system_hierarchy_id ? 'selected' : '' }}>{{ $hierarchy->name }}</option>
+                                    <option value="{{ $hierarchy->id }}"
+                                        {{ $hierarchy->id == $condition->system_hierarchy_id ? 'selected' : '' }}>
+                                        {{ $hierarchy->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group col-4">
                             <label for="max-level">Max Level </label>
-                            <select class="form-control" name="max_level_id" id="max_level" {{ $condition->approval_option == 1 ? '' : 'disabled' }}>
+                            <select class="form-control" name="max_level_id" id="max_level"
+                                {{ $condition->approval_option == 1 ? '' : 'disabled' }}>
                                 <option value="" disabled selected hidden>Select your option</option>
-                                <option value="{{ $condition->maxLevel->id }}" selected>{{ $condition->maxLevel->level }}</option>
+                                @if ($condition->systemHierarchy)
+                                    @foreach ($condition->systemHierarchy->hierarchyLevels as $level)
+                                        <option value="{{ $level->id }}"
+                                            {{ $level->id == $condition->max_level_id ? 'selected' : '' }}>
+                                            {{ $level->level }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                     </div>
@@ -119,12 +129,15 @@
                                 Single User
                             </label>
                         </div>
+
                         <div class="form-group col-4">
                             <label for="employee">Employee </label>
-                            <select class="form-control" name="appvl_employee_id" id="employee" disabled>
+                            <select class="form-control" name="appvl_employee_id" id="employee">
                                 <option value="" disabled selected hidden>Select your option</option>
                                 @foreach ($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->name }}
+                                    <option value="{{ $employee->id }}"
+                                        {{ $employee->id == $condition->appvl_employee_id ? 'selected' : '' }}>
+                                        {{ $employee->name }}
                                         ({{ $employee->employee_id }})
                                     </option>
                                 @endforeach

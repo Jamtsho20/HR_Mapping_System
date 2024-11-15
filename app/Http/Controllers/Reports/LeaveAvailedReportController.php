@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\LeaveApplication;
+use App\Models\MasDepartment;
+use App\Models\MasLeaveType;
+use App\Models\MasSection;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class LeaveAvailedReportController extends Controller
@@ -20,8 +25,15 @@ class LeaveAvailedReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-               
-        return view('report.leave-availed-report.index', compact( 'privileges'));
+        $employeeLists = employeeList();
+        $leaveTypes = MasLeaveType::get('name', 'id');
+        $departments = MasDepartment::get('name', 'id');
+        $sections = MasSection::get('name', 'id');
+     
+        $leaveReports = LeaveApplication::filter($request, false)->paginate(30)->withQueryString();    
+
+
+        return view('report.leave-availed-report.index', compact('leaveReports','leaveTypes', 'departments','sections'));
     }
 
     /**

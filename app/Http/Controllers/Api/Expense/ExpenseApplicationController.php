@@ -1,0 +1,253 @@
+<?php
+
+namespace App\Http\Controllers\Api\Expense;
+
+use App\Http\Controllers\Controller;
+use App\Models\ExpenseApplication;
+use App\Models\MasEmployeeJob;
+use App\Models\MasExpensePolicy;
+use App\Models\MasExpenseType;
+use App\Traits\JsonResponseTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
+
+class ExpenseApplicationController extends Controller
+{
+
+    use JsonResponseTrait;
+    public function __construct()
+    {
+        $this->middleware('auth:api'); 
+        $this->middleware('permission:expense/apply-expense,view')->only('index');
+        $this->middleware('permission:expense/apply-expense,create')->only('store');
+        $this->middleware('permission:expense/apply-expense,edit')->only('update');
+        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
+    }
+
+    protected function rules(Request $request)
+    {
+        $rules = [
+            'expense_type' => 'required',
+            'date' => 'required|date',
+            'amount' => 'required|numeric',
+            'description' => 'required',
+        ];
+
+        if ($request->input('expense_type') == CONVEYANCE_EXPENSE) {
+            $rules['travel_type'] = 'required';
+            $rules['mode_of_travel'] = 'required';
+            $rules['travel_from_date'] = 'required|date';
+            $rules['travel_to_date'] = 'required|date|after_or_equal:travel_from_date';
+            $rules['travel_from'] = 'required';
+            $rules['travel_to'] = 'required';
+        }
+
+        return $rules;
+    }
+
+    public function index(Request $request)
+    {
+        try {
+        $expenseApplications = ExpenseApplication::filter($request)
+            ->createdBy()
+            ->paginate(30);
+        
+            return $this->successResponse($expenseApplications, 'Expense applications retrieved successfully');
+            } catch (\Exception $e) {
+                return $this->errorResponse('Failed to retrieve applications', 500);
+            }
+    }
+
+
+    public function show($id)
+    {
+
+        try {
+            $expense = ExpenseApplication::findOrFail($id);
+            return $this->successResponse($expense, 'Expense application retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve expense application', 404);
+        }
+    }
+
+    public function store(Request $request)
+{
+
+    $validatedData = $request->validate($this->rules($request));
+
+    $result = $this->handleExpenseApplication($request);
+    
+    if ($result instanceof \Illuminate\Http\RedirectResponse) {
+        return $this->errorResponse('File upload failed.', 400);
+    }
+    
+    try {
+        DB::beginTransaction();
+    
+        $expenseApplication = ExpenseApplication::create([
+            'mas_expense_type_id' => $request->expense_type,
+            'date' => $request->date,
+            'expense_amount' => (float) $request->amount,
+            'description' => $request->description,
+            'file' => $result['file'], 
+            'travel_type' => $request->travel_type,
+            'travel_mode' => $request->mode_of_travel,
+            'travel_from_date' => $request->travel_from_date,
+            'travel_to_date' => $request->travel_to_date,
+            'travel_from' => $request->travel_from,
+            'travel_to' => $request->travel_to,
+            'status' => $request->status ?? 1, 
+        ]);
+    
+        // $expenseApplication->histories()->create([
+        //     'level' => 'Test Level', 
+        //     'status' => 1,
+        //     'remarks' => $request->remarks,
+        //     'created_by' => loggedInUser(),
+        // ]);
+    
+        DB::commit();
+    
+        return $this->successResponse($expenseApplication, 'Expense application has been successfully created.', 201); 
+    
+    } catch (\Exception $e) {
+        DB::rollBack();
+    
+        \Log::error('Error creating expense application: ' . $e->getMessage());
+    
+        return $this->errorResponse('An error occurred while processing your request.', 500, [
+            'details' => $e->getMessage(),
+        ]);
+    }
+    
+}
+
+
+public function update(Request $request, $id)
+    {
+        
+        $expenseApplication = ExpenseApplication::findOrFail($id);
+
+        
+        $result = $this->handleExpenseApplication($request, $expenseApplication);
+        
+        
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $this->errorResponse('File upload failed.', 400);
+        }
+
+        $validatedData = $request->validate($this->rules($request));
+
+        try {
+            DB::beginTransaction();
+
+            $expenseApplication->update([
+                'mas_expense_type_id' => $request->expense_type,
+                'date' => $request->date,
+                'expense_amount' => $request->amount,
+                'description' => $request->description,
+                'file' => $result['attachment'] ?? $expenseApplication->file,
+                'travel_type' => $request->travel_type,
+                'travel_mode' => $request->mode_of_travel,
+                'travel_from_date' => $request->travel_from_date,
+                'travel_to_date' => $request->travel_to_date,
+                'travel_from' => $request->travel_from,
+                'travel_to' => $request->travel_to,
+                'status' => $request->status ?? 1,
+            ]);
+
+        
+            // $expenseApplication->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => $expenseApplication->status,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => $expenseApplication->created_by,
+            //     'updated_by' => loggedInUser()
+            // ]);
+
+           
+            DB::commit();
+
+
+            return $this->successResponse($expenseApplication, 'Expense application has been successfully updated.'); 
+           
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->errorResponse('An error occurred while processing your request.', 500);
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400); 
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            
+            $expenseApplication = ExpenseApplication::findOrFail($id);
+            $expenseApplication->delete();
+
+            return $this->successResponse($expenseApplication, 'Expense application has been deleted successfully!'); 
+           
+
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred while processing your request.', 500);
+        }
+    }
+
+
+private function handleExpenseApplication(Request $request, $expenseApplication = null)
+    { //common function to handle store and update of expense
+        /// query to fetch employee grade step and region
+        $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
+        // dd($empJobDetail);
+        $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
+        //query to expense policy details
+        $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($request, $empJobDetail, $loggedInUserRegion) {
+            // Filter rateDefinition by travel type
+            $query->where('travel_type', $request->travel_type ?? DOMESTIC_TRAVEL_TYPE)
+                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
+                    // Filter expenseRateLimits by grade step and region
+                    $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
+                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
+                        ->whereStatus(1);
+                }]);
+        }, 'policyEnforcement'])
+            ->where('mas_expense_type_id', $request->expense_type)
+            ->whereStatus(1)
+            ->first();
+        //check weather attachment is required while applying expense from expense policy                              
+        $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
+        $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
+
+        //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
+        if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
+            $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
+            // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
+            return back()->withInput()->with('msg_error', 'You cannot apply more than Nu. ' . $limitAmount .  ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.');
+        }
+
+        // Handle file upload if required based on defined in leave policy
+        $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+        // if ($attachmentRequired && !$attachment) {
+        if ($attachmentRequired && !$attachment) {
+            $this->validate($request, 
+                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
+                ['file.required' => 'The file is required. Please upload a file.']
+            );
+        }
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+            }
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        }
+
+        return [
+            'file' => $attachment
+        ];
+    }
+}

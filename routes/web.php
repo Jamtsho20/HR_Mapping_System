@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reports\SalaryReportController;
 use App\Services\PayrollService;
 
 /*
@@ -61,7 +62,7 @@ Route::middleware('auth')->group(function () {
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
         Route::get('approvalrulesaddcondition/{id}/edit', 'ApprovalRuleController@getEditCondition')->name('approval-rule-conditions.edit');
-        Route::patch('approvalrulesaddcondition/{id}', 'ApprovalRuleController@updateCondition')->name('approval-rule-conditions.update');
+        Route::put('approvalrulesaddcondition/{id}', 'ApprovalRuleController@updateCondition')->name('approval-rule-conditions.update');
     });
 
     // MASTERS
@@ -178,6 +179,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
     });
 
+    //reportexport routes
+    Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
+    Route::get('/export-salary-excel-report', [SalaryReportController::class, 'exportSalaryExcel'])->name('salary-report-excel.export');
+
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
@@ -244,7 +249,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('user-profile', 'ProfileController');
         Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
     });
-    
+
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');

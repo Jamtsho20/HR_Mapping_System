@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Expense;
 
-use App\Http\Controllers\Controller;
-use App\Models\ExpenseApplication;
-use App\Models\MasEmployeeJob;
-use App\Models\MasExpensePolicy;
-use App\Models\MasExpenseType;
 use Illuminate\Http\Request;
+use App\Models\MasEmployeeJob;
+use App\Models\MasExpenseType;
+use App\Models\MasExpensePolicy;
+use App\Models\MasTransferClaim;
+use App\Services\ApprovalService;
+use App\Models\AdvanceApplication;
+use App\Models\ExpenseApplication;
 use Illuminate\Support\Facades\DB;
+use App\Models\DsaClaimApplication;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationForwardedMail;
+use App\Models\TransferClaimApplication;
 
 class ExpenseApplicationController extends Controller
 {
@@ -47,7 +54,6 @@ class ExpenseApplicationController extends Controller
         return $rules;
     }
 
-
     protected $messages = [
         'travel_type.required_if' => 'Travel type is required for the selected expense type.',
         'mode_of_travel.required_if' => 'Mode of travel is required for the selected expense type.',
@@ -63,10 +69,14 @@ class ExpenseApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+        $user = loggedInUser();
+        $empIdName = LoggedInUserEmpIdName();
 
-        $expenseApplication = ExpenseApplication::filter($request) ->createdBy() ->paginate(30);
+        $expenseApplication = ExpenseApplication::filter($request)->createdBy()->paginate(30);
+        $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
 
-        return view('expense.apply.index', compact('expenseApplication', 'privileges'));
+        return view('expense.apply.index', compact('expenseApplication', 'privileges', 'headers', 'transferClaims', 'empIdName'));
     }
 
     /**
@@ -76,8 +86,23 @@ class ExpenseApplicationController extends Controller
      */
     public function create()
     {
-        $expenses = MasExpenseType::whereNotNull('mas_expense_type_id')->get();
-        return view('expense.apply.create', compact('expenses'));
+        $expenses = MasExpenseType::all();
+        $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+
+        //common function to generate combination of loggedInUser employeeId and username
+        $empIdName = LoggedInUserEmpIdName();
+        //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
+        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+        //get dsa advance which has been approved for settlement
+        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+            ->where('created_by', loggedInUser())
+            ->whereNotIn('id', $excludedAdvanceIds)
+            ->get(['id', 'advance_no'])
+            ->toArray();
+
+        $transferClaim = MasTransferClaim::get();
+
+        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaim'));
     }
     /**
      * Store a newly created resource in storage.
@@ -94,42 +119,62 @@ class ExpenseApplicationController extends Controller
             return $result;
         }
 
-         $validatedData = $request->validate($this->rules($request));
-        try {
-            DB::beginTransaction();
+        $request->validate($this->rules($request));
 
-            $expenseApplication = ExpenseApplication::create([
-                // 'mas_employee_id' => loggedInUser(),
-                'mas_expense_type_id' => $request->expense_type,
-                'date' => $request->date,
-                'expense_amount' => $request->amount,
-                'description' => $request->description,
-                'file' => $result['file'],
-                'travel_type' => $request->travel_type,
-                'travel_mode' => $request->mode_of_travel,
-                'travel_from_date' => $request->travel_from_date,
-                'travel_to_date' => $request->travel_to_date,
-                'travel_from' => $request->travel_from,
-                'travel_to' => $request->travel_to,
-                'status' => $request->status ?? 1,
-            ]);
+        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
 
-            // Create a history record
-            $expenseApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => 1,
-                'remarks' => $request->remarks,
-                'created_by' => loggedInUser(),
-            ]);
+        if ($approverByHierarchy) {
+            try {
+                DB::beginTransaction();
 
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
-            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+                $expenseApplication = ExpenseApplication::create([
+                    // 'mas_employee_id' => loggedInUser(),
+                    'mas_expense_type_id' => $request->expense_type,
+                    'date' => $request->date,
+                    'expense_amount' => $request->amount,
+                    'description' => $request->description,
+                    'file' => $result['file'],
+                    'travel_type' => $request->travel_type,
+                    'travel_mode' => $request->mode_of_travel,
+                    'travel_from_date' => $request->travel_from_date,
+                    'travel_to_date' => $request->travel_to_date,
+                    'travel_from' => $request->travel_from,
+                    'travel_to' => $request->travel_to,
+                    'status' => $request->status ?? 1,
+                ]);
+
+                // Create a history record
+                $expenseApplication->histories()->create([
+                    'approval_option' => $approverByHierarchy['approval_option'],
+                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
+                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
+                    'status' => 1,
+                    'remarks' => $request->remarks,
+                    'action_performed_by' => loggedInUser(),
+                ]);
+
+                // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
+                DB::commit();
+                if (isset($approverByHierarchy['approver_details'])) {
+                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->expense_amount . ' is awaiting your approval.';
+                    $emailSubject = 'Leave Application';
+                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                }
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->withInput()->with('msg_error', $e->getMessage());
+            }
+
+            return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
+        } else {
+            return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }
-
-        return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
     }
 
     /**
@@ -174,7 +219,7 @@ class ExpenseApplicationController extends Controller
             return $result;
         }
 
-        $validatedData = $request->validate($this->rules($request));
+        $request->validate($this->rules($request));
         try {
             DB::beginTransaction();
             $expenseApplication->update([
@@ -193,20 +238,11 @@ class ExpenseApplicationController extends Controller
                 'status' => $request->status ?? 1,
             ]);
 
-            // Create a history record
-            $expenseApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => $expenseApplication->status,
-                'remarks' => $request->remarks,
-                'created_by' => $expenseApplication->created_by,
-                'updated_by' => loggedInUser()
-            ]);
-
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withInput()->with('msg_error', $e->getMessage());
-            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
         return redirect('expense/apply-expense')->with('msg_success', 'Expense application has been updated successfully!.');
@@ -259,7 +295,7 @@ class ExpenseApplicationController extends Controller
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
             // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
-            return back()->withInput()->with('msg_error', 'You cannot apply more than Nu. ' . $limitAmount .  ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.');
+            return back()->withInput()->with('msg_error', 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.');
         }
 
         // Handle file upload if required based on defined in leave policy
@@ -280,7 +316,7 @@ class ExpenseApplicationController extends Controller
         }
 
         return [
-            'file' => $attachment
+            'file' => $attachment,
         ];
     }
 }
