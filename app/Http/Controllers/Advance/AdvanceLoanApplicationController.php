@@ -5,12 +5,10 @@ namespace App\Http\Controllers\Advance;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Models\MasAdvanceTypes;
-use App\Models\MasLeaveType;
 use App\Services\ApprovalService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class AdvanceLoanApplicationController extends Controller
 {
@@ -21,7 +19,7 @@ class AdvanceLoanApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:advance-loan/apply,view')->only('index', 'show');
+        $this->middleware('permission:advance-loan/apply,view')->only('index','show');
         $this->middleware('permission:advance-loan/apply,create')->only('store');
         $this->middleware('permission:advance-loan/apply,edit')->only('update');
         $this->middleware('permission:advance-loan/apply,delete')->only('destroy');
@@ -39,7 +37,7 @@ class AdvanceLoanApplicationController extends Controller
         'from_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|date',
         'to_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|date|after_or_equal:from_date',
         'item_type' => 'required_if:advance_type,' . GADGET_EMI,
-        'amount' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
+        'amount' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . 
             '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
         // 'attachment' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
             // '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|mimes:jpg,png,pdf|max:2048',
@@ -90,6 +88,7 @@ class AdvanceLoanApplicationController extends Controller
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::all();
+
 
         return view('advance-loan.apply.create', compact('advanceTypes'));
     }

@@ -36,9 +36,6 @@
             <!-- Advance-to-staff Form -->
             @include('advance-loan.apply.types.advance_to_staff')
 
-            <!--DSA Advance Form-->
-            @include('advance-loan.apply.types.dsa_advance')
-
             <!-- Salary_advance Form-->
             @include('advance-loan.apply.types.salary_advance')
 
@@ -46,7 +43,7 @@
             @include('advance-loan.apply.types.general_imprest_advance')
 
             <!-- Electricity_imprest_advanceForm-->
-            @include('advance-loan.apply.types.electricity_imprest_advance')
+            {{-- @include('advance-loan.apply.types.electricity_imprest_advance') --}}
 
             <!-- Sifa_loan Form -->
             @include('advance-loan.apply.types.sifa_loan')
@@ -67,8 +64,8 @@
                     </div>
                 </div>
             </div>
-
-
+            <!--DSA Advance Form-->
+            @include('advance-loan.apply.types.dsa_advance')
 
         </div>
 

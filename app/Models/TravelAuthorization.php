@@ -44,21 +44,25 @@ class TravelAuthorization extends Model
     }
 
 
-    public function scopeFilter($query, $request){
-    if ($request->has('mode_of_travel') && $request->query('mode_of_travel') != '') {
-        $query->where('mode_of_travel', '=', $request->mode_of_travel);
-        
-    }
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
+        if ($request->has('mode_of_travel') && $request->query('mode_of_travel') != '') {
+            $query->where('mode_of_travel', '=', $request->mode_of_travel);
+            
+        }
 
-    if ($request->filled('from_date') && $request->filled('to_date')) {
-        $query->whereBetween('from_date', [$request->from_date, $request->to_date]);
-    }
-    elseif ($request->filled('from_date')) {
-        $query->where('from_date', '=', $request->from_date);
-    }
-    // elseif ($request->filled('to_date')) {
-    //     $query->where('date', '<=', $request->to_date); 
-    // }
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('from_date', [$request->from_date, $request->to_date]);
+        }
+        elseif ($request->filled('from_date')) {
+            $query->where('from_date', '=', $request->from_date);
+        }
+
+        if($onesOwnRecord){
+            $query->where('created_by', auth()->user()->id);
+        }
+        // elseif ($request->filled('to_date')) {
+        //     $query->where('date', '<=', $request->to_date); 
+        // }
     }
 
 
