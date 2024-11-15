@@ -46,11 +46,8 @@
                                             <thead>
                                                 <tr role="row">
                                                     <th>#</th>
-                                                    <th>START DATE</th>
-                                                    <th>END DATE</th>
-                                                    <th>FROM</th>
-                                                    <th>TO</th>
-                                                    <th>MODE OF TRAVEL</th>
+                                                    <th>Travel Authorizaiton number</th>
+                                                    <th>Date</th>
                                                     <th>ESTIMATED EXPENSES</th>
                                                     <th>ADVANCE REQUIRED</th>
                                                     <th>STATUS</th>
@@ -60,14 +57,14 @@
                                             <tbody>
                                                 @forelse($travelAuthorizations as $travelAuthorization)
                                                 <tr>
+                                                
                                                     <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $travelAuthorization->from_date }}</td>
-                                                    <td>{{ $travelAuthorization->to_date }}</td>
-                                                    <td>{{ $travelAuthorization->from_location }}</td>
-                                                    <td>{{ $travelAuthorization->to_location }}</td>
-                                                    <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td> 
+                                                    <td>{{ $travelAuthorization->travel_authorization_no }}</td>
+                                                    <td>{{ $travelAuthorization->date }} </td>
+                                                   
+                                                    <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
                                                     <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
-                                                    <td>{{ $travelAuthorization->advance_amount }}</td>
+                                                    <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td>
                                                     
                                                     <td>
                                                         @if($travelAuthorization->status == 1)

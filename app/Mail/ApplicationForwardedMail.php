@@ -52,7 +52,6 @@ class ApplicationForwardedMail extends Mailable
                 'reqEmpName'=> $this->reqEmpName,
                 'approvingEmpName' => $this->approvingEmpName,
                 'emailContent' => $this->emailContent,
-                // 'emailSubject' => $this->emailSubject
             ]
         );
     }
