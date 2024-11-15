@@ -50,5 +50,4 @@ class MasApprovalCondition extends Model
 
         return $this->mas_condition_field_id . ' ' . $this->operator_id . ' ' . $attributeValue;
     }
-
 }
