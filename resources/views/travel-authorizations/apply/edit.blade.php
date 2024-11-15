@@ -2,7 +2,7 @@
 @section('page-title', 'Edit Advance')
 @section('content')
 
-<form action="{{ route('apply-travel-authorization.update', $travelAuthorization->id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('apply-travel-authorization.update', $travelAuthorizations->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="container">
@@ -14,89 +14,110 @@
                 </a>
             </div>
             <div class="card-body">
-                <div class="row">
-                
-                    <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-4">
                         <div class="form-group">
-                            <label for="remark">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="from_date" value="{{ $travelAuthorization->from_date}}">
+                            <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
+                            <input type="text" class="form-control" name="travel_authorization_no" value="{{ $travelAuthorizations->travel_authorization_no }}" id="travel_no" placeholder="Generating..." readonly>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="remark">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="to_date" value="{{ $travelAuthorization->to_date }}">
-                        </div>
-                    </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="number_of_days">Number of Days</label>
-                                <input type="text" class="form-control" id="number_of_days" name="number_of_days" value="{{ $travelAuthorization->number_of_days }}">
-                            </div>
-                        </div>
-                   
-                
-                        <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="from_location">From Location<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="from_location"  id="from_location" value="{{$travelAuthorization->from_location}}"required>
-                                </div>
-                        </div>
-
-                        <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="to_location">To Location<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="to_location" id="to_location" value="{{$travelAuthorization->to_location}}" required>
-                                </div>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="mode_of_travel">Mode of Travel <span class="text-danger">*</span></label>
-                                <select class="form-control" name="mode_of_travel" required>
-                                <option value="{{ $travelAuthorization->mode_of_travel }}" disabled selected hidden>{{config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</option>
-                                @foreach(config('global.travel_modes') as $key => $label)
-                                    <option value="{{ $key }}" {{ old('mode_of_travel') == $key ? 'selected' : '' }}>{{ $label }}</option>
-                                @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="from_location">Estimated Travel Expenses<span class="text-danger"></span></label>
-                            <input type="number" class="form-control" name="estimated_travel_expenses"  id="esitmated_travel_expenses" readonly required>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="to_location">Advance Required<span class="text-danger"></span></label>
-                            <input type="number" class="form-control" name="advance_amount" id="advance_required" value="{{ $travelAuthorization->advance_amount }}">
-                        </div>
-                    </div>                   
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="purpose">Purpose of trip</label>
-                            <textarea rows="2" class="form-control" name="purpose" id="purpose">{{$travelAuthorization->purpose}}</textarea>
-                        </div>
+        
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="date">Date <span class="text-danger"></span></label>
+                        <input type="date" class="form-control" name="date" value="{{ old('date', date('Y-m-d')) }}" id="date" readonly required>
                     </div>
+                </div>
 
-                    <div class="col-md-4">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="to_location">Daily Allowance<span class="text-danger"></span></label>
-                        <input type="hidden" class="form-control" name="daily_allowance" id="daily_allowance" value="{{$travelAuthorization->daily_allowance}}" readonly>
+                        <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value={{$dailyAllowance}} readonly>
                     </div>
                 </div>
+                </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="days_difference">Number of Days <span class="text-danger"></span></label>
+                        <input type="number" step="any" class="form-control" name="days_difference" id="days_difference" value="{{ old('days_difference', $travelAuthorizations->days_difference) }}" required>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="estimated_travel_expenses">Estimated Travel Expenses <span class="text-danger"></span></label>
+                        <input type="number" class="form-control" name="estimated_travel_expenses" id="esitmated_travel_expenses" value="{{ old('estimated_travel_expenses', $travelAuthorizations->estimated_travel_expenses) }}" readonly required>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="advance_required">Advance Required <span class="text-danger"></span></label>
+                        <input type="number" class="form-control" name="advance_required" id="advance_required" value="{{ old('advance_required', $travelAuthorizations->advance_required) }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th width="3%" class="text-center">#</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>From Location</th>
+                            <th>To Location</th>
+                            <th>Mode of Travel</th>
+                            <th colspan="2">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($travelAuthorizations->details as $index => $detail)
+                        <tr>
+                            <td class="text-center">
+                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                            </td>
+                            <td>
+                                <input type="date" id="from_date" name="details[{{ $index }}][from_date]" class="form-control form-control-sm" value="{{ old('details.' . $index . '.from_date', $detail->from_date) }}" required>
+                            </td>
+                            <td>
+                                <input type="date" id="to_date" name="details[{{ $index }}][to_date]" class="form-control form-control-sm" value="{{ old('details.' . $index . '.to_date', $detail->to_date) }}" {{ $detail->from_date ? '' : 'disabled' }}>
+                            </td>
+                            <td>
+                                <input type="text" name="details[{{ $index }}][from_location]" class="form-control form-control-sm" value="{{ old('details.' . $index . '.from_location', $detail->from_location) }}" required>
+                            </td>
+                            <td>
+                                <input type="text" name="details[{{ $index }}][to_location]" class="form-control form-control-sm" value="{{ old('details.' . $index . '.to_location', $detail->to_location) }}" required>
+                            </td>
+                            <td>
+                                <select class="form-control form-control-sm" name="details[{{ $index }}][mode_of_travel]" required>
+                                    <option value="" disabled selected hidden>Select Mode of Travel</option>
+                                    @foreach(config('global.travel_modes') as $travelKey => $label)
+                                        <option value="{{ $travelKey }}" {{ $travelKey == old('details.' . $index . '.mode_of_travel', $detail->mode_of_travel) ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td colspan="2">
+                                <textarea rows="2" class="form-control" name="details[{{ $index }}][purpose]">{{ old('details.' . $index . '.purpose', $detail->purpose) }}
+                                {{$index}}
+                                </textarea>
+                            </td>
+                        </tr>
+                    @endforeach
+
+                        <tr class="notremovefornew">
+                                <td colspan="7"></td>
+                                <td class="text-right">
+                                    <a href="#" class="add-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                                </td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
@@ -112,61 +133,129 @@
 
 @push('page_scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const startDateInput = document.getElementById('start_date');
-        const endDateInput = document.getElementById('end_date');
-        const daysDifferenceInput = document.getElementById('number_of_days');
-        const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
-        const advanceRequiredInput = document.getElementById('advance_required');
-        const dailyAllowanceInput = document.getElementById('daily_allowance');
 
+document.getElementById('from_date').addEventListener('change', function () {
+        var fromDate = this.value;
+        var toDateField = document.getElementById('to_date');
+        if (fromDate) {
+            toDateField.setAttribute('min', fromDate);
+            toDateField.disabled = false;
+        } else {
+        toDateField.disabled = true;
+        toDateField.value = ''; 
+         }
+
+    });
+
+let rowCount = 1;
+
+document.querySelector('.add-row').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td class="text-center">
+                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+            </td>
+            <td>
+                <input type="date" id="from_date"  name="details[${rowCount}][from_date]" class="form-control form-control-sm" required>
+            </td>
+            <td>
+                <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm">
+            </td>
+            <td>
+                <input type="text" name="details[${rowCount}][from_location]" class="form-control form-control-sm" required>
+            </td>
+            <td>
+                <input type="text" name="details[${rowCount}][to_location]" class="form-control form-control-sm" required>
+            </td>
+            <td>
+                <select class="form-control form-control-sm" name="details[${rowCount}][mode_of_travel]" required>
+                    <option value="" disabled selected hidden>Select Mode of Travel</option>
+                    @foreach(config('global.travel_modes') as $travelKey => $label)
+                        <option value="{{ $travelKey }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </td>
+            <td colspan="2">
+                <textarea rows="2" class="form-control" name="details[${rowCount}][purpose]"></textarea>
+            </td>
+        `;
+
+        const referenceRow = document.querySelector('.notremovefornew');
+
+        // Insert the new row before the reference row
+        referenceRow.parentNode.insertBefore(newRow, referenceRow);
+
+        // Increment row count for next row
+        rowCount++;
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const dailyAllowanceInput = document.getElementById('daily_allowance');
+    const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
+    const advanceRequiredInput = document.getElementById('advance_required');
+    const daysDifferenceInput = document.getElementById('days_difference');
     
-        function calculateDaysDifference() {
+    
+    let manualEdit = false; // Flag to track if the user is manually editing
+
+
+    function calculateDaysDifference() {
+        let totalDays = 0;
+
+        // Loop through each row and calculate the days difference
+        document.querySelectorAll('input[name^="details["][name$="][from_date]"]').forEach(function(startDateInput, index) {
+            const endDateInput = document.querySelector(`input[name="details[${index}][to_date]"]`);
             const startDate = new Date(startDateInput.value);
             const endDate = new Date(endDateInput.value);
-
-        
+            
             if (startDate && endDate && endDate >= startDate) {
-                const timeDifference = endDate - startDate; // Time difference in milliseconds
-                const daysDifference = timeDifference / (1000 * 3600 * 24) +1; // Convert milliseconds to days
-
-                daysDifferenceInput.value = daysDifference;
-            } else {
-            // If the dates are not valid, clear the input
-            daysDifferenceInput.value = '';
-            }
-        }
-
-        function calculateEstimatedTravelExpenses() {
-            const dailyAllowance = dailyAllowanceInput.value
-            const days = parseFloat(daysDifferenceInput.value) || 0;
-            const advanceAmount = parseFloat(advanceRequiredInput.value) || 0; 
-            const estimatedAmount = (days * dailyAllowance) - advanceAmount;
-            console.log(estimatedAmount)
-            estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
-        }
-
-    
-    startDateInput.addEventListener('input', calculateDaysDifference);
-    endDateInput.addEventListener('input', function() {
-            if (endDateInput.value) {
-                calculateDaysDifference();
-                calculateEstimatedTravelExpenses();
+                const timeDifference = endDate - startDate;
+                const daysDifference = timeDifference / (1000 * 3600 * 24) + 1;
+                totalDays += daysDifference;
             }
         });
 
-    // Allow manual changes to the days_difference input
-    daysDifferenceInput.addEventListener('input', function() {
-        calculateEstimatedTravelExpenses()
-        // If the user manually changes the days, don't overwrite their input
-    });
+      
+        if (!manualEdit) {
+            daysDifferenceInput.value = totalDays;
+        }
+
+        return totalDays;
+    }
 
     
+    function calculateEstimatedTravelExpenses() {
+        const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
+        const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
+        const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
+        const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
+        estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
+    }
+
+    // Recalculate days difference and estimated travel expenses when any date input changes
+    document.querySelector('#travel_details').addEventListener('input', function(event) {
+        if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
+            calculateEstimatedTravelExpenses();
+        }
+    });
 
     // Recalculate estimated travel expenses when the advance amount is changed
     advanceRequiredInput.addEventListener('input', calculateEstimatedTravelExpenses);
-    calculateDaysDifference();
+
+    // Recalculate estimated travel expenses when the number of days is manually changed
+    daysDifferenceInput.addEventListener('input', function() {
+        manualEdit = true; 
+        calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
+    });
+
+    daysDifferenceInput.addEventListener('blur', function() {
+        manualEdit = false; 
+    });
+
     calculateEstimatedTravelExpenses();
+
 });
 </script>
 

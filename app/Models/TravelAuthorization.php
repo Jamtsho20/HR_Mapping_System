@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TravelAuthorizationDetails;
 
 class TravelAuthorization extends Model
 {
@@ -12,23 +13,24 @@ class TravelAuthorization extends Model
     protected $table = 'travel_authorizations';
 
     protected $fillable = [
+       'travel_authorization_no',
         'date',
-        'mode_of_travel',
-        'from_location',
-        'to_location',
-        'from_date',
-        'to_date',
-        'estimated_travel_expenses',
-        'advance_amount',
-        'purpose',
         'created_by',
         'updated_by',
         'status',
-        'daily_allowance'
+        'estimated_travel_expenses',
+        'advance_amount',
+        'daily_allowance',
+        'travel_authorization_no'
     ];
+
 
     public function employee(){
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function details(){
+        return $this->hasMany(TravelAuthorizationDetails::class);
     }
 
     public function histories()

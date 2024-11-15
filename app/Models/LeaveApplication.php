@@ -26,11 +26,14 @@ class LeaveApplication extends Model
         return $this->belongsTo(MasLeaveType::class, 'mas_leave_type_id');
     }
 
-    public function scopeFilter($query, $request){
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
         if ($request->has('leave_type') && $request->query('leave_type') != '') {
             $query->where('mas_leave_type_id', $request->query('leave_type'));
         }
-        $query->where('created_by', auth()->user()->id);
+
+        if($onesOwnRecord){
+            $query->where('created_by', auth()->user()->id);
+        }
     }
 
     public function getStatusNameAttribute() {

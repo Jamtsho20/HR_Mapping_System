@@ -31,9 +31,15 @@ class LeaveApprovalController extends Controller
         // })->where('approver_emp_id', $user->id)
         //   ->get();
         $leaves = LeaveApplication::whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', 'App\Models\LeaveApplication');
-        })->whereNotIn('status', [-1, 3])->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+                                        $query->where('approver_emp_id', $user->id)
+                                            ->where('application_type', \App\Models\LeaveApplication::class);
+                                    })
+                                    ->whereNotIn('status', [-1, 3])
+                                    ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
+                                    ->orderBy('created_at')
+                                    ->paginate(config('global.pagination'))
+                                    ->withQueryString();
+
         return view('leave.approval.index', compact('privileges', 'leaves'));
     }
 
@@ -146,6 +152,12 @@ class LeaveApprovalController extends Controller
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
                         ]);
+                        // Attempt to send email to next approver need to work on it
+                        // try {
+                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($leaveApplication, $nextApprover));
+                        // } catch (\Exception $e) {
+                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
+                        // }
                     }elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
                         $leaveApplication->update([
@@ -165,6 +177,13 @@ class LeaveApprovalController extends Controller
                 if ($applicationHistory) {
                     $applicationHistory->update($updateData);
                 }
+
+                 // Attempt to send email to applicant about the approval/rejection status need to work on it
+                // try {
+                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
+                // } catch (\Exception $e) {
+                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
+                // }
             }
 
             DB::commit();
