@@ -126,7 +126,7 @@ class ExpenseApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
 
         if ($approverByHierarchy) {
-            // try {
+            try {
                 DB::beginTransaction();
 
                 $expenseApplication = ExpenseApplication::create([
@@ -166,10 +166,10 @@ class ExpenseApplicationController extends Controller
                     // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                 }
 
-            // } catch (\Exception $e) {
-            //     DB::rollBack();
-            //     return back()->withInput()->with('msg_error', $e->getMessage());
-            // }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->withInput()->with('msg_error', $e->getMessage());
+            }
 
             return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
         } else {
@@ -237,15 +237,6 @@ class ExpenseApplicationController extends Controller
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
             ]);
-
-            // // Create a history record
-            // $expenseApplication->histories()->create([
-            //     'level' => 'Test Level',
-            //     'status' => $expenseApplication->status,
-            //     'remarks' => $request->remarks,
-            //     'created_by' => $expenseApplication->created_by,
-            //     'updated_by' => loggedInUser(),
-            // ]);
 
             DB::commit();
         } catch (\Exception $e) {
