@@ -62,8 +62,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="attachment">Attachment <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" name="attachment" required accept="image/*"/>
+                        <label for="attachment">Attachment </label>
+                        <input type="file" class="form-control" name="attachment" accept="image/*"/>
                     </div>
                 </div>
             </div>

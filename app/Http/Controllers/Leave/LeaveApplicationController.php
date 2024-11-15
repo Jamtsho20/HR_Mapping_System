@@ -50,6 +50,7 @@ class LeaveApplicationController extends Controller
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
         $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+        // dd($leaveApplications);
 
         return view('leave.leave.index',compact('privileges','leaveTypes', 'leaveApplications'));
 
@@ -84,11 +85,9 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-        // dd($approverByHierarchy['approval_option']);
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
-                // 'mas_employee_id' => loggedInUser(),
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
@@ -97,18 +96,18 @@ class LeaveApplicationController extends Controller
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
-                'status' => $request->status ?? 1,    
+                'status' => $approverByHierarchy['application_status'],    
             ]);
             // Create a history record
             $leaveApplication->histories()->create([
                 'approval_option' => $approverByHierarchy['approval_option'],
                 'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
                 'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
                 'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => 1,
-                'remarks' => $request->remarks,
+                'status' => $approverByHierarchy['application_status'],
+                'remarks' => $request->remarks ?? null,
                 'action_performed_by' => loggedInUser(),
             ]);
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly

@@ -238,19 +238,19 @@ class ExpenseApplicationController extends Controller
                 'status' => $request->status ?? 1,
             ]);
 
-            // Create a history record
-            $expenseApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => $expenseApplication->status,
-                'remarks' => $request->remarks,
-                'created_by' => $expenseApplication->created_by,
-                'updated_by' => loggedInUser(),
-            ]);
+            // // Create a history record
+            // $expenseApplication->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => $expenseApplication->status,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => $expenseApplication->created_by,
+            //     'updated_by' => loggedInUser(),
+            // ]);
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
 

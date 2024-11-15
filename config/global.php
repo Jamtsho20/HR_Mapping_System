@@ -41,8 +41,9 @@ return [
     'application_status' => [
         -1 => 'Rejected',
         0 => 'Cancelled',
-        1 => 'New',
-        2 => 'Approved'
+        1 => 'Submitted',
+        2 => 'Verified',
+        3 => 'Approved'
     ],
 
     'gender' => [

@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\AjaxRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
+
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 
@@ -28,7 +31,19 @@ Route::middleware('api.access.log')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::put('change-password', [LoginController::class, 'handleChangePassword']);
+        Route::resource('advance-applications', AdvanceLoanApplicationApiController::class);
+        //generate advance no based on selection of advance type
+        Route::get('generate-advancenumber/{id}', [AjaxRequestController::class,'getAdvanceNumber']);
     });
+});
+
+Route::namespace('Api\Expense')->prefix('expense')->middleware('auth:sanctum')->group(function () {
+    // Route::resource('apply-expense', 'ExpenseApplicationController');
+    Route::get('expense/apply-expense', [ExpenseApplicationController::class, 'index']);
+    Route::get('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'show']);
+    Route::put('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'update']);
+    Route::post('expense/apply-expense', [ExpenseApplicationController::class, 'store']);
+    Route::delete('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'destroy']);
 });
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
@@ -37,5 +52,3 @@ Route::middleware('api.access.log')->group(function () {
 //     Route::put('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'update']);
 //     Route::delete('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'destroy']);
 // });
-
-Route::middleware('auth:sanctum')->resource('advance-applications', AdvanceLoanApplicationApiController::class);

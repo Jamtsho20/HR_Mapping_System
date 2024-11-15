@@ -26,6 +26,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 1, 'name' => 'Approval Rules', 'route' => 'system-setting/approval-rules', 'display_order' => 7],
             ['system_menu_id' => 1, 'name' => 'Approving Authority', 'route' => 'system-setting/approving-authorities', 'display_order' => 8],
             ['system_menu_id' => 1, 'name' => 'Approval Condition Field', 'route' => 'system-setting/condition-fields', 'display_order' => 9],
+            ['system_menu_id' => 1, 'name' => 'Budget Code', 'route' => 'system-setting/bugdet-code', 'display_order' => 10],
 
             //sub menu for master
             ['system_menu_id' => 2, 'name' => 'Employment Types', 'route' => 'master/employment-types', 'display_order' => 1],
@@ -140,6 +141,12 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 15, 'name' => 'Salary Saving Scheme', 'route' => 'report/salary-saving-scheme', 'display_order' => 7],
             ['system_menu_id' => 15, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
             ['system_menu_id' => 15, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
+
+
+
+            //submenu for Travel Authorization
+            ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
+            ['system_menu_id' => 17, 'name' => 'Approval', 'route' => 'travel-authorization/travel-authorization-approval', 'display_order' => 2],
 
         ]);
     }
