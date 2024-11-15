@@ -25,10 +25,10 @@ class HierarchyTableSeeder extends Seeder
             (8, "Earned Leave", 1),
             (9, "Fixed Asset Return", 1),
             (10, "Maternity", 1),
-            (12, "Medical", 1),
-            (13, "Paternity", 1),
-            (14, "Salary Advance", 1),
-            (15, "SamsungEmi", 1)
+            (11, "Medical", 1),
+            (12, "Paternity", 1),
+            (13, "Salary Advance", 1),
+            (14jhjuh, "SamsungEmi", 1)
         ');
     }
 }

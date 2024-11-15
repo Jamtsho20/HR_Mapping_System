@@ -53,7 +53,7 @@ class TransferClaimApplicationController extends Controller
     {
         $empIdName = LoggedInUserEmpIdName();
         $trasnferClaim = MasTransferClaim::get();
-        return view('expense.transfer-claim.create', compact('transfer_claim', 'empIdName'));
+        return view('expense.transfer-claim.create', compact('trasnferClaim', 'empIdName'));
     }
 
     /**
