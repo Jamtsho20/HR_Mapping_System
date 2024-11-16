@@ -100,7 +100,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="8" class="text-center text-danger">No Leave found</td>
+                                                            <td colspan="9" class="text-center text-danger">No Leave found</td>
                                                         </tr>
                                                     @endforelse
                                                     </tbody>
