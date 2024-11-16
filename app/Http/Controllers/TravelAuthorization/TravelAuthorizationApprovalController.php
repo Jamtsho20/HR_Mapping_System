@@ -24,11 +24,32 @@ class TravelAuthorizationApprovalController extends Controller
 
     public function index(Request $request)
     {
+        
+        
+        $leaves = LeaveApplication::whereHas('histories', function ($query) use ($user) {
+                                        $query->where('approver_emp_id', $user->id)
+                                            ->where('application_type', \App\Models\LeaveApplication::class);
+                                    })
+                                    ->whereNotIn('status', [-1, 3])
+                                    ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
+                                    ->orderBy('created_at')
+                                    ->paginate(config('global.pagination'))
+                                    ->withQueryString();
+
+        return view('leave.approval.index', compact('privileges', 'leaves'));
+
         $privileges = $request->instance();
+        $user = auth()->user();
+
+        // $historyData = ApplicationHistory::whereHas('application', function ($query) {
+        //     $query->where('application_type', 'App\Models\LeaveApplication'); // Assuming you store this class in 'application_type' column
+        // })->where('approver_emp_id', $user->id)
+        //   ->get();
+        
         $travelAuthorizations = TravelAuthorization::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
         ->withQueryString();
         return view('travel-authorizations.approval.index', compact( 'privileges', 'travelAuthorizations'));
-    }
+    } 
 
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\TravelAuthorization;
 use App\Http\Controllers\Controller;
 use App\Models\TravelAuthorizationApplication;
+use App\Services\ApprovalService;
 use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +72,9 @@ public function store(Request $request)
     {
         $travelAuthorization = new  TravelAuthorizationApplication();
         $this->validate($request, $this->rules, $this->messages);
-
+        $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
         
         try {
             DB::beginTransaction();
@@ -100,12 +103,17 @@ public function store(Request $request)
 
             
 
-            // $travelAuthorization->histories()->create([
-            //     'level' => 'Test Level',
-            //     'status' => 1,
-            //     'remarks' => $request->remarks,
-            //     'created_by' => loggedInUser(),
-            // ]);
+            $travelAuthorization->histories()->create([
+                'approval_option' => $approverByHierarchy['approval_option'],
+                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
+                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
+                'status' => $approverByHierarchy['application_status'],
+                'remarks' => $request->remarks ?? null,
+                'action_performed_by' => loggedInUser(),
+            ]);
 
 
             DB::commit();
