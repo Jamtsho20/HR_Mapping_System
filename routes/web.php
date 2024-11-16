@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('delegations', 'DelegationController')->except('show');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
         Route::resource('approval-rules', 'ApprovalRuleController');
+        Route::resource('approval-head', 'ApprovalHeadController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
         Route::resource('condition-fields', 'ConditionFieldController');
        
