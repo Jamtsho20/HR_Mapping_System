@@ -28,7 +28,7 @@ class HierarchyTableSeeder extends Seeder
             (11, "Medical", 1),
             (12, "Paternity", 1),
             (13, "Salary Advance", 1),
-            (14jhjuh, "SamsungEmi", 1)
+            (14, "SamsungEmi", 1)
         ');
     }
 }

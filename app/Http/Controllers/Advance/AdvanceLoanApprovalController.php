@@ -35,6 +35,7 @@ class AdvanceLoanApprovalController extends Controller
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', 'App\Models\AdvanceApplication');
         })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
+            ->filter($request, false)
             ->orderBy('created_at')
             ->paginate(config('global.pagination'))
             ->withQueryString();
