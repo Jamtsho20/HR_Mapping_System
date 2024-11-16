@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('mas_approval_heads', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('description', 500)->nullable();
+            $table->string('description', 500);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->constrained('mas_employees');
             $table->timestamps();
         });
     }

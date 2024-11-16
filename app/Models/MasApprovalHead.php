@@ -21,6 +21,9 @@ class MasApprovalHead extends Model
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
         }
+        if ($request->has('description') && $request->query('description') != '') {
+            $query->where('description', 'LIKE', '%' . $request->query('description') . '%');
+        }
     }
     public function approvalRules() {
         return $this->hasMany(MasApprovalRule::class, 'mas_approval_head_id');

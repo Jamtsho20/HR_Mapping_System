@@ -37,10 +37,38 @@
                                                             <th>
                                                                 Description
                                                             </th>
+                                                            <th>
+                                                                Action
+                                                            </th>
                                                         </tr>
                                                     </thead>
-</table>
-                                                    
+                                                    <tbody>
+                                                        @forelse($approval as $approve)
+                                                        <tr>
+                                                            <td>{{ $approval->firstItem() + ($loop->iteration - 1) }}</td>
+                                                            <td>{{ $approve->name }}</td>
+                                                            <td>{{ $approve->description }}</td> 
+                                                            <td class="text-center">
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ route('approval-head.edit', $approve->id) }}" class="btn btn-sm btn-rounded btn-outline-success">
+                                                                    <i class="fa fa-edit"></i> EDIT
+                                                                </a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ route('approval-head.destroy', $approve->id) }}">
+                                                                    <i class="fa fa-trash"></i> DELETE
+                                                                </a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-danger">No Approval Head found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                                {{ $approval->links() }}
                                             </div>
                                         </div>
                                     </div>
@@ -52,6 +80,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @include('layouts.includes.delete-modal')
 @endsection
