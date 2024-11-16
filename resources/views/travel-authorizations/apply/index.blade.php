@@ -22,9 +22,9 @@
                         placeholder="End Date">
                 </div>
                 <div class="col-4 form-group">
-                    <select class="form-control" id="mode_of_travel" name="mode_of_travel" onchange="displaySelectedValue()">
-                        <option value="" disabled selected hidden>Select Mode of Travel</option>
-                        @foreach(config('global.travel_modes') as $key => $label)
+                    <select class="form-control" id="status" name="status" onchange="displaySelectedValue()">
+                        <option value="" disabled selected hidden>Select Application Status</option>
+                        @foreach(config('global.application_status') as $key => $label)
                             <option value="{{ $key }}" >{{ $label }}</option>
                         @endforeach
                     </select>

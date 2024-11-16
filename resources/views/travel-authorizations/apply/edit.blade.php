@@ -77,10 +77,11 @@
                     @foreach($travelAuthorizations->details as $index => $detail)
                         <tr>
                             <td class="text-center">
-                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                             </td>
                             <td>
                                 <input type="date" id="from_date" name="details[{{ $index }}][from_date]" class="form-control form-control-sm" value="{{ old('details.' . $index . '.from_date', $detail->from_date) }}" required>
+                                <input type="number" id="id" name="details[{{ $index }}][id]" style="display: none;" value="{{ $detail->id }}">
                             </td>
                             <td>
                                 <input type="date" id="to_date" name="details[{{ $index }}][to_date]" class="form-control form-control-sm" value="{{ old('details.' . $index . '.to_date', $detail->to_date) }}" {{ $detail->from_date ? '' : 'disabled' }}>
@@ -103,7 +104,6 @@
                             </td>
                             <td colspan="2">
                                 <textarea rows="2" class="form-control" name="details[{{ $index }}][purpose]">{{ old('details.' . $index . '.purpose', $detail->purpose) }}
-                                {{$index}}
                                 </textarea>
                             </td>
                         </tr>
@@ -133,21 +133,101 @@
 
 @push('page_scripts')
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dailyAllowanceInput = document.getElementById('daily_allowance');
+    const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
+    const advanceRequiredInput = document.getElementById('advance_required');
+    const daysDifferenceInput = document.getElementById('days_difference');
+    
+    
+    let manualEdit = false;
 
-document.getElementById('from_date').addEventListener('change', function () {
-        var fromDate = this.value;
-        var toDateField = document.getElementById('to_date');
+
+    function calculateDaysDifference() {
+        let totalDays = 0;
+
+    // Loop through each row and calculate the days difference
+        document.querySelectorAll('input[name^="details["][name$="][from_date]"]').forEach(function(startDateInput, index) {
+            const row = startDateInput.closest('tr'); 
+            const endDateInput = row.querySelector('input[name$="[to_date]"]');
+
+        // Ensure both start and end dates exist and are enabled
+            if (startDateInput && endDateInput && !endDateInput.disabled) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+
+            if (startDate && endDate && endDate >= startDate) {
+                const timeDifference = endDate - startDate;
+                const daysDifference = timeDifference / (1000 * 3600 * 24) + 1;
+                totalDays += daysDifference;
+            }
+        }
+    });
+
+            if (!manualEdit) {
+                daysDifferenceInput.value = totalDays;
+            }
+
+            return totalDays;
+        }
+
+    
+    function calculateEstimatedTravelExpenses() {
+        const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
+        const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
+        const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
+        const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
+        estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
+    }
+document.querySelector('#travel_details').addEventListener('click', function(event) {
+if (event.target && event.target.matches('.delete-row')) {
+    var thisRow = event.target.closest('tr');
+    thisRow.remove();
+    calculateEstimatedTravelExpenses(); 
+}
+});
+
+document.querySelector('#travel_details').addEventListener('change', function(event) {
+    if (event.target && event.target.matches('.from_date')) {
+        var fromDate = event.target.value;
+        var toDateField = event.target.closest('tr').querySelector('.to_date');
+        
         if (fromDate) {
             toDateField.setAttribute('min', fromDate);
             toDateField.disabled = false;
         } else {
-        toDateField.disabled = true;
-        toDateField.value = ''; 
-         }
+            toDateField.disabled = true;
+            toDateField.value = ''; 
+        }
+        calculateEstimatedTravelExpenses();
+        
+    }
 
+    if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
+        calculateEstimatedTravelExpenses(); 
+    }
+});
+    // Recalculate days difference and estimated travel expenses when any date input changes
+document.querySelector('#travel_details').addEventListener('input', function(event) {
+    if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
+        calculateEstimatedTravelExpenses();
+    }
+});
+
+    // Recalculate estimated travel expenses when the advance amount is changed
+    advanceRequiredInput.addEventListener('input', calculateEstimatedTravelExpenses);
+
+    // Recalculate estimated travel expenses when the number of days is manually changed
+    daysDifferenceInput.addEventListener('input', function() {
+        manualEdit = true; 
+        calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
     });
 
-let rowCount = 1;
+    daysDifferenceInput.addEventListener('blur', function() {
+        manualEdit = false; 
+    });
+
+    let rowCount = document.querySelectorAll('#travel_details tbody tr').length-1;
 
 document.querySelector('.add-row').addEventListener('click', function(e) {
     e.preventDefault();
@@ -155,13 +235,13 @@ document.querySelector('.add-row').addEventListener('click', function(e) {
     const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td class="text-center">
-                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
             </td>
             <td>
-                <input type="date" id="from_date"  name="details[${rowCount}][from_date]" class="form-control form-control-sm" required>
+                <input type="date" id="from_date"  name="details[${rowCount}][from_date]" class="form-control form-control-sm from_date" required>
             </td>
             <td>
-                <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm">
+                <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm to_date " disabled>
             </td>
             <td>
                 <input type="text" name="details[${rowCount}][from_location]" class="form-control form-control-sm" required>
@@ -189,70 +269,7 @@ document.querySelector('.add-row').addEventListener('click', function(e) {
 
         // Increment row count for next row
         rowCount++;
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-    const dailyAllowanceInput = document.getElementById('daily_allowance');
-    const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
-    const advanceRequiredInput = document.getElementById('advance_required');
-    const daysDifferenceInput = document.getElementById('days_difference');
-    
-    
-    let manualEdit = false; // Flag to track if the user is manually editing
-
-
-    function calculateDaysDifference() {
-        let totalDays = 0;
-
-        // Loop through each row and calculate the days difference
-        document.querySelectorAll('input[name^="details["][name$="][from_date]"]').forEach(function(startDateInput, index) {
-            const endDateInput = document.querySelector(`input[name="details[${index}][to_date]"]`);
-            const startDate = new Date(startDateInput.value);
-            const endDate = new Date(endDateInput.value);
-            
-            if (startDate && endDate && endDate >= startDate) {
-                const timeDifference = endDate - startDate;
-                const daysDifference = timeDifference / (1000 * 3600 * 24) + 1;
-                totalDays += daysDifference;
-            }
-        });
-
-      
-        if (!manualEdit) {
-            daysDifferenceInput.value = totalDays;
-        }
-
-        return totalDays;
-    }
-
-    
-    function calculateEstimatedTravelExpenses() {
-        const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
-        const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
-        const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
-        const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
-        estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
-    }
-
-    // Recalculate days difference and estimated travel expenses when any date input changes
-    document.querySelector('#travel_details').addEventListener('input', function(event) {
-        if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
-            calculateEstimatedTravelExpenses();
-        }
-    });
-
-    // Recalculate estimated travel expenses when the advance amount is changed
-    advanceRequiredInput.addEventListener('input', calculateEstimatedTravelExpenses);
-
-    // Recalculate estimated travel expenses when the number of days is manually changed
-    daysDifferenceInput.addEventListener('input', function() {
-        manualEdit = true; 
-        calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
-    });
-
-    daysDifferenceInput.addEventListener('blur', function() {
-        manualEdit = false; 
-    });
+    }); 
 
     calculateEstimatedTravelExpenses();
 

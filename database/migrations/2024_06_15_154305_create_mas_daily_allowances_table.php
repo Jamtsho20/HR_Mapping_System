@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_approval_heads', function (Blueprint $table) {
+        Schema::create('mas_daily_allowances', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('description', 500)->nullable();
+            $table->foreignId('mas_grade_id')->index()->constrained()->cascadeOnDelete(); 
+            $table->unsignedBigInteger('da_in_country');
+            $table->unsignedBigInteger('da_india_capital')->nullable()->comment('india state capital');
+            $table->unsignedBigInteger('da_india_non_capital')->nullable(); 
+            $table->unsignedBigInteger('da_third_country')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_approval_heads');
+        Schema::dropIfExists('mas_daily_allowances');
     }
 };
