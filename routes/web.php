@@ -124,7 +124,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-apply', 'LeaveApplicationController');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
-        Route::resource('approval', 'LeaveApprovalController')->except('create', 'show', 'edit');
+        Route::resource('approval', 'LeaveApprovalController');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         Route::get('leave-encashment', 'LeaveApplicationController@leaveEncashment')->name('leave.leave-encashment');
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
@@ -177,6 +177,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
         Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
+        Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
+        Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
+        Route::resource('salary-saving-scheme', 'SAlarySavingSchemeController')->except('create', 'show', 'edit');
+
     });
 
     //reportexport routes

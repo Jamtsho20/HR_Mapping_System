@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveApplication;
+use App\Models\MasLeaveType;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,14 +32,14 @@ class LeaveApprovalController extends Controller
         // })->where('approver_emp_id', $user->id)
         //   ->get();
         $leaves = LeaveApplication::whereHas('histories', function ($query) use ($user) {
-                                        $query->where('approver_emp_id', $user->id)
-                                            ->where('application_type', \App\Models\LeaveApplication::class);
-                                    })
-                                    ->whereNotIn('status', [-1, 3])
-                                    ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
-                                    ->orderBy('created_at')
-                                    ->paginate(config('global.pagination'))
-                                    ->withQueryString();
+            $query->where('approver_emp_id', $user->id)
+                ->where('application_type', \App\Models\LeaveApplication::class);
+        })
+            ->whereNotIn('status', [-1, 3])
+            ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
+            ->orderBy('created_at')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
 
         return view('leave.approval.index', compact('privileges', 'leaves'));
     }
@@ -48,10 +49,7 @@ class LeaveApprovalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -83,7 +81,9 @@ class LeaveApprovalController extends Controller
      */
     public function edit($id)
     {
-        //
+        $leaveTypes = MasLeaveType::get(['id', 'name']);
+        $leave = LeaveApplication::findOrfail($id);
+        return view('leave.leave.edit', compact('leave', 'leaveTypes'));
     }
 
     /**
@@ -158,14 +158,14 @@ class LeaveApprovalController extends Controller
                         // } catch (\Exception $e) {
                         //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
                         // }
-                    }elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
                         $leaveApplication->update([
                             'status' => 3, // 3 could represent 'final approved'
                             'updated_by' => $userId,
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
-                    }elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3){
+                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
                         $leaveApplication->update([
                             'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
                             'updated_by' => $userId,
@@ -178,7 +178,7 @@ class LeaveApprovalController extends Controller
                     $applicationHistory->update($updateData);
                 }
 
-                 // Attempt to send email to applicant about the approval/rejection status need to work on it
+                // Attempt to send email to applicant about the approval/rejection status need to work on it
                 // try {
                 //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
                 // } catch (\Exception $e) {
