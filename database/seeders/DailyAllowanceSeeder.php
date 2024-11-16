@@ -18,7 +18,7 @@ class DailyAllowanceSeeder extends Seeder
             (1, 1, 3500, NULL, NULL, NULL, 1, NULL, "2023-10-01 18:00:00", NULL),
             (2, 7, 1800, NULL, NULL, NULL, 1, NULL, "2023-10-01 18:00:00", NULL),
             (3, 4, 1250, NULL, NULL, NULL, 1, NULL, "2023-10-01 18:00:00", NULL),
-            (4, 5, 1000, NULL, NULL, NULL, 1, NULL, "2023-10-01 18:00:00", NULL),
+            (4, 5, 1000, NULL, NULL, NULL, 1, NULL, "2023-10-01 18:00:00", NULL), 
             (5, 9, 700, NULL, NULL, NULL, 1, NULL, "2023-10-01 18:00:00", NULL)
         ');
     }
