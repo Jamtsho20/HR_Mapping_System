@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('mas_approval_rule_id')->constrained();
             $table->string('condition', 50)->nullable();
             $table->foreignId('mas_condition_field_id')->constrained();
+            $table->string('delimiter')->nullable();
             $table->foreignId('operator_id')->constrained('mas_approval_rule_condition_operators')->references('id');
             $table->string('value', 100)->nullable()->comment('value when selected field is not related to user.');
             $table->foreignId('mas_employee_id')->nullable()->constrained('mas_employees')->comment('Employee Id when selected field is related to user from field column.');

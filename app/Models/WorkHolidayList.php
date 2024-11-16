@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\CreatedByTrait;
 use App\Models\MasRegion;
+use Carbon\Carbon;
 
 class WorkHolidayList extends Model
 {
@@ -29,4 +30,12 @@ class WorkHolidayList extends Model
             $query->whereRaw('YEAR(start_date) = ?',$request->query('year'));
         }
     }
+
+    //holidayforTomorrow
+    public static function getHolidayForTomorrow()
+    {
+        $tomorrow = Carbon::tomorrow()->toDateString();  // Get tomorrow's date in Y-m-d format
+        return self::whereDate('start_date', $tomorrow)->first(); // Check if a holiday is scheduled for tomorrow
+    }
+
 }

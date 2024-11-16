@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\EmployeeLeave;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
-use App\Models\AdvanceApplication;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
@@ -22,10 +22,7 @@ use App\Models\MasSection;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
 use App\Models\User;
-use App\Models\WorkHolidayList;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class AjaxRequestController extends Controller
 {
@@ -81,7 +78,7 @@ class AjaxRequestController extends Controller
 
     public function getLeaveBalance($id)
     {
-        $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance'); 
+        $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
         $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
 
@@ -94,7 +91,7 @@ class AjaxRequestController extends Controller
     //     // $loggedInUserRegion = DB::select(
     //     //                                 "select
     //     //                                     t3.mas_region_id as region_id
-    //     //                                 from mas_offices t1` 
+    //     //                                 from mas_offices t1`
     //     //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
     //     //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
     //     //                                 where t1.id = ?", [$loggedInUserOfficeId]);
@@ -181,8 +178,8 @@ class AjaxRequestController extends Controller
 
         // Calculate total days
         $totalDays = ($dayDifference === 0)
-            ? $fromDayAdjustment + $toDayAdjustment - 1
-            : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
+        ? $fromDayAdjustment + $toDayAdjustment - 1
+        : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
         // Count weekends (Saturdays, Sundays) and adjust
         $sundays = 0;
@@ -220,7 +217,7 @@ class AjaxRequestController extends Controller
 
         return response()->json([
             'has_employee_field' => $approvingAuthority->has_employee_field ?? false,
-            'employees' => $employeeSelect
+            'employees' => $employeeSelect,
         ]);
     }
 
@@ -234,7 +231,7 @@ class AjaxRequestController extends Controller
             ->first();
 
         // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->advance_no, -4) + 1 : 1;
+        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->advance_no, -4) + 1 : 1;
 
         // Generate the new advance number with the incremented sequence
         $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
@@ -246,7 +243,7 @@ class AjaxRequestController extends Controller
 
         return response()->json([
             'advance_no' => $advanceNo,
-            'sifa_interest_rate' => $sifaInterestRate
+            'sifa_interest_rate' => $sifaInterestRate,
         ]);
     }
 
@@ -256,22 +253,19 @@ class AjaxRequestController extends Controller
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         $expensePolicy = MasExpensePolicy::with(['rateDefinition' => function ($query) use ($id, $empJobDetail, $loggedInUserRegion) {
             $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
-            ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
-                $q->where('mas_grade_step_id',
-                    $empJobDetail->mas_grade_step_id
-                )
-                ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
-                ->whereStatus(1);
-            }]);
+                ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
+                    $q->whereMasGradeStepId($empJobDetail->mas_grade_step_id)
+                        ->whereMasRegionId($loggedInUserRegion[0]->region_id)
+                        ->whereStatus(1);
+                }]);
         }])
-        ->where('mas_expense_type_id',  $id
-        )
-        ->whereStatus(1)
-        ->first();
-        // dd($expensePolicy);
+            ->whereMasExpenseTypeId($id)
+            ->whereStatus(1)
+            ->first();
+
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
-        // dd($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount);
+
         return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
     }
 
@@ -320,9 +314,9 @@ class AjaxRequestController extends Controller
         return $levels;
     }
 
-    public function getAdvanceDetail($id) 
+    public function getAdvanceDetail($id)
     {
         $advanceDetail = AdvanceApplication::where('id', $id)->get();
-        return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]); 
+        return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
 }
