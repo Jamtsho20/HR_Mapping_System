@@ -201,7 +201,7 @@ if (!function_exists('invoiceNoGenerator')) {
 
 if(!function_exists('employeeList')){
     function employeeList(){
-        return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.name) as name")->get();
+        return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.title, ' ', t1.name) as name")->get();
     }
 }
 
@@ -225,7 +225,7 @@ if (!function_exists('modifyFormRequest')) {
     }
 }
 
-if(!function_exists('loggedInUser')){ 
+if(!function_exists('loggedInUser')){
     function loggedInUser(){
         return auth()->user()->id;
     }
@@ -248,10 +248,10 @@ if(!function_exists('generateTransactionNumber')){
 
 if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id based on mass_office_id
     function loggedInUserRegion(){
-        $loggedInUserId = loggedInUser(); 
+        $loggedInUserId = loggedInUser();
         $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
         $loggedInUserRegion = DB::select(
-                                        "select 
+                                        "select
                                             t3.mas_region_id as region_id,
                                             t3.name as region_name
                                         from mas_offices t1
@@ -268,7 +268,7 @@ if(!function_exists('approvalHeadConditionField')){
         foreach($conditionFields as &$field){
             if($request->has($field['name'])){
                 $field['value'] = $request->input($field['name']);
-                // $field['value'] = $request   
+                // $field['value'] = $request
             }else {// Set 'value' to null if not present in the request
                 $field['value'] = null;
             }

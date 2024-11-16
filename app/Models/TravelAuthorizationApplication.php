@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TravelAuthorizationDetails;
 
-class TravelAuthorization extends Model
+class TravelAuthorizationApplication extends Model
 {
     use HasFactory;
 
-    protected $table = 'travel_authorizations';
+    protected $table = 'travel_authorization_applications';
 
     protected $fillable = [
        'travel_authorization_no',
@@ -29,9 +29,10 @@ class TravelAuthorization extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function details(){
-        return $this->hasMany(TravelAuthorizationDetails::class);
-    }
+    public function details()
+{
+    return $this->hasMany(TravelAuthorizationDetails::class, 'travel_authorization_id');
+}
 
     public function histories()
     {
@@ -43,26 +44,35 @@ class TravelAuthorization extends Model
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
 
+    protected static function boot()
+{
+    parent::boot();
 
-    public function scopeFilter($query, $request, $onesOwnRecord = true){
-        if ($request->has('mode_of_travel') && $request->query('mode_of_travel') != '') {
-            $query->where('mode_of_travel', '=', $request->mode_of_travel);
+    static::deleting(function ($travelAuthorization) {
+        $travelAuthorization->details()->delete();
+    });
+}
+
+
+    public function scopeFilter($query, $request, $onesOwnRecord){
+        if ($request->has('status') && $request->query('status') != '') {
+            $query->where('status', '=', $request->mode_of_travel);
             
         }
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('from_date', [$request->from_date, $request->to_date]);
+            $query->whereBetween('date', [$request->from_date, $request->to_date]);
         }
         elseif ($request->filled('from_date')) {
-            $query->where('from_date', '=', $request->from_date);
+            $query->where('date', '=', $request->from_date);
         }
 
         if($onesOwnRecord){
             $query->where('created_by', auth()->user()->id);
         }
-        // elseif ($request->filled('to_date')) {
-        //     $query->where('date', '<=', $request->to_date); 
-        // }
+    // elseif ($request->filled('to_date')) {
+    //     $query->where('date', '<=', $request->to_date); 
+    // }
     }
 
 

@@ -47,6 +47,7 @@
 <!-- select2 -->
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
+<script src="{{ asset('assets/js/fusion/fusioncharts.js') }}"></script>
 
 <script src="{{ asset('assets/plugins/select2/select2.full.min.js') }}"></script>
 <script>

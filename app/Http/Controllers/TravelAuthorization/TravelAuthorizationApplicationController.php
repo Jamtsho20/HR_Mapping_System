@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\TravelAuthorization;
 use App\Http\Controllers\Controller;
-use App\Models\TravelAuthorization;
+use App\Models\TravelAuthorizationApplication;
 use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +51,7 @@ class TravelAuthorizationApplicationController extends Controller
 public function index(Request $request)
       {
           $privileges = $request->instance();
-          $travelAuthorizations = TravelAuthorization::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
+          $travelAuthorizations = TravelAuthorizationApplication::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
           ->withQueryString();
   
           return view('travel-authorizations.apply.index', compact('privileges', 'travelAuthorizations'));
@@ -69,7 +69,7 @@ public function create()
 
 public function store(Request $request)
     {
-        $travelAuthorization = new TravelAuthorization();
+        $travelAuthorization = new  TravelAuthorizationApplication();
         $this->validate($request, $this->rules, $this->messages);
 
         
@@ -84,7 +84,6 @@ public function store(Request $request)
             $travelAuthorization->created_by = Auth::id();
 
             $travelAuthorization->save();
-
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
                     $travelAuthorization->details()->create([
@@ -122,7 +121,7 @@ public function store(Request $request)
     public function show($id, Request $request)
     {
         $instance = $request->instance();
-        $travelAuthorization = TravelAuthorization::findOrFail($id);         
+        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);         
         return view('travel-authorizations.apply.show', compact('travelAuthorization'));
 
     }
@@ -131,7 +130,7 @@ public function store(Request $request)
     
     public function edit($id)
     {
-        $travelAuthorizations = TravelAuthorization::findOrfail($id);
+        $travelAuthorizations =  TravelAuthorizationApplication::findOrfail($id);
         $dailyAllowance = DAILY_ALLOWANCE;
         return view('travel-authorizations.apply.edit', compact('travelAuthorizations', 'dailyAllowance'));
    
@@ -140,7 +139,7 @@ public function store(Request $request)
    
     public function update(Request $request, $id)
     {   
-        $travelAuthorization = TravelAuthorization::findOrFail($id);
+        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
 
         $this->validate($request, $this->rules, $this->messages);
 
@@ -148,32 +147,76 @@ public function store(Request $request)
         
             DB::beginTransaction();
 
-            $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
-            $travelAuthorization->date = $request->date;
-            $travelAuthorization->advance_amount = $request->advance_required;
-            $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
-            $travelAuthorization->status = 1;  
-            $travelAuthorization->daily_allowance = $request->daily_allowance;
-            $travelAuthorization->updated_by = Auth::id();
+            // $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
+            // $travelAuthorization->date = $request->date;
+            // $travelAuthorization->advance_amount = $request->advance_required;
+            // $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
+            // $travelAuthorization->status = 1;  
+            // $travelAuthorization->daily_allowance = $request->daily_allowance;
+            // $travelAuthorization->updated_by = Auth::id();
+            // $travelAuthorization->save();
 
+            $travelAuthorization->update([
+                'travel_authorization_no' => $request->travel_authorization_no,
+                'date' => $request->date,
+                'advance_amount' => $request->advance_required,
+                'estimated_travel_expenses' => $request->estimated_travel_expenses,
+                'status' => 1,
+                'daily_allowance' => $request->daily_allowance,
+                'updated_by' => Auth::id(),
+            ]);
             
-            $travelAuthorization->save();
-
-        
             if ($request->has('details')) {
-        
-                $travelAuthorization->details()->forceDelete();
-                foreach ($request->details as $detail) {
-                    $travelAuthorization->details()->create([
-                        'mode_of_travel' => $detail['mode_of_travel'],
-                        'from_location' => $detail['from_location'],
-                        'to_location' => $detail['to_location'],
-                        'from_date' => $detail['from_date'],
-                        'to_date' => $detail['to_date'],
-                        'purpose' => $detail['purpose'],
-                    ]);
+                // Collect IDs of updated or existing details from the request
+                $updatedDetailIds = [];
+            
+                foreach ($request->details as $index => $detail) {
+                    if (isset($detail['id'])) {
+                        $travelDetail = $travelAuthorization->details()->find($detail['id']);
+                        if ($travelDetail) {
+                            $travelDetail->update([
+                                'mode_of_travel' => $detail['mode_of_travel'],
+                                'from_location' => $detail['from_location'],
+                                'to_location' => $detail['to_location'],
+                                'from_date' => $detail['from_date'],
+                                'to_date' => $detail['to_date'],
+                                'purpose' => $detail['purpose'],
+                            ]);
+                            $updatedDetailIds[] = $detail['id'];
+                        }
+                    } else {
+                        // Create new detail if no ID is provided
+                        $newDetail = $travelAuthorization->details()->create([
+                            'mode_of_travel' => $detail['mode_of_travel'],
+                            'from_location' => $detail['from_location'],
+                            'to_location' => $detail['to_location'],
+                            'from_date' => $detail['from_date'],
+                            'to_date' => $detail['to_date'],
+                            'purpose' => $detail['purpose'],
+                        ]);
+                        $updatedDetailIds[] = $newDetail->id;
+                    }
                 }
+            
+                // Delete details that weren't included in the request
+                $travelAuthorization->details()->whereNotIn('id', $updatedDetailIds)->delete();
             }
+    
+            DB::commit();
+            // if ($request->has('details')) {
+        
+            //     $travelAuthorization->details()->forceDelete();
+            //     foreach ($request->details as $detail) {
+            //         $travelAuthorization->details()->create([
+            //             'mode_of_travel' => $detail['mode_of_travel'],
+            //             'from_location' => $detail['from_location'],
+            //             'to_location' => $detail['to_location'],
+            //             'from_date' => $detail['from_date'],
+            //             'to_date' => $detail['to_date'],
+            //             'purpose' => $detail['purpose'],
+            //         ]);
+            //     }
+            // }
 
            
             // $travelAuthorization->histories()->create([
@@ -184,7 +227,7 @@ public function store(Request $request)
             // ]);
 
            
-            DB::commit();
+            // DB::commit();
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -198,7 +241,7 @@ public function store(Request $request)
     public function destroy($id)
     {
         try {
-            TravelAuthorization::findOrFail($id)->delete();
+            TravelAuthorizationApplication::findOrFail($id)->delete();
             // dd(TravelAuthorization::findOrFail($id));
             return back()->with('msg_success', 'Travel Authorization has been deleted');
         } catch (\Exception $e) {
@@ -214,7 +257,7 @@ public function store(Request $request)
      $travelAuthPrefix = 'TA';
 
      
-     $latestTransaction = TravelAuthorization::latest('id')->first();
+     $latestTransaction =  TravelAuthorizationApplication::latest('id')->first();
 
      $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
      

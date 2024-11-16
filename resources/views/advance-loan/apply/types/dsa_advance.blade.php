@@ -4,14 +4,18 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="amount"> Travel Authorization No.<span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="amount" value="{{ old('amount') }}" placeholder="0" required>
+                <select class="form-control" id="leave_type" name="leave_type">
+                    <option value="" disabled selected hidden>Select your option</option>
+                    {{-- @foreach ($leaveTypes as $type)
+                    <option value="{{ $type->id }}" {{ old('leave_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                    @endforeach --}}
+                </select>
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="amount"> Advance Amount<span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="amount" value="{{ old('amount') }}" placeholder="0"
-                    required>
+                <input type="number" class="form-control" name="amount" value="{{ old('amount') }}" placeholder="0" required />
             </div>
         </div>
     </div>

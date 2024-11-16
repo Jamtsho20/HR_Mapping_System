@@ -30,7 +30,7 @@ class MasApprovalCondition extends Model
         $displayFormula = "";
 
         $operator = MasApprovalRuleConditionOperator::whereId($this->operator_id)->first();
-        if($field->has_employee_field) {
+        if ($field->has_employee_field) {
             $employee = User::whereId($this->mas_employee_id)->select('id', 'name')->first();
             $displayFormula .= " User ";
             $displayFormula .= $operator->name;
@@ -44,8 +44,10 @@ class MasApprovalCondition extends Model
         return $displayFormula;
     }
 
-    public function getFormulaAttribute($value)
+    public function getFormulaAttribute()
     {
-        return $this->mas_condition_field_id . ' ' . $this->operator_id . ' ' . $this->value;
+        $attributeValue = $this->value ?? $this->mas_employee_id;
+
+        return $this->mas_condition_field_id . ' ' . $this->operator_id . ' ' . $attributeValue;
     }
 }

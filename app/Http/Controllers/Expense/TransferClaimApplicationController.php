@@ -53,7 +53,7 @@ class TransferClaimApplicationController extends Controller
     {
         $empIdName = LoggedInUserEmpIdName();
         $trasnferClaim = MasTransferClaim::get();
-        return view('expense.transfer-claim.create', compact('transfer_claim', 'empIdName'));
+        return view('expense.transfer-claim.create', compact('trasnferClaim', 'empIdName'));
     }
 
     /**
@@ -64,8 +64,6 @@ class TransferClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {
-
-
         $this->validate($request, $this->rules, $this->messages);
         $transfer = new TransferClaimApplication();
 
@@ -78,7 +76,6 @@ class TransferClaimApplicationController extends Controller
         } else {
             $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
         }
-
 
         $transfer->transfer_claim = $request->transfer_claim;
         $transfer->current_location = $request->current_location;

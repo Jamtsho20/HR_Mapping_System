@@ -87,7 +87,7 @@
                                                     : '<span class="badge bg-success">Inactive</span>' !!}</td>
                                                 <td class="text-center">
                                                     @if ($privileges->view)
-                                                        <a href="{{ route('apply-expense.show', $rule->id) }}"
+                                                        <a href="{{ route('approval-rules.show', $rule->id) }}"
                                                             class="btn btn-sm btn-outline-secondary"><i
                                                                 class="fa fa-list"></i> Detail</a>
                                                     @endif

@@ -12,6 +12,6 @@ class ExpenseRateDefinition extends Model
 
     public function expenseRateLimits()
     {
-        return $this->hasMany(ExpenseRateLimit::class, 'expense_rate_definition_id');
+        return $this->hasMany(ExpenseRateLimit::class, 'expense_rate_definition_id', 'id');
     }
 }

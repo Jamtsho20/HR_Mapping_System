@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('travel_authorizations', function (Blueprint $table) {
+        Schema::create('travel_authorization_applications', function (Blueprint $table) {
             $table->id();
             $table->string('travel_authorization_no')->index();
             $table->date('date');
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('travel_authorizations');
+        Schema::dropIfExists('travel_authorization_applications');
     }
 };

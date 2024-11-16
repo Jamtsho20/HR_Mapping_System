@@ -83,7 +83,7 @@ class LTCController extends Controller
             if ($eligible) {
                 $amount = PaySlipDetailView::whereMasEmployeeId($employee->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay');
                 if (is_null($amount)) {
-                    return redirect()->back()->with('msg_error', 'Error processing LTC! Trying to store NULL ltc amount.');
+                    return redirect()->back()->with('msg_error', 'Error processing LTC! Salary for previous month is not processed.');
                 }
                 LeaveTravelConcessionDetail::firstOrCreate([
                     'ltc_id' => $ltc->id,
