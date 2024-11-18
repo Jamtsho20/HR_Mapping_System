@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Traits\CreatedByTrait;
+use App\Traits\LeaveBalanceTrait;
+use App\Traits\LeaveBalanceUpdater;
+use App\Traits\UpdateLeaveBalanceTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LeaveApplication extends Model
 {
-    use HasFactory, CreatedByTrait;
+    use HasFactory, CreatedByTrait, UpdateLeaveBalanceTrait;
     protected $fillable = [
         'mas_leave_type_id', 'from_day', 'to_day', 'from_date', 'to_date', 'no_of_days', 'remarks', 'attachment', 'status'
     ];
@@ -39,5 +42,14 @@ class LeaveApplication extends Model
     public function getStatusNameAttribute() {
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
+    }
+    
+    protected static function booted()
+    {
+        static::updated(function ($leaveApplication) {
+            if ($leaveApplication->isDirty('status')) {
+                $leaveApplication->updateLeaveBalance($leaveApplication);
+            }
+        });
     }
 }

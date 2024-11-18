@@ -8,6 +8,7 @@ use App\Models\MasLeaveType;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LeaveApprovalController extends Controller
 {
@@ -158,7 +159,7 @@ class LeaveApprovalController extends Controller
                         // } catch (\Exception $e) {
                         //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
                         // }
-                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
                         $leaveApplication->update([
                             'status' => 3, // 3 could represent 'final approved'
@@ -190,7 +191,7 @@ class LeaveApprovalController extends Controller
             return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred during the operation.'], 500);
         }
     }
