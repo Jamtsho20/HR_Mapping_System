@@ -156,6 +156,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function (){
         Route::resource('apply-travel-authorization', 'TravelAuthorizationApplicationController');
         Route::resource('travel-authorization-approval', 'TravelAuthorizationApprovalController');
+        Route::post('approval/bulk', 'TravelAuthorizationApprovalController@bulkApprovalRejection')->name('travel-authorization.bulk-approval-rejection');
 
     });
 

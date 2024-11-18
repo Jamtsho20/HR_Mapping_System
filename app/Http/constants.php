@@ -28,6 +28,7 @@ const EXPENSE_APPVL_HEAD = 2;
 const ADVANCE_APPVL_HEAD = 3;
 const LEAVE_ENCASHMENT_APPVL_HEAD = 4;
 const REQUISITION_APPVL_HEAD = 5;
+const TRAVEL_AUTHORIZATION_APPVL_HEAD = 6;
 
 // Approval Option from mas_approval_conditions
 const HIERARCHICAL_APPVL_OPTION = 1;
