@@ -73,15 +73,75 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Casual Leave</h5>
-                <!-- Chart Canvas for Casual Leave -->
-                <!-- <canvas id="casualLeaveChart"></canvas> -->
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Casual Leave</h5>
+            <div style="width: 50%; margin: auto;">
+                <canvas id="doughnutChart"></canvas>
             </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            <script>
+                var ctx = document.getElementById('doughnutChart').getContext('2d');
+                var leaveStatusChart = new Chart(ctx, {
+                    type: 'doughnut',  // Change 'bar' to 'doughnut'
+                    data: {
+                        labels: @json($statuses),  // Leave Status Names (e.g., Pending, Approved)
+                        datasets: [{
+                            label: 'Leave Application Statuses',
+                            data: @json($statusCounts),  // Data of how many leave applications for each status
+                            backgroundColor: [
+                                'rgb(50, 205, 50)', // Green for Approved
+                                'rgb(11, 98, 164)', // Dark Blue for Balance
+                                'rgb(255, 152, 0)', // Orange for In-Progress
+
+                            ],
+                            borderColor: [
+                                'rgb(50, 205, 50)', // Darker Green for Approved
+                                'rgb(11, 98, 164)', // Dark Blue for Balance
+                                'rgb(255, 152, 0)', // Darker orange border for In-Progress
+
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        cutout: '70%',  // Controls the inner radius of the doughnut (can adjust as needed)
+                        plugins: {
+                            legend: {
+                                position: 'top',  // Position the legend at the top
+                                align: 'start',   // Align legend items to the start (left)
+                                labels: {
+                                    boxWidth: 20,   // Set a smaller box size for legend items
+                                    padding: 15     // Add some padding for better spacing
+                                }
+
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw;  // Customize tooltip label
+                                    },
+                                    enabled: true,
+                                }
+                            },
+                            layout: {
+                            padding: {
+                                top: 20 // Add padding to give space between legend and chart
+                            }
+                        }
+                        }
+                    }
+                });
+            </script>
         </div>
     </div>
+</div>
+
+
 
     <div class="col-md-6">
         <div class="card">

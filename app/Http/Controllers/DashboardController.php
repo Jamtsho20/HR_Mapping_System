@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LeaveApplication;
 use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -14,7 +16,24 @@ class DashboardController extends Controller
     {
         $holidays = WorkHolidayList::filter($request)->orderBy('start_date')->paginate(10)->withQueryString();
         $user = auth()->user();
-        return view('dashboard', compact('user', 'holidays'));
+
+        // Fetch the count of leave applications by status
+        $leaveStatusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
+            ->groupBy('status')
+            ->get();
+
+        // Defining the status labels for the chart
+        $statuses = ['Approved', 'Balance', 'In-Progress'];
+
+        // Initialize the status counts to zero
+        $statusCounts = [0, 0, 0];
+
+        // Map the counts to the correct status
+        foreach ($leaveStatusCounts as $leaveStatus) {
+            $statusCounts[$leaveStatus->status] = $leaveStatus->total;
+        }
+
+        return view('dashboard', compact('user', 'holidays', 'statuses', 'statusCounts'));
     }
 
     // public function show($id)
@@ -54,6 +73,4 @@ class DashboardController extends Controller
         $leaveData = app('App\Http\Controllers\LeaveApplicationController')->getUserLeaveData();
         return view('dashboard', compact('leaveData'));
     }
-    
-
 }
