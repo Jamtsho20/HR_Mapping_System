@@ -1,7 +1,15 @@
 @extends('layouts.app')
 @section('page-title', 'Travel Authorization Details')
 @section('buttons')
-<a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Travel Authorizaiton List</a>
+    @if ($context === 'application')
+        <a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-primary">
+            <i class="fa fa-reply"></i> Back to Travel Authorization List
+        </a>
+    @elseif ($context === 'approval')
+        <a href="{{ route('travel-authorization-approval.index') }}" class="btn btn-primary">
+            <i class="fa fa-reply"></i> Back to Approval List
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -21,11 +29,15 @@
                                 <b>Date</b> <a class="pull-right">{{ $travelAuthorization->date }}</a>
                             </li>
                             <li class="list-group-item">
+                                <b>Travel Type</b> <a class="pull-right">{{ $travelAuthorization->travelType->name }}</a>
+                            </li>
+                            <li class="list-group-item">
                                 <b>Estimated Expense</b> <a class="pull-right">{{ $travelAuthorization->estimated_travel_expenses }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Advance Required</b> <a class="pull-right">{{ $travelAuthorization->advance_required ? $travelAuthorization->advance_required : '-' }}</a>
                             </li>
+                            
                         </ul>
                     </div>
                     <hr>

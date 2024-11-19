@@ -20,7 +20,8 @@ class ApprovalHeadController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        return view('system-settings.approval-head.index', compact('privileges'));
+        $approval = MasApprovalHead::paginate(10);
+        return view('system-settings.approval-head.index', compact('privileges','approval'));
     }
 
     public function create()
@@ -39,7 +40,7 @@ class ApprovalHeadController extends Controller
         // Create a new MasVehicle instance and fill it with the validated data
         $approval = new MasApprovalHead();
         $approval->name = $validatedData['name'];
-        $approval->name = $validatedData['description'];
+        $approval->description = $validatedData['description'];
 
         // Save the MasVehicle instance to the database
         $approval->save();
@@ -52,7 +53,7 @@ class ApprovalHeadController extends Controller
     {
         $approval = MasApprovalHead::findOrFail($id);
 
-        return view('system-setting.approval-head.edit', compact('approval'));
+        return view('system-settings.approval-head.edit', compact('approval'));
     }
 
     public function update(Request $request, string $id)

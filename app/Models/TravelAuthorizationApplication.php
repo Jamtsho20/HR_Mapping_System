@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TravelAuthorizationDetails;
 
 class TravelAuthorizationApplication extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
 
     protected $table = 'travel_authorization_applications';
 
@@ -21,7 +22,7 @@ class TravelAuthorizationApplication extends Model
         'estimated_travel_expenses',
         'advance_amount',
         'daily_allowance',
-        'travel_authorization_no'
+        'travel_type_id',
     ];
 
 
@@ -39,6 +40,8 @@ class TravelAuthorizationApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
+   
+
     public function getStatusNameAttribute() {
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
@@ -51,6 +54,11 @@ class TravelAuthorizationApplication extends Model
     static::deleting(function ($travelAuthorization) {
         $travelAuthorization->details()->delete();
     });
+}
+
+public function travelType()
+{
+    return $this->belongsTo(MasTravelType::class, 'travel_type_id');
 }
 
 
@@ -69,6 +77,12 @@ class TravelAuthorizationApplication extends Model
     // elseif ($request->filled('to_date')) {
     //     $query->where('date', '<=', $request->to_date); 
     // }
+
+    if ($request->filled('travel_type')) {
+        $query->whereHas('travelType', function ($subQuery) use ($request) {
+            $subQuery->where('name', 'like', '%' . $request->travel_type . '%');
+        });
+    }
     }
 
 
