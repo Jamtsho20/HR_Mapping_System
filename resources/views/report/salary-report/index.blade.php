@@ -6,7 +6,7 @@
     <div class="d-flex gap-2">
         <a href="{{route('salary-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
         <a href="{{route('salary-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href=""><span><i class="fa fa-print fa-lg"></i></span></a>
+        <a href="{{route('salary-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
     </div>
 </div>
 
