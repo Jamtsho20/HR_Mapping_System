@@ -19,14 +19,23 @@
                         <label for="date">Date <span class="text-danger"></span></label>
                         <input type="date" class="form-control" name="date" value="{{ old('date', date('Y-m-d')) }}" id="date" readonly required>
                     </div>
-                </div>
+                </div>  
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="to_location">Daily Allowance<span class="text-danger"></span></label>
-                        <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value={{$dailyAllowance}} readonly>
+                        <label for="travel_type">Travel Type <span class="text-danger">*</span></label>
+                        <select class="form-control" id="travel_type" name="travel_type">
+                            <option value="" disabled selected hidden>Select your option</option>
+                            @foreach($travelTypes as $type)
+                             <option value="{{ $type->id }}" 
+                                {{ (old('advance_type', $defaultTravelTypeId) == $type->id) ? 'selected' : '' }}>
+                                {{ $type->name }}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
+
             </div>
 
             <div class="row">
@@ -54,58 +63,68 @@
             
             </div>
 
+            <div class="row">
+                <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="to_location">Daily Allowance<span class="text-danger"></span></label>
+                            <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value={{$dailyAllowance}} readonly>
+                        </div>
+                    </div>
+            </div>
 
-            <div class="table-responsive">
-                <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
-                    <thead>
-                        <tr>
-                            <th width="3%" class="text-center">#</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>From Location</th>
-                            <th>To Location</th>
-                            <th>Mode of Travel</th>
-                            <th colspan="2">Purpose</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center">
-                                <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
-                            </td>
-                            <td>
-                                <input type="date" id="from_date" name="details[0][from_date]" class="from_date form-control form-control-sm" required>
-                            </td>
-                            <td>
-                                <input type="date" id="to_date" name="details[0][to_date]" class="to_date form-control form-control-sm" disabled>
-                            </td>
-                            <td>
-                                <input type="text" name="details[0][from_location]" class="form-control form-control-sm" required>
-                            </td>
-                            <td>
-                                <input type="text" name="details[0][to_location]" class="form-control form-control-sm" required>
-                            </td>
-                            <td>
-                                <select class="form-control form-control-sm" name="details[0][mode_of_travel]" required>
-                                    <option value="" disabled selected hidden>Select Mode of Travel</option>
-                                    @foreach(config('global.travel_modes') as $travelKey => $label)
-                                        <option value="{{ $travelKey }}">{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td colspan="2">
-                                <textarea rows="2" class="form-control" name="details[0][purpose]"></textarea>
-                            </td>
-                        </tr>
+            <div class="card-body  p-0">
+                <div class="table-responsive">
+                    <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th width="3%" class="text-center">#</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>From Location</th>
+                                <th>To Location</th>
+                                <th>Mode of Travel</th>
+                                <th colspan="2">Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">
+                                    <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                </td>
+                                <td>
+                                    <input type="date" id="from_date" name="details[0][from_date]" class="from_date form-control form-control-sm" required>
+                                </td>
+                                <td>
+                                    <input type="date" id="to_date" name="details[0][to_date]" class="to_date form-control form-control-sm" disabled>
+                                </td>
+                                <td>
+                                    <input type="text" name="details[0][from_location]" class="form-control form-control-sm" required>
+                                </td>
+                                <td>
+                                    <input type="text" name="details[0][to_location]" class="form-control form-control-sm" required>
+                                </td>
+                                <td>
+                                    <select class="form-control form-control-sm" name="details[0][mode_of_travel]" required>
+                                        <option value="" disabled selected hidden>Select Mode of Travel</option>
+                                        @foreach(config('global.travel_modes') as $travelKey => $label)
+                                            <option value="{{ $travelKey }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td colspan="2">
+                                    <textarea rows="2" class="form-control" name="details[0][purpose]"></textarea>
+                                </td>
+                            </tr>
 
-                        <tr class="notremovefornew">
-                            <td colspan="7"></td>
-                            <td class="text-right">
-                                <a href="#" class="add-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                            <tr class="notremovefornew">
+                                <td colspan="7"></td>
+                                <td class="text-right">
+                                    <a href="#" class="add-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
 

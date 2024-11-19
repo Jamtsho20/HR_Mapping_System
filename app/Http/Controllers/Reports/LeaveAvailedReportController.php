@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\LeaveAvailedExport;
 use App\Http\Controllers\Controller;
 use App\Models\LeaveApplication;
 use App\Models\MasDepartment;
 use App\Models\MasLeaveType;
 use App\Models\MasSection;
-use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Rawilk\Printing\Facades\Printing;
 
 class LeaveAvailedReportController extends Controller
 {
@@ -26,14 +29,14 @@ class LeaveAvailedReportController extends Controller
     {
         $privileges = $request->instance();
         $employeeLists = employeeList();
-        $leaveTypes = MasLeaveType::get('name', 'id');
-        $departments = MasDepartment::get('name', 'id');
-        $sections = MasSection::get('name', 'id');
-     
-        $leaveReports = LeaveApplication::filter($request, false)->paginate(30)->withQueryString();    
+        $leaveTypes = MasLeaveType::select('id', 'name')->get();
+        $departments = MasDepartment::select('name', 'id')->get();
+        $sections = MasSection::select('name', 'id')->get();
+
+        $leaveReports = LeaveApplication::filter($request, false)->paginate(30)->withQueryString();
 
 
-        return view('report.leave-availed-report.index', compact('leaveReports','leaveTypes', 'departments','sections'));
+        return view('report.leave-availed-report.index', compact('leaveReports', 'leaveTypes', 'departments', 'sections'));
     }
 
     /**
@@ -82,5 +85,37 @@ class LeaveAvailedReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    public function exportLeaveAvailed(Request $request)
+    {
+
+        // Load all bookings with their dzongkhag names
+        $leaveReports = LeaveApplication::filter($request, false)->get();
+
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.leave-availed-report-pdf', compact('leaveReports'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('Leave-availed-Report.pdf');
+    }
+    public function exportLeaveAvailedExcel(Request $request)
+    {
+        return Excel::download(new LeaveAvailedExport($request), 'leave-availed-report.xlsx');
+    }
+
+    public function printLeave(Request $request)
+    {
+        $leaveReports = LeaveApplication::filter($request, false)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.leave-availed-report-pdf', compact('leaveReports'))
+            ->setPaper('a4', 'landscape');
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('Leave-availed-Report.pdf');
     }
 }

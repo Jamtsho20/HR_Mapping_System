@@ -211,15 +211,15 @@ var hrms = function () {
                         dataType: "JSON",
                         type: "GET",
                         success: function (data) {
-                            if(data.leavePolicy && !data.leavePolicy.status){
+                            if (data.leavePolicy && !data.leavePolicy.status) {
                                 alert('You cannot apply leave as leave policy for this leave type has not been enforced, please contact system admin for further information!')
                                 formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
                                 $("#leave_type").prop("disabled", false);
-                            }else if(data.leavePolicy && data.leavePolicy.is_information_only){
+                            } else if (data.leavePolicy && data.leavePolicy.is_information_only) {
                                 alert('You cannot apply leave as leave policy for this leave type is for information purpose only, please contact system admin for further information!')
                                 formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
                                 $("#leave_type").prop("disabled", false);
-                            }else{
+                            } else {
                                 $("#leave_balance").val(data.balance); // set the value for leave balance
                                 // Disable form fields if balance is 0
                                 if (data.balance == 0) {
@@ -750,3 +750,20 @@ $(document).ready(function () {
     // Initialize navigation buttons
     updateNavigationButtons();
 });
+
+
+//printer
+function openPrintPreview(event) {
+    // Prevent the default link behavior (opening the link in a new tab)
+    event.preventDefault();
+
+    // Open the PDF in a new tab
+    var printWindow = window.open(event.currentTarget.href, '_blank');
+
+    // Wait for the PDF to load, then trigger the print dialog
+    printWindow.onload = function () {
+        setTimeout(function () {
+            printWindow.print(); // Trigger the print dialog
+        }, 500); // Delay to ensure the PDF is fully loaded before calling print
+    };
+}

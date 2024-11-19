@@ -2,14 +2,14 @@
 @section('page-title', 'Edit Advance')
 @section('content')
 
-<form action="{{ route('apply-travel-authorization.update', $travelAuthorizations->id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('travel-authorization-approval.update', $travelAuthorizations->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="container">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3>Edit Travel Authorization</h3>
-                <a href="{{ route('apply-travel-authorization.index') }}" class="close custom-close-btn" id="btn_addClose" aria-label="Close">
+                <a href="{{ route('travel-authorization-approval.index') }}" class="close custom-close-btn" id="btn_addClose" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </a>
             </div>
@@ -133,7 +133,7 @@
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
-                    <a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>
+                    <a href="{{ route('travel-authorization-approval.index') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>
                 </div>
             </div>
         </div>

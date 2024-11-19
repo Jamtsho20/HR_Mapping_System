@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reports\LeaveAvailedReportController;
+use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\SalaryReportController;
 use App\Services\PayrollService;
 
@@ -156,6 +158,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function (){
         Route::resource('apply-travel-authorization', 'TravelAuthorizationApplicationController');
         Route::resource('travel-authorization-approval', 'TravelAuthorizationApprovalController');
+        Route::post('approval/bulk', 'TravelAuthorizationApprovalController@bulkApprovalRejection')->name('travel-authorization.bulk-approval-rejection');
 
     });
 
@@ -187,6 +190,16 @@ Route::middleware('auth')->group(function () {
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
     Route::get('/export-salary-excel-report', [SalaryReportController::class, 'exportSalaryExcel'])->name('salary-report-excel.export');
+    Route::get('/export-leave-availed-report', [LeaveAvailedReportController::class, 'exportLeaveAvailed'])->name('leave-availed-pdf.export');
+    Route::get('/export-leave-availed-excel-report', [LeaveAvailedReportController::class, 'exportLeaveAvailedExcel'])->name('leave-availed-excel.export');
+    Route::get('/export-leave-balance-report', [LeaveBalanceReportController::class, 'exportLeaveBalance'])->name('leave-balance-pdf.export');
+    Route::get('/export-leave-balance-excel-report', [LeaveBalanceReportController::class, 'exportLeaveBalanceExcel'])->name('leave-balance-excel.export');
+
+    //printer
+    Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
+    Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
+    Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
+
 
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
