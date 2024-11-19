@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SifaRegistration;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class SifaRegistrationController extends Controller
 {
@@ -22,7 +23,7 @@ class SifaRegistrationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-      
+        
         return view('sifa.sifa-registration.index',compact('privileges'));
     }
     /**
@@ -30,7 +31,8 @@ class SifaRegistrationController extends Controller
      */
     public function create()
     {
-        return view('sifa.sifa-registration.create');
+        $user = User::all();
+        return view('sifa.sifa-registration.create',compact('user'));
 
     }
 

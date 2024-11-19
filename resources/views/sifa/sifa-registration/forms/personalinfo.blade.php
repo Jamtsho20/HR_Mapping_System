@@ -1,32 +1,43 @@
-<div class="row">
-    <div class="form-group col-md-3">
-        <label for="">Full Name</label>
-        <input type="text" class="form-control form-control-sm" name="full_name" required>
-    </div>
-    <div class="form-group col-md-3">
-        <label for="">Gender </label>
-        <select name="gender" class="form-control form-control-sm" required>
-            <option value="">SELECT ONE</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-        </select>
-    </div>
-    <div class="form-group col-md-3">
-        <label for="">DoB </label>
-        <div class="input-group input-group-sm">
-            <input type="date" class="form-control form-control-sm" name="dob" data-mask placeholder="dd-mm-yyyy" required>
-        </div>
-    </div>
-    <div class="form-group col-md-3">
-        <label for="">CID No.</label>
-        <input type="text" class="form-control form-control-sm" name="cid" data-inputmask='"mask": "99999999999"' data-mask required>
-    </div>
-    <div class="form-group col-md-3">
-        <label for="">Marital Status </label>
-        <select name="marital_status" class="form-control form-control-sm" required>
-            <option value="">SELECT ONE</option>
-            <option value="Single">Single</option>
-            <option value="Married">Married</option>
-        </select>
-    </div>
+<div class="card-body card-box">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="3"class="table table-condensed table-striped table-bordered text-center table-sm">Basic Employee Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>{{ $user->username }} ({{ $user->title }}{{ $user->name }})</strong><br></td>
+                <td><strong>Gender: </strong> {{ $user->gender_name }}<br></td>
+                <td> <strong>D.O.B: </strong> {{ $user->dob }}<br></td>
+            </tr>
+            <tr>
+                <td><strong>CID: </strong> {{ $user->cid_no }}<br></td>
+                <td><strong>Marital Status: </strong> {{ $user->marital_status_name }}<br></td>
+                <td><strong>Email: </strong> {{ $user->email }}<br></td>
+
+            </tr>
+            <tr>
+                <th colspan="3" class="table table-condensed table-striped table-bordered text-center table-sm">Professional Details</th>
+            </tr>
+            <tr>
+                <td> <strong>Designation: </strong> {{ $user->empJob->designation->name ?? 'N/A' }}<br></td>
+                <td> <strong>Department: </strong> {{ $user->empJob->department->name ?? 'N/A' }}<br></td>
+                <td> <strong>Region: </strong> {{ $user->empJob->office->name ?? 'N/A' }}<br></td>
+            </tr>
+            <tr>
+                <td> <strong>Grade Step: </strong> {{ $user->empJob->gradeStep->name ?? 'N/A' }}<br></td>
+                <td> <strong>Contact Number: </strong> {{ $user->contact_number }}<br></td>
+
+            </tr>
+            <tr>
+                <th colspan="3" class="table table-condensed table-striped table-bordered text-center table-sm">Permanent Address</th>
+            </tr>
+            <tr>
+                <td><strong>Dzongkhag: </strong> {{ $user->empPermenantAddress->masDzongkhag->dzongkhag ?? config('global.null_value') }}<br> </td>
+                <td> <strong>Gewog: </strong> {{ $user->empPermenantAddress->masGewog->name ?? config('global.null_value') }}<br> </td>
+                <td> <strong>Village: </strong> {{ $user->empPermenantAddress->masVillage->village ?? config('global.null_value') }}<br> </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
