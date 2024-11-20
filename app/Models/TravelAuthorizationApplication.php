@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TravelAuthorizationDetails;
+use App\Models\MasTravelType;
 
 class TravelAuthorizationApplication extends Model
 {
@@ -37,6 +38,11 @@ class TravelAuthorizationApplication extends Model
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
+    }
+
+    public function travelType()
+    {
+        return $this->belongsTo(MasTravelType::class, 'travel_type_id');
     }
 
 

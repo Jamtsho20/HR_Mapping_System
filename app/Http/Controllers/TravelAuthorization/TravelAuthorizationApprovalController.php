@@ -54,10 +54,10 @@ class TravelAuthorizationApprovalController extends Controller
     {
         $privileges = $request->instance();
         $user = auth()->user();
-        $historyData = ApplicationHistory::whereHas('application', function ($query) {
-            $query->where('application_type', 'App\Models\TravelAuthorizationApplication'); // Assuming you store this class in 'application_type' column
-        })->where('approver_emp_id', $user->id)
-          ->get();
+        // $historyData = ApplicationHistory::whereHas('application', function ($query) {
+        //     $query->where('application_type', 'App\Models\TravelAuthorizationApplication'); // Assuming you store this class in 'application_type' column
+        // })->where('approver_emp_id', $user->id)
+        //   ->get();
         $travelAuthorizations = TravelAuthorizationApplication::whereHas('histories', function ($query) use ($user) {
             $query
                 ->where('application_type', \App\Models\TravelAuthorizationApplication::class)
