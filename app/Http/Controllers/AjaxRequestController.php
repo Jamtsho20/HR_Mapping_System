@@ -322,4 +322,11 @@ class AjaxRequestController extends Controller
         $advanceDetail = AdvanceApplication::where('id', $id)->get();
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
+
+    public function  getEmployeeById($id)
+    {
+        $user = User::whereId($id)->firstOrFail();
+
+        return response()->json($user);
+    }
 }
