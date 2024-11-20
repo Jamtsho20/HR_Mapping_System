@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class DelegationController extends Controller
@@ -35,7 +36,8 @@ class DelegationController extends Controller
      */
     public function create()
     {
-        return view('system-settings.delegation.create');
+        $employees = User::all();
+        return view('system-settings.delegation.create',compact('employees'));
 
     }
 
