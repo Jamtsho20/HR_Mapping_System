@@ -211,7 +211,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                    <table class="table table-bordered border-bottom dataTable no-footer table-striped custom-table m-b-0">
+                    <table class="table table-condensed table-striped table-bordered table-sm">
                         <thead>
                             <tr>
                                 <h5><strong> Holidays </strong></h5>
@@ -245,12 +245,36 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Notifications</h5><br><br><br>
-                View all Notifications
-
-            </div>
+    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-condensed table-striped table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <h5><strong> Notifications </strong></h5>
+                            </tr>
+                            <tr>
+                                <th> #</th>
+                                <th>Title</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                <tbody>
+                    @forelse($notifications as $index => $notification)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $notification->title }}</td>
+                            <td>{{ $notification->message }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="text-center">No notifications available.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+
 </div>
 
 @endsection

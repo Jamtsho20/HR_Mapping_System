@@ -49,13 +49,14 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card-footer">
+        <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> Save
         </button>
         <a href="{{ url('system-setting/delegations') }}" class="btn btn-danger "> CANCEL</a>
     </div>
+    </div>
+   
 </form>
 
 @include('layouts.includes.delete-modal')
