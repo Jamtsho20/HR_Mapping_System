@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
+use App\Models\SystemNotification;
 use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
@@ -16,6 +17,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $holidays = WorkHolidayList::filter($request)->orderBy('start_date')->paginate(10)->withQueryString();
+        $notifications = SystemNotification::all();
         $user = auth()->user();
         $currentYear = Carbon::now()->year;
         
@@ -70,7 +72,7 @@ class DashboardController extends Controller
 
 
 
-        return view('dashboard', compact('user', 'holidays', 'leaveData', 'statusCounts', 'earnedLeaveCounts'));
+        return view('dashboard', compact('user', 'holidays', 'leaveData', 'statusCounts', 'earnedLeaveCounts','notifications'));
     }
 
     // public function show($id)
