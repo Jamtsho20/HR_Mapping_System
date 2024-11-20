@@ -66,7 +66,7 @@
                                             <td>{{ $leave->from_date }}</td>
                                             <td>{{ $leave->to_date }}</td>
                                             <td>{{ $leave->no_of_days }}</td>
-                                            <td>{{ $leave->status }}</td>
+                                            <td>{{ $leave->status_name }}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)
                                                 <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"

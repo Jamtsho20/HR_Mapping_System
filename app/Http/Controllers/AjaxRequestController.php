@@ -21,6 +21,7 @@ use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
+use App\Models\TravelAuthorizationApplication;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -318,5 +319,21 @@ class AjaxRequestController extends Controller
     {
         $advanceDetail = AdvanceApplication::where('id', $id)->get();
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
+    }
+
+    public function getTravelAuthorizationDetails($id)
+    {
+        $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
+        if (!$travelAuthorizationDetails) {
+            return response()->json(['message' => 'Travel authorization not found'], 404);
+        }
+        if ($travelAuthorizationDetails->details) {
+            $travelAuthorizationDetails->details->each(function ($detail) {
+                // Use the accessor to get the travel name
+                $detail->mode_of_travel = $detail->travel_name; // This calls the accessor
+            });
+        }
+        // dd($travelAuthorizationDetails);
+        return response()->json(['travel_authorization_details' => $travelAuthorizationDetails]);
     }
 }

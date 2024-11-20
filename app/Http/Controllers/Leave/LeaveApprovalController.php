@@ -158,7 +158,7 @@ class LeaveApprovalController extends Controller
                         // } catch (\Exception $e) {
                         //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
                         // }
-                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
                         $leaveApplication->update([
                             'status' => 3, // 3 could represent 'final approved'

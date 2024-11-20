@@ -13,7 +13,7 @@ class TravelAuthorizationApplication extends Model
     protected $table = 'travel_authorization_applications';
 
     protected $fillable = [
-       'travel_authorization_no',
+        'travel_authorization_no',
         'date',
         'created_by',
         'updated_by',
@@ -21,7 +21,6 @@ class TravelAuthorizationApplication extends Model
         'estimated_travel_expenses',
         'advance_amount',
         'daily_allowance',
-        'travel_authorization_no'
     ];
 
 
@@ -39,22 +38,24 @@ class TravelAuthorizationApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
+
+    //accessors and mutations
     public function getStatusNameAttribute() {
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
 
     protected static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    static::deleting(function ($travelAuthorization) {
-        $travelAuthorization->details()->delete();
-    });
-}
+        static::deleting(function ($travelAuthorization) {
+            $travelAuthorization->details()->delete();
+        });
+    }
 
-
-    public function scopeFilter($query, $request, $onesOwnRecord){
+    // scope filter
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
         if ($request->has('status') && $request->query('status') != '') {
             $query->where('status', '=', $request->mode_of_travel);
             

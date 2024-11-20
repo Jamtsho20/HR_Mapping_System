@@ -38,54 +38,33 @@
                 </div>
                 <div id="dynamic-fields">
                     @if($advance->advanceType)
+                        {{-- @if($advance->advance_type_id === config('constant.DSA_ADVANCE'))
+                            @include('advance-loan.apply.edit.dsa_advance') --}}
+                        @if($advance->advanceType->name === 'Advance to Staff')
+                        @include('advance-loan.apply.edit.advance_to_staff')
 
-                    @if($advance->advanceType->name === 'Advance to Staff')
-                    @include('advance-loan.apply.edit.advance_to_staff')
+                        @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
+                        @include('advance-loan.apply.edit.dsa_advance')
 
-                    @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
-                    @include('advance-loan.apply.edit.dsa_advance')
+                        {{-- @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
+                        @include('advance-loan.apply.edit.electricity_imprest_advance') --}}
 
-                    @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
-                    @include('advance-loan.apply.edit.electricity_imprest_advance')
+                        @elseif($advance->advanceType->name === 'Imprest Advance')
+                        @include('advance-loan.apply.edit.general_imprest_advance')
 
-                    @elseif($advance->advanceType->name === 'Imprest Advance')
-                    @include('advance-loan.apply.edit.general_imprest_advance')
+                        @elseif($advance->advanceType->name === 'Gadget EMI')
+                        @include('advance-loan.apply.edit.gadget_emi')
 
-                    @elseif($advance->advanceType->name === 'Gadget EMI')
-                    @include('advance-loan.apply.edit.gadget_emi')
+                        @elseif($advance->advanceType->name === 'SIFA LOAN')
+                        @include('advance-loan.apply.edit.sifa_loan')
 
-                    @elseif($advance->advanceType->name === 'SIFA LOAN')
-                    @include('advance-loan.apply.edit.sifa_loan')
+                        @elseif($advance->advanceType->name === 'Salary Advance')
+                        @include('advance-loan.apply.edit.salary_advance')
 
-                    @elseif($advance->advanceType->name === 'Salary Advance')
-                    @include('advance-loan.apply.edit.salary_advance')
-
-                    @endif
+                        @endif
                     @endif
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="remark">Remark</label>
-                            <input type="text" class="form-control" id="remark" name="remark" value="{{ $advance->remark }}">
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="attachment">Attachment</label>
-                            @if($advance->attachment)
-                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf">
-                            <a href="{{ asset($advance->attachment) }}" target="_blank" class="btn btn-link">
-                                <i class="fas fa-file-alt"></i> View Attachment
-                            </a><br>
-                            <small class="text-muted">Leave blank if you don't want to change the attachment.</small>
-                            @else
-                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,application/pdf">
-                            @endif
-                        </div>
-                    </div>
-                </div>
+                
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
                     <a href="{{ url('advance-loan/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>

@@ -50,20 +50,7 @@
 
             <!-- Gadget Emi Form -->
             @include('advance-loan.apply.types.gadget_emi')
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="purpose">Remark</label>
-                        <textarea rows="2" class="form-control" name="remark" id="remark">{{ old('remark') }}</textarea>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="attachment">Attachment </label>
-                        <input type="file" class="form-control" name="attachment" accept="image/*"/>
-                    </div>
-                </div>
-            </div>
+        
             <!--DSA Advance Form-->
             @include('advance-loan.apply.types.dsa_advance')
 

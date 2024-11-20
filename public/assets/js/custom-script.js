@@ -427,7 +427,6 @@ var hrms = function () {
                         dataType: 'JSON',
                         type: 'GET',
                         success: function (data) {
-                            console.log(data)
                             if (data['advance_detail'][0].attachment) { // assuming 'file_url' is the URL or path in your response data
                                 $('#uploaded-file').html(`
                                     <p>Current Attachment:</p>
@@ -484,6 +483,71 @@ var hrms = function () {
 
             // trigger calculation of net payable amount on change of total_amount_adjusted
         });
+
+
+        //get travel authorization detail using travel authorization id
+        $(document).ready(function () {
+            function getTravelAuthorizationDetails() {
+                const travelAuthorizationId = $("#travel_authorization_id").val();
+
+                if (travelAuthorizationId !== '') {
+                    $.ajax({
+                        url: `/gettravelauthorizationbytravelauthorizationid/${travelAuthorizationId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function (data) {
+                            console.log(data.travel_authorization_details )
+                            // Clear the existing table rows
+                            const tbody = $("#basic-datatable tbody");
+                            tbody.empty();
+        
+                            // Check if details exist
+                            if (data.travel_authorization_details ?? data.travel_authorization_details.details.length > 0) {
+                                // Loop through the details and add rows to the table
+                                data.travel_authorization_details.details.forEach((detail, index) => {
+                                    const row = `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${detail.from_date}</td>
+                                            <td>${detail.to_date}</td>
+                                            <td>${detail.from_location}</td>
+                                            <td>${detail.to_location}</td>
+                                            <td>${detail.mode_of_travel}</td>
+                                            <td>${detail.purpose}</td>
+                                        </tr>`;
+                                    tbody.append(row);
+                                });
+                                $('#advance_amount').val(data.travel_authorization_details.advance_amount ?? 0);
+                                $('#estimated_travel_expenses').val(data.travel_authorization_details.estimated_travel_expenses);
+                            } else {
+                                // Add a "no data" row if no details are returned
+                                const noDataRow = `
+                                    <tr>
+                                        <td colspan="6" class="text-center text-danger">No details found</td>
+                                    </tr>`;
+                                tbody.append(noDataRow);
+                            }
+                        },
+                        error: function (error) {
+                            console.error("Error fetching data", error);
+        
+                            // Handle error by showing a message in the table
+                            const tbody = $("#basic-datatable tbody");
+                            tbody.empty();
+                            const errorRow = `
+                                <tr>
+                                    <td colspan="6" class="text-center text-danger">Error fetching details</td>
+                                </tr>`;
+                            tbody.append(errorRow);
+                        }
+                    });
+                }
+            }
+        
+            // Trigger the function when the dropdown value changes
+            $(document).on("change", "#travel_authorization_id", getTravelAuthorizationDetails);
+        });
+        
 
         //END
 

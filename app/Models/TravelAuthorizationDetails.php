@@ -32,4 +32,10 @@ class TravelAuthorizationDetails extends Model
     {
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
     }
+
+    //accessors and mutators
+    public function getTravelNameAttribute() {
+        $travelNameMapping = config('global.travel_modes');
+        return $travelNameMapping[$this->mode_of_travel] ?? config('global.null_value');
+    }
 }

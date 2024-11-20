@@ -49,7 +49,7 @@
                                                                         EMPLOYEE
                                                                     </th>
                                                                     <th>
-                                                                        Advance Date
+                                                                        APPLIED ON
                                                                     </th>
                                                                     <th>
                                                                         Advance Type
@@ -71,11 +71,11 @@
                                                                     <td>
                                                                         <input type="checkbox" class="advance_checkbox" value="{{ $advance->id }}">
                                                                     </td>
-                                                                    <td>{{ $advance->employee->emp_id_name ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->advance_date ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->advanceType->name ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->amount ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->status ?? 'N/A' }}</td>
+                                                                    <td>{{ $advance->employee->emp_id_name }}</td>
+                                                                    <td>{{ $advance->date }}</td>
+                                                                    <td>{{ $advance->advanceType->name }}</td>
+                                                                    <td>{{ $advance->amount }}</td>
+                                                                    <td>{{ $advance->status_name }}</td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->edit)
                                                                         <a href="{{ url('advance/approval/' . $advance->id . '/edit') }}"
