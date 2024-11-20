@@ -68,7 +68,7 @@ public function create()
       {
         require_once base_path('app/Http/constants.php');
 
-        $user = Auth::user();
+    $user = Auth::user();
         $userId = $user->id;
         $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
         $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
@@ -86,6 +86,7 @@ public function store(Request $request)
         $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
+        
         try {
             DB::beginTransaction();
             $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;

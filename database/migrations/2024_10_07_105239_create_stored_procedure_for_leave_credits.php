@@ -81,8 +81,8 @@ return new class extends Migration
                             -- Proportionally calculate the leave entitlement
                             SET leave_entitlement = ROUND((total_months_remaining / 12) * duration);
                         -- for extra ordinary leave
-                        ELSEIF (leave_id = 6) THEN 
-                        -- Study Leave will be set to 0 because study leave will be eligible only after 2 years of service  
+                        ELSEIF (leave_id = 2) THEN 
+                        -- when leave type is earned leave  
                             SET leave_entitlement = 0;  
                         ELSE
                             SET leave_entitlement = duration;

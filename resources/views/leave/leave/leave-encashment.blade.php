@@ -2,21 +2,21 @@
 @section('page-title', 'Leave Encashment')
 @section('content')
 
-<form action="" method="POST">
+<form action="{{ url('leave/leave-encashment') }}" method="POST">
     @csrf
     <div class="card">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="encashment">Total Leaves For Encashment <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="encashment" placeholder="0.00" required>
+                        <label for="encashment">Total Leaves For Encashment <span class="text-danger"></span></label>
+                        <input type="text" class="form-control" name="earned_leave_balance" placeholder="0.00" value="{{ $earnedLeaveBalance}}" readonly required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="leave-encashment">Leave Eligible For Encashment <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="leave-encashment" required>
+                        <label for="leave-encashment">Leave Eligible For Encashment <span class="text-danger"></span></label>
+                        <input type="text" class="form-control" name="required_leave_balance" value="{{ $requiredBalance }}" readonly required>
                     </div>
                 </div>
             </div>
@@ -24,20 +24,30 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="apply-encashment">Leave Apply For Encashment <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="apply-encashment" required>
+                        <label for="apply-encashment">Leave Apply For Encashment <span class="text-danger"></span></label>
+                        <input type="text" class="form-control" name="leave_applied_for_encashment" value="{{$earnedLeaveEncahsment}}" readonly required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="encashed-amt">Encashed Amount <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="encashed-amt" required>
+                        <label for="encashed-amt">Encashed Amount <span class="text-danger"></span></label>
+                        <input type="text" class="form-control" name="encashment_amount" value="{{ $encashedAmount }}" readonly required>
                     </div>
                 </div>
+
+               
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
+        @if($applyFlag)
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-upload"></i> SUBMIT
+            </button>
+        @else
+            <button type="button" class="btn btn-secondary" disabled>
+                <i class="fa fa-times"></i> Insufficient Balance
+            </button>
+        @endif
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>

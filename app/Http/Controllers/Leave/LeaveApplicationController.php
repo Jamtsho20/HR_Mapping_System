@@ -7,12 +7,15 @@ use App\Models\LeaveApplication;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\EmployeeLeave;
+use App\Models\PaySlipDetailView;
 use App\Models\MasEmployeeJob;
+use App\Models\LeaveEncashmentApplication;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class LeaveApplicationController extends Controller
 {
@@ -49,10 +52,15 @@ class LeaveApplicationController extends Controller
       
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
+        // For leave encashment
+        $currentYear = now()->year;
+        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
+                    ->whereYear('created_at', $currentYear)
+                    ->first();
         $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
         // dd($leaveApplications);
 
-        return view('leave.leave.index',compact('privileges','leaveTypes', 'leaveApplications'));
+        return view('leave.leave.index',compact('privileges','leaveTypes', 'leaveApplications', 'leaveEncashment'));
 
     }
 
@@ -226,7 +234,15 @@ class LeaveApplicationController extends Controller
     }
 
     public function leaveEncashment(){
-        return view('leave.leave.leave-encashment');
+        $earnedLeaveBalance = EmployeeLeave::where('mas_employee_id', auth()->user()->id)
+        ->where('mas_leave_type_id', 2)
+        ->whereYear('created_at', Carbon::now()->year)
+        ->value('closing_balance');
+
+        $requiredBalance = 37;
+        $earnedLeaveEncahsment = 30;
+        $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay'); 
+        return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment'));
     }
 
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave

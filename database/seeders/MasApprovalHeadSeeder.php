@@ -14,11 +14,11 @@ class MasApprovalHeadSeeder extends Seeder
     public function run(): void
     {
         DB::table('mas_approval_heads')->insert([
-            ['id' => 1, 'name' => 'Leave', 'description' => 'Leave'],
-            ['id' => 2, 'name' => 'Expense', 'description' => 'Expense'],
-            ['id' => 3, 'name' => 'Loan/Advance', 'description' => 'Loan/Advance'],
-            ['id' => 4, 'name' => 'Leave Encashment', 'description' => 'Leave Encashment'],
-            ['id' => 5, 'name' => 'Requisition', 'description' => 'Requisition'],        
+            ['id' => 1, 'name' => 'Leave', 'description' => 'Leave','updated_by' => null, 'created_by' => 1],
+            ['id' => 2, 'name' => 'Expense', 'description' => 'Expense', 'updated_by' => null, 'created_by' => 1 ],
+            ['id' => 3, 'name' => 'Loan/Advance', 'description' => 'Loan/Advance', 'updated_by' => null, 'created_by' => 1 ],
+            ['id' => 4, 'name' => 'Leave Encashment', 'description' => 'Leave Encashment', 'updated_by' => null, 'created_by' => 1],
+            ['id' => 5, 'name' => 'Requisition', 'description' => 'Requisition', 'updated_by' => null, 'created_by' => 1],        
         ]);
     }
 }

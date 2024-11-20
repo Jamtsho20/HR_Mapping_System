@@ -4,7 +4,7 @@
 <div class="block">
     <div class="block-options">
         <div class="block-options-item">
-            <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
+            <a href="{{ route('leave-encashment.index')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-plus"></i> Leave Encashment
             </a>
             <a href="{{route('leave-apply.create')}}" class="btn btn-sm btn-primary">
@@ -72,7 +72,47 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                    @forelse($leaveApplications as $leave)
+                                                        @if ($leaveEncashment)
+                                                            <tr>
+                                                                <td>1</td> <!-- Static number if encashment is standalone -->
+                                                                <td>-</td>
+                                                                <td>-</td>
+                                                                <td>Leave Encashment</td> <!-- Static name -->
+                                                                <td> - </td>
+                                                                <td> - </td>
+                                                                <td> - </td>
+                                                                <td class="text-center">
+                                                                @php
+                                                                    $statusText = config("global.application_status.{$leaveEncashment->status}", 'Unknown Status');
+                                                                @endphp
+                                                                    <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $leaveEncashment->status == 1 ? 'primary' : ($leaveEncashment->status == -1 ? 'danger' : ($leaveEncashment->status == 2 ? 'success' : 'secondary')) }}">
+                                                                    {{ $statusText }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    @if ($privileges->view)
+                                                                        <a href="{{ url('leave/leave-encashment/' . $leaveEncashment->id) }}" 
+                                                                        class="btn btn-sm btn-outline-secondary">
+                                                                            <i class="fa fa-list"></i> Detail
+                                                                        </a>
+                                                                    @endif
+                                                                    @if ($privileges->edit)
+                                                                        <a href="{{ url('leave/leave-encashment/' . $leaveEncashment->id . '/edit') }}" 
+                                                                        class="btn btn-sm btn-rounded btn-outline-success">
+                                                                            <i class="fa fa-edit"></i> EDIT
+                                                                        </a>
+                                                                    @endif
+                                                                    @if ($privileges->delete)
+                                                                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" 
+                                                                        data-url="{{ url('leave/leave-encashment/' . $leaveEncashment->id) }}">
+                                                                            <i class="fa fa-trash"></i> DELETE
+                                                                        </a>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                        @forelse($leaveApplications as $leave)
+                                                    
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $leave->employee->username }}</td>
@@ -98,10 +138,12 @@
                                                                 @endif
                                                             </td>
                                                         </tr>
-                                                    @empty
+                                                    @empty 
+                                                    @if (empty($leaveEncashment) && $leaveApplications->isEmpty())
                                                         <tr>
-                                                            <td colspan="9" class="text-center text-danger">No Leave found</td>
+                                                            <td colspan="9" class="text-center text-danger">No Leave Found</td>
                                                         </tr>
+                                                    @endif
                                                     @endforelse
                                                     </tbody>
                                                 </table>

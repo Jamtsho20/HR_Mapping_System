@@ -67,7 +67,7 @@
                 <div class="col-md-4">
                         <div class="form-group">
                             <label for="to_location">Daily Allowance<span class="text-danger"></span></label>
-                            <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value={{$dailyAllowance}} readonly>
+                            <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value="{{$dailyAllowance}}" readonly>
                         </div>
                     </div>
             </div>

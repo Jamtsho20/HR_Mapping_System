@@ -233,7 +233,7 @@ class TravelAuthorizationApprovalController extends Controller
     }
 
     public function bulkApprovalRejection(Request $request)
-    {
+    {   
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
@@ -263,11 +263,11 @@ class TravelAuthorizationApprovalController extends Controller
                     'remarks' => $rejectRemarks,
                     'action_performed_by' => $userId,
                 ];
-
+                
                 if ($action === 'approve' && $applicationHistory) {
                     $applicationForwardedTo = $approvalService->applicationForwardedTo($id, TravelAuthorizationApplication::class);
-                    // dd($applicationForwardedTo);
-                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+                    // \Log::info('Application forwarded to:', ['data' => $applicationForwardedTo['next_level']->id]);
+                    if ($applicationForwardedTo && isset($applicationForwardedTo['approver_details']['user_with_approving_role']->id)) {
                         $updateData = array_merge($updateData, [
                             'level_id' => $applicationForwardedTo['next_level']->id,
                             'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
