@@ -38,7 +38,7 @@ class DashboardController extends Controller
             ->first() ?? 0; // Default to 0 if no balance is found
     
         // Leave data setup
-        $leaveData = ['Approved Leave', 'Leave Balance', 'In-Progress Leave'];
+        $leaveData = ['Approved', 'Balance', 'In-Progress'];
         $statusCounts = [
             0,                // Approved Leave (Status 3)
             $leaveBalance,    // Leave Balance
