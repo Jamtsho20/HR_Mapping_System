@@ -68,6 +68,9 @@
                                             <td>{{ $leave->no_of_days }}</td>
                                             <td>{{ $leave->status }}</td>
                                             <td class="text-center">
+                                                @if ($privileges->view)
+                                                <a href="{{ url('leave/approval/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                @endif
                                                 @if ($privileges->edit)
                                                 <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
                                                     class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i

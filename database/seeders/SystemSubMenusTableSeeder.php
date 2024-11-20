@@ -23,7 +23,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 1, 'name' => 'Hierarchy', 'route' => 'system-setting/hierarchies', 'display_order' => 4],
             ['system_menu_id' => 1, 'name' => 'Delegation', 'route' => 'system-setting/delegations', 'display_order' => 5],
             ['system_menu_id' => 1, 'name' => 'Notification', 'route' => 'system-setting/notifications', 'display_order' => 6],
-            ['system_menu_id' => 1, 'name' => 'Approval Head', 'route' => 'system-setting/bugdet-code', 'display_order' => 7],
+            ['system_menu_id' => 1, 'name' => 'Approval Head', 'route' => 'system-setting/approval-head', 'display_order' => 7],
             ['system_menu_id' => 1, 'name' => 'Approval Rules', 'route' => 'system-setting/approval-rules', 'display_order' => 8],
             ['system_menu_id' => 1, 'name' => 'Approving Authority', 'route' => 'system-setting/approving-authorities', 'display_order' => 9],
             ['system_menu_id' => 1, 'name' => 'Approval Condition Field', 'route' => 'system-setting/condition-fields', 'display_order' => 10],

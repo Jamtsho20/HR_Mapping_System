@@ -71,7 +71,14 @@ class LeaveApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+        try{
+            $leave = LeaveApplication::findOrFail($id);
+            $empDetails = empDetails($leave->created_by);
+        }catch(\Exception $e){
+            return back()->with('err_msg', 'Leave apllication not found!');
+        }
+
+        return view('leave.approval.show', compact('leave','empDetails'));
     }
 
     /**
