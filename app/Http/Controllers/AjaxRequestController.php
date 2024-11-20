@@ -8,9 +8,11 @@ use App\Models\EmployeeLeave;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
+use App\Models\MasTravelType;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
+use App\Models\LeaveEncashmentType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
@@ -163,7 +165,7 @@ class AjaxRequestController extends Controller
 
     //     return $totalDays;
     // }
-    public function getNoOfDays(Request $request)
+    public function getNoOfDays(Request $request) 
     {
         $fromDate = new \DateTime($request->input('from_date'));
         $toDate = new \DateTime($request->input('to_date'));
@@ -276,8 +278,9 @@ class AjaxRequestController extends Controller
             1 => MasLeaveType::class,
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
-            4 => MasApprovalHeadTypes::class,
+            4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
+            6 => MasTravelType::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -335,5 +338,12 @@ class AjaxRequestController extends Controller
         }
         // dd($travelAuthorizationDetails);
         return response()->json(['travel_authorization_details' => $travelAuthorizationDetails]);
+    }
+
+    public function  getEmployeeById($id)
+    {
+        $user = User::whereId($id)->firstOrFail();
+
+        return response()->json($user);
     }
 }

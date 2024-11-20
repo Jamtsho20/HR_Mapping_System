@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_approval_heads', function (Blueprint $table) {
+        Schema::create('sifa_registrations', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('description', 500);
+            $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
+            $table->boolean('status')->default(3);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
+            
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_approval_heads');
+        Schema::dropIfExists('sifa_registrations');
     }
 };

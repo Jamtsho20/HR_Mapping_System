@@ -75,7 +75,21 @@
                                                                     <td>{{ $advance->date }}</td>
                                                                     <td>{{ $advance->advanceType->name }}</td>
                                                                     <td>{{ $advance->amount }}</td>
-                                                                    <td>{{ $advance->status_name }}</td>
+                                                                    <td class="text-center">
+                                                                        @if ($advance->status == 1)
+                                                                            <span class="badge bg-primary">Submitted</span>
+                                                                        @elseif($advance->status == 2)
+                                                                            <span class="badge bg-summary">Verified</span>
+                                                                        @elseif($advance->status == 3)
+                                                                            <span class="badge bg-summary">Approved</span>
+                                                                        @elseif($advance->status == 0)
+                                                                            <span class="badge bg-warning">Cancelled</span>
+                                                                        @elseif($advance->status == -1)
+                                                                            <span class="badge bg-danger">Rejected</span>
+                                                                        @else
+                                                                            <span class="badge bg-secondary">Unknown Status</span>
+                                                                        @endif
+                                                                    </td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->edit)
                                                                         <a href="{{ url('advance/approval/' . $advance->id . '/edit') }}"

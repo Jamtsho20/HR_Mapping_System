@@ -4,6 +4,8 @@ namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasAdvanceTypes;
+use App\Models\MasTravelType;
+use App\Models\LeaveEncashmentType;
 use App\Models\MasApprovalCondition;
 use App\Models\MasApprovalHead;
 use App\Models\MasApprovalRule;
@@ -70,6 +72,8 @@ class ApprovalRuleController extends Controller
             1 => MasLeaveType::class,
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
+            4 => LeaveEncashmentType::class,
+            6 =>  MasTravelType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

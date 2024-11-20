@@ -47,6 +47,7 @@
                                                 <tr role="row">
                                                     <th>#</th>
                                                     <th>Travel Authorizaiton number</th>
+                                                    <th>Travel Type</th>
                                                     <th>Date</th>
                                                     <th>ESTIMATED EXPENSES</th>
                                                     <th>ADVANCE REQUIRED</th>
@@ -60,24 +61,26 @@
                                                 
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $travelAuthorization->travel_authorization_no }}</td>
+                                                    <td>{{ $travelAuthorization->travelType->name }}</td>
                                                     <td>{{ $travelAuthorization->date }} </td>
                                                    
                                                     <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
                                                     <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
                                                     <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td>
                                                     
-                                                    <td>
-                                                        @if($travelAuthorization->status == 1)
-                                                        <span class="badge bg-primary">Applied</span>
-                                                        @elseif($travelAuthorization->status == 2)
-                                                        <span class="badge bg-summary">Approved</span>
-                                                        @elseif($travelAuthorization->status == 0)
-                                                        <span class="badge bg-warning">Cancelled</span>
-                                                        @elseif($travelAuthorization->status == -1)
-                                                        <span class="badge bg-danger">Rejected</span>
-                                                        @else
-                                                        <span class="badge bg-secondary">Unknown Status</span>
-                                                        @endif
+                                                    <td>@php
+                                                            $statusClasses = [
+                                                                -1 => 'badge bg-danger',
+                                                                0 => 'badge bg-warning',
+                                                                1 => 'badge bg-primary',
+                                                                2 => 'badge bg-success',
+                                                                3 => 'badge bg-info',
+                                                            ];
+                                                            $statusText = config("global.application_status.{$travelAuthorization->status}", 'Unknown Status');
+                                                            $statusClass = $statusClasses[$travelAuthorization->status] ?? 'badge bg-secondary';
+                                                        @endphp
+
+                                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                     </td>
                                                     <td class="text-center">
                                                         @if ($privileges->view)

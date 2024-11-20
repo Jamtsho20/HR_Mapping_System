@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TravelAuthorizationDetails;
 
 class TravelAuthorizationApplication extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
 
     protected $table = 'travel_authorization_applications';
 
@@ -74,6 +75,12 @@ class TravelAuthorizationApplication extends Model
     // elseif ($request->filled('to_date')) {
     //     $query->where('date', '<=', $request->to_date); 
     // }
+
+    if ($request->filled('travel_type')) {
+        $query->whereHas('travelType', function ($subQuery) use ($request) {
+            $subQuery->where('name', 'like', '%' . $request->travel_type . '%');
+        });
+    }
     }
 
 

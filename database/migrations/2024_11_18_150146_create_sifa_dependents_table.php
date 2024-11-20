@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_approval_heads', function (Blueprint $table) {
+        Schema::create('sifa_dependents', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('description', 500);
-            $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees');
+            $table->foreignId('sifa_registration_id')->index()->constrained('sifa_registrations')->cascadeOnUpdate()->restrictOnDelete();
+            $table->string('dependent_name');
+            $table->string('relation_with_employee');
+            $table->string('cid_number');            
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_approval_heads');
+        Schema::dropIfExists('sifa_dependents');
     }
 };

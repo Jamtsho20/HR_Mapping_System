@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_approval_heads', function (Blueprint $table) {
+        Schema::create('leave_encashment_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('description', 500);
+            $table->string('name');
+            $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_approval_heads');
+        Schema::dropIfExists('leave_encashment_types');
     }
 };

@@ -8,6 +8,7 @@ use App\Models\MasLeaveType;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LeaveApprovalController extends Controller
 {
@@ -190,7 +191,7 @@ class LeaveApprovalController extends Controller
             return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred during the operation.'], 500);
         }
     }

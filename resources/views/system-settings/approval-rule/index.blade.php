@@ -54,7 +54,6 @@
                                     &nbsp;
                                     <label>entries</label>
                                 </div>
-
                                 <div class="col-3">
                                     <input type="text" name="search" class="form-control" value=""
                                         placeholder="Search">
@@ -82,7 +81,7 @@
                                                 <td>{{ $rule->name }}</td>
                                                 <td>{{ $rule->start_date }}</td>
                                                 <td>{{ $rule->end_date }}</td>
-                                                <td>{!! $rule->is_active == 1
+                                                <td class="text-center">{!! $rule->is_active == 1
                                                     ? '<span class="badge bg-success">Active</span>'
                                                     : '<span class="badge bg-success">Inactive</span>' !!}</td>
                                                 <td class="text-center">

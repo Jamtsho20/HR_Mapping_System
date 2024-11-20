@@ -4,7 +4,7 @@ namespace App\View\Components;
 
 use Illuminate\View\Component;
 use Illuminate\View\View;
-
+https://www.fujitsu.com/global/products/computing/pc/
 class AppLayout extends Component
 {
     /**

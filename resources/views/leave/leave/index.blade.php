@@ -82,9 +82,19 @@
                                                             <td>{{ $leave->to_date }}</td>
                                                             <td>{{ $leave->no_of_days }}</td>
                                                             <td class="text-center">
-                                                                <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $leave->status == 1 ? 'primary' : ($leave->status == -1 ? 'danger' : ($leave->status == 2 ? 'success' : 'secondary')) }}">
-                                                                    {{ $leave->status_name }} <!-- Use the accessor here -->
-                                                                </span>
+                                                                @if ($leave->status == 1)
+                                                                    <span class="badge bg-primary">Submitted</span>
+                                                                @elseif($leave->status == 2)
+                                                                    <span class="badge bg-summary">Verified</span>
+                                                                @elseif($leave->status == 3)
+                                                                    <span class="badge bg-summary">Approved</span>
+                                                                @elseif($leave->status == 0)
+                                                                    <span class="badge bg-warning">Cancelled</span>
+                                                                @elseif($leave->status == -1)
+                                                                    <span class="badge bg-danger">Rejected</span>
+                                                                @else
+                                                                    <span class="badge bg-secondary">Unknown Status</span>
+                                                                @endif
                                                             </td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)

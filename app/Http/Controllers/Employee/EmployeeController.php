@@ -221,7 +221,7 @@ class EmployeeController extends Controller
     }
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
-    {
+    { 
         $user = $employeeId ? User::findOrFail($employeeId): "";
         $rules = [
             'personal.first_name' => 'required',

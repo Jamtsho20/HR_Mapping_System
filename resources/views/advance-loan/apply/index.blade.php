@@ -52,10 +52,12 @@
                                                             <td>{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}
                                                             </td>
                                                             <td>{{ number_format($advance->amount, 2) }}</td>
-                                                            <td>
+                                                            <td class="text-center">
                                                                 @if ($advance->status == 1)
-                                                                    <span class="badge bg-primary">Applied</span>
+                                                                    <span class="badge bg-primary">Submitted</span>
                                                                 @elseif($advance->status == 2)
+                                                                    <span class="badge bg-summary">Verified</span>
+                                                                @elseif($advance->status == 3)
                                                                     <span class="badge bg-summary">Approved</span>
                                                                 @elseif($advance->status == 0)
                                                                     <span class="badge bg-warning">Cancelled</span>

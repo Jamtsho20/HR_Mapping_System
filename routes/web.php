@@ -1,12 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Employee\EmployeeController;
+use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reports\LeaveAvailedReportController;
+use App\Http\Controllers\Reports\LeaveBalanceReportController;
+use App\Http\Controllers\Reports\SalaryReportController;
+use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
-use App\Http\Controllers\Profile\ProfileController;
-use App\Http\Controllers\Reports\SalaryReportController;
 use App\Services\PayrollService;
+use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,8 +29,8 @@ require __DIR__ . '/auth.php';
 Route::redirect('/', '/login', 301);
 
 Route::get('/test-payslip', function () {
- return   PayrollService::checkFormulaValidity(
-"IF (['EMPLOYMENT_TYPE'] == 'Regular')
+    return   PayrollService::checkFormulaValidity(
+        "IF (['EMPLOYMENT_TYPE'] == 'Regular')
 THEN ([BASIC_PAY] * 0.15)
 ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
 THEN ([BASIC_PAY] * 0.15)
@@ -36,7 +42,7 @@ ENDIF"
     );
 });
 
-Route::get('login-as-employee/{id}','Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
+Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
@@ -58,7 +64,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval-head', 'ApprovalHeadController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
         Route::resource('condition-fields', 'ConditionFieldController');
-       
+
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
@@ -87,7 +93,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('offices', 'OfficeController');
         Route::resource('vehicles', 'VehicleController');
         Route::resource('budget-code', 'BudgetCodeController');
-
     });
 
     // WORK STRUCTURE
@@ -119,7 +124,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
     });
-   // LEAVE
+    // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
         Route::resource('leave-policy', 'LeavePolicyController');
         Route::resource('leave-apply', 'LeaveApplicationController');
@@ -153,20 +158,23 @@ Route::middleware('auth')->group(function () {
     });
 
     // TRAVEL_AUTHORIZATION
-    Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function (){
+    Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function () {
         Route::resource('apply-travel-authorization', 'TravelAuthorizationApplicationController');
         Route::resource('travel-authorization-approval', 'TravelAuthorizationApprovalController');
-
+        Route::post('approval/bulk', 'TravelAuthorizationApprovalController@bulkApprovalRejection')->name('travel-authorization.bulk-approval-rejection');
     });
 
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
+        Route::post('sifa-registration', [SifaRegistrationController::class, 'store'])->name('sifa-registration.store');
+        Route::get('sifa-registration/create', [SifaRegistrationController::class, 'create'])->name('sifa-registration.create');
     });
 
     // Eployee
     Route::namespace('Employee')->prefix('employee')->group(function () {
         Route::resource('employee-lists', 'EmployeeController');
+        Route::get('/employee/details', [EmployeeController::class, 'showEmployeeDetails'])->name('employee.details');
     });
 
     //reports
@@ -181,12 +189,21 @@ Route::middleware('auth')->group(function () {
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
         Route::resource('salary-saving-scheme', 'SAlarySavingSchemeController')->except('create', 'show', 'edit');
-
     });
 
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
     Route::get('/export-salary-excel-report', [SalaryReportController::class, 'exportSalaryExcel'])->name('salary-report-excel.export');
+    Route::get('/export-leave-availed-report', [LeaveAvailedReportController::class, 'exportLeaveAvailed'])->name('leave-availed-pdf.export');
+    Route::get('/export-leave-availed-excel-report', [LeaveAvailedReportController::class, 'exportLeaveAvailedExcel'])->name('leave-availed-excel.export');
+    Route::get('/export-leave-balance-report', [LeaveBalanceReportController::class, 'exportLeaveBalance'])->name('leave-balance-pdf.export');
+    Route::get('/export-leave-balance-excel-report', [LeaveBalanceReportController::class, 'exportLeaveBalanceExcel'])->name('leave-balance-excel.export');
+
+    //printer
+    Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
+    Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
+    Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
+
 
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
@@ -275,5 +292,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
+    Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
 });
