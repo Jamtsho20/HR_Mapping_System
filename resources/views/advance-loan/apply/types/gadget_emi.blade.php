@@ -54,7 +54,18 @@
                 <input type="month" class="form-control" id="gadget_deduction_from_period" name="deduction_from_period" value="{{ old('deduction_from_period') }}" id="deduction_from_period" required />
             </div>
         </div>
-
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="purpose">Remark</label>
+                <textarea rows="2" class="form-control" name="remark" id="remark">{{ old('remark') }}</textarea>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="attachment">Attachment </label>
+                <input type="file" class="form-control" name="attachment" accept="image/*"/>
+            </div>
+        </div>
     </div>
 </div>
 

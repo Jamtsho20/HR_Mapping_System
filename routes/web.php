@@ -154,7 +154,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
         Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
-        Route::post('approval/bulk', 'AdvanceLoanApplicationController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
+        Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
 
     // TRAVEL_AUTHORIZATION
@@ -293,4 +293,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
+    Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
 });
