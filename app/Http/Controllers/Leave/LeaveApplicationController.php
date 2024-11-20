@@ -191,14 +191,14 @@ class LeaveApplicationController extends Controller
                 'status' => $leaveApplication->status,
             ]);
     
-            // Create a history record
-            $leaveApplication->histories()->create([
-                'level' => 'Test Level',
-                'status' => $leaveApplication->status,
-                'remarks' => $request->remarks,
-                'created_by' => $leaveApplication->created_by,
-                'updated_by' => loggedInUser()
-            ]);
+            // this will be inserted to application audit history table
+            // $leaveApplication->histories()->create([
+            //     'level' => 'Test Level',
+            //     'status' => $leaveApplication->status,
+            //     'remarks' => $request->remarks,
+            //     'created_by' => $leaveApplication->created_by,
+            //     'updated_by' => loggedInUser()
+            // ]);
     
             DB::commit();
         } catch (\Exception $e) {

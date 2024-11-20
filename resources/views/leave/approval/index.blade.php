@@ -66,8 +66,25 @@
                                             <td>{{ $leave->from_date }}</td>
                                             <td>{{ $leave->to_date }}</td>
                                             <td>{{ $leave->no_of_days }}</td>
-                                            <td>{{ $leave->status }}</td>
                                             <td class="text-center">
+                                                @if ($leave->status == 1)
+                                                    <span class="badge bg-primary">Submitted</span>
+                                                @elseif($leave->status == 2)
+                                                    <span class="badge bg-summary">Verified</span>
+                                                @elseif($leave->status == 3)
+                                                    <span class="badge bg-summary">Approved</span>
+                                                @elseif($leave->status == 0)
+                                                    <span class="badge bg-warning">Cancelled</span>
+                                                @elseif($leave->status == -1)
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Unknown Status</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($privileges->view)
+                                                <a href="{{ url('leave/approval/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                @endif
                                                 @if ($privileges->edit)
                                                 <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
                                                     class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i

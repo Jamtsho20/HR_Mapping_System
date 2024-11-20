@@ -29,7 +29,12 @@
                 <div class="form-group col-4">
                     <label for="">Delegate To <span class="text-danger">*</span></label>
                     <select class="form-control" name="delegate_to">
-                        <option value="" disabled selected hidden>Select </option>
+                    <option value="">Select an employee</option>
+                        @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->emp_id_name }} 
+                        </option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -44,13 +49,14 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card-footer">
+        <div class="card-footer">
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-check"></i> Save
         </button>
         <a href="{{ url('system-setting/delegations') }}" class="btn btn-danger "> CANCEL</a>
     </div>
+    </div>
+   
 </form>
 
 @include('layouts.includes.delete-modal')

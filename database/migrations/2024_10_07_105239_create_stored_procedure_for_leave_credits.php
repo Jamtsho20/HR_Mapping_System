@@ -82,7 +82,7 @@ return new class extends Migration
                             SET leave_entitlement = ROUND((total_months_remaining / 12) * duration);
                         -- for extra ordinary leave
                         ELSEIF (leave_id = 2) THEN 
-                        -- when leave type is earned leave  
+                        -- During employee registration by default earned leave will be credited as zero  
                             SET leave_entitlement = 0;  
                         ELSE
                             SET leave_entitlement = duration;

@@ -21,7 +21,7 @@ class AdvanceLoanApprovalController extends Controller
     {
         $this->middleware('permission:advance-loan/advance-loan-approval,view')->only('index');
         $this->middleware('permission:advance-loan/advance-loan-approval,create')->only('store');
-        $this->middleware('permission:advance-loan/advance-loan-approval,edit')->only('update');
+        $this->middleware('permission:advance-loan/advance-loan-approval,edit')->only('update', 'bulkApprovalRejection');
         $this->middleware('permission:advance-loan/advance-loan-approval,delete')->only('destroy');
     }
 
@@ -109,6 +109,7 @@ class AdvanceLoanApprovalController extends Controller
     {
         //
     }
+    
     public function bulkApprovalRejection(Request $request)
     {
         $action = $request->action;
@@ -116,25 +117,26 @@ class AdvanceLoanApprovalController extends Controller
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $userId = auth()->id();
-
+        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+        // dd($itemIds);
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
 
             foreach ($itemIds as $id) {
-                $advanceApplication = AdvanceApplication::findOrFail($id);
-                $applicationHistory = $advanceApplication->histories
+                $leaveApplication = AdvanceApplication::findOrFail($id);
+                $applicationHistory = $leaveApplication->histories
                     ->where('application_type', AdvanceApplication::class)
                     ->where('application_id', $id)
                     ->first();
 
-                // Update advance loan application status
-                $advanceApplication->update([
+                // Update leave application status
+                $leaveApplication->update([
                     'status' => $status,
                     'updated_by' => $userId,
                 ]);
 
-                // Prepare data for forwarding application if approved
+                // Forward application if approved
                 $updateData = [
                     'status' => $status,
                     'remarks' => $rejectRemarks,
@@ -143,7 +145,7 @@ class AdvanceLoanApprovalController extends Controller
 
                 if ($action === 'approve' && $applicationHistory) {
                     $applicationForwardedTo = $approvalService->applicationForwardedTo($id, AdvanceApplication::class);
-
+                    // dd($applicationForwardedTo);
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
                             'level_id' => $applicationForwardedTo['next_level']->id,
@@ -151,27 +153,45 @@ class AdvanceLoanApprovalController extends Controller
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
                         ]);
-                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['status']) && $applicationForwardedTo['status'] === 'max_level_reached') {
+                        // Attempt to send email to next approver need to work on it
+                        // try {
+                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($leaveApplication, $nextApprover));
+                        // } catch (\Exception $e) {
+                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
+                        // }
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
-                        $advanceApplication->update([
-                            'status' => 3, // 3 could represent 'final approved' for advance loans as well
+                        $leaveApplication->update([
+                            'status' => 3, // 3 could represent 'final approved'
                             'updated_by' => $userId,
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
+                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
+                        $leaveApplication->update([
+                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+                            'updated_by' => $userId,
+                        ]);
+                        $updateData['status'] = $applicationForwardedTo['application_status'];
                     }
                 }
-
                 // Update application history
                 if ($applicationHistory) {
                     $applicationHistory->update($updateData);
                 }
+
+                // Attempt to send email to applicant about the approval/rejection status need to work on it
+                // try {
+                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
+                // } catch (\Exception $e) {
+                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
+                // }
             }
 
             DB::commit();
-            return response()->json(['message' => 'All advance loans have been successfully processed.'], 200);
+            return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred during the operation.'], 500);
         }
     }

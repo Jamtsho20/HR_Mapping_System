@@ -1,42 +1,38 @@
-<div class="card-body card-box">
+<div style="display: none;" id="personal-info">
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th colspan="3"class="table table-condensed table-striped table-bordered text-center table-sm">Basic Employee Information</th>
+                <th colspan="3" class="table table-condensed table-striped table-bordered text-center table-sm">
+                    Basic Employee Information
+                </th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><strong>{{ $user->username }} ({{ $user->title }}{{ $user->name }})</strong><br></td>
-                <td><strong>Gender: </strong> {{ $user->gender_name }}<br></td>
-                <td> <strong>D.O.B: </strong> {{ $user->dob }}<br></td>
-            </tr>
-            <tr>
-                <td><strong>CID: </strong> {{ $user->cid_no }}<br></td>
-                <td><strong>Marital Status: </strong> {{ $user->marital_status_name }}<br></td>
-                <td><strong>Email: </strong> {{ $user->email }}<br></td>
+                <!-- Column 1 -->
+                <td>
+                    <strong>Gender: </strong><span id="emp_gender"></span><br>
+                    <strong>D.O.B: </strong><span id="emp_dob"></span><br>
+                    <strong>CID: </strong><span id="emp_cid"></span><br>
+                    <strong>Marital Status: </strong><span id="emp_marital_status"></span><br>
+                </td>
 
-            </tr>
-            <tr>
-                <th colspan="3" class="table table-condensed table-striped table-bordered text-center table-sm">Professional Details</th>
-            </tr>
-            <tr>
-                <td> <strong>Designation: </strong> {{ $user->empJob->designation->name ?? 'N/A' }}<br></td>
-                <td> <strong>Department: </strong> {{ $user->empJob->department->name ?? 'N/A' }}<br></td>
-                <td> <strong>Region: </strong> {{ $user->empJob->office->name ?? 'N/A' }}<br></td>
-            </tr>
-            <tr>
-                <td> <strong>Grade Step: </strong> {{ $user->empJob->gradeStep->name ?? 'N/A' }}<br></td>
-                <td> <strong>Contact Number: </strong> {{ $user->contact_number }}<br></td>
+                <!-- Column 2 -->
+                <td>
+                    <strong>Email: </strong><span id="emp_email"></span><br>
+                    <strong>Contact Number: </strong><span id="emp_contact_number"></span><br>
+                    <strong>Dzongkhag: </strong><span id="emp_dzongkhag"></span><br>
+                    <strong>Gewog: </strong><span id="emp_gewog"></span><br>
+                </td>
 
-            </tr>
-            <tr>
-                <th colspan="3" class="table table-condensed table-striped table-bordered text-center table-sm">Permanent Address</th>
-            </tr>
-            <tr>
-                <td><strong>Dzongkhag: </strong> {{ $user->empPermenantAddress->masDzongkhag->dzongkhag ?? config('global.null_value') }}<br> </td>
-                <td> <strong>Gewog: </strong> {{ $user->empPermenantAddress->masGewog->name ?? config('global.null_value') }}<br> </td>
-                <td> <strong>Village: </strong> {{ $user->empPermenantAddress->masVillage->village ?? config('global.null_value') }}<br> </td>
+                <!-- Column 3 -->
+                <td>
+                    <strong>Village: </strong><span id="emp_village"></span><br>
+                    <strong>Designation: </strong><span id="emp_designation"></span><br>
+                    <strong>Department: </strong><span id="emp_department"></span><br>
+                    <strong>Region: </strong><span id="emp_office"></span><br>
+                    <strong>Grade Step: </strong><span id="emp_gradeStep"></span><br>
+                </td>
             </tr>
         </tbody>
     </table>

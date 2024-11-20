@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
+use App\Models\SystemNotification;
 use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
@@ -15,63 +16,75 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $holidays = WorkHolidayList::filter($request)->orderBy('start_date')->paginate(10)->withQueryString();
+        $holidays = WorkHolidayList::filter($request)
+            ->orderBy('start_date')
+            ->paginate(10)
+            ->withQueryString();
+    
+        $notifications = SystemNotification::all();
         $user = auth()->user();
         $currentYear = Carbon::now()->year;
-        
-        // Fetch the count of leave applications by status
+    
+        // Fetch the count of leave applications by status for all leave types
         $leaveStatusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
             ->createdBy()
             ->whereYear('created_at', $currentYear)
             ->groupBy('status')
-            ->get();
-
+            ->pluck('total', 'status'); // Use pluck for a key-value mapping of status to total
+    
         // Fetch the leave balance for the logged-in user
         $leaveBalance = EmployeeLeave::where('mas_employee_id', auth()->id())
             ->pluck('closing_balance')
-            ->first();  // Get the first (and presumably only) balance
-
-        // Fetch the leave applications with statuses 1 (In Progress) and 2 (Approved)
-        $inProgressLeave = LeaveApplication::whereIn('status', [1, 2])
-            ->createdBy()
-            ->pluck('status');
-
-        // Fetch the approved leave applications (status 3)
-        $approvedLeave = LeaveApplication::where('status', 3)
-            ->createdBy()
-            ->pluck('status');
-
-        // Defining the status labels for the chart
-        $leaveData = ['Approved Leave', 'Leave Balance', 'In-Progress Leave'];
-
-        // Initialize the status counts to zero
-        $statusCounts = [0, 0, 0]; // Correctly initialize all counts to 0
-
-        // Map the counts to the correct status
-        foreach ($leaveStatusCounts as $leaveStatus) {
-            $statusCounts[$leaveStatus->status] = $leaveStatus->total;
-        }
-
-        // Assign the leave balance value to the correct position in the statusCounts array
-        $statusCounts[1] = $leaveBalance ?? 0; // If leaveBalance is null, set to 0
-
-        //Earned Leave
+            ->first() ?? 0; // Default to 0 if no balance is found
+    
+        // Leave data setup
+        $leaveData = ['Approved', 'Balance', 'In-Progress'];
+        $statusCounts = [
+            0,                // Approved Leave (Status 3)
+            $leaveBalance,    // Leave Balance
+            0                 // In-Progress Leave (Statuses 1 and 2)
+        ];
+    
+        // Populate the counts
+        $statusCounts[0] = $leaveStatusCounts[3] ?? 0; // Approved Leave
+        $statusCounts[2] = ($leaveStatusCounts[1] ?? 0) + ($leaveStatusCounts[2] ?? 0); // In-Progress Leave
+    
+        // Earned Leave specific calculations
         $earnedLeaveStatusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-            // Assuming 'leave_type' distinguishes leave types
             ->createdBy()
+            ->where('mas_leave_type_id', 2) // Filter for earned leave
+            ->whereYear('created_at', $currentYear)
             ->groupBy('status')
-            ->get();
-
-        // Initialize the earned leave status counts array to store statuses
-        $earnedLeaveCounts = [0, 0, 0]; // Set to 0 by default for all status counts
-        foreach ($earnedLeaveStatusCounts as $leaveStatus) {
-            $earnedLeaveCounts[$leaveStatus->status] = $leaveStatus->total;
-        }
-
-
-
-        return view('dashboard', compact('user', 'holidays', 'leaveData', 'statusCounts', 'earnedLeaveCounts'));
+            ->pluck('total', 'status');
+    
+        $earnedLeaveBalance = EmployeeLeave::where('mas_employee_id', auth()->id())
+            ->where('mas_leave_type_id', 2) // Filter for earned leave
+            ->pluck('closing_balance')
+            ->first() ?? 0; // Default to 0 if no balance is found
+    
+        // Earned Leave data setup
+        $earnedLeaveData = ['Approved Leave', 'Leave Balance', 'In-Progress Leave'];
+        $earnedLeaveCounts = [
+            0,                     // Approved Leave (Status 3)
+            $earnedLeaveBalance,   // Leave Balance
+            0                      // In-Progress Leave (Statuses 1 and 2)
+        ];
+    
+        // Populate the earned leave counts
+        $earnedLeaveCounts[0] = $earnedLeaveStatusCounts[3] ?? 0; // Approved Leave
+        $earnedLeaveCounts[2] = ($earnedLeaveStatusCounts[1] ?? 0) + ($earnedLeaveStatusCounts[2] ?? 0); // In-Progress Leave
+    
+        return view('dashboard', compact(
+            'user',
+            'holidays',
+            'leaveData',
+            'statusCounts',
+            'earnedLeaveData',
+            'earnedLeaveCounts',
+            'notifications'
+        ));
     }
+    
 
     // public function show($id)
     // {

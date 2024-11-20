@@ -37,8 +37,47 @@
                                                             <th>
                                                                 Is Sifa Registered
                                                             </th>
+                                                            <th>
+                                                                Action
+                                                            </th>
                                                         </tr>
                                                     </thead>
+                                                    <tbody>
+                                                        @forelse ($sifaRegistrations as $registration)
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ $registration->employee->name }}</td>
+                                                            <td class="text-center">
+                                                                @if ($registration->status == 1)
+                                                                <span class="badge bg-success">Registered</span>
+                                                                @else
+                                                                <span class="badge bg-danger">Not Registered</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                <a href="{{ url('sifa-registration/' . $registration->id) }}" class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @endif
+                                                                @if ($privileges->edit)
+                                                                <a href="{{ url('sifa-registration/' . $registration->id . '/edit') }}" class="btn btn-sm btn-rounded btn-outline-success">
+                                                                    <i class="fa fa-edit"></i> Edit
+                                                                </a>
+                                                                @endif
+                                                                @if ($privileges->delete)
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ route('sifa-registration.destroy', $registration->id) }}">
+                                                                    <i class="fa fa-trash"></i> Delete
+                                                                </a>
+                                                                @endif
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-danger">No Sifa Registration records found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+
                                                 </table>
                                             </div>
                                         </div>

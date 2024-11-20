@@ -11,21 +11,27 @@ class MasDzongkhag extends Model
 {
     use HasFactory, CreatedByTrait;
     protected $table = 'mas_dzongkhags';
-     //accessors & mutators
-     public function setDzongkhagAttribute($value)
-     {
-         $this->attributes['dzongkhag'] = ucwords($value);
-     }
-
-    public function scopeFilter($query, $request)
-    {
-        if ($request->has('dzongkhag') && $request->query('dzongkhag') != '') {
-            $query->where('dzongkhag', 'LIKE', '%' .$request->query('dzongkhag') . '%');
-        }
-    }
 
     public function gewogs()
     {
         return $this->hasMany(MasGewog::class, 'mas_dzongkhag_id');
+    }
+
+    public function advanceDetails()
+    {
+        return $this->hasMany(AdvanceDetail::class, 'dzongkhag_id');
+    }
+
+    //accessors & mutators
+    public function setDzongkhagAttribute($value)
+    {
+        $this->attributes['dzongkhag'] = ucwords($value);
+    }
+
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('dzongkhag') && $request->query('dzongkhag') != '') {
+            $query->where('dzongkhag', 'LIKE', '%' . $request->query('dzongkhag') . '%');
+        }
     }
 }

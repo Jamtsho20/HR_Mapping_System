@@ -2,6 +2,7 @@
 
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
+use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
@@ -276,5 +277,13 @@ if(!function_exists('approvalHeadConditionField')){
         }
         
         return $conditionFields;
+    }
+}
+
+if (!function_exists('empDetails')) {
+    function empDetails($empId)
+    {
+        $empDetails = User::with('empJob')->where('id', $empId)->first();
+        return $empDetails;
     }
 }

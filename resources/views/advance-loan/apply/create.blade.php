@@ -36,9 +36,6 @@
             <!-- Advance-to-staff Form -->
             @include('advance-loan.apply.types.advance_to_staff')
 
-            <!--DSA Advance Form-->
-            @include('advance-loan.apply.types.dsa_advance')
-
             <!-- Salary_advance Form-->
             @include('advance-loan.apply.types.salary_advance')
 
@@ -46,29 +43,16 @@
             @include('advance-loan.apply.types.general_imprest_advance')
 
             <!-- Electricity_imprest_advanceForm-->
-            @include('advance-loan.apply.types.electricity_imprest_advance')
+            {{-- @include('advance-loan.apply.types.electricity_imprest_advance') --}}
 
             <!-- Sifa_loan Form -->
             @include('advance-loan.apply.types.sifa_loan')
 
             <!-- Gadget Emi Form -->
             @include('advance-loan.apply.types.gadget_emi')
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="purpose">Remark</label>
-                        <textarea rows="2" class="form-control" name="remark" id="remark">{{ old('remark') }}</textarea>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="attachment">Attachment </label>
-                        <input type="file" class="form-control" name="attachment" accept="image/*"/>
-                    </div>
-                </div>
-            </div>
-
-
+        
+            <!--DSA Advance Form-->
+            @include('advance-loan.apply.types.dsa_advance')
 
         </div>
 

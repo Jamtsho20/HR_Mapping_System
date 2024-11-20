@@ -15,11 +15,13 @@ class AdvanceApplication extends Model
     protected $fillable = [
         'advance_no',
         'date',
-        'advance_type',
-        // 'mas_employee_id',
+        'advance_type_id',
+        'travel_authorization_id',
+        'mas_employee_id',
         'mode_of_travel',
         'from_location',
         'to_location',
+        'advance_settlement_date',
         'from_date',
         'to_date',
         'amount',
@@ -38,9 +40,30 @@ class AdvanceApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+
+    public function employee(){
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function advanceType()
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'advance_type_id');
+    }
+
+    public function advanceDetails()
+    {
+        return $this->hasMany(AdvanceDetail::class, 'advance_application_id');
+    }
+
+    //scope filter
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
+        if ($request->has('advance_type') && $request->query('leave_type') != '') {
+            $query->where('mas_advance_type_id', $request->query('advance_type'));
+        }
+
+        if($onesOwnRecord){
+            $query->where('created_by', auth()->user()->id);
+        }
     }
 
     public function setDeductionFromPeriodAttribute($value)
