@@ -16,7 +16,6 @@
 <br>
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-
     <div class="col-3 form-group">
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
     </div>
@@ -54,7 +53,6 @@
             @endforeach
         </select>
     </div>
-
     @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
