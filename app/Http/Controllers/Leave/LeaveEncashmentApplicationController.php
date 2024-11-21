@@ -16,7 +16,13 @@ use Illuminate\Support\Facades\Auth;
 
 class LeaveEncashmentApplicationController extends Controller
 {
-
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:leave/leave-encashment,view')->only('index', 'show');
+    //     $this->middleware('permission:leave/leave-encashment,create')->only('create');
+    //     $this->middleware('permission:leave/leave-encashment,edit')->only('update');
+    //     $this->middleware('permission:leave/leave-encashment,delete')->only('destroy');
+    // }
     protected $rules = [
        'encashment_amount' => 'required|numeric',
         'leave_applied_for_encashment' => 'required',
@@ -27,12 +33,19 @@ class LeaveEncashmentApplicationController extends Controller
         'encashment_amount.required' => 'Encashment amount is required.',
         
     ];
-    public function index()
+
+   
+    
+    public function index(Request $request){
+        $privileges = $request->instance();
+        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->orderBy('created_at', 'desc')->get();
+        return view('leave.leave.encash_index',compact('privileges','leaveEncashment'));
+    }
+    public function create()
     {      
         $earnedLeave = EmployeeLeave::where('mas_employee_id', auth()->user()->id)
-        ->where('mas_leave_type_id', 2)
+        ->where('mas_leave_type_id', EARNED_LEAVE)
         ->whereYear('created_at', Carbon::now()->year);
-        // ->value('closing_balance');
         
         $openingBalance = $earnedLeave->value('opening_balance');
         $currentEntitlement = $earnedLeave->value('current_entitlement');
@@ -40,22 +53,31 @@ class LeaveEncashmentApplicationController extends Controller
         $leaveAppiled = $earnedLeave->value('leaves_availed');
 
         $earnedLeaveBalance = ($openingBalance + $currentEntitlement)-$leaveAppiled;
-        // dd($closingBalance , $openingBalance, $currentEntitlement);
-        // dd($leaveAppiled);
 
         $applyFlag = false;
 
       
         $requiredBalance = 37;
         $earnedLeaveEncahsment = 30;
-
-        if($earnedLeaveBalance > $requiredBalance){
-            $applyFlag = true;
+        $message="";
+        if($earnedLeaveBalance < $requiredBalance ){
+            $message="Insufficient Balance";
+        }
+        $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
+    ->whereYear('created_at', Carbon::now()->year)
+    ->exists();
+        
+        if ($applicationExists) {
+            // Application exists
+            $message = "An application already exists for this year.";
         }
 
+        if($earnedLeaveBalance >= $requiredBalance && !$applicationExists){
+            $applyFlag = true;
+        }
     
         $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay'); 
-        return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag'));
+        return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag', 'message'));
     }
 
     public function store(Request $request){
@@ -66,7 +88,6 @@ class LeaveEncashmentApplicationController extends Controller
         $approvalService = new ApprovalService();
         $encashmentType = LeaveEncashmentType::first()?->id;
         $approverByHierarchy = $approvalService->getApproverByHierarchy($encashmentType, \App\Models\LeaveEncashmentType::class, $conditionFields ?? []);
-        dd($approverByHierarchy);
         try {
             DB::beginTransaction();
             
@@ -97,7 +118,7 @@ class LeaveEncashmentApplicationController extends Controller
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect()->route('leave-apply.index')->with('msg_success', 'Leave Encashment application created successfully!');
+        return redirect()->route('leave.encashment-history')->with('msg_success', 'Leave Encashment application created successfully!');
     }
     }
 

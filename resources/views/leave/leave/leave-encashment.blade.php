@@ -6,6 +6,12 @@
     @csrf
     <div class="card">
         <div class="card-body">
+        @if(!empty($message))
+        <div style="color: red; ">
+                    *{{ $message }}
+                </div>
+        @endif
+
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -39,16 +45,17 @@
             </div>
         </div>
         <div class="card-footer">
-        @if($applyFlag)
-            <button type="submit" class="btn btn-primary">
-                <i class="fa fa-upload"></i> SUBMIT
+            
+        @if($applyFlag && empty($message))
+                <button type="submit" class="btn btn-primary">
+                   
+            @else
+                <button type="button" class="btn btn-secondary" disabled>
+            @endif
+            <i class="fa fa-upload"></i> SUBMIT
             </button>
-        @else
-            <button type="button" class="btn btn-secondary" disabled>
-                <i class="fa fa-times"></i> Insufficient Balance
-            </button>
-        @endif
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+        
         </div>
     </div>
 </form>

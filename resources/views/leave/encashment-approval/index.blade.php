@@ -42,7 +42,8 @@
                                     <thead>
                                         <tr role="row">
                                             <th>
-                                                #
+                                                <input type="checkbox" id="select_all" class="select_all"
+                                                    data-item-class="leave_checkbox" title="select all">
                                             </th>
                                             <th>
                                                 EMPLOYEE ID
