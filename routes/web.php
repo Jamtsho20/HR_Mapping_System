@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
         Route::resource('condition-fields', 'ConditionFieldController');
-       
+
 
         // Approval Conditions
         Route::post('approvalrulesaddcondition', 'ApprovalRuleController@addCondition')->name('approval-rule-conditions.store');
@@ -269,5 +269,8 @@ Route::middleware('auth')->group(function () {
     Route::get('getemployees', 'AjaxRequestController@getEmployees');
     Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
+    Route::get('getexpensenobyexpensetype/{id}', 'AjaxRequestController@getExpenseNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
+
+    Route::post('approverejectbulk', 'AjaxRequestController@bulkApprovalRejection')->name('approverejectbulk');
 });

@@ -18,7 +18,8 @@ class MasApprovalHeadSeeder extends Seeder
             ['id' => 2, 'name' => 'Expense', 'description' => 'Expense'],
             ['id' => 3, 'name' => 'Loan/Advance', 'description' => 'Loan/Advance'],
             ['id' => 4, 'name' => 'Leave Encashment', 'description' => 'Leave Encashment'],
-            ['id' => 5, 'name' => 'Requisition', 'description' => 'Requisition'],        
+            ['id' => 5, 'name' => 'Requisition', 'description' => 'Requisition'],
+            ['id' => 6, 'name' => 'Transfer Claim', 'description' => 'Transfer Claim'],
         ]);
     }
 }

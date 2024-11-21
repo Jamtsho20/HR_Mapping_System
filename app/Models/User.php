@@ -205,4 +205,12 @@ class User extends Authenticatable
             return url('assets/images/no-image.png');
         }
     }
+
+    public function title() {
+        if($this->gender == 1) {
+            $title = "Mr.";
+        } elseif($this->gender == 2) {
+            $title = "Mrs.";
+        }
+    }
 }

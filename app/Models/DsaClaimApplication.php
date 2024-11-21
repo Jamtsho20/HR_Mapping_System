@@ -10,6 +10,8 @@ class DsaClaimApplication extends Model
 {
     use HasFactory, CreatedByTrait;
 
+    protected $guarded = [];
+
     protected $cast = [
         'attachment' => 'array'
     ];
@@ -21,5 +23,16 @@ class DsaClaimApplication extends Model
 
     public function dsaClaimDetails() {
         return $this->hasMany(DsaClaimDetail::class, 'dsa_claim_id');
+    }
+
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+        if ($request->has('mas_expense_type_id') && $request->query('mas_expense_type_id') != '') {
+            $query->where('mas_expense_type_id', $request->query('mas_expense_type_id'));
+        }
+
+        if($onesOwnRecord){
+            $query->where('created_by', auth()->user()->id);
+        }
     }
 }

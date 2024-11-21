@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
+use App\Models\DsaClaimApplication;
 use App\Models\EmployeeLeave;
+use App\Models\ExpenseApplication;
+use App\Models\LeaveApplication;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
@@ -21,8 +24,12 @@ use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
+use App\Models\TransferClaimApplication;
 use App\Models\User;
+use App\Services\ApprovalService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AjaxRequestController extends Controller
 {
@@ -318,5 +325,158 @@ class AjaxRequestController extends Controller
     {
         $advanceDetail = AdvanceApplication::where('id', $id)->get();
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
+    }
+
+    public function bulkApprovalRejection(Request $request)
+    {
+        $modelMap = [
+            1 => LeaveApplication::class,
+            2 => ExpenseApplication::class,
+            3 => AdvanceApplication::class,
+            4 => TransferClaimApplication::class,
+        ];
+
+        $model = $modelMap[$request->item_type_id] ?? null;
+
+        $action = $request->action;
+        $itemIds = $request->item_ids;
+        $status = ($action === 'approve') ? 2 : -1;
+        $rejectRemarks = $request->input('reject_remarks', '');
+        $actionBy = auth()->id();
+        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+
+        DB::beginTransaction();
+        try {
+            $approvalService = new ApprovalService();
+
+            foreach ($itemIds as $id) {
+                $application = $model::findOrFail($id);
+
+                $applicationHistory = $application->histories
+                    ->where('application_type', $model)
+                    ->where('application_id', $id)
+                    ->first();
+
+                // Update leave application status
+                $application->update([
+                    'status' => $status,
+                    'updated_by' => $actionBy,
+                ]);
+
+                // Forward application if approved
+                $updateData = [
+                    'status' => $status,
+                    'remarks' => $rejectRemarks,
+                    'action_performed_by' => $actionBy,
+                ];
+
+                if ($action === 'approve' && $applicationHistory) {
+                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
+
+                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+                        $updateData = array_merge($updateData, [
+                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
+                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
+                        ]);
+                        // Attempt to send email to next approver need to work on it
+                        // try {
+                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($application, $nextApprover));
+                        // } catch (\Exception $e) {
+                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
+                        // }
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                        // Finalize approval if it's at the maximum level
+                        $application->update([
+                            'status' => 3, // 3 could represent 'final approved'
+                            'updated_by' => $actionBy,
+                        ]);
+                        $updateData['status'] = 3; // Mark the history entry as final approved
+                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
+                        $application->update([
+                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+                            'updated_by' => $actionBy,
+                        ]);
+                        $updateData['status'] = $applicationForwardedTo['application_status'];
+                    }
+                }
+                // Update application history
+                if ($applicationHistory) {
+                    $applicationHistory->update($updateData);
+                }
+
+                // Attempt to send email to applicant about the approval/rejection status need to work on it
+                // try {
+                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($application, $action, $rejectRemarks));
+                // } catch (\Exception $e) {
+                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
+                // }
+            }
+
+            DB::commit();
+
+            $model = preg_replace(
+                ['/App\\\\Models\\\\/', '/([a-z])Application/'],
+                ['', '$1 Application'],
+                $model
+            );
+
+            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+
+            return response()->json(['msg_error' => 'An error occurred during the operation.'], 500);
+        }
+    }
+
+    public function getExpenseNumber($id)
+    {
+        $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
+
+        $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)
+            ->latest('id') // Orders by id in descending order
+            ->first();
+
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->expense_no, -4) + 1 : 1;
+
+        // Generate the new advance number with the incremented sequence
+        $expenseNo = generateTransactionNumber($expenseCode, $nextSequence);
+
+        return response()->json([
+            'expense_no' => $expenseNo
+        ]);
+    }
+
+    public function getDsaClaimNumber()
+    {
+        $claimCode = MasExpenseType::where('id', 3)->pluck('code')[0];
+
+        $latestTransaction = DsaClaimApplication::latest('id')->first();
+
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->claim_no, -4) + 1 : 1;
+
+        // Generate the new advance number with the incremented sequence
+        $claimNo = generateTransactionNumber($claimCode, $nextSequence);
+
+        return $claimNo;
+    }
+
+    public function getTransferClaimNumber()
+    {
+        $claimCode = MasExpenseType::where('id', 4)->pluck('code')[0];
+
+        $latestTransaction = TransferClaimApplication::latest('id')->first();
+
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->transfer_claim_no, -4) + 1 : 1;
+
+        // Generate the new advance number with the incremented sequence
+        $claimNo = generateTransactionNumber($claimCode, $nextSequence);
+
+        return $claimNo;
     }
 }
