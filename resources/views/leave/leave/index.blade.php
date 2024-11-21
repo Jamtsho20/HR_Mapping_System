@@ -85,21 +85,21 @@
                                                             <td>{{ $leave->from_date }}</td>
                                                             <td>{{ $leave->to_date }}</td>
                                                             <td>{{ $leave->no_of_days }}</td>
-                                                            <td class="text-center">
-                                                                @if ($leave->status == 1)
-                                                                    <span class="badge bg-primary">Submitted</span>
-                                                                @elseif($leave->status == 2)
-                                                                    <span class="badge bg-summary">Verified</span>
-                                                                @elseif($leave->status == 3)
-                                                                    <span class="badge bg-summary">Approved</span>
-                                                                @elseif($leave->status == 0)
-                                                                    <span class="badge bg-warning">Cancelled</span>
-                                                                @elseif($leave->status == -1)
-                                                                    <span class="badge bg-danger">Rejected</span>
-                                                                @else
-                                                                    <span class="badge bg-secondary">Unknown Status</span>
-                                                                @endif
-                                                            </td>
+                                                            <td class ="text-center">
+                                                    @php
+                                                    $statusClasses = [
+                                                    -1 => 'badge bg-danger',
+                                                    0 => 'badge bg-warning',
+                                                    1 => 'badge bg-primary',
+                                                    2 => 'badge bg-success',
+                                                    3 => 'badge bg-info',
+                                                    ];
+                                                    $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
+                                                    $statusClass = $statusClasses[$leave->status] ?? 'badge bg-secondary';
+                                                    @endphp
+
+                                                    <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                </td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
                                                                     <a href="{{ url('leave/leave-apply/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>

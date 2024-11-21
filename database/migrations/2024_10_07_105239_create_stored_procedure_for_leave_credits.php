@@ -23,7 +23,7 @@ return new class extends Migration
                 DECLARE done INT DEFAULT 0;
                 DECLARE leave_id INT;
                 DECLARE leave_type_name VARCHAR(255);
-                DECLARE duration INT;
+                DECLARE duration DECIMAL(4, 1);
                 DECLARE emp_type_id INT;
                 DECLARE total_months_remaining INT;
                 DECLARE leave_entitlement INT;
@@ -84,8 +84,8 @@ return new class extends Migration
                         ELSEIF (leave_id = 2) THEN 
                         -- During employee registration by default earned leave will be credited as zero  
                             SET leave_entitlement = 0;  
-                        ELSE
-                            SET leave_entitlement = duration;
+                        -- ELSE
+                            -- SET leave_entitlement = duration;
                         END IF;
 
                         -- Insert leave entitlement into employee_leaves table

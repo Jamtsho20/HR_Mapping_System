@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mas_leave_type_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_employee_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
-            $table->smallInteger('opening_balance')->default(0);
-            $table->smallInteger('current_entitlement')->default(0);
-            $table->smallInteger('leaves_availed')->default(0);
-            $table->smallInteger('closing_balance')->default(0);
+            $table->decimal('opening_balance', 4, 1)->default(0);
+            $table->decimal('current_entitlement', 4, 1)->default(0);
+            $table->decimal('leaves_availed', 4, 1)->default(0);
+            $table->decimal('closing_balance', 4, 1)->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

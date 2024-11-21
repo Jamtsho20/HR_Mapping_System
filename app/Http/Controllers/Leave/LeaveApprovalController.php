@@ -197,6 +197,7 @@ class LeaveApprovalController extends Controller
             DB::commit();
             return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
+           
             DB::rollBack();
             Log::error('Bulk approval/rejection error: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred during the operation.'], 500);
