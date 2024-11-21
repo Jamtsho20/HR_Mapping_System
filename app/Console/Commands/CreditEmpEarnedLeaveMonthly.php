@@ -8,21 +8,21 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class CreditEmpEarnedLeave extends Command
+class CreditEmpEarnedLeaveMonthly extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'credit-emp-earned-leave:monthly';
+    protected $signature = 'credit-emp-earned-leaves-monthly';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Credit earned leave monthly';
+    protected $description = 'Credit employee earned leave monthly';
 
     
     private $leaveAmount = 2.5;
