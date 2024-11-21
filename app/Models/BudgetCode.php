@@ -15,8 +15,20 @@ class BudgetCode extends Model
         'particular',
         'budget_type_id'
     ];
+
     public function budgetType()
     {
         return $this->belongsTo(BudgetTypes::class, 'budget_type_id');
+    }
+
+    public function advanceDetails() 
+    {
+        return $this->hasMany(AdvanceDetail::class, 'budget_code_id');
+    }
+
+    // accessors and mutators
+    public function getBudgetNameAttribute() 
+    {
+        return $this->code . ': ' . $this->particular;
     }
 }

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\TravelAuthorization;
 use App\Http\Controllers\Controller;
 use App\Models\TravelAuthorizationApplication;
+use App\Models\DailyAllowance;
+use App\Models\MasTravelType;
+use App\Models\MasEmployeeJob;
+use App\Services\ApprovalService;
 use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +38,7 @@ class TravelAuthorizationApplicationController extends Controller
         'details.*.to_date' => 'required|date|after_or_equal:details.*.from_date',
         'advance_amount' => 'nullable|numeric',
         'details.*.purpose' => 'nullable|string|max:500',
+        'travel_type' => 'required|exists:mas_travel_types,id', 
     ];
     
     protected $messages = [
@@ -46,12 +51,14 @@ class TravelAuthorizationApplicationController extends Controller
         'details.*.to_date.after_or_equal' => 'To date must be after or equal to the from date for each travel detail.',
         'advance_amount.numeric' => 'Advance amount should be a numeric value.',
         'details.*.purpose.max' => 'Purpose should not exceed 500 characters for each travel detail.',
+        'travel_type.required' => 'The travel type is required.',
+        'travel_type.exists' => 'The selected travel type is invalid.', 
     ];
   
 public function index(Request $request)
       {
           $privileges = $request->instance();
-          $travelAuthorizations = TravelAuthorizationApplication::with('employee')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
+          $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))
           ->withQueryString();
   
           return view('travel-authorizations.apply.index', compact('privileges', 'travelAuthorizations'));
@@ -61,17 +68,24 @@ public function create()
       {
         require_once base_path('app/Http/constants.php');
 
-        $dailyAllowance = DAILY_ALLOWANCE;
+    $user = Auth::user();
+        $userId = $user->id;
+        $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
+        $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
         $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
-        return view('travel-authorizations.apply.create', compact('dailyAllowance', 'travelAuthorizationNumber'));
+        $travelTypes = MasTravelType::all();
+        $defaultTravelTypeId = 1;
+        return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance', 'travelAuthorizationNumber', 'defaultTravelTypeId'));
       }
 
 
 public function store(Request $request)
-    {
+    {   
         $travelAuthorization = new  TravelAuthorizationApplication();
         $this->validate($request, $this->rules, $this->messages);
-
+        $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
         
         try {
             DB::beginTransaction();
@@ -82,6 +96,8 @@ public function store(Request $request)
             $travelAuthorization->status = 1;
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
+            $travelAuthorization->travel_type_id = $request->travel_type;
+
 
             $travelAuthorization->save();
             if ($request->has('details')) {
@@ -100,12 +116,17 @@ public function store(Request $request)
 
             
 
-            // $travelAuthorization->histories()->create([
-            //     'level' => 'Test Level',
-            //     'status' => 1,
-            //     'remarks' => $request->remarks,
-            //     'created_by' => loggedInUser(),
-            // ]);
+            $travelAuthorization->histories()->create([
+                'approval_option' => $approverByHierarchy['approval_option'],
+                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
+                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
+                'status' => $approverByHierarchy['application_status'],
+                'remarks' => $request->remarks ?? null,
+                'action_performed_by' => loggedInUser(),
+            ]);
 
 
             DB::commit();
@@ -121,8 +142,9 @@ public function store(Request $request)
     public function show($id, Request $request)
     {
         $instance = $request->instance();
-        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);         
-        return view('travel-authorizations.apply.show', compact('travelAuthorization'));
+        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);  
+        $context = 'application';       
+        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context'));
 
     }
 
@@ -131,8 +153,9 @@ public function store(Request $request)
     public function edit($id)
     {
         $travelAuthorizations =  TravelAuthorizationApplication::findOrfail($id);
-        $dailyAllowance = DAILY_ALLOWANCE;
-        return view('travel-authorizations.apply.edit', compact('travelAuthorizations', 'dailyAllowance'));
+        $dailyAllowance = $travelAuthorizations->daily_allowance;
+        $travelTypes = MasTravelType::all();
+        return view('travel-authorizations.apply.edit', compact('travelAuthorizations', 'dailyAllowance', 'travelTypes'));
    
     }
 
@@ -147,15 +170,6 @@ public function store(Request $request)
         
             DB::beginTransaction();
 
-            // $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
-            // $travelAuthorization->date = $request->date;
-            // $travelAuthorization->advance_amount = $request->advance_required;
-            // $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
-            // $travelAuthorization->status = 1;  
-            // $travelAuthorization->daily_allowance = $request->daily_allowance;
-            // $travelAuthorization->updated_by = Auth::id();
-            // $travelAuthorization->save();
-
             $travelAuthorization->update([
                 'travel_authorization_no' => $request->travel_authorization_no,
                 'date' => $request->date,
@@ -164,7 +178,9 @@ public function store(Request $request)
                 'status' => 1,
                 'daily_allowance' => $request->daily_allowance,
                 'updated_by' => Auth::id(),
+                'travel_type_id' => $request->travel_type,
             ]);
+
             
             if ($request->has('details')) {
                 // Collect IDs of updated or existing details from the request

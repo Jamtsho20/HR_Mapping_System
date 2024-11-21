@@ -28,11 +28,23 @@
                         <input type="date" class="form-control" name="date" value="{{ old('date', date('Y-m-d')) }}" id="date" readonly required>
                     </div>
                 </div>
+                <div class="col-md-4">
+                <label for="travel_type">Travel Type <span class="text-danger"></span></label>
+                <select class="form-control" id="travel_type" name="travel_type">
+                    <option value="" disabled hidden>Select your option</option>
+                    @foreach($travelTypes as $type)
+                        <option value="{{ $type->id }}" 
+                            {{ old('travel_type', $travelAuthorizations->travel_type_id) == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
+                    @endforeach
+                </select>
+                </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="to_location">Daily Allowance<span class="text-danger"></span></label>
-                        <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value={{$dailyAllowance}} readonly>
+                        <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value="{{$travelAuthorizations->daily_allowance}}" readonly>
                     </div>
                 </div>
                 </div>

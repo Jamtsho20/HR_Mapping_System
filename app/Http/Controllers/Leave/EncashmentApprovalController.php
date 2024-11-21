@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
+use App\Models\LeaveEncashmentApplication;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Services\ApprovalService;
+use Illuminate\Support\Facades\Log;
 
 class EncashmentApprovalController extends Controller
 {
@@ -16,13 +21,25 @@ class EncashmentApprovalController extends Controller
     {
         $this->middleware('permission:leave/encashment-approval,view')->only('index');
         $this->middleware('permission:leave/encashment-approval,create')->only('store');
-        $this->middleware('permission:leave/encashment-approval,edit')->only('update');
+        $this->middleware('permission:leave/encashment-approval,edit')->only('update', 'bulkApprovalRejection');
         $this->middleware('permission:leave/encashment-approval,delete')->only('destroy');
+       
     }
     public function index(Request $request)
-    {
+    {   
+        $user = auth()->user();
+        $earnedLeave = LeaveEncashmentApplication::whereHas('histories', function ($query) use ($user) {
+            $query->where('approver_emp_id', $user->id)
+                ->where('application_type', \App\Models\LeaveEncashmentApplication::class);
+        })
+        ->whereYear('created_at', Carbon::now()->year)->whereNotIn('status', [-1, 3])
+            // ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
+            ->orderBy('created_at')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
         $privileges = $request->instance();
-        return view('leave.encashment-approval.index',compact('privileges'));
+
+        return view('leave.encashment-approval.index',compact('privileges', 'earnedLeave', 'user'));
     }
 
     /**
@@ -89,5 +106,91 @@ class EncashmentApprovalController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function bulkApprovalRejection(Request $request)
+    {   
+        $action = $request->action;
+        $itemIds = $request->item_ids;
+        $status = ($action === 'approve') ? 2 : -1;
+        $rejectRemarks = $request->input('reject_remarks', '');
+        $userId = auth()->id();
+        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+        DB::beginTransaction();
+        try {
+            $approvalService = new ApprovalService();
+            \Log::info('Application forwarded to:', ['data' => $approvalService]);
+
+            foreach ($itemIds as $id) {
+                $encashmentApplication = LeaveEncashmentApplication::findOrFail($id);
+                $applicationHistory = $encashmentApplication->histories
+                    ->where('application_type', LeaveEncashmentApplication::class)
+                    ->where('application_id', $id)
+                    ->first();
+
+                // Update leave application status
+                $encashmentApplication->update([
+                    'status' => $status,
+                    'updated_by' => $userId,
+                ]);
+
+                // Forward application if approved
+                $updateData = [
+                    'status' => $status,
+                    'remarks' => $rejectRemarks,
+                    'action_performed_by' => $userId,
+                ];
+
+                if ($action === 'approve' && $applicationHistory) {
+                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, LeaveEncashmentApplication::class);
+                    // \Log::info('Application forwarded to:', ['data' => $applicationForwardedTo['approver_details']['user_with_approving_role']]);
+                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+                        $updateData = array_merge($updateData, [
+                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
+                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
+                        ]);
+                        // Attempt to send email to next approver need to work on it
+                        // try {
+                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($encashmentApplication, $nextApprover));
+                        // } catch (\Exception $e) {
+                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
+                        // }
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                        // Finalize approval if it's at the maximum level
+                        $encashmentApplication->update([
+                            'status' => 3, // 3 could represent 'final approved'
+                            'updated_by' => $userId,
+                        ]);
+                        $updateData['status'] = 3; // Mark the history entry as final approved
+                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
+                        $encashmentApplication->update([
+                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+                            'updated_by' => $userId,
+                        ]);
+                        $updateData['status'] = $applicationForwardedTo['application_status'];
+                    }
+                }
+                // Update application history
+                if ($applicationHistory) {
+                    $applicationHistory->update($updateData);
+                }
+
+                // Attempt to send email to applicant about the approval/rejection status need to work on it
+                // try {
+                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
+                // } catch (\Exception $e) {
+                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
+                // }
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            return response()->json(['message' => 'An error occurred during the operation.'], 500);
+        }
     }
 }

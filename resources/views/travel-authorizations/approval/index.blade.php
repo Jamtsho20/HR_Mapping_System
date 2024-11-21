@@ -1,56 +1,32 @@
 @extends('layouts.app')
-@section('page-title', 'Advance Approval')
+@section('page-title', 'Travel Authorization Approval')
 @section('content')
-
 
 <div class="block">
     <div class="block-header block-header-default">
-    @component('layouts.includes.filter')
-
-    <div class="col-4 form-group">
-        <input type="date" id="from_date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}"
-            placeholder="Start Date">
-    </div>
-    <div class="col-4 form-group">
-        <input type="date" id="to_date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}"
-            placeholder="End Date">
-    </div>
-    <div class="col-4 form-group">
-        <select class="form-control" id="mode_of_travel" name="mode_of_travel" onchange="displaySelectedValue()">
-            <option value="" disabled selected hidden>Select Mode of Travel</option>
-            @foreach(config('global.travel_modes') as $key => $label)
-                <option value="{{ $key }}" >{{ $label }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    @endcomponent
-        <div class="block-options">
-            <div class="row" style="float:right">
-                <div class="col-6 ">
-                    <div class="btn-group mt-2 mb-2">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
-                            Approval Status
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="javascript:void(0);">Pending</a></li>
-                            <li><a href="javascript:void(0);">Approved</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+        @component('layouts.includes.filter')
+        <div class="col-8 form-group">
+            <input type="text" name="travel_type" class="form-control" value="{{ request()->get('travel_type') }}"
+                placeholder="Search By Travel Type">
         </div>
+        @endcomponent
     </div>
+
     <div class="block-content">
         <div class="block-options">
             <div class="col-sm-8">
                 <h5>Travel Authorization Approval</h5>
             </div>
+            @if ($privileges->edit)
             <div class="col-sm-6">
-                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve" value="Approve">
-                <input class="btn-sm  btn-danger buttonsubmit " data-value="reject" type="button" value="Reject" id="btn_reject">
+                <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
+                    data-route="{{ route('travel-authorization.bulk-approval-rejection') }}" data-item-class="leave_checkbox"
+                    data-item-name="leave" value="Approve">
+                <input class="btn-sm btn-danger buttonsubmit" type="button" id="btn_reject" data-value="reject"
+                    data-route="{{ route('travel-authorization.bulk-approval-rejection') }}" data-item-class="leave_checkbox"
+                    data-item-name="leave" value="Reject">
             </div>
+            @endif
         </div>
         <br>
         <div class="row row-sm">
@@ -59,87 +35,71 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="dataTables_length" id="responsive-datatable_length" data-select2-id="responsive-datatable_length">
-                                            <label data-select2-id="26">
-                                                Show
-                                                <select class="select2">
-                                                    <option value="10">10</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
-                                                </select>
-                                                entries
-                                            </label>
-                                        </div>
-                                        <div class="dataTables_scroll">
-                                            <div class="dataTables_scrollHead" style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                <div class="dataTables_scrollHeadInner" style="box-sizing: content-box; padding-right: 0px;">
-                                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable">
-                                                    <thead>
-                                                        <tr role="row">
-                                                            <th>#</th>
-                                                            <th>START DATE</th>
-                                                            <th>END DATE</th>
-                                                            <th>FROM</th>
-                                                            <th>TO</th>
-                                                            <th>MODE OF TRAVEL</th>
-                                                            <th>ESTIMATED EXPENSES</th>
-                                                            <th>ADVANCE REQUIRED</th>
-                                                            <th>STATUS</th>
-                                                            <th>ACTION</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @forelse($travelAuthorizations as $travelAuthorization)
-                                                        <tr>
-                                                            <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $travelAuthorization->from_date }}</td>
-                                                            <td>{{ $travelAuthorization->to_date }}</td>
-                                                            <td>{{ $travelAuthorization->from_location }}</td>
-                                                            <td>{{ $travelAuthorization->to_location }}</td>
-                                                            <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td> 
-                                                            <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
-                                                            <td>{{ $travelAuthorization->advance_amount }}</td>
-                                                            
-                                                            <td>
-                                                                @if($travelAuthorization->status == 1)
-                                                                <span class="badge bg-primary">Applied</span>
-                                                                @elseif($travelAuthorization->status == 2)
-                                                                <span class="badge bg-summary">Approved</span>
-                                                                @elseif($travelAuthorization->status == 0)
-                                                                <span class="badge bg-warning">Cancelled</span>
-                                                                @elseif($travelAuthorization->status == -1)
-                                                                <span class="badge bg-danger">Rejected</span>
-                                                                @else
-                                                                <span class="badge bg-secondary">Unknown Status</span>
-                                                                @endif
-                                                            </td>
-                                                            <td class="text-center">
-                                                                @if ($privileges->view)
-                                                                <a href="{{ route('apply-travel-authorization.show', $travelAuthorization->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
-                                                                @endif
-                                                                @if ($privileges->edit)
-                                                                <a href="{{ route('apply-travel-authorization.edit', $travelAuthorization->id) }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                                                                @endif
-                                                                @if ($privileges->delete)
-                                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('travel-authorization/apply-travel-authorization/' . $travelAuthorization->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                        @empty
-                                                        <tr>
-                                                            <td colspan="7" class="text-center text-danger">No travel authorization found</td>
-                                                        </tr>
-                                                        @endforelse
-                                                    </tbody>
-                                                </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                    id="basic-datatable table-responsive">
+                                    <thead>
+                                        <tr role="row">
+                                            <th>
+                                                <input type="checkbox" id="select_all" class="select_all"
+                                                    data-item-class="leave_checkbox" title="select all">
+                                            </th>
+                                            <th>APPLIED ON</th>
+                                            <th>EMPLOYEE</th>
+                                            <th>TRAVEL TYPES</th>
+                                            <th>ESTIMATED EXPENSES</th>
+                                            <th>ADVANCE REQUIRED</th>
+                                            <th>STATUS</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($travelAuthorizations as $travelAuthorization)
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="leave_checkbox"
+                                                    value="{{ $travelAuthorization->id }}">
+                                            </td>
+                                            <td>{{ $travelAuthorization->employee->created_at }}</td>
+                                            <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
+                                            <td>{{ $travelAuthorization->travelType->name }}</td>
+                                            <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                            <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td>
+                                            <td>@php
+                                                    $statusClasses = [
+                                                        -1 => 'badge bg-danger',
+                                                        0 => 'badge bg-warning',
+                                                        1 => 'badge bg-primary',
+                                                        2 => 'badge bg-success',
+                                                        3 => 'badge bg-info',
+                                                    ];
+                                                    $statusText = config("global.application_status.{$travelAuthorization->status}", 'Unknown Status');
+                                                    $statusClass = $statusClasses[$travelAuthorization->status] ?? 'badge bg-secondary';
+                                                @endphp
+
+                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                            
+                                                @if ($privileges->view)
+                                                        <a href="{{ route('travel-authorization-approval.show', $travelAuthorization->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                @endif
+                                                @if ($privileges->edit)
+                                                <a href="{{ route('travel-authorization-approval.edit', $travelAuthorization->id) }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
+                                                @endif
+                                                @if ($privileges->delete)
+                                                    <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('travel-authorization/apply-travel-authorization/' . $travelAuthorization->id) }}"><i class="fa fa-trash"></i> DELETE</a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center text-danger">
+                                                No Travel Authorization found
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -147,13 +107,108 @@
             </div>
         </div>
     </div>
-
 </div>
 
+<!-- Reject Remarks Modal -->
 
 
+@include('layouts.includes.reject-modal')
 
 @include('layouts.includes.delete-modal')
+
 @endsection
+
 @push('page_scripts')
+<script>
+    $(document).ready(function() {
+        // Select/Deselect all checkboxes
+        $('#select_all').click(function() {
+            var checkedStatus = this.checked; // Get the status of the select all checkbox
+            $('.leave_checkbox').each(function() {
+                $(this).prop('checked', checkedStatus); // Set each checkbox to match select all status
+            });
+        });
+
+        // Bulk approval/rejection
+        $('.buttonsubmit').click(function() {
+            var action = $(this).data('value');
+            var selectedItems = [];
+            var routeUrl = $(this).data('route');
+            var itemClass = $(this).data('item-class');
+            var itemName = $(this).data('item-name');
+
+            // Modal close manually
+            $('.close').click(function() {
+                $('#rejectModal').modal('hide'); // Manually hide the modal
+            });
+
+            // Collect selected item IDs
+            $('.' + itemClass + ':checked').each(function() {
+                selectedItems.push($(this).val());
+            });
+
+            // Check if any items are selected
+            if (selectedItems.length === 0) {
+                alert('Please select at least one ' + itemName);
+                return;
+            }
+
+            // Check if reject action is clicked
+            if (action === 'reject') {
+                // Show reject remarks modal
+                $('#rejectModal').modal('show');
+
+                // Handle reject confirmation
+                $('#confirmReject').click(function() {
+                    var rejectRemarks = $('#rejectRemarks').val();
+
+                    if (rejectRemarks.trim() === '') {
+                        alert('Please provide reject remarks.');
+                        return;
+                    }
+
+                    // Send AJAX request to reject
+                    $.ajax({
+                        url: routeUrl,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            item_ids: selectedItems,
+                            action: action,
+                            reject_remarks: rejectRemarks
+                        },
+                        success: function(response) {
+                            alert(response.message);
+                            location.reload(); // Reload to reflect changes
+                        },
+                        error: function() {
+                            alert('An error occurred while processing your request');
+                        }
+                    });
+
+                    // Close the modal
+                    $('#rejectModal').modal('hide');
+                });
+            } else {
+                // Proceed with approval if action is approve
+                $.ajax({
+                    url: routeUrl,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        item_ids: selectedItems,
+                        action: action
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload(); // Reload to reflect changes
+                    },
+                    error: function() {
+                        alert('An error occurred while processing your request');
+                    }
+                });
+            }
+        });
+    });
+</script>
 @endpush

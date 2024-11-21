@@ -123,11 +123,14 @@ class RolePermissionsTableSeeder extends Seeder
 			['role_id' => 1, 'system_sub_menu_id' => 81, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 82, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 83, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
-
-			//Report
 			['role_id' => 1, 'system_sub_menu_id' => 84, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 85, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
+
+			//LTC
 			['role_id' => 1, 'system_sub_menu_id' => 86, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
+
+
+			//Report
 			['role_id' => 1, 'system_sub_menu_id' => 87, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 88, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 89, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
@@ -136,6 +139,8 @@ class RolePermissionsTableSeeder extends Seeder
 			['role_id' => 1, 'system_sub_menu_id' => 92, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 93, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 94, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
+			['role_id' => 1, 'system_sub_menu_id' => 95, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
+			['role_id' => 1, 'system_sub_menu_id' => 96, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 
 
 		]);

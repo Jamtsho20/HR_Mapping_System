@@ -1,42 +1,159 @@
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="mode_of_travel">Mode of Travel <span class="text-danger">*</span></label>
-            <select class="form-control" name="mode_of_travel">
-                @foreach(config('global.travel_modes') as $key => $label)
-                <option value="{{ $key }}" {{ $advance->mode_of_travel == $key ? 'selected' : '' }}>{{ $label }}</option>
-                @endforeach
-            </select>
+<!-- Dynamic Form Sections -->
+<div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="amount"> Advance Settlement Date<span class="text-danger">*</span></label>
+                <input type="date" name="advance_settlement_date" value="{{ old('advance_settlement_date', $advance->advance_settlement_date) }}" class="form-control form-control" required>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="advance_amount">Amount (Total)<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="total_amount" name="amount" value="{{ old('amount', $advance->amount) }}" placeholder="0" readonly required />
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="from_location">From Location</label>
-            <input type="text" class="form-control" id="from_location" name="from_location" value="{{ $advance->from_location }}">
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="to_location">To Location</label>
-            <input type="text" class="form-control" id="to_location" name="to_location" value="{{ $advance->to_location }}">
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="from_date">From Date</label>
-            <input type="date" class="form-control" id="from_date" name="from_date" value="{{ $advance->from_date ? \Carbon\Carbon::parse($advance->from_date)->format('Y-m-d') : 'N/A' }}">
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="to_date">To Date</label>
-            <input type="date" class="form-control" id="to_date" name="to_date" value="{{ $advance->to_date ? \Carbon\Carbon::parse($advance->to_date)->format('Y-m-d') : 'N/A' }}">
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label for="amount">Amount</label>
-            <input type="text" class="form-control" name="amount" value="{{ $advance->amount }}">
+    <div class="row">
+        <div class="table-responsive">
+            <table id="advance_to_staff" class="table table-condensed table-bordered table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th width="3%" class="text-center">#</th>
+                        <th>Budget Code</th>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th>Dzongkhag</th>
+                        <th>Site Location</th>
+                        <th>Advance Required</th>
+                        <th colspan="2">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if(count($advanceDetails) === 0)
+                    <tr>
+                        <td class="text-center">
+                            <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                        </td>
+                        <td>
+                            <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][budget_code]" required>
+                                <option value="" disabled selected hidden>Select Budget Code</option>
+                                    @foreach($budgetCodes as $code)
+                                        <option value="{{ $code->id }}">{{ $code->budget_name }}</option>
+                                    @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <input type="date" name="details[AAAAA][from_date]" class="form-control form-control-sm resetKeyForNew" required>
+                        </td>
+                        <td>
+                            <input type="date" name="details[AAAAA][to_date]" class="form-control form-control-sm resetKeyForNew" required>
+                        </td>
+                        <td>
+                            <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][dzongkhag]" required>
+                                <option value="" disabled selected hidden>Select Dzongkhag</option>
+                                    @foreach($dzongkhags as $dzongkhag)
+                                        <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag }}</option>
+                                    @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="details[AAAAA][site_location]" class="form-control form-control-sm resetKeyForNew" required>
+                        </td>
+                        <td>
+                            <input type="number" name="details[AAAAA][amount_required]" class="form-control form-control-sm resetKeyForNew" required>
+                        </td>
+                        <td colspan="2">
+                            <textarea rows="2" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][purpose]"></textarea>
+                        </td>
+                    </tr>
+                    @else
+                    @foreach ($advanceDetails as $key => $value)
+                    <tr>
+                        <td class="text-center">
+                            <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                            <input type="hidden" name="details[AAAAA{{ $key }}][id]" value="{{ old('id', $value['id']) }}">
+                        </td>
+                        <td>
+                            <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA{{ $key }}][budget_code]" required>
+                                <option value="" disabled selected hidden>Select Budget Code</option>
+                                    @foreach($budgetCodes as $code)
+                                        <option value="{{ $code->id }}" {{ old('budget_code', $value['budget_code_id']) == $code->id ? 'selected' : '' }}>{{ $code->budget_name }}</option>
+                                    @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <input type="date" name="details[AAAAA{{ $key }}][from_date]" class="form-control form-control-sm resetKeyForNew" value="{{ old('from_date', $value['from_date']) }}">
+                        </td>
+                        <td>
+                            <input type="date" name="details[AAAAA{{ $key }}][to_date]" class="form-control form-control-sm resetKeyForNew" value="{{ old('to_date', $value['to_date']) }}">
+                        </td>
+                        <td>
+                            <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA{{ $key }}][dzongkhag]" required>
+                                <option value="" disabled selected hidden>Select Dzongkhag</option>
+                                    @foreach($dzongkhags as $dzongkhag)
+                                        <option value="{{ $dzongkhag->id }}" {{ old('dzongkhag', $value['dzongkhag_id']) == $dzongkhag->id ? 'selected' : '' }}>{{ $dzongkhag->dzongkhag }}</option>
+                                    @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="details[AAAAA{{ $key }}][site_location]" value="{{ old('site_location', $value['site_location']) }}" class="form-control form-control-sm resetKeyForNew" required>
+                        </td>
+                        <td>
+                            <input type="number" name="details[AAAAA{{ $key }}][amount_required]" value="{{ old('amount_required', $value['amount_required']) }}" class="form-control form-control-sm resetKeyForNew" required>
+                        </td>
+                        <td colspan="2">
+                            <textarea rows="2" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA{{ $key }}][purpose]">{{ $value['purpose'] }}</textarea>
+                        </td>
+                    </tr>
+                    @endforeach
+                    @endif
+                    <tr class="notremovefornew">
+                        <td colspan="7"></td>
+                        <td class="text-right">
+                            <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+@push('page_scripts')
+    <script>
+        $(document).ready(function () {
+        // Function to calculate the total advance required
+        function calculateTotal() {
+            let total = 0;
+
+            // Iterate over all Advance Required fields and sum their values
+            $('input[name$="[amount_required]"]').each(function () {
+                const value = parseFloat($(this).val()) || 0; // Get value or 0 if empty
+                total += value;
+            });
+
+            // Update the total amount field
+            $('#total_amount').val(total.toFixed(2));
+        }
+
+        // Listen for input changes on Advance Required fields
+        $(document).on('input', 'input[name$="[amount_required]"]', function () {
+            calculateTotal();
+        });
+
+        // Delete a row
+        $(document).on('click', '.delete-table-row', function (e) {
+            e.preventDefault();
+
+            // Remove the row
+            $(this).closest('tr').remove();
+
+            // Recalculate total after removing a row
+            calculateTotal();
+        });
+
+        // Initial calculation on page load
+        calculateTotal();
+    });
+    </script>
+@endpush

@@ -11,9 +11,11 @@ use App\Models\LeaveApplication;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
+use App\Models\MasTravelType;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
+use App\Models\LeaveEncashmentType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
@@ -24,7 +26,11 @@ use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
+<<<<<<< HEAD
 use App\Models\TransferClaimApplication;
+=======
+use App\Models\TravelAuthorizationApplication;
+>>>>>>> cecb407d03a680bca55c62b38f743a02de2fc31c
 use App\Models\User;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
@@ -282,8 +288,9 @@ class AjaxRequestController extends Controller
             1 => MasLeaveType::class,
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
-            4 => MasApprovalHeadTypes::class,
+            4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
+            6 => MasTravelType::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -478,5 +485,28 @@ class AjaxRequestController extends Controller
         $claimNo = generateTransactionNumber($claimCode, $nextSequence);
 
         return $claimNo;
+    }
+        
+    public function getTravelAuthorizationDetails($id)
+    {
+        $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
+        if (!$travelAuthorizationDetails) {
+            return response()->json(['message' => 'Travel authorization not found'], 404);
+        }
+        if ($travelAuthorizationDetails->details) {
+            $travelAuthorizationDetails->details->each(function ($detail) {
+                // Use the accessor to get the travel name
+                $detail->mode_of_travel = $detail->travel_name; // This calls the accessor
+            });
+        }
+        // dd($travelAuthorizationDetails);
+        return response()->json(['travel_authorization_details' => $travelAuthorizationDetails]);
+    }
+
+    public function  getEmployeeById($id)
+    {
+        $user = User::whereId($id)->firstOrFail();
+
+        return response()->json($user);
     }
 }

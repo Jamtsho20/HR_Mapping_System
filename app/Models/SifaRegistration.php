@@ -2,10 +2,36 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SifaRegistration extends Model
 {
-    use HasFactory;
+    use HasFactory,CreatedByTrait;
+
+    protected $fillable = [
+        'mas_employee_id',  // Updated field name
+        'status',
+        'created_by',
+        'updated_by',   
+    ];   
+    
+    public function employee(){
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
+    public function sifaNomination()
+    {
+        return $this->hasMany(SifaNomination::class, 'sifa_registration_id');
+    }
+
+    public function sifaDependent()
+    {
+        return $this->hasMany(SifaDependent::class, 'sifa_registration_id');
+    }
+    public function sifaDocument()
+    {
+        return $this->hasMany(SifaDocument::class, 'sifa_registration_id');
+    }
+
 }

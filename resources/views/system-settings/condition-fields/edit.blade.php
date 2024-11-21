@@ -44,15 +44,11 @@
                     </div>
                 </div>
             </div>
-
-
-
-
             <br><br>
             <div class="card-footer">
                 @include('layouts.includes.buttons', [
                 'buttonName' => 'UPDATE',
-                'cancelUrl' => url('system-setting/approving-authorities') ,
+                'cancelUrl' => url('system-setting/condition-fields') ,
                 'cancelName' => 'CANCEL'
                 ])
 

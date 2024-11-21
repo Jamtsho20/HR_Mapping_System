@@ -96,5 +96,18 @@ class SalaryReportController extends Controller
     {
         return Excel::download(new SalaryPaySlipExport($request), 'salary-report.xlsx');
     }
+    public function printSalary(Request $request)
+    {
+        $salaries = FinalPaySlip::filter($request)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.salary-report-pdf', compact('salaries'))->setPaper('a4', 'landscape');;
+
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('Salary-Report.pdf');
+    }
+
+
 
 }

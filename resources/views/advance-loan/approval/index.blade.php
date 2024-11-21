@@ -49,7 +49,7 @@
                                                                         EMPLOYEE
                                                                     </th>
                                                                     <th>
-                                                                        Advance Date
+                                                                        APPLIED ON
                                                                     </th>
                                                                     <th>
                                                                         Advance Type
@@ -71,11 +71,25 @@
                                                                     <td>
                                                                         <input type="checkbox" class="advance_checkbox" value="{{ $advance->id }}">
                                                                     </td>
-                                                                    <td>{{ $advance->employee->emp_id_name ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->advance_date ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->advanceType->name ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->amount ?? 'N/A' }}</td>
-                                                                    <td>{{ $advance->status ?? 'N/A' }}</td>
+                                                                    <td>{{ $advance->employee->emp_id_name }}</td>
+                                                                    <td>{{ $advance->date }}</td>
+                                                                    <td>{{ $advance->advanceType->name }}</td>
+                                                                    <td>{{ $advance->amount }}</td>
+                                                                    <td class="text-center">
+                                                                        @if ($advance->status == 1)
+                                                                            <span class="badge bg-primary">Submitted</span>
+                                                                        @elseif($advance->status == 2)
+                                                                            <span class="badge bg-summary">Verified</span>
+                                                                        @elseif($advance->status == 3)
+                                                                            <span class="badge bg-summary">Approved</span>
+                                                                        @elseif($advance->status == 0)
+                                                                            <span class="badge bg-warning">Cancelled</span>
+                                                                        @elseif($advance->status == -1)
+                                                                            <span class="badge bg-danger">Rejected</span>
+                                                                        @else
+                                                                            <span class="badge bg-secondary">Unknown Status</span>
+                                                                        @endif
+                                                                    </td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->edit)
                                                                         <a href="{{ url('advance/approval/' . $advance->id . '/edit') }}"

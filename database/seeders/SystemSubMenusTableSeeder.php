@@ -23,10 +23,11 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 1, 'name' => 'Hierarchy', 'route' => 'system-setting/hierarchies', 'display_order' => 4],
             ['system_menu_id' => 1, 'name' => 'Delegation', 'route' => 'system-setting/delegations', 'display_order' => 5],
             ['system_menu_id' => 1, 'name' => 'Notification', 'route' => 'system-setting/notifications', 'display_order' => 6],
-            ['system_menu_id' => 1, 'name' => 'Approval Rules', 'route' => 'system-setting/approval-rules', 'display_order' => 7],
-            ['system_menu_id' => 1, 'name' => 'Approving Authority', 'route' => 'system-setting/approving-authorities', 'display_order' => 8],
-            ['system_menu_id' => 1, 'name' => 'Approval Condition Field', 'route' => 'system-setting/condition-fields', 'display_order' => 9],
-            ['system_menu_id' => 1, 'name' => 'Budget Code', 'route' => 'system-setting/bugdet-code', 'display_order' => 10],
+            ['system_menu_id' => 1, 'name' => 'Approval Head', 'route' => 'system-setting/approval-head', 'display_order' => 7],
+            ['system_menu_id' => 1, 'name' => 'Approval Rules', 'route' => 'system-setting/approval-rules', 'display_order' => 8],
+            ['system_menu_id' => 1, 'name' => 'Approving Authority', 'route' => 'system-setting/approving-authorities', 'display_order' => 9],
+            ['system_menu_id' => 1, 'name' => 'Approval Condition Field', 'route' => 'system-setting/condition-fields', 'display_order' => 10],
+            ['system_menu_id' => 1, 'name' => 'Budget Code', 'route' => 'system-setting/bugdet-code', 'display_order' => 11],
 
             //sub menu for master
             ['system_menu_id' => 2, 'name' => 'Employment Types', 'route' => 'master/employment-types', 'display_order' => 1],
@@ -131,16 +132,16 @@ class SystemSubMenusTableSeeder extends Seeder
             // LTC
             ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'ltc/ltc', 'display_order' => 1],
             //submenu for Report
-            ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'report/ltc', 'display_order' => 1],
-            ['system_menu_id' => 15, 'name' => 'Leave Availed Report', 'route' => 'report/leave-availed-report', 'display_order' => 1],
-            ['system_menu_id' => 15, 'name' => 'Leave Balance Report', 'route' => 'report/leave-balance-report', 'display_order' => 2],
-            ['system_menu_id' => 15, 'name' => 'Leave Encashment Report', 'route' => 'report/leave-encashment-report', 'display_order' => 3],
-            ['system_menu_id' => 15, 'name' => 'Vehicle Fuel Report', 'route' => 'report/vehicle-fuel-report', 'display_order' => 4],
-            ['system_menu_id' => 15, 'name' => 'Advance Loan Report', 'route' => 'report/advance-loan-report', 'display_order' => 5],
-            ['system_menu_id' => 15, 'name' => 'Expense & Advance Report', 'route' => 'report/expense-and-advance-report', 'display_order' => 6],
-            ['system_menu_id' => 15, 'name' => 'Salary Saving Scheme', 'route' => 'report/salary-saving-scheme', 'display_order' => 7],
-            ['system_menu_id' => 15, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
-            ['system_menu_id' => 15, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
+            ['system_menu_id' => 16, 'name' => 'LTC', 'route' => 'report/ltc', 'display_order' => 1],
+            ['system_menu_id' => 16, 'name' => 'Leave Availed Report', 'route' => 'report/leave-availed-report', 'display_order' => 1],
+            ['system_menu_id' => 16, 'name' => 'Leave Balance Report', 'route' => 'report/leave-balance-report', 'display_order' => 2],
+            ['system_menu_id' => 16, 'name' => 'Leave Encashment Report', 'route' => 'report/leave-encashment-report', 'display_order' => 3],
+            ['system_menu_id' => 16, 'name' => 'Vehicle Fuel Report', 'route' => 'report/vehicle-fuel-report', 'display_order' => 4],
+            ['system_menu_id' => 16, 'name' => 'Advance Loan Report', 'route' => 'report/advance-loan-report', 'display_order' => 5],
+            ['system_menu_id' => 16, 'name' => 'Expense & Advance Report', 'route' => 'report/expense-and-advance-report', 'display_order' => 6],
+            ['system_menu_id' => 16, 'name' => 'Salary Saving Scheme', 'route' => 'report/salary-saving-scheme', 'display_order' => 7],
+            ['system_menu_id' => 16, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
+            ['system_menu_id' => 16, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
 
 
 

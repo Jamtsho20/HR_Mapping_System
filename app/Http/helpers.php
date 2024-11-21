@@ -2,6 +2,7 @@
 
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
+use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
 /**
  * Helper functions
@@ -265,6 +266,7 @@ if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id ba
 if(!function_exists('approvalHeadConditionField')){
     function approvalHeadConditionFields($approvalHeadId, $request) {
         $conditionFields = MasConditionField::where('mas_approval_head_id', $approvalHeadId)->get(['id', 'name', 'has_employee_field'])->toArray();
+        // dd($conditionFields);
         foreach($conditionFields as &$field){
             if($request->has($field['name'])){
                 $field['value'] = $request->input($field['name']);
@@ -273,6 +275,15 @@ if(!function_exists('approvalHeadConditionField')){
                 $field['value'] = null;
             }
         }
+        
         return $conditionFields;
+    }
+}
+
+if (!function_exists('empDetails')) {
+    function empDetails($empId)
+    {
+        $empDetails = User::with('empJob')->where('id', $empId)->first();
+        return $empDetails;
     }
 }

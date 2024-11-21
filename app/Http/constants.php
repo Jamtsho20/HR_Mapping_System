@@ -28,6 +28,7 @@ const EXPENSE_APPVL_HEAD = 2;
 const ADVANCE_APPVL_HEAD = 3;
 const LEAVE_ENCASHMENT_APPVL_HEAD = 4;
 const REQUISITION_APPVL_HEAD = 5;
+const TRAVEL_AUTHORIZATION_APPVL_HEAD = 6;
 
 const DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE = 3;
 const TRANSFER_CLAIM_EXPENSE_TYPE = 4;
@@ -40,3 +41,9 @@ const AUTO_APPVL_OPTION = 1;
 //daily allowance
 const DAILY_ALLOWANCE = 1800;
 const TRAVEL_ALLOWANCE = 1200;
+<<<<<<< HEAD
+=======
+
+//leave type constant
+const EARNED_LEAVE = 2;
+>>>>>>> cecb407d03a680bca55c62b38f743a02de2fc31c

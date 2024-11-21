@@ -3,17 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TravelAuthorizationDetails;
+use App\Models\MasTravelType;
 
 class TravelAuthorizationApplication extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
 
     protected $table = 'travel_authorization_applications';
 
     protected $fillable = [
-       'travel_authorization_no',
+        'travel_authorization_no',
         'date',
         'created_by',
         'updated_by',
@@ -21,7 +23,6 @@ class TravelAuthorizationApplication extends Model
         'estimated_travel_expenses',
         'advance_amount',
         'daily_allowance',
-        'travel_authorization_no'
     ];
 
 
@@ -39,36 +40,53 @@ class TravelAuthorizationApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
+    public function travelType()
+    {
+        return $this->belongsTo(MasTravelType::class, 'travel_type_id');
+    }
+
+
+    //accessors and mutations
     public function getStatusNameAttribute() {
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
 
     protected static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    static::deleting(function ($travelAuthorization) {
-        $travelAuthorization->details()->delete();
-    });
-}
-
-
-    public function scopeFilter($query, $request){
-    if ($request->has('status') && $request->query('status') != '') {
-        $query->where('status', '=', $request->mode_of_travel);
-        
+        static::deleting(function ($travelAuthorization) {
+            $travelAuthorization->details()->delete();
+        });
     }
 
-    if ($request->filled('from_date') && $request->filled('to_date')) {
-        $query->whereBetween('date', [$request->from_date, $request->to_date]);
-    }
-    elseif ($request->filled('from_date')) {
-        $query->where('date', '=', $request->from_date);
-    }
+    // scope filter
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
+        if ($request->has('status') && $request->query('status') != '') {
+            $query->where('status', '=', $request->mode_of_travel);
+            
+        }
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+        }
+        elseif ($request->filled('from_date')) {
+            $query->where('date', '=', $request->from_date);
+        }
+
+        if($onesOwnRecord){
+            $query->where('created_by', auth()->user()->id);
+        }
     // elseif ($request->filled('to_date')) {
     //     $query->where('date', '<=', $request->to_date); 
     // }
+
+    if ($request->filled('travel_type')) {
+        $query->whereHas('travelType', function ($subQuery) use ($request) {
+            $subQuery->where('name', 'like', '%' . $request->travel_type . '%');
+        });
+    }
     }
 
 

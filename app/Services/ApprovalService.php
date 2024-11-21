@@ -30,9 +30,16 @@ class ApprovalService
 		if (($approvalRule && $approvalRule->approvalConditions) && !empty($conditionfields)) {
 			foreach ($approvalRule->approvalConditions as $appvlCondition) {
 				// get operator sign from mas_approval_rule_condition_operators table using $appvlCondition->operator_id
+<<<<<<< HEAD
 				$operatorData = MasApprovalRuleConditionOperator::where('id', $appvlCondition->operator_id)->first();
 				if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id'] && $conditionfields[0]['value'] . $operatorData->value . $appvlCondition->value) {
 
+=======
+				
+				$operatorData = MasApprovalRuleConditionOperator::where('id', $appvlCondition->operator_id)->first(); 
+				
+				if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id'] && $conditionfields[0]['value'] . $operatorData->value . $appvlCondition->value) {
+>>>>>>> cecb407d03a680bca55c62b38f743a02de2fc31c
 					// based on this conditions check get heirarchy / auto approval / single user
 					if($appvlCondition->approval_option == HIERARCHICAL_APPVL_OPTION){
 						//get matching hierarchy and its level
@@ -40,7 +47,13 @@ class ApprovalService
 															$query->whereStatus(1)->orderBy('sequence');
 														}])
 														->where('id', $appvlCondition->system_hierarchy_id)->first();
+<<<<<<< HEAD
 
+=======
+	
+		
+														
+>>>>>>> cecb407d03a680bca55c62b38f743a02de2fc31c
 						// Get the numeric level of `max_level_id` from `hierarchyLevels`
     					$maxLevel = $systemHierarchy->hierarchyLevels->firstWhere('id', $appvlCondition->max_level_id);
 						//get the level below max level
@@ -52,7 +65,7 @@ class ApprovalService
 							->values();
 						// next level is level where the application will be forwarded
 						$nextLevel = $levelsBelowOrEqualMax->first();
-
+							
 						$approverDetail = $this->getApproverDetail($nextLevel);
 						return ['next_level' => $nextLevel, 'approver_details' => $approverDetail, 'hierarchy_id' => $systemHierarchy->id, 'approval_option' => HIERARCHICAL_APPVL_OPTION, 'application_status' => 1];
 
@@ -94,6 +107,7 @@ class ApprovalService
 			}
 			if($nextLevel){
 				$approverDetail = $this->getApproverDetail($nextLevel);
+				// dd($approverDetail);
 				return ['next_level' => $nextLevel, 'approver_details' => $approverDetail, 'application_status' => null];
 			}else{
 				// return status or sth to indicate application has reached its maximum level
