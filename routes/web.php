@@ -133,8 +133,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
-        Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except('create', 'show', 'edit');
+        Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except( 'show', 'edit')
+        ->names([
+            'create' => 'leave.leave-encashment',
+            'store' => 'leave.leave-encashment.store',
+        ]);
+         
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
+        Route::get('encashment-history', 'LeaveEncashmentApplicationController@index')->name('leave.encashment-history');
         // Custom route for bulk approval/rejection
         Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
         Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
