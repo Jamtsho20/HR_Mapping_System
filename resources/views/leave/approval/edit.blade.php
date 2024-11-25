@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Leave')
 @section('content')
-<form action="{{ url('leave/leave-apply/' . $leave->id) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ url('leave/approval/' . $leave->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="card">
@@ -11,7 +11,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="employee">Employee <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="employee" value="{{ $leave->employee->emp_id_name }}" disabled>
+                        <input type="text" class="form-control" name="employee" value="{{ $leave->employee->emp_id_name }}" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -94,8 +94,8 @@
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
-            <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> UPDATE</button>
+            <a href="{{ url('leave/approval') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>
 </form>

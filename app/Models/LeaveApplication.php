@@ -35,6 +35,10 @@ class LeaveApplication extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function leave_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
     public function leaveType()
     {
         return $this->belongsTo(MasLeaveType::class, 'mas_leave_type_id');

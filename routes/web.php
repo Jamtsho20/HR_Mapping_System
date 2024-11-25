@@ -5,6 +5,7 @@ use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
+use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\SalaryReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
@@ -199,11 +200,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-leave-availed-excel-report', [LeaveAvailedReportController::class, 'exportLeaveAvailedExcel'])->name('leave-availed-excel.export');
     Route::get('/export-leave-balance-report', [LeaveBalanceReportController::class, 'exportLeaveBalance'])->name('leave-balance-pdf.export');
     Route::get('/export-leave-balance-excel-report', [LeaveBalanceReportController::class, 'exportLeaveBalanceExcel'])->name('leave-balance-excel.export');
+    Route::get('/export-ltc-report', [LTCController::class, 'exportLTC'])->name('ltc-pdf.export');
+    Route::get('/export-ltc-excel-report', [LTCController::class, 'exportLTCExcel'])->name('ltc.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
     Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
+    Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
 
 
     //AssetsReport

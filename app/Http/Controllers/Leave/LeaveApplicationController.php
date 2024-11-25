@@ -14,6 +14,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ApplicationForwardedMail;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
@@ -143,7 +144,9 @@ class LeaveApplicationController extends Controller
     public function show($id)
     {
         $leave = LeaveApplication::findOrfail($id);
-        return view('leave.leave.show', compact('leave'));
+        $empDetails = empDetails($leave->created_by);
+
+        return view('leave.leave.show', compact('leave', 'empDetails'));
     }
 
     /**
