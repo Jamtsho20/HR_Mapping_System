@@ -40,4 +40,7 @@ const DAILY_ALLOWANCE = 1800;
 const TRAVEL_ALLOWANCE = 1200;
 
 //leave type constant
+const CASUAL_LEAVE = 1;
 const EARNED_LEAVE = 2;
+const EARNED_LEAVE_CREDIT_AMOUNT = 2.5;
+const CASUAL_LEAVE_CREDIT_AMOUNT = 10;

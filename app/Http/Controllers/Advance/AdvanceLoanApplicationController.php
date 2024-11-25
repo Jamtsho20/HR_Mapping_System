@@ -104,6 +104,9 @@ class AdvanceLoanApplicationController extends Controller
     {
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
+        if($request->advance_type == DSA_ADVANCE){
+
+        }
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
@@ -126,7 +129,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->amount = $request->amount ?? null;
             $advanceApplication->attachment = $attachment ?? null; // Store attachment path
             $advanceApplication->total_amount = $request->total_amount ?? null;
-            $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
+            $advanceApplication->no_of_emi = $request->advance_type === DSA_ADVANCE ? 1 : $request->no_of_emi ?? null;
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;

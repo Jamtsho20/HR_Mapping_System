@@ -18,9 +18,10 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        // // $schedule->command('inspire')->hourly();
-        // $schedule->command('credit-emp-earned-leaves-monthly')->monthly()->at('00:00');
-        // $schedule->command('credit-emp-leaves-yearly')->yearly()->at('00:00');
+        //earned leave is credited at time 3 every month while crediting yearly is done at 12 to avoid issue which is especially related to crediting leave on begining of the new year
+        //as earned leave values get reset every year using the balance from previous year's casual and earned leave balance
+        $schedule->command('credit-emp-earned-leaves-monthly')->monthly()->at('03:00');
+        $schedule->command('credit-emp-leaves-yearly')->yearly()->at('00:00');
         $schedule->command('holiday:check-alert')->daily()->at('12:04');
     }
 
