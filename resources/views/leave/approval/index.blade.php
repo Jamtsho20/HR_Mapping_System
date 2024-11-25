@@ -68,17 +68,17 @@
                                             <td>{{ $leave->no_of_days }}</td>
                                             <td class="text-center">
                                                 @if ($leave->status == 1)
-                                                    <span class="badge bg-primary">Submitted</span>
+                                                <span class="badge bg-primary">Submitted</span>
                                                 @elseif($leave->status == 2)
-                                                    <span class="badge bg-summary">Verified</span>
+                                                <span class="badge bg-summary">Verified</span>
                                                 @elseif($leave->status == 3)
-                                                    <span class="badge bg-summary">Approved</span>
+                                                <span class="badge bg-summary">Approved</span>
                                                 @elseif($leave->status == 0)
-                                                    <span class="badge bg-warning">Cancelled</span>
+                                                <span class="badge bg-warning">Cancelled</span>
                                                 @elseif($leave->status == -1)
-                                                    <span class="badge bg-danger">Rejected</span>
+                                                <span class="badge bg-danger">Rejected</span>
                                                 @else
-                                                    <span class="badge bg-secondary">Unknown Status</span>
+                                                <span class="badge bg-secondary">Unknown Status</span>
                                                 @endif
                                             </td>
                                             <td class="text-center">
@@ -87,8 +87,10 @@
                                                 @endif
                                                 @if ($privileges->edit)
                                                 <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
-                                                    class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                        class="fa fa-edit"></i> EDIT</a>
+                                                    class="btn btn-sm btn-rounded btn-outline-success">
+                                                    <i class="fa fa-edit"></i> EDIT
+                                                </a>
+                                                
                                                 @endif
                                                 @if ($privileges->delete)
                                                 <a href="#"

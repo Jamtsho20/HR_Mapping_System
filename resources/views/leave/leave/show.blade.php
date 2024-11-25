@@ -6,71 +6,86 @@
 @section('content')
 
 <div class="row">
-    <div class="col-md-12">
-        <div class="card">
-
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-group list-group-unbordered">
-                            <li class="list-group-item">
-                                <b>Employee</b> <a class="pull-right">{{ $leave->employee->name }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Leave Type</b> <a class="pull-right">{{ $leave->leaveType->name }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Leave Balance</b> <a class="pull-right">{{ $leave->leave_balance }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>From Date</b> <a class="pull-right">{{ $leave->from_date }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>To Date</b> <a class="pull-right">{{ $leave->to_date }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>No of Days</b> <a class="pull-right">{{ $leave->no_of_days }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="list-group list-group-unbordered">
-                            <li class="list-group-item">
-                                <b>Remarks</b> <a class="pull-right">{{ $leave->remarks }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Attachment</b>
-                                @if($leave->attachment)
+    @include('components.employee-details', ['empDetails' => $empDetails])
+    <div class="col-lg-6">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>Leave Details</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table style="width:100%;" class="simple-table">
+                        <tbody>
+                            <tr>
+                                <th style="width:35%;">Leave Type <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $leave->leaveType->name }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">From Date<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{$leave->from_date}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">To Date <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$leave->to_date}}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">No. of Days<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$leave->no_of_days}}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $leave->remarks }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> @if($leave->attachment)
                                     <a href="{{ asset($leave->attachment) }}" class="btn btn-sm btn-primary pull-right" target="_blank">
                                         <i class="fas fa-file-alt"></i> View Attachment
                                     </a>
-                                @else
-                                    <span class="pull-right">No attachment available.</span>
-                                @endif
-                            </li>
-                        </ul>
-                    </div>
+                                    @else
+                                    <span class="text-danger">No attachment available.</span>
+                                    @endif
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            <div class="card-footer">
-                <ul class="list-group list-group-unbordered">
-
-                    <li class="list-group-item">
-                        <b>Approved By</b>
-                        <a class="pull-right"></a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Rejected By</b> <a class="pull-right"></a>
-
-                    </li>
-
-
-                </ul>
-            </div>
-
         </div>
     </div>
+    <div class="col-lg-6">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>Status</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table style="width:100%;" class="simple-table">
+                        <tbody>
+                            <tr>
+                                <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{$leave->status == 3 ?$leave->leave_approved_by->name:'N/A'}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$leave->status == -1 ?$leave->leave_approved_by->name:'N/A'}} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @endsection

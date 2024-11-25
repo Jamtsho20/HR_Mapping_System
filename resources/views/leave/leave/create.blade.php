@@ -10,7 +10,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="employee">Employee <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="employee" value="{{ auth()->user()->name }}"
+                        <input type="text" class="form-control" name="employee" value="{{ auth()->user()->emp_id_name }}"
                             placeholder="{{ auth()->user()->name }}" disabled>
                     </div>
                 </div>

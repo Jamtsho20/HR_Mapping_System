@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\LTCExport;
 use App\Http\Controllers\Controller;
+use App\Models\LeaveTravelConcession;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LTCController extends Controller
 {
@@ -20,8 +24,10 @@ class LTCController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $ltcs=LeaveTravelConcession::where('status','=',3)->filter($request)->paginate(30)->withQueryString();
+
                
-        return view('report.ltc.index', compact( 'privileges'));
+        return view('report.ltc.index', compact( 'privileges','ltcs'));
     }
 
     /**
@@ -71,4 +77,35 @@ class LTCController extends Controller
     {
         //
     }
+    public function exportLTC(Request $request)
+    {
+
+        // Load all bookings with their dzongkhag names
+        $ltcs = LeaveTravelConcession::filter($request)->get();
+
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.ltc-pdf', compact('ltcs'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('LTC-Report.pdf');
+    }
+
+    public function exportLTCExcel(Request $request)
+    {
+        return Excel::download(new LTCExport($request), 'ltc-report.xlsx');
+    }
+    public function printLTC(Request $request)
+    {
+        $ltcs = LeaveTravelConcession::filter($request)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.ltc-pdf', compact('ltcs'))->setPaper('a4', 'landscape');;
+
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('LTC.pdf');
+    }
+
 }
