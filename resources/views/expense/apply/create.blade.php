@@ -131,13 +131,13 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="advance_no">Advance No </label>
-                                                <select class="form-control" id="advance_no" name="advance_no">
+                                                <label for="travel_no">Travel No</label>
+                                                <select class="form-control" id="travel_no" name="travel_no">
                                                     <option value="" selected disabled>Select your option</option>
-                                                    @foreach ($advances as $advance)
-                                                        <option value="{{ $advance['id'] }}"
-                                                            {{ old('advance_no') == $advance['id'] ? 'selected' : '' }}>
-                                                            {{ $advance['advance_no'] }}</option>
+                                                    @foreach ($travels as $travel)
+                                                        <option value="{{ $travel->id }}"
+                                                            {{ old('travel_no') == $travel->id ? 'selected' : '' }}>
+                                                            {{ $travel->travel_authorization_no }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -430,7 +430,7 @@
     <script>
         $(document).ready(function() {
             window.DAILY_ALLOWANCE = {{ json_encode(constant('DAILY_ALLOWANCE')) }};
-            
+
             $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
                 const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
                 const targetContent = $(`#content-${targetContentId}`);

@@ -210,7 +210,7 @@ class User extends Authenticatable
         if($this->gender == 1) {
             $title = "Mr.";
         } elseif($this->gender == 2) {
-            $title = "Mrs.";
+            $title = "Ms.";
         }
     }
 }

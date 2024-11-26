@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Expense;
 
-use App\Http\Controllers\AjaxRequestController;
-use App\Http\Controllers\Controller;
-use App\Models\AdvanceApplication;
-use App\Models\DsaClaimApplication;
-use App\Models\ExpenseApplication;
-use App\Models\MasEmployeeJob;
-use App\Models\MasExpensePolicy;
-use App\Models\MasExpenseType;
-use App\Models\MasTransferClaim;
-use App\Models\TransferClaimApplication;
-use App\Services\ApprovalService;
 use Illuminate\Http\Request;
+use App\Models\MasEmployeeJob;
+use App\Models\MasExpenseType;
+use App\Models\MasExpensePolicy;
+use App\Models\MasTransferClaim;
+use App\Services\ApprovalService;
+use App\Models\AdvanceApplication;
+use App\Models\ExpenseApplication;
 use Illuminate\Support\Facades\DB;
+use App\Models\DsaClaimApplication;
+use App\Http\Controllers\Controller;
+use App\Models\TransferClaimApplication;
+use App\Models\TravelAuthorizationApplication;
+use App\Http\Controllers\AjaxRequestController;
 use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 
 class ExpenseApplicationController extends Controller
@@ -109,10 +110,12 @@ class ExpenseApplicationController extends Controller
 
         $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
 
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+
         $dsaClaimNo = $this->ajax->getDsaClaimNumber();
         $transferClaimNo = $this->ajax->getTransferClaimNumber();
 
-        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'dsaClaimNo', 'transferClaimNo'));
+        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dsaClaimNo', 'transferClaimNo'));
     }
     /**
      * Store a newly created resource in storage.

@@ -8,6 +8,7 @@ use App\Models\AdvanceApplication;
 use Illuminate\Support\Facades\DB;
 use App\Models\DsaClaimApplication;
 use App\Http\Controllers\Controller;
+use App\Models\TravelAuthorizationApplication;
 
 class DSAClaimApplicationController extends Controller
 {
@@ -51,6 +52,9 @@ class DSAClaimApplicationController extends Controller
         $empIdName = LoggedInUserEmpIdName();
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+
         //get dsa advance which has been approved for settlement
         $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
@@ -76,6 +80,7 @@ class DSAClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
 
+        dd($approverByHierarchy);
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();
@@ -99,6 +104,7 @@ class DSAClaimApplicationController extends Controller
                     'attachment' => $attachment,
                     'status' => 1
                 ]);
+
 
 
                 DB::commit();

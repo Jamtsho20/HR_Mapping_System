@@ -24,13 +24,11 @@ use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
 use App\Models\MasSection;
+use App\Models\MasTransferClaim;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
-<<<<<<< HEAD
 use App\Models\TransferClaimApplication;
-=======
 use App\Models\TravelAuthorizationApplication;
->>>>>>> cecb407d03a680bca55c62b38f743a02de2fc31c
 use App\Models\User;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
@@ -290,7 +288,8 @@ class AjaxRequestController extends Controller
             3 => MasAdvanceTypes::class,
             4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
-            6 => MasTravelType::class,
+            6 => MasTransferClaim::class,
+            7 => MasTravelType::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -486,7 +485,7 @@ class AjaxRequestController extends Controller
 
         return $claimNo;
     }
-        
+
     public function getTravelAuthorizationDetails($id)
     {
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
@@ -508,5 +507,12 @@ class AjaxRequestController extends Controller
         $user = User::whereId($id)->firstOrFail();
 
         return response()->json($user);
+    }
+
+    public function getDsaAdvancebyTravelAuth($id) {
+        $advances = AdvanceApplication::where('travel_authorization_id', $id)->get();
+
+        return response()->json($advances);
+
     }
 }
