@@ -11,7 +11,6 @@ use App\Models\MasSection;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use Rawilk\Printing\Facades\Printing;
 
 class LeaveAvailedReportController extends Controller
 {
