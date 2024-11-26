@@ -4,7 +4,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="item_type">Item Type <span class="text-danger">*</span></label>
-                <select class="form-control" id="item_type" name="item_type">
+                <select class="form-control w-100" id="item_type" name="item_type">
                     <option value="" disabled selected hidden>Select your option</option>
                 </select>
             </div>
@@ -18,7 +18,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="interest_rate">Interest Rate (%) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="interest_rate" id="interest_rate_gadget">
+                <input type="number" class="form-control" name="interest_rate" id="interest_rate_gadget" value="0" required>
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="total_amount">Total Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="gadget_total_amount" name="total_amount">
+                <input type="number" class="form-control" id="gadget_total_amount" name="total_amount" readonly>
             </div>
         </div>
         <div class="col-md-4">
@@ -72,13 +72,15 @@
 @push('page_scripts')
 <script>
     $(document).ready(function() {
-
-        $('#gadget_amount').on('change', function() {
-            const amount = parseFloat($(this).val());
-            const interestRate = parseFloat($('#interest_rate_gadget').val());
+        // Calculate Monthly EMI when No of EMI changes
+        $('#interest_rate_gadget').on('input change', function() {
+            const amount = parseFloat($('#gadget_amount').val());
+            const interestRate = parseFloat($(this).val());
             $('#no_of_emi_gadget').val('');
             $('#monthly_emi_amount_gadget').val('');
-                    // Check if both amount and interestRate are valid numbers
+            
+
+            // Check if both amount and interestRate are valid numbers
             if (!isNaN(amount) && !isNaN(interestRate)) {
                 const totalAmount = amount + (amount * (interestRate / 100));
                 $('#gadget_total_amount').val(totalAmount.toFixed(2));
@@ -88,11 +90,10 @@
             }
         });
 
-        // Calculate Monthly EMI when No of EMI changes
         $('#no_of_emi_gadget').on('change', function() {
             const noOfEmi = parseFloat($(this).val());  // Correct variable name
             const totalAmount = parseFloat($('#gadget_total_amount').val());
-            alert(noOfEmi)
+            
             // Check if both totalAmount and noOfEmi are valid numbers
             if (!isNaN(totalAmount) && totalAmount > 0 && !isNaN(noOfEmi) && noOfEmi > 0) {
                 const emiAmount = totalAmount / noOfEmi;

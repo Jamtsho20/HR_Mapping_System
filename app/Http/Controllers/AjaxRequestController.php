@@ -8,14 +8,13 @@ use App\Models\DsaClaimApplication;
 use App\Models\EmployeeLeave;
 use App\Models\ExpenseApplication;
 use App\Models\LeaveApplication;
+use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
-use App\Models\MasTravelType;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
-use App\Models\LeaveEncashmentType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
@@ -25,6 +24,8 @@ use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
 use App\Models\MasSection;
 use App\Models\MasTransferClaim;
+use App\Models\MasSifaType;
+use App\Models\MasTravelType;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
 use App\Models\TransferClaimApplication;
@@ -255,6 +256,19 @@ class AjaxRequestController extends Controller
         return response()->json([
             'advance_no' => $advanceNo,
             'sifa_interest_rate' => $sifaInterestRate,
+        ]);
+    }
+
+    public function getTravelNumber($id)
+    {
+        $travelAuthPrefix = MasTravelType::where('id', $id)->value('code');
+        $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
+
+        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+        $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
+
+        return response()->json([
+            'travel_no' => $authorizationNo,
         ]);
     }
 

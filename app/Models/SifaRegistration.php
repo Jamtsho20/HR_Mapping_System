@@ -12,7 +12,10 @@ class SifaRegistration extends Model
 
     protected $fillable = [
         'mas_employee_id',  // Updated field name
+        'sifa_type_id',
         'status',
+        'is_registerd',
+        'remark',
         'created_by',
         'updated_by',   
     ];   
@@ -31,7 +34,11 @@ class SifaRegistration extends Model
     }
     public function sifaDocument()
     {
-        return $this->hasMany(SifaDocument::class, 'sifa_registration_id');
+        return $this->hasMany(SifaDocument::class, 'sifa_registration_id','id');
+    }
+    public function histories()
+    {
+        return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
 }

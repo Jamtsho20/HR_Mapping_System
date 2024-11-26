@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\SalaryPaySlipExport;
 use App\Http\Controllers\Controller;
 use App\Models\FinalPaySlip;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;

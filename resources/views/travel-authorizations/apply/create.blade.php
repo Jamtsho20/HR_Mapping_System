@@ -28,7 +28,7 @@
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach($travelTypes as $type)
                              <option value="{{ $type->id }}" 
-                                {{ (old('advance_type', $defaultTravelTypeId) == $type->id) ? 'selected' : '' }}>
+                                {{ (old('travel_type', $defaultTravelTypeId) == $type->id) ? 'selected' : '' }}>
                                 {{ $type->name }}
                             </option>
                             @endforeach
@@ -148,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
     const advanceRequiredInput = document.getElementById('advance_required');
     const daysDifferenceInput = document.getElementById('days_difference');
+    const travelType = document.getElementById('travel_type');
+    const travelNo = document.getElementById('travel_no');
     
     
     let manualEdit = false;
@@ -197,6 +199,23 @@ if (event.target && event.target.matches('.delete-row')) {
 }
 });
 
+
+document.querySelector('#travel_type').addEventListener('change', function(event) {
+    if (travel_type.value){
+        fetch(`/gettravelbyid/${travel_type.value}`)
+        .then(response => response.json()) // Parse the response as JSON
+        .then(data => {
+            if (data.travel_no) {
+                document.querySelector('#travel_no').value = data.travel_no; // Access travel_no
+            } else {
+                console.error('travel_no not found in response');
+            }
+        })
+        .catch(error => console.error('Error fetching travel number:', error));
+        
+    }
+})
+travel_type.dispatchEvent(new Event('change'));
 document.querySelector('#travel_details').addEventListener('change', function(event) {
     if (event.target && event.target.matches('.from_date')) {
         var fromDate = event.target.value;

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->date('deduction_from_period')->nullable();
             $table->string('item_type')->nullable();
             $table->text('remark')->nullable();
+            $table->decimal('interest_rate', 5, 2)->nullable();
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New/Submitted, 2 => Verified, 3 => approved, 4 => disbursed/paid');
             $table->foreignId("created_by")->index()->constrained('mas_employees');
             $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');

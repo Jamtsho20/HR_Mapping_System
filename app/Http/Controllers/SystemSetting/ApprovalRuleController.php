@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
-use App\Models\MasAdvanceTypes;
-use App\Models\MasTravelType;
 use App\Models\LeaveEncashmentType;
+use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalCondition;
 use App\Models\MasApprovalHead;
 use App\Models\MasApprovalRule;
@@ -13,7 +12,8 @@ use App\Models\MasApprovalRuleConditionOperator;
 use App\Models\MasConditionField;
 use App\Models\MasExpenseType;
 use App\Models\MasLeaveType;
-use App\Models\MasTransferClaim;
+use App\Models\MasSifaType;
+use App\Models\MasTravelType;
 use App\Models\SystemHierarchy;
 use App\Models\User;
 use Illuminate\Http\Request;

@@ -73,7 +73,7 @@ return [
 
     'nationality' => ['Bhutanese', 'Indian', 'Canadian'],
 
-    'title' => ['Mr.', 'Miss', 'Mrs.', 'Dr.', 'Dasho'],
+    'title' => ['Mr.', 'Miss.', 'Mrs.', 'Dr.', 'Dasho'],
 
     'bank' => [
         'BoB' => 'Bank of Bhutan',
@@ -162,5 +162,13 @@ return [
         2 => 'Medium',
         3 => 'Heavy',
         4 => 'Two Wheeler'
-    ]
+    ],
+
+    'status_classes' => [
+        -1 => 'badge bg-danger',
+        0 => 'badge bg-warning',
+        1 => 'badge bg-primary',
+        2 => 'badge bg-success',
+        3 => 'badge bg-info',
+        ]
 ];
