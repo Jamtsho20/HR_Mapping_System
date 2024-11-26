@@ -10,8 +10,8 @@ use Carbon\Carbon;
 
 class AdvanceApplication extends Model
 {
-    use HasFactory,CreatedByTrait;
-    
+    use HasFactory, CreatedByTrait;
+
     protected $fillable = [
         'advance_no',
         'date',
@@ -28,23 +28,28 @@ class AdvanceApplication extends Model
         'remark',
         'attachment',
         'interest_rate',
-        'total_amount', 
+        'total_amount',
         'no_of_emi',
         'monthly_emi_amount',
         'deduction_from_period',
         'item_type',
         'status',
-        
+
     ];
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
-    public function employee(){
+    public function employee()
+    {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function advance_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
     public function advanceType()
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'advance_type_id');
@@ -56,12 +61,13 @@ class AdvanceApplication extends Model
     }
 
     //scope filter
-    public function scopeFilter($query, $request, $onesOwnRecord = true){
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
         if ($request->has('advance_type') && $request->query('leave_type') != '') {
             $query->where('mas_advance_type_id', $request->query('advance_type'));
         }
 
-        if($onesOwnRecord){
+        if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }
     }
@@ -71,7 +77,8 @@ class AdvanceApplication extends Model
         $this->attributes['deduction_from_period'] = Carbon::parse($value)->format('Y-m-01');
     }
 
-    public function getStatusNameAttribute() {
+    public function getStatusNameAttribute()
+    {
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }

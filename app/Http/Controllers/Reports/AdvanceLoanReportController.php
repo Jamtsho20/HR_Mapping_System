@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\MasDepartment;
+use App\Models\MasSection;
 use Illuminate\Http\Request;
 
 class AdvanceLoanReportController extends Controller
@@ -20,8 +23,14 @@ class AdvanceLoanReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $employeeLists = employeeList();
+ 
+        $departments = MasDepartment::select('name', 'id')->get();
+        $sections = MasSection::select('name', 'id')->get();
+        $advanceReports=AdvanceApplication::paginate(30)->withQueryString();
+       
 
-        return view('report.advance-loan-report.index', compact('privileges'));
+        return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'sections', 'advanceReports'));
     }
 
     /**
