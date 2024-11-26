@@ -76,24 +76,32 @@
                                                                     <td>{{ $advance->advanceType->name }}</td>
                                                                     <td>{{ $advance->amount }}</td>
                                                                     <td class="text-center">
-                                                                        @if ($advance->status == 1)
-                                                                            <span class="badge bg-primary">Submitted</span>
-                                                                        @elseif($advance->status == 2)
-                                                                            <span class="badge bg-summary">Verified</span>
-                                                                        @elseif($advance->status == 3)
-                                                                            <span class="badge bg-summary">Approved</span>
-                                                                        @elseif($advance->status == 0)
-                                                                            <span class="badge bg-warning">Cancelled</span>
-                                                                        @elseif($advance->status == -1)
-                                                                            <span class="badge bg-danger">Rejected</span>
-                                                                        @else
-                                                                            <span class="badge bg-secondary">Unknown Status</span>
-                                                                        @endif
+
+                                                                    @php
+                                                                    $statusClasses = [
+                                                                    -1 => 'badge bg-danger',
+                                                                    0 => 'badge bg-warning',
+                                                                    1 => 'badge bg-primary',
+                                                                    2 => 'badge bg-success',
+                                                                    3 => 'badge bg-info',
+                                                                    ];
+                                                                    $statusText = config("global.application_status.{$advance->status}", 'Unknown Status');
+                                                                    $statusClass =  config("global.status_classes.{$advance->status}", 'badge bg-secondary');
+                                                                    @endphp
+
+                                                                    <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                            
                                                                     </td>
                                                                     <td class="text-center">
+                                                                        @if ($privileges->view)
+                                                                        <a href="{{ route('advance-loan-approval.show',  $advance->id) }}"
+                                                                            class="btn btn-sm btn-outline-secondary"><i
+                                                                                class="fa fa-list"></i> Detail</a>
+                                                                        @endif
                                                                         @if ($privileges->edit)
-                                                                        <a href="{{ url('advance/approval/' . $advance->id . '/edit') }}"
-                                                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                        
+                                                                        <a href="{{ route('advance-loan-approval.edit', $advance->id) }}"
+                                                                            class="btn btn btn-sm btn-rounded btn-outline-success">
                                                                             <i class="fa fa-edit"></i> EDIT
                                                                         </a>
                                                                         @endif
@@ -104,6 +112,7 @@
                                                                             <i class="fa fa-trash"></i> DELETE
                                                                         </a>
                                                                         @endif
+                                                                    
                                                                     </td>
                                                                 </tr>
                                                                 @empty

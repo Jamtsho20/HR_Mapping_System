@@ -250,6 +250,19 @@ class AjaxRequestController extends Controller
         ]);
     }
 
+    public function getTravelNumber($id)
+    {
+        $travelAuthPrefix = MasTravelType::where('id', $id)->value('code');
+        $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
+    
+        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+        $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
+    
+        return response()->json([
+            'travel_no' => $authorizationNo,
+        ]);
+    }
+
     public function getExpenseAmount($id)
     {
         $loggedInUserRegion = loggedInUserRegion();

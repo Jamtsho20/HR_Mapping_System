@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('page-title', 'Edit Advance')
 @section('content')
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <form action="{{ route('apply.update', $advance->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
@@ -26,13 +28,14 @@
                         <div class="form-group">
                             <label for="advance_type">Advance Type <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="advance_type" value="{{ optional($advance->advanceType)->name ?? 'N/A' }}" readonly>
-                            <input type="hidden" name="advance_type" value="{{ $advance->advanceType->id ?? '' }}" required>
+                            <input type="hidden" name="advance_type" id ="advance_type_hidden" value="{{ $advance->advanceType->id ?? '' }}" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="date">Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="date" value="{{ old('date', $advance->date) }}" id="date" required readonly>
+                            <input type="hidden" name="redirectUrl" value="{{ $redirectUrl }}">
                         </div>
                     </div>
                 </div>
@@ -67,12 +70,12 @@
                 
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
-                    <a href="{{ url('advance-loan/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>
+                    <a href="{{ $redirectUrl ? url($redirectUrl) : url('advance-loan/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>
                 </div>
             </div>
         </div>
     </div>
 </form>
-
+<script></script>
 @include('layouts.includes.delete-modal')
 @endsection
