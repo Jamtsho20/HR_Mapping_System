@@ -14,6 +14,11 @@ class MasDepartment extends Model
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
 
+    public function departmentHead()
+    {
+        return $this->belongsTo(User::class, 'mas_employee_id'); // Adjust the foreign key if needed
+    }
+
     public function sections(){
         return $this->hasMany(MasSection::class, 'mas_department_id');
     }

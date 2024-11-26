@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('expense_applications', function (Blueprint $table) {
             $table->id();
-      
+            $table->string('expense_no')->index();
             // $table->foreignId('mas_employee_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('mas_expense_type_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->date('date');
+            $table->foreignId('mas_expense_type_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('travel_type')->nullable();
             $table->string('travel_mode')->nullable();
             $table->date('travel_from_date')->nullable();
@@ -26,11 +26,11 @@ return new class extends Migration
             $table->integer('travel_distance')->nullable();
             $table->integer('expense_amount')->nullable();
             $table->string('description')->nullable();
-            $table->string('file')->nullable();    
+            $table->string('file')->nullable();
             // $table->string('status')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved'); 
+            $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');   
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }

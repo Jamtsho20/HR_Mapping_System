@@ -3,7 +3,8 @@
 @section('content')
     @if ($privileges->create)
         @section('buttons')
-            <a href="{{ route('apply-expense.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>Apply
+            <a href="{{ route('apply-expense.create') }}" class="btn btn-sm btn-primary" id="applyexpense" data-item-type=""><i
+                    class="fa fa-plus"></i> Apply
                 Expense</a>
         @endsection
     @endif
@@ -44,7 +45,7 @@
                             @endphp
                             <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
                                 id="content-{{ $sanitizedName }}" role="tabpanel"
-                                aria-labelledby="tab-{{ $sanitizedName }}">
+                                aria-labelledby="tab-{{ $sanitizedName }}" data-item-type="{{ $id }}">
                                 @if ($id == 2)
                                     <div class="card-body">
                                         <div class="table-responsive">
@@ -69,7 +70,7 @@
                                                                                     EMPLOYEE
                                                                                 </th>
                                                                                 <th>
-                                                                                    EXPENSE DATE
+                                                                                    DATE
                                                                                 </th>
                                                                                 <th>
                                                                                     EXPENSE TYPE
@@ -88,10 +89,10 @@
                                                                                 </th>
                                                                             </tr>
                                                                         <tbody>
-                                                                            @forelse ($expenseApplication as $expense)
+                                                                            @forelse ($expenseApplications as $expense)
                                                                                 <tr>
                                                                                     <td>{{ $loop->iteration }}</td>
-                                                                                    <td>{{ $expense->employee->username }}
+                                                                                    <td>{{ $expense->employee->employee_id }} ({{ $expense->employee->title . ' ' . $expense->employee->name }})
                                                                                     </td>
                                                                                     <td>{{ $expense->date }}</td>
                                                                                     <td>{{ $expense->expenseType->name }}
@@ -104,7 +105,7 @@
                                                                                                 class="badge bg-primary">Applied</span>
                                                                                         @elseif($expense->status == 2)
                                                                                             <span
-                                                                                                class="badge bg-summary">Approved</span>
+                                                                                                class="badge bg-info">Approved</span>
                                                                                         @elseif($expense->status == 0)
                                                                                             <span
                                                                                                 class="badge bg-warning">Cancelled</span>
@@ -143,7 +144,8 @@
                                                                             @empty
                                                                                 <tr>
                                                                                     <td colspan="8"
-                                                                                        class="text-center text-danger">No records found</td>
+                                                                                        class="text-center text-danger">No
+                                                                                        records found</td>
                                                                                 </tr>
                                                                             @endforelse
                                                                         </tbody>
@@ -181,7 +183,7 @@
                                                                                     EMPLOYEE
                                                                                 </th>
                                                                                 <th>
-                                                                                    CREATION DATE
+                                                                                    DATE
                                                                                 </th>
                                                                                 <th>
                                                                                     TOTAL PAYABLE AMOUNT
@@ -200,6 +202,26 @@
                                                                                 </th>
                                                                             </tr>
                                                                         </thead>
+                                                                        <tbody>
+                                                                            @forelse ($dsaClaimApplications as $dsaClaim)
+                                                                                <tr>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                    <td></td>
+                                                                                </tr>
+                                                                            @empty
+                                                                                <tr>
+                                                                                    <td colspan="8"
+                                                                                        class="text-center text-danger">No
+                                                                                        records found</td>
+                                                                                </tr>
+                                                                            @endforelse
+                                                                        </tbody>
                                                                     </table>
                                                                 </div>
                                                             </div>
@@ -233,10 +255,10 @@
                                                                                     EMPLOYEE
                                                                                 </th>
                                                                                 <th>
-                                                                                    TRANSFER CLAIM DATE
+                                                                                    CLAIM DATE
                                                                                 </th>
                                                                                 <th>
-                                                                                    TRANSFER CLAIM TYPE
+                                                                                    CLAIM TYPE
                                                                                 </th>
                                                                                 <th>
                                                                                     CLAIM AMOUNT
@@ -255,13 +277,13 @@
                                                                                 </th>
                                                                             </tr>
                                                                         <tbody>
-                                                                            @foreach ($transferClaims as $transfer)
+                                                                            @forelse ($transferClaims as $transfer)
                                                                                 <tr>
                                                                                     <td>{{ $loop->iteration }}</td>
-                                                                                    <td>{{ $empIdName }}</td>
+                                                                                    <td>{{ $transfer->employee->employee_id }} ({{ $transfer->employee->title . ' ' . $transfer->employee->name }})
                                                                                     <td>{{ $transfer->created_at->format('d-m-Y') }}
                                                                                     </td>
-                                                                                    <td>{{ $transfer->transfer_claim }}
+                                                                                    <td>{{ $transfer->type->name }}
                                                                                     </td>
                                                                                     <td>{{ $transfer->amount_claimed }}
                                                                                     </td>
@@ -274,7 +296,7 @@
                                                                                                 class="badge bg-primary">Applied</span>
                                                                                         @elseif($transfer->status == 2)
                                                                                             <span
-                                                                                                class="badge bg-summary">Approved</span>
+                                                                                                class="badge bg-info">Approved</span>
                                                                                         @elseif($transfer->status == 0)
                                                                                             <span
                                                                                                 class="badge bg-warning">Cancelled</span>
@@ -310,7 +332,13 @@
                                                                                     </td>
 
                                                                                 </tr>
-                                                                            @endforeach
+                                                                            @empty
+                                                                                <tr>
+                                                                                    <td colspan="8"
+                                                                                        class="text-center text-danger">No
+                                                                                        records found</td>
+                                                                                </tr>
+                                                                            @endforelse
                                                                         </tbody>
                                                                         </thead>
                                                                     </table>
@@ -336,4 +364,29 @@
     @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
+    <script>
+        $(document).ready(function() {
+            const activeTabContent = $('.tab-pane.active');
+            if (activeTabContent.length) {
+                const activeType = activeTabContent.data('item-type');
+                $('#applyexpense').attr('data-item-type', activeType);
+            }
+
+            $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
+                const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
+                const targetContent = $(`#content-${targetContentId}`);
+                const itemType = targetContent.data('item-type');
+
+                $('#applyexpense').attr('data-item-type', itemType);
+            });
+
+            $('#applyexpense').on('click', function(event) {
+                event.preventDefault();
+                const itemType = $(this).data('item-type');
+                const baseUrl = $(this).attr('href');
+                const url = `${baseUrl}?item_type=${itemType}`;
+                window.location.href = url;
+            });
+        })
+    </script>
 @endpush

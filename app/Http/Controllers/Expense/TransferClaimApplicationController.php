@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Expense;
 use App\Http\Controllers\Controller;
 use App\Models\MasTransferClaim;
 use App\Models\TransferClaimApplication;
+use App\Services\ApprovalService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TransferClaimApplicationController extends Controller
 {
@@ -24,6 +27,7 @@ class TransferClaimApplicationController extends Controller
     private $filePath = 'images/files/';
 
     protected $rules = [
+        'transfer_claim_no' => 'required|string',
         'transfer_claim' => 'required',
         'current_location' => 'required',
         'new_location' => 'required',
@@ -65,28 +69,67 @@ class TransferClaimApplicationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, $this->rules, $this->messages);
-        $transfer = new TransferClaimApplication();
 
-        if ($request->hasFile('attachment')) {
-            // Upload file and get the file path
-            $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy(TRANSFER_CLAIM_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
 
-            // Store it as a JSON array
-            $attachment = json_encode([$attachmentPath]);
+        if ($approverByHierarchy) {
+
+            try {
+                DB::beginTransaction();
+
+                if ($request->hasFile('attachment')) {
+                    // Upload file and get the file path
+                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+
+                    // Store it as a JSON array
+                    $attachment = json_encode([$attachmentPath]);
+                } else {
+                    $attachment = json_encode([]);
+                }
+
+                $transferClaimApplication = TransferClaimApplication::create([
+                    'transfer_claim_no' => $request->transfer_claim_no,
+                    'transfer_claim_id' => $request->transfer_claim,
+                    'current_location' => $request->current_location,
+                    'new_location' => $request->new_location,
+                    'distance_travelled' => $request->distance_travelled,
+                    'amount_claimed' => $request->amount_claimed,
+                    'attachment' => $attachment,
+                    'status' => 1,
+                ]);
+
+                // Create a history record
+                $transferClaimApplication->histories()->create([
+                    'approval_option' => $approverByHierarchy['approval_option'],
+                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
+                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
+                    'status' => $approverByHierarchy['application_status'],
+                    'remarks' => $request->remarks,
+                    'action_performed_by' => loggedInUser(),
+                ]);
+
+                // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
+                DB::commit();
+                if (isset($approverByHierarchy['approver_details'])) {
+                    $emailContent = 'has submitted a expense request of amount ' . $transferClaimApplication->expense_amount . ' is awaiting your approval.';
+                    $emailSubject = 'Transfer Claim Application';
+                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                }
+
+                return redirect('expense/apply-expense')->with('msg_success', 'Transfer Claim applied successfully');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error($e->getMessage());
+                return back()->withInput()->with('msg_error', $e->getMessage());
+            }
         } else {
-            $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
+            return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }
-
-        $transfer->transfer_claim = $request->transfer_claim;
-        $transfer->current_location = $request->current_location;
-        $transfer->new_location = $request->new_location;
-        $transfer->distance_travelled = $request->distance_travelled;
-        $transfer->amount_claimed = $request->amount_claimed;
-        $transfer->attachment = $attachment;
-        $transfer->status = 1;
-        $transfer->save();
-
-        return redirect('expense/transfer-claim')->with('msg_success', 'Transfer Claim applied successfully');
     }
 
     /**

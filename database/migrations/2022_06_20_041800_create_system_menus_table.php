@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('icon');
             $table->unsignedInteger('display_order');
+            $table->unsignedInteger('visible')->default(1);
             $table->timestamps();
         });
     }

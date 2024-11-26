@@ -13,12 +13,8 @@ return new class extends Migration
     {
         Schema::create('transfer_claim_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('transfer_claim');
-            $table->foreign('transfer_claim') // Defining the foreign key
-                ->references('name') // Referencing the 'name' column in the parent table
-                ->on('mas_transfer_claims') // Parent table name
-                ->onDelete('restrict')
-                ->onUpdate('cascade'); // Optional: Define behavior on delete
+            $table->string('transfer_claim_no')->index();
+            $table->foreignId('transfer_claim_id')->constrained('mas_transfer_claims')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->string('current_location');
             $table->string('new_location');
             $table->decimal('amount_claimed', 10, 2);

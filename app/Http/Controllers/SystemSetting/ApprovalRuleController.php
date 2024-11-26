@@ -74,8 +74,9 @@ class ApprovalRuleController extends Controller
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
             4 => LeaveEncashmentType::class,
-            6 =>  MasTravelType::class,
-            7 =>  MasSifaType::class,
+            5 => MasAdvanceTypes::class,
+            6 => MasTransferClaim::class,
+            7 => MasTravelType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {
@@ -312,14 +313,21 @@ class ApprovalRuleController extends Controller
 
                         $condition->is_single_user = 0;
                         $condition->appvl_employee_id = null;
+                        $condition->auto_approval = 0;
                     } elseif ($approvalOption == 2) {
                         $condition->is_single_user = 1;
                         $condition->appvl_employee_id = $request->appvl_employee_id;
 
                         $condition->system_hierarchy_id = null;
                         $condition->max_level_id = null;
+                        $condition->auto_approval = 0;
                     } else {
                         $condition->auto_approval = 1;
+
+                        $condition->is_single_user = 0;
+                        $condition->appvl_employee_id = null;
+                        $condition->system_hierarchy_id = null;
+                        $condition->max_level_id = null;
                     }
 
                     $condition->fyi_employee_id = $request->fyi_level ?? null;
