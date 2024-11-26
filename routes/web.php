@@ -168,8 +168,8 @@ Route::middleware('auth')->group(function () {
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
-        Route::post('sifa-registration', [SifaRegistrationController::class, 'store'])->name('sifa-registration.store');
-        Route::get('sifa-registration/create', [SifaRegistrationController::class, 'create'])->name('sifa-registration.create');
+        Route::resource('sifa-approval', 'SifaApprovalController');
+        Route::post('approval/bulk', 'SifaApprovalController@bulkApprovalRejection')->name('sifa.bulk-approval-rejection');
     });
 
     // Eployee

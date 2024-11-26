@@ -5,14 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\EmployeeLeave;
+use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
-use App\Models\MasTravelType;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
-use App\Models\LeaveEncashmentType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
@@ -21,6 +20,8 @@ use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
 use App\Models\MasSection;
+use App\Models\MasSifaType;
+use App\Models\MasTravelType;
 use App\Models\MasVillage;
 use App\Models\SystemHierarchyLevel;
 use App\Models\TravelAuthorizationApplication;
@@ -281,6 +282,7 @@ class AjaxRequestController extends Controller
             4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
             6 => MasTravelType::class,
+            7 => MasSifaType::class
         ];
 
         if (isset($modelMap[$id])) {

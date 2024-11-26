@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sifa_registrations', function (Blueprint $table) {
+        Schema::create('mas_sifa_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('sifa_type_id')->index()->nullable()->constrained('mas_sifa_types')->cascadeOnUpdate()->restrictOnDelete();
-            $table->boolean('is_registered')->default(3);
-            $table->boolean('status')->default(1);
+            $table->string('name');
+            $table->string('code');
             $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
-            
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sifa_registrations');
+        Schema::dropIfExists('mas_sifa_types');
     }
 };
