@@ -141,6 +141,7 @@ class RolePermissionsTableSeeder extends Seeder
 			['role_id' => 1, 'system_sub_menu_id' => 94, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 95, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 			['role_id' => 1, 'system_sub_menu_id' => 96, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
+			['role_id' => 1, 'system_sub_menu_id' => 97, 'view' => 1, 'create' => 1, 'edit' => 1, 'delete' => 1, 'created_by' => 1],
 
 
 		]);

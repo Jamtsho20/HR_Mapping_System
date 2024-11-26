@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
+use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
@@ -44,6 +45,13 @@ Route::namespace('Api\Expense')->prefix('expense')->middleware('auth:sanctum')->
     Route::put('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'update']);
     Route::post('expense/apply-expense', [ExpenseApplicationController::class, 'store']);
     Route::delete('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'destroy']);
+});
+
+
+Route::namespace('Api\v1\Advance')->prefix('advance-loan')->group(function () {
+    Route::get('gadget-emi/employees/', [AdvanceLoanGadgetEmiController::class, 'getEmployees']);
+    Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
+
 });
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);

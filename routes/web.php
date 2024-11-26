@@ -5,6 +5,7 @@ use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
+use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\SalaryReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
@@ -132,8 +133,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
-        Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except('create', 'show', 'edit');
+        Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except( 'show', 'edit')
+        ->names([
+            'create' => 'leave.leave-encashment',
+            'store' => 'leave.leave-encashment.store',
+        ]);
+         
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
+        Route::get('encashment-history', 'LeaveEncashmentApplicationController@index')->name('leave.encashment-history');
         // Custom route for bulk approval/rejection
         Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
         Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
@@ -154,7 +161,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
-        Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
+        Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
         Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
 
@@ -199,11 +206,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-leave-availed-excel-report', [LeaveAvailedReportController::class, 'exportLeaveAvailedExcel'])->name('leave-availed-excel.export');
     Route::get('/export-leave-balance-report', [LeaveBalanceReportController::class, 'exportLeaveBalance'])->name('leave-balance-pdf.export');
     Route::get('/export-leave-balance-excel-report', [LeaveBalanceReportController::class, 'exportLeaveBalanceExcel'])->name('leave-balance-excel.export');
+    Route::get('/export-ltc-report', [LTCController::class, 'exportLTC'])->name('ltc-pdf.export');
+    Route::get('/export-ltc-excel-report', [LTCController::class, 'exportLTCExcel'])->name('ltc.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
     Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
+    Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
 
 
     //AssetsReport
@@ -295,4 +305,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
+    Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
 });

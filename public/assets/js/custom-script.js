@@ -337,6 +337,7 @@ var hrms = function () {
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();
+        
             if (advanceTypeId !== '') {
                 $.ajax({
                     url: "/getadvancenobyadvancetype/" + advanceTypeId,
@@ -354,22 +355,74 @@ var hrms = function () {
                     }
                 });
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
-                    $.ajax({
-                        url: 'https://external-application.com/api/endpoint', // External API URL
-                        dataType: 'JSON',
-                        type: 'GET',
-                        success: function (response) {
-                            // Handle the response from the external API
-                            // $('#item_type').val(response.advance_no); // Example field for external response
-                        },
-                        error: function (response) {
-                            console.log(response.error);
-                            alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
-                        }
-                    });
-                }
-            }
-        })
+                
+                    let typingTimer; // Timer for debounce
+                    const debounceDelay = 200; // Delay in milliseconds
+
+                    $('#item_type').select2({
+                        placeholder: 'Select Item Type', // Placeholder text
+                        allowClear: true, // Allow clearing the selection
+                        minimumInputLength: 3, // Trigger search only after typing 3 characters
+                        ajax: {
+                                transport: function (params, success, failure) {
+                                    // Debounce API requests
+                                    clearTimeout(typingTimer); // Clear previous timer
+                                    typingTimer = setTimeout(function () {
+                                        // Make the AJAX call after the delay
+                                        $.ajax({
+                                            url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
+                                            type: 'GET',
+                                            dataType: 'json',
+                                            success: success,
+                                            error: failure
+                                        });
+                                    }, debounceDelay);
+                                },
+                        processResults: function (data) {
+                                    // Map the API response to Select2 format
+                                    return {
+                                        results: data.map(item => ({
+                                            id: item.item, // Unique value
+                                            text: item.description // Displayed text
+                                        }))
+                                    };
+                                    },
+                                    error: function () {
+                                        alert('Unable to fetch item types. Please try again later.');
+                                    }
+                                }
+                                });
+
+                            // Add an event listener to capture the selection from Select2
+                                $('#item_type').on('select2:select', function (e) {
+                                    var selectedItemId = e.params.data.id; // The selected item ID (item.item)
+
+                                    // Make the second API call (Pricing API) using the selected item ID
+                                    $.ajax({
+                                        url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/Pricing?type=${encodeURIComponent(selectedItemId)}`, // Using selected item item
+                                        type: 'GET',
+                                        dataType: 'json',
+                                        success: function (pricingResponse) {
+                                    
+
+                                            // Set the value of the #item_type dropdown with the selected item
+                                            $('#item_type').val(selectedItemId).trigger('change');  // Trigger change to refresh the select2 UI
+
+                                            // Set the price in the #amount field
+                                            $('#gadget_amount').val(pricingResponse.mrp).trigger('change');
+
+                                                                    },
+                                                                    error: function (pricingResponse) {
+                                                    
+                                                                        alert('Something went wrong with the Pricing API, please contact system admin for further information!');
+                                                                    }
+                                                                });
+                                                            });
+                                
+                                                    }
+                                                        
+                                                    }
+                        });
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {

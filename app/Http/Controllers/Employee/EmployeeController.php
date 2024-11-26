@@ -355,7 +355,7 @@ class EmployeeController extends Controller
         ];
         $request->validate([
             'job.mas_department_id' => 'required',
-            'job.mas_section_id' => 'required',
+            // 'job.mas_section_id' => 'required',
             'job.mas_designation_id' => 'required',
             'job.mas_grade_id' => 'required',
             'job.mas_grade_step_id' => 'required',

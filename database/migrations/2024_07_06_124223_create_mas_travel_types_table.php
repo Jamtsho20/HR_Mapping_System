@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('mas_travel_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string("code",50)->index();
+            $table->boolean('status')->default(1);
             $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');

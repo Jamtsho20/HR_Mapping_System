@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Advance;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Services\ApprovalService;
+use App\Models\MasAdvanceTypes;
+use App\Models\BudgetCode;
+use App\Models\MasDzongkhag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +24,7 @@ class AdvanceLoanApprovalController extends Controller
     {
         $this->middleware('permission:advance-loan/advance-loan-approval,view')->only('index');
         $this->middleware('permission:advance-loan/advance-loan-approval,create')->only('store');
-        $this->middleware('permission:advance-loan/advance-loan-approval,edit')->only('update', 'bulkApprovalRejection');
+        $this->middleware('permission:advance-loan/advance-loan-approval,edit')->only('update', 'bulkApprovalRejection', 'edit');
         $this->middleware('permission:advance-loan/advance-loan-approval,delete')->only('destroy');
     }
 
@@ -83,8 +86,31 @@ class AdvanceLoanApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        //
+    {   
+        $user = auth()->user();
+        $advance = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
+            $query->where('approver_emp_id', $user->id)
+                ->where('application_type', 'App\Models\AdvanceApplication');
+        })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
+            ->orderBy('created_at')
+            ->firstOrFail();;
+        $advanceType = MasAdvanceTypes::where('id', $advance->advance_type_id)->first(); // Fetch advance types
+        $budgetCodes = BudgetCode::get();
+        $dzongkhags = MasDzongkhag::get();
+        $travelAuthorizations = [];
+        $advanceDetails = []; // only if advance type is ADVANCE_TO_STAFF
+        if($advance->advance_type_id == DSA_ADVANCE){
+            $travelAuthorizations = TravelAuthorizationApplication::with('details')->where('created_by', loggedInUser())
+                                        ->where('id', $advance->travel_authorization_id)
+                                        ->first();
+        }
+        if($advance->advance_type_id == ADVANCE_TO_STAFF){
+            $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
+        }
+        $redirectUrl = 'advance-loan/advance-loan-approval';
+        
+        
+        return view('advance-loan.apply.edit', compact( 'redirectUrl','advance', 'advanceType', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
     }
 
     /**
@@ -107,7 +133,13 @@ class AdvanceLoanApprovalController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            AdvanceApplication::findOrFail($id)->delete();
+
+            return back()->with('msg_success', 'Advance Applicaton has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
+        }
     }
     
     public function bulkApprovalRejection(Request $request)

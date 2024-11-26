@@ -39,3 +39,6 @@ const AUTO_APPVL_OPTION = 1;
 //daily allowance
 const DAILY_ALLOWANCE = 1800;
 const TRAVEL_ALLOWANCE = 1200;
+
+//leave type constant
+const EARNED_LEAVE = 2;

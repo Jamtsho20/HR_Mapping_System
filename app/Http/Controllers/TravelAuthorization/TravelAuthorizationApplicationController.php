@@ -68,13 +68,16 @@ public function create()
       {
         require_once base_path('app/Http/constants.php');
 
-    $user = Auth::user();
+        $user = Auth::user();
         $userId = $user->id;
         $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
         $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
         $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
         $travelTypes = MasTravelType::all();
-        $defaultTravelTypeId = 1;
+        // $defaultTravelTypeId = 1;
+
+        $defaultTravelTypeId = request()->get('travel_type', 1);
+        
         return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance', 'travelAuthorizationNumber', 'defaultTravelTypeId'));
       }
 
@@ -268,10 +271,7 @@ public function store(Request $request)
 
     public function getTravelAuthorizationNumber()
 {
-    
-    
-     $travelAuthPrefix = 'TA';
-
+    $travelAuthPrefix= MasTravelType::where('id', 1)->get('code')->first()->code;
      
      $latestTransaction =  TravelAuthorizationApplication::latest('id')->first();
 

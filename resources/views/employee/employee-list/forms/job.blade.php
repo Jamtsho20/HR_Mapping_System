@@ -13,8 +13,8 @@
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="section_id">Section<span class="text-danger">*</span></label>
-                    <select name="job[mas_section_id]" id="section_id" class="form-control form-control-sm" required>
+                    <label for="section_id">Section</label>
+                    <select name="job[mas_section_id]" id="section_id" class="form-control form-control-sm" >
                         <option value="" disabled selected hidden>Select your option</option>
                         @if(isset($employee->empJob->department))
                             @foreach($employee->empJob->department->sections as $section)
