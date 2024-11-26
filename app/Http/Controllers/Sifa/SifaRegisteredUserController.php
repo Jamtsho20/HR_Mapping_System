@@ -29,7 +29,12 @@ class SifaRegisteredUserController extends Controller
     }
     public function show($id, Request $request)
     {
+        $user = auth()->user();
+        $sifaRegistrations = SifaRegistration::with([
+            'employee.empJob.designation', // Load employee's designation via empJob
+            'employee.empJob.department'  // Load employee's department via empJob
+        ])->get();
 
-        return view('sifa.sifa-registered-user.show');
+        return view('sifa.sifa-approval.show', compact('sifaRegistrations'));
     }
 }

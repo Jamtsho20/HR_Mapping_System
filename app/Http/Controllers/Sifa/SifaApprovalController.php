@@ -22,7 +22,7 @@ class SifaApprovalController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $user = auth()->user();
+     $user=auth()->user();
         // $sifaRegistrations = SifaRegistration::where('mas_employee_id', auth()->id())->first();
 
         // Fetch sifa applications with histories where the approver matches the current user
@@ -45,8 +45,10 @@ class SifaApprovalController extends Controller
     
     public function show($id, Request $request)
     {
-        $user = auth()->user();
+       
+
         $sifaRegistration = SifaRegistration::with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
+        $user = empDetails($sifaRegistration->created_by);
         $sifaDocuments = SifaDocument::where('sifa_registration_id', $id)->first();
         //dd($sifaRegistration->sifaDocument);
 

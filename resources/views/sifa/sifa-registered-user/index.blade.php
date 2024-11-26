@@ -55,15 +55,15 @@
                                     </td>
                                     <td class="text-center">
                                         @if ($privileges->view)
-                                        <a href="{{ url('sifa-registered-user/' . $employee->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                        <a href="{{ url('sifa/sifa-registered-user/' . $employee->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                         @endif
-                                        @if ($privileges->delete)
+                                        <!-- @if ($privileges->delete)
                                         <a href="#"
                                             class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
                                             data-url="{{ url('employee/approval/' . $employee->id) }}">
                                             <i class="fa fa-trash"></i> DELETE
                                         </a>
-                                        @endif
+                                        @endif -->
                                     </td>
                                 </tr>
                                 @endforeach
