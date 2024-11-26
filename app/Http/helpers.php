@@ -287,3 +287,11 @@ if (!function_exists('empDetails')) {
         return $empDetails;
     }
 }
+
+// if(!function_exists('') ) {
+//     function empDetails($empId)
+//     {
+//         $empDetails = User::with('empJob')->where('id', $empId)->first();
+//         return $empDetails;
+//     }
+// }

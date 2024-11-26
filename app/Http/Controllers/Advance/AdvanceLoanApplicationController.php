@@ -104,10 +104,12 @@ class AdvanceLoanApplicationController extends Controller
     {
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
+        
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
+       
         $attachment = "";
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -131,6 +133,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;
             $advanceApplication->remark = $request->remark ?? null;
+            $advanceApplication->interest_rate = $request->interest_rate ?? null;
             $advanceApplication->status = $approverByHierarchy['application_status'];
 
             $advanceApplication->save();
@@ -203,8 +206,9 @@ class AdvanceLoanApplicationController extends Controller
         if($advance->advance_type_id == ADVANCE_TO_STAFF){
             $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
         }
+        $redirectUrl=null;
         
-        return view('advance-loan.apply.edit', compact('advance', 'advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
+        return view('advance-loan.apply.edit', compact('redirectUrl', 'advance', 'advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
     }
 
     /**
@@ -260,6 +264,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;
             $advanceApplication->remark = $request->remark ?? null;
+            $advanceApplication->interest_rate = $request->interest_rate ?? null;
             $advanceApplication->status = $advanceApplication->status;
 
             $advanceApplication->save();
@@ -285,7 +290,9 @@ class AdvanceLoanApplicationController extends Controller
             // Handle the error by returning back with error message
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
-
+        if ($request -> redirectUrl != null) {
+            return redirect()->route('advance-loan-approval.index')->with('msg_success', 'Advance application updated successfully!');
+        }
         // Return a success response after the update is complete
         return redirect()->route('apply.index')->with('msg_success', 'Advance application updated successfully!');
     }

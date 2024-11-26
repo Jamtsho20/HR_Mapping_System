@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Advance Approval')
+@section('page-title', 'Sifa Approval')
 @section('content')
 
 
@@ -7,22 +7,22 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
         <div class="col-8 form-group">
-            <input type="text" name="advance_type" class="form-control" value="{{ request()->get('advance_type') }}" placeholder="Search">
+            <input type="text" name="mas_employee_id" class="form-control" value="{{ request()->get('mas_employee_id') }}" placeholder="Search">
         </div>
         @endcomponent
         <div class="block-content">
             <div class="block-options">
                 <div class="col-sm-8">
-                    <h5>Advance Approval</h5>
+                    <h5>Sifa Approval</h5>
                 </div>
                 @if ($privileges->edit)
                 <div class="col-sm-6">
                     <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
-                        data-route="{{ route('advance.bulk-approval-rejection') }}" data-item-class="advance_checkbox"
-                        data-item-name="advance" value="Approve">
+                        data-route="{{ route('sifa.bulk-approval-rejection') }}" data-item-class="sifa_checkbox"
+                        data-item-name="sifa" value="Approve">
                     <input class="btn-sm btn-danger buttonsubmit" type="button" id="btn_reject" data-value="reject"
-                        data-route="{{ route('advance.bulk-approval-rejection') }}" data-item-class="advance_checkbox"
-                        data-item-name="advance" value="Reject">
+                        data-route="{{ route('sifa.bulk-approval-rejection') }}" data-item-class="sifa_checkbox"
+                        data-item-name="sifa" value="Reject">
                 </div>
                 @endif
             </div>
@@ -43,22 +43,13 @@
                                                                 <tr role="row">
                                                                     <th>
                                                                         <input type="checkbox" id="select_all" class="select_all"
-                                                                            data-item-class="advance_checkbox" title="select all">
+                                                                            data-item-class="sifa_checkbox" title="select all">
                                                                     </th>
                                                                     <th>
-                                                                        EMPLOYEE
+                                                                        EMPLOYEE NAME
                                                                     </th>
                                                                     <th>
-                                                                        APPLIED ON
-                                                                    </th>
-                                                                    <th>
-                                                                        Advance Type
-                                                                    </th>
-                                                                    <th>
-                                                                        Amount
-                                                                    </th>
-                                                                    <th>
-                                                                        STATUS
+                                                                       STATUS
                                                                     </th>
                                                                     <th>
                                                                         ACTION
@@ -66,59 +57,47 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                @forelse ($advances as $advance)
+                                                                @forelse ($sifas as $sifa)
                                                                 <tr>
                                                                     <td>
-                                                                        <input type="checkbox" class="advance_checkbox" value="{{ $advance->id }}">
+                                                                        <input type="checkbox" class="sifa_checkbox" value="{{ $sifa->id }}">
                                                                     </td>
-                                                                    <td>{{ $advance->employee->emp_id_name }}</td>
-                                                                    <td>{{ $advance->date }}</td>
-                                                                    <td>{{ $advance->advanceType->name }}</td>
-                                                                    <td>{{ $advance->amount }}</td>
+                                                                    <td>{{ $sifa->employee->emp_id_name }}</td>
                                                                     <td class="text-center">
-
-                                                                    @php
-                                                                    $statusClasses = [
-                                                                    -1 => 'badge bg-danger',
-                                                                    0 => 'badge bg-warning',
-                                                                    1 => 'badge bg-primary',
-                                                                    2 => 'badge bg-success',
-                                                                    3 => 'badge bg-info',
-                                                                    ];
-                                                                    $statusText = config("global.application_status.{$advance->status}", 'Unknown Status');
-                                                                    $statusClass =  config("global.status_classes.{$advance->status}", 'badge bg-secondary');
-                                                                    @endphp
-
-                                                                    <span class="{{ $statusClass }}">{{ $statusText }}</span>
-                                                            
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        @if ($privileges->view)
-                                                                        <a href="{{ route('advance-loan-approval.show',  $advance->id) }}"
-                                                                            class="btn btn-sm btn-outline-secondary"><i
-                                                                                class="fa fa-list"></i> Detail</a>
+                                                                        @if ($sifa->status == 1)
+                                                                            <span class="badge bg-primary">Submitted</span>
+                                                                        @elseif($sifa->status == 2)
+                                                                            <span class="badge bg-summary">Verified</span>
+                                                                        @elseif($sifa->status == 3)
+                                                                            <span class="badge bg-summary">Approved</span>
+                                                                        @elseif($sifa->status == 0)
+                                                                            <span class="badge bg-warning">Cancelled</span>
+                                                                        @elseif($sifa->status == -1)
+                                                                            <span class="badge bg-danger">Rejected</span>
+                                                                        @else
+                                                                            <span class="badge bg-secondary">Unknown Status</span>
                                                                         @endif
+                                                                    </td>
+                                                                    <td class="text-center">
                                                                         @if ($privileges->edit)
-                                                                        
-                                                                        <a href="{{ route('advance-loan-approval.edit', $advance->id) }}"
-                                                                            class="btn btn btn-sm btn-rounded btn-outline-success">
+                                                                        <a href="{{ url('sifa/approval/' . $sifa->id . '/edit') }}"
+                                                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success">
                                                                             <i class="fa fa-edit"></i> EDIT
                                                                         </a>
                                                                         @endif
                                                                         @if ($privileges->delete)
                                                                         <a href="#"
                                                                             class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                            data-url="{{ url('advance/approval/' . $advance->id) }}">
+                                                                            data-url="{{ url('sifa/approval/' . $sifa->id) }}">
                                                                             <i class="fa fa-trash"></i> DELETE
                                                                         </a>
                                                                         @endif
-                                                                    
                                                                     </td>
                                                                 </tr>
                                                                 @empty
                                                                 <tr>
                                                                     <td colspan="7" class="text-center text-danger">
-                                                                        No Advance found
+                                                                        No Sifa found
                                                                     </td>
                                                                 </tr>
                                                                 @endforelse
@@ -153,7 +132,7 @@
             // Select/Deselect all checkboxes
             $('#select_all').click(function() {
                 var checkedStatus = this.checked;  // Get the status of the select all checkbox
-                $('.advance_checkbox').each(function() {
+                $('.sifa_checkbox').each(function() {
                     $(this).prop('checked', checkedStatus); // Set each checkbox to match select all status
                 });
             });

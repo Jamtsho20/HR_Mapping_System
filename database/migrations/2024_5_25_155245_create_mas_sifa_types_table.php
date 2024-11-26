@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_travel_types', function (Blueprint $table) {
+        Schema::create('mas_sifa_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string("code",50)->index();
-            $table->boolean('status')->default(1);
+            $table->string('code');
             $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_travel_types');
+        Schema::dropIfExists('mas_sifa_types');
     }
 };

@@ -161,7 +161,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
-        Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create', 'show', 'edit');
+        Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
         Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
 
@@ -175,8 +175,8 @@ Route::middleware('auth')->group(function () {
     //SIFAREG
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
-        Route::post('sifa-registration', [SifaRegistrationController::class, 'store'])->name('sifa-registration.store');
-        Route::get('sifa-registration/create', [SifaRegistrationController::class, 'create'])->name('sifa-registration.create');
+        Route::resource('sifa-approval', 'SifaApprovalController');
+        Route::post('approval/bulk', 'SifaApprovalController@bulkApprovalRejection')->name('sifa.bulk-approval-rejection');
     });
 
     // Eployee
@@ -305,4 +305,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
+    Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
 });
