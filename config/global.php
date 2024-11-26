@@ -7,6 +7,8 @@ return [
 
     'null_value' => '-',
 
+    'pagination' => 30,
+
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2', 'level 3'],
@@ -71,7 +73,7 @@ return [
 
     'nationality' => ['Bhutanese', 'Indian', 'Canadian'],
 
-    'title' => ['Mr.', 'Miss', 'Mrs.', 'Dr.', 'Dasho'],
+    'title' => ['Mr.', 'Miss.', 'Mrs.', 'Dr.', 'Dasho'],
 
     'bank' => [
         'BoB' => 'Bank of Bhutan',
@@ -153,7 +155,7 @@ return [
         1 => 'Daily',
         2 => 'Monthly',
         3 => 'Yearly',
-    ], 
+    ],
 
     'vehicle_types' => [
         1 => 'Light',

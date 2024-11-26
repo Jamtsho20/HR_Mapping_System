@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('dsa_claim_applications', function (Blueprint $table) {
             $table->id();
+            $table->string('dsa_claim_no')->index();
             $table->foreignId('advance_application_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();
-            $table->decimal('advance_amount', 12, 2)->nullable()->comment('amount from advance application');
-            $table->decimal('total_amount_adjusted', 12, 2);
-            $table->decimal('net_Payable_amount', 12, 2);
+            $table->decimal('total_amount', 12, 2);
+            $table->decimal('net_payable_amount', 12, 2);
             $table->decimal('balance_amount', 12, 2)->nullable();
             $table->json('attachment')->nullable()->comment('relevant attachment path and casted to array');
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');

@@ -30,9 +30,9 @@ class ApprovalService
 		if (($approvalRule && $approvalRule->approvalConditions) && !empty($conditionfields)) {
 			foreach ($approvalRule->approvalConditions as $appvlCondition) {
 				// get operator sign from mas_approval_rule_condition_operators table using $appvlCondition->operator_id
-				
-				$operatorData = MasApprovalRuleConditionOperator::where('id', $appvlCondition->operator_id)->first(); 
-				
+
+				$operatorData = MasApprovalRuleConditionOperator::where('id', $appvlCondition->operator_id)->first();
+
 				if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id'] && $conditionfields[0]['value'] . $operatorData->value . $appvlCondition->value) {
 					// based on this conditions check get heirarchy / auto approval / single user
 					if($appvlCondition->approval_option == HIERARCHICAL_APPVL_OPTION){
@@ -41,9 +41,6 @@ class ApprovalService
 															$query->whereStatus(1)->orderBy('sequence');
 														}])
 														->where('id', $appvlCondition->system_hierarchy_id)->first();
-	
-		
-														
 						// Get the numeric level of `max_level_id` from `hierarchyLevels`
     					$maxLevel = $systemHierarchy->hierarchyLevels->firstWhere('id', $appvlCondition->max_level_id);
 						//get the level below max level
@@ -55,14 +52,14 @@ class ApprovalService
 							->values();
 						// next level is level where the application will be forwarded
 						$nextLevel = $levelsBelowOrEqualMax->first();
-							
+
 						$approverDetail = $this->getApproverDetail($nextLevel);
 						return ['next_level' => $nextLevel, 'approver_details' => $approverDetail, 'hierarchy_id' => $systemHierarchy->id, 'approval_option' => HIERARCHICAL_APPVL_OPTION, 'application_status' => 1];
 
 					}else if($appvlCondition->approval_option == SINGLE_USER_APPVL_OPTION){ // then it will be approved as soon as appvl_emp_id approve it.
 						// $approverDetail = $this->getApproverDetail($appvlCondition->appvl_employee_id);
 						$approverDetail['user_with_approving_role'] = User::where('id', $appvlCondition->appvl_employee_id)->first();
-						
+
 						return ['next_level' => null, 'approver_details' => $approverDetail, 'hierarchy_id' => null, 'approval_option' => SINGLE_USER_APPVL_OPTION, 'application_status' => 1];
 					}else{ //auto approval option this also will be approved in level 1 it self
 						return ['next_level' => null, 'approver_details' => null, 'hierarchy_id' => null, 'approval_option' => AUTO_APPVL_OPTION, 'application_status' => 3];
@@ -74,7 +71,7 @@ class ApprovalService
 		return null;
 	}
 
-	// after completion of applying and forwarding to user based on approval options and 
+	// after completion of applying and forwarding to user based on approval options and
 	// using other parameters then we no need to check for those parameter can do directly with the help of application_histories table
 	public function applicationForwardedTo($id, $applicationType){
 		$applicationHistory = ApplicationHistory::where('application_type', $applicationType)->where('application_id', $id)->where('approver_emp_id', auth()->user()->id)->first();
@@ -83,7 +80,7 @@ class ApprovalService
 				$query->whereStatus(1)->orderBy('sequence');
 			}])
 			->where('id', $applicationHistory->hierarchy_id)->first();
-			
+
 			if($systemHierarchy){
 				$currentLevel = $applicationHistory->level_id;
 				$currentLevelSequence = $systemHierarchy->hierarchyLevels
@@ -101,7 +98,7 @@ class ApprovalService
 				return ['next_level' => $nextLevel, 'approver_details' => $approverDetail, 'application_status' => null];
 			}else{
 				// return status or sth to indicate application has reached its maximum level
-				
+
 				return ['application_status' => 'max_level_reached'];
 			}
 		}elseif($applicationHistory && $applicationHistory->approval_option == SINGLE_USER_APPVL_OPTION){

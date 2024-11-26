@@ -14,14 +14,13 @@ class MasExpenseTypesSeeder extends Seeder
     public function run(): void
     {
         DB::table('mas_expense_types')->insert([
-            ['id' => 1,'mas_expense_type_id' => null, 'name' => 'Conveyance Expsense', 'created_by' => 1],
-            ['id' => 2,'mas_expense_type_id' => null, 'name' => 'General Expsense', 'created_by' => 1],
-            ['id' => 3, 'mas_expense_type_id' => 1, 'name' => 'DSA Claim/Settlement', 'created_by' => 1,],
-            ['id' => 4, 'mas_expense_type_id' => 1, 'name' => 'Transfer Claim', 'created_by' => 1],
-            ['id' => 5, 'mas_expense_type_id' => 2, 'name' => 'Vehicle Fuel Claim', 'created_by' => 1],
-            ['id' => 6, 'mas_expense_type_id' => 2, 'name' => 'Leave encashment', 'created_by' => 1],
-            ['id' => 7, 'mas_expense_type_id' => 2, 'name' => 'DEG Fuel Claim', 'created_by' => 1],
-            ['id' => 8, 'mas_expense_type_id' => 2, 'name' => 'Parking Fee', 'created_by' => 1],
+            ['id' => 1,'mas_expense_type_id' => null, 'name' => 'Conveyance Expsense', 'code' => 'CE', 'created_by' => 1],
+            ['id' => 2,'mas_expense_type_id' => null, 'name' => 'General Expsense', 'code' => 'GE', 'created_by' => 1],
+            ['id' => 3, 'mas_expense_type_id' => 1, 'name' => 'DSA Claim/Settlement', 'code' => 'DSA', 'created_by' => 1,],
+            ['id' => 4, 'mas_expense_type_id' => 1, 'name' => 'Transfer Claim', 'code' => 'TC', 'created_by' => 1],
+            ['id' => 5, 'mas_expense_type_id' => 2, 'name' => 'Vehicle Fuel Claim', 'code' => 'VFC', 'created_by' => 1],
+            ['id' => 6, 'mas_expense_type_id' => 2, 'name' => 'DEG Fuel Claim', 'code' => 'DEG', 'created_by' => 1],
+            ['id' => 7, 'mas_expense_type_id' => 2, 'name' => 'Parking Fee', 'code' => 'PF', 'created_by' => 1],
 
         ]);
     }
