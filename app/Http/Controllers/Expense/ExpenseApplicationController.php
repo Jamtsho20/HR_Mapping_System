@@ -13,19 +13,23 @@ use App\Models\ExpenseApplication;
 use Illuminate\Support\Facades\DB;
 use App\Models\DsaClaimApplication;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationForwardedMail;
 use App\Models\TransferClaimApplication;
+use App\Models\TravelAuthorizationApplication;
+use App\Http\Controllers\AjaxRequestController;
+use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 
 class ExpenseApplicationController extends Controller
 {
+    protected $ajax;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
+
         $this->middleware('permission:expense/apply-expense,view')->only('index');
         $this->middleware('permission:expense/apply-expense,create')->only('store');
         $this->middleware('permission:expense/apply-expense,edit')->only('update');
@@ -68,15 +72,17 @@ class ExpenseApplicationController extends Controller
 
     public function index(Request $request)
     {
+
         $privileges = $request->instance();
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
         $user = loggedInUser();
         $empIdName = LoggedInUserEmpIdName();
 
-        $expenseApplication = ExpenseApplication::filter($request)->createdBy()->paginate(30);
+        $expenseApplications = ExpenseApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
+        $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
 
-        return view('expense.apply.index', compact('expenseApplication', 'privileges', 'headers', 'transferClaims', 'empIdName'));
+        return view('expense.apply.index', compact('privileges', 'headers', 'empIdName', 'expenseApplications', 'dsaClaimApplications', 'transferClaims'));
     }
 
     /**
@@ -84,9 +90,11 @@ class ExpenseApplicationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        $expenses = MasExpenseType::all();
+        $itemType = $request->get('item_type', null);
+
+        $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
 
         //common function to generate combination of loggedInUser employeeId and username
@@ -100,9 +108,14 @@ class ExpenseApplicationController extends Controller
             ->get(['id', 'advance_no'])
             ->toArray();
 
-        $transferClaim = MasTransferClaim::get();
+        $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
 
-        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaim'));
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+
+        $dsaClaimNo = $this->ajax->getDsaClaimNumber();
+        $transferClaimNo = $this->ajax->getTransferClaimNumber();
+
+        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dsaClaimNo', 'transferClaimNo'));
     }
     /**
      * Store a newly created resource in storage.
@@ -131,6 +144,7 @@ class ExpenseApplicationController extends Controller
 
                 $expenseApplication = ExpenseApplication::create([
                     // 'mas_employee_id' => loggedInUser(),
+                    'expense_no' => $request->expense_no,
                     'mas_expense_type_id' => $request->expense_type,
                     'date' => $request->date,
                     'expense_amount' => $request->amount,
@@ -153,7 +167,7 @@ class ExpenseApplicationController extends Controller
                     'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
                     'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
                     'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                    'status' => 1,
+                    'status' => $approverByHierarchy['application_status'],
                     'remarks' => $request->remarks,
                     'action_performed_by' => loggedInUser(),
                 ]);
@@ -162,16 +176,16 @@ class ExpenseApplicationController extends Controller
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
                     $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->expense_amount . ' is awaiting your approval.';
-                    $emailSubject = 'Leave Application';
+                    $emailSubject = 'Expense Application';
                     // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                 }
 
+                return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
             } catch (\Exception $e) {
                 DB::rollBack();
                 return back()->withInput()->with('msg_error', $e->getMessage());
             }
 
-            return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
         } else {
             return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }

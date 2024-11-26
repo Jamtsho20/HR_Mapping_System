@@ -11,6 +11,7 @@ class ExpenseApplication extends Model
     use HasFactory, CreatedByTrait;
     protected $fillable = [
         // 'mas_employee_id',
+        'expense_no',
         'mas_expense_type_id',
         'date',
         'expense_amount',
@@ -33,17 +34,20 @@ class ExpenseApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
-    
+
     public function expenseType()
     {
         return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
     }
 
-    public function scopeFilter($query, $request)
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($request->has('mas_expense_type_id') && $request->query('mas_expense_type_id') != '') {
             $query->where('mas_expense_type_id', $request->query('mas_expense_type_id'));
         }
-       
+
+        if($onesOwnRecord){
+            $query->where('created_by', auth()->user()->id);
+        }
     }
 }

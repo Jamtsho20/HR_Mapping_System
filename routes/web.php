@@ -138,7 +138,7 @@ Route::middleware('auth')->group(function () {
             'create' => 'leave.leave-encashment',
             'store' => 'leave.leave-encashment.store',
         ]);
-         
+
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
         Route::get('encashment-history', 'LeaveEncashmentApplicationController@index')->name('leave.encashment-history');
         // Custom route for bulk approval/rejection
@@ -303,8 +303,12 @@ Route::middleware('auth')->group(function () {
     Route::get('getemployees', 'AjaxRequestController@getEmployees');
     Route::get('getsystemhierarchylevelsbyhierarchyid/{id}', 'AjaxRequestController@getSystemHierarchyLevels');
     Route::get('getadvancenobyadvancetype/{id}', 'AjaxRequestController@getAdvanceNumber');
+    Route::get('getexpensenobyexpensetype/{id}', 'AjaxRequestController@getExpenseNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
+
+    Route::post('approverejectbulk', 'AjaxRequestController@bulkApprovalRejection')->name('approverejectbulk');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
+    Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
 });
