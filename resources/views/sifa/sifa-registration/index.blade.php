@@ -30,7 +30,18 @@
                                                                 Employee Name
                                                             </th>
                                                             <th>
+                                                                Designation
+                                                            </th>
+
+                                                            <th>
+                                                                Department
+                                                            </th>
+
+                                                            <th>
                                                                 Is Sifa Registered
+                                                            </th>
+                                                            <th>
+                                                                Status
                                                             </th>
                                                             <th>
                                                                 Action
@@ -42,6 +53,12 @@
                                                         <tr>
                                                             <td>1</td>
                                                             <td>{{ $sifaRegistration->employee->emp_id_name }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->designation->name ?? 'N/A' }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->department->name ?? 'N/A' }}</td>
+                                                            <td class="text-center">
+                                                                {!! $sifaRegistration->is_registered ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}
+                                                            </td>
+
                                                             <td class="text-center">
                                                                 @php
                                                                 $statusClasses = [
@@ -79,7 +96,7 @@
                                                         </tr>
                                                         @else
                                                         <tr>
-                                                            <td colspan="4" class="text-center text-danger">No Sifa Registration record found</td>
+                                                            <td colspan="7" class="text-center text-danger">No Sifa Registration record found</td>
                                                         </tr>
                                                         @endif
                                                     </tbody>

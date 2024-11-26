@@ -18,12 +18,12 @@
                 <td> <strong>Contact Number: </strong>{{ $user->contact_number}} </td>
             </tr>
             <tr>
-                <td> <strong>Village: </strong>{{ $user->empJob->designation->name ?? 'N/A' }}, {{ $user->empJob->section->name ?? 'N/A'  }}</td>
+                <td> <strong>Village: </strong>{{$user->empPermenantAddress?->masVillage?->village ?? config('global.null_value')}}</td>
                 <td> <strong>Gewog: </strong>{{$user->empPermenantAddress?->masGewog?->name ?? config('global.null_value')}}</td>
                 <td> <strong>Dzongkhag: </strong>{{$user->empPermenantAddress?->masDzongkhag?->dzongkhag ?? config('global.null_value')}}</td>
             </tr>
             <tr>
-                <td> <strong>Designation: </strong>{{$user->empPermenantAddress?->masVillage?->village ?? config('global.null_value')}}</td>
+                <td> <strong>Designation: </strong>{{ $user->empJob->designation->name ?? 'N/A' }}, {{ $user->empJob->section->name ?? 'N/A'  }}</td>
                 <td> <strong>Grade Step: </strong>{{ $user->empJob->gradeStep->name ?? config('global.null_value')}}</td>
                 <td> <strong>Department: </strong>{{ $user->empJob->department->name ?? config('global.null_value') }}</td>
             </tr>

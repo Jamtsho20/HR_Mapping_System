@@ -40,5 +40,8 @@ class SifaRegistration extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
-
+    public function sifa_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }
