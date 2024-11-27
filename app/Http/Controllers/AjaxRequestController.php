@@ -453,7 +453,7 @@ class AjaxRequestController extends Controller
     }
 
     public function getExpenseNumber($id)
-    {
+    {   
         $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
 
         $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)
