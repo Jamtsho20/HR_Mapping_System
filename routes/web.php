@@ -177,6 +177,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Sifa')->prefix('sifa')->group(function () {
         Route::resource('sifa-registration', 'SifaRegistrationController');
         Route::resource('sifa-approval', 'SifaApprovalController');
+        Route::resource('sifa-registered-user', 'SifaRegisteredUserController');
         Route::post('approval/bulk', 'SifaApprovalController@bulkApprovalRejection')->name('sifa.bulk-approval-rejection');
     });
 

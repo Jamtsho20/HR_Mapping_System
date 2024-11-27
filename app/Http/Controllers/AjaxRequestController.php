@@ -303,7 +303,8 @@ class AjaxRequestController extends Controller
             4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
             6 => MasTransferClaim::class,
-            7 => MasTravelType::class,
+            7 => MasSifaType::class,
+            8 => MasTravelType::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -452,7 +453,7 @@ class AjaxRequestController extends Controller
     }
 
     public function getExpenseNumber($id)
-    {
+    {   
         $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
 
         $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)

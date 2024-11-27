@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Sifa Registration Details')
 @section('buttons')
-<a href="{{ route('sifa-registration.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Sifa Registration List</a>
+<a href="{{ route('sifa-registered-user.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Sifa Registered List</a>
 @endsection
 
 @section('content')
