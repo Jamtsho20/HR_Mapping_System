@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
+use App\Models\AdvanceDetail;
+use App\Models\BudgetCode;
 use App\Models\MasAdvanceTypes;
+use App\Models\MasDzongkhag;
 use App\Models\MasLeaveType;
+use App\Models\TravelAuthorizationApplication;
 use App\Services\ApprovalService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -90,14 +94,23 @@ class AdvanceLoanApplicationController extends Controller
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::all();
+        $budgetCodes = BudgetCode::get();
+        $dzongkhags = MasDzongkhag::get();
+        $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
+        $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
+                                    ->where('status', 3)
+                                    ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
+                                        $query->whereNotIn('id', $excludedTravelAuthorizationIds);
+                                    })
+                                    ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
 
-        return view('advance-loan.apply.create', compact('advanceTypes'));
+        return view('advance-loan.apply.create', compact('advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags'));
+
     }
 
     public function store(Request $request)
     {
         $advanceApplication = new AdvanceApplication();
-
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
@@ -121,7 +134,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->amount = $request->amount ?? null;
             $advanceApplication->attachment = $attachment; // Store attachment path
             $advanceApplication->total_amount = $request->total_amount ?? null;
-            $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
+            $advanceApplication->no_of_emi = $request->advance_type === DSA_ADVANCE ? 1 : $request->no_of_emi ?? null;
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;
@@ -346,13 +359,13 @@ class AdvanceLoanApplicationController extends Controller
             ]);
 
             // Optionally create a history record for the advance application
-            $advanceApplication->histories()->create([
-                'level' => 'Test Level', // This could be dynamic, depending on the use case
-                'status' => $advanceApplication->status,
-                'remarks' => $request->remark ?? $advanceApplication->remark,
-                'created_by' => loggedInUser(),  // Assuming loggedInUser() fetches the current user's ID
-                'updated_by' => loggedInUser(),
-            ]);
+            // $advanceApplication->histories()->create([
+            //     'level' => 'Test Level', // This could be dynamic, depending on the use case
+            //     'status' => $advanceApplication->status,
+            //     'remarks' => $request->remark ?? $advanceApplication->remark,
+            //     'created_by' => loggedInUser(),  // Assuming loggedInUser() fetches the current user's ID
+            //     'updated_by' => loggedInUser(),
+            // ]);
 
             // Commit the transaction
             DB::commit();

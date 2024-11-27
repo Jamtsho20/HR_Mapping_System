@@ -123,7 +123,6 @@
                                     </td>
                                     <td>
                                         <input type="number" name="quantity" class="form-control form-control-sm resetKeyForNew">
-
                                     </td>
                                     <td>
                                         <select class="form-control form-control-sm resetKeyForNew" name="dzongkhag">
