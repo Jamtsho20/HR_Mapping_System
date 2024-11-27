@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\AdvanceLoanExport;
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\MasDepartment;
+use App\Models\MasSection;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdvanceLoanReportController extends Controller
 {
@@ -20,8 +26,14 @@ class AdvanceLoanReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $employeeLists = employeeList();
 
-        return view('report.advance-loan-report.index', compact('privileges'));
+        $departments = MasDepartment::select('name', 'id')->get();
+        $sections = MasSection::select('name', 'id')->get();
+        $advanceReports = AdvanceApplication::filter($request, false)->paginate(30)->withQueryString();
+
+
+        return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'sections', 'advanceReports'));
     }
 
     /**
@@ -70,5 +82,36 @@ class AdvanceLoanReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function exportAdvanceLoan(Request $request)
+    {
+
+        
+        $advanceReports = AdvanceApplication::filter($request,false)->get();
+
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.advance-loan-report-pdf', compact('advanceReports'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('AdvanceLoan-Report.pdf');
+    }
+
+    public function exportAdvanceLoanExcel(Request $request)
+    {
+        return Excel::download(new AdvanceLoanExport($request), 'advance-loan-report.xlsx');
+    }
+    public function printAdvanceLoan(Request $request)
+    {
+        $advanceReports = AdvanceApplication::filter($request,false)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.advance-loan-report-pdf', compact('advanceReports'))->setPaper('a4', 'landscape');;
+
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('AdvanceLoan-Report.pdf');
     }
 }
