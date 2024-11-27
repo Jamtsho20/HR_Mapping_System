@@ -102,6 +102,7 @@
     document.getElementById('to_date').addEventListener('change', calculateLeaveDays);
 
     function calculateLeaveDays() {
+        var leaveType = document.getElementById('leave_type').value;
         var fromDate = document.getElementById('from_date').value;
         var toDate = document.getElementById('to_date').value;
         var fromDay = document.getElementById('ddl_from_day').value;
@@ -113,16 +114,18 @@
                 url: '/getnoofdaysbydate', // Update with the correct path
                 method: 'GET',
                 data: {
+                    leave_type: leaveType,
                     from_date: fromDate,
                     to_date: toDate,
                     from_day: fromDay,
                     to_day: toDay
                 },
                 success: function(response) {
-                    document.getElementById('no_of_days_leave').value = response.total_days;
+                    document.getElementById('no_of_days_leave').value = response.data.total_days;
                 },
-                error: function() {
-                    alert('Error calculating leave days.');
+                error: function(error) {
+                    // alert('Error calculating leave days.');
+                    alert(error.responseJSON.message);
                 }
             });
         } else {

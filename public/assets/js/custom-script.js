@@ -204,38 +204,41 @@ var hrms = function () {
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
                 var formId = $("#apply_leave");
+                var fromDay = document.getElementById('ddl_from_day');
+                var toDay = document.getElementById('ddl_to_day');
                 if (leaveType !== '') {
                     // ajax call
                     $.ajax({
                         url: "/getleavebalancebyleavetype/" + leaveType,
                         dataType: "JSON",
                         type: "GET",
-                        success: function (data) {
-                            if (data.leavePolicy && !data.leavePolicy.status) {
-                                alert('You cannot apply leave as leave policy for this leave type has not been enforced, please contact system admin for further information!')
-                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
-                                $("#leave_type").prop("disabled", false);
-                            } else if (data.leavePolicy && data.leavePolicy.is_information_only) {
-                                alert('You cannot apply leave as leave policy for this leave type is for information purpose only, please contact system admin for further information!')
-                                formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
-                                $("#leave_type").prop("disabled", false);
-                            } else {
-                                $("#leave_balance").val(data.balance); // set the value for leave balance
-                                // Disable form fields if balance is 0
-                                if (data.balance == 0) {
-                                    formId.find("input, select, textarea").prop("disabled", true); // disable fields in formId only
-                                    $("#leave_type").prop("disabled", false);
-                                } else {
-                                    $("form input, form select, form textarea").prop("disabled", false); // enable all input fields
-                                }
-                                if (data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                                    $("#attachment").attr("required", "required");
-                                    $("#attachment_required").show();
-                                } else {
-                                    $("#attachment").removeAttr("required");
-                                    $("#attachment_required").hide();
-                                }
+                        success: function (response) {
+                            if (response.data.balance != 0) {
+                                $("#leave_balance").val(response.data.balance);
+                                formId.find("input, select, textarea").prop("disabled", false); // Disable fields in formId only
+                                // $("#leave_type").prop("disabled", false);
                             }
+                            
+                            //handle half day by enabling and disabling in form
+                            if (!response.data.is_half_day) {
+                                disableHalfDayOptions();
+                            } else {
+                                enableAllDayOptions();
+                            }
+
+                            // Handle attachment required based on policy
+                            if (response.data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                                $("#attachment").attr("required", "required");
+                                $("#attachment_required").show();
+                            } else {
+                                $("#attachment").removeAttr("required");
+                                $("#attachment_required").hide();
+                            }
+                        },
+                        error: function (error) {
+                            alert(error.responseJSON.message);
+                            formId.find("input, select, textarea").prop("disabled", true); // Disable fields in case of error
+                            $("#leave_type").prop("disabled", false);
                         }
                     });
                 } else {
@@ -243,38 +246,31 @@ var hrms = function () {
                 }
             }
 
-            // Trigger on page load (during edit)
-            populateLeaveBalance();
-
+            function disableHalfDayOptions() {
+                ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
+                    var select = document.getElementById(id);
+                    Array.from(select.options).forEach(function(option) {
+                        if (option.value === '2' || option.value === '3') {
+                            option.disabled = true;
+                        }
+                    });
+                });
+            }
+        
+            function enableAllDayOptions() {
+                ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
+                    var select = document.getElementById(id);
+                    Array.from(select.options).forEach(function(option) {
+                        option.disabled = false;
+                    });
+                });
+            }
+        
             // Trigger on change of leave type
             $(document).on("change", "#leave_type", function () {
                 populateLeaveBalance();
             });
         });
-
-        //calculate no of leave days based on from date, to date, excluding holidays
-        // $(document).on("change", "#from_date, #to_date, #ddl_from_day, #ddl_to_day", function() {
-        //     var fromDate = $("#from_date").val();
-        //     var toDate = $("#to_date").val();
-        //     var fromDay = $("#ddl_from_day").val();
-        //     var toDay = $("#ddl_to_day").val();
-
-        //     if (fromDate !== '' && toDate !== '' && fromDay !== '' && toDay !== '') {
-        //         //ajax call
-        //         $.ajax({
-        //             url: "/getnoofdaysbydate/",
-        //             data: { fromDate: fromDate, toDate: toDate, fromDay: fromDay, toDay: toDay},
-        //             dataType: "JSON",
-        //             type: "GET",
-        //             success: function(data) {
-        //                 $("#no_of_days").val(data); // set the value for leave balance
-        //             }
-        //         });
-        //     } else {
-        //         $("#no_of_days").val('');
-        //     }
-        // });
-
 
         //show employee field for hierarchy level based on selection of approving authority
         // employee_select
@@ -363,7 +359,6 @@ var hrms = function () {
                             // $('#item_type').val(response.advance_no); // Example field for external response
                         },
                         error: function (response) {
-                            console.log(response.error);
                             alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
                         }
                     });

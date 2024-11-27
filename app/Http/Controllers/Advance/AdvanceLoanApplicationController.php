@@ -104,9 +104,7 @@ class AdvanceLoanApplicationController extends Controller
     {
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
-        if($request->advance_type == DSA_ADVANCE){
-
-        }
+        
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
