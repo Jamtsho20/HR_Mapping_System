@@ -4,7 +4,7 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="col-12 form-group">
-        <input type="text" name="emp_id" class="form-control" value="{{ request()->get('mas_employee_id') }}"
+        <input type="text" name="search" class="form-control" value="{{ request()->get('search') }}"
             placeholder="Enter the Employee ID">
     </div>
     @endcomponent
@@ -22,8 +22,10 @@
                                     <th>#</th>
                                     <th>Employee Name</th>
                                     <th>Designation</th>
+                                    <th>Section</th>
                                     <th>Department</th>
                                     <th>Is Sifa Registered</th>
+                                    <th>Sifa Applied On</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -32,12 +34,14 @@
                                 @foreach($sifaRegistrations as $employee)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $employee->employee->name ?? 'N/A' }}</td>
+                                    <td>{{ $employee->employee->emp_id_name }}</td>
                                     <td>{{ $employee->employee->empJob->designation->name ?? 'N/A' }}</td>
+                                    <td>{{ $employee->employee->empJob->section->name ?? 'N/A' }}</td>
                                     <td>{{ $employee->employee->empJob->department->name ?? 'N/A' }}</td>
                                     <td class="text-center">
                                         {!! $employee->is_registered ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}
                                     </td>
+                                    <td>{{ $employee->created_at->format('d-m-Y') }}</td>
                                     <td class="text-center">
                                         @if ($employee->status == 1)
                                         <span class="badge bg-primary">Submitted</span>
@@ -71,6 +75,11 @@
                         </table>
                     </div>
                 </div>
+                @if ($sifaRegistrations->hasPages())
+                <div class="card-footer">
+                    {{ $sifaRegistrations->links() }}
+                </div>
+                @endif
             </div>
         </div>
     </div>

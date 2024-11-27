@@ -8,12 +8,13 @@ use App\Models\SifaRegistration;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SifaApprovalController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:sifa/sifa-approval,view')->only('index','show');
+        $this->middleware('permission:sifa/sifa-approval,view')->only('index', 'show');
         $this->middleware('permission:sifa/sifa-approval,create')->only('store');
         $this->middleware('permission:sifa/sifa-approval,edit')->only('update', 'bulkApprovalRejection');
         $this->middleware('permission:sifa/sifa-approval,delete')->only('destroy');
@@ -22,7 +23,7 @@ class SifaApprovalController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-     $user=auth()->user();
+        $user = auth()->user();
         // $sifaRegistrations = SifaRegistration::where('mas_employee_id', auth()->id())->first();
 
         // Fetch sifa applications with histories where the approver matches the current user
@@ -32,20 +33,20 @@ class SifaApprovalController extends Controller
         })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
             //->filter($request, false)
             ->orderBy('created_at')
-           // ->paginate(config('global.pagination'))
+            // ->paginate(config('global.pagination'))
             ->get();
 
-        return view('sifa.sifa-approval.index', compact('privileges','sifas'));
+        return view('sifa.sifa-approval.index', compact('privileges', 'sifas'));
     }
 
-    public function update ()
+    public function update()
     {
         // dd("a");
     }
-    
+
     public function show($id, Request $request)
     {
-       
+
 
         $sifaRegistration = SifaRegistration::with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
         $user = empDetails($sifaRegistration->created_by);
@@ -123,22 +124,14 @@ class SifaApprovalController extends Controller
                 if ($applicationHistory) {
                     $applicationHistory->update($updateData);
                 }
-
-                // Attempt to send email to applicant about the approval/rejection status need to work on it
-                // try {
-                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
-                // } catch (\Exception $e) {
-                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
-                // }
             }
 
             DB::commit();
             return response()->json(['message' => 'All sifa request has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred during the operation.'], 500);
         }
     }
-    
 }
