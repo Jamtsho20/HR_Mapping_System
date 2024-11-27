@@ -13,6 +13,7 @@ use App\Models\MasConditionField;
 use App\Models\MasExpenseType;
 use App\Models\MasLeaveType;
 use App\Models\MasSifaType;
+use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
 use App\Models\SystemHierarchy;
 use App\Models\User;
@@ -76,7 +77,8 @@ class ApprovalRuleController extends Controller
             4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
             6 => MasTransferClaim::class,
-            7 => MasTravelType::class,
+            7 => MasSifaType::class,
+            8 => MasTravelType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

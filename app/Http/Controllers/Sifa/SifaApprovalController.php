@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Sifa;
 
 use App\Http\Controllers\Controller;
+use App\Models\SifaDocument;
 use App\Models\SifaRegistration;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class SifaApprovalController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:sifa/sifa-approval,view')->only('index');
+        $this->middleware('permission:sifa/sifa-approval,view')->only('index','show');
         $this->middleware('permission:sifa/sifa-approval,create')->only('store');
         $this->middleware('permission:sifa/sifa-approval,edit')->only('update', 'bulkApprovalRejection');
         $this->middleware('permission:sifa/sifa-approval,delete')->only('destroy');
@@ -21,7 +22,7 @@ class SifaApprovalController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $user = auth()->user();
+     $user=auth()->user();
         // $sifaRegistrations = SifaRegistration::where('mas_employee_id', auth()->id())->first();
 
         // Fetch sifa applications with histories where the approver matches the current user
@@ -40,6 +41,18 @@ class SifaApprovalController extends Controller
     public function update ()
     {
         // dd("a");
+    }
+    
+    public function show($id, Request $request)
+    {
+       
+
+        $sifaRegistration = SifaRegistration::with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
+        $user = empDetails($sifaRegistration->created_by);
+        $sifaDocuments = SifaDocument::where('sifa_registration_id', $id)->first();
+        //dd($sifaRegistration->sifaDocument);
+
+        return view('sifa.sifa-approval.show', compact('user', 'sifaRegistration', 'sifaDocuments'));
     }
 
     public function bulkApprovalRejection(Request $request)
