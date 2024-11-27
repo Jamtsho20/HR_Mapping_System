@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('sifa_registrations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_employee_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
-            $table->boolean('status')->default(3);
+            $table->foreignId('sifa_type_id')->index()->nullable()->constrained('mas_sifa_types')->cascadeOnUpdate()->restrictOnDelete();
+            $table->boolean('is_registered')->default(3);
+            $table->boolean('status')->default(1);
+            $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

@@ -103,12 +103,14 @@ class SystemSubMenusTableSeeder extends Seeder
 
             //submenu for sifa
             ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
+            ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-approval', 'display_order' => 2],
+            ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registered-user', 'display_order' => 3],
 
             //submenu for asset
             ['system_menu_id' => 13, 'name' => 'Store Master', 'route' => 'asset/mas-store', 'display_order' => 1],
-            ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition_apply', 'display_order' => 2],
-            ['system_menu_id' => 13, 'name' => 'Requisition-History', 'route' => 'asset/requisition_history', 'display_order' => 3],
-            ['system_menu_id' => 13, 'name' => 'Requisition-Approval', 'route' => 'asset/requisition_approval', 'display_order' => 4],
+            ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition-apply', 'display_order' => 2],
+            ['system_menu_id' => 13, 'name' => 'Requisition-History', 'route' => 'asset/requisition-history', 'display_order' => 3],
+            ['system_menu_id' => 13, 'name' => 'Requisition-Approval', 'route' => 'asset/requisition-approval', 'display_order' => 4],
             ['system_menu_id' => 13, 'name' => 'Goods-Issue', 'route' => 'asset/goods-issue', 'display_order' => 5],
             ['system_menu_id' => 13, 'name' => 'Goods-Issue-History', 'route' => 'asset/goods-issue-history', 'display_order' => 6],
             ['system_menu_id' => 13, 'name' => 'Goods-Receipt', 'route' => 'asset/goods-receipt', 'display_order' => 7],
@@ -142,7 +144,6 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 16, 'name' => 'Salary Saving Scheme', 'route' => 'report/salary-saving-scheme', 'display_order' => 7],
             ['system_menu_id' => 16, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
             ['system_menu_id' => 16, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
-
 
 
             //submenu for Travel Authorization

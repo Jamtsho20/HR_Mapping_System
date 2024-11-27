@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('mas_transfer_claims', function (Blueprint $table) {
-            $table->string('name')->unique();
+            $table->id();
+            $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps();
         });

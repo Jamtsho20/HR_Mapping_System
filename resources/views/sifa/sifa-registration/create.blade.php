@@ -7,36 +7,41 @@
         @csrf
         <div class="card">
             <div class="card-body">
-                <!-- Employee Selection Dropdown -->
-                <div class="form-group">
-                    <label for="employee">Select an employee for Sifa Registration</label>
-                    <select name="employee_id" id="employee" class="form-control" required>
-                        <option value="">Select an employee</option>
-                        @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                            {{ $employee->emp_id_name }} 
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+                <input type="hidden" name="employee_id" value="{{ auth()->id() }}">
 
                 @include('sifa.sifa-registration.forms.personalinfo')
-                @include('sifa.sifa-registration.forms.sifanomination')
-                @include('sifa.sifa-registration.forms.sifadependent')
-                <style>
-                    .file-upload-border {
-                        border: 1px solid #ccc;
-                        /* Light grey border */
-                        border-radius: 5px;
-                        /* Rounded corners */
-                        padding: 10px;
-                        /* Padding inside the border */
-                        margin-bottom: 15px;
-                        /* Space below each file upload field */
-                    }
-                </style>
+                <hr>
 
-                @include('sifa.sifa-registration.forms.sifadocument')
+                <!-- Membership for SIFA Section with Radio Buttons -->
+                <h5 class="mb-4"><strong>Membership for SIFA is purely voluntary. Do you wish to register as a member of SIFA?</strong></h5>
+                <div class="form-group">
+                    <label class="mr-3">
+                        <input type="radio" name="is_registered" value="yes" required> 
+                        <span><strong>YES: </strong><em>(If you wish to register as a member, you cannot withdraw your membership from SIFA for the entire duration of your service with the company.)</em></span>
+                    </label>
+                    <label>
+                        <input type="radio" name="is_registered" value="no" required> 
+                        <span><strong>NO: </strong><em>(If you do not wish to register as a member this time, you cannot become a member for the entire duration of your service with the company.)</em></span>
+                    </label>
+                </div>
+                <hr>
+
+                <!-- Dynamic Sections based on Membership Choice -->
+                <div id="sifa-sections" style="display: none;">
+                    @include('sifa.sifa-registration.forms.sifanomination')
+                    <hr>
+                    @include('sifa.sifa-registration.forms.sifadependent')
+                    <hr>
+                    @include('sifa.sifa-registration.forms.sifadocument')
+                </div>
+
+                <!-- Remarks for 'NO' selection -->
+                <div id="remarks-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="remark">Remarks:<span class="text-danger">*</span></label>
+                        <textarea name="remark" id="remark" class="form-control" rows="4"></textarea>
+                    </div>
+                </div>
 
                 <div class="form-group d-flex justify-content-center">
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -47,33 +52,40 @@
 </div>
 
 @include('layouts.includes.delete-modal')
+
 @endsection
-@push('page_scripts')
+
+@section('scripts')
 <script>
-    $(document).ready(function() {
-        $('#employee').on('change', function() {
-            $.ajax({
-                url: '/getemployeebyid/' + $(this).val(),
-                type: 'GET',
-                success: function(response) {
-                    console.log(response)
-                    $('#personal-info').show();
-                   
-                    $('#emp_gender').text(response.gender); // Set gender
-                    $('#emp_dob').text(response.dob); // Set DOB
-                    $('#emp_cid').text(response.cid_no); 
-                    $('#emp_marital_status').text(response.marital_status); // Set MaritialStatus
-                    $('#emp_email').text(response.email); 
-                    $('#emp_contact_number').text(response.contact_number); 
-                    $('#emp_dzongkhang').text(response.dzongkhag); 
-                    $('#emp_Gewog').text(response.gewog); 
-                    $('#emp_village').text(response.village); 
-                },
-                error: function() {
-                    alert('An error occurred while processing your request');
-                }
-            });
-        });
-    })
+    document.addEventListener('DOMContentLoaded', function() {
+    // Get the radio buttons for SIFA membership
+    const yesRadio = document.querySelector('input[name="is_registered"][value="yes"]');
+    const noRadio = document.querySelector('input[name="is_registered"][value="no"]');
+    
+    // Get the sections to show/hide
+    const sifaSections = document.getElementById('sifa-sections');
+    const remarksSection = document.getElementById('remarks-section');
+    
+    // Event listener for "YES" option
+    yesRadio.addEventListener('change', function() {
+        sifaSections.style.display = 'block';  // Show the sections
+        remarksSection.style.display = 'none'; // Hide remarks section
+    });
+    
+    // Event listener for "NO" option
+    noRadio.addEventListener('change', function() {
+        sifaSections.style.display = 'none'; // Hide the sections
+        remarksSection.style.display = 'block'; // Show remarks section
+    });
+    
+    // Initialize state based on the selected radio button
+    if (yesRadio.checked) {
+        sifaSections.style.display = 'block';
+        remarksSection.style.display = 'none';
+    } else if (noRadio.checked) {
+        sifaSections.style.display = 'none';
+        remarksSection.style.display = 'block';
+    }
+});
+
 </script>
-@endpush

@@ -204,8 +204,6 @@ var hrms = function () {
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
                 var formId = $("#apply_leave");
-                var fromDay = document.getElementById('ddl_from_day');
-                var toDay = document.getElementById('ddl_to_day');
                 if (leaveType !== '') {
                     // ajax call
                     $.ajax({
@@ -333,6 +331,7 @@ var hrms = function () {
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();
+        
             if (advanceTypeId !== '') {
                 $.ajax({
                     url: "/getadvancenobyadvancetype/" + advanceTypeId,
@@ -350,19 +349,91 @@ var hrms = function () {
                     }
                 });
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
-                    $.ajax({
-                        url: 'https://external-application.com/api/endpoint', // External API URL
-                        dataType: 'JSON',
-                        type: 'GET',
-                        success: function (response) {
-                            // Handle the response from the external API
-                            // $('#item_type').val(response.advance_no); // Example field for external response
-                        },
-                        error: function (response) {
-                            alert('Something went wrong with the SOM`s API, please contact system admin for further information!');
-                        }
-                    });
-                }
+                
+                    let typingTimer; // Timer for debounce
+                    const debounceDelay = 200; // Delay in milliseconds
+
+                    $('#item_type').select2({
+                        placeholder: 'Select Item Type', // Placeholder text
+                        allowClear: true, // Allow clearing the selection
+                        minimumInputLength: 3, // Trigger search only after typing 3 characters
+                        ajax: {
+                                transport: function (params, success, failure) {
+                                    // Debounce API requests
+                                    clearTimeout(typingTimer); // Clear previous timer
+                                    typingTimer = setTimeout(function () {
+                                        // Make the AJAX call after the delay
+                                        $.ajax({
+                                            url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
+                                            type: 'GET',
+                                            dataType: 'json',
+                                            success: success,
+                                            error: failure
+                                        });
+                                    }, debounceDelay);
+                                },
+                        processResults: function (data) {
+                                    // Map the API response to Select2 format
+                                    return {
+                                        results: data.map(item => ({
+                                            id: item.item, // Unique value
+                                            text: item.description // Displayed text
+                                        }))
+                                    };
+                                    },
+                                    error: function () {
+                                        alert('Unable to fetch item types. Please try again later.');
+                                    }
+                                }
+                                });
+
+                            // Add an event listener to capture the selection from Select2
+                                $('#item_type').on('select2:select', function (e) {
+                                    var selectedItemId = e.params.data.id; // The selected item ID (item.item)
+
+                                    // Make the second API call (Pricing API) using the selected item ID
+                                    $.ajax({
+                                        url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/Pricing?type=${encodeURIComponent(selectedItemId)}`, // Using selected item item
+                                        type: 'GET',
+                                        dataType: 'json',
+                                        success: function (pricingResponse) {
+                                    
+
+                                            // Set the value of the #item_type dropdown with the selected item
+                                            $('#item_type').val(selectedItemId).trigger('change');  // Trigger change to refresh the select2 UI
+
+                                            // Set the price in the #amount field
+                                            $('#gadget_amount').val(pricingResponse.mrp).trigger('change');
+
+                                                                    },
+                                                                    error: function (pricingResponse) {
+                                                    
+                                                                        alert('Something went wrong with the Pricing API, please contact system admin for further information!');
+                                                                    }
+                                                                });
+                                                            });
+                                
+                                                    }
+                                                        
+                                                    }
+                        });
+
+        //generating advance no based on advance types
+        $(document).on('change', '#expense_type', function () {
+            var expenseTypeId = $(this).val();
+            if (expenseTypeId !== '') {
+                $.ajax({
+                    url: "/getexpensenobyexpensetype/" + expenseTypeId,
+                    dataType: "JSON",
+                    type: "GET",
+
+                    success: function (response) {
+                        $('#expense_no').val(response.expense_no)
+                    },
+                    error: function (response) {
+                        alert('Something went wrong, please contact system admin for further information!');
+                    }
+                });
             }
         })
 
@@ -383,13 +454,13 @@ var hrms = function () {
                     type: "GET",
                     success: function (data) {
                         const currentAmount = parseFloat($('#amount').val());
-                        console.log(data)
                         if (currentAmount > data.limit_amount) {
-                            formId.find("input, select, textarea").prop("disabled", true);
                             $("#expense_type").prop("disabled", false);
                             $("#amount").prop('disabled', false);
                             alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
-                        } else {
+                            $("#amount").val('');
+                        }
+                        else {
                             formId.find("input, select, textarea").prop("disabled", false);
                         }
 
@@ -467,14 +538,17 @@ var hrms = function () {
                 // Calculate the total amount
                 const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
                 $("input[name='dsa_claim_detail[AAAAA][total_amount]']").val(totalAmount);
+            }
 
+            function calculateTotalDays() {
+               
             }
 
             // Trigger on change of advance_no
             $(document).on("change", "#advance_no", getDsaAdvanceDetails);
 
             // Trigger calculation only on travel_allowance change
-            $(document).on("input", "input[name='dsa_claim_detail[AAAAA][travel_allowance]']", calculateTotalAmount);
+            $(document).on("input", "input[name='dsa_claim_detail[AAAAA][travel_allowance]'], input[name='dsa_claim_detail[AAAAA][total_days]']", calculateTotalAmount);
 
             // trigger calculation of net payable amount on change of total_amount_adjusted
         });

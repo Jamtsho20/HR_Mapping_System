@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sifa_registration_id')->index()->constrained('sifa_registrations')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('family_tree')->comment('Certified family tree of the member');
-            $table->string('cid_of_dep_nom')->comment('Copies of Citizen Identity Card(s) of dependent(s) and nominee(s) of the member');
+            $table->json('cid_of_dep_nom')->comment('Copies of Citizen Identity Card(s) of dependent(s) and nominee(s) of the member');
             $table->string('marriage_certificate')->nullable()->comment('Marriage Certificate / Confirmation of Marriage, if married');
             $table->string('family_tree_spouse')->nullable()->comment('Certified family tree of spouse of the member, if married');
             $table->string('spouse_cid')->nullable()->comment('Copies of Citizenship Identity Cards of the dependent(s) on the spouse side, if married');

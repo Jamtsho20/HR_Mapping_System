@@ -1,17 +1,12 @@
 @extends('layouts.app')
 @section('page-title', 'Sifa Registration')
 @section('content')
-@if ($privileges->create)
+@if ($privileges->create && !$sifaRegistration) <!-- Check if the user has privileges to create and hasn't registered yet -->
 @section('buttons')
-<a href="{{ route('sifa-registration.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Sfa Registration</a>
+<a href="{{ route('sifa-registration.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Sifa Registration</a>
 @endsection
 @endif
 <div class="block-header block-header-default">
-    @component('layouts.includes.filter')
-    <div class="col-12 form-group">
-        <input type="text" name="code" class="form-control" value="{{ request()->get('code') }}" placeholder="Search">
-    </div>
-    @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -32,50 +27,82 @@
                                                         <tr role="row">
                                                             <th>#</th>
                                                             <th>
-                                                                Employee Name
+                                                                EMPLOYEE NAME
                                                             </th>
                                                             <th>
-                                                                Is Sifa Registered
+                                                                DESIGNATION
                                                             </th>
                                                             <th>
-                                                                Action
+                                                                SECTION
+                                                            </th>
+
+                                                            <th>
+                                                                DEPARTMENT
+                                                            </th>
+
+                                                            <th>
+                                                                IS SIFA REGISTERED
+                                                            </th>
+                                                            <th>
+                                                                STATUS
+                                                            </th>
+                                                            <th>
+                                                                ACTION
                                                             </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @forelse ($sifaRegistrations as $registration)
+                                                        @if ($sifaRegistration)
                                                         <tr>
-                                                            <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $registration->employee->name }}</td>
+                                                            <td>1</td>
+                                                            <td>{{ $sifaRegistration->employee->emp_id_name }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->designation->name ?? 'N/A' }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->section->name ?? 'N/A' }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->department->name ?? 'N/A' }}</td>
                                                             <td class="text-center">
-                                                                @if ($registration->status == 1)
-                                                                <span class="badge bg-success">Registered</span>
-                                                                @else
-                                                                <span class="badge bg-danger">Not Registered</span>
-                                                                @endif
+                                                                {!! $sifaRegistration->is_registered ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}
+                                                            </td>
+
+                                                            <td class="text-center">
+                                                                @php
+                                                                $statusClasses = [
+                                                                -1 => 'badge bg-danger',
+                                                                0 => 'badge bg-warning',
+                                                                1 => 'badge bg-primary',
+                                                                2 => 'badge bg-success',
+                                                                3 => 'badge bg-info',
+                                                                ];
+                                                                $statusText = config("global.application_status.{$sifaRegistration->status}", 'Unknown Status');
+                                                                $statusClass = $statusClasses[$sifaRegistration->status] ?? 'badge bg-secondary';
+                                                                @endphp
+
+                                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                             </td>
                                                             <td class="text-center">
+                                                                @if ($sifaRegistration->is_registered == 1)
                                                                 @if ($privileges->view)
-                                                                <a href="{{ url('sifa-registration/' . $registration->id) }}" class="btn btn-sm btn-outline-secondary">
+                                                                <a href="{{ url('sifa/sifa-registration/' . $sifaRegistration->id) }}" class="btn btn-sm btn-outline-secondary">
                                                                     <i class="fa fa-list"></i> Detail
                                                                 </a>
                                                                 @endif
                                                                 @if ($privileges->edit)
-                                                                <a href="{{ url('sifa-registration/' . $registration->id . '/edit') }}" class="btn btn-sm btn-rounded btn-outline-success">
+                                                                <a href="{{ url('sifa/sifa-registration/' . $sifaRegistration->id . '/edit') }}" class="btn btn-sm btn-rounded btn-outline-success">
                                                                     <i class="fa fa-edit"></i> Edit
                                                                 </a>
                                                                 @endif
                                                                 @if ($privileges->delete)
-                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ route('sifa-registration.destroy', $registration->id) }}">
+                                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ route('sifa-registration.destroy', $sifaRegistration->id) }}">
                                                                     <i class="fa fa-trash"></i> Delete
                                                                 </a>
                                                                 @endif
+                                                                @endif
+                                                            </td>
                                                         </tr>
-                                                        @empty
+                                                        @else
                                                         <tr>
-                                                            <td colspan="4" class="text-center text-danger">No Sifa Registration records found</td>
+                                                            <td colspan="7" class="text-center text-danger">No Sifa Registration record found</td>
                                                         </tr>
-                                                        @endforelse
+                                                        @endif
                                                     </tbody>
 
                                                 </table>

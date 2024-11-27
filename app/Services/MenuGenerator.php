@@ -35,6 +35,8 @@ class MenuGenerator
             $query->whereIn('id', function ($q) use ($userRoles){
                 $q->select('system_sub_menu_id')->from('role_permissions')->where('view', 1)->whereIn('role_id', $userRoles);
             })->orderBy('display_order');
+
+            $query->where('visible', 1);
         }])
         ->orderBy('display_order')->get()
         ->filter(function ($menu) {

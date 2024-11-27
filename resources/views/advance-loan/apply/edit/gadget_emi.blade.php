@@ -5,20 +5,25 @@
             <div class="form-group">
                 <label for="item_type">Item Type <span class="text-danger">*</span></label>
                 <select class="form-control" id="item_type" name="item_type">
-                    <option value="" disabled selected hidden>Select your option</option>
+                    @if(old('item_type') || isset($advance->item_type))
+                        <option value="{{ $advance->item_type }}" selected>{{ $advance->item_type }}</option>
+                        
+                    @else
+                        <option value=""  selected hidden>Select your option</option>
+                    @endif
                 </select>
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="amount">Amount<span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="gadget_amount" name="amount" placeholder="0">
+                <input type="number" class="form-control" id="gadget_amount" name="amount" value="{{ $advance->amount }}" placeholder="0">
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="interest_rate">Interest Rate (%) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="interest_rate" id="interest_rate_gadget">
+                <input type="number" class="form-control" name="interest_rate" id="interest_rate_gadget" value="{{ $advance->interest_rate}}">
             </div>
         </div>
     </div>
@@ -26,16 +31,16 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="total_amount">Total Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="gadget_total_amount" name="total_amount">
+                <input type="number" class="form-control" id="gadget_total_amount" value="{{ $advance->total_amount }}" name="total_amount">
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="no_of_emi">No of EMI <span class="text-danger">*</span></label>
                 <select class="form-control" id="no_of_emi_gadget" name="no_of_emi" required>
-                    <option value="" disabled selected hidden>Select your option</option>
                     @foreach(config('global.no_of_emi') as $key => $label)
-                        <option value="{{ $key }}" {{ old('no_of_emi') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        
+                        <option value="{{ $key }}" {{ $advance->no_of_emi == $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
@@ -43,7 +48,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="monthly_emi_amount">Monthly EMI Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="monthly_emi_amount_gadget" name="monthly_emi_amount" value="{{ old('monthly_emi_amount') }}" readonly required />
+                <input type="number" class="form-control" id="monthly_emi_amount_gadget" name="monthly_emi_amount" value="{{ $advance->monthly_emi_amount }}" readonly required />
             </div>
         </div>
     </div>
@@ -51,7 +56,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
-                <input type="month" class="form-control" id="gadget_deduction_from_period" name="deduction_from_period" value="{{ old('deduction_from_period') }}" id="deduction_from_period" required />
+                <input type="month" class="form-control" id="gadget_deduction_from_period" name="deduction_from_period" value="{{ \Carbon\Carbon::parse($advance->deduction_from_period)->format('Y-m') }}" id="deduction_from_period" required />
             </div>
         </div>
         <div class="col-md-4">
@@ -73,7 +78,31 @@
 <script>
     $(document).ready(function() {
 
-        $('#gadget_amount').on('change', function() {
+        const advanceTypeId = $('#advance_type_hidden').val();
+         var advanceTypeName = "{{ $advance->advanceType->name }}";
+    console.log(advanceTypeName);
+        if (advanceTypeId) {
+            $('#advance_type').val(advanceTypeId).trigger('change');
+        }
+
+        $('#interest_rate_gadget').on('input change', function() {
+            const amount = parseFloat($('#gadget_amount').val());
+            const interestRate = parseFloat($(this).val());
+            $('#no_of_emi_gadget').val('');
+            $('#monthly_emi_amount_gadget').val('');
+            console.log(amount, interestRate);
+
+            // Check if both amount and interestRate are valid numbers
+            if (!isNaN(amount) && !isNaN(interestRate)) {
+                const totalAmount = amount + (amount * (interestRate / 100));
+                $('#gadget_total_amount').val(totalAmount.toFixed(2));
+            } else {
+                // Clear the total amount field if inputs are invalid
+                $('#gadget_total_amount').val(''); 
+            }
+        });
+
+        $('#gadget_amount').on('change input', function() {
             const amount = parseFloat($(this).val());
             const interestRate = parseFloat($('#interest_rate_gadget').val());
             $('#no_of_emi_gadget').val('');

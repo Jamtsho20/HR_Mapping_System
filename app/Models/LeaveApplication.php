@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Traits\CreatedByTrait;
 use Carbon\Carbon;
-use App\Traits\LeaveBalanceTrait;
-use App\Traits\LeaveBalanceUpdater;
 use App\Traits\UpdateLeaveBalanceTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

@@ -19,9 +19,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('route');
             $table->unsignedInteger('display_order');
+            $table->unsignedInteger('visible')->default(1);
             $table->timestamps();
         });
-    }
+    } 
 
     /**
      * Reverse the migrations.

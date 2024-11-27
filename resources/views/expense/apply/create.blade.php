@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Create Expense')
+@section('page-title', 'Apply Expense')
 @section('content')
     <div class="card">
         <div class="card-header">
@@ -7,9 +7,10 @@
                 @foreach ($headers as $header)
                     @php
                         $sanitizedName = preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower($header->name));
+                        $id = $header->id;
                     @endphp
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link {{ $loop->first ? 'active' : '' }}" id="tab-{{ $sanitizedName }}"
+                        <button class="nav-link {{ $itemType == $id ? 'active' : '' }}" id="tab-{{ $sanitizedName }}"
                             data-bs-toggle="pill" data-bs-target="#content-{{ $sanitizedName }}" type="button"
                             role="tab" aria-controls="content-{{ $sanitizedName }}"
                             aria-selected="{{ $loop->first ? 'true' : 'false' }}">
@@ -26,14 +27,22 @@
                     $sanitizedName = preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower($header->name));
                     $id = $header->id;
                 @endphp
-                <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="content-{{ $sanitizedName }}"
-                    role="tabpanel" aria-labelledby="tab-{{ $sanitizedName }}">
+                <div class="tab-pane fade {{ $itemType == $id ? 'show active' : '' }}" id="content-{{ $sanitizedName }}"
+                    role="tabpanel" aria-labelledby="tab-{{ $sanitizedName }}" data-item-type="{{ $id }}">
                     @if ($id == 2)
                         <form action="{{ route('apply-expense.store') }}" method="post" enctype="multipart/form-data"
                             id="apply_expense">
                             @csrf
                             <div class="card-body">
                                 <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="expense_no">Expense No <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="expense_no"
+                                                value="{{ old('expense_no') }}" id="expense_no"
+                                                value="{{ old('expense_no') }}" placeholder="Generating..." readonly>
+                                        </div>
+                                    </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="expense_type">Expense Type <span
@@ -57,6 +66,8 @@
                                                 value="{{ old('date', now()->format('Y-m-d')) }}" required>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="amount">Amount <span class="text-danger">*</span></label>
@@ -64,8 +75,6 @@
                                                 value="{{ old('amount') }}" required>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="description">Description <span class="text-danger">*</span></label>
@@ -101,6 +110,18 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="dsa_claim_no">Claim No <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="dsa_claim_no"
+                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}" id="dsa_claim_no"
+                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}"
+                                                    placeholder="Generating..." readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="employee_name">Employee</label>
@@ -110,30 +131,29 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="advance_no">Advance No </label>
-                                                <select class="form-control" id="advance_no" name="advance_no">
+                                                <label for="travel_no">Travel No</label>
+                                                <select class="form-control" id="travel_no" name="travel_no">
                                                     <option value="" selected disabled>Select your option</option>
-                                                    @foreach ($advances as $advance)
-                                                        <option value="{{ $advance['id'] }}"
-                                                            {{ old('advance_no') == $advance['id'] ? 'selected' : '' }}>
-                                                            {{ $advance['advance_no'] }}</option>
+                                                    @foreach ($travels as $travel)
+                                                        <option value="{{ $travel->id }}"
+                                                            {{ old('travel_no') == $travel->id ? 'selected' : '' }}>
+                                                            {{ $travel->travel_authorization_no }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="advance_no">Advance Amount </label>
+                                                <label for="advance_amount">Advance Amount </label>
                                                 <input type="number" class="form-control" id="advance_amount"
                                                     name="advance_amount" value="{{ old('advance_amount') }}" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="total_amount">Total Amt Adjusted </label>
-                                                <input type="number" class="form-control" id="total_amount_adjusted"
-                                                    name="total_amount_adjusted"
-                                                    value="{{ old('total_amount_adjusted') }}" required>
+                                                <label for="total_amount">Total Amount </label>
+                                                <input type="number" class="form-control" id="total_amount"
+                                                    name="total_amount" value="{{ old('total_amount') }}" required>
                                             </div>
                                         </div>
                                     </div>
@@ -149,7 +169,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="balance_amount">Balance Amount </label>
-                                                <input type="text" class="form-control" id="balance_amount"
+                                                <input type="number" class="form-control" id="balance_amount"
                                                     name="balance_amount" value="{{ old('balance_amount') }}" required>
                                             </div>
                                         </div>
@@ -226,7 +246,7 @@
                                                                     name="dsa_claim_detail[AAAAA][daily_allowance]"
                                                                     value="{{ DAILY_ALLOWANCE }}"
                                                                     class="form-control form-control-sm resetKeyForNew"
-                                                                    disabled />
+                                                                    readonly />
                                                             </td>
                                                             <td class="text-center">
                                                                 <input type="number"
@@ -316,6 +336,20 @@
                                             </div>
                                         </div>
 
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="transfer_claim_no">Claim No <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="transfer_claim_no"
+                                                    value="{{ old('transfer_claim_no', $transferClaimNo) }}"
+                                                    id="transfer_claim_no"
+                                                    value="{{ old('transfer_claim_no', $transferClaimNo) }}"
+                                                    placeholder="Generating..." readonly>
+                                            </div>
+                                        </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="transferclaim">Transfer Claim <span
@@ -323,15 +357,14 @@
                                                 <select name="transfer_claim" id="transferclaim"
                                                     class="form-control form-control-sm" required>
                                                     <option value="" disabled selected>Select an option</option>s
-                                                    @foreach ($transferClaim as $transfer)
-                                                        <option value="{{ $transfer->name }}"
-                                                            {{ old('transfer_claim') == $transfer->name ? 'selected' : '' }}>
-                                                            {{ $transfer->name }}</option>
+                                                    @foreach ($transferClaimTypes as $transferClaimType)
+                                                        <option value="{{ $transferClaimType->id }}"
+                                                            {{ old('transfer_claim') == $transferClaimType->id ? 'selected' : '' }}>
+                                                            {{ $transferClaimType->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -383,7 +416,6 @@
                                 ])
 
                             </div>
-
                         </form>
                     @endif
                 </div>
@@ -398,6 +430,18 @@
     <script>
         $(document).ready(function() {
             window.DAILY_ALLOWANCE = {{ json_encode(constant('DAILY_ALLOWANCE')) }};
+
+            $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
+                const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
+                const targetContent = $(`#content-${targetContentId}`);
+                const itemType = targetContent.data('item-type');
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('item_type', itemType);
+                history.pushState(null, '', url);
+            });
+
+
 
             var selectedExpenseType = $('#expense_type');
             var formSections = $('.dynamic-form');
@@ -446,13 +490,60 @@
                 var selectedValue = $(this).val();
                 var distanceField = $('#distanceField');
 
-                if (selectedValue === 'Carriage Charge') {
+                if (selectedValue === '2') {
                     distanceField.show();
                 } else {
                     distanceField.hide();
                 }
             });
 
+            // Event delegation for dynamically added rows
+            $(document).on("change", "input[name*='[from_date]'], input[name*='[to_date]']", function() {
+                // Find the closest row for the current input
+                const $row = $(this).closest("tr");
+
+                // Retrieve 'from_date' and 'to_date' values from the same row
+                const fromDate = $row.find("input[name*='[from_date]']").val();
+                const toDate = $row.find("input[name*='[to_date]']").val();
+
+                if (fromDate && toDate) {
+                    const fromDateObj = new Date(fromDate);
+                    const toDateObj = new Date(toDate);
+
+                    // Calculate the time difference in days
+                    const timeDiff = toDateObj - fromDateObj;
+                    const totalDays = timeDiff / (1000 * 60 * 60 * 24) + 1;
+
+                    if (totalDays > 0) {
+                        // Update the total_days input in the same row
+                        $row.find("input[name*='[total_days]']").val(totalDays);
+                    } else {
+                        // Reset the total_days field and show an alert
+                        $row.find("input[name*='[total_days]']").val(0);
+                        alert("The 'To Date' must be later than or equal to the 'From Date'.");
+                    }
+                }
+            });
+
+            // Event delegation to handle dynamically added rows
+            $(document).on("input change",
+                "input[name*='[daily_allowance]'], input[name*='[travel_allowance]'], input[name*='[total_days]']",
+                function() {
+                    // Find the closest row for the current input
+                    const $row = $(this).closest("tr");
+
+                    // Retrieve values from the row inputs
+                    const dailyAllowance = parseInt($row.find("input[name*='[daily_allowance]']").val()) ||
+                        DAILY_ALLOWANCE;
+                    const travelAllowance = parseInt($row.find("input[name*='[travel_allowance]']").val()) || 0;
+                    const totalDays = parseInt($row.find("input[name*='[total_days]']").val()) || 0;
+
+                    // Calculate the total amount
+                    const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+
+                    // Update the total_amount input in the same row
+                    $row.find("input[name*='[total_amount]']").val(totalAmount);
+                });
         });
     </script>
 @endpush

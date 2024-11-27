@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('mas_expense_types', function (Blueprint $table) {
             $table->id();
+            $table->string("code",50)->index();
             $table->foreignId('mas_expense_type_id')->index()->nullable()->constrained('mas_expense_types')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('name');
             $table->foreignId('created_by')->index()->constrained('mas_employees');

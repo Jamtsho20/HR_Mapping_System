@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="col-sm-8" style="margin-top:1px">
-                    <strong>{{ $user->username }} ({{ $user->title }}{{($user->name) }})</strong>
+                    <strong>{{ $user->username }} ({{ $user->title }} {{($user->name) }})</strong>
                     <br>
                     {{ $user->email }}
                     <br>
@@ -73,105 +73,62 @@
     </div>
 </div>
 <div class="row">
+    <!-- Casual Leave Chart -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Casual Leave</h5>
                 <div style="width: 50%; margin: auto;">
-                    <canvas id="doughnutChart"></canvas>
+                    <canvas id="casualLeaveChart"></canvas>
                 </div>
-
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-                <script>
-                    var ctx = document.getElementById('doughnutChart').getContext('2d');
-                    var leaveStatusChart = new Chart(ctx, {
-                        type: 'doughnut', // Change 'bar' to 'doughnut'
-                        data: {
-                            labels: @json($leaveData), // Leave Status Names (e.g., Pending, Approved)
-                            datasets: [{
-                                label: 'Leave Application Statuses',
-                                data: @json($statusCounts), // Data of how many leave applications for each status
-                                backgroundColor: [
-                                    'rgb(50, 205, 50)', // Green for Approved
-                                    'rgb(11, 98, 164)', // Dark Blue for Balance
-                                    'rgb(255, 152, 0)', // Orange for In-Progress
-
-                                ],
-                                borderColor: [
-                                    'rgb(50, 205, 50)', // Darker Green for Approved
-                                    'rgb(11, 98, 164)', // Dark Blue for Balance
-                                    'rgb(255, 152, 0)', // Darker orange border for In-Progress
-
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            cutout: '60%', // Controls the inner radius of the doughnut (can adjust as needed)
-                            plugins: {
-                                legend: {
-                                    position: 'top', // Position the legend at the top
-                                    align: 'start', // Align legend items to the start (left)
-                                    labels: {
-                                        boxWidth: 20, // Set a smaller box size for legend items
-                                        padding: 15 // Add some padding for better spacing
-                                    }
-
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(tooltipItem) {
-                                            return tooltipItem.label + ': ' + tooltipItem.raw; // Customize tooltip label
-                                        },
-                                        enabled: true,
-                                    }
-                                },
-                                layout: {
-                                    padding: {
-                                        top: 20 // Add padding to give space between legend and chart
-                                    }
-                                }
-                            }
-                        }
-                    });
-                </script>
             </div>
         </div>
     </div>
 
-
-
+    <!-- Earned Leave Chart -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
+                @if ($showEarnedLeave)
+
                 <h5 class="card-title">Earned Leave</h5>
                 <div style="width: 50%; margin: auto;">
                     <canvas id="earnedLeaveChart"></canvas>
                 </div>
+                @else
+
+                <p>Earned leave chart is not available for your employment type.</p>
+                @endif
             </div>
+
         </div>
     </div>
 
-    <script>
-        var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
-        var earnedLeaveChart = new Chart(ctxEarned, {
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Function to initialize a doughnut chart
+    function createDoughnutChart(ctx, labels, data, chartLabel) {
+        return new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: @json($leaveData), // Same labels as casual leave if applicable
+                labels: labels,
                 datasets: [{
-                    label: 'Earned Leave Statuses',
-                    data: @json($earnedLeaveCounts), // Use the earned leave data
+                    label: chartLabel,
+                    data: data,
                     backgroundColor: [
                         'rgb(50, 205, 50)', // Green for Approved
                         'rgb(11, 98, 164)', // Dark Blue for Balance
                         'rgb(255, 152, 0)', // Orange for In-Progress
                     ],
                     borderColor: [
-                        'rgb(50, 205, 50)',
-                        'rgb(11, 98, 164)',
-                        'rgb(255, 152, 0)',
+                        'rgb(50, 205, 50)', // Darker Green for Approved
+                        'rgb(11, 98, 164)', // Dark Blue for Balance
+                        'rgb(255, 152, 0)', // Darker orange border for In-Progress
                     ],
                     borderWidth: 1
                 }]
@@ -192,7 +149,7 @@
                         callbacks: {
                             label: function(tooltipItem) {
                                 return tooltipItem.label + ': ' + tooltipItem.raw;
-                            },
+                            }
                         }
                     },
                     layout: {
@@ -203,8 +160,19 @@
                 }
             }
         });
-    </script>
-</div>
+    }
+
+    // Casual Leave Chart Initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctxCasual = document.getElementById('casualLeaveChart').getContext('2d');
+        createDoughnutChart(ctxCasual, @json($leaveData), @json($statusCounts), 'Leave Application Statuses');
+
+        // Earned Leave Chart Initialization
+        var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
+        createDoughnutChart(ctxEarned, @json($leaveData), @json($earnedLeaveCounts), 'Earned Leave Statuses');
+    });
+</script>
+
 
 <div class="row">
     <div class="col-md-6">
@@ -243,44 +211,43 @@
     </div>
 
     <div class="col-md-6">
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                <table class="table table-condensed table-striped table-bordered table-sm">
-                    <thead>
-                        <tr>
-                            <th colspan="3">
-                                <h5><strong>Notifications</strong></h5>
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>#</th>
-                            <th>Title</th>
-                            <th>Message</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($notifications as $index => $notification)
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-condensed table-striped table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th colspan="3">
+                                    <h5><strong>Notifications</strong></h5>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($notifications as $index => $notification)
                             <tr class="notification-row" data-id="{{ $notification->id }}">
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $notification->title }}</td>
                                 <td>{{ $notification->message }}</td>
                             </tr>
-                        @empty
+                            @empty
                             <tr>
                                 <td colspan="3" class="text-center">No notifications available.</td>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     @endsection
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         .small-card {
@@ -349,18 +316,20 @@
             font-weight: 500;
             color: #666;
         }
-        .notification-glow {
-    animation: glow 2s ease-in-out infinite alternate;
-}
 
-@keyframes glow {
-    from {
-        background-color: white;
-    }
-    to {
-        background-color: red;
-    }
-}
+        .notification-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                background-color: white;
+            }
+
+            to {
+                background-color: red;
+            }
+        }
 
         .table-responsive {
             max-height: 300px;
@@ -369,21 +338,22 @@
         }
     </style>
     @push('page_scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Select all notification rows
-        const rows = document.querySelectorAll(".notification-row");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Select all notification rows
+            const rows = document.querySelectorAll(".notification-row");
 
-        // Apply glow effect with delay for new notifications
-        rows.forEach((row, index) => {
-            setTimeout(() => {
-                row.classList.add("notification-glow");
-                // Remove glow after 5 seconds
+            // Apply glow effect with delay for new notifications
+            rows.forEach((row, index) => {
                 setTimeout(() => {
-                    row.classList.remove("notification-glow");
-                }, 5000);
-            }, index * 1000); // Add delay between rows for effect
+                    row.classList.add("notification-glow");
+                    // Remove glow after 5 seconds
+                    setTimeout(() => {
+                        row.classList.remove("notification-glow");
+                    }, 5000);
+                }, index * 1000); // Add delay between rows for effect
+            });
         });
-    });
-</script>
-@endpush
+    </script>
+
+    @endpush
