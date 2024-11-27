@@ -3,7 +3,17 @@
 @section('content')
 
 
+<div class="col-md-12 d-flex justify-content-end gap-2">
+    <div class="d-flex gap-2">
+        <a href="{{route('advance-loan.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('advance-loan-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{ route('advance-loan-print',Request::query()) }}" target="_blank" onclick="openPrintPreview(event)">
+            <span><i class="fa fa-print fa-lg"></i></span>
+        </a>
 
+    </div>
+</div>
+<br>
 
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')

@@ -70,6 +70,36 @@ class AdvanceApplication extends Model
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }
+        if ($request->get('year')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('year'));
+
+            // Step 2: Convert each date to Y-m format using Carbon
+            $startDate = Carbon::createFromFormat('Y-m', trim($dates[0]));
+
+            // Extract year and month
+            $year = $startDate->year;
+            $month = $startDate->month;
+
+            // Filter by year and month
+            $query->whereYear('date', $year)
+            ->whereMonth('date', $month);
+        }
+        if ($request->has('employee') && $request->get('employee')) {
+            $query->where('created_by', $request->get('employee'));
+        }
+        if ($request->has('department') && $request->query('department') != '') {
+            $query->whereHas('employee.empJob.department', function ($q) use ($request) {
+                $q->where('id', $request->query('department'));
+            });
+        }
+        if ($request->has('section') && $request->query('section') != '') {
+            $query->whereHas('employee.empJob.section', function ($q) use ($request) {
+                $q->where('id', $request->query('section'));
+            });
+        }
+
+
     }
 
     public function setDeductionFromPeriodAttribute($value)
