@@ -50,4 +50,8 @@ class ExpenseApplication extends Model
             $query->where('created_by', auth()->user()->id);
         }
     }
+    public function expense_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

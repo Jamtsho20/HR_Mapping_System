@@ -119,17 +119,14 @@
             </div>
             <div class="card-footer">
                 <ul class="list-group list-group-unbordered">
-
                     <li class="list-group-item">
-                        <b>Approved By</b>
-                        <a class="pull-right">{{ $expense->travel_type}}</a>
+                        <Strong>Approved By</strong>
+                        <span class="pull-right">{{$expense->status == 3 ?$expense->expense_approved_by->name:'N/A'}}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>Rejected By</b> <a class="pull-right">{{ $expense->travel_mode}}</a>
-
+                        <strong>Rejected By</strong>
+                        <span class="pull-right">{{$expense->status == -1 ?$expense->expense_approved_by->name:'N/A'}}</span>
                     </li>
-
-
                 </ul>
             </div>
 
