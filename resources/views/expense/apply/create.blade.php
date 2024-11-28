@@ -131,12 +131,13 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="travel_no">Travel No</label>
-                                                <select class="form-control" id="travel_no" name="travel_no">
+                                                <label for="travel_autgorization_id">Travel No</label>
+                                                <select class="form-control" id="travel_autgorization_id"
+                                                    name="travel_autgorization_id" required>
                                                     <option value="" selected disabled>Select your option</option>
                                                     @foreach ($travels as $travel)
                                                         <option value="{{ $travel->id }}"
-                                                            {{ old('travel_no') == $travel->id ? 'selected' : '' }}>
+                                                            {{ old('travel_autgorization_id') == $travel->id ? 'selected' : '' }}>
                                                             {{ $travel->travel_authorization_no }}</option>
                                                     @endforeach
                                                 </select>
@@ -144,9 +145,19 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
+                                                <label for="dsa_advance_tour">Advance No No</label>
+                                                <select class="form-control" id="dsa_advance_tour"
+                                                    name="dsa_advance_tour">
+                                                    <option value="" selected disabled>Select your option</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
                                                 <label for="advance_amount">Advance Amount </label>
                                                 <input type="number" class="form-control" id="advance_amount"
-                                                    name="advance_amount" value="{{ old('advance_amount') }}" readonly>
+                                                    name="advance_amount" value="{{ old('advance_amount', 0) }}"
+                                                    readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -190,16 +201,15 @@
                                     <div class="card">
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
-                                                <table id="qualifications"
-                                                    class="table table-condensed table-bordered table-striped table-sm">
+                                                <table id="travelstable"
+                                                    class="table table-condensed table-bordered table-striped table-sm basic-datatable">
                                                     <thead>
                                                         <tr role="row">
-                                                            <th>#</th>
                                                             <th>From Date</th>
                                                             <th>From Location</th>
                                                             <th>To Date</th>
                                                             <th>To Location</th>
-                                                            <th>Total Days</th>
+                                                            <th>Days</th>
                                                             <th>DA</th>
                                                             <th>TA</th>
                                                             <th>Total Amount</th>
@@ -207,33 +217,31 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td class="text-center">
-                                                                <a href="#"
-                                                                    class="delete-table-row btn btn-danger btn-sm"><i
-                                                                        class="fa fa-times"></i></a>
-                                                            </td>
+                                                        <tr class="data-row">
                                                             <td class="text-center">
                                                                 <input type="date"
                                                                     name="dsa_claim_detail[AAAAA][from_date]"
-                                                                    class="form-control form-control-sm resetKeyForNew" />
-
+                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    required />
                                                             </td>
                                                             <td class="text-center">
                                                                 <input type="text"
                                                                     name="dsa_claim_detail[AAAAA][from_location]"
-                                                                    class="form-control form-control-sm resetKeyForNew" />
+                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    required />
                                                             </td>
 
                                                             <td class="text-center">
                                                                 <input type="date"
                                                                     name="dsa_claim_detail[AAAAA][to_date]"
-                                                                    class="form-control form-control-sm resetKeyForNew" />
+                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    required />
                                                             </td>
                                                             <td class="text-center">
                                                                 <input type="text"
                                                                     name="dsa_claim_detail[AAAAA][to_location]"
-                                                                    class="form-control form-control-sm resetKeyForNew" />
+                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    required />
                                                             </td>
                                                             <td class="text-center">
                                                                 <input type="number"
@@ -242,14 +250,14 @@
                                                             </td>
 
                                                             <td class="text-center">
-                                                                <input type="number"
+                                                                <input type="number" min="0"
                                                                     name="dsa_claim_detail[AAAAA][daily_allowance]"
-                                                                    value="{{ DAILY_ALLOWANCE }}"
-                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    value="{{ $dailyAllowance->da_in_country }}"
+                                                                    class="form-control form-control-sm resetKeyForNew notclearfornew"
                                                                     readonly />
                                                             </td>
                                                             <td class="text-center">
-                                                                <input type="number"
+                                                                <input type="number" min="0"
                                                                     name="dsa_claim_detail[AAAAA][travel_allowance]"
                                                                     class="form-control form-control-sm resetKeyForNew" />
                                                             </td>
@@ -257,16 +265,15 @@
                                                                 <input type="number"
                                                                     name="dsa_claim_detail[AAAAA][total_amount]"
                                                                     class="form-control form-control-sm resetKeyForNew"
-                                                                    disabled>
+                                                                    readonly />
                                                             </td>
                                                             <td class="text-center">
-                                                                {{-- <input type="text" name="dsa_claim_detail[AAAAA][from_date]" class="form-control form-control-sm resetKeyForNew" style="background-color: rgb(255, 255, 255);" disabled> --}}
                                                                 <textarea name="dsa_claim_detail[AAAAA][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
                                                             </td>
 
                                                         </tr>
                                                         <tr class="notremovefornew">
-                                                            <td colspan="9"></td>
+                                                            <td colspan="8"></td>
                                                             <td class="text-right">
                                                                 <a href="#"
                                                                     class="add-table-row btn btn-sm btn-info"
@@ -429,7 +436,20 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
-            window.DAILY_ALLOWANCE = {{ json_encode(constant('DAILY_ALLOWANCE')) }};
+            window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
+
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+
+                // Loop through each row and sum up the total amounts
+                $("input[name*='[total_amount]']").each(function() {
+                    const rowTotal = parseFloat($(this).val()) || 0; // Get the value or default to 0
+                    grandTotal += rowTotal;
+                });
+
+                // Update the grand total input field
+                $('#total_amount').val(grandTotal);
+            }
 
             $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
                 const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
@@ -440,8 +460,6 @@
                 url.searchParams.set('item_type', itemType);
                 history.pushState(null, '', url);
             });
-
-
 
             var selectedExpenseType = $('#expense_type');
             var formSections = $('.dynamic-form');
@@ -497,53 +515,235 @@
                 }
             });
 
-            // Event delegation for dynamically added rows
-            $(document).on("change", "input[name*='[from_date]'], input[name*='[to_date]']", function() {
-                // Find the closest row for the current input
-                const $row = $(this).closest("tr");
-
-                // Retrieve 'from_date' and 'to_date' values from the same row
-                const fromDate = $row.find("input[name*='[from_date]']").val();
-                const toDate = $row.find("input[name*='[to_date]']").val();
-
-                if (fromDate && toDate) {
-                    const fromDateObj = new Date(fromDate);
-                    const toDateObj = new Date(toDate);
-
-                    // Calculate the time difference in days
-                    const timeDiff = toDateObj - fromDateObj;
-                    const totalDays = timeDiff / (1000 * 60 * 60 * 24) + 1;
-
-                    if (totalDays > 0) {
-                        // Update the total_days input in the same row
-                        $row.find("input[name*='[total_days]']").val(totalDays);
-                    } else {
-                        // Reset the total_days field and show an alert
-                        $row.find("input[name*='[total_days]']").val(0);
-                        alert("The 'To Date' must be later than or equal to the 'From Date'.");
-                    }
-                }
-            });
-
             // Event delegation to handle dynamically added rows
-            $(document).on("input change",
-                "input[name*='[daily_allowance]'], input[name*='[travel_allowance]'], input[name*='[total_days]']",
+            $(document).on(
+                "input change",
+                "input[name*='[daily_allowance]'], input[name*='[travel_allowance]'], input[name*='[total_days]'], input[name*='[from_date]'], input[name*='[to_date]']",
                 function() {
                     // Find the closest row for the current input
                     const $row = $(this).closest("tr");
 
-                    // Retrieve values from the row inputs
-                    const dailyAllowance = parseInt($row.find("input[name*='[daily_allowance]']").val()) ||
-                        DAILY_ALLOWANCE;
-                    const travelAllowance = parseInt($row.find("input[name*='[travel_allowance]']").val()) || 0;
-                    const totalDays = parseInt($row.find("input[name*='[total_days]']").val()) || 0;
+                    // Ensure all values are fetched from the same row
+                    const dailyAllowance = parseFloat($row.find("input[name*='[daily_allowance]']").val() ||
+                        DAILY_ALLOWANCE, 10);
+                    const travelAllowance = parseFloat($row.find("input[name*='[travel_allowance]']").val() ||
+                        0, 10);
 
-                    // Calculate the total amount
+                    // Get the current total days (allow manual edit)
+                    let totalDays = parseFloat($row.find("input[name*='[total_days]']").val() || 0, 10);
+
+                    // Recalculate total days if from_date and to_date are present
+                    const fromDate = $row.find("input[name*='[from_date]']").val();
+                    const toDate = $row.find("input[name*='[to_date]']").val();
+
+                    if (fromDate && toDate) {
+                        const from = new Date(fromDate);
+                        const to = new Date(toDate);
+
+                        // Check if to_date is less than from_date
+                        if (to < from) {
+                            alert("The 'To Date' must be equal to or later than the 'From Date'.");
+                            $row.find("input[name*='[to_date]']").val(""); // Clear invalid date
+                            return; // Exit the function early
+                        }
+
+                        // Recalculate total days only when dates are modified
+                        if ($(this).is("input[name*='[from_date]'], input[name*='[to_date]']")) {
+                            totalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
+                            $row.find("input[name*='[total_days]']").val(totalDays); // Update total days input
+                        }
+                    }
+
+                    // Calculate the total amount for the current row
                     const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
 
-                    // Update the total_amount input in the same row
+                    // Update the total amount for the current row only
                     $row.find("input[name*='[total_amount]']").val(totalAmount);
-                });
+
+                    calculateGrandTotal();
+                }
+            );
+
+            $(document).on("click", ".add-table-row", function() {
+                calculateGrandTotal(); 
+            });
+
+            function getTravelAuthorizationDetails() {
+                const travelAuthorizationId = $("#travel_autgorization_id").val();
+
+                if (travelAuthorizationId !== '') {
+                    $.ajax({
+                        url: `/gettravelauthorizationbytravelauthorizationid/${travelAuthorizationId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(data) {
+                            const tbody = $("#travelstable tbody");
+                            tbody.empty(); // Clear the existing rows
+
+                            if (data.travel_authorization_details && data.travel_authorization_details
+                                .details.length > 0) {
+                                let grandTotal = 0;
+
+                                // Loop through the travel authorization details
+                                data.travel_authorization_details.details.forEach((detail, index) => {
+                                    const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    grandTotal += totalAmount;
+
+                                    const row = `
+                        <tr class="data-row">
+                            <td class="text-center">
+                                <input type="date"
+                                    value="${detail.from_date}"
+                                    name="dsa_claim_detail[${detail.id}][from_date]"
+                                    class="form-control form-control-sm resetKeyForNew"  required />
+                            </td>
+                            <td class="text-center">
+                                <input type="text"
+                                    value="${detail.from_location}"
+                                    name="dsa_claim_detail[${detail.id}][from_location]"
+                                    class="form-control form-control-sm resetKeyForNew"  required />
+                            </td>
+                            <td class="text-center">
+                                <input type="date"
+                                    name="dsa_claim_detail[${detail.id}][to_date]"
+                                    value="${detail.to_date}"
+                                    class="form-control form-control-sm resetKeyForNew"  required />
+                            </td>
+                            <td class="text-center">
+                                <input type="text"
+                                    name="dsa_claim_detail[${detail.id}][to_location]"
+                                    value="${detail.to_location}"
+                                    class="form-control form-control-sm resetKeyForNew"  required />
+                            </td>
+                            <td class="text-center">
+                                <input type="number"
+                                    min="0"
+                                    name="dsa_claim_detail[${detail.id}][total_days]"
+                                    value="${detail.no_of_days}"
+                                    class="form-control form-control-sm resetKeyForNew" />
+                            </td>
+                            <td class="text-center">
+                                <input type="number"
+                                    name="dsa_claim_detail[${detail.id}][daily_allowance]"
+                                    value="${DAILY_ALLOWANCE}"
+                                    class="form-control form-control-sm resetKeyForNew notclearfornew"
+                                    readonly />
+                            </td>
+                            <td class="text-center">
+                                <input type="number"
+                                    min="0"
+                                    name="dsa_claim_detail[${detail.id}][travel_allowance]"
+                                    class="form-control form-control-sm resetKeyForNew" />
+                            </td>
+                            <td class="text-center">
+                                <input type="number"
+                                    value="${totalAmount}"
+                                    name="dsa_claim_detail[${detail.id}][total_amount]"
+                                    class="form-control form-control-sm resetKeyForNew" readonly>
+                            </td>
+                            <td class="text-center">
+                                <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
+                            </td>
+                        </tr>`;
+
+                                    tbody.append(row); // Append the row to the table body
+                                });
+
+                                // Add the row for adding a new entry (Add New Row)
+                                const btnRow = `
+                    <tr class="notremovefornew">
+                        <td colspan="8"></td>
+                        <td class="text-right">
+                            <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
+                                <i class="fa fa-plus"></i> Add New Row
+                            </a>
+                        </td>
+                    </tr>`;
+                                tbody.append(btnRow);
+
+                                const lastDataRow = tbody.find("tr.data-row").last();
+                                const lastDataRowDailyAllowanceField = lastDataRow.find(
+                                    "input[name*='[daily_allowance]']");
+                                lastDataRowDailyAllowanceField.val(
+                                    DAILY_ALLOWANCE);
+
+                                // Update the grand total
+                                $('#total_amount').val(grandTotal);
+                            } else {
+                                tbody.append(
+                                    `<tr><td colspan="9" class="text-center text-danger">No details found</td></tr>`
+                                );
+                            }
+                        },
+                        error: function(error) {
+                            alert(`Error fetching data: ${error.responseText || error.statusText}`);
+                            $("#travelstable tbody").empty().append(`
+                    <tr>
+                        <td colspan="9" class="text-center text-danger">Error fetching details</td>
+                    </tr>`);
+                        }
+                    });
+                }
+            }
+
+            function getDsaAvanceByTravelAuth() {
+                const travelAuthorizationId = $("#travel_autgorization_id").val();
+
+                if (travelAuthorizationId !== '') {
+                    $.ajax({
+                        url: `/getdsaadvancebytravelauth/${travelAuthorizationId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(data) {
+                            $("#dsa_advance_tour").empty();
+
+                            // Check if data contains any options
+                            if (data.length > 0) {
+                                // Append a placeholder or default option
+                                $("#dsa_advance_tour").append(
+                                    '<option value="">Select DSA Advance</option>');
+
+                                // Loop through the data and create options
+                                data.forEach(item => {
+                                    const option =
+                                        `<option value="${item.id}">${item.advance_no}</option>`;
+                                    $("#dsa_advance_tour").append(option);
+                                });
+                            } else {
+                                // Append a message if no data is available
+                                $("#dsa_advance_tour").append(
+                                    '<option value="">No DSA Advances available</option>');
+                            }
+                        },
+                        error: function(error) {
+                            alert("Error fetching data", error);
+                        }
+                    });
+                }
+            }
+
+            function getDsaAvanceDetails() {
+                const dsaAdvanceId = $("#dsa_advance_tour").val();
+
+                if (dsaAdvanceId !== '') {
+                    $.ajax({
+                        url: `/getdsaadvancedetails/${dsaAdvanceId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(data) {
+                            $('#advance_amount').val(data.amount ?? 0);
+                        },
+                        error: function(error) {
+                            alert("Error fetching data", error);
+                        }
+                    });
+                }
+            }
+
+            // Trigger the function when the dropdown value changes
+            $(document).on("change", "#travel_autgorization_id", getTravelAuthorizationDetails);
+            $(document).on("change", "#travel_autgorization_id", getDsaAvanceByTravelAuth);
+            $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
         });
     </script>
 @endpush

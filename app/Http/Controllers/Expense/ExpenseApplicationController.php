@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Expense;
 
-use Illuminate\Http\Request;
-use App\Models\MasEmployeeJob;
-use App\Models\MasExpenseType;
-use App\Models\MasExpensePolicy;
-use App\Models\MasTransferClaim;
-use App\Services\ApprovalService;
-use App\Models\AdvanceApplication;
-use App\Models\ExpenseApplication;
-use Illuminate\Support\Facades\DB;
-use App\Models\DsaClaimApplication;
+use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimApplication;
+use App\Models\ExpenseApplication;
+use App\Models\MasEmployeeJob;
+use App\Models\MasExpensePolicy;
+use App\Models\MasExpenseType;
+use App\Models\MasTransferClaim;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
-use App\Http\Controllers\AjaxRequestController;
-use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
+use App\Services\ApprovalService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseApplicationController extends Controller
 {
@@ -97,6 +98,13 @@ class ExpenseApplicationController extends Controller
         $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
 
+        $job = Auth::user()->empJob;
+        if (!$job) {
+            return redirect()->back()->with('msg_error', 'You do not have a job assigned to you');
+        }
+
+        $gradeId = $job->grade->id;
+
         //common function to generate combination of loggedInUser employeeId and username
         $empIdName = LoggedInUserEmpIdName();
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
@@ -111,11 +119,11 @@ class ExpenseApplicationController extends Controller
         $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
 
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
-
+        $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
         $dsaClaimNo = $this->ajax->getDsaClaimNumber();
         $transferClaimNo = $this->ajax->getTransferClaimNumber();
 
-        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dsaClaimNo', 'transferClaimNo'));
+        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dailyAllowance', 'dsaClaimNo', 'transferClaimNo'));
     }
     /**
      * Store a newly created resource in storage.
