@@ -12,16 +12,16 @@ class RequisitionApplyController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/requisition-apply,view')->only('index');
-        $this->middleware('permission:expense/requisition-apply,create')->only('store');
-        $this->middleware('permission:expense/requisition-apply,edit')->only('update');
-        $this->middleware('permission:expense/requisition-apply,delete')->only('destroy');
+        $this->middleware('permission:asset/requisition-apply,view')->only('index');
+        $this->middleware('permission:asset/requisition-apply,create')->only('store');
+        $this->middleware('permission:asset/requisition-apply,edit')->only('update');
+        $this->middleware('permission:asset/requisition-apply,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
                
-        return view('expense.requisition-apply.index', compact( 'privileges'));
+        return view('asset.requisition-apply.index', compact( 'privileges'));
     }
 
 

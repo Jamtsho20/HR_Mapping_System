@@ -1,140 +1,166 @@
 @extends('layouts.app')
 @section('page-title', 'Goods Receipt')
 @section('content')
-<style>
-    .col-md-2 {
-        -ms-flex: 0 0 16.666667%;
-        flex: 0 0 16.666667%;
-        max-width: 12.5%;
-    }
-
-    .col-md-1 {
-        padding-top: 25px;
-    }
-</style>
 
 <div class="block-header block-header-default">
-   <div class="form-group">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Receipt No</label>
-                    <input type="text" placeholder="" class="form-control" id="reqno">
-                </div>
-            </div>
-        
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Receipt Date</label>
-                    <input type="date" class="form-control">                   
-                </div>
-            </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header"></div>
+            <div class="card-body">
 
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Issue No</label>
-                    <select class="form-control" name="issueno">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>    
-                </div>
-            </div>
+                <div class="row">
 
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Emloyeee Name</label>
-                    <select class="form-control" name="empname">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>    
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">Department</label>
-                    <select class="form-control" name="department">
-                        <option value="" disabled selected hidden>Select</option>
-                    </select>    
-                </div>
-            </div>
-        </div>
-    </div>
-           
-            
-    <div class="row row-sm">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="dataTables_length" id="responsive-datatable_length"
-                                        data-select2-id="responsive-datatable_length">
-                                        <label data-select2-id="26">
-                                            Show
-                                            <select class="select2">
-                                                <option value="10">10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                                <option value="100">100</option>
-                                            </select>
-                                            entries
-                                        </label>
-                                    </div>
-                                    <div class="dataTables_scroll">
-                                        <div class="dataTables_scrollHead"
-                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                            <div class="dataTables_scrollHeadInner"
-                                                style="box-sizing: content-box; padding-right: 0px;">
-                                                <table
-                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                    id="basic-datatable table-responsive">
-                                                    <thead>
-                                                        <tr role="row">
-                                                            <th>
-                                                                PO
-                                                            </th>
-                                                            <th>
-                                                                Item Description
-                                                            </th>
-                                                            <th>
-                                                                UOM
-                                                            </th>
-                                                            <th>
-                                                                Store
-                                                            </th>
-                                                            <th>
-                                                                Site Name
-                                                            </th>
-                                                            <th>
-                                                                Stock Status
-                                                            </th>
-                                                            <th>
-                                                                Receipt Quantity
-                                                            </th>
-                                                            <th>
-                                                                Dzongkhag
-                                                            </th>
-                                                            <th>
-                                                                Status
-                                                            </th>
-                                                        </tr>
-                                                    </thead> 
-                                                    <tbody>
-                                                        <tr>
-                                                            <td colspan="12" class="text-center text-danger">No goods receipt found</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="name">Receipt No</label>
+                            <input type="text" class="form-control" name="name" value="" disabled>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="issue_date">Receipt Date</label>
+                            <input type="date" class="form-control" name="issue_date" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="requisition_no">Issue No</label>
+                            <select class="form-control" name="requisition_no">
+                                <option value="" disabled selected hidden>Select your option</option>
+
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="need_by_date">Employee Name</label>
+                            <input type="text" class="form-control" name="need_by_date" value="" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="need_by_date">Department</label>
+                            <input type="text" class="form-control" name="need_by_date" value="" disabled>
+                        </div>
+                    </div>
+
+
+
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th width="3%" class="text-center">#</th>
+                                    <th>
+                                        PO
+                                    </th>
+                                    <th>
+                                        Item Description
+                                    </th>
+                                    <th>
+                                        UOM
+                                    </th>
+                                    <th>
+                                        Store
+                                    </th>
+                                    <th>
+                                        Site Name
+                                    </th>
+                                    <th>
+                                        Stock Status
+                                    </th>
+                                    <th>
+                                        Receipt Quantity
+                                    </th>
+                                    <th>
+                                        Dzongkhang
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                <tr>
+                                    <td class="text-center">
+                                        <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                    </td>
+                                    <td>
+                                        <select class="form-control form-control-sm resetKeyForNew" name="po">
+                                            <option value="" disabled selected hidden>Select</option>
+                                            <option value="122">1212</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control form-control-sm resetKeyForNew" name="item">
+                                            <option value="" disabled selected hidden>Select</option>
+                                            <option value="122">1212</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="UOM" class="form-control form-control-sm resetKeyForNew" disabled>
+                                    </td>
+                                    <td>
+                                        <select class="form-control form-control-sm resetKeyForNew" name="store">
+                                            <option value="" disabled selected hidden>Select</option>
+
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="stock_status" class="form-control form-control-sm resetKeyForNew" disabled>
+
+                                    </td>
+
+                                    <td>
+                                        <select class="form-control form-control-sm resetKeyForNew" name="store">
+                                            <option value="" disabled selected hidden>Select </option>
+                                            <option value="122">1212</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="quantity" class="form-control form-control-sm resetKeyForNew">
+                                    </td>
+                                    <td>
+                                        <select class="form-control form-control-sm resetKeyForNew" name="dzongkhag">
+                                            <option value="" disabled selected hidden>Select</option>
+
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="ststus" class="form-control form-control-sm resetKeyForNew">
+
+                                    </td>
+                                </tr>
+
+                                <tr class="notremovefornew">
+                                    <td colspan="9"></td>
+                                    <td class="text-right">
+                                        <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+
                 </div>
+
             </div>
+            <div class="card-footer">
+                @include('layouts.includes.buttons', [
+                'buttonName' => 'Receive',
+                'cancelUrl' => url('asset/goods-receipt') ,
+                'cancelName' => 'CANCEL'
+                ])
+
+                <input class="btn btn-info" type="reset" value="Reset">
+
+            </div>
+
         </div>
     </div>
 </div>

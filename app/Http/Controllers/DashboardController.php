@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
 use App\Models\SystemNotification;
-use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -22,95 +22,65 @@ class DashboardController extends Controller
             ->withQueryString();
     
         $notifications = SystemNotification::all();
-        $user = auth()->user();
+        $user = auth()->user(); // Retrieve the logged-in user
         $currentYear = Carbon::now()->year;
     
-        // Fetch the count of leave applications by status for all leave types
-        $leaveStatusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-            ->createdBy()
-            ->whereYear('created_at', $currentYear)
-            ->groupBy('status')
-            ->pluck('total', 'status'); // Use pluck for a key-value mapping of status to total
+        // Retrieve the employment type ID from the MasEmployeeJob model
+        $employmentTypeId = $user->empJob->mas_employment_type_id ?? null; // Assuming the relationship is named 'employeeJob'
     
-        // Fetch the leave balance for the logged-in user
-        $leaveBalance = EmployeeLeave::where('mas_employee_id', auth()->id())
-            ->pluck('closing_balance')
-            ->first() ?? 0; // Default to 0 if no balance is found
+        // Log the employment type ID for debugging
+        Log::info('Employment Type ID: ' . $employmentTypeId);
     
-        // Leave data setup
-        $leaveData = ['Approved', 'Balance', 'In-Progress'];
-        $statusCounts = [
-            0,                // Approved Leave (Status 3)
-            $leaveBalance,    // Leave Balance
-            0                 // In-Progress Leave (Statuses 1 and 2)
-        ];
+        // Function to fetch and calculate leave status counts
+        $getLeaveData = function ($leaveTypeId = null) use ($currentYear) {
+            $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
+                ->createdBy()
+                ->whereYear('created_at', $currentYear)
+                ->when($leaveTypeId, function ($query) use ($leaveTypeId) {
+                    $query->where('mas_leave_type_id', $leaveTypeId);
+                })
+                ->groupBy('status')
+                ->pluck('total', 'status');
     
-        // Populate the counts
-        $statusCounts[0] = $leaveStatusCounts[3] ?? 0; // Approved Leave
-        $statusCounts[2] = ($leaveStatusCounts[1] ?? 0) + ($leaveStatusCounts[2] ?? 0); // In-Progress Leave
+            $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
+                ->when($leaveTypeId, function ($query) use ($leaveTypeId) {
+                    $query->where('mas_leave_type_id', $leaveTypeId);
+                })
+                ->pluck('closing_balance')
+                ->first() ?? 0; // Default to 0 if no balance is found
     
-        // Earned Leave specific calculations
-        $earnedLeaveStatusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-            ->createdBy()
-            ->where('mas_leave_type_id', 2) // Filter for earned leave
-            ->whereYear('created_at', $currentYear)
-            ->groupBy('status')
-            ->pluck('total', 'status');
+            // Default labels and counts
+            $leaveData = ['Approved', 'Balance', 'In-Progress'];
+            $statusCountsArray = [0, $balance, 0];
     
-        $earnedLeaveBalance = EmployeeLeave::where('mas_employee_id', auth()->id())
-            ->where('mas_leave_type_id', 2) // Filter for earned leave
-            ->pluck('closing_balance')
-            ->first() ?? 0; // Default to 0 if no balance is found
+            // Populate the counts
+            $statusCountsArray[0] = $statusCounts[3] ?? 0; // Approved Leave
+            $statusCountsArray[2] = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress Leave
     
-        // Earned Leave data setup
-        $earnedLeaveData = ['Approved Leave', 'Leave Balance', 'In-Progress Leave'];
-        $earnedLeaveCounts = [
-            0,                     // Approved Leave (Status 3)
-            $earnedLeaveBalance,   // Leave Balance
-            0                      // In-Progress Leave (Statuses 1 and 2)
-        ];
+            return [$leaveData, $statusCountsArray];
+        };
     
-        // Populate the earned leave counts
-        $earnedLeaveCounts[0] = $earnedLeaveStatusCounts[3] ?? 0; // Approved Leave
-        $earnedLeaveCounts[2] = ($earnedLeaveStatusCounts[1] ?? 0) + ($earnedLeaveStatusCounts[2] ?? 0); // In-Progress Leave
+        // Fetch casual leave data
+        list($leaveData, $statusCounts) = $getLeaveData();
     
-        return view('dashboard', compact(
-            'user',
-            'holidays',
-            'leaveData',
-            'statusCounts',
-            'earnedLeaveData',
-            'earnedLeaveCounts',
-            'notifications'
-        ));
+        // Check the employment type ID
+        $showEarnedLeave = true;
+        if ($employmentTypeId == 3) {
+            $showEarnedLeave = false;  // Hide earned leave chart for employment type 3
+        }
+    
+        // Fetch earned leave data only if it should be shown
+        $earnedLeaveData = $earnedLeaveCounts = [];
+        if ($showEarnedLeave) {
+            // Fetch earned leave data
+            list($earnedLeaveData, $earnedLeaveCounts) = $getLeaveData(2); // 2 for earned leave type
+        }
+    
+        return view('dashboard', compact('user', 'holidays', 'leaveData', 'statusCounts', 'earnedLeaveData', 'earnedLeaveCounts', 'notifications', 'showEarnedLeave'));
     }
     
+    
 
-    // public function show($id)
-    // {
-    //     // Retrieve the employee by their ID
-    //     $employee = User::findOrFail($id); // Use findOrFail to handle cases where the ID is not found
-
-    //     // Pass the employee data to the view
-    //     return view('dashboard', compact('employee'));
-    // }
-
-    // public function showDashboard()
-    // {
-
-    //     $today = Carbon::today();
-    //     $tomorrow = $today->addDay();
-
-    //     $holiday = WorkHolidayList::whereDate('holiday_date', $tomorrow)->first();
-
-    //     if ($holiday) {
-    //         // If there is a holiday tomorrow, send an alert message to the view
-    //         $alertMessage = "Tomorrow is a holiday: " . $holiday->holiday_name;
-    //         return view('dashboard.index', compact('alertMessage'));
-    //     }
-
-    //     return view('dashboard.index');
-    // }
     public function show()
     {
         // Retrieve the alert message from the cache

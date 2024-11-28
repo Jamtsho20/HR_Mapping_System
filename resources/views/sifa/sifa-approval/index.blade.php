@@ -6,8 +6,8 @@
 <div class="block">
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="mas_employee_id" class="form-control" value="{{ request()->get('mas_employee_id') }}" placeholder="Search">
+        <div class="col-12 form-group">
+            <input type="text" name="search" class="form-control" value="{{ request()->get('search') }}" placeholder="Enter the Employee ID">
         </div>
         @endcomponent
         <div class="block-content">
@@ -51,7 +51,9 @@
                                                                     <th>
                                                                         DESIGNATION
                                                                     </th>
-
+                                                                    <th>
+                                                                        SECTION
+                                                                    </th>
                                                                     <th>
                                                                         DEPARTMENT
                                                                     </th>
@@ -71,6 +73,7 @@
                                                                     </td>
                                                                     <td>{{ $sifa->employee->emp_id_name }}</td>
                                                                     <td>{{ $sifa->employee->empJob->designation->name ?? 'N/A' }}</td>
+                                                                    <td>{{ $sifa->employee->empJob->section->name ?? 'N/A' }}</td>
                                                                     <td>{{ $sifa->employee->empJob->department->name ?? 'N/A' }}</td>
                                                                     <td class="text-center">
                                                                         @if ($sifa->status == 1)
@@ -91,12 +94,12 @@
                                                                         @if ($privileges->view)
                                                                         <a href="{{ url('sifa/sifa-approval/' . $sifa->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                                         @endif
-                                                                        @if ($privileges->edit)
-                                                                        <a href="{{ url('sifa/approval/' . $sifa->id . '/edit') }}"
+                                                                        <!-- @if ($privileges->edit)
+                                                                        <a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"
                                                                             class="btn btn btn-sm btn-rounded btn-outline-success">
                                                                             <i class="fa fa-edit"></i> EDIT
                                                                         </a>
-                                                                        @endif
+                                                                        @endif -->
                                                                         @if ($privileges->delete)
                                                                         <a href="#"
                                                                             class="delete-btn btn btn-sm btn-rounded btn-outline-danger"

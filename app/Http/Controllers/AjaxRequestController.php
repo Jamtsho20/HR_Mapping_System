@@ -10,7 +10,6 @@ use App\Models\ExpenseApplication;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
-use App\Models\MasApprovalHeadTypes;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
@@ -31,7 +30,10 @@ use App\Models\SystemHierarchyLevel;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
 use App\Models\User;
+use App\Models\WorkHolidayList;
 use App\Services\ApprovalService;
+use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -39,6 +41,7 @@ use Illuminate\Support\Str;
 class AjaxRequestController extends Controller
 {
     /* write code related to ajax request */
+    use JsonResponseTrait;
 
     public function getGewog($id)
     {
@@ -88,133 +91,126 @@ class AjaxRequestController extends Controller
         return $payScale;
     }
 
-    public function getLeaveBalance($id)
+    public function getLeaveBalance($id)  //was done for json message purpose
     {
-        $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
-        $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
-        $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
+        try {
+            $empGender = auth()->user()->gender;
+            $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
+            if (!$leavePolicy || !$leavePolicy->status || $leavePolicy->is_information_only) {
+                return $this->errorResponse('You cannot apply leave as leave policy for this leave type has not been enforced or is for information purpose only, please contact system admin.');
+            }
 
-        return ['balance' => $balance ?? 0, 'leavePolicy' => $leavePolicy, 'attachment_required' => $attachmentRequired];
+            $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
+            if ($balance == 0) {
+                return $this->errorResponse('You are not eligible for this leave type since there is no balance.');
+            }
+            $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) : [];
+            $isHalfDay = in_array(4, $leaveLimits);
+            $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
+            $leavePolicyGender = $leavePolicy->leavePolicyPlan->gender ?? null;
+            if ($leavePolicyGender === 3 || $leavePolicyGender == $empGender) {
+                return $this->successResponse([
+                    'balance' => $balance,
+                    'leavePolicy' => $leavePolicy,
+                    'attachment_required' => $attachmentRequired,
+                    'is_half_day' => $isHalfDay
+                ]);
+            }
+
+            return $this->errorResponse('You are not eligible for this leave type based on your gender.');
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred while fetching the leave balance data. Please try again.');
+        }
     }
 
-    // public function getNoOfDays(Request $request){
-    //     // $loggedInUserId = auth()->user()->id;
-    //     // $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
-    //     // $loggedInUserRegion = DB::select(
-    //     //                                 "select
-    //     //                                     t3.mas_region_id as region_id
-    //     //                                 from mas_offices t1`
-    //     //                                 left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
-    //     //                                 left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-    //     //                                 where t1.id = ?", [$loggedInUserOfficeId]);
-
-    //     $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php for common use as an when required to be use in appliocation
-
-    //     $fromDate = Carbon::parse($request->fromDate);
-    //     $toDate = Carbon::parse($request->toDate);
-    //     // dd($fromDate, $toDate);
-    //     $fromDay = (int) $request->fromDay;
-    //     $toDay = (int) $request->toDay;
-    //     // dd(gettype($fromDay));
-    //     $holidays = WorkHolidayList::whereJsonContains('region_id', (string) $loggedInUserRegion[0]->region_id)->get();
-    //     $holidayDates = [];
-    //     $totalDays = 0;
-    //     // Create an array of all holiday dates
-    //     foreach ($holidays as $holiday) {
-    //         $holidayStart = Carbon::parse($holiday->start_date);
-    //         $holidayEnd = Carbon::parse($holiday->end_date);
-    //         // Add each day of the holiday period to the array
-    //         for ($date = $holidayStart; $date->lte($holidayEnd); $date->addDay()) {
-    //             $holidayDates[] = $date->format('Y-m-d');
-    //         }
-    //     }
-
-    //     for ($date = $fromDate; $date->lte($toDate); $date->addDay()) {
-    //         // Skip if the day is a holiday
-
-    //         if (in_array($date->format('Y-m-d'), $holidayDates)) {
-    //             continue;
-    //         }
-    //         // If it's Saturday, count as half day
-    //         if ($date->isSaturday()) {
-    //             $totalDays += 0.5;
-    //             continue;
-    //         }
-    //         // If it's Sunday, skip the day
-    //         if ($date->isSunday()) {
-    //             continue;
-    //         }
-    //         // Handle the first day (fromDate)
-    //         if ($date->eq($fromDate)) {
-    //             if ($fromDay == 1) {
-    //                 $totalDays += 1; // Full day
-    //             } elseif ($fromDay == 2) {
-    //                 $totalDays += 0.5; // First half (morning)
-    //             } elseif ($fromDay == 3) {
-    //                 // If the leave starts from the second half, we should skip this day and start the next day as full.
-    //                 $totalDays += 0.5; // Second half (afternoon)
-    //             }
-    //         }
-    //         // Handle the last day (toDate)
-    //         elseif ($date->eq($toDate)) {
-    //             if ($toDay == 1) {
-    //                 $totalDays += 1; // Full day
-    //             } elseif ($toDay == 2) {
-    //                 // If the leave ends on the first half, we only count the first half
-    //                 $totalDays += 0.5; // First half (morning)
-    //             } elseif ($toDay == 3) {
-    //                 $totalDays += 0.5; // Second half (afternoon)
-    //             }
-    //         }
-    //         // Handle normal weekdays in between fromDate and toDate
-    //         else {
-    //             $totalDays += 1;
-    //         }
-    //     }
-
-    //     return $totalDays;
-    // }
     public function getNoOfDays(Request $request)
     {
+        $leaveTypeId = $request->input('leave_type');
         $fromDate = new \DateTime($request->input('from_date'));
         $toDate = new \DateTime($request->input('to_date'));
         $fromDay = (int) $request->input('from_day');
         $toDay = (int) $request->input('to_day');
+        $loggedInUserRegion = loggedInUserRegion();
+        $totalDays = 0;
 
-        // Calculate the difference in days
-        $dayDifference = $toDate->diff($fromDate)->days;
+        try {
+            $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')
+                ->where('mas_leave_type_id', $leaveTypeId)
+                ->whereStatus(1)
+                ->first();
+            $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan
+                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
+                : [];
 
-        // Adjust based on day selections (full day, half day, etc.)
-        $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
-        $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
+            // Calculate initial days with adjustments
+            $dayDifference = $toDate->diff($fromDate)->days;
+            $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
+            $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
+            $totalDays = ($dayDifference === 0)
+                ? $fromDayAdjustment + $toDayAdjustment - 1
+                : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
-        // Calculate total days
-        $totalDays = ($dayDifference === 0)
-        ? $fromDayAdjustment + $toDayAdjustment - 1
-        : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
+            if (!empty($leaveLimits)) {
+                $holidayDates = $this->getHolidayDates($loggedInUserRegion);
+                $excludeHolidays = in_array(1, $leaveLimits);
+                $excludeWeekends = in_array(3, $leaveLimits);
 
-        // Count weekends (Saturdays, Sundays) and adjust
-        $sundays = 0;
-        $saturdays = 0;
+                $totalDays -= $this->calculateExcludedDays(
+                    $fromDate,
+                    $toDate,
+                    $holidayDates,
+                    $excludeHolidays,
+                    $excludeWeekends
+                );
+            }
+        } catch (\Exception $e) {
+            return $this->errorResponse('An error occurred while calculating total no. of leave days. Please try again.');
+        }
 
+        return $this->successResponse(['total_days' => max($totalDays, 0)]);
+    }
+
+    private function getHolidayDates($loggedInUserRegion)
+    {
+        $holidays = WorkHolidayList::whereJsonContains('region_id', (string) $loggedInUserRegion[0]->region_id)->get();
+        $holidayDates = [];
+        foreach ($holidays as $holiday) {
+            $holidayStart = Carbon::parse($holiday->start_date);
+            $holidayEnd = Carbon::parse($holiday->end_date);
+            for ($date = $holidayStart; $date->lte($holidayEnd); $date->addDay()) {
+                $holidayDates[] = $date->format('Y-m-d');
+            }
+        }
+        return $holidayDates;
+    }
+
+    private function calculateExcludedDays($fromDate, $toDate, $holidayDates, $excludeHolidays, $excludeWeekends)
+    {
+        $excludedDays = 0;
         $currentDate = clone $fromDate;
+
         while ($currentDate <= $toDate) {
-            if ($currentDate->format('w') == 0) { // Sunday
-                $sundays++;
+            $formattedDate = $currentDate->format('Y-m-d');
+            $isSunday = ($currentDate->format('w') == 0);
+            $isSaturday = ($currentDate->format('w') == 6);
+
+            if ($excludeHolidays && in_array($formattedDate, $holidayDates)) {
+                $excludedDays++;
+            } elseif ($excludeWeekends) {
+                if ($isSunday) {
+                    $excludedDays++;
+                }
+                if ($isSaturday) {
+                    $excludedDays += 0.5;
+                }
             }
-            if ($currentDate->format('w') == 6) { // Saturday
-                $saturdays++;
-            }
+
             $currentDate->modify('+1 day');
         }
 
-        // Adjust the total days by excluding weekends
-        $totalDays -= $sundays;
-        $totalDays -= ($saturdays * 0.5);
-
-        // Return the calculated leave days
-        return response()->json(['total_days' => max($totalDays, 0)]);
+        return $excludedDays;
     }
+
 
     public function getEmployeeSelect($id)
     {
@@ -303,8 +299,8 @@ class AjaxRequestController extends Controller
             4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
             6 => MasTransferClaim::class,
-            7 => MasSifaType::class,
-            8 => MasTravelType::class,
+            7 => MasTravelType::class,
+            8 => MasSifaType::class,
         ];
 
         if (isset($modelMap[$id])) {

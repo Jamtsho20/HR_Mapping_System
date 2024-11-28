@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reports\AdvanceLoanReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LTCController;
@@ -121,9 +122,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');
         Route::resource('expense-fuel', 'ExpenseFuelController');
         Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
-        Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
-        Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
-        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
+        // Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
+        // Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
+        // Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
     });
     // LEAVE
     Route::namespace('Leave')->prefix('leave')->group(function () {
@@ -133,11 +134,11 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
         Route::resource('approval', 'LeaveApprovalController');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
-        Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except( 'show', 'edit')
-        ->names([
-            'create' => 'leave.leave-encashment',
-            'store' => 'leave.leave-encashment.store',
-        ]);
+        Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except('show', 'edit')
+            ->names([
+                'create' => 'leave.leave-encashment',
+                'store' => 'leave.leave-encashment.store',
+            ]);
 
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
         Route::get('encashment-history', 'LeaveEncashmentApplicationController@index')->name('leave.encashment-history');
@@ -209,12 +210,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-leave-balance-excel-report', [LeaveBalanceReportController::class, 'exportLeaveBalanceExcel'])->name('leave-balance-excel.export');
     Route::get('/export-ltc-report', [LTCController::class, 'exportLTC'])->name('ltc-pdf.export');
     Route::get('/export-ltc-excel-report', [LTCController::class, 'exportLTCExcel'])->name('ltc.export');
+    Route::get('/export-advance-loan-report', [AdvanceLoanReportController::class, 'exportAdvanceLoan'])->name('advance-loan-pdf.export');
+    Route::get('/export-advance-loan-excel-report', [AdvanceLoanReportController::class, 'exportAdvanceLoanExcel'])->name('advance-loan.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
     Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
     Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
+    Route::get('/print-advance-loan-report', [AdvanceLoanReportController::class, 'printAdvanceLoan'])->name('advance-loan-print');
 
 
     //AssetsReport
