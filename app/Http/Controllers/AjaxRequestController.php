@@ -507,9 +507,17 @@ class AjaxRequestController extends Controller
             $travelAuthorizationDetails->details->each(function ($detail) {
                 // Use the accessor to get the travel name
                 $detail->mode_of_travel = $detail->travel_name; // This calls the accessor
+
+                if ($detail->from_date && $detail->to_date) {
+                    $fromDate = new \DateTime($detail->from_date);
+                    $toDate = new \DateTime($detail->to_date);
+                    $interval = $fromDate->diff($toDate);
+                    $detail->no_of_days = $interval->days + 1;
+                } else {
+                    $detail->no_of_days = 0;
+                }
             });
         }
-        // dd($travelAuthorizationDetails);
         return response()->json(['travel_authorization_details' => $travelAuthorizationDetails]);
     }
 
@@ -521,9 +529,16 @@ class AjaxRequestController extends Controller
     }
 
     public function getDsaAdvancebyTravelAuth($id) {
-        $advances = AdvanceApplication::where('travel_authorization_id', $id)->get();
+        $advances = AdvanceApplication::where('travel_authorization_id', $id)->whereStatus(3)->get();
 
         return response()->json($advances);
+
+    }
+
+    public function getDsaAdvanceDetails($id) {
+        $advance = AdvanceApplication::whereId($id)->first();
+
+        return response()->json($advance);
 
     }
 }

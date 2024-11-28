@@ -3,16 +3,7 @@
 namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
-use App\Models\AdvanceApplication;
-use App\Models\AdvanceDetail;
-use App\Models\BudgetCode;
-use App\Models\MasAdvanceTypes;
-use App\Models\MasDzongkhag;
 use App\Models\MasLeaveType;
-use App\Models\TravelAuthorizationApplication;
-use App\Services\ApprovalService;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Models\TravelAuthorizationApplication;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
