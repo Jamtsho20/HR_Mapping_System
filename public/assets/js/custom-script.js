@@ -331,7 +331,7 @@ var hrms = function () {
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();
-        
+
             if (advanceTypeId !== '') {
                 $.ajax({
                     url: "/getadvancenobyadvancetype/" + advanceTypeId,
@@ -349,7 +349,7 @@ var hrms = function () {
                     }
                 });
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
-                
+
                     let typingTimer; // Timer for debounce
                     const debounceDelay = 200; // Delay in milliseconds
 
@@ -397,7 +397,7 @@ var hrms = function () {
                                         type: 'GET',
                                         dataType: 'json',
                                         success: function (pricingResponse) {
-                                    
+
 
                                             // Set the value of the #item_type dropdown with the selected item
                                             $('#item_type').val(selectedItemId).trigger('change');  // Trigger change to refresh the select2 UI
@@ -407,14 +407,14 @@ var hrms = function () {
 
                                                                     },
                                                                     error: function (pricingResponse) {
-                                                    
+
                                                                         alert('Something went wrong with the Pricing API, please contact system admin for further information!');
                                                                     }
                                                                 });
                                                             });
-                                
+
                                                     }
-                                                        
+
                                                     }
                         });
 
@@ -541,7 +541,7 @@ var hrms = function () {
             }
 
             function calculateTotalDays() {
-               
+
             }
 
             // Trigger on change of advance_no
@@ -569,7 +569,7 @@ var hrms = function () {
                             // Clear the existing table rows
                             const tbody = $("#basic-datatable tbody");
                             tbody.empty();
-        
+
                             // Check if details exist
                             if (data.travel_authorization_details ?? data.travel_authorization_details.details.length > 0) {
                                 // Loop through the details and add rows to the table
@@ -599,7 +599,7 @@ var hrms = function () {
                         },
                         error: function (error) {
                             console.error("Error fetching data", error);
-        
+
                             // Handle error by showing a message in the table
                             const tbody = $("#basic-datatable tbody");
                             tbody.empty();
@@ -612,11 +612,12 @@ var hrms = function () {
                     });
                 }
             }
-        
+
             // Trigger the function when the dropdown value changes
             $(document).on("change", "#travel_authorization_id", getTravelAuthorizationDetails);
+            $(document).on("change", "#travel_no", getTravelAuthorizationDetails);
         });
-        
+
 
         //END
 

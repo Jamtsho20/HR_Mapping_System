@@ -13,8 +13,18 @@ use App\Models\TravelAuthorizationApplication;
 use App\Services\ApprovalService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\TravelAuthorizationApplication;
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Models\AdvanceApplication;
+use App\Models\AdvanceDetail;
+use App\Models\BudgetCode;
+use App\Services\ApprovalService;
+use App\Models\MasAdvanceTypes;
+use App\Models\MasDzongkhag;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AdvanceLoanApplicationController extends Controller
 {
@@ -37,16 +47,11 @@ class AdvanceLoanApplicationController extends Controller
         'advance_no' => 'required',
         'date' => 'required|date',
         'advance_type' => 'required',
-        'mode_of_travel' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE,
-        'from_location' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE,
-        'to_location' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE,
-        'from_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|date',
-        'to_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|date|after_or_equal:from_date',
+        'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
+        'advance_settlement_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF,
         'item_type' => 'required_if:advance_type,' . GADGET_EMI,
-        'amount' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
+        'amount' => '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ADVANCE_TO_STAFF .
             '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
-        // 'attachment' => 'required_if:advance_type,' . ADVANCE_TO_STAFF . '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ELECTRICITY_IMPREST_ADVANCE .
-            // '|required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . IMPREST_ADVANCE . '|required_if:advance_type,' . SALARY_ADVANCE . '|required_if:advance_type,' . SIFA_LOAN . '|mimes:jpg,png,pdf|max:2048',
         'interest_rate' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
         'total_amount' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN . '|numeric|min:0',
         'no_of_emi' => 'required_if:advance_type,' . GADGET_EMI . '|required_if:advance_type,' . SIFA_LOAN,
@@ -55,14 +60,10 @@ class AdvanceLoanApplicationController extends Controller
     ];
 
     protected $messages = [
-        'mode_of_travel.required_if' => 'Mode of travel is required for the selected advance type.',
-        'from_location.required_if' => 'From location is required for the selected advance type.',
-        'to_location.required_if' => 'To location is required for the selected advance type.',
-        'from_date.required_if' => 'From date is required for the selected advance type.',
-        'to_date.required_if' => 'To date is required for the selected advance type and must be after or equal to the from date.',
+        'travel_authorization_no.required_if' => 'Travel authorization no is required for the selected advance type.',
+        'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
         'amount.required_if' => 'Amount is required for the selected advance type.',
-        // 'attachment.required_if' => 'Attachment is required for the selected advance type and must be a valid file (jpg, png, pdf).',
         'interest_rate.required_if' => 'Interest rate is required for the selected advance type.',
         'total_amount.required_if' => 'Total amount is required for the selected advance type.',
         'no_of_emi.required_if' => 'Number of EMIs is required for the selected advance type.',
@@ -82,8 +83,10 @@ class AdvanceLoanApplicationController extends Controller
     {
         $privileges = $request->instance();
         $advances = AdvanceApplication::with('advanceType')
+            ->filter($request)
             ->createdBy() // Apply the createdBy scope
             ->paginate(10);
+
         foreach ($advances as $advance) {
             $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
         }
@@ -105,11 +108,11 @@ class AdvanceLoanApplicationController extends Controller
                                     ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
 
         return view('advance-loan.apply.create', compact('advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags'));
-
     }
 
     public function store(Request $request)
     {
+        //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
@@ -125,14 +128,14 @@ class AdvanceLoanApplicationController extends Controller
             DB::beginTransaction();
             $advanceApplication->advance_no = $request->advance_no;
             $advanceApplication->date = $request->date;
+            $advanceApplication->date = $request->date;
+            $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
             $advanceApplication->advance_type_id = $request->advance_type;
-            $advanceApplication->mode_of_travel = $request->mode_of_travel ?? null;
-            $advanceApplication->from_location = $request->from_location ?? null;
-            $advanceApplication->to_location = $request->to_location ?? null;
-            $advanceApplication->from_date = $request->from_date ?? null;
-            $advanceApplication->to_date = $request->to_date ?? null;
+            $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
+            $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
+
             $advanceApplication->amount = $request->amount ?? null;
-            $advanceApplication->attachment = $attachment; // Store attachment path
+            $advanceApplication->attachment = $attachment ?? null; // Store attachment path
             $advanceApplication->total_amount = $request->total_amount ?? null;
             $advanceApplication->no_of_emi = $request->advance_type === DSA_ADVANCE ? 1 : $request->no_of_emi ?? null;
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
@@ -143,6 +146,9 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->status = $approverByHierarchy['application_status'];
 
             $advanceApplication->save();
+            if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
+                $this->saveAdvanceDetails($request->details, $advanceApplication->id);
+            }
 
             // Create a corresponding history record for advance
             // Create a history record
@@ -150,15 +156,21 @@ class AdvanceLoanApplicationController extends Controller
                 'approval_option' => $approverByHierarchy['approval_option'],
                 'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
                 'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
                 'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => 1,
-                'remarks' => $request->remarks,
+                'status' => $approverByHierarchy['application_status'],
+                'remarks' => $request->remarks ?? null,
                 'action_performed_by' => loggedInUser(),
             ]);
 
             DB::commit();
+
+            if (isset($approverByHierarchy['approver_details'])) {
+                $emailContent = 'has submitted a advance request and is awaiting your approval for advance no ' . $request->advance_no . 'amounting to Nu.' . $request->amount . '/-.';
+                $emailSubject = 'Advance Application';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -190,7 +202,6 @@ class AdvanceLoanApplicationController extends Controller
     public function edit($id)
     {
         $advance = AdvanceApplication::findOrFail($id);
-
         $advanceTypes = MasAdvanceTypes::all(); // Fetch advance types
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
@@ -216,78 +227,6 @@ class AdvanceLoanApplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    // public function update(Request $request, $id)
-    // {
-    //     // dd($request->all());
-    //     // Find the advance application record by ID or fail if not found
-    //     $advanceApplication = AdvanceApplication::findOrFail($id);
-
-    //     // Define validation rules and messages (you can move them to class properties if reused)
-    //     $validatedData = $request->validate([
-    //         'advance_no' => 'sometimes|required',
-    //         'date' => 'sometimes|required|date',
-    //         'advance_type_id' => 'sometimes|required',
-    //         'mode_of_travel' => 'nullable',
-    //         'from_location' => 'nullable|string',
-    //         'to_location' => 'nullable|string',
-    //         'from_date' => 'nullable|date',
-    //         'to_date' => 'nullable|date|after_or_equal:from_date',
-    //         'amount' => 'nullable|numeric|min:0',
-    //         'attachment' => 'nullable|mimes:jpg,png,pdf|max:2048',
-    //         'total_amount' => 'nullable|numeric|min:0',
-    //         'no_of_emi' => 'nullable|integer',
-    //         'monthly_emi_amount' => 'nullable|numeric',
-    //         'deduction_from_period' => 'nullable|date_format:Y-m',
-    //         'item_type' => 'nullable|string',
-    //         'remark' => 'nullable|string|max:255',
-    //     ]);
-
-    //     // Handle file upload for the attachment
-    //     // Handle file upload for the attachment
-    //     if ($request->hasFile('attachment')) {
-    //         // Check if there is an existing file and delete it
-    //         if ($advanceApplication->attachment) {
-    //             $existingFilePath = public_path($advanceApplication->attachment);
-    //             if (file_exists($existingFilePath) && is_file($existingFilePath)) {
-    //                 unlink($existingFilePath); // Delete the existing file
-    //             }
-    //         }
-
-    //         // Upload the new file and save the path
-    //         $file = $request->file('attachment');
-    //         $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
-    //         $validatedData['attachment'] = $path; // Save the relative path
-    //     } else {
-    //         // If no new file is uploaded, keep the existing attachment path
-    //         $validatedData['attachment'] = $advanceApplication->attachment; // Maintain the existing path
-    //     }
-
-
-    //     try {
-    //         DB::beginTransaction();
-
-    //         // Use fill() method to update all fields at once
-    //         $advanceApplication->fill($validatedData);
-
-    //         // Save the updated model
-    //         $advanceApplication->save();
-
-    //         // Optionally create a corresponding history record for the advance
-    //         $advanceApplication->histories()->create([
-    //             'level' => 'Test Level',
-    //             'status' => 1,
-    //             'remarks' => $request->remark ?? $advanceApplication->remark,
-    //             'created_by' => loggedInUser(),
-    //         ]);
-
-    //         DB::commit();
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return back()->withInput()->with('msg_error', $e->getMessage());
-    //     }
-
-    //     return redirect()->route('apply.index')->with('msg_success', 'Advance application updated successfully!');
-    // }
 
     public function update(Request $request, $id)
     {
@@ -337,26 +276,10 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->interest_rate = $request->interest_rate ?? null;
             $advanceApplication->status = $advanceApplication->status;
 
-            // Update the advance application fields
-            $advanceApplication->update([
-                'advance_no' => $request->advance_no ?? $advanceApplication->advance_no,
-                'date' => $request->date,
-                'advance_type_id' => $request->advance_type_id,
-                'mode_of_travel' => $request->mode_of_travel,
-                'from_location' => $request->from_location,
-                'to_location' => $request->to_location,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
-                'amount' => $request->amount,
-                'total_amount' => $request->total_amount,
-                'no_of_emi' => $request->no_of_emi,
-                'monthly_emi_amount' => $request->monthly_emi_amount,
-                'deduction_from_period' => $request->deduction_from_period,
-                'item_type' => $request->item_type,
-                'remark' => $request->remark,
-                'status' => $request->status ?? 1,
-                'attachment' => $validatedData['attachment'], // Use the validated attachment data
-            ]);
+            $advanceApplication->save();
+            if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
+                $this->saveAdvanceDetails($request->details, $advanceApplication->id);
+            }
 
             // Optionally create a history record for the advance application
             // $advanceApplication->histories()->create([
@@ -391,14 +314,62 @@ class AdvanceLoanApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    { {
-            try {
-                AdvanceApplication::findOrFail($id)->delete();
+    {
+        try {
+            AdvanceApplication::findOrFail($id)->delete();
 
-                return back()->with('msg_success', 'Advance Applicaton has been deleted');
-            } catch (\Exception $e) {
-                return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
-            }
+            return back()->with('msg_success', 'Advance Applicaton has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
         }
     }
+
+    public function saveAdvanceDetails($advanceDetails, $advanceApplicationId)
+    {
+        // Track existing IDs to avoid deleting records that are updated
+        $existingIds = [];
+
+        foreach ($advanceDetails as $detail) {
+            // Check if the detail has an 'id' (indicating an existing record)
+            if (isset($detail['id']) && !empty($detail['id'])) {
+                // Update the existing record
+                $existingDetail = AdvanceDetail::find($detail['id']);
+                if ($existingDetail) {
+                    $existingDetail->update([
+                        'budget_code_id' => $detail['budget_code'],
+                        'from_date' => $detail['from_date'],
+                        'to_date' => $detail['to_date'],
+                        'dzongkhag_id' => $detail['dzongkhag'],
+                        'site_location' => $detail['site_location'],
+                        'amount_required' => $detail['amount_required'],
+                        'purpose' => $detail['purpose'],
+                    ]);
+
+                    $existingIds[] = $existingDetail->id; // Track updated record IDs
+                }
+            } else {
+                // Insert new record
+                $newDetail = AdvanceDetail::create([
+                    'advance_application_id' => $advanceApplicationId,
+                    'budget_code_id' => $detail['budget_code'],
+                    'from_date' => $detail['from_date'],
+                    'to_date' => $detail['to_date'],
+                    'dzongkhag_id' => $detail['dzongkhag'],
+                    'site_location' => $detail['site_location'],
+                    'amount_required' => $detail['amount_required'],
+                    'purpose' => $detail['purpose'],
+                ]);
+
+                if ($newDetail) {
+                    $existingIds[] = $newDetail->id; // Track newly inserted record IDs
+                }
+            }
+        }
+
+        // Optionally delete records not in the current request
+        AdvanceDetail::where('advance_application_id', $advanceApplicationId)
+            ->whereNotIn('id', $existingIds)
+            ->delete();
+    }
+
 }

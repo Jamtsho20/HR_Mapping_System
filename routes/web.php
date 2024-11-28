@@ -314,5 +314,6 @@ Route::middleware('auth')->group(function () {
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
+    Route::get('getdsaadvancedetails/{id}', 'AjaxRequestController@getDsaAdvanceDetails');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
 });
