@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
 use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
+use App\Http\Controllers\Api\v1\Advance\AdvanceLoanApprovalController;
+use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
@@ -49,12 +51,20 @@ Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
     // Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
 });
 
+Route::namespace('Api\v1\TravelAuthorization')->middleware('auth:sanctum')->group(function () {
+    Route::resource('travel_authorization', 'TravelAuthorizationApplicationController');
+    Route::get('travel_authorization_number/{id}', [TravelAuthorizationApplicationController::class, 'fetchTravelAuthorizationNumber']);
+
+});
+
 
 Route::namespace('Api\v1\Advance')->prefix('advance-loan')->group(function () {
     Route::get('gadget-emi/employees/', [AdvanceLoanGadgetEmiController::class, 'getEmployees']);
     Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
 
 });
+
+
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
 //     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);
