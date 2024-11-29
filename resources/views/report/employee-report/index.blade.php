@@ -1,38 +1,27 @@
 @extends('layouts.app')
-@section('page-title', 'Advance Loan')
+@section('page-title', 'Dashboard')
 @section('content')
-
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
     <div class="d-flex gap-2">
-        <a href="{{route('advance-loan.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-        <a href="{{route('advance-loan-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href="{{ route('advance-loan-print',Request::query()) }}" target="_blank" onclick="openPrintPreview(event)">
+        <a href="{{route('leave-availed-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('leave-availed-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{ route('leave-availed-report-print',Request::query()) }}" target="_blank" onclick="openPrintPreview(event)">
             <span><i class="fa fa-print fa-lg"></i></span>
         </a>
 
     </div>
 </div>
-<br>
 
+<br>
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-
     <div class="col-3 form-group">
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
     </div>
 
-    <div class="col-md-2">
-        <select class="form-control" name="employee">
-            <option value="" disabled="" selected="" hidden="">Select Employee</option>
-            @foreach($employeeLists as $employee)
-            <option value="{{ $employee->id }}" {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
-                {{ $employee->name }}
-            </option>
-            @endforeach
-        </select>
+   
 
-    </div>
     <div class="col-md-2">
         <select class="form-control" name="department">
             <option value="" disabled="" selected="" hidden="">Select Department</option>
@@ -45,7 +34,7 @@
 
     </div>
 
-    <div class="col-md-2">
+    <div class="col-md-4">
         <select class="form-control" name="section">
             <option value="" disabled selected hidden>Select Sections</option>
             @foreach($sections as $section)
@@ -55,14 +44,12 @@
             @endforeach
         </select>
     </div>
-
-
     @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Advance Loan Report</h3>
+                    <h3 class="card-title">Employee Report</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -74,9 +61,7 @@
                                             style="overflow: scroll; position: relative; border: 0px; width: 100%;">
                                             <div class="dataTables_scrollHeadInner"
                                                 style="box-sizing: content-box; padding-right: 0px;">
-
                                                 <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
-
                                                     <thead class="thead-light">
                                                         <tr role="row">
                                                             <th>
@@ -95,56 +80,35 @@
                                                                 DEPARTMENT
                                                             </th>
                                                             <th>
+                                                                Leave Type
+                                                            </th>
+                                                            <th>
                                                                 LOCATION
                                                             </th>
                                                             <th>
-                                                                ADVANCE LOAN TYPE
+                                                                FROM DATE
                                                             </th>
                                                             <th>
-                                                                DATE OF CLAIM
+                                                                TO DATE
                                                             </th>
-                                                            <th>
-                                                                AMOUNT
-                                                            </th>
-                                                            <th>
-                                                                EMI START DATE
-                                                            </th>
-                                                            <th>
-                                                                NO OF EMI
-                                                            </th>
-                                                            <th>
-                                                                EMI END DATE
-                                                            </th>
-                                                            <th>
-                                                                APPROVED BY
-                                                            </th>
-                                                            <th>
-                                                                APPROVAL DATE
-                                                            </th>
-
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @forelse( $advanceReports as $reports)
+                                                        @forelse($employees as $report)
                                                         <tr>
                                                             <td>{{$loop->iteration}}</td>
-                                                            <td>{{$reports->employee->username}}</td>
-                                                            <td>{{$reports->employee->name}}</td>
-                                                            <td>{{$reports->employee->empJob->designation->name}}</td>
-                                                            <td>{{$reports->employee->empJob->department->name}}</td>
-                                                            <td>{{$reports->employee->empJob->office->name}}</td>
-                                                            <td>{{$reports->advanceType->name}}</td>
-                                                            <td>{{$reports->date}}</td>
-                                                            <td>{{$reports->amount}}</td>
-                                                            <td>{{$reports->from_date}}</td>
-                                                            <td>{{$reports->no_of_emi}}</td>
-                                                            <td>{{$reports->to_date}}</td>
-                                                            <td>{{$reports->advance_approved_by->name??'-'}}</td>
-                                                            <td>{{$reports->updated_at->format('d-m-Y')}}</td>
+                                                            <td>{{$report->employee->username}}</td>
+                                                            <td>{{$report->employee->name}}</td>
+                                                            <td>{{$report->employee->empJob->designation->name}}</td>
+                                                            <td>{{$report->employee->empJob->department->name}}</td>
+                                                            <td>{{$report->leaveType->name}}</td>
+                                                            <td>{{$report->employee->empJob->office->name}}</td>
+                                                            <td>{{$report->from_date}}</td>
+                                                            <td>{{$report->to_date}}</td>
                                                         </tr>
                                                         @empty
                                                         <tr>
-                                                            <td colspan="14" class="text-center text-danger">No Advance Loan report found</td>
+                                                            <td colspan="9" class="text-center text-danger">No leave availed report found</td>
                                                         </tr>
                                                         @endforelse
                                                     </tbody>
@@ -153,21 +117,18 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
-                @if ($advanceReports->hasPages())
+                @if ($employees->hasPages())
                 <div class="card-footer">
-                    {{ $advanceReports->links() }}
+                    {{ $employees->links() }}
                 </div>
                 @endif
-
             </div>
         </div>
     </div>
-
 </div>
 
 

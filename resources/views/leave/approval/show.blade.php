@@ -8,7 +8,7 @@
 <div class="row">
     @include('components.employee-details', ['empDetails' => $empDetails])
 
-    <div class="col-lg-6">
+    <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">
                 <div class="col-md-12">

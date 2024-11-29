@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
+use App\Models\AdvanceDetail;
 use App\Services\ApprovalService;
 use App\Models\MasAdvanceTypes;
 use App\Models\BudgetCode;
 use App\Models\MasDzongkhag;
+use App\Models\TravelAuthorizationApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -76,7 +78,20 @@ class AdvanceLoanApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $advance = AdvanceApplication::findOrFail($id);
+            $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
+            $budgetCodes = BudgetCode::get();
+            $dzongkhags = MasDzongkhag::get();
+
+
+            $empDetails = empDetails($advance->created_by);
+        } catch (\Exception $e) {
+            return back()->with('err_msg', 'Advance Loan apllication not found!');
+        }
+
+        return view('advance-loan.approval.show', compact('advance', 'empDetails', 'advanceDetails', 'budgetCodes', 'dzongkhags'));
+    
     }
 
     /**

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Dashboard')
+@section('page-title', 'Leave Availed Report')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">

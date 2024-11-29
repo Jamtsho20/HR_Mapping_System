@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('page-title', 'Vehicle Fuel Report')
+@section('page-title', 'Expense and Advance')
 @section('content')
 
 
 <div class="col-sm-6">
-    <h5>Vehicle Fuel Report</h5>
+    <h5>Expense and Advance Report</h5>
 </div>
 <br>
 <div class="row">

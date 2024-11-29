@@ -18,12 +18,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="name">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name" value="{{ old('name') }}" required>
-                    </div>
-                </div>
+                 
             </div>
         </div>
         <div class="card-footer">
