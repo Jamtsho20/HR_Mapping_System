@@ -77,8 +77,8 @@ class ApprovalRuleController extends Controller
             4 => LeaveEncashmentType::class,
             5 => MasAdvanceTypes::class,
             6 => MasTransferClaim::class,
-            7 => MasSifaType::class,
-            8 => MasTravelType::class,
+            7 => MasTravelType::class,
+            8 => MasSifaType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

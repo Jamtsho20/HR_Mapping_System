@@ -68,7 +68,7 @@ class LeaveApplicationController extends Controller
     public function create()
     {
         $leaveTypes = MasLeaveType::get(['id', 'name']); 
-        return view('leave.leave.create',compact('leaveTypes')); // Ensure the view name is correct
+          return view('leave.leave.create',compact('leaveTypes')); // Ensure the view name is correct
     }
 
     /**

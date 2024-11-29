@@ -99,24 +99,20 @@
                                                                     </td>
                                                                     <td>{{ $expense->expense_amount }}</td>
                                                                     <td>{{ $expense->description }}</td>
-                                                                    <td>
-                                                                        @if ($expense->status == 1)
-                                                                        <span
-                                                                            class="badge bg-primary">Applied</span>
-                                                                        @elseif($expense->status == 2)
-                                                                        <span
-                                                                            class="badge bg-info">Approved</span>
-                                                                        @elseif($expense->status == 0)
-                                                                        <span
-                                                                            class="badge bg-warning">Cancelled</span>
-                                                                        @elseif($expense->status == -1)
-                                                                        <span
-                                                                            class="badge bg-danger">Rejected</span>
-                                                                        @else
-                                                                        <span
-                                                                            class="badge bg-secondary">Unknown
-                                                                            Status</span>
-                                                                        @endif
+                                                                    <td class="text-center">
+                                                                        @php
+                                                                        $statusClasses = [
+                                                                        -1 => 'badge bg-danger',
+                                                                        0 => 'badge bg-warning',
+                                                                        1 => 'badge bg-primary',
+                                                                        2 => 'badge bg-success',
+                                                                        3 => 'badge bg-info',
+                                                                        ];
+                                                                        $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
+                                                                        $statusClass = $statusClasses[$expense->status] ?? 'badge bg-secondary';
+                                                                        @endphp
+
+                                                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->view)

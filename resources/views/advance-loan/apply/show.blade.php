@@ -32,21 +32,21 @@
                             <li class="list-group-item">
                                 <a class="pull-right">
                                     @if($advance->advanceType)
-                                        @if($advance->advanceType->name === 'Advance to Staff')
-                                            @include('advance-loan.apply.show.advance-to-staff')
-                                        @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
-                                            @include('advance-loan.apply.show.dsa-advance')
-                                        @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
-                                            @include('advance-loan.apply.show.electricity-imprest')
-                                        @elseif($advance->advanceType->name === 'Imprest Advance')
-                                            @include('advance-loan.apply.show.general-imprest')
-                                        @elseif($advance->advanceType->name === 'Gadget EMI')
-                                            @include('advance-loan.apply.show.gadget-emi')
-                                        @elseif($advance->advanceType->name === 'SIFA LOAN')
-                                            @include('advance-loan.apply.show.sifa-loan')
-                                        @elseif($advance->advanceType->name === 'Salary Advance')
-                                            @include('advance-loan.apply.show.salary-advance')
-                                        @endif
+                                    @if($advance->advanceType->name === 'Advance to Staff')
+                                    @include('advance-loan.apply.show.advance-to-staff')
+                                    @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
+                                    @include('advance-loan.apply.show.dsa-advance')
+                                    @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
+                                    @include('advance-loan.apply.show.electricity-imprest')
+                                    @elseif($advance->advanceType->name === 'Imprest Advance')
+                                    @include('advance-loan.apply.show.general-imprest')
+                                    @elseif($advance->advanceType->name === 'Gadget EMI')
+                                    @include('advance-loan.apply.show.gadget-emi')
+                                    @elseif($advance->advanceType->name === 'SIFA LOAN')
+                                    @include('advance-loan.apply.show.sifa-loan')
+                                    @elseif($advance->advanceType->name === 'Salary Advance')
+                                    @include('advance-loan.apply.show.salary-advance')
+                                    @endif
                                     @endif
                                 </a>
                             </li>
@@ -57,17 +57,14 @@
             </div>
             <div class="card-footer">
                 <ul class="list-group list-group-unbordered">
-
                     <li class="list-group-item">
-                        <b>Approved By</b>
-                        <a class="pull-right"></a>
+                        <Strong>Approved By</strong>
+                        <span class="pull-right">{{$advance->status == 3 ?$advance->advance_approved_by->name:'N/A'}}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>Rejected By</b> <a class="pull-right"></a>
-
+                        <strong>Rejected By</strong>
+                        <span class="pull-right">{{$advance->status == -1 ?$advance->advance_approved_by->name:'N/A'}}</span>
                     </li>
-
-
                 </ul>
             </div>
 

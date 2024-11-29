@@ -31,10 +31,6 @@ class ExpenseApplicationController extends Controller
     public function __construct(AjaxRequestController $ajaxRequestController)
     {
         $this->middleware('auth:api'); 
-        $this->middleware('permission:expense/apply-expense,view')->only('index');
-        $this->middleware('permission:expense/apply-expense,create')->only('store');
-        $this->middleware('permission:expense/apply-expense,edit')->only('update');
-        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
         $this->ajaxRequestController = $ajaxRequestController;
         $this->ajax = $ajaxRequestController;
     }
@@ -86,7 +82,7 @@ class ExpenseApplicationController extends Controller
             $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
     
           
-            return $this->successResponse([$expenseApplications, $headers, $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
+            return $this->successResponse([$privileges,$expenseApplications, $headers, $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
             } catch (\Exception $e) {
                 return $this->errorResponse('Failed to retrieve applications', 500);
             }
