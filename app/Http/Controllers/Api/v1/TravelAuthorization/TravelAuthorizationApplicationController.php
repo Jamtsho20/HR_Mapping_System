@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\TravelAuthorization;
+namespace App\Http\Controllers\Api\V1\TravelAuthorization;
 
 use App\Http\Controllers\Controller;
 use App\Models\TravelAuthorizationApplication;
@@ -12,6 +12,8 @@ use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\JsonResponseTrait;
+use App\Http\Controllers\AjaxRequestController;
 
 class TravelAuthorizationApplicationController extends Controller
 {
@@ -21,14 +23,16 @@ class TravelAuthorizationApplicationController extends Controller
      *
      *@return \Illuminate\Http\Response
      */
-
-    public function __construct()
+    use JsonResponseTrait;
+    protected $ajaxRequestController;
+    protected $ajax;
+    public function __construct(AjaxRequestController $ajaxRequestController)
     {
-        $this->middleware('permission:travel-authorization/apply-travel-authorization,view')->only('index', 'show');
-        $this->middleware('permission:travel-authorization/apply-travel-authorization,create')->only('store');
-        $this->middleware('permission:travel-authorization/apply-travel-authorization,edit')->only('update');
-        $this->middleware('permission:travel-authorization/apply-travel-authorization,delete')->only('destroy');
+        $this->middleware('auth:api'); 
+        $this->ajaxRequestController = $ajaxRequestController;
+        $this->ajax = $ajaxRequestController;
     }
+   
 
     protected $rules = [
         'date' => 'required|date',
@@ -58,32 +62,61 @@ class TravelAuthorizationApplicationController extends Controller
 
     public function index(Request $request)
     {
-        $privileges = $request->instance();
-        $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-
-        return view('travel-authorizations.apply.index', compact('privileges', 'travelAuthorizations'));
+        try {
+            $privileges = $request->instance();
+            $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+            return $this->successResponse([$privileges, $travelAuthorizations], 'Travel authorization applications retrieved successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to retrieve applications', 500);
+        }
+       
     }
 
     public function create()
     {
-        require_once base_path('app/Http/constants.php');
+        try {
+            require_once base_path('app/Http/constants.php');
 
-        $user = Auth::user();
-        $userId = $user->id;
-        $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
-        $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
-        $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
-        $travelTypes = MasTravelType::all();
-        // $defaultTravelTypeId = 1;
+            $user = Auth::user();
+            $userId = $user->id;
+            $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
+            $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
+            $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
+            $travelTypes = MasTravelType::all();
+            // $defaultTravelTypeId = 1;
+    
+            $defaultTravelTypeId = request()->get('travel_type', 1);
+                 return response()->json([
+                'success' => true,
+                'message' => 'Travel Authorization create function executed successfully!',
+                'data' => [
+                    'travelTypes' => $travelTypes,
+                    'dailyAllowance' => $dailyAllowance,
+                    'defaultTravelTypeId' => $defaultTravelTypeId
+                    
+                ]
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to retrieve applications', 500);
+        }
+           }
 
-        $defaultTravelTypeId = request()->get('travel_type', 1);
+    public function fetchTravelAuthorizationNumber($id)
+    {
+        $travelNo = $this->ajaxRequestController->getTravelNumber($id);
 
-        return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance', 'travelAuthorizationNumber', 'defaultTravelTypeId'));
+        return response()->json([
+            'travel_no' => $travelNo,
+        ]);
     }
 
 
     public function store(Request $request)
     {
+        try{
+
+        
         $travelAuthorization = new  TravelAuthorizationApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
@@ -92,7 +125,7 @@ class TravelAuthorizationApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
         // dd($request->travel_type);
 
-        // try {
+        try {
             DB::beginTransaction();
             $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
             $travelAuthorization->date = $request->date;
@@ -135,13 +168,16 @@ class TravelAuthorizationApplicationController extends Controller
 
 
             DB::commit();
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return back()->withInput()->with('msg_error', $e->getMessage());
-        //     // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
-        // }
-            dd($travelAuthorization->details);
-        return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization application created successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+           
+        }
+
+        return $this->successResponse($travelAuthorization, 'Travel Authorization application has been successfully created.', 201);
+    }catch (\Illuminate\Validation\ValidationException $e) {
+        return $this->errorResponse('Failed to store application', 500, $e);
+    }
     }
 
     public function show($id, Request $request)
