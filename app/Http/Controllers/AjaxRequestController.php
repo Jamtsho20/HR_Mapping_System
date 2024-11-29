@@ -21,11 +21,13 @@ use App\Models\MasLeaveType;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
+use App\Models\MasRequisitionType;
 use App\Models\MasSection;
 use App\Models\MasTransferClaim;
 use App\Models\MasSifaType;
 use App\Models\MasTravelType;
 use App\Models\MasVillage;
+use App\Models\RequisitionApplication;
 use App\Models\SystemHierarchyLevel;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
@@ -525,5 +527,19 @@ class AjaxRequestController extends Controller
 
         return response()->json($advances);
 
+    }
+
+    public function getRequisitionNumber($id) {
+        try{
+            $requisitionType = MasRequisitionType::findOrFail($id);
+            $latestTransaction = RequisitionApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $requisitionNo = generateTransactionNumber($requisitionType->code, $nextSequence);
+            return $this->successResponse(['requisition_no' => $requisitionNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
+        }
+        
     }
 }

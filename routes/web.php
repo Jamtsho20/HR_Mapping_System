@@ -224,7 +224,8 @@ Route::middleware('auth')->group(function () {
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
-        Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
+        // Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
+        Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
         Route::resource('goods-issue', 'GoodsIssueController')->except('create', 'show', 'edit');
@@ -315,4 +316,5 @@ Route::middleware('auth')->group(function () {
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
+    Route::get('getrequisitionnobyrequisitiontype/{id}', 'AjaxRequestController@getRequisitionNumber');
 });

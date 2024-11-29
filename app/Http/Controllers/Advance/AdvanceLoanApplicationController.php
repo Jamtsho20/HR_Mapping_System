@@ -153,7 +153,7 @@ class AdvanceLoanApplicationController extends Controller
                 'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
                 'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
                 'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => 1,
+                'status' => $approverByHierarchy['application_status'],
                 'remarks' => $request->remarks,
                 'action_performed_by' => loggedInUser(),
             ]);
