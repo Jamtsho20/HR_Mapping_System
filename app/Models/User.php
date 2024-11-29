@@ -157,6 +157,17 @@ class User extends Authenticatable
         }
 
         $query->where('username', '<>', 'E00000');
+
+        if ($request->has('department') && $request->query('department') != '') {
+            $query->whereHas('empJob.department', function ($q) use ($request) {
+                $q->where('id', $request->query('department'));
+            });
+        }
+        if ($request->has('section') && $request->query('section') != '') {
+            $query->whereHas('empJob.section', function ($q) use ($request) {
+                $q->where('id', $request->query('section'));
+            });
+        }
     }
 
     public function scopeActive($query)

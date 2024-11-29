@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\EmployeeExport;
 use App\Http\Controllers\Controller;
+use App\Models\MasDepartment;
+use App\Models\MasSection;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeReportController extends Controller
 {
@@ -22,7 +27,9 @@ class EmployeeReportController extends Controller
     {
         $privileges = $request->instance();
         $employees = User::filter($request)->paginate(30)->withQueryString();
-        return view('report.employee-report.index', compact('privileges', 'employees'));
+        $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
+        $sections = MasSection::orderBy('name')->get(['id', 'name']);
+        return view('report.employee-report.index', compact('privileges', 'employees', 'departments', 'sections'));
     }
 
     /**
@@ -71,5 +78,36 @@ class EmployeeReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function exportEmployee(Request $request)
+    {
+
+        // Load all bookings with their dzongkhag names
+       $employees = User::filter($request, false)->get();
+
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.employee-report-pdf', compact('employees'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('Employee-Report.pdf');
+    }
+    public function exportEmployeeExcel(Request $request)
+    {
+        return Excel::download(new EmployeeExport($request), 'employee-report.xlsx');
+    }
+
+    public function printEmployee(Request $request)
+    {
+       $employees = User::filter($request, false)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.employee-report-pdf', compact('employees'))
+        ->setPaper('a4', 'landscape');
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('Employee-Report.pdf');
     }
 }
