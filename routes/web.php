@@ -199,6 +199,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
         Route::resource('salary-saving-scheme', 'SAlarySavingSchemeController')->except('create', 'show', 'edit');
+        Route::resource('employee-report', 'SAlarySavingSchemeController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes

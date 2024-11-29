@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Leave Availed Report')
+@section('page-title', 'Dashboard')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
@@ -20,16 +20,7 @@
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
     </div>
 
-    <div class="col-2 form-group">
-        <select name="leave_type" class="form-control ">
-            <option value="" disabled="" selected="" hidden="">Select Leave Type</option>
-            @foreach($leaveTypes as $type)
-            <option value="{{  $type->id }}" {{ request()->get('leave_type') ==  $type->id ? 'selected' : '' }}>
-                {{$type->name }}
-            </option>
-            @endforeach
-        </select>
-    </div>
+   
 
     <div class="col-md-2">
         <select class="form-control" name="department">
@@ -58,7 +49,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Leave Availed Report</h3>
+                    <h3 class="card-title">Employee Report</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -103,7 +94,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @forelse($leaveReports as $report)
+                                                        @forelse($employees as $report)
                                                         <tr>
                                                             <td>{{$loop->iteration}}</td>
                                                             <td>{{$report->employee->username}}</td>
@@ -130,9 +121,9 @@
                         </div>
                     </div>
                 </div>
-                @if ($leaveReports->hasPages())
+                @if ($employees->hasPages())
                 <div class="card-footer">
-                    {{ $leaveReports->links() }}
+                    {{ $employees->links() }}
                 </div>
                 @endif
             </div>
