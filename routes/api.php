@@ -41,15 +41,11 @@ Route::middleware('api.access.log')->group(function () {
 
 Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
     Route::resource('expense', 'ExpenseApplicationController');
-    // Route::get('apply-expense', [ExpenseApplicationController::class, 'index']);
-    // Route::get('apply-expense/create', [ExpenseApplicationController::class, 'create']);
-    // Route::put('apply-expense/{id}', [ExpenseApplicationController::class, 'update']);
-    // Route::get('apply-expense/{id}', [ExpenseApplicationController::class, 'show']);
-    // Route::post('apply-expense', [ExpenseApplicationController::class, 'store']);
     Route::get('expense-number/{id}', [ExpenseApplicationController::class, 'fetchExpenseNumber']);
 
     //approval 
-    Route::get('approval', [ExpenseApprovalController::class, 'index']);
+    Route::resource('approval', 'ExpenseApprovalController');
+    Route::post('approval/bulk', [AjaxRequestController::class, 'bulkApprovalRejection']);
     // Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
 });
 

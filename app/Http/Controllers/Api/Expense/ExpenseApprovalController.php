@@ -21,10 +21,6 @@ class ExpenseApprovalController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api'); 
-        // $this->middleware('permission:expense/approval,view')->only('index');
-        $this->middleware('permission:expense/approval,create')->only('store');
-        $this->middleware('permission:expense/approval,edit')->only('update');
-        $this->middleware('permission:expense/approval,delete')->only('destroy');
     }
     public function index(Request $request)
     {
@@ -51,6 +47,7 @@ class ExpenseApprovalController extends Controller
             })
                 ->whereNotIn('status', [-1, 3])
                 ->filter($request, false)
+                ->with('histories')
                 ->orderBy('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
@@ -61,7 +58,6 @@ class ExpenseApprovalController extends Controller
         $expenses = $results->get(2);
         $dsaclaims = $results->get(3);
         $transferclaims = $results->get(4);
-
         return response()->json([
             'success' => true,
             'message' => 'Expense applications retrieved successfully!',

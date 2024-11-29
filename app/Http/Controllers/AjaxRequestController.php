@@ -345,7 +345,7 @@ class AjaxRequestController extends Controller
     }
 
     public function bulkApprovalRejection(Request $request)
-    {
+    {   
         $modelMap = [
             1 => LeaveApplication::class,
             2 => ExpenseApplication::class,
@@ -354,14 +354,12 @@ class AjaxRequestController extends Controller
         ];
 
         $model = $modelMap[$request->item_type_id] ?? null;
-
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
@@ -373,7 +371,6 @@ class AjaxRequestController extends Controller
                     ->where('application_type', $model)
                     ->where('application_id', $id)
                     ->first();
-
                 // Update leave application status
                 $application->update([
                     'status' => $status,

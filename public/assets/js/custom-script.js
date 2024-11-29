@@ -404,6 +404,7 @@ var hrms = function () {
 
                                             // Set the price in the #amount field
                                             $('#gadget_amount').val(pricingResponse.mrp).trigger('change');
+                                            $('#interest_rate_gadget').trigger('change');
 
                                                                     },
                                                                     error: function (pricingResponse) {
