@@ -59,6 +59,11 @@ class AdvanceApplication extends Model
     {
         return $this->hasMany(AdvanceDetail::class, 'advance_application_id');
     }
+    public function travelAuthorization()
+    {
+        return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
+    }
+
 
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
