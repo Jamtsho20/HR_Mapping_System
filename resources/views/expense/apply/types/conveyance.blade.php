@@ -6,9 +6,13 @@
                   <label for="travel_type">Travel Type<span class="text-danger">*</span></label>
                   <select class="form-control" id="travel_type" name="travel_type">
                       <option value="" disabled selected hidden>Select your option</option>
-                      @foreach(config('global.travel_types') as $key => $label)
-                        <option value="{{ $key }}" {{ old('travel_type') == $key ? 'selected' : '' }}>{{ $label }}</option>
-                      @endforeach
+                      @foreach ($travelTypes as $travelType)
+                                                    <option value="{{ $travelType->id }}"
+                                                        {{ old('travel_type') == $travelType->id ? 'selected' : '' }}>
+                                                        {{ $travelType->name }}
+                                                    </option>
+                                                @endforeach
+                      
                   </select>
               </div>
           </div>

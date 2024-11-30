@@ -40,6 +40,11 @@ class ExpenseApplication extends Model
         return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
     }
 
+    public function travelType()
+    {
+        return $this->belongsTo(MasTravelType::class, 'travel_type');
+    }
+
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($request->has('mas_expense_type_id') && $request->query('mas_expense_type_id') != '') {

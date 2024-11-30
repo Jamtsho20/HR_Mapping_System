@@ -1,0 +1,121 @@
+@extends('layouts.app')
+@section('page-title', 'Dashboard')
+@section('content')
+
+<div class="col-md-12 d-flex justify-content-end gap-2">
+    <div class="d-flex gap-2">
+        <a href="{{route('employee-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('employee-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{ route('employee-report-print',Request::query()) }}" target="_blank" onclick="openPrintPreview(event)">
+            <span><i class="fa fa-print fa-lg"></i></span>
+        </a>
+
+    </div>
+</div>
+
+<br>
+<div class="block-header block-header-default">
+    @component('layouts.includes.filter')
+
+
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="department">
+            <option value="" disabled="" selected="" hidden="">Select Department</option>
+            @foreach($departments as $department)
+            <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                {{ $department->name }}
+            </option>
+            @endforeach
+        </select>
+
+    </div>
+
+    <div class="col-md-4 form-group">
+        <select class="form-control" name="section">
+            <option value="" disabled selected hidden>Select Sections</option>
+            @foreach($sections as $section)
+            <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
+                {{ $section->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
+    @endcomponent
+    <div class="row row-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Employee Report</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
+                        <thead>
+                            <tr role="row">
+                                <th>
+                                    SL no
+                                </th>
+                                <th>
+                                    Employee Id
+                                </th>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    DOJ
+                                </th>
+
+                                <th>
+                                    Contact No
+                                </th>
+                                <th>
+                                    Email
+                                </th>
+                                <th>
+                                    Employee Status
+                                </th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($employees as $employee)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{$employee->username}}</td>
+                                <td>{{$employee->name}}</td>
+                                <td>{{$employee->date_of_appointment}}</td>
+                                <td>{{$employee->contact_number}}</td>
+                                <td>{{$employee->email}}</td>
+                                <td>
+                                    <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 'Active' ? 'primary' : 'danger' }}">
+                                        {{ $employee->is_active }}
+                                    </span>
+                                </td>
+
+
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="text-danger text-center">No users to be displayed</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @if ($employees->hasPages())
+                <div class="card-footer">
+                    {{ $employees->links() }}
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+@endsection

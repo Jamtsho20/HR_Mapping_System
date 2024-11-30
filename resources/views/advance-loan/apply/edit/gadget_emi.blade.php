@@ -77,14 +77,14 @@
 @push('page_scripts')
 <script>
     $(document).ready(function() {
+        
 
         const advanceTypeId = $('#advance_type_hidden').val();
          var advanceTypeName = "{{ $advance->advanceType->name }}";
-    console.log(advanceTypeName);
         if (advanceTypeId) {
             $('#advance_type').val(advanceTypeId).trigger('change');
         }
-
+        
         $('#interest_rate_gadget').on('input change', function() {
             const amount = parseFloat($('#gadget_amount').val());
             const interestRate = parseFloat($(this).val());
@@ -101,6 +101,7 @@
                 $('#gadget_total_amount').val(''); 
             }
         });
+        
 
         $('#gadget_amount').on('change input', function() {
             const amount = parseFloat($(this).val());

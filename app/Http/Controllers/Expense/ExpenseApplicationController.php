@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
 use App\Http\Controllers\AjaxRequestController;
+use App\Models\MasTravelType;
 use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 
 class ExpenseApplicationController extends Controller
@@ -96,6 +97,7 @@ class ExpenseApplicationController extends Controller
 
         $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+        $travelTypes = MasTravelType::get();
 
         //common function to generate combination of loggedInUser employeeId and username
         $empIdName = LoggedInUserEmpIdName();
@@ -115,7 +117,7 @@ class ExpenseApplicationController extends Controller
         $dsaClaimNo = $this->ajax->getDsaClaimNumber();
         $transferClaimNo = $this->ajax->getTransferClaimNumber();
 
-        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dsaClaimNo', 'transferClaimNo'));
+        return view('expense.apply.create', compact('travelTypes','expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dsaClaimNo', 'transferClaimNo'));
     }
     /**
      * Store a newly created resource in storage.

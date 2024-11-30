@@ -45,19 +45,24 @@
                                     target="_blank"><i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>
                                     &nbsp; attachment</a>
                             </li>
-                            <li class="list-group-item">
-                                <b>Status</b> <a class="pull-right"> @if($expense->status == 1)
-                                    <span class="badge bg-primary">Applied</span>
-                                    @elseif($expense->status == 2)
-                                    <span class="badge bg-summary">Approved</span>
-                                    @elseif($expense->status == 0)
-                                    <span class="badge bg-warning">Cancelled</span>
-                                    @elseif($expense->status == -1)
-                                    <span class="badge bg-danger">Rejected</span>
-                                    @else
-                                    <span class="badge bg-secondary">Unknown Status</span>
-                                    @endif</a>
-                            </li>
+                                 
+                                <li class="list-group-item">
+                                    <b>Status</b> <a class="pull-right">
+                                            @php
+                                        $statusClasses = [
+                                        -1 => 'badge bg-danger',
+                                        0 => 'badge bg-warning',
+                                        1 => 'badge bg-primary',
+                                        2 => 'badge bg-success',
+                                        3 => 'badge bg-info',
+                                        ];
+                                        $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
+                                        $statusClass = $statusClasses[$expense->status] ?? 'badge bg-secondary';
+                                        @endphp
+
+                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                    
+                                </li>
 
                         </ul>
                     </div>
