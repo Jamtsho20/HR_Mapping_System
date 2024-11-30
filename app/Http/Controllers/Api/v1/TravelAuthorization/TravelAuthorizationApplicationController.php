@@ -12,6 +12,7 @@ use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\AjaxRequestController;
 
@@ -64,9 +65,12 @@ class TravelAuthorizationApplicationController extends Controller
     {
         try {
             $privileges = $request->instance();
-            $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-            return $this->successResponse([$privileges, $travelAuthorizations], 'Travel authorization applications retrieved successfully');
-        } catch (\Illuminate\Validation\ValidationException $e) {
+            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name')->with('details')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+            return response()->json([
+                'message' => 'Travel authorization applications retrieved successfully',
+               'travelAuthorizations' => $travelAuthorizations
+            ]);
+          } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
         }
        
@@ -115,15 +119,14 @@ class TravelAuthorizationApplicationController extends Controller
     public function store(Request $request)
     {
         try{
-
-        
+            
         $travelAuthorization = new  TravelAuthorizationApplication();
+            // dd($request->all());
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         //dd($conditionFields);
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
-        // dd($request->travel_type);
 
         try {
             DB::beginTransaction();
@@ -135,11 +138,13 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
             $travelAuthorization->travel_type_id = $request->travel_type;
-
+            
 
             $travelAuthorization->save();
+           
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
+            
                     $travelAuthorization->details()->create([
                         'mode_of_travel' => $detail['mode_of_travel'],
                         'from_location' => $detail['from_location'],
@@ -148,12 +153,13 @@ class TravelAuthorizationApplicationController extends Controller
                         'to_date' => $detail['to_date'],
                         'purpose' => $detail['purpose'],
                     ]);
+                               
                 }
             }
 
 
 
-
+           
             $travelAuthorization->histories()->create([
                 'approval_option' => $approverByHierarchy['approval_option'],
                 'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
@@ -165,37 +171,46 @@ class TravelAuthorizationApplicationController extends Controller
                 'remarks' => $request->remarks ?? null,
                 'action_performed_by' => loggedInUser(),
             ]);
-
-
+           
+            
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            
             return back()->withInput()->with('msg_error', $e->getMessage());
            
         }
 
         return $this->successResponse($travelAuthorization, 'Travel Authorization application has been successfully created.', 201);
     }catch (\Illuminate\Validation\ValidationException $e) {
+        
         return $this->errorResponse('Failed to store application', 500, $e);
     }
     }
 
     public function show($id, Request $request)
-    {
+    {   try {
         $instance = $request->instance();
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
         $context = 'application';
-        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context'));
+        return $this->successResponse([$travelAuthorization, $context], 'Travel Authorization retrieved successfully');
+    }catch (\Illuminate\Validation\ValidationException $e) {
+        return $this->errorResponse('Failed to retrieve applications', 500);
     }
+}
 
 
 
-    public function edit($id)
+    public function getTravelTypes()
     {
-        $travelAuthorizations =  TravelAuthorizationApplication::findOrfail($id);
-        $dailyAllowance = $travelAuthorizations->daily_allowance;
-        $travelTypes = MasTravelType::all();
-        return view('travel-authorizations.apply.edit', compact('travelAuthorizations', 'dailyAllowance', 'travelTypes'));
+        try{
+        $travelTypes = MasTravelType::all()->toArray();
+        return response()->json([
+            'travelTypes' => $travelTypes
+        ]);
+        }catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to retrieve applications', 500);
+        }
     }
 
 

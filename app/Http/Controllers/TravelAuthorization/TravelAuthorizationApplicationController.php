@@ -140,7 +140,7 @@ class TravelAuthorizationApplicationController extends Controller
         //     return back()->withInput()->with('msg_error', $e->getMessage());
         //     // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         // }
-            dd($travelAuthorization->details);
+        
         return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization application created successfully!');
     }
 

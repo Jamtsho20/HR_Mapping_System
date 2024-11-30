@@ -48,6 +48,7 @@ class ExpenseApprovalController extends Controller
                 ->whereNotIn('status', [-1, 3])
                 ->filter($request, false)
                 ->with('histories')
+                ->with(['expenseType:id,name', 'travelType:id,name'])   
                 ->orderBy('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
@@ -62,9 +63,7 @@ class ExpenseApprovalController extends Controller
             'success' => true,
             'message' => 'Expense applications retrieved successfully!',
             'data' => [
-                'privileges' => $privileges,
                 'expenses' => $expenses,
-                'headers' => $headers,
                 'dsaClaims' => $dsaclaims, // Corrected
                 'transferClaims' => $transferclaims, // Corrected
             ]

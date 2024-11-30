@@ -43,7 +43,7 @@ Route::middleware('api.access.log')->group(function () {
 
 Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
     Route::resource('expense', 'ExpenseApplicationController');
-    Route::get('expense-number/{id}', [ExpenseApplicationController::class, 'fetchExpenseNumber']);
+    Route::get('expense_number/{id}', [ExpenseApplicationController::class, 'fetchExpenseNumber']);
 
     //approval 
     Route::resource('approval', 'ExpenseApprovalController');
@@ -53,6 +53,7 @@ Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
 
 Route::namespace('Api\v1\TravelAuthorization')->middleware('auth:sanctum')->group(function () {
     Route::resource('travel_authorization', 'TravelAuthorizationApplicationController');
+
     Route::get('travel_authorization_number/{id}', [TravelAuthorizationApplicationController::class, 'fetchTravelAuthorizationNumber']);
 
 });

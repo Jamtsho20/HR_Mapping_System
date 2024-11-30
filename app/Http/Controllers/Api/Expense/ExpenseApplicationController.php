@@ -77,12 +77,17 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
     
-            $expenseApplications = ExpenseApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
+            $expenseApplications = ExpenseApplication::with(['expenseType:id,name', 'travelType:id,name'])->filter($request)->createdBy()->paginate(config('global.pagination'));
+        
             $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
             $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
-    
-          
-            return $this->successResponse([$privileges,$expenseApplications, $headers, $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
+        
+            return response()->json([
+                'expenseApplications' => $expenseApplications,
+                'dsaClaimApplications' => $dsaClaimApplications,
+                'transferClaims' => $transferClaims,
+            ]);
+            // return $this->successResponse([$expenseApplications,  $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
             } catch (\Exception $e) {
                 return $this->errorResponse('Failed to retrieve applications', 500);
             }
