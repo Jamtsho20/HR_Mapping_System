@@ -105,7 +105,6 @@ class AdvanceLoanApplicationController extends Controller
     {
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
-
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
@@ -129,7 +128,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->amount = $request->amount ?? null;
             $advanceApplication->attachment = $attachment ?? null; // Store attachment path
             $advanceApplication->total_amount = $request->total_amount ?? null;
-            $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
+            $advanceApplication->no_of_emi = $request->advance_type === DSA_ADVANCE ? 1 : $request->no_of_emi ?? null;
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;
@@ -310,10 +309,58 @@ class AdvanceLoanApplicationController extends Controller
         try {
             AdvanceApplication::findOrFail($id)->delete();
 
-                return back()->with('msg_success', 'Advance Applicaton has been deleted');
-            } catch (\Exception $e) {
-                return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
-            }
+            return back()->with('msg_success', 'Advance Applicaton has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
         }
     }
+
+    public function saveAdvanceDetails($advanceDetails, $advanceApplicationId)
+    {
+        // Track existing IDs to avoid deleting records that are updated
+        $existingIds = [];
+
+        foreach ($advanceDetails as $detail) {
+            // Check if the detail has an 'id' (indicating an existing record)
+            if (isset($detail['id']) && !empty($detail['id'])) {
+                // Update the existing record
+                $existingDetail = AdvanceDetail::find($detail['id']);
+                if ($existingDetail) {
+                    $existingDetail->update([
+                        'budget_code_id' => $detail['budget_code'],
+                        'from_date' => $detail['from_date'],
+                        'to_date' => $detail['to_date'],
+                        'dzongkhag_id' => $detail['dzongkhag'],
+                        'site_location' => $detail['site_location'],
+                        'amount_required' => $detail['amount_required'],
+                        'purpose' => $detail['purpose'],
+                    ]);
+
+                    $existingIds[] = $existingDetail->id; // Track updated record IDs
+                }
+            } else {
+                // Insert new record
+                $newDetail = AdvanceDetail::create([
+                    'advance_application_id' => $advanceApplicationId,
+                    'budget_code_id' => $detail['budget_code'],
+                    'from_date' => $detail['from_date'],
+                    'to_date' => $detail['to_date'],
+                    'dzongkhag_id' => $detail['dzongkhag'],
+                    'site_location' => $detail['site_location'],
+                    'amount_required' => $detail['amount_required'],
+                    'purpose' => $detail['purpose'],
+                ]);
+
+                if ($newDetail) {
+                    $existingIds[] = $newDetail->id; // Track newly inserted record IDs
+                }
+            }
+        }
+
+        // Optionally delete records not in the current request
+        AdvanceDetail::where('advance_application_id', $advanceApplicationId)
+            ->whereNotIn('id', $existingIds)
+            ->delete();
+    }
+
 }
