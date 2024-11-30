@@ -149,8 +149,8 @@ class TravelAuthorizationApplicationController extends Controller
                         'mode_of_travel' => $detail['mode_of_travel'],
                         'from_location' => $detail['from_location'],
                         'to_location' => $detail['to_location'],
-                        'from_date' => $detail['from_date'],
-                        'to_date' => $detail['to_date'],
+                        'from_date' => formatDate($detail['from_date']),
+                        'to_date' => formatDate($detail['to_date']),
                         'purpose' => $detail['purpose'],
                     ]);
                                
@@ -248,8 +248,8 @@ class TravelAuthorizationApplicationController extends Controller
                                 'mode_of_travel' => $detail['mode_of_travel'],
                                 'from_location' => $detail['from_location'],
                                 'to_location' => $detail['to_location'],
-                                'from_date' => $detail['from_date'],
-                                'to_date' => $detail['to_date'],
+                                'from_date' => formatDate($detail['from_date']),
+                                'to_date' => formatDate($detail['to_date']),
                                 'purpose' => $detail['purpose'],
                             ]);
                             $updatedDetailIds[] = $detail['id'];
