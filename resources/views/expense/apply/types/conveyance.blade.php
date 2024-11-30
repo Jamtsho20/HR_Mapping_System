@@ -4,15 +4,11 @@
           <div class="col-md-4">
               <div class="form-group">
                   <label for="travel_type">Travel Type<span class="text-danger">*</span></label>
-                  <select class="form-control" id="travel_type" name="travel_type">
+                  <select class="form-control" id="travel_mode" name="mode_of_travel">
                       <option value="" disabled selected hidden>Select your option</option>
-                      @foreach ($travelTypes as $travelType)
-                                                    <option value="{{ $travelType->id }}"
-                                                        {{ old('travel_type') == $travelType->id ? 'selected' : '' }}>
-                                                        {{ $travelType->name }}
-                                                    </option>
-                                                @endforeach
-                      
+                      @foreach(config('global.travel_modes') as $key => $label)
+                        <option value="{{ $key }}" {{ old('mode_of_travel') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                      @endforeach
                   </select>
               </div>
           </div>
@@ -22,7 +18,7 @@
                   <select class="form-control" id="travel_mode" name="mode_of_travel">
                       <option value="" disabled selected hidden>Select your option</option>
                       @foreach(config('global.travel_modes') as $key => $label)
-                        <option value="{{ $key }}" {{ old('mode_of_travel') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                      <option value="{{ $key }}" {{ old('mode_of_travel') == $key ? 'selected' : '' }}>{{ $label }}</option>
                       @endforeach
                   </select>
               </div>
