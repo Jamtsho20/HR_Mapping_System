@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Expense;
 
+use DateTime;
 use Illuminate\Http\Request;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimDetail;
 use App\Services\ApprovalService;
 use App\Models\AdvanceApplication;
 use Illuminate\Support\Facades\DB;
 use App\Models\DsaClaimApplication;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\TravelAuthorizationApplication;
 
 class DSAClaimApplicationController extends Controller
@@ -80,7 +84,6 @@ class DSAClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
 
-        dd($approverByHierarchy);
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();
@@ -97,15 +100,51 @@ class DSAClaimApplicationController extends Controller
 
                 $dsaClaimApplication = DsaClaimApplication::create([
                     'dsa_claim_no' => $request->dsa_claim_no,
-                    'advance_application_id' => $request->advance_no,
+                    'travel_authorization_id' => $request->travel_authorization_id,
+                    'advance_application_id' => $request->advance_no ?? null,
                     'total_amount' => $request->total_amount,
-                    'net_payable_amount' => $request->net_payable_amount,
+                    'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->total_amount,
                     'balance_amount' => $request->balance_amount,
                     'attachment' => $attachment,
-                    'status' => 1
+                    'status' => 1,
                 ]);
 
+                if ($dsaClaimApplication) {
+                    foreach ($request->dsa_claim_detail as $detail) {
 
+                        $from = new DateTime($detail['from_date']);
+                        $to = new DateTime($detail['to_date']);
+
+                        $interval = $from->diff($to);
+                        $totalDays = $interval->days;
+
+                        $applicationDetail = new DsaClaimDetail();
+                        $applicationDetail->dsa_claim_id = $dsaClaimApplication->id;
+                        $applicationDetail->from_date = $detail['from_date'];
+                        $applicationDetail->to_date = $detail['to_date'];
+                        $applicationDetail->from_location = $detail['from_location'];
+                        $applicationDetail->to_location = $detail['to_location'];
+                        $applicationDetail->total_days = $detail['total_days'] ?? $totalDays;
+                        $applicationDetail->daily_allowance = $detail['daily_allowance'] ?? 0;
+                        $applicationDetail->travel_allowance = $detail['travel_allowance'] ?? 0;
+                        $applicationDetail->total_amount = $detail['total_amount'] ?? 0;
+                        $applicationDetail->remark = $detail['remark'];
+                        $applicationDetail->save();
+                    }
+                }
+
+                // Create a history record
+                $dsaClaimApplication->histories()->create([
+                    'approval_option' => $approverByHierarchy['approval_option'],
+                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
+                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
+                    'status' => $approverByHierarchy['application_status'] ?? 1,
+                    'remarks' => $request->remarks,
+                    'action_performed_by' => loggedInUser(),
+                ]);
 
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
@@ -143,7 +182,26 @@ class DSAClaimApplicationController extends Controller
      */
     public function edit($id)
     {
-        //
+        $empIdName = LoggedInUserEmpIdName();
+        $job = Auth::user()->empJob;
+        if (!$job) {
+            return redirect()->back()->with('msg_error', 'You do not have a job assigned to you');
+        }
+
+        $gradeId = $job->grade->id;
+        $dsaClaimApplication = DsaClaimApplication::whereId($id)->first();
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+        $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
+
+        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+        //get dsa advance which has been approved for settlement
+        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+            ->where('created_by', loggedInUser())
+            ->whereNotIn('id', $excludedAdvanceIds)
+            ->get(['id', 'advance_no'])
+            ->toArray();
+
+        return view('expense.dsa-claim.edit', compact('dsaClaimApplication', 'empIdName', 'travels', 'dailyAllowance', 'gradeId', 'advances'));
     }
 
     /**

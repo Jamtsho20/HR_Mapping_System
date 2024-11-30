@@ -4,7 +4,7 @@
 
 
 
-<form action="{{ route('dsa-claim-settlement.store') }}" method="post" enctype="multipart/form-data" id="apply_dsa_claim">
+<form action="{{ route('dsa-claim-settlement.store') }}" method="post" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-body">
@@ -107,7 +107,7 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <input type="number" name="dsa_claim_detail[AAAAA][daily_allowance]" value="{{ DAILY_ALLOWANCE }}" class="form-control form-control-sm resetKeyForNew" disabled /> 
+                                        <input type="number" name="dsa_claim_detail[AAAAA][daily_allowance]" value="{{ DAILY_ALLOWANCE }}" class="form-control form-control-sm resetKeyForNew" disabled />
                                     </td>
                                     <td class="text-center">
                                         <input type="number" name="dsa_claim_detail[AAAAA][travel_allowance]" class="form-control form-control-sm resetKeyForNew" />

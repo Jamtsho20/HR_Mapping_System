@@ -92,7 +92,8 @@
                                                                             @forelse ($expenseApplications as $expense)
                                                                                 <tr>
                                                                                     <td>{{ $loop->iteration }}</td>
-                                                                                    <td>{{ $expense->employee->employee_id }} ({{ $expense->employee->title . ' ' . $expense->employee->name }})
+                                                                                    <td>{{ $expense->employee->employee_id }}
+                                                                                        ({{ $expense->employee->title . ' ' . $expense->employee->name }})
                                                                                     </td>
                                                                                     <td>{{ $expense->date }}</td>
                                                                                     <td>{{ $expense->expenseType->name }}
@@ -205,14 +206,55 @@
                                                                         <tbody>
                                                                             @forelse ($dsaClaimApplications as $dsaClaim)
                                                                                 <tr>
-                                                                                    <td></td>
-                                                                                    <td></td>
-                                                                                    <td></td>
-                                                                                    <td></td>
-                                                                                    <td></td>
-                                                                                    <td></td>
-                                                                                    <td></td>
-                                                                                    <td></td>
+                                                                                    <td>{{ $loop->iteration }}</td>
+                                                                                    <td>{{ $dsaClaim->employee->employee_id }}
+                                                                                        ({{ $dsaClaim->employee->title . ' ' . $dsaClaim->employee->name }})
+                                                                                    <td>{{ $dsaClaim->created_at->format('d-m-Y') }}
+                                                                                    <td>{{ $dsaClaim->net_payable_amount }}
+                                                                                    </td>
+                                                                                    <td>{{ $dsaClaim->dsaadvance?->amount ?? '0.00' }}
+                                                                                    </td>
+                                                                                    <td>{{ $dsaClaim->total_amount }}</td>
+                                                                                    <td>
+                                                                                        @if ($dsaClaim->status == 1)
+                                                                                            <span
+                                                                                                class="badge bg-primary">Applied</span>
+                                                                                        @elseif($dsaClaim->status == 2)
+                                                                                            <span
+                                                                                                class="badge bg-info">Approved</span>
+                                                                                        @elseif($dsaClaim->status == 0)
+                                                                                            <span
+                                                                                                class="badge bg-warning">Cancelled</span>
+                                                                                        @elseif($dsaClaim->status == -1)
+                                                                                            <span
+                                                                                                class="badge bg-danger">Rejected</span>
+                                                                                        @else
+                                                                                            <span
+                                                                                                class="badge bg-secondary">Unknown
+                                                                                                Status</span>
+                                                                                        @endif
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        @if ($privileges->view)
+                                                                                            <a href="{{  route('dsa-claim-settlement.show', $dsaClaim->id) }}"
+                                                                                                class="btn btn-sm btn-outline-secondary"><i
+                                                                                                    class="fa fa-list"></i>
+                                                                                                Detail</a>
+                                                                                        @endif
+                                                                                        @if ($privileges->edit)
+                                                                                        <a href="{{  route('dsa-claim-settlement.edit', $dsaClaim->id) }}"
+                                                                                            class=" btn btn-sm btn-rounded btn-outline-success"><i
+                                                                                                    class="fa fa-edit"></i>
+                                                                                                EDIT</a>
+                                                                                        @endif
+                                                                                        @if ($privileges->delete)
+                                                                                            <a href="#"
+                                                                                                class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                                                                                data-url="{{ url('expense/dsa-claim-settlement/' . $dsaClaim->id) }}"><i
+                                                                                                    class="fa fa-trash"></i>
+                                                                                                DELETE</a>
+                                                                                        @endif
+                                                                                    </td>
                                                                                 </tr>
                                                                             @empty
                                                                                 <tr>
@@ -280,7 +322,8 @@
                                                                             @forelse ($transferClaims as $transfer)
                                                                                 <tr>
                                                                                     <td>{{ $loop->iteration }}</td>
-                                                                                    <td>{{ $transfer->employee->employee_id }} ({{ $transfer->employee->title . ' ' . $transfer->employee->name }})
+                                                                                    <td>{{ $transfer->employee->employee_id }}
+                                                                                        ({{ $transfer->employee->title . ' ' . $transfer->employee->name }})
                                                                                     <td>{{ $transfer->created_at->format('d-m-Y') }}
                                                                                     </td>
                                                                                     <td>{{ $transfer->type->name }}
