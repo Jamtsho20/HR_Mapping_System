@@ -127,11 +127,11 @@ class TravelAuthorizationApplicationController extends Controller
         //dd($conditionFields);
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
-
+        $date= formatDate(request('date'));
         try {
             DB::beginTransaction();
             $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
-            $travelAuthorization->date = $request->date;
+            $travelAuthorization->date = $date;
             $travelAuthorization->advance_amount = $request->advance_required;
             $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
             $travelAuthorization->status = 1;
@@ -191,7 +191,7 @@ class TravelAuthorizationApplicationController extends Controller
     public function show($id, Request $request)
     {   try {
         $instance = $request->instance();
-        $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
+        $travelAuthorization =  TravelAuthorizationApplication::with('details')->findOrFail($id);
         $context = 'application';
         return $this->successResponse([$travelAuthorization, $context], 'Travel Authorization retrieved successfully');
     }catch (\Illuminate\Validation\ValidationException $e) {
@@ -219,14 +219,14 @@ class TravelAuthorizationApplicationController extends Controller
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
 
         $this->validate($request, $this->rules, $this->messages);
-
+        $date= formatDate(request('date'));
         try {
 
             DB::beginTransaction();
 
             $travelAuthorization->update([
                 'travel_authorization_no' => $request->travel_authorization_no,
-                'date' => $request->date,
+                'date' => $date,
                 'advance_amount' => $request->advance_required,
                 'estimated_travel_expenses' => $request->estimated_travel_expenses,
                 'status' => 1,
@@ -299,13 +299,13 @@ class TravelAuthorizationApplicationController extends Controller
 
             // DB::commit();
 
-        } catch (\Exception $e) {
-            DB::rollBack();
+         return $this->successResponse($travelAuthorization, 'Travel Authorization retrieved successfully');
 
-            return back()->withInput()->with('msg_error', $e->getMessage());
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to retrieve applications', 500);
         }
-        return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization updated successfully!');
-    }
+
+   }
 
 
     public function destroy($id)
@@ -313,9 +313,9 @@ class TravelAuthorizationApplicationController extends Controller
         try {
             TravelAuthorizationApplication::findOrFail($id)->delete();
             // dd(TravelAuthorization::findOrFail($id));
-            return back()->with('msg_success', 'Travel Authorization has been deleted');
+            return $this->successResponse($id, 'Travel Authorization has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Travel Authorization cannot be deleted as it is used by other modules.');
+            return $this->errorResponse('Travel Authorization cannot be deleted.');
         }
     }
 

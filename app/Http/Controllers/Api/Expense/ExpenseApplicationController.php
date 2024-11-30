@@ -183,7 +183,7 @@ class ExpenseApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
+        $date= formatDate(request('date'));
         
         try {
             DB::beginTransaction();
@@ -192,7 +192,7 @@ class ExpenseApplicationController extends Controller
                 // 'mas_employee_id' => loggedInUser(),
                 'expense_no' => $request->expense_no,
                 'mas_expense_type_id' => $request->expense_type,
-                'date' => $request->date,
+                'date' => $date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['file'],
@@ -254,13 +254,14 @@ public function update(Request $request, $id)
         }
 
         $validatedData = $request->validate($this->rules($request));
+        $date= formatDate(request('date'));
 
         try {
             DB::beginTransaction();
 
             $expenseApplication->update([
                 'mas_expense_type_id' => $request->expense_type,
-                'date' => $request->date,
+                'date' => $date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['attachment'] ?? $expenseApplication->file,
