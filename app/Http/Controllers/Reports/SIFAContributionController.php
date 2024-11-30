@@ -20,8 +20,9 @@ class SIFAContributionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $employee = employeeList();
 
-        return view('report.sifa-contribution.index', compact('privileges'));
+        return view('report.sifa-contribution.index', compact('privileges','employee'));
     }
 
     /**
