@@ -110,18 +110,6 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="dsa_claim_no">Claim No <span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="dsa_claim_no"
-                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}" id="dsa_claim_no"
-                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}"
-                                                    placeholder="Generating..." readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="employee_name">Employee</label>
@@ -131,13 +119,23 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="travel_autgorization_id">Travel No</label>
-                                                <select class="form-control" id="travel_autgorization_id"
-                                                    name="travel_autgorization_id" required>
+                                                <label for="dsa_claim_no">Claim No <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="dsa_claim_no"
+                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}" id="dsa_claim_no"
+                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}"
+                                                    placeholder="Generating..." readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="travel_authorization_id">Travel No <span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-control" id="travel_autorization"
+                                                    name="travel_authorization_id" required>
                                                     <option value="" selected disabled>Select your option</option>
                                                     @foreach ($travels as $travel)
-                                                        <option value="{{ $travel->id }}"
-                                                            {{ old('travel_autgorization_id') == $travel->id ? 'selected' : '' }}>
+                                                        <option value="{{ $travel->id }}">
                                                             {{ $travel->travel_authorization_no }}</option>
                                                     @endforeach
                                                 </select>
@@ -145,7 +143,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="dsa_advance_tour">Advance No No</label>
+                                                <label for="dsa_advance_tour">Advance No</label>
                                                 <select class="form-control" id="dsa_advance_tour"
                                                     name="dsa_advance_tour">
                                                     <option value="" selected disabled>Select your option</option>
@@ -162,29 +160,28 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="total_amount">Total Amount </label>
-                                                <input type="number" class="form-control" id="total_amount"
-                                                    name="total_amount" value="{{ old('total_amount') }}" required>
+                                                <label for="grand_total_amount">Total Amount </label>
+                                                <input type="number" class="form-control" id="grand_total_amount"
+                                                    name="total_amount" value="{{ old('grand_total_amount') }}"
+                                                    required readonly />
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="netpayable">Net Payable Amount</label>
                                                 <input type="number" class="form-control" id="net_payable_amount"
                                                     name="net_payable_amount" value="{{ old('net_payable_amount') }}"
-                                                    required>
+                                                    required readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="balance_amount">Balance Amount </label>
                                                 <input type="number" class="form-control" id="balance_amount"
-                                                    name="balance_amount" value="{{ old('balance_amount') }}" required>
+                                                    name="balance_amount" value="{{ old('balance_amount', 0) }}" readonly />
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
@@ -443,13 +440,27 @@
 
                 // Loop through each row and sum up the total amounts
                 $("input[name*='[total_amount]']").each(function() {
-                    const rowTotal = parseFloat($(this).val()) || 0; // Get the value or default to 0
+                    const rowTotal = parseFloat($(this).val() || 0, 10);
                     grandTotal += rowTotal;
                 });
 
                 // Update the grand total input field
-                $('#total_amount').val(grandTotal);
+                $('#grand_total_amount').val(grandTotal);
             }
+
+            function calculateNetPayable() {
+                // Retrieve input values
+                let totalAmount = parseFloat($('#grand_total_amount').val()) || 0;
+                let advanceAmount = parseFloat($('#advance_amount').val()) || 0;
+
+                // Calculate net payable
+                let netPayable = totalAmount - advanceAmount;
+
+                // Update net payable amount field
+                $('#net_payable_amount').val(netPayable.toFixed(2));
+            }
+
+            calculateNetPayable();
 
             $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
                 const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
@@ -561,15 +572,17 @@
                     $row.find("input[name*='[total_amount]']").val(totalAmount);
 
                     calculateGrandTotal();
+                    calculateNetPayable();
                 }
             );
 
             $(document).on("click", ".add-table-row", function() {
-                calculateGrandTotal(); 
+                calculateGrandTotal();
+                calculateNetPayable();
             });
 
             function getTravelAuthorizationDetails() {
-                const travelAuthorizationId = $("#travel_autgorization_id").val();
+                const travelAuthorizationId = $("#travel_autorization").val();
 
                 if (travelAuthorizationId !== '') {
                     $.ajax({
@@ -668,7 +681,7 @@
                                     DAILY_ALLOWANCE);
 
                                 // Update the grand total
-                                $('#total_amount').val(grandTotal);
+                                $('#grand_total_amount').val(grandTotal);
                             } else {
                                 tbody.append(
                                     `<tr><td colspan="9" class="text-center text-danger">No details found</td></tr>`
@@ -687,7 +700,7 @@
             }
 
             function getDsaAvanceByTravelAuth() {
-                const travelAuthorizationId = $("#travel_autgorization_id").val();
+                const travelAuthorizationId = $("#travel_autorization").val();
 
                 if (travelAuthorizationId !== '') {
                     $.ajax({
@@ -732,6 +745,7 @@
                         type: 'GET',
                         success: function(data) {
                             $('#advance_amount').val(data.amount ?? 0);
+                            calculateNetPayable();
                         },
                         error: function(error) {
                             alert("Error fetching data", error);
@@ -741,9 +755,10 @@
             }
 
             // Trigger the function when the dropdown value changes
-            $(document).on("change", "#travel_autgorization_id", getTravelAuthorizationDetails);
-            $(document).on("change", "#travel_autgorization_id", getDsaAvanceByTravelAuth);
+            $(document).on("change", "#travel_autorization", getTravelAuthorizationDetails);
+            $(document).on("change", "#travel_autorization", getDsaAvanceByTravelAuth);
             $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
+            $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']", calculateNetPayable);
         });
     </script>
 @endpush
