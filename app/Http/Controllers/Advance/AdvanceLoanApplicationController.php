@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasLeaveType;
 use App\Models\TravelAuthorizationApplication;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
@@ -309,58 +310,10 @@ class AdvanceLoanApplicationController extends Controller
         try {
             AdvanceApplication::findOrFail($id)->delete();
 
-            return back()->with('msg_success', 'Advance Applicaton has been deleted');
-        } catch (\Exception $e) {
-            return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
-        }
-    }
-
-    public function saveAdvanceDetails($advanceDetails, $advanceApplicationId)
-    {
-        // Track existing IDs to avoid deleting records that are updated
-        $existingIds = [];
-
-        foreach ($advanceDetails as $detail) {
-            // Check if the detail has an 'id' (indicating an existing record)
-            if (isset($detail['id']) && !empty($detail['id'])) {
-                // Update the existing record
-                $existingDetail = AdvanceDetail::find($detail['id']);
-                if ($existingDetail) {
-                    $existingDetail->update([
-                        'budget_code_id' => $detail['budget_code'],
-                        'from_date' => $detail['from_date'],
-                        'to_date' => $detail['to_date'],
-                        'dzongkhag_id' => $detail['dzongkhag'],
-                        'site_location' => $detail['site_location'],
-                        'amount_required' => $detail['amount_required'],
-                        'purpose' => $detail['purpose'],
-                    ]);
-
-                    $existingIds[] = $existingDetail->id; // Track updated record IDs
-                }
-            } else {
-                // Insert new record
-                $newDetail = AdvanceDetail::create([
-                    'advance_application_id' => $advanceApplicationId,
-                    'budget_code_id' => $detail['budget_code'],
-                    'from_date' => $detail['from_date'],
-                    'to_date' => $detail['to_date'],
-                    'dzongkhag_id' => $detail['dzongkhag'],
-                    'site_location' => $detail['site_location'],
-                    'amount_required' => $detail['amount_required'],
-                    'purpose' => $detail['purpose'],
-                ]);
-
-                if ($newDetail) {
-                    $existingIds[] = $newDetail->id; // Track newly inserted record IDs
-                }
+                return back()->with('msg_success', 'Advance Applicaton has been deleted');
+            } catch (\Exception $e) {
+                return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
             }
         }
-
-        // Optionally delete records not in the current request
-        AdvanceDetail::where('advance_application_id', $advanceApplicationId)
-            ->whereNotIn('id', $existingIds)
-            ->delete();
     }
-
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('dsa_claim_applications', function (Blueprint $table) {
             $table->id();
             $table->string('dsa_claim_no')->index();
+            $table->foreignId('travel_authorization_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();
             $table->foreignId('advance_application_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();
             $table->decimal('total_amount', 12, 2);
             $table->decimal('net_payable_amount', 12, 2);

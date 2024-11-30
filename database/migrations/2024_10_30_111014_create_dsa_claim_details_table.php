@@ -18,8 +18,10 @@ return new class extends Migration
             $table->date('to_date');
             $table->string('from_location');
             $table->string('to_location');
+            $table->decimal('total_days', 10, 2);
             $table->decimal('daily_allowance', 10, 2)->comment('DA');
             $table->decimal('travel_allowance', 10, 2)->comment('TA');
+            $table->decimal('total_amount', 10, 2);
             $table->text('remark')->nullable();
             $table->timestamps();
         });
