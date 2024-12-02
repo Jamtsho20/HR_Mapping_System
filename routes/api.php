@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanApprovalController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
+use App\Http\Controllers\Api\Expense\DSAClaimApplicationController;
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
@@ -49,6 +50,10 @@ Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
     //Transfer Claim
     Route::resource('trasnfer_claim', 'TransferClaimApplicationController');
     Route::get('transfer_claim_number', [TransferClaimApplicationController::class, 'getTransferClaimNumber']);
+
+    //DSA caim
+    Route::resource('dsa_claim', 'DSAClaimApplicationController');
+    Route::get('dsa_claim_number', [DSAClaimApplicationController::class, 'getDsaClaimNumber']);
 
     //approval 
     Route::resource('approval', 'ExpenseApprovalController');

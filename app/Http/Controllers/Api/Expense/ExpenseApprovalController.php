@@ -27,38 +27,36 @@ class ExpenseApprovalController extends Controller
 
         try {
             
-        $privileges = $request->instance();
-        $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
-        $empIdName = LoggedInUserEmpIdName();
-        $user = auth()->user();
-
-        $models = [
-            2 => \App\Models\ExpenseApplication::class,
-            3 => \App\Models\DsaClaimApplication::class,
-            4 => \App\Models\TransferClaimApplication::class,
-        ];
-
-        $results = collect();
-
-        foreach ($models as $key => $modelClass) {
-            $data = $modelClass::whereHas('histories', function ($query) use ($user, $modelClass) {
-                $query->where('approver_emp_id', $user->id)
-                    ->where('application_type', $modelClass);
-            })
-                ->whereNotIn('status', [-1, 3])
-                ->filter($request, false)
-                ->with('histories')
-                ->with(['expenseType:id,name', 'travelType:id,name'])   
-                ->orderBy('created_at')
-                ->paginate(config('global.pagination'))
-                ->withQueryString();
-
-            $results->put($key, $data);
-        }
-
-        $expenses = $results->get(2);
-        $dsaclaims = $results->get(3);
-        $transferclaims = $results->get(4);
+            $privileges = $request->instance();
+            $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+            $empIdName = LoggedInUserEmpIdName();
+            $user = auth()->user();
+    
+            $models = [
+                2 => \App\Models\ExpenseApplication::class,
+                3 => \App\Models\DsaClaimApplication::class,
+                4 => \App\Models\TransferClaimApplication::class,
+            ];
+    
+            $results = collect();
+    
+            foreach ($models as $key => $modelClass) {
+                $data = $modelClass::whereHas('histories', function ($query) use ($user, $modelClass) {
+                    $query->where('approver_emp_id', $user->id)
+                        ->where('application_type', $modelClass);
+                })
+                    ->whereNotIn('status', [-1, 3])
+                    ->filter($request, false)
+                    ->orderBy('created_at')
+                    ->paginate(config('global.pagination'))
+                    ->withQueryString();
+    
+                $results->put($key, $data);
+            }
+    
+            $expenses = $results->get(2);
+            $dsaclaims = $results->get(3);
+            $transferclaims = $results->get(4);
         return response()->json([
             'success' => true,
             'message' => 'Expense applications retrieved successfully!',
@@ -71,7 +69,7 @@ class ExpenseApprovalController extends Controller
 
         // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
     } catch (\Exception $e) {
-        return $this->errorResponse('Failed to retrieve expense application', 404);
+        return $this->errorResponse($e->getMessage(), 404);
     }
     }
 
