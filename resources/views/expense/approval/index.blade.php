@@ -136,6 +136,9 @@
                                                                         <th>
                                                                             STATUS
                                                                         </th>
+                                                                        <th>
+                                                                            Action
+                                                                        </th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
@@ -169,6 +172,15 @@
                                                                             @endphp
 
                                                                             <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            @if ($privileges->view)
+                                                                            <a href="{{ url('expense/approval/' . $application->id) }}"
+                                                                                class="btn btn-sm btn-outline-secondary"><i
+                                                                                    class="fa fa-list"></i>
+                                                                                Detail</a>
+                                                                            @endif                                                                     
+                                                                       
                                                                         </td>
 
 
@@ -247,15 +259,15 @@
                                                                                 value="{{ $dsaclaim->id }}">
                                                                         </td>
 
-                                                     
-                                                                    <td>{{ $dsaclaim->employee->employee_id }}
-                                                                        ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
-                                                                    <td>{{ $dsaclaim->created_at->format('d-m-Y') }}
-                                                                    <td>{{ $dsaclaim->net_payable_amount }}
-                                                                    </td>
-                                                                    <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
-                                                                    </td>
-                                                                    <td>{{ $dsaclaim->total_amount }}</td>
+
+                                                                        <td>{{ $dsaclaim->employee->employee_id }}
+                                                                            ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
+                                                                        <td>{{ $dsaclaim->created_at->format('d-m-Y') }}
+                                                                        <td>{{ $dsaclaim->net_payable_amount }}
+                                                                        </td>
+                                                                        <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
+                                                                        </td>
+                                                                        <td>{{ $dsaclaim->total_amount }}</td>
 
                                                                         <td class="text-center">
                                                                             @php
@@ -274,21 +286,11 @@
                                                                         </td>
                                                                         <td class="text-center">
                                                                             @if ($privileges->view)
-                                                                            <a href="{{ url('expense/dsa-claim/' . $dsaclaim->id) }}"
+                                                                            <a href="{{ url('expense/dsa-approval/' . $dsaclaim->id) }}"
                                                                                 class="btn btn-sm btn-outline-secondary"><i
                                                                                     class="fa fa-list"></i> Detail</a>
                                                                             @endif
-                                                                            @if ($privileges->edit)
-                                                                            <a href="{{ url('expense/dsa-claim/' . $dsaclaim->id . '/edit') }}"
-                                                                                class="btn btn-sm btn-rounded btn-outline-success"><i
-                                                                                    class="fa fa-edit"></i> EDIT</a>
-                                                                            @endif
-                                                                            @if ($privileges->delete)
-                                                                            <a href="#"
-                                                                                class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                                data-url="{{ url('expense/dsa-claim/' . $dsaclaim->id) }}"><i
-                                                                                    class="fa fa-trash"></i> DELETE</a>
-                                                                            @endif
+                                                                          
                                                                         </td>
                                                                     </tr>
                                                                     @empty
@@ -396,24 +398,12 @@
                                                                         </td>
                                                                         <td class="text-center">
                                                                             @if ($privileges->view)
-                                                                            <a href="{{ url('expense/transfer-claim/' . $transferclaim->id) }}"
+                                                                            <a href="{{ url('expense/transfer-claim-approval/' . $transferclaim->id) }}"
                                                                                 class="btn btn-sm btn-outline-secondary"><i
                                                                                     class="fa fa-list"></i>
                                                                                 Detail</a>
                                                                             @endif
-                                                                            @if ($privileges->edit)
-                                                                            <a href="{{ url('expense/transfer-claim/' . $transferclaim->id . '/edit') }}"
-                                                                                class=" btn btn-sm btn-rounded btn-outline-success"><i
-                                                                                    class="fa fa-edit"></i>
-                                                                                EDIT</a>
-                                                                            @endif
-                                                                            @if ($privileges->delete)
-                                                                            <a href="#"
-                                                                                class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                                data-url="{{ url('expense/transfer-claim/' . $transferclaim->id) }}"><i
-                                                                                    class="fa fa-trash"></i>
-                                                                                DELETE</a>
-                                                                            @endif
+                                                                    
                                                                         </td>
 
                                                                     </tr>

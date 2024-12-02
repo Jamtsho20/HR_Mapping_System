@@ -1,13 +1,15 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Expense Details')
 @section('buttons')
-<a href="{{ url('expense/apply-expense/')}}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Expense
+<a href="{{ url('expense/approval/')}}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Expense
     List</a>
 @endsection
 @section('content')
 
 
 <div class="row">
+    @include('components.employee-details', ['empDetails' => $empDetails])
+
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">

@@ -35,4 +35,8 @@ class LeaveEncashmentApplication extends Model
             }
         });
     }
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
 }
