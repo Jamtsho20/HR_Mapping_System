@@ -128,7 +128,10 @@ class LTCController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $ltc = LeaveTravelConcession::whereId($id)->first();
+        $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
+
+        return view('payroll.ltc.edit', compact('ltc', 'details'));
     }
 
     /**

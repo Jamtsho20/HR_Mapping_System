@@ -142,7 +142,7 @@ Route::middleware('auth')->group(function () {
         // Custom route for bulk approval/rejection
         Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
         Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
-    
+
         Route::get('/send-encashment-notifications', [DashboardController::class, 'sendEncashmentNotification']);
 
 
@@ -190,7 +190,7 @@ Route::middleware('auth')->group(function () {
 
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
-        Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
+        Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
