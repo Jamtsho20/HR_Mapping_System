@@ -349,8 +349,9 @@ class AjaxRequestController extends Controller
         $modelMap = [
             1 => LeaveApplication::class,
             2 => ExpenseApplication::class,
-            3 => AdvanceApplication::class,
+            3 => DsaClaimApplication::class,
             4 => TransferClaimApplication::class,
+            5 => TravelAuthorizationApplication::class,
         ];
 
         $model = $modelMap[$request->item_type_id] ?? null;
