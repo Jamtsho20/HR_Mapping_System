@@ -29,6 +29,9 @@ class TransferClaimApplication extends Model
     public function user(){
         return $this->belongsTo(User::class,'created_by');
     }
+    public function transfer_approved_by(){
+        return $this->belongsTo(User::class,'updated_by');
+    }
 
     public function type(){
         return $this->belongsTo(MasTransferClaim::class, 'transfer_claim_id');

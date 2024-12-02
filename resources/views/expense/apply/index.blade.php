@@ -112,7 +112,6 @@
                                                                         $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
                                                                         $statusClass = $statusClasses[$expense->status] ?? 'badge bg-secondary';
                                                                         @endphp
-
                                                                         <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                     </td>
                                                                     <td class="text-center">
@@ -136,13 +135,11 @@
                                                                             DELETE</a>
                                                                         @endif
                                                                     </td>
-
                                                                 </tr>
                                                                 @empty
                                                                 <tr>
                                                                     <td colspan="8"
-                                                                        class="text-center text-danger">No
-                                                                        records found</td>
+                                                                        class="text-center text-danger">No records found</td>
                                                                 </tr>
                                                                 @endforelse
                                                             </tbody>
