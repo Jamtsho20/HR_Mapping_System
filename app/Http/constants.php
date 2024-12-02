@@ -45,3 +45,11 @@ const TRAVEL_ALLOWANCE = 1200;
 
 //leave type constant
 const EARNED_LEAVE = 2;
+
+
+// SAP constants;
+const SAP_BASE_URL = "https://192.168.196.8";
+const SAP_PORT = 50000;
+const SAP_CONPANY_DB = "ZTEST_DB";
+const SAP_USERNAME = "TEST04";
+const SAP_PASSWORD = "Sap@2024";

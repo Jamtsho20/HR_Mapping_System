@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\LTC;
+namespace App\Http\Controllers\Payroll;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveTravelConcession;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
@@ -27,20 +28,15 @@ use Illuminate\Support\Facades\Route;
  */
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
 
-Route::get('/test-payslip', function () {
-    return   PayrollService::checkFormulaValidity(
-        "IF (['EMPLOYMENT_TYPE'] == 'Regular')
-THEN ([BASIC_PAY] * 0.15)
-ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
-THEN ([BASIC_PAY] * 0.15)
-ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
-THEN ([BASIC_PAY] * 0.05)
-ELSE
-THEN 0
-ENDIF"
-    );
+Route::get('/debug', function () {
+    $sap = new ApiController();
+
+    $session = $sap->startSession();
+
+    return $session;
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -249,28 +245,7 @@ Route::middleware('auth')->group(function () {
     });
 
     //Payroll
-    Route::namespace('Payroll')->prefix('payroll')->group(function () {
-        Route::resource('other-pay-changes', 'OtherPayChangeController');
-        Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
-        Route::resource('annual-increment', 'AnnualIncrementController');
-        Route::resource('pay-slips', 'PaySlipController');
-
-        Route::get('process-pay-slips/{id}', 'PaySlipController@processPaySlip')->name('pay-slips.process');
-        Route::get('verify-pay-slips/{id}', 'PaySlipController@verifyPaySlip')->name('pay-slips.verify');
-        Route::get('approve-pay-slips/{id}', 'PaySlipController@approvePaySlip')->name('pay-slips.approve');
-        Route::get('mail-pay-slips/{id}', 'PaySlipController@mailPaySlip')->name('pay-slips.mail');
-        Route::any('add-pay-slip-detail/{id}', 'PaySlipController@addPaySlipDetail')->name('pay-slip-detail.add');
-
-        Route::patch('annual-increment-toggle-status', 'AnnualIncrementController@toggleStatus')->name('annual-increment.toggles-status');
-        Route::patch('annual-increment-update-remarks', 'AnnualIncrementController@updateRemarks')->name('annual-increment.update-remarks');
-        Route::get('annual-increment-finalize/{id}', 'AnnualIncrementController@finalizeAnnualIncrement')->name('annual-increment.finalize');
-
-        Route::get('calculate-new-basic-pay', 'OtherPayChangeController@calculateNewBasicPay')->name('new-basic-pay.calculate');
-        Route::any('add-other-pay-change-detail/{id}', 'OtherPayChangeController@addPayChangeDetail')->name('other-pay-change-detail.add');
-        Route::patch('other-pay-changes-toggle-status', 'OtherPayChangeController@toggleStatus')->name('other-pay-changes.toggles-status');
-        Route::patch('other-pay-changes-update-remarks', 'OtherPayChangeController@updateRemarks')->name('other-pay-changes.update-remarks');
-        Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
-    });
+    require __DIR__ . '/payroll.php';
 
     //EmployeeCategory
     Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
