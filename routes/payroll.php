@@ -11,6 +11,8 @@
 |
  */
 
+use App\Http\Controllers\Payroll\LTCController;
+
  Route::namespace('Payroll')->prefix('payroll')->group(function () {
     Route::resource('other-pay-changes', 'OtherPayChangeController');
     Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
@@ -34,4 +36,6 @@
     Route::patch('other-pay-changes-toggle-status', 'OtherPayChangeController@toggleStatus')->name('other-pay-changes.toggles-status');
     Route::patch('other-pay-changes-update-remarks', 'OtherPayChangeController@updateRemarks')->name('other-pay-changes.update-remarks');
     Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
+
+    Route::post('ltc-finalize', [LTCController::class, 'finalizeLtc'])->name('ltc.finalize');
 });
