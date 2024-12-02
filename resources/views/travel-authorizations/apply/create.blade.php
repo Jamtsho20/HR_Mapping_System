@@ -151,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const travelType = document.getElementById('travel_type');
     const travelNo = document.getElementById('travel_no');
     
-    
     let manualEdit = false;
 
 
@@ -198,7 +197,20 @@ if (event.target && event.target.matches('.delete-row')) {
     calculateEstimatedTravelExpenses(); 
 }
 });
+document.querySelector('#advance_required').addEventListener('change', function(event) {
+    // Get the input values
+    const dailyAllowance = parseFloat(document.querySelector('#daily_allowance').value) || 0;
+    const advanceAmount = parseFloat(event.target.value) || 0; // Value from the current input
+    const totalDays = parseFloat(document.querySelector('#days_difference').value) || calculateDaysDifference();
 
+    // Check if advanceAmount exceeds estimated travel expenses
+    if (advanceAmount > (totalDays * dailyAllowance)) {
+        const advanceRequiredInput = document.getElementById('advance_required');
+        advanceRequiredInput.value=0;
+        calculateEstimatedTravelExpenses(); 
+        alert('Advance amount exceeds the estimated travel expenses!');
+    }
+});
 
 document.querySelector('#travel_type').addEventListener('change', function(event) {
     if (travel_type.value){
