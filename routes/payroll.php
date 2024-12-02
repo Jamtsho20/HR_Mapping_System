@@ -38,4 +38,7 @@ use App\Http\Controllers\Payroll\LTCController;
     Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
 
     Route::post('ltc-finalize', [LTCController::class, 'finalizeLtc'])->name('ltc.finalize');
+    Route::post('ltc-toggles-status', [LTCController::class, 'toggleStatus'])->name('ltc.toggles-status');
+    Route::post('ltc-toggles-status', [LTCController::class, 'toggleStatus'])->name('ltc.toggles-status');
+    Route::post('ltc-update-remarks', [LTCController::class, 'toggleStatus'])->name('ltc.update-remarks');
 });
