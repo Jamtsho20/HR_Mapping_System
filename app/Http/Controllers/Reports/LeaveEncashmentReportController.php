@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\LeaveEncashmentApplication;
+use App\Models\MasDepartment;
+use App\Models\MasSection;
 use Illuminate\Http\Request;
 
 class LeaveEncashmentReportController extends Controller
@@ -20,8 +23,11 @@ class LeaveEncashmentReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-
-        return view('report.leave-encashment-report.index', compact('privileges'));
+        $departments = MasDepartment::select('name', 'id')->get();
+        $sections = MasSection::select('name', 'id')->get();
+        $leaveEncashments = LeaveEncashmentApplication::where('status', '=', 2)->get();
+       
+        return view('report.leave-encashment-report.index', compact('privileges', 'departments', 'sections', 'leaveEncashments'));
     }
 
 

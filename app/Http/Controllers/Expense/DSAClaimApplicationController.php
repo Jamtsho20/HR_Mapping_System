@@ -171,7 +171,9 @@ class DSAClaimApplicationController extends Controller
      */
     public function show($id)
     {
-        //
+        $dsa = DsaClaimApplication::findOrfail($id);
+        $empDetails = empDetails($dsa->created_by);     
+        return view('expense.apply.dsa-show', compact('dsa', 'empDetails'));
     }
 
     /**

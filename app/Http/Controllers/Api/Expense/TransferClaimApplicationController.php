@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Expense;
+namespace App\Http\Controllers\Api\Expense;
+
 
 use App\Http\Controllers\Controller;
 use App\Models\MasTransferClaim;
@@ -9,9 +10,12 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Traits\JsonResponseTrait;
+use App\Models\MasExpenseType;
 
 class TransferClaimApplicationController extends Controller
 {
+    use JsonResponseTrait;
     /**
      * Display a listing of the resource.
      *
@@ -19,10 +23,7 @@ class TransferClaimApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/transfer-claim,view')->only('index');
-        $this->middleware('permission:expense/transfer-claim,create')->only('store');
-        $this->middleware('permission:expense/transfer-claim,edit')->only('update');
-        $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
+        $this->middleware('auth:api'); 
     }
     private $filePath = 'images/files/';
 
@@ -39,13 +40,18 @@ class TransferClaimApplicationController extends Controller
 
     public function index(Request $request)
     {
-        $privileges = $request->instance();
-        $empIdName = LoggedInUserEmpIdName();
-        $user = loggedInUser();
-
-        $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
-
-        return view('expense.transfer-claim.index', compact('privileges', 'transferClaims', 'empIdName'));
+        try{ 
+            
+            $empIdName = LoggedInUserEmpIdName();
+            $user = loggedInUser();
+    
+            $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
+            return $this->successResponse([$transferClaims,  $empIdName], 'Expense applications retrieved successfully');
+         
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to retrieve applications', 500);
+        }
+       
     }
 
     /**
@@ -55,9 +61,13 @@ class TransferClaimApplicationController extends Controller
      */
     public function create()
     {
-        $empIdName = LoggedInUserEmpIdName();
-        $trasnferClaim = MasTransferClaim::get();
-        return view('expense.transfer-claim.create', compact('trasnferClaim', 'empIdName'));
+        try {
+            
+            $trasnferClaim = MasTransferClaim::get();
+            return $this->successResponse([$trasnferClaim], 'Expense applications create function retrieved successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to retrieve applications', 500);
+        }
     }
 
     /**
@@ -67,7 +77,8 @@ class TransferClaimApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {   try {
+        
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -120,8 +131,8 @@ class TransferClaimApplicationController extends Controller
                     $emailSubject = 'Transfer Claim Application';
                     // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                 }
-
-                return redirect('expense/apply-expense')->with('msg_success', 'Transfer Claim applied successfully');
+                return $this->successResponse($transferClaimApplication, 'Transfer Claim applied successfully');
+                
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error($e->getMessage());
@@ -130,6 +141,10 @@ class TransferClaimApplicationController extends Controller
         } else {
             return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }
+    }catch (\Illuminate\Validation\ValidationException $e) {
+        return $this->errorResponse('Failed to create application', 500);
+    }
+       
     }
 
     /**
@@ -139,13 +154,13 @@ class TransferClaimApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        $empIdName = LoggedInUserEmpIdName();
+    {   try {
 
         $transfer = TransferClaimApplication::findOrfail($id);
-     
-
-        return view('expense.transfer-claim.show', compact('transfer', 'empIdName'));
+        return $this->successResponse([$transfer], 'Expense applications show function retrieved successfully');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -172,28 +187,33 @@ class TransferClaimApplicationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, $this->rules, $this->messages);
-        $transfer = TransferClaimApplication::findOrFail($id);
+        try {
 
-        if ($request->hasFile('attachment')) {
-            // Upload file and get the file path
-            $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
-
-            // Store it as a JSON array
-            $attachment = json_encode([$attachmentPath]);
-        } else {
-            $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
+            $this->validate($request, $this->rules, $this->messages);
+            $transfer = TransferClaimApplication::findOrFail($id);
+    
+            if ($request->hasFile('attachment')) {
+                // Upload file and get the file path
+                $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+    
+                // Store it as a JSON array
+                $attachment = json_encode([$attachmentPath]);
+            } else {
+                $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
+            }
+    
+            $transfer->transfer_claim_id = $request->transfer_claim;
+            $transfer->current_location = $request->current_location;
+            $transfer->new_location = $request->new_location;
+            $transfer->distance_travelled = $request->distance_travelled;
+            $transfer->amount_claimed = $request->amount_claimed;
+            $transfer->attachment = $attachment ?? $transfer->attachment;
+            $transfer->save();
+            return $this->successResponse($transfer, 'Transfer Claim Updated successfully');
+        }catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->errorResponse('Failed to update application', 500);
         }
-
-        $transfer->transfer_claim = $request->transfer_claim;
-        $transfer->current_location = $request->current_location;
-        $transfer->new_location = $request->new_location;
-        $transfer->distance_travelled = $request->distance_travelled;
-        $transfer->amount_claimed = $request->amount_claimed;
-        $transfer->attachment = $attachment ?? $transfer->attachment;
-        $transfer->save();
-
-        return redirect('expense/transfer-claim')->with('msg_success', 'Transfer Claim Updated successfully');
+       
     }
 
     /**
@@ -207,9 +227,24 @@ class TransferClaimApplicationController extends Controller
         try {
             TransferClaimApplication::findOrFail($id)->delete();
 
-            return back()->with('msg_success', 'Transfer Claim Application has been deleted');
+            return $this->successResponse($id, 'Transfer Claim Application has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Transfer Claim Application cannot be deleted as it is used by other modules.');
+            return $this->errorResponse('Transfer Claim Application cannot be deleted as it is used by other modules.');
         }
+    }
+
+    public function getTransferClaimNumber()
+    {
+        $claimCode = MasExpenseType::where('id', 4)->pluck('code')[0];
+
+        $latestTransaction = TransferClaimApplication::latest('id')->first();
+
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->transfer_claim_no, -4) + 1 : 1;
+
+        // Generate the new advance number with the incremented sequence
+        $claimNo = generateTransactionNumber($claimCode, $nextSequence);
+
+        return $this->successResponse($claimNo, 'Transfer Claim Number');
     }
 }
