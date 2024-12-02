@@ -228,23 +228,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($notifications as $index => $notification)
+                            @if($notifications != null)
+                            @foreach($notifications as $index => $notification)
                             <tr class="notification-row" data-id="{{ $notification->id }}">
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $notification->title }}</td>
                                 <td>{{ $notification->message }}</td>
                             </tr>
-                            @empty
+                            @endforeach
+                            @if($leaveEncashmentNotification)
+                            <tr>
+                                <td colspan="3" class="text-center text-info">
+                                    {{ $leaveEncashmentNotification }}
+                                </td>
+                            </tr>                          
+                            @endif
+                            @else
+
                             <tr>
                                 <td colspan="3" class="text-center">No notifications available.</td>
                             </tr>
-                            @endforelse
+                            @endif
+
+
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     @endsection

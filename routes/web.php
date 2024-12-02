@@ -146,6 +146,10 @@ Route::middleware('auth')->group(function () {
         // Custom route for bulk approval/rejection
         Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
         Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
+    
+        Route::get('/send-encashment-notifications', [DashboardController::class, 'sendEncashmentNotification']);
+
+
     });
 
     // DELEGATION APPROVAL
