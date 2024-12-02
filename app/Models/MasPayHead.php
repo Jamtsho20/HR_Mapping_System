@@ -12,8 +12,9 @@ class MasPayHead extends Model
     protected $fillable = [
         'payhead_type',
         'name',
-        'account_head_id',
         'code',
+        'general_ledger_code',
+        'account_head_id',
         'calculation_method',
         'calculated_on',
         'amount',

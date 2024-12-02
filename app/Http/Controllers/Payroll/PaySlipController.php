@@ -147,25 +147,25 @@ class PaySlipController extends Controller
     public function processPaySlip($id, Request $request)
     {
         // try {
-            $status = $request->query('status');
-            $paySlip = PaySlip::where('status', 1)->find($id);
+        $status = $request->query('status');
+        $paySlip = PaySlip::where('status', 1)->find($id);
 
-            if (!$paySlip) {
-                return redirect()->back()->with('msg_error', 'Payslip not found.');
-            }
+        if (!$paySlip) {
+            return redirect()->back()->with('msg_error', 'Payslip not found.');
+        }
 
-            $result = $this->payrollService->processPaySlip($paySlip);
-            if (!$result) {
-                Log::error('Error processing payslip: ' . $result);
+        $result = $this->payrollService->processPaySlip($paySlip);
+        if (!$result) {
+            Log::error('Error processing payslip: ' . $result);
 
-                return redirect()->back()->with('msg_error', 'An error occurred while processing the payslip.');
-            }
+            return redirect()->back()->with('msg_error', 'An error occurred while processing the payslip.');
+        }
 
-            $this->payrollService->updateStatus($paySlip, $status);
+        $this->payrollService->updateStatus($paySlip, $status);
 
-            $month = Carbon::parse($paySlip->for_month)->format('F Y');
+        $month = Carbon::parse($paySlip->for_month)->format('F Y');
 
-            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
+        return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
         // } catch (\Exception $e) {
         //     Log::error('Error processing payslip: ' . $e->getMessage());
 
@@ -256,7 +256,74 @@ class PaySlipController extends Controller
             $amount = $request->amount;
 
             $paySlipDetail = new PaySlipDetail();
+
             $paySlipDetail->pay_slip_id = $id;
+            $paySlipDetail->mas_employee_id = $employeeId;
+            $paySlipDetail->mas_pay_head_id = $payHeadId;
+            $paySlipDetail->amount = $amount;
+
+            $paySlipDetail->save();
+
+            $paySlip = $paySlipDetail->paySlip;
+            $employee = $paySlipDetail->employee;
+            $payHead = MasPayHead::whereId($payHeadId)->first();
+            $column = str_replace(" ", "_", $payHead->name);
+
+            if (!Schema::hasColumn('pay_slip_detail_views', $column)) {
+                Schema::table('pay_slip_detail_views', function (Blueprint $table) use ($column) {
+                    $table->decimal($column, 15, 2)->nullable()->before('net_pay');
+                });
+            }
+
+            $allowance = $payHead->accountHead;
+            $paySlipDetailView = PaySlipDetailView::whereMasEmployeeId($employeeId)->whereForMonth($paySlip->for_month)->firstOrFail();
+
+            PaySlipDetailView::unguard();
+
+            $paySlipDetailView->update([$column => $amount]);
+
+            if ($allowance) { // Allowance
+                if ($allowance->type == 1) {
+                    $paySlipDetailView->update([
+                        'gross_pay' => ($paySlipDetailView->gross_pay + $amount),
+                        'net_pay' => ($paySlipDetailView->net_pay + $amount),
+                    ]);
+                } elseif ($allowance->type == 2) { // Deduction
+                    $paySlipDetailView->update([
+                        'net_pay' => ($paySlipDetailView->net_pay - $amount),
+                    ]);
+                }
+            }
+            PaySlipDetailView::reguard();
+
+            DB::commit();
+
+            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been added successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error adding payslip detail: ' . $e->getMessage());
+
+            return redirect()->back()->with('msg_error', 'An unexpected error occurred while adding the payslip detail.');
+        }
+    }
+
+    public function updatePaySlipDetail(Request $request, $payslipId, $id)
+    {
+        $request->validate([
+            'mas_employee_id' => 'required|exists:mas_employees,id',
+            'mas_pay_head_id' => 'required|exists:mas_pay_heads,id',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $employeeId = $request->mas_employee_id;
+            $payHeadId = $request->mas_pay_head_id;
+            $amount = $request->amount;
+
+            $paySlipDetail = PaySlipDetail::findOrFail($id);
+
+            $paySlipDetail->pay_slip_id = $payslipId;
             $paySlipDetail->mas_employee_id = $employeeId;
             $paySlipDetail->mas_pay_head_id = $payHeadId;
             $paySlipDetail->amount = $amount;
@@ -274,7 +341,7 @@ class PaySlipController extends Controller
             }
 
             $allowance = $payHead->accountHead;
-            $paySlipDetailView = PaySlipDetailView::whereMasEmployeeId($employeeId)->whereForMonth($paySlip->for_month)->first();
+            $paySlipDetailView = PaySlipDetailView::whereMasEmployeeId($employeeId)->whereForMonth($paySlip->for_month)->firstOrFail();
 
             PaySlipDetailView::unguard();
 
@@ -282,21 +349,26 @@ class PaySlipController extends Controller
 
             if ($allowance) { // Allowance
                 if ($allowance->type == 1) {
-                    $paySlipDetailView->update(['gross_pay' => ($paySlipDetailView->gross_pay + $amount), 'net_pay' => ($paySlipDetailView->net_pay + $amount)]);
+                    $paySlipDetailView->update([
+                        'gross_pay' => ($paySlipDetailView->gross_pay + $amount),
+                        'net_pay' => ($paySlipDetailView->net_pay + $amount),
+                    ]);
                 } elseif ($allowance->type == 2) { // Deduction
-                    $paySlipDetailView->update(['net_pay' => ($paySlipDetailView->net_pay - $amount)]);
+                    $paySlipDetailView->update([
+                        'net_pay' => ($paySlipDetailView->net_pay - $amount),
+                    ]);
                 }
             }
             PaySlipDetailView::reguard();
 
             DB::commit();
 
-            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been added successfully');
+            return redirect()->route('pay-slips.show', $payslipId)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been updated successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error adding payslip detail: ' . $e->getMessage());
+            Log::error('Error updating payslip detail: ' . $e->getMessage());
 
-            return redirect()->back()->with('msg_error', 'An unexpected error occurred while adding the payslip detail.');
+            return redirect()->back()->with('msg_error', 'An unexpected error occurred while updating the payslip detail.');
         }
     }
 }

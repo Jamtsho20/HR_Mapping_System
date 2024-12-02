@@ -6,6 +6,7 @@ use App\Models\MasPayHead;
 use App\Models\MasPaySlab;
 use App\Models\MasPayGroup;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Services\PayrollService;
 use App\Models\MasAccAccountHead;
 use App\Http\Controllers\Controller;
@@ -55,6 +56,7 @@ class PayHeadsController extends Controller
         $validatedData = $request->validate([
             'payhead_type' => 'required',
             'account_head_id' => 'required',
+            'general_ledger_code' => 'required',
             'name' => 'required|max:150',
             'code' => 'required|max:50',
             'calculation_method' => 'required',
@@ -65,8 +67,7 @@ class PayHeadsController extends Controller
             'formula' => 'nullable|string',
         ]);
 
-
-        if($request->formula != null) {
+        if ($request->formula != null) {
             $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
             if (!$formulaCheckResult['success']) {
                 return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');
@@ -101,7 +102,10 @@ class PayHeadsController extends Controller
         $validatedData = $request->validate([
             'payhead_type' => 'required',
             'account_head_id' => 'required',
-            'name' => 'required|max:150',
+            'general_ledger_code' => [
+                'required',
+                Rule::unique('mas_pay_heads', 'general_ledger_code')->ignore($id),
+            ], 'name' => 'required|max:150',
             'code' => 'required|max:50',
             'calculation_method' => 'required',
             'calculated_on' => 'nullable',
@@ -111,7 +115,7 @@ class PayHeadsController extends Controller
             'formula' => 'nullable|string',
         ]);
 
-        if($request->formula != null) {
+        if ($request->formula != null) {
             $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
             if (!$formulaCheckResult['success']) {
                 return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');

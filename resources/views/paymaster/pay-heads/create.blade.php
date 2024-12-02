@@ -29,29 +29,26 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="gl_code">GL Code <span class="text-danger">*</span></label>
-                        <input type="text" name="gl_code" id="gl_code" class="form-control"   >
+                        <label for="general_ledger_code">GL Code <span class="text-danger">*</span></label>
+                        <input type="text" name="general_ledger_code" id="general_ledger_code" class="form-control"value="{{ old('general_ledger_code') }}" />
                     </div>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="name" class="form-control" required>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="code">Code <span class="text-danger">*</span></label>
-                        <input type="text" name="code" id="code" class="form-control"   >
+                        <input type="text" name="code" id="code" class="form-control" value="{{ old('code') }}" required />
                     </div>
                 </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="calculation_method">Calculation Method <span class="text-danger">*</span></label>
                         <select name="calculation_method" id="calculation_method" class="form-control" required>
@@ -66,6 +63,9 @@
                         </select>
                     </div>
                 </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group" id="calculated_on_wrapper" style="display: none;">
                         <label for="calculated_on">Calculated On <span class="text-danger">*</span></label>
