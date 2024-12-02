@@ -18,7 +18,7 @@
                   <select class="form-control" id="travel_mode" name="mode_of_travel">
                       <option value="" disabled selected hidden>Select your option</option>
                       @foreach(config('global.travel_modes') as $key => $label)
-                        <option value="{{ $key }}" {{ old('mode_of_travel') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                      <option value="{{ $key }}" {{ old('mode_of_travel') == $key ? 'selected' : '' }}>{{ $label }}</option>
                       @endforeach
                   </select>
               </div>

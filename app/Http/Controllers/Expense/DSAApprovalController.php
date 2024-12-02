@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\Controller;
+use App\Models\DsaClaimApplication;
 use Illuminate\Http\Request;
 
 class DSAApprovalController extends Controller
@@ -55,7 +56,9 @@ class DSAApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+        $dsa = DsaClaimApplication::findOrfail($id);
+        $empDetails = empDetails($dsa->created_by);
+        return view('expense.approval.dsa-show', compact('dsa', 'empDetails'));
     }
 
     /**

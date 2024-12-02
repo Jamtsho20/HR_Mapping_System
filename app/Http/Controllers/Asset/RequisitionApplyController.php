@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasDepartment;
+use App\Models\MasDzongkhag;
+use App\Models\MasStore;
 use Illuminate\Http\Request;
 
 class RequisitionApplyController extends Controller
@@ -19,8 +22,14 @@ class RequisitionApplyController extends Controller
      public function index(Request $request)
      {
          $privileges = $request->instance();
- 
-         return view('asset.requisition-apply.index', compact('privileges'));
+         $user=auth()->user();
+         $dzongkhags=MasDzongkhag::get();
+         $stores=MasStore::get();
+      
+      
+       
+       
+         return view('asset.requisition-apply.index', compact('privileges','user','dzongkhags','stores'));
      }
  
      /**

@@ -27,13 +27,27 @@
                                                         <tr role="row">
                                                             <th>#</th>
                                                             <th>
-                                                                Employee Name
+                                                                EMPLOYEE NAME
                                                             </th>
                                                             <th>
-                                                                Is Sifa Registered
+                                                                DESIGNATION
                                                             </th>
                                                             <th>
-                                                                Action
+                                                                SECTION
+                                                            </th>
+
+                                                            <th>
+                                                                DEPARTMENT
+                                                            </th>
+
+                                                            <th>
+                                                                IS SIFA REGISTERED
+                                                            </th>
+                                                            <th>
+                                                                STATUS
+                                                            </th>
+                                                            <th>
+                                                                ACTION
                                                             </th>
                                                         </tr>
                                                     </thead>
@@ -42,6 +56,13 @@
                                                         <tr>
                                                             <td>1</td>
                                                             <td>{{ $sifaRegistration->employee->emp_id_name }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->designation->name ?? 'N/A' }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->section->name ?? 'N/A' }}</td>
+                                                            <td>{{ $sifaRegistration->employee->empJob->department->name ?? 'N/A' }}</td>
+                                                            <td class="text-center">
+                                                                {!! $sifaRegistration->is_registered ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}
+                                                            </td>
+
                                                             <td class="text-center">
                                                                 @php
                                                                 $statusClasses = [
@@ -79,7 +100,7 @@
                                                         </tr>
                                                         @else
                                                         <tr>
-                                                            <td colspan="4" class="text-center text-danger">No Sifa Registration record found</td>
+                                                            <td colspan="7" class="text-center text-danger">No Sifa Registration record found</td>
                                                         </tr>
                                                         @endif
                                                     </tbody>

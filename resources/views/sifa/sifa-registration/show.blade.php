@@ -36,16 +36,15 @@
         <ul class="list-group list-group-unbordered">
             <li class="list-group-item">
                 <Strong>Approved By</strong>
-                <span class="pull-right">{{ $sifaRegistration->approved_by ?? 'Not Approved' }}</span>
+                <span class="pull-right">{{$sifaRegistration->status == 3 ?$sifaRegistration->sifa_approved_by->name:'N/A'}}</span>
             </li>
             <li class="list-group-item">
                 <strong>Rejected By</strong>
-                <span class="pull-right">{{ $sifaRegistration->rejected_by ?? 'Not Rejected' }}</span>
+                <span class="pull-right">{{$sifaRegistration->status == -1 ?$sifaRegistration->sifa_approved_by->name:'N/A'}}</span>
             </li>
         </ul>
     </div>
 </div>
-
 
 @endsection
 

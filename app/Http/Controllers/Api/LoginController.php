@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Role;
+use App\Models\SystemMenu;
 
 class LoginController extends Controller
 {
@@ -20,18 +22,21 @@ class LoginController extends Controller
         try {
             // $user = User::with('empJob')->where('email', $request->username)->orWhere('username', $request->username)->first();
             $user = User::with([
-                'empJob.department:id,name',      // Only load the department name
+                'empJob.department:id,name,mas_employee_id',      // Only load the department name
+                'empJob.department.departmentHead:id,name',
                 'empJob.section:id,name',         // Only load the section name
                 'empJob.designation:id,name',     // Only load the designation name
                 'empJob.grade:id,name',           // Only load the grade name
                 'empJob.gradeStep:id,name',       // Only load the grade step name
                 'empJob.empType:id,name',         // Only load the employment type name
                 'empJob.supervisor:id,name,username', // Only load the supervisor's name
-                'empJob.office:id,name'           // Only load the office name
+                'empJob.office:id,name',           // Only load the office name
+                'roles:id,name' 
             ])->where('email', $request->username)
               ->orWhere('username', $request->username)
               ->first();
-          
+              $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
+              
             // If user found, return as JSON
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
@@ -43,10 +48,16 @@ class LoginController extends Controller
                 ], 401);
             }
 
+            
+            $menus = $this->menuAccessibleByRole($roleIds);
+            
+            
             $token = $user->createToken($request->username)->plainTextToken;
+
             return response()->json([ 
                 'message' => 'Authenticated',
                 'user' => $user,
+                'menus' => $menus,
                 'token' => $token,
             ], 200);
 
@@ -103,5 +114,32 @@ class LoginController extends Controller
                 'message' => 'Something went wrong.',
             ], 500);
         }
+    }
+
+    private function menuAccessibleByRole($role)
+    {
+        $userRoles = $role->toArray();
+
+        $menus = SystemMenu::select('id', 'name', 'display_order')->with(['systemSubMenus' => function ($query) use ($userRoles) {
+            $query->select('system_sub_menus.id', 'system_sub_menus.system_menu_id', 'system_sub_menus.name', 'system_sub_menus.route')
+            ->join('role_permissions', 'system_sub_menus.id', '=', 'role_permissions.system_sub_menu_id') // Join role_permissions
+            ->whereIn('role_permissions.role_id', $userRoles) // Check if the user has one of the roles
+            ->where('role_permissions.view', 1) // Optional: Filter by view permission
+            ->where('system_sub_menus.visible', 1) // Ensure the submenu is visible
+            ->orderBy('system_sub_menus.display_order')
+            ->addSelect([
+                'view' => 'role_permissions.view',  // Select the "view" permission
+                'edit' => 'role_permissions.edit',  // Select the "edit" permission
+                'create' => 'role_permissions.create', // Select the "create" permission
+                'delete' => 'role_permissions.delete'
+            ]);
+    }])
+        ->orderBy('display_order')->get()
+        ->filter(function ($menu) {
+            return $menu->systemSubMenus->isNotEmpty();
+        });
+       
+        
+        return $menus->values();
     }
 }

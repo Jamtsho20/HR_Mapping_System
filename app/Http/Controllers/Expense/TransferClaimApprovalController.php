@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\Controller;
+use App\Models\TransferClaimApplication;
 use Illuminate\Http\Request;
 
 class TransferClaimApprovalController extends Controller
@@ -44,7 +45,7 @@ class TransferClaimApprovalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
     }
 
     /**
@@ -55,7 +56,12 @@ class TransferClaimApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+
+        $transfer = TransferClaimApplication::findOrfail($id);
+        $empDetails = empDetails($transfer->created_by);   
+
+
+        return view('expense.approval.transfer-show', compact('transfer', 'empDetails'));
     }
 
     /**

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Dashboard')
+@section('page-title', 'Leave Availed Report')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
@@ -70,7 +70,7 @@
                                             style="overflow: scroll; position: relative; border: 0px; width: 100%;">
                                             <div class="dataTables_scrollHeadInner"
                                                 style="box-sizing: content-box; padding-right: 0px;">
-                                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
+                                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
                                                     <thead class="thead-light">
                                                         <tr role="row">
                                                             <th>

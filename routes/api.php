@@ -5,7 +5,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
+use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
+use App\Http\Controllers\Api\v1\Advance\AdvanceLoanApprovalController;
+use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
+use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
@@ -38,13 +42,25 @@ Route::middleware('api.access.log')->group(function () {
     });
 });
 
-Route::namespace('Api\Expense')->prefix('expense')->middleware('auth:sanctum')->group(function () {
-    // Route::resource('apply-expense', 'ExpenseApplicationController');
-    Route::get('expense/apply-expense', [ExpenseApplicationController::class, 'index']);
-    Route::get('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'show']);
-    Route::put('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'update']);
-    Route::post('expense/apply-expense', [ExpenseApplicationController::class, 'store']);
-    Route::delete('expense/apply-expense/{id}', [ExpenseApplicationController::class, 'destroy']);
+Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
+    Route::resource('expense', 'ExpenseApplicationController');
+    Route::get('expense_number/{id}', [ExpenseApplicationController::class, 'fetchExpenseNumber']);
+
+    //Transfer Claim
+    Route::resource('trasnfer_claim', 'TransferClaimApplicationController');
+    Route::get('transfer_claim_number', [TransferClaimApplicationController::class, 'getTransferClaimNumber']);
+
+    //approval 
+    Route::resource('approval', 'ExpenseApprovalController');
+    Route::post('approval/bulk', [AjaxRequestController::class, 'bulkApprovalRejection']);
+    // Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
+});
+
+Route::namespace('Api\v1\TravelAuthorization')->middleware('auth:sanctum')->group(function () {
+    Route::resource('travel_authorization', 'TravelAuthorizationApplicationController');
+    Route::resource('travel_authorization_approval', 'TravelAuthorizationApprovalController');
+    Route::get('travel_authorization_number/{id}', [TravelAuthorizationApplicationController::class, 'fetchTravelAuthorizationNumber']);
+
 });
 
 
@@ -53,6 +69,8 @@ Route::namespace('Api\v1\Advance')->prefix('advance-loan')->group(function () {
     Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
 
 });
+
+
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
 //     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedInteger('visible')->default(1);
             $table->timestamps();
         });
-    }
+    } 
 
     /**
      * Reverse the migrations.

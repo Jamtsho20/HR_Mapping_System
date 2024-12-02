@@ -37,7 +37,7 @@ class DsaClaimApplication extends Model
 
     public function travel()
     {
-        return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id  ');
+        return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
     }
 
 
@@ -50,5 +50,9 @@ class DsaClaimApplication extends Model
         if($onesOwnRecord){
             $query->where('created_by', auth()->user()->id);
         }
+    }
+    public function expense_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

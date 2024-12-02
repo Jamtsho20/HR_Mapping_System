@@ -2,6 +2,7 @@
 
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
+use Carbon\Carbon;
 use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
 /**
@@ -288,6 +289,15 @@ if (!function_exists('empDetails')) {
     }
 }
 
+
+if (!function_exists('formatDate')) {
+    function formatDate($date)
+    {
+        $carbonDate = Carbon::parse($date);
+        $formatedDate = $carbonDate->format('Y-m-d');
+        return $formatedDate;
+    }
+}
 // if(!function_exists('') ) {
 //     function empDetails($empId)
 //     {

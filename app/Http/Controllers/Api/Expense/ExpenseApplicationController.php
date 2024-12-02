@@ -11,19 +11,28 @@ use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\DsaClaimApplication;
+use App\Models\TransferClaimApplication;
+use App\Models\TravelAuthorizationApplication;
+use App\Http\Controllers\AjaxRequestController;
+use App\Models\AdvanceApplication;
+use App\Models\MasTransferClaim;
+use App\Models\MasTravelType;
+use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
+use App\Services\ApprovalService;
 
 
 class ExpenseApplicationController extends Controller
 {
 
     use JsonResponseTrait;
-    public function __construct()
+    protected $ajaxRequestController;
+    protected $ajax;
+    public function __construct(AjaxRequestController $ajaxRequestController)
     {
         $this->middleware('auth:api'); 
-        $this->middleware('permission:expense/apply-expense,view')->only('index');
-        $this->middleware('permission:expense/apply-expense,create')->only('store');
-        $this->middleware('permission:expense/apply-expense,edit')->only('update');
-        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
+        $this->ajaxRequestController = $ajaxRequestController;
+        $this->ajax = $ajaxRequestController;
     }
 
     protected function rules(Request $request)
@@ -35,6 +44,7 @@ class ExpenseApplicationController extends Controller
             'description' => 'required',
         ];
 
+        // Add conveyance-specific rules if the expense type is CONVEYANCE_EXPENSE
         if ($request->input('expense_type') == CONVEYANCE_EXPENSE) {
             $rules['travel_type'] = 'required';
             $rules['mode_of_travel'] = 'required';
@@ -47,14 +57,37 @@ class ExpenseApplicationController extends Controller
         return $rules;
     }
 
+    protected $messages = [
+        'travel_type.required_if' => 'Travel type is required for the selected expense type.',
+        'mode_of_travel.required_if' => 'Mode of travel is required for the selected expense type.',
+        'travel_from_date.required_if' => 'Travel from date is required for the selected expense type.',
+        'travel_to_date.required_if' => 'Travel to date is required for the selected expense type.',
+        'travel_to_date.date' => 'Travel to date must be equal or greater than travel from date for selected expense type.',
+        'travel_from.required_if' => 'Travel from is required for the selected expense type.',
+        'travel_to.required_if' => 'Travel to is required for the selected expense type.',
+    ];
+
+    private $attachmentPath = 'images/expenses/';
+
     public function index(Request $request)
     {
         try {
-        $expenseApplications = ExpenseApplication::filter($request)
-            ->createdBy()
-            ->paginate(30);
+            $privileges = $request->instance();
+            $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+            $user = loggedInUser();
+            $empIdName = LoggedInUserEmpIdName();
+    
+            $expenseApplications = ExpenseApplication::with(['expenseType:id,name', 'travelType:id,name'])->filter($request)->createdBy()->paginate(config('global.pagination'));
         
-            return $this->successResponse($expenseApplications, 'Expense applications retrieved successfully');
+            $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
+            $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
+        
+            return response()->json([
+                'expenseApplications' => $expenseApplications,
+                'dsaClaimApplications' => $dsaClaimApplications,
+                'transferClaims' => $transferClaims,
+            ]);
+            // return $this->successResponse([$expenseApplications,  $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
             } catch (\Exception $e) {
                 return $this->errorResponse('Failed to retrieve applications', 500);
             }
@@ -72,57 +105,139 @@ class ExpenseApplicationController extends Controller
         }
     }
 
+    public function fetchExpenseNumber($id)
+    {
+        $expenseNo = $this->ajaxRequestController->getExpenseNumber($id);
+
+        return response()->json([
+            'expense_no' => $expenseNo,
+        ]);
+    }
+    
+
+    public function create(Request $request)
+    {
+        try {
+            $itemType = $request->get('item_type', null);
+    
+            // Fetch required data for creating the expense application
+            $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
+            $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+            $empIdName = LoggedInUserEmpIdName(); // Get logged-in user's employee details
+            $travelTypes = MasTravelType::get();
+    
+            $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+            $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+                ->where('created_by', loggedInUser())
+                ->whereNotIn('id', $excludedAdvanceIds)
+                ->get(['id', 'advance_no']);
+    
+            $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
+            $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())
+                ->whereStatus(3)
+                ->get();
+    
+            $dsaClaimNo = $this->ajax->getDsaClaimNumber();
+            $transferClaimNo = $this->ajax->getTransferClaimNumber();
+    
+            // Return JSON response with all the prepared data
+            return response()->json([
+                'success' => true,
+                'message' => 'Expense application create function executed successfully!',
+                'data' => [
+                    'expenses' => $expenses,
+                    'headers' => $headers,
+                    'travelTypes' => $travelTypes,
+                    'empIdName' => $empIdName,
+                    'advances' => $advances,
+                    'transferClaimTypes' => $transferClaimTypes,
+                    'itemType' => $itemType,
+                    'travels' => $travels,
+                    'dsaClaimNo' => $dsaClaimNo,
+                    'transferClaimNo' => $transferClaimNo,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            // Return error response in case of failure
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+
     public function store(Request $request)
-{
+    {
 
-    $validatedData = $request->validate($this->rules($request));
+        $validatedData = $request->validate($this->rules($request));
 
-    $result = $this->handleExpenseApplication($request);
-    
-    if ($result instanceof \Illuminate\Http\RedirectResponse) {
-        return $this->errorResponse('File upload failed.', 400);
+        $result = $this->handleExpenseApplication($request);
+
+        
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $this->errorResponse('File upload failed.', 400);
+        }
+
+        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $approvalService = new ApprovalService();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
+        $date= formatDate(request('date'));
+        
+        try {
+            DB::beginTransaction();
+        
+            $expenseApplication = ExpenseApplication::create([
+                // 'mas_employee_id' => loggedInUser(),
+                'expense_no' => $request->expense_no,
+                'mas_expense_type_id' => $request->expense_type,
+                'date' => $date,
+                'expense_amount' => $request->amount,
+                'description' => $request->description,
+                'file' => $result['file'],
+                'travel_type' => $request->travel_type,
+                'travel_mode' => $request->mode_of_travel,
+                'travel_from_date' => formatDate($request->travel_from_date),
+                'travel_to_date' => formatDate($request->travel_to_date),
+                'travel_from' => $request->travel_from,
+                'travel_to' => $request->travel_to,
+                'status' => $request->status ?? 1,
+            ]);
+
+            // Create a history record
+            $expenseApplication->histories()->create([
+                'approval_option' => $approverByHierarchy['approval_option'],
+                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
+                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
+                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
+                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
+                'status' => $approverByHierarchy['application_status'],
+                'remarks' => $request->remarks,
+                'action_performed_by' => loggedInUser(),
+            ]);
+        
+            DB::commit();
+            if (isset($approverByHierarchy['approver_details'])) {
+                $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->expense_amount . ' is awaiting your approval.';
+                $emailSubject = 'Expense Application';
+                // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
+        
+            return $this->successResponse($expenseApplication, 'Expense application has been successfully created.', 201); 
+        
+        } catch (\Exception $e) {
+            DB::rollBack();
+        
+            \Log::error('Error creating expense application: ' . $e->getMessage());
+        
+            return $this->errorResponse('An error occurred while processing your request.', 500, [
+                'details' => $e->getMessage(),
+            ]);
+        }
+        
     }
-    
-    try {
-        DB::beginTransaction();
-    
-        $expenseApplication = ExpenseApplication::create([
-            'mas_expense_type_id' => $request->expense_type,
-            'date' => $request->date,
-            'expense_amount' => (float) $request->amount,
-            'description' => $request->description,
-            'file' => $result['file'], 
-            'travel_type' => $request->travel_type,
-            'travel_mode' => $request->mode_of_travel,
-            'travel_from_date' => $request->travel_from_date,
-            'travel_to_date' => $request->travel_to_date,
-            'travel_from' => $request->travel_from,
-            'travel_to' => $request->travel_to,
-            'status' => $request->status ?? 1, 
-        ]);
-    
-        // $expenseApplication->histories()->create([
-        //     'level' => 'Test Level', 
-        //     'status' => 1,
-        //     'remarks' => $request->remarks,
-        //     'created_by' => loggedInUser(),
-        // ]);
-    
-        DB::commit();
-    
-        return $this->successResponse($expenseApplication, 'Expense application has been successfully created.', 201); 
-    
-    } catch (\Exception $e) {
-        DB::rollBack();
-    
-        \Log::error('Error creating expense application: ' . $e->getMessage());
-    
-        return $this->errorResponse('An error occurred while processing your request.', 500, [
-            'details' => $e->getMessage(),
-        ]);
-    }
-    
-}
 
 
 public function update(Request $request, $id)
@@ -139,34 +254,25 @@ public function update(Request $request, $id)
         }
 
         $validatedData = $request->validate($this->rules($request));
+        $date= formatDate(request('date'));
 
         try {
             DB::beginTransaction();
 
             $expenseApplication->update([
                 'mas_expense_type_id' => $request->expense_type,
-                'date' => $request->date,
+                'date' => $date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['attachment'] ?? $expenseApplication->file,
                 'travel_type' => $request->travel_type,
                 'travel_mode' => $request->mode_of_travel,
-                'travel_from_date' => $request->travel_from_date,
-                'travel_to_date' => $request->travel_to_date,
+                'travel_from_date' => formatDate($request->travel_from_date),
+                'travel_to_date' => formatDate($request->travel_to_date),
                 'travel_from' => $request->travel_from,
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
             ]);
-
-        
-            // $expenseApplication->histories()->create([
-            //     'level' => 'Test Level',
-            //     'status' => $expenseApplication->status,
-            //     'remarks' => $request->remarks,
-            //     'created_by' => $expenseApplication->created_by,
-            //     'updated_by' => loggedInUser()
-            // ]);
-
            
             DB::commit();
 

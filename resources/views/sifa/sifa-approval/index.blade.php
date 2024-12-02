@@ -6,8 +6,8 @@
 <div class="block">
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="mas_employee_id" class="form-control" value="{{ request()->get('mas_employee_id') }}" placeholder="Search">
+        <div class="col-12 form-group">
+            <input type="text" name="search" class="form-control" value="{{ request()->get('search') }}" placeholder="Enter the Employee ID">
         </div>
         @endcomponent
         <div class="block-content">
@@ -49,7 +49,16 @@
                                                                         EMPLOYEE NAME
                                                                     </th>
                                                                     <th>
-                                                                       STATUS
+                                                                        DESIGNATION
+                                                                    </th>
+                                                                    <th>
+                                                                        SECTION
+                                                                    </th>
+                                                                    <th>
+                                                                        DEPARTMENT
+                                                                    </th>
+                                                                    <th>
+                                                                        STATUS
                                                                     </th>
                                                                     <th>
                                                                         ACTION
@@ -63,28 +72,34 @@
                                                                         <input type="checkbox" class="sifa_checkbox" value="{{ $sifa->id }}">
                                                                     </td>
                                                                     <td>{{ $sifa->employee->emp_id_name }}</td>
+                                                                    <td>{{ $sifa->employee->empJob->designation->name ?? 'N/A' }}</td>
+                                                                    <td>{{ $sifa->employee->empJob->section->name ?? 'N/A' }}</td>
+                                                                    <td>{{ $sifa->employee->empJob->department->name ?? 'N/A' }}</td>
                                                                     <td class="text-center">
                                                                         @if ($sifa->status == 1)
-                                                                            <span class="badge bg-primary">Submitted</span>
+                                                                        <span class="badge bg-primary">Submitted</span>
                                                                         @elseif($sifa->status == 2)
-                                                                            <span class="badge bg-summary">Verified</span>
+                                                                        <span class="badge bg-summary">Verified</span>
                                                                         @elseif($sifa->status == 3)
-                                                                            <span class="badge bg-summary">Approved</span>
+                                                                        <span class="badge bg-summary">Approved</span>
                                                                         @elseif($sifa->status == 0)
-                                                                            <span class="badge bg-warning">Cancelled</span>
+                                                                        <span class="badge bg-warning">Cancelled</span>
                                                                         @elseif($sifa->status == -1)
-                                                                            <span class="badge bg-danger">Rejected</span>
+                                                                        <span class="badge bg-danger">Rejected</span>
                                                                         @else
-                                                                            <span class="badge bg-secondary">Unknown Status</span>
+                                                                        <span class="badge bg-secondary">Unknown Status</span>
                                                                         @endif
                                                                     </td>
                                                                     <td class="text-center">
-                                                                        @if ($privileges->edit)
-                                                                        <a href="{{ url('sifa/approval/' . $sifa->id . '/edit') }}"
-                                                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success">
+                                                                        @if ($privileges->view)
+                                                                        <a href="{{ url('sifa/sifa-approval/' . $sifa->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                                        @endif
+                                                                        <!-- @if ($privileges->edit)
+                                                                        <a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"
+                                                                            class="btn btn btn-sm btn-rounded btn-outline-success">
                                                                             <i class="fa fa-edit"></i> EDIT
                                                                         </a>
-                                                                        @endif
+                                                                        @endif -->
                                                                         @if ($privileges->delete)
                                                                         <a href="#"
                                                                             class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
@@ -127,85 +142,63 @@
 
 @endsection
 @push('page_scripts')
-    <script>
-        $(document).ready(function() {
-            // Select/Deselect all checkboxes
-            $('#select_all').click(function() {
-                var checkedStatus = this.checked;  // Get the status of the select all checkbox
-                $('.sifa_checkbox').each(function() {
-                    $(this).prop('checked', checkedStatus); // Set each checkbox to match select all status
-                });
+<script>
+    $(document).ready(function() {
+        // Select/Deselect all checkboxes
+        $('#select_all').click(function() {
+            var checkedStatus = this.checked; // Get the status of the select all checkbox
+            $('.sifa_checkbox').each(function() {
+                $(this).prop('checked', checkedStatus); // Set each checkbox to match select all status
+            });
+        });
+
+        // Bulk approval/rejection
+        $('.buttonsubmit').click(function() {
+            var action = $(this).data('value');
+            var selectedItems = [];
+            var routeUrl = $(this).data('route');
+            var itemClass = $(this).data('item-class');
+            var itemName = $(this).data('item-name');
+
+            // Modal close manually
+            $('.close').click(function() {
+                $('#rejectModal').modal('hide'); // Manually hide the modal
             });
 
-            // Bulk approval/rejection
-            $('.buttonsubmit').click(function() {
-                var action = $(this).data('value');
-                var selectedItems = [];
-                var routeUrl = $(this).data('route');
-                var itemClass = $(this).data('item-class');
-                var itemName = $(this).data('item-name');
+            // Collect selected item IDs
+            $('.' + itemClass + ':checked').each(function() {
+                selectedItems.push($(this).val());
+            });
 
-                // Modal close manually
-                $('.close').click(function() {
-                    $('#rejectModal').modal('hide'); // Manually hide the modal
-                });
+            // Check if any items are selected
+            if (selectedItems.length === 0) {
+                alert('Please select at least one ' + itemName);
+                return;
+            }
 
-                // Collect selected item IDs
-                $('.' + itemClass + ':checked').each(function() {
-                    selectedItems.push($(this).val());
-                });
+            // Check if reject action is clicked
+            if (action === 'reject') {
+                // Show reject remarks modal
+                $('#rejectModal').modal('show');
 
-                // Check if any items are selected
-                if (selectedItems.length === 0) {
-                    alert('Please select at least one ' + itemName);
-                    return;
-                }
+                // Handle reject confirmation
+                $('#confirmReject').click(function() {
+                    var rejectRemarks = $('#rejectRemarks').val();
 
-                // Check if reject action is clicked
-                if (action === 'reject') {
-                    // Show reject remarks modal
-                    $('#rejectModal').modal('show');
+                    if (rejectRemarks.trim() === '') {
+                        alert('Please provide reject remarks.');
+                        return;
+                    }
 
-                    // Handle reject confirmation
-                    $('#confirmReject').click(function() {
-                        var rejectRemarks = $('#rejectRemarks').val();
-
-                        if (rejectRemarks.trim() === '') {
-                            alert('Please provide reject remarks.');
-                            return;
-                        }
-
-                        // Send AJAX request to reject
-                        $.ajax({
-                            url: routeUrl,
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                item_ids: selectedItems,
-                                action: action,
-                                reject_remarks: rejectRemarks
-                            },
-                            success: function(response) {
-                                alert(response.message);
-                                location.reload(); // Reload to reflect changes
-                            },
-                            error: function() {
-                                alert('An error occurred while processing your request');
-                            }
-                        });
-
-                        // Close the modal
-                        $('#rejectModal').modal('hide');
-                    });
-                } else {
-                    // Proceed with approval if action is approve
+                    // Send AJAX request to reject
                     $.ajax({
                         url: routeUrl,
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
                             item_ids: selectedItems,
-                            action: action
+                            action: action,
+                            reject_remarks: rejectRemarks
                         },
                         success: function(response) {
                             alert(response.message);
@@ -215,8 +208,30 @@
                             alert('An error occurred while processing your request');
                         }
                     });
-                }
-            });
+
+                    // Close the modal
+                    $('#rejectModal').modal('hide');
+                });
+            } else {
+                // Proceed with approval if action is approve
+                $.ajax({
+                    url: routeUrl,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        item_ids: selectedItems,
+                        action: action
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload(); // Reload to reflect changes
+                    },
+                    error: function() {
+                        alert('An error occurred while processing your request');
+                    }
+                });
+            }
         });
-    </script>
+    });
+</script>
 @endpush
