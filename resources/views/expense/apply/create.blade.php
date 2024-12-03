@@ -201,7 +201,24 @@
                                                 <table id="travelstable"
                                                     class="table table-condensed table-bordered table-striped table-sm basic-datatable">
                                                     <thead>
+
                                                         <tr role="row">
+                                                            <th colspan="2" class="text-center">From</th>
+                                                            <th colspan="2" class="text-center">To</th>
+                                                            <th rowspan="2">Total Days</th>
+                                                            <th rowspan="2">Daily Allowance</th>
+                                                            <th rowspan="2">Travel Allowance</th>
+                                                            <th rowspan="2">Total Amount</th>
+                                                            <th rowspan="2">Remarks</th>
+                                                        </tr>
+                                                        <tr role="row">
+                                                            <th>Date</th>
+                                                            <th>Location</th>
+                                                            <th>Date</th>
+                                                            <th>Location</th>
+                                                        </tr>
+
+                                                        {{-- <tr role="row">
                                                             <th>From Date</th>
                                                             <th>From Location</th>
                                                             <th>To Date</th>
@@ -211,7 +228,7 @@
                                                             <th>TA</th>
                                                             <th>Total Amount</th>
                                                             <th>Remarks</th>
-                                                        </tr>
+                                                        </tr> --}}
                                                     </thead>
                                                     <tbody>
                                                         <tr class="data-row">
@@ -725,7 +742,7 @@
                             } else {
                                 // Append a message if no data is available
                                 $("#dsa_advance_tour").append(
-                                    '<option value="">No DSA Advances available</option>');
+                                    '<option value="">No DSA Advances availed</option>');
                             }
                         },
                         error: function(error) {

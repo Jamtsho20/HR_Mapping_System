@@ -46,7 +46,8 @@ class TransferClaimApplicationController extends Controller
             $user = loggedInUser();
     
             $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
-            return $this->successResponse([$transferClaims,  $empIdName], 'Expense applications retrieved successfully');
+            
+            return $this->successResponse($transferClaims, 'Expense applications retrieved successfully');
          
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
@@ -64,7 +65,7 @@ class TransferClaimApplicationController extends Controller
         try {
             
             $trasnferClaim = MasTransferClaim::get();
-            return $this->successResponse([$trasnferClaim], 'Expense applications create function retrieved successfully');
+            return $this->successResponse($trasnferClaim, 'Expense applications create function retrieved successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
         }
@@ -157,7 +158,7 @@ class TransferClaimApplicationController extends Controller
     {   try {
 
         $transfer = TransferClaimApplication::findOrfail($id);
-        return $this->successResponse([$transfer], 'Expense applications show function retrieved successfully');
+        return $this->successResponse($transfer, 'Expense applications show function retrieved successfully');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->errorResponse($e->getMessage(), 500);
         }

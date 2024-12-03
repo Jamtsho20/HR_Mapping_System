@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Payslip Details')
 @section('buttons')
-    <a href="{{ route('pay-slips.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Payslip
-        List</a>
+    <a href="{{ route('pay-slips.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
     <form action="{{ route('pay-slips.update', $paySlip->id) }}" method="POST">
@@ -131,8 +130,8 @@
                                                             <th>Name (ID)</th>
                                                             <th>Pay Head</th>
                                                             <th>Amount</th>
-                                                            <th>Created At</th>
                                                             <th>Updated At</th>
+                                                            <th>Action</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -143,9 +142,20 @@
                                                                 </td>
                                                                 <td>{{ $detail->payHead->name }}</td>
                                                                 <td>{{ $detail->amount }}</td>
-                                                                <td>{{ $detail->created_at ? $detail->created_at->format('Y-m-d H:i:s') : '' }}
-                                                                </td>
                                                                 <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d H:i:s') : '' }}
+                                                                </td>
+                                                                <td>
+                                                                    <a href="javascript:void(0);"
+                                                                        class="btn btn-sm btn-rounded btn-outline-success"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#edit-pay-slip-detail-modal"
+                                                                        data-id="{{ $detail->id ?? '' }}"
+                                                                        data-employee-id="{{ $detail->mas_employee_id ?? '' }}"
+                                                                        data-pay-head-id="{{ $detail->mas_pay_head_id ?? '' }}"
+                                                                        data-amount="{{ $detail->amount ?? '' }}"
+                                                                        data-update-url="{{ route('pay-slip-detail.update', [$paySlip->id, $detail->id ?? 0]) }}">
+                                                                        <i class="fa fa-edit"></i> EDIT
+                                                                    </a>
                                                                 </td>
                                                             </tr>
                                                         @empty
@@ -169,7 +179,7 @@
         </div>
     </div>
 
-    <!-- Add Detail -->
+    <!-- Add Pay Slip Detail Modal -->
     <div class="modal fade" id="add-pay-slip-detail-modal" tabindex="-1" aria-labelledby="add-pay-slip-detail-modal"
         aria-hidden="true">
 
@@ -220,6 +230,83 @@
         </div>
     </div>
 
+    <!-- Edit Pay Slip Detail Modal -->
+    <div class="modal fade" id="edit-pay-slip-detail-modal" tabindex="-1" aria-labelledby="edit-pay-slip-detail-modal"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Detail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" id="edit-pay-slip-detail-form">
+                        @csrf
+                        @method('PUT')
+
+                        <input type="hidden" class="form-control" name="pay_slip_id" value="{{ $paySlip->id }}"
+                            required="required">
+                        <input type="hidden" class="form-control" name="detail_id" value="">
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="mas_employee_id">Employee <span class="text-danger">*</span></label>
+                                <select class="form-control" name="mas_employee_id" required>
+                                    <option value="">Select</option>
+                                    @foreach ($employees as $employee)
+                                        <option value="{{ $employee->id }}">
+                                            {{ $employee->name }} ({{ $employee->employee_id }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label for="mas_pay_head_id">Pay Head <span class="text-danger">*</span></label>
+                                <select class="form-control" name="mas_pay_head_id" required>
+                                    <option value="">Select</option>
+                                    @foreach ($payHeads as $payHead)
+                                        <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label for="amount">Amount <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="amount" value="" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 @endsection
 @push('page_scripts')
+    <script>
+        $(document).ready(function() {
+            $('#edit-pay-slip-detail-modal').on('show.bs.modal', function(e) {
+                var button = $(e.relatedTarget);
+
+                var id = button.data('id');
+                var employeeId = button.data('employee-id');
+                var payHeadId = button.data('pay-head-id');
+                var amount = button.data('amount');
+                var updateUrl = button.data('update-url');
+
+                var modal = $(this);
+                modal.find('input[name="detail_id"]').val(id);
+                modal.find('select[name="mas_employee_id"]').val(employeeId);
+                modal.find('select[name="mas_pay_head_id"]').val(payHeadId);
+                modal.find('input[name="amount"]').val(amount);
+
+                modal.find('form').attr('action', updateUrl);
+            });
+        });
+    </script>
 @endpush
