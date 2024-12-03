@@ -12,6 +12,8 @@ use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationForwardedMail;
 
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\AjaxRequestController;
@@ -174,6 +176,11 @@ class TravelAuthorizationApplicationController extends Controller
            
             
             DB::commit();
+            if(isset($approverByHierarchy['approver_details'])){
+                $emailContent = 'has submitted a travel authorization application and is awaiting your approval for a estimated travel expense of ' . $request->estimated_travel_expenses ;
+                $emailSubject = 'Travel Authorization Application';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             

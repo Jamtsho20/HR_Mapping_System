@@ -63,17 +63,16 @@ class DSAClaimApplicationController extends Controller
          //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
          $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
  
-         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
- 
+         $travels = TravelAuthorizationApplication::with('details')->whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+    
          //get dsa advance which has been approved for settlement
-         $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+         $advances = AdvanceApplication::with('advanceDetails')->where('advance_type_id', DSA_ADVANCE)
              ->where('created_by', loggedInUser())
              ->where('status', 3)
              ->whereNotIn('id', $excludedAdvanceIds)
-             ->get(['id', 'advance_no'])
-             ->toArray();
+             ->get(['id', 'advance_no']);
         return response()->json(["advances"=>$advances,"travels"=> $travels], 200);
-        return $this->successResponse([$advances, $travels], 'DSA claim applications retrieved successfully');
+        return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
          
     }catch(\Exception $e){
         return $this->errorResponse($e->getMessage(), 500);
