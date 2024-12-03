@@ -4,10 +4,11 @@
     <title>Leave Encashment Notification</title>
 </head>
 <body>
-    <h1>Hello, {{ $employee->name }}</h1>
-    <p>You are eligible for leave encashment.</p>
-    <p><strong>Leave Balance:</strong> {{ $leaveBalance }} days</p>
-    <p>Please apply for encashment if you wish to avail it.</p>
-    <p>Thank you!</p>
+    <p>Dear {{ $employee->name }},</p>
+
+    <p>You are eligible for leave encashment. Please apply to encash your leave balance.</p>
+
+    <p>Thank you,</p>
+    <p>{{ config('HRMS') }}</p>
 </body>
 </html>

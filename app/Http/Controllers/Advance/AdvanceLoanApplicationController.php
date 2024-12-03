@@ -77,12 +77,13 @@ class AdvanceLoanApplicationController extends Controller
             ->filter($request)
             ->createdBy() // Apply the createdBy scope
             ->paginate(10);
+        $advanceTypes = MasAdvanceTypes::get(['id', 'name']);
 
         foreach ($advances as $advance) {
             $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
         }
 
-        return view('advance-loan.apply.index', compact('privileges', 'advances'));
+        return view('advance-loan.apply.index', compact('privileges', 'advances', 'advanceTypes'));
     }
 
     public function create()
@@ -92,11 +93,11 @@ class AdvanceLoanApplicationController extends Controller
         $dzongkhags = MasDzongkhag::get();
         $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
         $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
-                                    ->where('status', 3)
-                                    ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
-                                        $query->whereNotIn('id', $excludedTravelAuthorizationIds);
-                                    })
-                                    ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
+            ->where('status', 3)
+            ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
+                $query->whereNotIn('id', $excludedTravelAuthorizationIds);
+            })
+            ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
 
         return view('advance-loan.apply.create', compact('advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags'));
     }
@@ -198,15 +199,15 @@ class AdvanceLoanApplicationController extends Controller
         $dzongkhags = MasDzongkhag::get();
         $travelAuthorizations = [];
         $advanceDetails = []; // only if advance type is ADVANCE_TO_STAFF
-        if($advance->advance_type_id == DSA_ADVANCE){
+        if ($advance->advance_type_id == DSA_ADVANCE) {
             $travelAuthorizations = TravelAuthorizationApplication::with('details')->where('created_by', loggedInUser())
-                                        ->where('id', $advance->travel_authorization_id)
-                                        ->first();
+                ->where('id', $advance->travel_authorization_id)
+                ->first();
         }
-        if($advance->advance_type_id == ADVANCE_TO_STAFF){
+        if ($advance->advance_type_id == ADVANCE_TO_STAFF) {
             $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
         }
-        $redirectUrl=null;
+        $redirectUrl = null;
 
         return view('advance-loan.apply.edit', compact('redirectUrl', 'advance', 'advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
     }
@@ -290,7 +291,7 @@ class AdvanceLoanApplicationController extends Controller
             // Handle the error by returning back with error message
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
-        if ($request -> redirectUrl != null) {
+        if ($request->redirectUrl != null) {
             return redirect()->route('advance-loan-approval.index')->with('msg_success', 'Advance application updated successfully!');
         }
         // Return a success response after the update is complete
@@ -362,5 +363,4 @@ class AdvanceLoanApplicationController extends Controller
             ->whereNotIn('id', $existingIds)
             ->delete();
     }
-
 }
