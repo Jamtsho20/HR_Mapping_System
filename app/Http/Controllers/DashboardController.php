@@ -17,190 +17,126 @@ use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     $holidays = WorkHolidayList::filter($request)
-    //         ->orderBy('start_date')
-    //         ->paginate(10)
-    //         ->withQueryString();
-
-    //     $notifications = SystemNotification::all();
-    //     $user = auth()->user(); // Retrieve the logged-in user
-    //     $currentYear = Carbon::now()->year;
-
-    //     // Retrieve the employment type ID from the MasEmployeeJob model
-    //     $employmentTypeId = $user->empJob->mas_employment_type_id ?? null; // Assuming the relationship is named 'employeeJob'
-
-    //     // Log the employment type ID for debugging
-    //     Log::info('Employment Type ID: ' . $employmentTypeId);
-
-    //     // Function to fetch and calculate leave status counts
-    //     $getLeaveData = function ($leaveTypeId = null) use ($currentYear) {
-    //         $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-    //             ->createdBy()
-    //             ->whereYear('created_at', $currentYear)
-    //             ->when($leaveTypeId, function ($query) use ($leaveTypeId) {
-    //                 $query->where('mas_leave_type_id', $leaveTypeId);
-    //             })
-    //             ->groupBy('status')
-    //             ->pluck('total', 'status');
-
-    //         $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
-    //             ->when($leaveTypeId, function ($query) use ($leaveTypeId) {
-    //                 $query->where('mas_leave_type_id', $leaveTypeId);
-    //             })
-    //             ->pluck('closing_balance')
-    //             ->first() ?? 0; // Default to 0 if no balance is found
-
-    //         // Default labels and counts
-    //         $leaveData = ['Approved', 'Balance', 'In-Progress'];
-    //         $statusCountsArray = [0, $balance, 0];
-
-    //         // Populate the counts
-    //         $statusCountsArray[0] = $statusCounts[3] ?? 0; // Approved Leave
-    //         $statusCountsArray[2] = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress Leave
-
-    //         return [$leaveData, $statusCountsArray];
-    //     };
-
-    //     // Fetch casual leave data
-    //     list($leaveData, $statusCounts) = $getLeaveData();
-
-    //     // Check the employment type ID
-    //     $showEarnedLeave = true;
-    //     if ($employmentTypeId == 3) {
-    //         $showEarnedLeave = false;  // Hide earned leave chart for employment type 3
-    //     }
-
-    //     // Fetch earned leave data only if it should be shown
-    //     $earnedLeaveData = $earnedLeaveCounts = [];
-    //     if ($showEarnedLeave) {
-    //         // Fetch earned leave data
-    //         list($earnedLeaveData, $earnedLeaveCounts) = $getLeaveData(2); // 2 for earned leave type
-    //     }
-
-    //     return view('dashboard', compact('user', 'holidays', 'leaveData', 'statusCounts', 'earnedLeaveData', 'earnedLeaveCounts', 'notifications', 'showEarnedLeave'));
-    // }
     public function index(Request $request)
     {
+        $user = auth()->user(); 
+        $currentYear = Carbon::now()->year;
+        $employmentTypeId = $user->empJob->mas_employment_type_id ?? null;
+
+        // Fetch holiday list with filtering
         $holidays = WorkHolidayList::filter($request)
             ->orderBy('start_date')
             ->paginate(10)
             ->withQueryString();
 
-        $notifications = SystemNotification::all();
-        $user = auth()->user(); // Retrieve the logged-in user
-        $currentYear = Carbon::now()->year;
+        // Get all system notifications
+        $notifications = SystemNotification::all()->map(function ($notification) {
+            return [
+                'id' => $notification->id,
+                'title' => $notification->title,
+                'message' => $notification->message,
+            ];
+        });
 
-        // Retrieve the employment type ID from the MasEmployeeJob model
-        $employmentTypeId = $user->empJob->mas_employment_type_id ?? null;
-
-        // Log the employment type ID for debugging
-        Log::info('Employment Type ID: ' . $employmentTypeId);
-
-        // Function to fetch and calculate leave status counts
-        $getLeaveData = function ($leaveTypeId = null) use ($currentYear) {
-            $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-                ->createdBy()
-                ->whereYear('created_at', $currentYear)
-                ->when($leaveTypeId, function ($query) use ($leaveTypeId) {
-                    $query->where('mas_leave_type_id', $leaveTypeId);
-                })
-                ->groupBy('status')
-                ->pluck('total', 'status');
-
-            $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
-                ->when($leaveTypeId, function ($query) use ($leaveTypeId) {
-                    $query->where('mas_leave_type_id', $leaveTypeId);
-                })
-                ->pluck('closing_balance')
-                ->first() ?? 0; // Default to 0 if no balance is found
-
-            // Default labels and counts
-            $leaveData = ['Approved', 'Balance', 'In-Progress'];
-            $statusCountsArray = [0, $balance, 0];
-
-            // Populate the counts
-            $statusCountsArray[0] = $statusCounts[3] ?? 0; // Approved Leave
-            $statusCountsArray[2] = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress Leave
-
-            return [$leaveData, $statusCountsArray];
-        };
-
-        // Fetch casual leave data
-        list($leaveData, $statusCounts) = $getLeaveData();
-
-        // Check the employment type ID
-        $showEarnedLeave = true;
-        if ($employmentTypeId == 3) {
-            $showEarnedLeave = false;  // Hide earned leave chart for employment type 3
+        // Check leave encashment eligibility
+        $leaveEncashmentNotification = $this->checkLeaveEncashmentEligibility($user->id, $currentYear);
+        if ($leaveEncashmentNotification) {
+            $notifications[] = [
+                'id' => null, 
+                'title' => 'Leave Encashment',
+                'message' => $leaveEncashmentNotification,
+            ];
         }
 
-        // Fetch earned leave data only if it should be shown
-        $earnedLeaveData = $earnedLeaveCounts = [];
-        if ($showEarnedLeave) {
-            // Fetch earned leave data
-            list($earnedLeaveData, $earnedLeaveCounts) = $getLeaveData(2); // 2 for earned leave type
-        }
+        // Fetch leave status counts
+        [$leaveData, $statusCounts] = $this->getLeaveData($currentYear);
+        $showEarnedLeave = $employmentTypeId !== 3; 
 
-        // Check for leave encashment notification
-        $leaveEncashmentNotification = null;
-
-        $closingBalance = EmployeeLeave::where('mas_employee_id', $user->id)
-            ->where('mas_leave_type_id', 2)
-            ->value('closing_balance');
-
-        $hasEncashed = DB::table('leave_encashment_applications')
-            ->where('mas_employee_id', $user->id)
-            ->whereYear('created_at', $currentYear) // Adjust condition as per requirement
-            ->exists();
-
-        if ($closingBalance >= 37 && !$hasEncashed) {
-            $leaveEncashmentNotification = 'You are eligible for leave encashment. Please apply to encash your leave balance.';
-        }
+        // Fetch earned leave data if applicable
+        [$earnedLeaveData, $earnedLeaveCounts] = $showEarnedLeave
+            ? $this->getLeaveData($currentYear, 2)
+            : [[], []];
 
         return view('dashboard', compact(
             'user',
             'holidays',
+            'notifications',
             'leaveData',
             'statusCounts',
             'earnedLeaveData',
             'earnedLeaveCounts',
-            'notifications',
-            'showEarnedLeave',
-            'leaveEncashmentNotification'
+            'showEarnedLeave'
         ));
     }
 
-
-
-
-
-    public function show()
+    /**
+     * Check if the user is eligible for leave encashment.
+     */
+    private function checkLeaveEncashmentEligibility($employeeId, $currentYear)
     {
-        // Retrieve the alert message from the cache
-        $alertMessage = Cache::get('holiday_alert_message');
-        return view('dashboard.index', compact('alertMessage'));
+        $closingBalance = EmployeeLeave::where('mas_employee_id', $employeeId)
+            ->where('mas_leave_type_id', 2)
+            ->value('closing_balance');
+
+        $hasEncashed = LeaveEncashmentApplication::where('mas_employee_id', $employeeId)
+            ->whereYear('created_at', $currentYear)
+            ->exists();
+
+        if ($closingBalance >= 37 && !$hasEncashed) {
+            return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
+        }
+
+        return null;
     }
-    
+
+    /**
+     * Fetch leave data (e.g., approved, balance, and in-progress counts).
+     */
+    private function getLeaveData($currentYear, $leaveTypeId = null)
+    {
+        $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
+            ->createdBy()
+            ->whereYear('created_at', $currentYear)
+            ->when($leaveTypeId, fn ($query) => $query->where('mas_leave_type_id', $leaveTypeId))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
+            ->when($leaveTypeId, fn ($query) => $query->where('mas_leave_type_id', $leaveTypeId))
+            ->value('closing_balance') ?? 0;
+
+        return [
+            ['Approved', 'Balance', 'In-Progress'],
+            [
+                $statusCounts[3] ?? 0,  // Approved
+                $balance,             // Balance
+                ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0),  // In-Progress
+            ]
+        ];
+    }
+
     public function sendEncashmentNotification()
     {
         $employees = EmployeeLeave::where('mas_leave_type_id', 2)
-            ->where('closing_balance', '>=', 37) // Check for leave balance
+            ->where('closing_balance', '>=', 37)
+            ->with('employee') // Assume EmployeeLeave has a relationship with the Employee model
             ->get();
 
         foreach ($employees as $leave) {
-            $employee = $leave->employee; // Assuming a relationship with the Employee model
+            $employee = $leave->employee;
             $leaveBalance = $leave->closing_balance;
 
-            // Check if the employee has already availed leave encashment
             $hasEncashed = LeaveEncashmentApplication::where('mas_employee_id', $employee->id)->exists();
-
             if (!$hasEncashed) {
-                // Send the email
                 Mail::to($employee->email)->send(new LeaveEncashmentMail($employee, $leaveBalance));
             }
         }
+    }
+
+    public function show()
+    {
+        $alertMessage = Cache::get('holiday_alert_message');
+        return view('dashboard.index', compact('alertMessage'));
     }
 
     public function dashboard()
