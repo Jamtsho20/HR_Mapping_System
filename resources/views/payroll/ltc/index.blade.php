@@ -73,8 +73,13 @@
                                                                     </td>
                                                                     <td>
                                                                         @if ($privileges->edit)
+                                                                            <a href="{{ route('ltc.show', $record->id) }}"
+                                                                                class="btn btn-sm btn-rounded btn-outline-primary">
+                                                                                <i class="fa fa-eye"></i>
+                                                                                View
+                                                                            </a>
                                                                             @if ($record->status['key'] == 0)
-                                                                                <a href="{{ route('ltc.show', $record->id) }}"
+                                                                                <a href="{{ route('ltc.edit', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-success">
                                                                                     <i class="fa fa-spinner"></i>
                                                                                     PROCESS
@@ -92,7 +97,7 @@
                                                             @empty
                                                                 <tr>
                                                                     <td colspan="6" class="text-center text-danger">No
-                                                                        Payslips found</td>
+                                                                        records found</td>
                                                                 </tr>
                                                             @endforelse
                                                         </tbody>

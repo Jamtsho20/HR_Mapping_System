@@ -45,37 +45,32 @@
                                                     <tbody>
                                                         @forelse ($details as $record)
                                                             <tr>
-                                                                <td>{{ $record->employee->name }}
-                                                                    ({{ $record->employee->employee_id }})
-                                                                </td>
+                                                                <td>{{ $record->employee->name }} ({{ $record->employee->employee_id }})</td>
                                                                 <td>{{ $record->amount }}</td>
                                                                 <td>
                                                                     <label class="custom-switch">
-                                                                        <input type="hidden" name="status"
-                                                                            value="0" />
+                                                                        <input type="hidden" name="status" value="0">
                                                                         <input type="checkbox" name="status"
                                                                             class="custom-switch-input"
                                                                             value="{{ $record->status }}"
                                                                             data-id="{{ $record->id }}"
                                                                             {{ $record->status ? 'checked' : '' }}
-                                                                            disabled />
+                                                                            onchange="toggleStatus(this)">
                                                                         <span class="custom-switch-indicator"></span>
                                                                     </label>
                                                                 </td>
                                                                 <td>
                                                                     <input type="text" class="form-control remarks-input"
                                                                         value="{{ $record->remarks }}"
-                                                                        data-id="{{ $record->id }}" disabled />
+                                                                        data-id="{{ $record->id }}">
                                                                 </td>
                                                             </tr>
-
                                                         @empty
                                                             <tr>
                                                                 <td colspan="5" class="text-center text-danger">No
                                                                     records found</td>
                                                             </tr>
                                                         @endforelse
-
                                                     </tbody>
                                                 </table>
                                                 <div>{{ $details->links() }}</div>

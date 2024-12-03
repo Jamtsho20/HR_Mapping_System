@@ -93,7 +93,7 @@ class LTCController extends Controller
             }
         }
 
-        return view('ltc.index', compact('privileges', 'ltcs'));
+        return view('payroll.ltc.index', compact('privileges', 'ltcs'));
     }
 
     /**
@@ -120,7 +120,7 @@ class LTCController extends Controller
         $ltc = LeaveTravelConcession::whereId($id)->first();
         $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
 
-        return view('ltc.show', compact('ltc', 'details'));
+        return view('payroll.ltc.show', compact('ltc', 'details'));
     }
 
     /**
@@ -128,7 +128,10 @@ class LTCController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $ltc = LeaveTravelConcession::whereId($id)->first();
+        $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
+
+        return view('payroll.ltc.edit', compact('ltc', 'details'));
     }
 
     /**

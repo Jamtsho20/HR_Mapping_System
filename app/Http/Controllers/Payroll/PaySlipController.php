@@ -146,31 +146,31 @@ class PaySlipController extends Controller
 
     public function processPaySlip($id, Request $request)
     {
-        // try {
-        $status = $request->query('status');
-        $paySlip = PaySlip::where('status', 1)->find($id);
+        try {
+            $status = $request->query('status');
+            $paySlip = PaySlip::where('status', 1)->find($id);
 
-        if (!$paySlip) {
-            return redirect()->back()->with('msg_error', 'Payslip not found.');
+            if (!$paySlip) {
+                return redirect()->back()->with('msg_error', 'Payslip not found.');
+            }
+
+            $result = $this->payrollService->processPaySlip($paySlip);
+            if (!$result) {
+                Log::error('Error processing payslip: ' . $result);
+
+                return redirect()->back()->with('msg_error', 'An error occurred while processing the payslip.');
+            }
+
+            $this->payrollService->updateStatus($paySlip, $status);
+
+            $month = Carbon::parse($paySlip->for_month)->format('F Y');
+
+            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error processing payslip: ' . $e->getMessage());
+
+            return redirect()->back()->with('msg_error', 'An unexpected error occurred while processing the payslip.');
         }
-
-        $result = $this->payrollService->processPaySlip($paySlip);
-        if (!$result) {
-            Log::error('Error processing payslip: ' . $result);
-
-            return redirect()->back()->with('msg_error', 'An error occurred while processing the payslip.');
-        }
-
-        $this->payrollService->updateStatus($paySlip, $status);
-
-        $month = Carbon::parse($paySlip->for_month)->format('F Y');
-
-        return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
-        // } catch (\Exception $e) {
-        //     Log::error('Error processing payslip: ' . $e->getMessage());
-
-        //     return redirect()->back()->with('msg_error', 'An unexpected error occurred while processing the payslip.');
-        // }
     }
 
     public function verifyPaySlip($id, Request $request)
