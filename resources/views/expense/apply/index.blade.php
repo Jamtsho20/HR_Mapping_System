@@ -10,9 +10,13 @@
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-8 form-group">
-        <input type="text" name="accountheads" class="form-control" value="{{ request()->get('accountheads') }}"
-            placeholder="Search">
+    <div class="col-6 form-group">
+        <select class="form-control" id="expense_type" name="expense_type">
+            <option value="" disabled selected hidden>Select Advance Type</option>
+            @foreach ($expenseTypes as $type)
+            <option value="{{ $type->id }}" {{ request()->get('expense_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+            @endforeach
+        </select>
     </div>
     @endcomponent
 
