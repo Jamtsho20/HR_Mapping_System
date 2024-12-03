@@ -192,8 +192,7 @@ class TravelAuthorizationApplicationController extends Controller
     {   try {
         $instance = $request->instance();
         $travelAuthorization =  TravelAuthorizationApplication::with('details')->findOrFail($id);
-        $context = 'application';
-        return $this->successResponse([$travelAuthorization, $context], 'Travel Authorization retrieved successfully');
+        return $this->successResponse($travelAuthorization, 'Travel Authorization retrieved successfully');
     }catch (\Illuminate\Validation\ValidationException $e) {
         return $this->errorResponse('Failed to retrieve applications', 500);
     }

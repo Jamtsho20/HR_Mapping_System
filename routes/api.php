@@ -48,7 +48,7 @@ Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
     Route::get('expense_number/{id}', [ExpenseApplicationController::class, 'fetchExpenseNumber']);
 
     //Transfer Claim
-    Route::resource('trasnfer_claim', 'TransferClaimApplicationController');
+    Route::resource('transfer_claim', 'TransferClaimApplicationController');
     Route::get('transfer_claim_number', [TransferClaimApplicationController::class, 'getTransferClaimNumber']);
 
     //DSA caim
