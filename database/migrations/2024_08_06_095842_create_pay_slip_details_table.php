@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId("mas_pay_head_id")->index()->constrained();
             $table->decimal("amount",16,2);
             $table->foreignId("created_by")->index()->constrained('mas_employees');
-            $table->foreignId("edited_by")->index()->nullable()->constrained('mas_employees');
-            
+            $table->foreignId("updated_by")->index()->nullable()->constrained('mas_employees');
+
             $table->timestamps();
         });
     }

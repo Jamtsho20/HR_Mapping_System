@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\LTC;
+namespace App\Http\Controllers\Payroll;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveTravelConcession;
@@ -16,10 +16,10 @@ class LTCController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:ltc/ltc,view')->only('index');
-        $this->middleware('permission:ltc/ltc,create')->only('store');
-        $this->middleware('permission:ltc/ltc,edit')->only('update');
-        $this->middleware('permission:ltc/ltc,delete')->only('destroy');
+        $this->middleware('permission:payroll/ltc,view')->only('index');
+        $this->middleware('permission:payroll/ltc,create')->only('store');
+        $this->middleware('permission:payroll/ltc,edit')->only('update');
+        $this->middleware('permission:payroll/ltc,delete')->only('destroy');
     }
 
     /**
@@ -93,7 +93,7 @@ class LTCController extends Controller
             }
         }
 
-        return view('ltc.index', compact('privileges', 'ltcs'));
+        return view('payroll.ltc.index', compact('privileges', 'ltcs'));
     }
 
     /**
@@ -120,7 +120,7 @@ class LTCController extends Controller
         $ltc = LeaveTravelConcession::whereId($id)->first();
         $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
 
-        return view('ltc.show', compact('ltc', 'details'));
+        return view('payroll.ltc.show', compact('ltc', 'details'));
     }
 
     /**
@@ -128,7 +128,10 @@ class LTCController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $ltc = LeaveTravelConcession::whereId($id)->first();
+        $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
+
+        return view('payroll.ltc.edit', compact('ltc', 'details'));
     }
 
     /**

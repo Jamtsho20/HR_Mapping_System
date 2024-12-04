@@ -3,14 +3,21 @@
 @section('content')
 
 <div class="block">
-    <div class="block-header block-header-default">
-        @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="leave_type" class="form-control" value="{{ request()->get('leave_type') }}"
-                placeholder="Search">
+        <div class="block-header block-header-default">
+            @component('layouts.includes.filter')
+            <div class="col-6 form-group">
+                <select class="form-control" id="leave_type" name="leave_type">
+                    <option value="" disabled selected hidden>Select Leave Type</option>
+                    @foreach ($leaveTypes as $type)
+                    <option value="{{ $type->id }}" {{ request()->get('leave_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-6 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+            </div>
+            @endcomponent
         </div>
-        @endcomponent
-    </div>
 
     <div class="block-content">
         <div class="block-options">

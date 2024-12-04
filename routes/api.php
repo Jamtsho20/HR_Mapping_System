@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanApprovalController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
+use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
+use App\Http\Controllers\Api\Expense\DSAClaimApplicationController;
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
@@ -45,6 +47,15 @@ Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
     Route::resource('expense', 'ExpenseApplicationController');
     Route::get('expense_number/{id}', [ExpenseApplicationController::class, 'fetchExpenseNumber']);
 
+    //Transfer Claim
+    Route::resource('transfer_claim', 'TransferClaimApplicationController');
+    Route::get('transfer_claim_number', [TransferClaimApplicationController::class, 'getTransferClaimNumber']);
+
+    //DSA caim
+    Route::resource('dsa_claim', 'DSAClaimApplicationController');
+    Route::get('dsa_claim_advance/{id}', [ajaxRequestController::class, 'getDsaAdvancebyTravelAuth']);
+    Route::get('dsa_claim_number', [DSAClaimApplicationController::class, 'getDsaClaimNumber']);
+
     //approval 
     Route::resource('approval', 'ExpenseApprovalController');
     Route::post('approval/bulk', [AjaxRequestController::class, 'bulkApprovalRejection']);
@@ -53,7 +64,7 @@ Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
 
 Route::namespace('Api\v1\TravelAuthorization')->middleware('auth:sanctum')->group(function () {
     Route::resource('travel_authorization', 'TravelAuthorizationApplicationController');
-
+    Route::resource('travel_authorization_approval', 'TravelAuthorizationApprovalController');
     Route::get('travel_authorization_number/{id}', [TravelAuthorizationApplicationController::class, 'fetchTravelAuthorizationNumber']);
 
 });
@@ -65,7 +76,10 @@ Route::namespace('Api\v1\Advance')->prefix('advance-loan')->group(function () {
 
 });
 
-
+Route::namespace('Api\Advance')->middleware('auth:sanctum')->group(function () {
+    Route::resource('advance_loan', 'AdvanceLoanApplicationApiController');
+    Route::get('advance_loan_number/{id}', [AjaxRequestController::class, 'getAdvanceNumber']);
+});
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
 //     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);
