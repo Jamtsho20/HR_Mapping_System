@@ -124,7 +124,7 @@ class TravelAuthorizationApplicationController extends Controller
             
         $travelAuthorization = new  TravelAuthorizationApplication();
             // dd($request->all());
-        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
@@ -227,7 +227,7 @@ class TravelAuthorizationApplicationController extends Controller
     {
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
 
-        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
