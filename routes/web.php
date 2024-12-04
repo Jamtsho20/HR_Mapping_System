@@ -6,10 +6,12 @@ use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\AdvanceLoanReportController;
 use App\Http\Controllers\Reports\EmployeeReportController;
+use App\Http\Controllers\Reports\ExpenseAndAdvanceReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\SalaryReportController;
+use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
@@ -201,6 +203,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
         Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
         Route::resource('employee-report', 'EmployeeReportController')->except('create', 'show', 'edit');
+        Route::resource('transfer-claim-report', 'TransferClaimReportController')->except('create', 'show', 'edit');
+        Route::resource('dsa-settlement-report', 'DSASettlementReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -216,6 +220,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-advance-loan-excel-report', [AdvanceLoanReportController::class, 'exportAdvanceLoanExcel'])->name('advance-loan.export');
     Route::get('/export-employee-report', [EmployeeReportController::class, 'exportEmployee'])->name('employee-pdf.export');
     Route::get('/export-employee-excel-report', [EmployeeReportController::class, 'exportEmployeeExcel'])->name('employee-excel.export');
+    Route::get('/export-expense-report', [ExpenseAndAdvanceReportController::class, 'exportExpense'])->name('expense-pdf.export');
+    Route::get('/export-expense-excel-report', [ExpenseAndAdvanceReportController::class, 'exportExpenseExcel'])->name('expense-excel.export');
+    Route::get('/export-transfer-claim-report', [TransferClaimReportController::class, 'exportTransferCaim'])->name('transfer-claim-pdf.export');
+    Route::get('/export-transfer-claim-excel-report', [TransferClaimReportController::class, 'exportTransferClaimExcel'])->name('transfer-claim-excel.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
@@ -224,6 +232,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
     Route::get('/print-advance-loan-report', [AdvanceLoanReportController::class, 'printAdvanceLoan'])->name('advance-loan-print');
     Route::get('/print-employee-report', [EmployeeReportController::class, 'printEmployee'])->name('employee-report-print');
+    Route::get('/print-expense-report', [ExpenseAndAdvanceReportController::class, 'printExpense'])->name('expense-report-print');
+    Route::get('/print-transfer-claim-report', [TransferClaimReportController::class, 'printTransferClaim'])->name('transfer-claim-print');
 
 
     //AssetsReport

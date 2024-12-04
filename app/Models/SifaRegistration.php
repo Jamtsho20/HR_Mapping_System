@@ -8,19 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class SifaRegistration extends Model
 {
-    use HasFactory,CreatedByTrait;
+    use HasFactory, CreatedByTrait;
 
     protected $fillable = [
         'mas_employee_id',  // Updated field name
         'sifa_type_id',
         'status',
         'is_registerd',
-        'remark',
+        'remarks',
         'created_by',
-        'updated_by',   
-    ];   
-    
-    public function employee(){
+        'updated_by',
+    ];
+
+    public function employee()
+    {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
     public function sifaNomination()
@@ -34,7 +35,11 @@ class SifaRegistration extends Model
     }
     public function sifaDocument()
     {
-        return $this->hasMany(SifaDocument::class, 'sifa_registration_id','id');
+        return $this->hasMany(SifaDocument::class, 'sifa_registration_id', 'id');
+    }
+    public function sifaRetirementAndNomination()
+    {
+        return $this->hasMany(SifaRetirementAndNomination::class, 'sifa_registration_id');
     }
     public function histories()
     {
