@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Leave;
+namespace App\Http\Controllers\Api\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeLeave;
@@ -10,20 +10,19 @@ use App\Models\LeaveEncashmentType;
 use Carbon\Carbon;
 use App\Services\ApprovalService;
 use App\Models\MasLeavePolicy;
-
+use App\traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class LeaveEncashmentApplicationController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:leave/leave-encashment,view')->only('index', 'show');
-    //     $this->middleware('permission:leave/leave-encashment,create')->only('create');
-    //     $this->middleware('permission:leave/leave-encashment,edit')->only('update');
-    //     $this->middleware('permission:leave/leave-encashment,delete')->only('destroy');
-    // }
+    use JsonResponseTrait;
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        
+    }
     protected $rules = [
        'encashment_amount' => 'required|numeric',
         'leave_applied_for_encashment' => 'required',
@@ -38,12 +37,16 @@ class LeaveEncashmentApplicationController extends Controller
    
     
     public function index(Request $request){
-        $privileges = $request->instance();
+        try{$privileges = $request->instance();
         $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->orderBy('created_at', 'desc')->get();
-        return view('leave.leave.encash_index',compact('privileges','leaveEncashment'));
+        return $this->successResponse($leaveEncashment, 'Leave encashment applications retrieved successfully');
+    }catch (\Exception $e) {
+          return $this->errorResponse($e->getMessage());
+      } 
     }
     public function create()
     {      
+        try{
         $earnedLeave = EmployeeLeave::where('mas_employee_id', auth()->user()->id)
         ->where('mas_leave_type_id', EARNED_LEAVE)
         ->whereYear('created_at', Carbon::now()->year);
@@ -69,8 +72,8 @@ class LeaveEncashmentApplicationController extends Controller
             $message="Insufficient Balance";
         }
         $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
-    ->whereYear('created_at', Carbon::now()->year)
-    ->exists();
+            ->whereYear('created_at', Carbon::now()->year)
+            ->exists();
         
         if ($applicationExists) {
             // Application exists
@@ -82,10 +85,18 @@ class LeaveEncashmentApplicationController extends Controller
         }
     
         $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay'); 
-        return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag', 'message'));
+        return response()->json(["earnedLeaveBalance"=>$earnedLeaveBalance, "requiredBalance"=>$requiredBalance, "earnedLeaveEncahsment" =>$earnedLeaveEncahsment, "applyFlag" =>$applyFlag, "message"=>$message, "encashedAmount" =>$encashedAmount]);
+        }catch (\Exception $e) {
+        return $this->errorResponse($e->getMessage());
+    }
     }
 
     public function store(Request $request){
+        try{
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $leaveEncashment = new  LeaveEncashmentApplication();
     
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
@@ -118,11 +129,16 @@ class LeaveEncashmentApplicationController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
+            return $this->errorResponse($e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+            }
+        return $this->successResponse($leaveEncashment, 'Leave Encashment application created successfully!');
+        }catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
 
         return redirect()->route('leave.encashment-history')->with('msg_success', 'Leave Encashment application created successfully!');
     }
     }
+
 

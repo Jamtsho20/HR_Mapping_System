@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Leave;
+namespace App\Http\Controllers\Api\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveEncashmentApplication;
@@ -9,9 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\ApprovalService;
 use Illuminate\Support\Facades\Log;
+use App\traits\JsonResponseTrait;
 
-class EncashmentApprovalController extends Controller
+class LeaveEncashmentApprovalController extends Controller
 {
+    use JsonResponseTrait;
     /**
      * Display a listing of the resource.
      *
@@ -19,27 +21,25 @@ class EncashmentApprovalController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:leave/encashment-approval,view')->only('index');
-        $this->middleware('permission:leave/encashment-approval,create')->only('store');
-        $this->middleware('permission:leave/encashment-approval,edit')->only('update', 'bulkApprovalRejection');
-        $this->middleware('permission:leave/encashment-approval,delete')->only('destroy');
+        $this->middleware('auth:api');
        
     }
     public function index(Request $request)
     {   
+
+        try{
         $user = auth()->user();
         $earnedLeave = LeaveEncashmentApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', \App\Models\LeaveEncashmentApplication::class);
         })
         ->whereYear('created_at', Carbon::now()->year)->whereNotIn('status', [-1, 3])
-            // ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
-            ->orderBy('created_at')
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
-        $privileges = $request->instance();
-        
-        return view('leave.encashment-approval.index',compact('privileges', 'earnedLeave', 'user'));
+           ->orderBy('created_at')
+            ->get();
+        return $this->successResponse($earnedLeave, "Approval list of Leave Encashment");
+    }catch(\Exception $e){
+        return $this->errorResponse($e->getMessage());
+    }
     }
 
     /**
@@ -119,8 +119,7 @@ class EncashmentApprovalController extends Controller
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
-            \Log::info('Application forwarded to:', ['data' => $approvalService]);
-
+            
             foreach ($itemIds as $id) {
                 $encashmentApplication = LeaveEncashmentApplication::findOrFail($id);
                 $applicationHistory = $encashmentApplication->histories

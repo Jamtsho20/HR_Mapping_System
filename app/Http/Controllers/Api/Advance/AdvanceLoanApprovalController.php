@@ -1,17 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\Leave;
+namespace App\Http\Controllers\Api\Advance;
 
 use App\Http\Controllers\Controller;
-use App\Models\LeaveEncashmentApplication;
-use Carbon\Carbon;
+use App\Models\AdvanceApplication;
+use App\Models\AdvanceDetail;
+use App\Services\ApprovalService;
+use App\Models\MasAdvanceTypes;
+use App\Models\BudgetCode;
+use App\Models\MasDzongkhag;
+use App\Models\TravelAuthorizationApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Services\ApprovalService;
 use Illuminate\Support\Facades\Log;
 
-class EncashmentApprovalController extends Controller
+class AdvanceLoanApprovalController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -19,28 +24,31 @@ class EncashmentApprovalController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:leave/encashment-approval,view')->only('index');
-        $this->middleware('permission:leave/encashment-approval,create')->only('store');
-        $this->middleware('permission:leave/encashment-approval,edit')->only('update', 'bulkApprovalRejection');
-        $this->middleware('permission:leave/encashment-approval,delete')->only('destroy');
-       
+        $this->middleware('permission:advance-loan/advance-loan-approval,view')->only('index');
+        $this->middleware('permission:advance-loan/advance-loan-approval,create')->only('store');
+        $this->middleware('permission:advance-loan/advance-loan-approval,edit')->only('update', 'bulkApprovalRejection', 'edit');
+        $this->middleware('permission:advance-loan/advance-loan-approval,delete')->only('destroy');
     }
+
     public function index(Request $request)
-    {   
+    {
+        $privileges = $request->instance();
         $user = auth()->user();
-        $earnedLeave = LeaveEncashmentApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+        $employeeLists = employeeList();
+        // Fetch advance loan applications with histories where the approver matches the current user
+        $advances = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\LeaveEncashmentApplication::class);
-        })
-        ->whereYear('created_at', Carbon::now()->year)->whereNotIn('status', [-1, 3])
-            // ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
+                ->where('application_type', 'App\Models\AdvanceApplication');
+        })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
+            ->filter($request, false)
             ->orderBy('created_at')
             ->paginate(config('global.pagination'))
             ->withQueryString();
-        $privileges = $request->instance();
-        
-        return view('leave.encashment-approval.index',compact('privileges', 'earnedLeave', 'user'));
+        $advanceTypes = MasAdvanceTypes::get(['id', 'name']);
+
+        return view('advance-loan.approval.index', compact('privileges', 'employeeLists', 'advances','advanceTypes'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -71,7 +79,20 @@ class EncashmentApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $advance = AdvanceApplication::findOrFail($id);
+            $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
+            $budgetCodes = BudgetCode::get();
+            $dzongkhags = MasDzongkhag::get();
+
+
+            $empDetails = empDetails($advance->created_by);
+        } catch (\Exception $e) {
+            return back()->with('err_msg', 'Advance Loan apllication not found!');
+        }
+
+        return view('advance-loan.approval.show', compact('advance', 'empDetails', 'advanceDetails', 'budgetCodes', 'dzongkhags'));
+    
     }
 
     /**
@@ -81,8 +102,31 @@ class EncashmentApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        //
+    {   
+        $user = auth()->user();
+        $advance = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
+            $query->where('approver_emp_id', $user->id)
+                ->where('application_type', 'App\Models\AdvanceApplication');
+        })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
+            ->orderBy('created_at')
+            ->firstOrFail();;
+        $advanceType = MasAdvanceTypes::where('id', $advance->advance_type_id)->first(); // Fetch advance types
+        $budgetCodes = BudgetCode::get();
+        $dzongkhags = MasDzongkhag::get();
+        $travelAuthorizations = [];
+        $advanceDetails = []; // only if advance type is ADVANCE_TO_STAFF
+        if($advance->advance_type_id == DSA_ADVANCE){
+            $travelAuthorizations = TravelAuthorizationApplication::with('details')->where('created_by', loggedInUser())
+                                        ->where('id', $advance->travel_authorization_id)
+                                        ->first();
+        }
+        if($advance->advance_type_id == ADVANCE_TO_STAFF){
+            $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
+        }
+        $redirectUrl = 'advance-loan/advance-loan-approval';
+        
+        
+        return view('advance-loan.apply.edit', compact( 'redirectUrl','advance', 'advanceType', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
     }
 
     /**
@@ -105,31 +149,37 @@ class EncashmentApprovalController extends Controller
      */
     public function destroy($id)
     {
-        //
-    }
+        try {
+            AdvanceApplication::findOrFail($id)->delete();
 
+            return back()->with('msg_success', 'Advance Applicaton has been deleted');
+        } catch (\Exception $e) {
+            return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
+        }
+    }
+    
     public function bulkApprovalRejection(Request $request)
-    {   
+    {
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $userId = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+        // dd($itemIds);
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
-            \Log::info('Application forwarded to:', ['data' => $approvalService]);
 
             foreach ($itemIds as $id) {
-                $encashmentApplication = LeaveEncashmentApplication::findOrFail($id);
-                $applicationHistory = $encashmentApplication->histories
-                    ->where('application_type', LeaveEncashmentApplication::class)
+                $leaveApplication = AdvanceApplication::findOrFail($id);
+                $applicationHistory = $leaveApplication->histories
+                    ->where('application_type', AdvanceApplication::class)
                     ->where('application_id', $id)
                     ->first();
 
                 // Update leave application status
-                $encashmentApplication->update([
+                $leaveApplication->update([
                     'status' => $status,
                     'updated_by' => $userId,
                 ]);
@@ -142,8 +192,8 @@ class EncashmentApprovalController extends Controller
                 ];
 
                 if ($action === 'approve' && $applicationHistory) {
-                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, LeaveEncashmentApplication::class);
-                    // \Log::info('Application forwarded to:', ['data' => $applicationForwardedTo['approver_details']['user_with_approving_role']]);
+                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, AdvanceApplication::class);
+                    // dd($applicationForwardedTo);
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
                             'level_id' => $applicationForwardedTo['next_level']->id,
@@ -153,19 +203,19 @@ class EncashmentApprovalController extends Controller
                         ]);
                         // Attempt to send email to next approver need to work on it
                         // try {
-                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($encashmentApplication, $nextApprover));
+                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($leaveApplication, $nextApprover));
                         // } catch (\Exception $e) {
                         //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
                         // }
                     } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         // Finalize approval if it's at the maximum level
-                        $encashmentApplication->update([
+                        $leaveApplication->update([
                             'status' => 3, // 3 could represent 'final approved'
                             'updated_by' => $userId,
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
                     } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
-                        $encashmentApplication->update([
+                        $leaveApplication->update([
                             'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
                             'updated_by' => $userId,
                         ]);

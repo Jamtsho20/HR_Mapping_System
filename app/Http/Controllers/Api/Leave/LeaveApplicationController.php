@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Leave;
+namespace App\Http\Controllers\Api\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveApplication;
@@ -17,16 +17,15 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Traits\JsonResponseTrait;
 
 class LeaveApplicationController extends Controller
 {
+    use JsonResponseTrait;
       
     public function __construct()
     {
-        $this->middleware('permission:leave/leave-apply,view')->only('index', 'show', 'leaveBalance');
-        $this->middleware('permission:leave/leave-apply,create')->only('create');
-        $this->middleware('permission:leave/leave-apply,edit')->only('update');
-        $this->middleware('permission:leave/leave-apply,delete')->only('destroy');
+        $this->middleware('auth:api'); 
     }
 
     protected $rules = [
@@ -51,12 +50,12 @@ class LeaveApplicationController extends Controller
     public function index(Request $request)
     {
       
-        $privileges = $request->instance();
-        $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-        // dd($leaveApplications);
-
-        return view('leave.leave.index',compact('privileges','leaveTypes', 'leaveApplications'));
+        try{$privileges = $request->instance();
+        $leaveApplications = LeaveApplication::with('leaveType:id,name')->filter($request)->orderBy('created_at')->get();
+        return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
 
     }
 
@@ -67,8 +66,13 @@ class LeaveApplicationController extends Controller
      */
     public function create()
     {
-        $leaveTypes = MasLeaveType::get(['id', 'name']); 
-          return view('leave.leave.create',compact('leaveTypes')); // Ensure the view name is correct
+        try{
+        $leaveTypes = MasLeaveType::get();
+        $leaveBalance = EmployeeLeave::where('mas_employee_id', auth()->user()->id)->get();
+        return response()->json(['message'=> 'Leave create function', 'leaveTypes' => $leaveTypes, 'leaveBalance' => $leaveBalance]);
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -79,13 +83,17 @@ class LeaveApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        try{
         $result = $this->handleLeaveApplication($request);
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return $result;
         }
-
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+        // $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
@@ -95,8 +103,8 @@ class LeaveApplicationController extends Controller
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
+                'from_date' => formatDate($request->from_date),
+                'to_date' => formatDate($request->to_date),
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
@@ -123,11 +131,14 @@ class LeaveApplicationController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
+            return $this->errorResponse($e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been applied successfully!');
+           return $this->successResponse($leaveApplication, 'Leave Application created successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -138,10 +149,12 @@ class LeaveApplicationController extends Controller
      */
     public function show($id)
     {
+        try{
         $leave = LeaveApplication::findOrfail($id);
-        $empDetails = empDetails($leave->created_by);
-
-        return view('leave.leave.show', compact('leave', 'empDetails'));
+        return $this->successResponse($leave, 'Leave retrieved successfully');
+    }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -166,6 +179,7 @@ class LeaveApplicationController extends Controller
      */
     public function update(Request $request, $id)
     { //need to writ code if image or file already exists then first insert the new one the delete the existing from application folder
+        try{    
         $leaveApplication = LeaveApplication::findOrFail($id);
         $result = $this->handleLeaveApplication($request, $leaveApplication);
         // If $result is a RedirectResponse, return it immediately
@@ -173,7 +187,10 @@ class LeaveApplicationController extends Controller
             return $result;
         }
         try {
-            $this->validate($request, $this->rules, $this->messages);
+            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
     
             DB::beginTransaction();
             $leaveApplication->update([
@@ -181,8 +198,8 @@ class LeaveApplicationController extends Controller
                 'mas_leave_type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
+                'from_date' => formatDate($request->from_date),
+                'to_date' => formatDate($request->to_date),
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
@@ -201,11 +218,13 @@ class LeaveApplicationController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
+            return $this->errorResponse($e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
-
-        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');  
+        return $this->successResponse($leaveApplication, 'Leave Application updated successfully');
+    }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        } 
     }
 
     /**
@@ -219,16 +238,19 @@ class LeaveApplicationController extends Controller
         try {
             LeaveApplication::findOrFail($id)->delete();
 
-            return back()->with('msg_success', 'Leave Application has been deleted');
+            return $this->successResponse($id, 'Leave Application has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Leave Application cannot be delete as it has been forwarded to higher authorities. For further information contact system admin.');
+            return $this->errorResponse($e->getMessage());
         }
     }
 
     public function leaveBalance(Request $request){
-        $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(30);
-        return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
+        try{
+        $balances = EmployeeLeave::filter($request)->with(['employee:id,name', 'leaveType:id,name'])->where('mas_employee_id', auth()->user()->id)->get();
+        return $this->successResponse($balances, 'Leave balances retrieved successfully');
+    }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave

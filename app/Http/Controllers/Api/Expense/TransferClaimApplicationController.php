@@ -80,7 +80,10 @@ class TransferClaimApplicationController extends Controller
     public function store(Request $request)
     {   try {
         
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
 
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
@@ -190,7 +193,10 @@ class TransferClaimApplicationController extends Controller
     {
         try {
 
-            $this->validate($request, $this->rules, $this->messages);
+            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
             $transfer = TransferClaimApplication::findOrFail($id);
     
             if ($request->hasFile('attachment')) {
