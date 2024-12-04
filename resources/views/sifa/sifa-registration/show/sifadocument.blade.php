@@ -11,7 +11,7 @@
                             <strong>Certified family tree of the member</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->family_tree)
+                        @if (optional($sifaDocuments)->family_tree)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->family_tree)) }}" target="_blank">
                                 View Document
@@ -29,7 +29,7 @@
                             <strong>Copies of Citizen Identity Card(s) of dependent(s) and nominee(s) of the member</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->cid_of_dep_nom && is_array($sifaDocuments->cid_of_dep_nom))
+                        @if (optional($sifaDocuments)->cid_of_dep_nom && is_array($sifaDocuments->cid_of_dep_nom))
                         <div class="mt-3">
                             <ul>
                                 @foreach ($sifaDocuments->cid_of_dep_nom as $document)
@@ -52,7 +52,7 @@
                             <strong>Marriage Certificate / Confirmation of Marriage, if married</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->marriage_certificate)
+                        @if (optional($sifaDocuments)->marriage_certificate)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->marriage_certificate)) }}" target="_blank">
                                 View Document
@@ -69,7 +69,7 @@
                             <strong>Certified family tree of spouse of the member, if married</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->family_tree_spouse)
+                        @if (optional($sifaDocuments)->family_tree_spouse)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->family_tree_spouse)) }}" target="_blank">
                                 View Document
@@ -89,7 +89,7 @@
                             <strong>Copies of Citizenship Identity Cards of the dependent(s) on the spouse's side, if married</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->spouse_cid)
+                        @if (optional($sifaDocuments)->spouse_cid)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->spouse_cid)) }}" target="_blank">
                                 View Document
@@ -106,7 +106,7 @@
                             <strong>Birth Certificate(s) of biological children, if married and have children</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->birth_certificate)
+                        @if (optional($sifaDocuments)->birth_certificate)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->birth_certificate)) }}" target="_blank">
                                 View Document
@@ -125,7 +125,7 @@
                             <strong>Legal documents in case of foster parents and adopted children of the member</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->adopted_children)
+                        @if (optional($sifaDocuments)->adopted_children)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->adopted_children)) }}" target="_blank">
                                 View Document
@@ -142,7 +142,7 @@
                             <strong>If divorced, court verdict / legal agreement endorsed by a Royal Court of Justice</strong>
                             <span class="text-danger">*</span>
                         </label>
-                        @if ($sifaDocuments->if_divorced)
+                        @if (optional($sifaDocuments)->if_divorced)
                         <div class="mt-3">
                             <a href="{{ asset('images/sifa/' . basename($sifaDocuments->if_divorced)) }}" target="_blank">
                                 View Document

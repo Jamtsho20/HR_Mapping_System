@@ -58,6 +58,9 @@
                                                                         DEPARTMENT
                                                                     </th>
                                                                     <th>
+                                                                        Applied On
+                                                                    </th>
+                                                                    <th>
                                                                         STATUS
                                                                     </th>
                                                                     <th>
@@ -75,6 +78,7 @@
                                                                     <td>{{ $sifa->employee->empJob->designation->name ?? 'N/A' }}</td>
                                                                     <td>{{ $sifa->employee->empJob->section->name ?? 'N/A' }}</td>
                                                                     <td>{{ $sifa->employee->empJob->department->name ?? 'N/A' }}</td>
+                                                                    <td>{{ $sifa->employee->created_at }}</td>
                                                                     <td class="text-center">
                                                                         @if ($sifa->status == 1)
                                                                         <span class="badge bg-primary">Submitted</span>
