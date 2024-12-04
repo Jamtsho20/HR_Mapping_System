@@ -27,15 +27,24 @@
             </option>
             @endforeach
         </select>
-
     </div>
 
-    <div class="col-md-4 form-group">
+    <div class="col-md-2 form-group">
         <select class="form-control" name="section">
             <option value="" disabled selected hidden>Select Sections</option>
             @foreach($sections as $section)
             <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
                 {{ $section->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="designation">
+            <option value="" disabled selected hidden>Select Desination</option>
+            @foreach($designations as $desigation)
+            <option value="{{ $desigation->id }}" {{ request()->get('designation') == $desigation->id ? 'selected' : '' }}>
+                {{ $desigation->name }}
             </option>
             @endforeach
         </select>
@@ -48,59 +57,86 @@
                     <h3 class="card-title">Employee Report</h3>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
-                        <thead>
-                            <tr role="row">
-                                <th>
-                                    SL no
-                                </th>
-                                <th>
-                                    Employee Id
-                                </th>
-                                <th>
-                                    Name
-                                </th>
-                                <th>
-                                    DOJ
-                                </th>
+                    <div class="dataTables_scroll">
+                        <div class="dataTables_scrollHead"
+                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                            <div class="dataTables_scrollHeadInner"
+                                style="box-sizing: content-box; padding-right: 0px;">
+                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
+                                    <thead class="thead-light">
+                                        <tr role="row">
+                                            <th>
+                                                SL no
+                                            </th>
+                                            <th>
+                                                Employee Id
+                                            </th>
+                                            <th>
+                                                Name
+                                            </th>
+                                            <th>
+                                                Department
+                                            </th>
+                                            <th>
+                                                Section
+                                            </th>
+                                            <th>
+                                                Designation
+                                            </th>
+                                            <th>
+                                                Grade
+                                            </th>
+                                            <th>
+                                                Location
+                                            </th>
 
-                                <th>
-                                    Contact No
-                                </th>
-                                <th>
-                                    Email
-                                </th>
-                                <th>
-                                    Employee Status
-                                </th>
+                                            <th>
+                                                DOJ
+                                            </th>
+
+                                            <th>
+                                                Contact No
+                                            </th>
+                                            <th>
+                                                Email
+                                            </th>
+                                            <th>
+                                                Employee Status
+                                            </th>
 
 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($employees as $employee)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{$employee->username}}</td>
-                                <td>{{$employee->name}}</td>
-                                <td>{{$employee->date_of_appointment}}</td>
-                                <td>{{$employee->contact_number}}</td>
-                                <td>{{$employee->email}}</td>
-                                <td>
-                                    <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 'Active' ? 'primary' : 'danger' }}">
-                                        {{ $employee->is_active }}
-                                    </span>
-                                </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($employees as $employee)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{$employee->username}}</td>
+                                            <td>{{$employee->name}}</td>
+                                            <td>{{$employee->empJob->department->name}}</td>
+                                            <td>{{$employee->empJob->section->name}}</td>
+                                            <td>{{$employee->empJob->designation->name}}</td>
+                                            <td>{{$employee->empJob->gradeStep->name}}</td>
+                                            <td>{{$employee->empJob->office->name}}</td>
+                                            <td>{{$employee->date_of_appointment}}</td>
+                                            <td>{{$employee->contact_number}}</td>
+                                            <td>{{$employee->email}}</td>
+                                            <td>
+                                                {{ $employee->is_active ?'Active':'Inactive' }}
+                                            </td>
 
 
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" class="text-danger text-center">No users to be displayed</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="8" class="text-danger text-center">No users to be displayed</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 @if ($employees->hasPages())
                 <div class="card-footer">

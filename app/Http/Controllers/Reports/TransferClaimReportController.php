@@ -2,35 +2,33 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Exports\ExpenseExport;
+use App\Exports\TransferClaimExport;
 use App\Http\Controllers\Controller;
-use App\Models\ExpenseApplication;
 use App\Models\MasDepartment;
-use App\Models\MasExpenseType;
 use App\Models\MasOffice;
 use App\Models\MasRegion;
 use App\Models\MasSection;
+use App\Models\TransferClaimApplication;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ExpenseAndAdvanceReportController extends Controller
+class TransferClaimReportController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function __construct()
     {
-        $this->middleware('permission:report/expense-and-advance-report,view')->only('index');
-        $this->middleware('permission:report/expense-and-advance-report,create')->only('store');
-        $this->middleware('permission:report/expense-and-advance-report,edit')->only('update');
-        $this->middleware('permission:report/expense-and-advance-report,delete')->only('destroy');
+        $this->middleware('permission:report/transfer-claim-report,view')->only('index');
+        $this->middleware('permission:report/transfer-claim-report,create')->only('store');
+        $this->middleware('permission:report/transfer-claim-report,edit')->only('update');
+        $this->middleware('permission:report/transfer-claim-report,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::select('name', 'id')->get();
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
         $regions = MasRegion::select('name', 'id')->get();
@@ -40,11 +38,10 @@ class ExpenseAndAdvanceReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $expenseApplications = ExpenseApplication::filter($request, false)->paginate(30)->withQueryString();
+        $trasferClaims = TransferClaimApplication::filter($request, false)->paginate(30)->withQueryString();
 
-        return view('report.expense-and-advance-report.index', compact('privileges', 'expenseApplications', 'regions', 'departments', 'sections', 'expenses', 'employeeLists', 'offices', 'managers'));
+        return view('report.transfer-claim-report.index', compact('privileges', 'trasferClaims', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -93,32 +90,32 @@ class ExpenseAndAdvanceReportController extends Controller
     {
         //
     }
-    public function exportExpense(Request $request)
+    public function exportTransferCaim(Request $request)
     {
 
         // Load all bookings with their dzongkhag names
-        $expenses = ExpenseApplication::filter($request, false)->get();
+        $trasferClaims = TransferClaimApplication::filter($request, false)->get();
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.expense-report-pdf', compact('expenses'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.transfer-claim-report-pdf', compact('trasferClaims'))->setPaper('a4', 'landscape');;
 
         // Return the PDF download
-        return $pdf->download('Expense-Report.pdf');
+        return $pdf->download('Transfer-Claim-Report.pdf');
     }
-    public function exportExpenseExcel(Request $request)
+    public function exportTransferClaimExcel(Request $request)
     {
-        return Excel::download(new ExpenseExport($request), 'expense-report.xlsx');
+        return Excel::download(new TransferClaimExport($request), 'transfer-claim-report.xlsx');
     }
 
-    public function printExpense(Request $request)
+    public function printTransferClaim(Request $request)
     {
-        $expenses = ExpenseApplication::filter($request, false)->get();
+        $trasferClaims = TransferClaimApplication::filter($request, false)->get();
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.expense-report-pdf', compact('expenses'))
+        $pdf = Pdf::loadView('export-report.transfer-claim-report-pdf', compact('trasferClaims'))
             ->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
-        return $pdf->stream('Expense-Report.pdf');
+        return $pdf->stream('Transfer-Claim-Report.pdf');
     }
 }

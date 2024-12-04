@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\EmployeeExport;
 use App\Http\Controllers\Controller;
 use App\Models\MasDepartment;
+use App\Models\MasDesignation;
 use App\Models\MasSection;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -28,8 +29,9 @@ class EmployeeReportController extends Controller
         $privileges = $request->instance();
         $employees = User::filter($request)->paginate(30)->withQueryString();
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
+        $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
-        return view('report.employee-report.index', compact('privileges', 'employees', 'departments', 'sections'));
+        return view('report.employee-report.index', compact('privileges', 'employees', 'departments', 'sections', 'designations'));
     }
 
     /**
@@ -85,8 +87,6 @@ class EmployeeReportController extends Controller
 
         // Load all bookings with their dzongkhag names
        $employees = User::filter($request, false)->get();
-
-
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.employee-report-pdf', compact('employees'))->setPaper('a4', 'landscape');;

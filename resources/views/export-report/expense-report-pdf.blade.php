@@ -37,75 +37,70 @@
 </head>
 
 <body>
-    <h1>Employee Report</h1>
+    <h1>Expense Report</h1>
     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
         <thead class="thead-light">
             <tr role="row">
                 <th>
-                    SL no
+                    #
+                </th>
+
+                <th>
+                    Employee NAME
                 </th>
                 <th>
-                    Employee Id
-                </th>
-                <th>
-                    Name
+                    DESIGNATION
                 </th>
                 <th>
                     Department
                 </th>
                 <th>
-                    Section
+                    Expense Type
                 </th>
                 <th>
-                    Designation
+                    Expense AMount
                 </th>
                 <th>
-                    Grade
+                    Description
                 </th>
                 <th>
-                    Location
-                </th>
-
-                <th>
-                    DOJ
-                </th>
-
-                <th>
-                    Contact No
+                    Status
                 </th>
                 <th>
-                    Email
+                    Approved By
                 </th>
-                <th>
-                    Employee Status
-                </th>
-
-
             </tr>
         </thead>
         <tbody>
-            @forelse($employees as $employee)
+            @forelse($expenses as $application)
             <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>{{$employee->username}}</td>
-                <td>{{$employee->name}}</td>
-                <td>{{$employee->empJob->department->name}}</td>
-                <td>{{$employee->empJob->section->name}}</td>
-                <td>{{$employee->empJob->designation->name}}</td>
-                <td>{{$employee->empJob->gradeStep->name}}</td>
-                <td>{{$employee->empJob->office->name}}</td>
-                <td>{{$employee->date_of_appointment}}</td>
-                <td>{{$employee->contact_number}}</td>
-                <td>{{$employee->email}}</td>
+                <td>{{$loop->iteration}}</td>
+                <td>{{$application->employee->name}}</td>
+                <td>{{$application->employee->empJob->designation->name}}</td>
+                <td>{{$application->employee->empJob->department->name}}</td>
+                <td>{{$application->expenseType->name}}</td>
+                <td>{{$application->expense_amount}}</td>
+                <td>{{$application->description}}</td>
+                @php
+                $statusClasses = [
+                -1 => 'Rejected',
+                0 => 'Cancelled',
+                1 => 'Submitted',
+                2 => 'Verified',
+                3 => 'Approved',
+                ];
+                $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
+                $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
+                @endphp
                 <td>
-                    {{ $employee->is_active ?'Active':'Inactive' }}
+
+                    {{ $statusText }}
                 </td>
-
-
+                <td>{{$application->expense_approved_by->name}}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="12" class="text-danger text-center">No users to be displayed</td>
+                <td colspan="10" class="text-center text-danger">No Expense report found</td>
             </tr>
             @endforelse
         </tbody>
