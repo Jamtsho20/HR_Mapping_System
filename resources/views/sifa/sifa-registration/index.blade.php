@@ -96,7 +96,15 @@
                                                                 </a>
                                                                 @endif
                                                                 @endif
+                                                                @if ($sifaRegistration->is_registered == 0)
+                                                                @if ($privileges->view)
+                                                                <a href="{{ url('sifa/sifa-registration/' . $sifaRegistration->id) }}" class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @endif
+                                                                @endif
                                                             </td>
+
                                                         </tr>
                                                         @else
                                                         <tr>
