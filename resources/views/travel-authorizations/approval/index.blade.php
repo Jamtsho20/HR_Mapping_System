@@ -20,11 +20,11 @@
             @if ($privileges->edit)
             <div class="col-sm-6">
                 <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
-                    data-route="{{ route('travel-authorization.bulk-approval-rejection') }}" data-item-class="leave_checkbox"
-                    data-item-name="leave" value="Approve">
+                    data-route="{{ route('approverejectbulk') }}" data-item-class="leave_checkbox"
+                    data-item-name="leave" data-item-type="6" value="Approve">
                 <input class="btn-sm btn-danger buttonsubmit" type="button" id="btn_reject" data-value="reject"
-                    data-route="{{ route('travel-authorization.bulk-approval-rejection') }}" data-item-class="leave_checkbox"
-                    data-item-name="leave" value="Reject">
+                    data-route="{{ route('approverejectbulk') }}" data-item-class="leave_checkbox"
+                    data-item-name="leave" data-item-type="6" value="Reject">
             </div>
             @endif
         </div>
@@ -129,13 +129,14 @@
             });
         });
 
-        // Bulk approval/rejection
-        $('.buttonsubmit').click(function() {
+         // Bulk approval/rejection
+         $('.buttonsubmit').click(function() {
             var action = $(this).data('value');
             var selectedItems = [];
             var routeUrl = $(this).data('route');
             var itemClass = $(this).data('item-class');
             var itemName = $(this).data('item-name');
+            var itemType = $(this).data('item-type');
 
             // Modal close manually
             $('.close').click(function() {
@@ -175,14 +176,15 @@
                             _token: '{{ csrf_token() }}',
                             item_ids: selectedItems,
                             action: action,
-                            reject_remarks: rejectRemarks
+                            reject_remarks: rejectRemarks,
+                            item_type_id: itemType
                         },
                         success: function(response) {
-                            alert(response.message);
-                            location.reload(); // Reload to reflect changes
+                            alert(response.msg_success);
+                            location.reload();
                         },
                         error: function() {
-                            alert('An error occurred while processing your request');
+                            alert(response.msg_error);
                         }
                     });
 
@@ -197,14 +199,15 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         item_ids: selectedItems,
-                        action: action
+                        action: action,
+                        item_type_id: itemType
                     },
                     success: function(response) {
-                        alert(response.message);
-                        location.reload(); // Reload to reflect changes
+                        alert(response.msg_success);
+                        location.reload();
                     },
                     error: function() {
-                        alert('An error occurred while processing your request');
+                        alert(response.msg_error);
                     }
                 });
             }

@@ -14,6 +14,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\services\ApplicationHistoriesService;
 
 class SifaRegistrationController extends Controller
 {
@@ -74,12 +75,12 @@ class SifaRegistrationController extends Controller
 
     public function store(Request $request)
     {
-        //dd($request->all());
+      
         // Conditionally apply validation rules
         $sifaTypeId = MasSifaType::first()->id;
         $rules = $this->rules;
+        
         $conditionFields = approvalHeadConditionFields(SIFA_REGISTRATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-        //dd($conditionFields);
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($sifaTypeId, \App\Models\MasSifaType::class, $conditionFields ?? []);
         // If the user selects 'no', only validate remarkss
@@ -111,7 +112,7 @@ class SifaRegistrationController extends Controller
             $sifaRegistration->save(); // Save the main record first
 
             // Save the sifa_retirement_and_nomination details
-            if ($request->has('sifa_retirement_and_nomination') && is_array($request->sifa_retirement_and_nomination)) {
+            if ($request->is_registered == 'no' && $request->has('sifa_retirement_and_nomination') && is_array($request->sifa_retirement_and_nomination)) {
                 foreach ($request->sifa_retirement_and_nomination as $key => $nomination) {
                     $nominationModel = new SifaRetirementAndNomination();
                     $nominationModel->sifa_registration_id = $sifaRegistration->id; // Reference to the main record
@@ -120,11 +121,14 @@ class SifaRegistrationController extends Controller
                     $nominationModel->cid_number = $nomination['cid_number'] ?? null;
                     $nominationModel->percentage_of_share = $nomination['percentage_of_share'] ?? null;
                     $nominationModel->save();
+                    
                 }
             } else {
                 // If "Yes", set is_registered to 1 (default behavior)
+               
                 $sifaRegistration->sifa_type_id = $sifaTypeId;
                 $sifaRegistration->is_registered = 1;
+                
             }
 
             $sifaRegistration->save(); // Save the SifaRegistration record
@@ -140,6 +144,7 @@ class SifaRegistrationController extends Controller
                     $sifaNomination->cid_number = $nominationData['cid_number'];
                     $sifaNomination->percentage_of_share = $nominationData['percentage_of_share'];
                     $sifaNomination->save(); // Save nomination data
+                  
                 }
 
                 // Store SIFA Dependents Data
@@ -150,10 +155,12 @@ class SifaRegistrationController extends Controller
                     $sifaDependent->relation_with_employee = $dependentData['relation_with_employee'];
                     $sifaDependent->cid_number = $dependentData['cid_number'];
                     $sifaDependent->save();
+                    
                 }
 
                 // Store SIFA Documents Data
                 $data = ['sifa_registration_id' => $sifaRegistration->id];
+                
 
                 // Loop through fields with single file uploads
                 foreach (['family_tree', 'cid_of_dep_nom', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid', 'birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
@@ -175,19 +182,13 @@ class SifaRegistrationController extends Controller
                     }
                 }
                 SifaDocument::create($data); // Store document data
+                
             }
-            $sifaRegistration->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarkss' => $request->remarkss ?? null,
-                'action_performed_by' => loggedInUser(),
-            ]);
 
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($sifaRegistration->histories(), $approverByHierarchy, $request->remarks);
+          
+            
             // Commit the transaction
             DB::commit();
 
