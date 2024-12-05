@@ -139,7 +139,7 @@
                                                             <td>{{$reports->from_date}}</td>
                                                             <td>{{$reports->no_of_emi}}</td>
                                                             <td>{{$reports->to_date}}</td>
-                                                            <td>{{$reports->advance_approved_by->name}}</td>
+                                                            <td>{{$reports->advance_approved_by->name??'-'}}</td>
                                                             <td>{{$reports->updated_at->format('d-m-Y')}}</td>
                                                         </tr>
                                                         @empty

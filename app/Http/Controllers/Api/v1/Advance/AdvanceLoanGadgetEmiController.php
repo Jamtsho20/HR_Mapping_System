@@ -14,17 +14,18 @@ class AdvanceLoanGadgetEmiController extends Controller
     use JsonResponseTrait;
    
 
-    public function index(Request $request, $id)
+    public function index(Request $request, $username)
     {
-        if (!is_numeric($id)) {
-            return $this->errorResponse('Invalid ID format', 400);
-        }
+
+       $formattedUsername = 'E' . sprintf('%05d', $username);
+       $id = User::where('username', $formattedUsername)->value('id');
+     
         try {
 
-        $expenseApplications = AdvanceApplication::where('created_by', $id)->get(['advance_no',  'total_amount', 'item_type']);
+        $expenseApplications = AdvanceApplication::where('created_by', $id)->where('advance_type_id', GADGET_EMI)->get(['advance_no',  'total_amount', 'item_type']);
         
         
-            return $this->successResponse($expenseApplications, 'Expense applications retrieved successfully');
+            return $this->successResponse($expenseApplications, 'Gadjet EMI applications retrieved successfully');
 
             } catch (\Exception $e) {
                 return $this->errorResponse('Failed to retrieve applications', 500);
@@ -33,7 +34,7 @@ class AdvanceLoanGadgetEmiController extends Controller
 
     public function getEmployees(Request $request){
         try{
-        $employees = AdvanceApplication::where('status', 3)->get(['created_by']);
+        $employees = AdvanceApplication::where('status', 3)->get(['created_by'])->unique('created_by');
         
         return $this->successResponse($employees, 'Employees retrieved successfully');
         } catch (\Exception $e) {

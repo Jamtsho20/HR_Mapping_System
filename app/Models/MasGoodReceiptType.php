@@ -6,7 +6,7 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MasGoodReceiptTypes extends Model
+class MasGoodReceiptType extends Model
 {
     use HasFactory, CreatedByTrait;
 

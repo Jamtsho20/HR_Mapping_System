@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\AdvanceLoanReportController;
+use App\Http\Controllers\Reports\EmployeeReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LTCController;
@@ -198,7 +199,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
-        Route::resource('salary-saving-scheme', 'SAlarySavingSchemeController')->except('create', 'show', 'edit');
+        Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
+        Route::resource('employee-report', 'EmployeeReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -212,6 +214,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-ltc-excel-report', [LTCController::class, 'exportLTCExcel'])->name('ltc.export');
     Route::get('/export-advance-loan-report', [AdvanceLoanReportController::class, 'exportAdvanceLoan'])->name('advance-loan-pdf.export');
     Route::get('/export-advance-loan-excel-report', [AdvanceLoanReportController::class, 'exportAdvanceLoanExcel'])->name('advance-loan.export');
+    Route::get('/export-employee-report', [EmployeeReportController::class, 'exportEmployee'])->name('employee-pdf.export');
+    Route::get('/export-employee-excel-report', [EmployeeReportController::class, 'exportEmployeeExcel'])->name('employee-excel.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
@@ -219,6 +223,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
     Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
     Route::get('/print-advance-loan-report', [AdvanceLoanReportController::class, 'printAdvanceLoan'])->name('advance-loan-print');
+    Route::get('/print-employee-report', [EmployeeReportController::class, 'printEmployee'])->name('employee-report-print');
 
 
     //AssetsReport
@@ -227,8 +232,10 @@ Route::middleware('auth')->group(function () {
         // Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
-        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
-        Route::resource('goods-issue', 'GoodsIssueController')->except('create', 'show', 'edit');
+        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
+        // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
+
+        Route::resource('goods-issue', 'GoodsIssueController');
         Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt', 'GoodsReceiptController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
@@ -317,4 +324,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
     Route::get('getrequisitionnobyrequisitiontype/{id}', 'AjaxRequestController@getRequisitionNumber');
+    Route::get('getissuenobyissuetype/{id}', 'AjaxRequestController@getIssueNumber');
+    Route::get('getreceiptnobyreceipttype/{id}', 'AjaxRequestController@getReceiptNumber');
+    Route::get('getrequisitiondetailsbyrequisitionid/{id}', 'AjaxRequestController@getRequisitionDetails');
 });

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
+use App\Models\AdvanceDetail;
 use App\Services\ApprovalService;
 use App\Models\MasAdvanceTypes;
 use App\Models\BudgetCode;
 use App\Models\MasDzongkhag;
+use App\Models\TravelAuthorizationApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -76,7 +78,20 @@ class AdvanceLoanApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $advance = AdvanceApplication::findOrFail($id);
+            $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
+            $budgetCodes = BudgetCode::get();
+            $dzongkhags = MasDzongkhag::get();
+
+
+            $empDetails = empDetails($advance->created_by);
+        } catch (\Exception $e) {
+            return back()->with('err_msg', 'Advance Loan apllication not found!');
+        }
+
+        return view('advance-loan.approval.show', compact('advance', 'empDetails', 'advanceDetails', 'budgetCodes', 'dzongkhags'));
+    
     }
 
     /**
@@ -180,7 +195,7 @@ class AdvanceLoanApprovalController extends Controller
                     // dd($applicationForwardedTo);
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
-                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'next_level_id' => $applicationForwardedTo['next_level']->id,
                             'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
@@ -220,7 +235,7 @@ class AdvanceLoanApprovalController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
+            return response()->json(['message' => 'Selected advance has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Bulk approval/rejection error: ' . $e->getMessage());

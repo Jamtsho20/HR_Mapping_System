@@ -18,10 +18,11 @@ return new class extends Migration
             $table->string('item_description');
             $table->string('uom');
             $table->string('store');
-            // $table->tinyInteger('stock_status')->comment('1,2,3,4');
-            $table->decimal('quantitiy_required', 5, 2);
+            $table->decimal('stock_status')->comment('quantity availaible in warehouse');
+            $table->decimal('quantity_required', 5, 2);
             $table->string('dzongkhag');
             $table->string('site_name');
+            $table->text('remark')->nullable();
             $table->timestamps();
         });
     }

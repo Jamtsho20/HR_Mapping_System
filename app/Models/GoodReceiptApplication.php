@@ -12,6 +12,11 @@ class GoodReceiptApplication extends Model
 
     public function receiptType ()
     {
-        return $this->belongsTo(MasGoodReceiptTypes::class, 'receipt_type_id');
+        return $this->belongsTo(MasGoodReceiptType::class, 'receipt_type_id');
+    }
+
+    public function histories()
+    {
+        return $this->morphMany(ApplicationHistory::class, 'application');
     }
 }

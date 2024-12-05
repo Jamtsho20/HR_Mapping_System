@@ -16,7 +16,8 @@ return new class extends Migration
             $table->morphs('application');
             $table->unsignedTinyInteger('approval_option')->comment('1 => Hierarchical, 2 => single user, 3 => auto approval');
             $table->foreignId('hierarchy_id')->index()->nullable()->constrained('system_hierarchies')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreignId('level_id')->index()->nullable()->constrained('system_hierarchy_levels')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('max_level_id')->index()->nullable()->constrained('system_hierarchy_levels')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('next_level_id')->index()->nullable()->constrained('system_hierarchy_levels')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('approver_role_id')->index()->nullable()->constrained('roles')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('approver_emp_id')->index()->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->unsignedInteger('level_sequence')->nullable();

@@ -1,81 +1,125 @@
 @extends('layouts.app')
-@section('page-title', 'Advance Loan Application Details')
+@section('page-title', 'View Advance Application')
 @section('buttons')
-<a href="{{ route('apply.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Advance Loan List</a>
+<a href="{{ url('advance-loan/apply') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Applied List</a>
 @endsection
-
 @section('content')
 
 <div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
 
-                    <div class="col-md-4">
-                        <ul class="list-group list-group-unbordered">
-                            <li class="list-group-item">
-                                <b>Advance No</b> <a class="pull-right">{{ $advance->advance_no }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Date</b> <a class="pull-right">{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Advance Type</b> <a class="pull-right">{{ optional($advance->advanceType)->name ?? 'N/A' }}</a>
-                            </li>
-                        </ul>
-                    </div>
+    <div class="col-lg-12">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+            <div class="row" >
+                <div class="col-md-12">
+                    <h6>Advance Details</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table style="width:100%;" class="simple-table">
+                        <tbody>
+                            <tr>
+                                <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$advance->advance_no }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Applied On<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{$advance->date}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Advance Type <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$advance->advanceType->name }}</td>
+                            </tr>
 
-                    <div class="col-md-8">
-                        <ul class="list-group list-group-unbordered">
-                            <!-- Include dynamic fields based on advance type -->
-                            <li class="list-group-item">
-                                <a class="pull-right">
-                                    @if($advance->advanceType)
-                                        @if($advance->advanceType->name === 'Advance to Staff')
-                                            @include('advance-loan.apply.show.advance-to-staff')
-                                        @elseif($advance->advanceType->name === 'DSA Advance(Tour)')
-                                            @include('advance-loan.apply.show.dsa-advance')
-                                        @elseif($advance->advanceType->name === 'Electricity Imprest Advance')
-                                            @include('advance-loan.apply.show.electricity-imprest')
-                                        @elseif($advance->advanceType->name === 'Imprest Advance')
-                                            @include('advance-loan.apply.show.general-imprest')
-                                        @elseif($advance->advanceType->name === 'Gadget EMI')
-                                            @include('advance-loan.apply.show.gadget-emi')
-                                        @elseif($advance->advanceType->name === 'SIFA LOAN')
-                                            @include('advance-loan.apply.show.sifa-loan')
-                                        @elseif($advance->advanceType->name === 'Salary Advance')
-                                            @include('advance-loan.apply.show.salary-advance')
-                                        @endif
+                            @if($advance->advance_type_id == 2)
+                            @include('advance-loan.approval.details.dsa-tour')
+                            @endif
+
+                            @if($advance->advance_type_id == 4)
+                            @include('advance-loan.approval.details.gadget')
+                            @endif
+                            @if($advance->advance_type_id == 6)
+                            @include('advance-loan.approval.details.salary')
+                            @endif
+                            @if($advance->advance_type_id == 7)
+                            @include('advance-loan.approval.details.sifa')
+                            @endif
+
+
+
+                            <tr>
+                                <th style="width:35%;">Amount<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{$advance->amount}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{$advance->total_amount}}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$advance->remarks }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> @if($advance->attachment)
+                                    <a href="{{ asset($advance->attachment) }}" class="btn btn-sm btn-primary pull-right" target="_blank">
+                                        <i class="fas fa-file-alt"></i> View Attachment
+                                    </a>
+                                    @else
+                                    <span class="text-danger">No attachment available.</span>
                                     @endif
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    @if($advance->advance_type_id == 1)
+                    @include('advance-loan.approval.details.advance-to-staff')
+                    @endif
 
                 </div>
             </div>
-            <div class="card-footer">
-                <ul class="list-group list-group-unbordered">
-
-                    <li class="list-group-item">
-                        <b>Approved By</b>
-                        <a class="pull-right"></a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Rejected By</b> <a class="pull-right"></a>
-
-                    </li>
-
-
-                </ul>
-            </div>
-
         </div>
     </div>
+
+    <div class="col-lg-12">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>Status</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table style="width:100%;" class="simple-table">
+                        <tbody>
+                            <tr>
+                                <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{$advance->status == 3 ?$advance->advance_approved_by->name:'N/A'}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{$advance->status == -1 ?$advance->advance_approved_by->name:'N/A'}} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @endsection
-
 @push('page_scripts')
+
 @endpush

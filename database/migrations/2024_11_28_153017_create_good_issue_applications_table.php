@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('requisition_id')->index()->constrained('requisition_applications')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('issue_no')->index();
+            $table->foreignId('issued_to')->index()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->date('issue_date')->index();
             $table->tinyInteger('status')->comment('1 => New, 0 => Cancelled, -1 => rejected, 2 => Verified, 3 => Approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');

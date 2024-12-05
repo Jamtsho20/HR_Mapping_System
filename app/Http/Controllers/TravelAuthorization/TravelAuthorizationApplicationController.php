@@ -87,10 +87,12 @@ class TravelAuthorizationApplicationController extends Controller
         $travelAuthorization = new  TravelAuthorizationApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+        //dd($conditionFields);
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
+        // dd($request->travel_type);
 
-        try {
+        // try {
             DB::beginTransaction();
             $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
             $travelAuthorization->date = $request->date;
@@ -133,12 +135,12 @@ class TravelAuthorizationApplicationController extends Controller
 
 
             DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
-            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
-        }
-
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return back()->withInput()->with('msg_error', $e->getMessage());
+        //     // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+        // }
+            dd($travelAuthorization->details);
         return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization application created successfully!');
     }
 

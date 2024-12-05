@@ -12,6 +12,11 @@ class GoodIssueApplication extends Model
 
     public function issueType () 
     {
-        return $this->belongsTo(MasGoodIssueTypes::class, 'issue_type_id');
+        return $this->belongsTo(MasGoodIssueType::class, 'issue_type_id');
+    }
+
+    public function histories()
+    {
+        return $this->morphMany(ApplicationHistory::class, 'application');
     }
 }

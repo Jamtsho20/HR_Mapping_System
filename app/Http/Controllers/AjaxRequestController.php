@@ -7,6 +7,8 @@ use App\Models\ApprovingAuthority;
 use App\Models\DsaClaimApplication;
 use App\Models\EmployeeLeave;
 use App\Models\ExpenseApplication;
+use App\Models\GoodIssueApplication;
+use App\Models\GoodReceiptApplication;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
@@ -15,6 +17,8 @@ use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
+use App\Models\MasGoodIssueType;
+use App\Models\MasGoodReceiptType;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
@@ -299,10 +303,10 @@ class AjaxRequestController extends Controller
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
             4 => LeaveEncashmentType::class,
-            5 => MasAdvanceTypes::class,
+            5 => MasRequisitionType::class,
             6 => MasTransferClaim::class,
-            7 => MasSifaType::class,
-            8 => MasTravelType::class,
+            7 => MasTravelType::class,
+            8 => MasSifaType::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -353,17 +357,16 @@ class AjaxRequestController extends Controller
             2 => ExpenseApplication::class,
             3 => AdvanceApplication::class,
             4 => TransferClaimApplication::class,
+            5 => RequisitionApplication::class,
         ];
 
         $model = $modelMap[$request->item_type_id] ?? null;
-
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
@@ -375,7 +378,6 @@ class AjaxRequestController extends Controller
                     ->where('application_type', $model)
                     ->where('application_id', $id)
                     ->first();
-
                 // Update leave application status
                 $application->update([
                     'status' => $status,
@@ -394,7 +396,7 @@ class AjaxRequestController extends Controller
 
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
-                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'next_level_id' => $applicationForwardedTo['next_level']->id,
                             'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
@@ -541,5 +543,42 @@ class AjaxRequestController extends Controller
             return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
         }
         
+    }
+
+    public function getIssueNumber($id) {
+        try{
+            $issueType = MasGoodIssueType::findOrFail($id);
+            $latestTransaction = GoodIssueApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $issueNo = generateTransactionNumber($issueType->code, $nextSequence);
+            return $this->successResponse(['issue_no' => $issueNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
+        }
+        
+    }
+
+    public function getReceiptNumber($id) {
+        try{
+            $receiptType = MasGoodReceiptType::findOrFail($id);
+            $latestTransaction = GoodReceiptApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
+            return $this->successResponse(['receipt_no' => $receiptNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
+        }
+        
+    }
+
+    public function getRequisitionDetails($id) {
+        try{
+            $requisitionDetails = RequisitionApplication::with('details')->findOrFail($id);
+            return $this->successResponse(['requisition_details' => $requisitionDetails]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wrong while trying to fetch details, please try again.');
+        }
     }
 }

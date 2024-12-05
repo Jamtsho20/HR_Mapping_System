@@ -144,6 +144,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 16, 'name' => 'Salary Saving Scheme', 'route' => 'report/salary-saving-scheme', 'display_order' => 7],
             ['system_menu_id' => 16, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
             ['system_menu_id' => 16, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
+            ['system_menu_id' => 16, 'name' => 'Employee Report', 'route' => 'report/employee-report', 'display_order' => 10],
 
 
             //submenu for Travel Authorization

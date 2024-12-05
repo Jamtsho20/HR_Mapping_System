@@ -10,8 +10,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="requisition_no">Requisition No. <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="requisition_no" name="requisition_no" value="{{ old('requisition_no') }}"
-                            disabled>
+                        <input type="text" class="form-control" id="requisition_no" name="requisition_no" value="{{ old('requisition_no') }}" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -67,6 +66,7 @@
                                 <th>Quantity Required*</th>
                                 <th>Dzongkhang*</th>
                                 <th>Site Name*</th>
+                                <th>Remark</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,7 +77,7 @@
                                             class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][purchas_order_no]" required />
+                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][purchase_order_no]" required />
                                         <option value="" disabled selected hidden>Select</option>
                                         <option value="122">1212</option>
                                     </select>
@@ -89,7 +89,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][uom]" value="No" class="form-control form-control-sm resetKeyForNew" disabled required />
+                                    <input type="text" name="details[AAAAA][uom]" value="No" class="form-control form-control-sm resetKeyForNew" readonly required />
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
@@ -98,11 +98,11 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][stock_status]" value="4" class="form-control form-control-sm resetKeyForNew stock-status" disabled required />
+                                    <input type="text" name="details[AAAAA][stock_status]" value="4" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
 
                                 </td>
                                 <td>
-                                    <input type="number" name="quantity" class="form-control form-control-sm resetKeyForNew quantity-input" required />
+                                    <input type="number" name="details[AAAAA][quantity_required]" class="form-control form-control-sm resetKeyForNew quantity-input" required />
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][dzongkhag]" required />
@@ -119,10 +119,13 @@
                                         <option value="Site A">Site A</option>
                                     </select>
                                 </td>
+                                <td>
+                                    <textarea class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][remark]"></textarea>
+                                </td>
                             </tr>
 
                             <tr class="notremovefornew">
-                                <td colspan="8"></td>
+                                <td colspan="9"></td>
                                 <td class="text-right">
                                     <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                 </td>
@@ -173,7 +176,6 @@
             const $row = $(this).closest('tr'); // Get the row of the input
             const quantity = parseInt($(this).val()) || 0; // Get the quantity entered
             const stockStatus = parseInt($row.find('.stock-status').val()) || 0; // Parse the stock status value
-            alert(typeof(stockStatus))
             // Check if quantity exceeds stock status
             if (quantity <= stockStatus) {
                 return;
