@@ -141,7 +141,9 @@ class TransferClaimApplicationController extends Controller
     public function show($id)
     {
         $empIdName = LoggedInUserEmpIdName();
+
         $transfer = TransferClaimApplication::findOrfail($id);
+     
 
         return view('expense.transfer-claim.show', compact('transfer', 'empIdName'));
     }

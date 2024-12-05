@@ -1,14 +1,17 @@
 <?php
 
+use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\AdvanceLoanReportController;
 use App\Http\Controllers\Reports\EmployeeReportController;
+use App\Http\Controllers\Reports\ExpenseAndAdvanceReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\SalaryReportController;
+use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Models\PaySlip;
@@ -29,20 +32,45 @@ use Illuminate\Support\Facades\Route;
  */
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
 
-Route::get('/test-payslip', function () {
-    return   PayrollService::checkFormulaValidity(
-        "IF (['EMPLOYMENT_TYPE'] == 'Regular')
-THEN ([BASIC_PAY] * 0.15)
-ELSEIF (['EMPLOYMENT_TYPE'] == 'Contract')
-THEN ([BASIC_PAY] * 0.15)
-ELSEIF (['EMPLOYMENT_TYPE'] == 'Consolidate' OR ['EMPLOYMENT_TYPE'] == 'Support Contract')
-THEN ([BASIC_PAY] * 0.05)
-ELSE
-THEN 0
-ENDIF"
-    );
+Route::get('/debug', function () {
+    $sap = new ApiController();
+
+    $response = $sap->startSession();
+    // Check if the response is a valid JSON string
+    if (json_last_error() === JSON_ERROR_NONE) {
+        $session = json_decode($response->getContent(), true);
+
+        dd($session['sessionId']);
+    } else {
+        // Output the error if JSON decoding fails
+        dd(json_last_error_msg());
+    }
+    // $sessionId = $session['sessionId'] ?? '';
+
+    $postFields = '{
+        "ReferenceDate":"2024-11-11",
+        "Memo": "Travel Allowance",
+        "JournalEntryLines": [
+            {
+                "ShortName": "E00993",
+                "CostingCode": null,
+                "Credit": 111,
+                "Debit": 0
+            },
+            {
+                "AccountCode": "52136",
+                "CostingCode": null,
+                "Credit": 0,
+                "Debit": 111
+            }
+        ]
+    }';
+
+    // Call postJournalEntries method
+    $response = $sap->postJournalEntries($postFields);
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -116,11 +144,11 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Expense')->prefix('expense')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
-        Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
+        Route::resource('approval', 'ExpenseApprovalController')->except('create', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
-        Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'show', 'edit');
+        Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'edit');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');
-        Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'show', 'edit');
+        Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'edit');
         Route::resource('expense-fuel', 'ExpenseFuelController');
         Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
         // Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
@@ -146,6 +174,10 @@ Route::middleware('auth')->group(function () {
         // Custom route for bulk approval/rejection
         Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
         Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
+
+        Route::get('/send-encashment-notifications', [DashboardController::class, 'sendEncashmentNotification']);
+
+
     });
 
     // DELEGATION APPROVAL
@@ -190,7 +222,7 @@ Route::middleware('auth')->group(function () {
 
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
-        Route::resource('ltc', 'LTCController')->except('create', 'show', 'edit');
+        Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
@@ -201,6 +233,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
         Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
         Route::resource('employee-report', 'EmployeeReportController')->except('create', 'show', 'edit');
+        Route::resource('transfer-claim-report', 'TransferClaimReportController')->except('create', 'show', 'edit');
+        Route::resource('dsa-settlement-report', 'DSASettlementReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -216,6 +250,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-advance-loan-excel-report', [AdvanceLoanReportController::class, 'exportAdvanceLoanExcel'])->name('advance-loan.export');
     Route::get('/export-employee-report', [EmployeeReportController::class, 'exportEmployee'])->name('employee-pdf.export');
     Route::get('/export-employee-excel-report', [EmployeeReportController::class, 'exportEmployeeExcel'])->name('employee-excel.export');
+    Route::get('/export-expense-report', [ExpenseAndAdvanceReportController::class, 'exportExpense'])->name('expense-pdf.export');
+    Route::get('/export-expense-excel-report', [ExpenseAndAdvanceReportController::class, 'exportExpenseExcel'])->name('expense-excel.export');
+    Route::get('/export-transfer-claim-report', [TransferClaimReportController::class, 'exportTransferCaim'])->name('transfer-claim-pdf.export');
+    Route::get('/export-transfer-claim-excel-report', [TransferClaimReportController::class, 'exportTransferClaimExcel'])->name('transfer-claim-excel.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
@@ -224,6 +262,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
     Route::get('/print-advance-loan-report', [AdvanceLoanReportController::class, 'printAdvanceLoan'])->name('advance-loan-print');
     Route::get('/print-employee-report', [EmployeeReportController::class, 'printEmployee'])->name('employee-report-print');
+    Route::get('/print-expense-report', [ExpenseAndAdvanceReportController::class, 'printExpense'])->name('expense-report-print');
+    Route::get('/print-transfer-claim-report', [TransferClaimReportController::class, 'printTransferClaim'])->name('transfer-claim-print');
 
 
     //AssetsReport
@@ -262,28 +302,7 @@ Route::middleware('auth')->group(function () {
     });
 
     //Payroll
-    Route::namespace('Payroll')->prefix('payroll')->group(function () {
-        Route::resource('other-pay-changes', 'OtherPayChangeController');
-        Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
-        Route::resource('annual-increment', 'AnnualIncrementController');
-        Route::resource('pay-slips', 'PaySlipController');
-
-        Route::get('process-pay-slips/{id}', 'PaySlipController@processPaySlip')->name('pay-slips.process');
-        Route::get('verify-pay-slips/{id}', 'PaySlipController@verifyPaySlip')->name('pay-slips.verify');
-        Route::get('approve-pay-slips/{id}', 'PaySlipController@approvePaySlip')->name('pay-slips.approve');
-        Route::get('mail-pay-slips/{id}', 'PaySlipController@mailPaySlip')->name('pay-slips.mail');
-        Route::any('add-pay-slip-detail/{id}', 'PaySlipController@addPaySlipDetail')->name('pay-slip-detail.add');
-
-        Route::patch('annual-increment-toggle-status', 'AnnualIncrementController@toggleStatus')->name('annual-increment.toggles-status');
-        Route::patch('annual-increment-update-remarks', 'AnnualIncrementController@updateRemarks')->name('annual-increment.update-remarks');
-        Route::get('annual-increment-finalize/{id}', 'AnnualIncrementController@finalizeAnnualIncrement')->name('annual-increment.finalize');
-
-        Route::get('calculate-new-basic-pay', 'OtherPayChangeController@calculateNewBasicPay')->name('new-basic-pay.calculate');
-        Route::any('add-other-pay-change-detail/{id}', 'OtherPayChangeController@addPayChangeDetail')->name('other-pay-change-detail.add');
-        Route::patch('other-pay-changes-toggle-status', 'OtherPayChangeController@toggleStatus')->name('other-pay-changes.toggles-status');
-        Route::patch('other-pay-changes-update-remarks', 'OtherPayChangeController@updateRemarks')->name('other-pay-changes.update-remarks');
-        Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
-    });
+    require __DIR__ . '/payroll.php';
 
     //EmployeeCategory
     Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
@@ -322,6 +341,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
+    Route::get('getdsaadvancedetails/{id}', 'AjaxRequestController@getDsaAdvanceDetails');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
     Route::get('getrequisitionnobyrequisitiontype/{id}', 'AjaxRequestController@getRequisitionNumber');
     Route::get('getissuenobyissuetype/{id}', 'AjaxRequestController@getIssueNumber');

@@ -46,6 +46,15 @@ const TRAVEL_ALLOWANCE = 1200;
 //leave type constant
 const CASUAL_LEAVE = 1;
 const EARNED_LEAVE = 2;
+
+
+// SAP constants;
+const SAP_BASE_URL = "https://192.168.196.8";
+const SAP_PORT = 50000;
+const SAP_CONPANY_DB = "ZTEST_DB";
+const SAP_USERNAME = "TEST04";
+const SAP_PASSWORD = "Sap@2024";
+
 const MEDICAL_LEAVE = 3;
 const MATERNITY_LEAVE = 4;
 const PATERNITY_LEAVE = 5;

@@ -16,6 +16,11 @@ class DsaClaimApplication extends Model
         'attachment' => 'array'
     ];
 
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
@@ -24,6 +29,17 @@ class DsaClaimApplication extends Model
     public function dsaClaimDetails() {
         return $this->hasMany(DsaClaimDetail::class, 'dsa_claim_id');
     }
+
+    public function dsaadvance()
+    {
+        return $this->belongsTo(AdvanceApplication::class, 'advance_application_id');
+    }
+
+    public function travel()
+    {
+        return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
+    }
+
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
@@ -34,5 +50,9 @@ class DsaClaimApplication extends Model
         if($onesOwnRecord){
             $query->where('created_by', auth()->user()->id);
         }
+    }
+    public function expense_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

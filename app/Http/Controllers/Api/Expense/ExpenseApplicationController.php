@@ -77,12 +77,17 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
     
-            $expenseApplications = ExpenseApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
+            $expenseApplications = ExpenseApplication::with(['expenseType:id,name', 'travelType:id,name'])->filter($request)->createdBy()->paginate(config('global.pagination'));
+        
             $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
             $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
-    
-          
-            return $this->successResponse([$privileges,$expenseApplications, $headers, $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
+        
+            return response()->json([
+                'expenseApplications' => $expenseApplications,
+                'dsaClaimApplications' => $dsaClaimApplications,
+                'transferClaims' => $transferClaims,
+            ]);
+            // return $this->successResponse([$expenseApplications,  $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
             } catch (\Exception $e) {
                 return $this->errorResponse('Failed to retrieve applications', 500);
             }
@@ -166,7 +171,10 @@ class ExpenseApplicationController extends Controller
     public function store(Request $request)
     {
 
-        $validatedData = $request->validate($this->rules($request));
+        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
 
         $result = $this->handleExpenseApplication($request);
 
@@ -178,7 +186,7 @@ class ExpenseApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
+        $date= formatDate(request('date'));
         
         try {
             DB::beginTransaction();
@@ -187,14 +195,14 @@ class ExpenseApplicationController extends Controller
                 // 'mas_employee_id' => loggedInUser(),
                 'expense_no' => $request->expense_no,
                 'mas_expense_type_id' => $request->expense_type,
-                'date' => $request->date,
+                'date' => $date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['file'],
                 'travel_type' => $request->travel_type,
                 'travel_mode' => $request->mode_of_travel,
-                'travel_from_date' => $request->travel_from_date,
-                'travel_to_date' => $request->travel_to_date,
+                'travel_from_date' => formatDate($request->travel_from_date),
+                'travel_to_date' => formatDate($request->travel_to_date),
                 'travel_from' => $request->travel_from,
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
@@ -248,21 +256,25 @@ public function update(Request $request, $id)
             return $this->errorResponse('File upload failed.', 400);
         }
 
-        $validatedData = $request->validate($this->rules($request));
+        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+        $date= formatDate(request('date'));
 
         try {
             DB::beginTransaction();
 
             $expenseApplication->update([
                 'mas_expense_type_id' => $request->expense_type,
-                'date' => $request->date,
+                'date' => $date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['attachment'] ?? $expenseApplication->file,
                 'travel_type' => $request->travel_type,
                 'travel_mode' => $request->mode_of_travel,
-                'travel_from_date' => $request->travel_from_date,
-                'travel_to_date' => $request->travel_to_date,
+                'travel_from_date' => formatDate($request->travel_from_date),
+                'travel_to_date' => formatDate($request->travel_to_date),
                 'travel_from' => $request->travel_from,
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
@@ -333,10 +345,11 @@ private function handleExpenseApplication(Request $request, $expenseApplication 
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $this->validate($request, 
-                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
-                ['file.required' => 'The file is required. Please upload a file.']
-            );
+            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+           
         }
         if ($request->hasFile('file')) {
             $file = $request->file('file');

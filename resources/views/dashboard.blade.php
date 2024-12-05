@@ -182,25 +182,26 @@
                     <table class="table table-condensed table-striped table-bordered table-sm">
                         <thead>
                             <tr>
-                                <h5><strong> Holidays </strong></h5>
+                                <th colspan="3">
+                                    <h5><strong>Holidays</strong></h5>
+                                </th>
                             </tr>
-                            <tr>
-                                <th> Name</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
+                            <tr class="thead-light">
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Date Range</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($holidays as $holiday)
+                            @forelse($holidays as $index => $holiday)
                             <tr>
+                                <td>{{ $index + 1 }}</td>
                                 <td>{{ $holiday->holiday_name }}</td>
-                                <td>{{ $holiday->start_date }}</td>
-                                <td>{{ $holiday->end_date }}</td>
+                                <td>{{ $holiday->start_date }} to {{ $holiday->end_date }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center text-danger">No
-                                    Holiday found</td>
+                                <td colspan="3" class="text-center text-danger">No holidays found</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -209,6 +210,7 @@
             </div>
         </div>
     </div>
+
 
     <div class="col-md-6">
         <div class="card">
@@ -221,24 +223,27 @@
                                     <h5><strong>Notifications</strong></h5>
                                 </th>
                             </tr>
-                            <tr>
+
+                            <tr class="thead-light">
                                 <th>#</th>
                                 <th>Title</th>
                                 <th>Message</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($notifications as $index => $notification)
-                            <tr class="notification-row" data-id="{{ $notification->id }}">
+                            @if(!empty($notifications))
+                            @foreach($notifications as $index => $notification)
+                            <tr class="notification-row" data-id="{{ $notification['id'] }}">
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $notification->title }}</td>
-                                <td>{{ $notification->message }}</td>
+                                <td>{{ $notification['title'] }}</td>
+                                <td>{{ $notification['message'] }}</td>
                             </tr>
-                            @empty
+                            @endforeach
+                            @else
                             <tr>
                                 <td colspan="3" class="text-center">No notifications available.</td>
                             </tr>
-                            @endforelse
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -246,114 +251,116 @@
         </div>
     </div>
 
+</div>
 
-    @endsection
 
-    <style>
-        .small-card {
-            height: 70px;
-            /* Adjust the height as per your requirement */
-            overflow: hidden;
-            /* Ensures content doesn't overflow */
-            padding: 0px;
-            /* Optional: Adjust padding to make it look compact */
-            display: flex;
-            /* Enable Flexbox */
-            justify-content: center;
-            /* Centers content horizontally */
-            align-items: center;
-            /* Centers content vertically */
+@endsection
+
+<style>
+    .small-card {
+        height: 70px;
+        /* Adjust the height as per your requirement */
+        overflow: hidden;
+        /* Ensures content doesn't overflow */
+        padding: 0px;
+        /* Optional: Adjust padding to make it look compact */
+        display: flex;
+        /* Enable Flexbox */
+        justify-content: center;
+        /* Centers content horizontally */
+        align-items: center;
+        /* Centers content vertically */
+    }
+
+    .card-body {
+        padding: 0px;
+        /* Optional: Adjust padding inside the card */
+        width: 100%;
+        /* Ensures the card body takes full width */
+    }
+
+
+    .card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .card-header h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .card-body {
+        display: flex;
+    }
+
+    .col-md-4,
+    .col-md-3,
+    .col-md-2 {
+        padding: 20px;
+    }
+
+    .col-md-3 {
+        position: relative;
+        border-right: 1px solid #ddd;
+    }
+
+    .col-md-3:last-child {
+        border-right: none;
+    }
+
+    .profileinfo img {
+        width: 100%;
+        border-radius: 50%;
+    }
+
+    .divider h4 {
+        font-weight: 500;
+        color: #666;
+    }
+
+    .notification-glow {
+        animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+        from {
+            background-color: white;
         }
 
-        .card-body {
-            padding: 0px;
-            /* Optional: Adjust padding inside the card */
-            width: 100%;
-            /* Ensures the card body takes full width */
+        to {
+            background-color: red;
         }
+    }
 
+    .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
 
-        .card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 20px;
-            padding: 20px;
-        }
+    }
+</style>
+@push('page_scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Select all notification rows
+        const rows = document.querySelectorAll(".notification-row");
 
-        .card-header h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .card-body {
-            display: flex;
-        }
-
-        .col-md-4,
-        .col-md-3,
-        .col-md-2 {
-            padding: 20px;
-        }
-
-        .col-md-3 {
-            position: relative;
-            border-right: 1px solid #ddd;
-        }
-
-        .col-md-3:last-child {
-            border-right: none;
-        }
-
-        .profileinfo img {
-            width: 100%;
-            border-radius: 50%;
-        }
-
-        .divider h4 {
-            font-weight: 500;
-            color: #666;
-        }
-
-        .notification-glow {
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from {
-                background-color: white;
-            }
-
-            to {
-                background-color: red;
-            }
-        }
-
-        .table-responsive {
-            max-height: 300px;
-            overflow-y: auto;
-
-        }
-    </style>
-    @push('page_scripts')
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Select all notification rows
-            const rows = document.querySelectorAll(".notification-row");
-
-            // Apply glow effect with delay for new notifications
-            rows.forEach((row, index) => {
+        // Apply glow effect with delay for new notifications
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add("notification-glow");
+                // Remove glow after 5 seconds
                 setTimeout(() => {
-                    row.classList.add("notification-glow");
-                    // Remove glow after 5 seconds
-                    setTimeout(() => {
-                        row.classList.remove("notification-glow");
-                    }, 5000);
-                }, index * 1000); // Add delay between rows for effect
-            });
+                    row.classList.remove("notification-glow");
+                }, 5000);
+            }, index * 1000); // Add delay between rows for effect
         });
-    </script>
+    });
+</script>
 
-    @endpush
+@endpush

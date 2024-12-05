@@ -37,9 +37,10 @@
 
                 <!-- Remarks for 'NO' selection -->
                 <div id="remarks-section" style="display: none;">
+                    @include('sifa.sifa-registration.forms.sifaretirementnomination')
                     <div class="form-group">
-                        <label for="remark">Remarks:<span class="text-danger">*</span></label>
-                        <textarea name="remark" id="remark" class="form-control" rows="4"></textarea>
+                        <label for="remarks">Remarks:<span class="text-danger">*</span></label>
+                        <textarea name="remarks" id="remarks" class="form-control" rows="4"></textarea>
                     </div>
                 </div>
 

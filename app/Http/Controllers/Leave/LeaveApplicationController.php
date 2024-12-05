@@ -231,48 +231,6 @@ class LeaveApplicationController extends Controller
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
 
-    public function leaveEncashment(){
-        $earnedLeave = EmployeeLeave::where('mas_employee_id', auth()->user()->id)
-        ->where('mas_leave_type_id', 2)
-        ->whereYear('created_at', Carbon::now()->year);
-        // ->value('closing_balance');
-        
-        $openingBalance = $earnedLeave->value('opening_balance');
-        $currentEntitlement = $earnedLeave->value('current_entitlement');
-        $closingBalance = $earnedLeave->value('closing_balance');
-        $leaveAppiled = $earnedLeave->value('leaves_availed');
-
-        $earnedLeaveBalance = ($openingBalance + $currentEntitlement)-$leaveAppiled;
-        // dd($closingBalance , $openingBalance, $currentEntitlement);
-        // dd($leaveAppiled);
-
-        $applyFlag = false;
-
-      
-        $requiredBalance = 37;
-        $earnedLeaveEncahsment = 30;
-
-        if($earnedLeaveBalance >= $requiredBalance){
-            $applyFlag = true;
-        }
-        $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
-    ->whereYear('created_at', Carbon::now()->year)
-    ->exists();
-        $message="";
-        if ($applicationExists) {
-            // Application exists
-            $message = "An application already exists for this year.";
-        }
-    
-        $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay'); 
-        return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag', 'message'));
-    }
-
-    public function encashmentHistory(Request $request){
-        $privileges = $request->instance();
-        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->orderBy('created_at', 'desc')->get();
-        return view('leave.leave.encash_index',compact('privileges','leaveEncashment'));
-    }
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave
         $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
             ->where('mas_employee_id', loggedInUser())

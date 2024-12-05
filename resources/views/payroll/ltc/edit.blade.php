@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Showing LTC Details')
 @section('buttons')
-    <a href="{{ route('ltc.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to LTC
-        List</a>
+    <a href="{{ route('ltc.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
     <div class="row">
@@ -72,7 +71,6 @@
                                                                     records found</td>
                                                             </tr>
                                                         @endforelse
-
                                                     </tbody>
                                                 </table>
                                                 <div>{{ $details->links() }}</div>

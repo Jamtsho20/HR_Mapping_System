@@ -40,7 +40,7 @@ class MasSectionSeeder extends Seeder
                 ['name' => 'PS Core'],
                 ['name' => 'RAN Core'],
             ]],
-            ['department_short_name' => 'Finance', 'sections' => [
+            ['department_short_name' => 'FD', 'sections' => [
                 ['name' => 'Payment'],
                 ['name' => 'Procurement and Inventory'],
                 ['name' => 'Revenue and Follow Up'],

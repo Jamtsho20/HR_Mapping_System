@@ -10,9 +10,13 @@
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-8 form-group">
-        <input type="text" name="accountheads" class="form-control" value="{{ request()->get('accountheads') }}"
-            placeholder="Search">
+    <div class="col-6 form-group">
+        <select class="form-control" id="expense_type" name="expense_type">
+            <option value="" disabled selected hidden>Select Advance Type</option>
+            @foreach ($expenseTypes as $type)
+            <option value="{{ $type->id }}" {{ request()->get('expense_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+            @endforeach
+        </select>
     </div>
     @endcomponent
 
@@ -92,7 +96,8 @@
                                                                 @forelse ($expenseApplications as $expense)
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
-                                                                    <td>{{ $expense->employee->employee_id }} ({{ $expense->employee->title . ' ' . $expense->employee->name }})
+                                                                    <td>{{ $expense->employee->employee_id }}
+                                                                        ({{ $expense->employee->title . ' ' . $expense->employee->name }})
                                                                     </td>
                                                                     <td>{{ $expense->date }}</td>
                                                                     <td>{{ $expense->expenseType->name }}
@@ -111,7 +116,6 @@
                                                                         $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
                                                                         $statusClass = $statusClasses[$expense->status] ?? 'badge bg-secondary';
                                                                         @endphp
-
                                                                         <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                     </td>
                                                                     <td class="text-center">
@@ -135,13 +139,11 @@
                                                                             DELETE</a>
                                                                         @endif
                                                                     </td>
-
                                                                 </tr>
                                                                 @empty
                                                                 <tr>
                                                                     <td colspan="8"
-                                                                        class="text-center text-danger">No
-                                                                        records found</td>
+                                                                        class="text-center text-danger">No records found</td>
                                                                 </tr>
                                                                 @endforelse
                                                             </tbody>
@@ -201,14 +203,51 @@
                                                             <tbody>
                                                                 @forelse ($dsaClaimApplications as $dsaClaim)
                                                                 <tr>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
+                                                                    <td>{{ $loop->iteration }}</td>
+                                                                    <td>{{ $dsaClaim->employee->employee_id }}
+                                                                        ({{ $dsaClaim->employee->title . ' ' . $dsaClaim->employee->name }})
+                                                                    <td>{{ $dsaClaim->created_at->format('d-m-Y') }}
+                                                                    <td>{{ $dsaClaim->net_payable_amount }}
+                                                                    </td>
+                                                                    <td>{{ $dsaClaim->dsaexpense?->amount ?? '0.00' }}
+                                                                    </td>
+                                                                    <td>{{ $dsaClaim->total_amount }}</td>
+                                                                    <td class="text-center">
+                                                                        @php
+                                                                        $statusClasses = [
+                                                                        -1 => 'badge bg-danger',
+                                                                        0 => 'badge bg-warning',
+                                                                        1 => 'badge bg-primary',
+                                                                        2 => 'badge bg-success',
+                                                                        3 => 'badge bg-info',
+                                                                        ];
+                                                                        $statusText = config("global.application_status.{$dsaClaim->status}", 'Unknown Status');
+                                                                        $statusClass = $statusClasses[$dsaClaim->status] ?? 'badge bg-secondary';
+                                                                        @endphp
+
+                                                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        @if ($privileges->view)
+                                                                        <a href="{{  route('dsa-claim-settlement.show', $dsaClaim->id) }}"
+                                                                            class="btn btn-sm btn-outline-secondary"><i
+                                                                                class="fa fa-list"></i>
+                                                                            Detail</a>
+                                                                        @endif
+                                                                        @if ($privileges->edit)
+                                                                        <a href="{{  route('dsa-claim-settlement.edit', $dsaClaim->id) }}"
+                                                                            class=" btn btn-sm btn-rounded btn-outline-success"><i
+                                                                                class="fa fa-edit"></i>
+                                                                            EDIT</a>
+                                                                        @endif
+                                                                        @if ($privileges->delete)
+                                                                        <a href="#"
+                                                                            class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                                                            data-url="{{ url('expense/dsa-claim-settlement/' . $dsaClaim->id) }}"><i
+                                                                                class="fa fa-trash"></i>
+                                                                            DELETE</a>
+                                                                        @endif
+                                                                    </td>
                                                                 </tr>
                                                                 @empty
                                                                 <tr>
@@ -276,7 +315,8 @@
                                                                 @forelse ($transferClaims as $transfer)
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
-                                                                    <td>{{ $transfer->employee->employee_id }} ({{ $transfer->employee->title . ' ' . $transfer->employee->name }})
+                                                                    <td>{{ $transfer->employee->employee_id }}
+                                                                        ({{ $transfer->employee->title . ' ' . $transfer->employee->name }})
                                                                     <td>{{ $transfer->created_at->format('d-m-Y') }}
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}
@@ -286,24 +326,20 @@
                                                                     <td>{{ $transfer->current_location }}
                                                                     </td>
                                                                     <td>{{ $transfer->new_location }}</td>
-                                                                    <td>
-                                                                        @if ($transfer->status == 1)
-                                                                        <span
-                                                                            class="badge bg-primary">Applied</span>
-                                                                        @elseif($transfer->status == 2)
-                                                                        <span
-                                                                            class="badge bg-info">Approved</span>
-                                                                        @elseif($transfer->status == 0)
-                                                                        <span
-                                                                            class="badge bg-warning">Cancelled</span>
-                                                                        @elseif($transfer->status == -1)
-                                                                        <span
-                                                                            class="badge bg-danger">Rejected</span>
-                                                                        @else
-                                                                        <span
-                                                                            class="badge bg-secondary">Unknown
-                                                                            Status</span>
-                                                                        @endif
+                                                                    <td class="text-center">
+                                                                        @php
+                                                                        $statusClasses = [
+                                                                        -1 => 'badge bg-danger',
+                                                                        0 => 'badge bg-warning',
+                                                                        1 => 'badge bg-primary',
+                                                                        2 => 'badge bg-success',
+                                                                        3 => 'badge bg-info',
+                                                                        ];
+                                                                        $statusText = config("global.application_status.{$transfer->status}", 'Unknown Status');
+                                                                        $statusClass = $statusClasses[$transfer->status] ?? 'badge bg-secondary';
+                                                                        @endphp
+
+                                                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                     </td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->view)

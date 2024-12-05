@@ -10,43 +10,6 @@ var tashicellHrms = function () {
         return key;
     };
 
-    // function addNewRow(tableId) {
-    //     var lastRow = $('#'+ tableId +' tr:not(.notremovefornew):last');
-    //     var row = lastRow.clone();
-    //     row.find('span.help-block').remove();
-    //     row.find('input,select').removeClass('error');
-    //     row.insertAfter(lastRow);
-
-    //     var key = randomKey();
-    //     row.find('td').each(function () {
-    //         var $this = $(this);
-    //         $this.find('.resetKeyForNew').each(function (index, item) {
-    //             var aa = $(item).attr('name');
-    //             if(aa) {
-    //                 var startIndexOfKey = aa.indexOf('[');
-    //                 var lastKey = aa.substring(startIndexOfKey+1);
-    //                 lastKey=lastKey.substring(0,lastKey.indexOf(']'));
-    //                 $(item).attr('name', aa.replace(lastKey,key));
-    //             }
-    //         });
-    //         var vClear = $this.find('input:not(.notclearfornew)');
-    //         if (vClear) vClear.val('');vClear.attr("placeholder","");
-    //         var vSelect = $this.find('select:not(.notclearfornew)');
-    //         if (vSelect) vSelect.val('');
-    //         var vCheck = $this.find('input[type="checkbox"]');
-    //         if (vCheck) vCheck.removeAttr('checked');
-    //         var vTextAreaClear = $this.find('textarea');
-    //         var vAClear = $this.find('a.url');
-    //         if (vAClear) vAClear.val('');vAClear.removeAttr("href");
-    //         if (vTextAreaClear) vTextAreaClear.val('');vTextAreaClear.attr("placeholder");
-    //         vCheck.parents('span').removeClass('checked');
-    //         $this.find('div.add-row-input-group-ddl').removeClass('show').addClass('hide');
-    //         $this.find('div.add-row-input-group-txt').removeClass('hide').addClass('show');
-    //     });
-    //     $('#' + tableId + ' tr:last td:first' + ' .rowIndex').attr("value", key);
-    //     return key;
-    // };
-    
     function addNewRow(tableId) {
         var lastRow = $('#' + tableId + ' tr:not(.notremovefornew):last');
 

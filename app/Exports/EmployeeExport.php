@@ -29,11 +29,15 @@ class EmployeeExport implements FromCollection, WithHeadings
                 $serialNo++,
                 $employee->username,
                 $employee->name,
+                $employee->empJob->department->name,
+                $employee->empJob->section->name,
+                $employee->empJob->designation->name,
+                $employee->empJob->gradeStep->name,
+                $employee->empJob->office->name,
                 $employee->date_of_appointment,
                 $employee->contact_number,
                 $employee->email,
-                $employee->is_active,
-               
+                $employee->is_active ? 'Active' : 'Inactive',
 
             ];
         });
@@ -44,11 +48,16 @@ class EmployeeExport implements FromCollection, WithHeadings
             'Sl No',
             'Employee ID',
             'Employee Name',
+            'Department',
+            'Section',
+            'Designation',
+            'Grade',
+            'Location',
             'DOJ',
             'Contact No',
             'Email',
             'Employee Status',
-         
+
 
         ];
     }

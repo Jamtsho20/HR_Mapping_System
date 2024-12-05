@@ -34,7 +34,7 @@ class AdvanceLoanApprovalController extends Controller
     {
         $privileges = $request->instance();
         $user = auth()->user();
-
+        $employeeLists = employeeList();
         // Fetch advance loan applications with histories where the approver matches the current user
         $advances = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
@@ -44,8 +44,9 @@ class AdvanceLoanApprovalController extends Controller
             ->orderBy('created_at')
             ->paginate(config('global.pagination'))
             ->withQueryString();
+        $advanceTypes = MasAdvanceTypes::get(['id', 'name']);
 
-        return view('advance-loan.approval.index', compact('privileges', 'advances'));
+        return view('advance-loan.approval.index', compact('privileges', 'employeeLists', 'advances','advanceTypes'));
     }
 
 
@@ -238,7 +239,7 @@ class AdvanceLoanApprovalController extends Controller
             return response()->json(['message' => 'Selected advance has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred during the operation.'], 500);
         }
     }

@@ -55,7 +55,7 @@
                                                                         Pay Head Type
                                                                     </th>
                                                                     <th>
-                                                                        Account head
+                                                                        GL Code
                                                                     </th>
                                                                     <th>
                                                                         Code
@@ -68,12 +68,6 @@
                                                                     </th>
                                                                     <th>
                                                                         Amount
-                                                                    </th>
-                                                                    <th>
-                                                                        Created At
-                                                                    </th>
-                                                                    <th>
-                                                                        Updated At
                                                                     </th>
                                                                     <th>
                                                                         Action
@@ -91,7 +85,7 @@
                                                                                 Deduction
                                                                             @endif
                                                                         </td>
-                                                                        <td>{{ $payHead->accountHead->name ?? 'N/A' }}</td>
+                                                                        <td>{{ $payHead->general_ledger_code }}</td>
                                                                         <td>{{ $payHead->code }}</td>
                                                                         <td>
                                                                             @if($payHead->calculation_method == 1)
@@ -128,8 +122,6 @@
                                                                             @endif
                                                                         </td>
                                                                         <td>{{ $payHead->amount }}</td>
-                                                                        <td>{{ $payHead->created_at ? $payHead->created_at->format('Y-m-d H:i:s') : ''  }}</td>
-                                                                        <td>{{ $payHead->updated_at ? $payHead->updated_at->format('Y-m-d H:i:s') : '' }}</td>
                                                                         <td class="text-center">
                                                                             @if ($privileges->edit)
                                                                                 <a href="{{ url('paymaster/pay-heads/' . $payHead->id . '/edit') }}"
@@ -163,7 +155,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>    
+                                            </div>
                                     </div>
                                 </div>
                             </div>
@@ -171,7 +163,7 @@
                     </div>
             </div>
         </div>
-    </div> 
+    </div>
 </div>
 @include('layouts.includes.delete-modal')
 @endsection
