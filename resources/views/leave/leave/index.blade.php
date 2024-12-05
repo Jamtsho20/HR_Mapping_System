@@ -4,14 +4,14 @@
 <div class="block">
     <div class="block-options">
         <div class="block-options-item">
-            <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
-                <i class="fa fa-plus"></i> Leave Encashment
-            </a>
             <a href="{{route('leave-apply.create')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-plus"></i> Apply Leave
             </a>
             <a href="{{ route('leave.leave-balance')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-calendar"></i> Leave Balance
+            </a>
+            <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
+                <i class="fa fa-plus"></i> Leave Encashment
             </a>
             <a href="{{ route('leave.encashment-history')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-calendar"></i> Encashment History
