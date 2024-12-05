@@ -329,8 +329,8 @@ class AdvanceLoanApplicationController extends Controller
                 if ($existingDetail) {
                     $existingDetail->update([
                         'budget_code_id' => $detail['budget_code'],
-                        'from_date' => $detail['from_date'],
-                        'to_date' => $detail['to_date'],
+                        'from_date' => isset($detail['from_date']) ? $detail['from_date'] : null,
+                        'to_date' => isset($detail['to_date']) ? $detail['to_date'] : null,
                         'dzongkhag_id' => $detail['dzongkhag'],
                         'site_location' => $detail['site_location'],
                         'amount_required' => $detail['amount_required'],
@@ -344,8 +344,8 @@ class AdvanceLoanApplicationController extends Controller
                 $newDetail = AdvanceDetail::create([
                     'advance_application_id' => $advanceApplicationId,
                     'budget_code_id' => $detail['budget_code'],
-                    'from_date' => $detail['from_date'],
-                    'to_date' => $detail['to_date'],
+                    'from_date' => isset($detail['from_date']) ? $detail['from_date'] : null,
+                    'to_date' => isset($detail['to_date']) ? $detail['to_date'] : null,
                     'dzongkhag_id' => $detail['dzongkhag'],
                     'site_location' => $detail['site_location'],
                     'amount_required' => $detail['amount_required'],
