@@ -14,13 +14,11 @@ class LeaveEncashmentMail extends Mailable
     use Queueable, SerializesModels;
 
     public $employee;
-    public $leaveBalance;
 
     /**
      * Create a new message instance.
      *
-     * @param $employee
-     * @param $leaveBalance
+     * @return void
      */
     public function __construct($employee)
     {
@@ -28,26 +26,13 @@ class LeaveEncashmentMail extends Mailable
     }
 
     /**
-     * Get the message envelope.
+     * Build the message.
+     *
+     * @return $this
      */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: 'Leave Encashment Eligibility Notification',
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            markdown: 'emails.leave_encashment',
-            with: [
-                'employeeName' => $this->employee->name,
-                'leaveBalance' => $this->leaveBalance,
-            ]
-        );
+        return $this->subject('Leave Encashment Eligibility Notification')
+                    ->view('emails.leave_encashment');
     }
 }

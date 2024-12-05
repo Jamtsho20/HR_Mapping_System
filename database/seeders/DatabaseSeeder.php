@@ -57,5 +57,7 @@ class DatabaseSeeder extends Seeder
         $this->call(BudgetTypesSeeder::class);
         $this->call(BudgetCodeSeeder::class);
         $this->call(DailyAllowanceSeeder::class);
+        $this->call(MasTravelTypesSeeder::class);
+        $this->call(MasSifaTypesSeeder::class);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentApplication;
 use App\Models\SystemNotification;
+use App\Models\User;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -38,13 +39,13 @@ class DashboardController extends Controller
             ];
         });
 
-        // Check leave encashment eligibility
-        $leaveEncashmentNotification = $this->checkLeaveEncashmentEligibility($user->id, $currentYear);
-        if ($leaveEncashmentNotification) {
+        // Check leave encashment eligibility and send notification if applicable
+        $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
+        if ($leaveEncashmentMessage) {
             $notifications[] = [
                 'id' => null, 
                 'title' => 'Leave Encashment',
-                'message' => $leaveEncashmentNotification,
+                'message' => $leaveEncashmentMessage,
             ];
         }
 
@@ -70,9 +71,9 @@ class DashboardController extends Controller
     }
 
     /**
-     * Check if the user is eligible for leave encashment.
+     * Check if the user is eligible for leave encashment and send email.
      */
-    private function checkLeaveEncashmentEligibility($employeeId, $currentYear)
+    private function sendEncashmentNotification($employeeId, $currentYear)
     {
         $closingBalance = EmployeeLeave::where('mas_employee_id', $employeeId)
             ->where('mas_leave_type_id', 2)
@@ -83,10 +84,18 @@ class DashboardController extends Controller
             ->exists();
 
         if ($closingBalance >= 37 && !$hasEncashed) {
+            // Fetch user details from the User model
+            $user = User::find($employeeId);
+
+            if ($user && $user->email) {
+                // Send email notification
+                Mail::to($user->email)->send(new LeaveEncashmentMail($user));
+            }
+
             return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
         }
 
-        return null;
+        return 'You are not eligible for leave encashment this year.';
     }
 
     /**
@@ -115,33 +124,13 @@ class DashboardController extends Controller
         ];
     }
 
-    public function sendEncashmentNotification()
-    {
-        $employees = EmployeeLeave::where('mas_leave_type_id', 2)
-            ->where('closing_balance', '>=', 37)
-            ->with('employee') // Assume EmployeeLeave has a relationship with the Employee model
-            ->get();
-
-        foreach ($employees as $leave) {
-            $employee = $leave->employee;
-            $leaveBalance = $leave->closing_balance;
-
-            $hasEncashed = LeaveEncashmentApplication::where('mas_employee_id', $employee->id)->exists();
-            if (!$hasEncashed) {
-                Mail::to($employee->email)->send(new LeaveEncashmentMail($employee, $leaveBalance));
-            }
-        }
-    }
-
-    public function show()
-    {
-        $alertMessage = Cache::get('holiday_alert_message');
-        return view('dashboard.index', compact('alertMessage'));
-    }
-
     public function dashboard()
     {
+        $currentYear = now()->year;
+        $employeeId = auth()->id();
         $leaveData = app('App\Http\Controllers\LeaveApplicationController')->getUserLeaveData();
-        return view('dashboard', compact('leaveData'));
+        $eligibilityMessage = $this->sendEncashmentNotification($employeeId, $currentYear);
+
+        return view('dashboard', compact('leaveData', 'eligibilityMessage'));
     }
 }

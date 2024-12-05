@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('advance_application_id')->constrained('advance_applications')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('budget_code_id')->nullable()->constrained('budget_codes')->cascadeOnUpdate()->restrictOnDelete();
-            $table->date('from_date');
-            $table->date('to_date');
+            $table->date('from_date')->nullable();
+            $table->date('to_date')->nullable();
             $table->foreignId('dzongkhag_id')->nullable()->constrained('mas_dzongkhags')->cascadeOnUpdate()->restrictOnDelete()->comment('required only if advance_type is advance to staff');
             $table->string('site_location');
             $table->decimal('amount_required', 12, 2);
