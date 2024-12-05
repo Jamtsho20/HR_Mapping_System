@@ -79,7 +79,6 @@ class ApprovalService
 			->where('approvable_type', $approvableType)
 			->whereIsActive(1)
 			->first();
-
 		if (!$approvalRule) {
 			return [];
 		}
@@ -97,10 +96,10 @@ class ApprovalService
 				// Match condition field and evaluate condition
 				if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id']) {
 					$conditionValue = !$conditionfields[0]['has_employee_field'] ? (float)$conditionfields[0]['value'] : $conditionfields[0]['value'];
-
 					// Dynamically evaluate the condition
-					if ($this->evaluateCondition(!$conditionfields[0]['has_employee_field'] ? (float)$conditionValue : $conditionValue, $operatorSymbol, $appvlCondition->value)) {
+					if ($this->evaluateCondition(!$conditionfields[0]['has_employee_field'] ? (float)$conditionValue : $conditionValue, $operatorSymbol, !$conditionfields[0]['has_employee_field'] ? (float)$appvlCondition->value : $appvlCondition->value)) {
 						if ($appvlCondition->approval_option == HIERARCHICAL_APPVL_OPTION) {
+							
 							$systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function ($query) {
 								$query->whereStatus(1)->orderBy('sequence');
 							}])->find($appvlCondition->system_hierarchy_id);
@@ -167,7 +166,6 @@ class ApprovalService
 	 */
 	private function evaluateCondition($value1, $operator, $value2)
 	{
-
 		switch ($operator) {
 			case '<':
 				return $value1 < $value2;

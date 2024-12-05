@@ -177,6 +177,7 @@ return [
         2 => App\Models\ExpenseApplication::class,
         3 => App\Models\DsaClaimApplication::class,
         4 => App\Models\TransferClaimApplication::class,
-        5 => App\Models\TravelAuthorizationApplication::class,
+        // 5=>
+        6 => App\Models\TravelAuthorizationApplication::class,
     ]
 ];
