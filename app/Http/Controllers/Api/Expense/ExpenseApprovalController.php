@@ -8,7 +8,8 @@ use App\Models\ExpenseApplication;
 use App\Models\MasExpenseType;
 use App\Services\ApprovalService;
 use App\Traits\JsonResponseTrait;
-
+use App\Models\DsaClaimApplication;
+use App\Models\TransferClaimApplication;
 
 class ExpenseApprovalController extends Controller
 {
@@ -101,8 +102,37 @@ class ExpenseApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
+    {   
+        try{
+            $expense = ExpenseApplication::findOrfail($id);
+            
+            return $this->successResponse($expense, 'Expense application retrieved successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage(), 404);
+        }
+        
+
+    }
+
+    public function showDsa($id)
     {
-        //
+        try{
+            $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);
+            return $this->successResponse($dsa, 'DSA claim application retrieved successfully');
+       }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage(), 404);
+        }
+    }
+
+    public function showTransferClaim($id)
+    {
+       try{
+         $transfer = TransferClaimApplication::findOrfail($id);
+         return $this->successResponse($transfer, 'Transfer claim application retrieved successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage(), 404);
+        }
+        
     }
 
     /**

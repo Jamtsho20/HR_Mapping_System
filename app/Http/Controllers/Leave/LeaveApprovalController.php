@@ -48,6 +48,7 @@ class LeaveApprovalController extends Controller
         //     $query->where('application_type', 'App\Models\LeaveApplication'); // Assuming you store this class in 'application_type' column
         // })->where('approver_emp_id', $user->id)
         //   ->get();
+        $leaveTypes = MasLeaveType::get(['id', 'name']);
         $leaves = LeaveApplication::whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', \App\Models\LeaveApplication::class);
@@ -58,7 +59,7 @@ class LeaveApprovalController extends Controller
             ->paginate(config('global.pagination'))
             ->withQueryString();
 
-        return view('leave.approval.index', compact('privileges', 'leaves'));
+        return view('leave.approval.index', compact('privileges', 'leaves','leaveTypes'));
     }
 
     /**

@@ -12,6 +12,8 @@ use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationForwardedMail;
 
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\AjaxRequestController;
@@ -122,7 +124,10 @@ class TravelAuthorizationApplicationController extends Controller
             
         $travelAuthorization = new  TravelAuthorizationApplication();
             // dd($request->all());
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         //dd($conditionFields);
         $approvalService = new ApprovalService();
@@ -174,6 +179,11 @@ class TravelAuthorizationApplicationController extends Controller
            
             
             DB::commit();
+            if(isset($approverByHierarchy['approver_details'])){
+                $emailContent = 'has submitted a travel authorization application and is awaiting your approval for a estimated travel expense of ' . $request->estimated_travel_expenses ;
+                $emailSubject = 'Travel Authorization Application';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -192,8 +202,7 @@ class TravelAuthorizationApplicationController extends Controller
     {   try {
         $instance = $request->instance();
         $travelAuthorization =  TravelAuthorizationApplication::with('details')->findOrFail($id);
-        $context = 'application';
-        return $this->successResponse([$travelAuthorization, $context], 'Travel Authorization retrieved successfully');
+        return $this->successResponse($travelAuthorization, 'Travel Authorization retrieved successfully');
     }catch (\Illuminate\Validation\ValidationException $e) {
         return $this->errorResponse('Failed to retrieve applications', 500);
     }
@@ -218,7 +227,10 @@ class TravelAuthorizationApplicationController extends Controller
     {
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
 
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $date= formatDate(request('date'));
         try {
 

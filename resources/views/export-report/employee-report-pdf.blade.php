@@ -38,8 +38,8 @@
 
 <body>
     <h1>Employee Report</h1>
-    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
-        <thead>
+    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
+        <thead class="thead-light">
             <tr role="row">
                 <th>
                     SL no
@@ -50,6 +50,22 @@
                 <th>
                     Name
                 </th>
+                <th>
+                    Department
+                </th>
+                <th>
+                    Section
+                </th>
+                <th>
+                    Designation
+                </th>
+                <th>
+                    Grade
+                </th>
+                <th>
+                    Location
+                </th>
+
                 <th>
                     DOJ
                 </th>
@@ -73,20 +89,23 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{$employee->username}}</td>
                 <td>{{$employee->name}}</td>
+                <td>{{$employee->empJob->department->name}}</td>
+                <td>{{$employee->empJob->section->name}}</td>
+                <td>{{$employee->empJob->designation->name}}</td>
+                <td>{{$employee->empJob->gradeStep->name}}</td>
+                <td>{{$employee->empJob->office->name}}</td>
                 <td>{{$employee->date_of_appointment}}</td>
                 <td>{{$employee->contact_number}}</td>
                 <td>{{$employee->email}}</td>
                 <td>
-                    <span class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $employee->is_active == 'Active' ? 'primary' : 'danger' }}">
-                        {{ $employee->is_active }}
-                    </span>
+                    {{ $employee->is_active ?'Active':'Inactive' }}
                 </td>
 
 
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-danger text-center">No users to be displayed</td>
+                <td colspan="12" class="text-danger text-center">No users to be displayed</td>
             </tr>
             @endforelse
         </tbody>

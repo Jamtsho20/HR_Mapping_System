@@ -68,8 +68,8 @@ class AdvanceApplication extends Model
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        if ($request->has('advance_type') && $request->query('leave_type') != '') {
-            $query->where('mas_advance_type_id', $request->query('advance_type'));
+        if ($request->has('advance_type') && $request->query('advance_type') != '') {
+            $query->where('advance_type_id', $request->query('advance_type'));
         }
 
         if ($onesOwnRecord) {

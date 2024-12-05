@@ -12,6 +12,8 @@ use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationForwardedMail;
 
 class TravelAuthorizationApplicationController extends Controller
 {
@@ -92,7 +94,7 @@ class TravelAuthorizationApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
         // dd($request->travel_type);
 
-        // try {
+        try {
             DB::beginTransaction();
             $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
             $travelAuthorization->date = $request->date;
@@ -135,11 +137,16 @@ class TravelAuthorizationApplicationController extends Controller
 
 
             DB::commit();
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return back()->withInput()->with('msg_error', $e->getMessage());
-        //     // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
-        // }
+            if(isset($approverByHierarchy['approver_details'])){
+                $emailContent = 'has submitted a travel authorization application and is awaiting your approval for a estimated travel expense of ' . $request->estimated_travel_expenses ;
+                $emailSubject = 'Travel Authorization Application';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+        }
         
         return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization application created successfully!');
     }

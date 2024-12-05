@@ -46,7 +46,8 @@ class TransferClaimApplicationController extends Controller
             $user = loggedInUser();
     
             $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
-            return $this->successResponse([$transferClaims,  $empIdName], 'Expense applications retrieved successfully');
+            
+            return $this->successResponse($transferClaims, 'Expense applications retrieved successfully');
          
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
@@ -64,7 +65,7 @@ class TransferClaimApplicationController extends Controller
         try {
             
             $trasnferClaim = MasTransferClaim::get();
-            return $this->successResponse([$trasnferClaim], 'Expense applications create function retrieved successfully');
+            return $this->successResponse($trasnferClaim, 'Expense applications create function retrieved successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
         }
@@ -79,7 +80,10 @@ class TransferClaimApplicationController extends Controller
     public function store(Request $request)
     {   try {
         
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
 
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
@@ -157,7 +161,7 @@ class TransferClaimApplicationController extends Controller
     {   try {
 
         $transfer = TransferClaimApplication::findOrfail($id);
-        return $this->successResponse([$transfer], 'Expense applications show function retrieved successfully');
+        return $this->successResponse($transfer, 'Expense applications show function retrieved successfully');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->errorResponse($e->getMessage(), 500);
         }
@@ -189,7 +193,10 @@ class TransferClaimApplicationController extends Controller
     {
         try {
 
-            $this->validate($request, $this->rules, $this->messages);
+            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
             $transfer = TransferClaimApplication::findOrFail($id);
     
             if ($request->hasFile('attachment')) {
