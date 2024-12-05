@@ -28,7 +28,7 @@ class EncashmentApprovalController extends Controller
     public function index(Request $request)
     {   
         $user = auth()->user();
-        $earnedLeave = LeaveEncashmentApplication::whereHas('histories', function ($query) use ($user) {
+        $earnedLeave = LeaveEncashmentApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', \App\Models\LeaveEncashmentApplication::class);
         })
@@ -38,7 +38,7 @@ class EncashmentApprovalController extends Controller
             ->paginate(config('global.pagination'))
             ->withQueryString();
         $privileges = $request->instance();
-
+        
         return view('leave.encashment-approval.index',compact('privileges', 'earnedLeave', 'user'));
     }
 

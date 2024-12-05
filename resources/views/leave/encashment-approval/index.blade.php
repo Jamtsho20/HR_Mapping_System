@@ -73,8 +73,8 @@
                                                 <input type="checkbox" class="leave_checkbox"
                                                     value="{{ $leave->id }}">
                                             </td>
-                                            <td>{{$user->username}}</td>
-                                            <td>{{$user->name}}</td>
+                                            <td>{{$leave->employee->username}}</td>
+                                            <td>{{$leave->employee->name}}</td>
                                             <td>{{ $leave->created_at }}</td>
                                             <td>{{ $leave->encashment_amount }}</td>
                                             <td class="text-center">

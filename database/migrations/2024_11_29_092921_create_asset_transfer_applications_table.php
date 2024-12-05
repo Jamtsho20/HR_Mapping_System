@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('asset_transfer_applications', function (Blueprint $table) {
+            $table->id();
+            $table->string('transfer_no')->index();
+            $table->foreignId('transfer_type_id')->index()->constrained('mas_transfer_types')->restrictOnDelete()->cascadeOnUpdate();
+            $table->date('transfer_date')->index();
+            $table->text('reason_of_transfer');
+            $table->foreignId('old_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('new_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
+            $table->string('old_location');
+            $table->string('new_location');
+            $table->json('attachment')->nullable();
+            $table->foreignId('created_by')->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('asset_transfer_applications');
+    }
+};

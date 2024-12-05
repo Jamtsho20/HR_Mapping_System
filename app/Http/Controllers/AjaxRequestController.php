@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Api\SAP\ApiController;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\DsaClaimApplication;
 use App\Models\EmployeeLeave;
 use App\Models\ExpenseApplication;
+use App\Models\GoodIssueApplication;
+use App\Models\GoodReceiptApplication;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
@@ -15,17 +18,21 @@ use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
+use App\Models\MasGoodIssueType;
+use App\Models\MasGoodReceiptType;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
+use App\Models\MasRequisitionType;
 use App\Models\MasSection;
-use App\Models\MasTransferClaim;
 use App\Models\MasSifaType;
+use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
 use App\Models\MasVillage;
+use App\Models\RequisitionApplication;
 use App\Models\SystemHierarchyLevel;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
@@ -42,6 +49,12 @@ class AjaxRequestController extends Controller
 {
     /* write code related to ajax request */
     use JsonResponseTrait;
+
+    protected $sap;
+
+    public function __construct(ApiController $sap) {
+        $this->sap = $sap;
+    }
 
     public function getGewog($id)
     {
@@ -91,7 +104,7 @@ class AjaxRequestController extends Controller
         return $payScale;
     }
 
-    public function getLeaveBalance($id)  //was done for json message purpose
+    public function getLeaveBalance($id) //was done for json message purpose
     {
         try {
             $empGender = auth()->user()->gender;
@@ -113,7 +126,7 @@ class AjaxRequestController extends Controller
                     'balance' => $balance,
                     'leavePolicy' => $leavePolicy,
                     'attachment_required' => $attachmentRequired,
-                    'is_half_day' => $isHalfDay
+                    'is_half_day' => $isHalfDay,
                 ]);
             }
 
@@ -139,16 +152,16 @@ class AjaxRequestController extends Controller
                 ->whereStatus(1)
                 ->first();
             $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan
-                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
-                : [];
+            ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
+            : [];
 
             // Calculate initial days with adjustments
             $dayDifference = $toDate->diff($fromDate)->days;
             $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
             $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
             $totalDays = ($dayDifference === 0)
-                ? $fromDayAdjustment + $toDayAdjustment - 1
-                : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
+            ? $fromDayAdjustment + $toDayAdjustment - 1
+            : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
             if (!empty($leaveLimits)) {
                 $holidayDates = $this->getHolidayDates($loggedInUserRegion);
@@ -211,7 +224,6 @@ class AjaxRequestController extends Controller
         return $excludedDays;
     }
 
-
     public function getEmployeeSelect($id)
     {
         $approvingAuthority = ApprovingAuthority::where('id', $id)->whereStatus(1)->first();
@@ -260,7 +272,7 @@ class AjaxRequestController extends Controller
         $travelAuthPrefix = MasTravelType::where('id', $id)->value('code');
         $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
 
-        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
         $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
 
         return response()->json([
@@ -297,7 +309,7 @@ class AjaxRequestController extends Controller
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
             4 => LeaveEncashmentType::class,
-            5 => MasAdvanceTypes::class,
+            5 => MasRequisitionType::class,
             6 => MasTransferClaim::class,
             7 => MasTravelType::class,
             8 => MasSifaType::class,
@@ -345,16 +357,9 @@ class AjaxRequestController extends Controller
     }
 
     public function bulkApprovalRejection(Request $request)
-    {   
-        $modelMap = [
-            1 => LeaveApplication::class,
-            2 => ExpenseApplication::class,
-            3 => DsaClaimApplication::class,
-            4 => TransferClaimApplication::class,
-            5 => TravelAuthorizationApplication::class,
-        ];
+    {
+        $model = config('global.applications')[$request->item_type_id];
 
-        $model = $modelMap[$request->item_type_id] ?? null;
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
@@ -390,7 +395,7 @@ class AjaxRequestController extends Controller
 
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
-                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'next_level_id' => $applicationForwardedTo['next_level']->id,
                             'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
@@ -402,6 +407,32 @@ class AjaxRequestController extends Controller
                         //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
                         // }
                     } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                         // Post to SAP after final Approval
+                         $postFields = '{
+                            "ReferenceDate":"2024-11-11",
+                            "Memo": "Travel Claim",
+                            "JournalEntryLines": [
+                                {
+                                    "ShortName": "E00993", // search from application
+                                    "CostingCode": null,
+                                    "Credit": 111,
+                                    "Debit": 0
+                                },
+                                {
+                                    "AccountCode": "52136",
+                                    "CostingCode": null,
+                                    "Credit": 0,
+                                    "Debit": 111
+                                }
+                            ]
+                        }';
+
+                        // Call postJournalEntries method
+                        // postJournalEntries to sap begins
+                        $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                        // If postJournalEntries fails, show relevent message from postJournalEntriesResponse else proceed with HRMS update status
+                        // postJournalEntries to sap ends
+
                         // Finalize approval if it's at the maximum level
                         $application->update([
                             'status' => 3, // 3 could represent 'final approved'
@@ -447,7 +478,7 @@ class AjaxRequestController extends Controller
     }
 
     public function getExpenseNumber($id)
-    {   
+    {
         $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
 
         $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)
@@ -461,7 +492,7 @@ class AjaxRequestController extends Controller
         $expenseNo = generateTransactionNumber($expenseCode, $nextSequence);
 
         return response()->json([
-            'expense_no' => $expenseNo
+            'expense_no' => $expenseNo,
         ]);
     }
 
@@ -519,21 +550,74 @@ class AjaxRequestController extends Controller
         return response()->json(['travel_authorization_details' => $travelAuthorizationDetails]);
     }
 
-    public function  getEmployeeById($id)
+    public function getEmployeeById($id)
     {
         $user = User::whereId($id)->firstOrFail();
 
         return response()->json($user);
     }
 
-    public function getDsaAdvancebyTravelAuth($id) {
+    public function getDsaAdvancebyTravelAuth($id)
+    {
         $advances = AdvanceApplication::where('travel_authorization_id', $id)->whereStatus(3)->get();
 
         return response()->json($advances);
 
     }
 
-    public function getDsaAdvanceDetails($id) {
+    public function getRequisitionNumber($id) {
+        try{
+            $requisitionType = MasRequisitionType::findOrFail($id);
+            $latestTransaction = RequisitionApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $requisitionNo = generateTransactionNumber($requisitionType->code, $nextSequence);
+            return $this->successResponse(['requisition_no' => $requisitionNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
+        }
+        
+    }
+
+    public function getIssueNumber($id) {
+        try{
+            $issueType = MasGoodIssueType::findOrFail($id);
+            $latestTransaction = GoodIssueApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $issueNo = generateTransactionNumber($issueType->code, $nextSequence);
+            return $this->successResponse(['issue_no' => $issueNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
+        }
+        
+    }
+
+    public function getReceiptNumber($id) {
+        try{
+            $receiptType = MasGoodReceiptType::findOrFail($id);
+            $latestTransaction = GoodReceiptApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
+            return $this->successResponse(['receipt_no' => $receiptNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
+        }
+        
+    }
+
+    public function getRequisitionDetails($id) {
+        try{
+            $requisitionDetails = RequisitionApplication::with('details')->findOrFail($id);
+            return $this->successResponse(['requisition_details' => $requisitionDetails]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wrong while trying to fetch details, please try again.');
+        }
+    }
+    
+    public function getDsaAdvanceDetails($id)
+    {
         $advance = AdvanceApplication::whereId($id)->first();
 
         return response()->json($advance);

@@ -110,7 +110,7 @@ class AdvanceLoanApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
-
+        // dd($approverByHierarchy['max_level_id']);
         $attachment = "";
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -147,7 +147,8 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->histories()->create([
                 'approval_option' => $approverByHierarchy['approval_option'],
                 'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
+                'max_level_id' => $approverByHierarchy['max_level_id'] ?? null,
+                'next_level_id' => $approverByHierarchy['next_level']->id ?? null,
                 'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
                 'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
                 'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,

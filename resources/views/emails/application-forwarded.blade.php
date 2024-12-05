@@ -7,7 +7,7 @@ Greetings for the day!! <br/>
 
 To review and approve, please click the link below:<br/>
 @component('mail::button', ['url' => url('/')])
-    Approve Leave Request
+    Visit The Site
 @endcomponent
 Thanks, <br/>
 TIPL HRMS.

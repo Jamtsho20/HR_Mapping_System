@@ -4,15 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\CreatedByTrait;
 
 class MasStore extends Model
 {
-    use HasFactory, CreatedByTrait;
+    use HasFactory;
     
     protected $fillable = [
+        'parent_store_id',
         'name',
-        'location',
+        'code',
+        'store_location',
+        'store_email',
+        'phone_number',
+        'contact_person',
+        'contact_email',
+        'contact_number',
+        'country_id',
+        'dzongkhag_id',
+        'region_id',
         'status',
         'created_by',
         'updated_by',
@@ -20,7 +29,7 @@ class MasStore extends Model
 
     public function subStores()
     {
-        return $this->hasMany(MasSubStore::class, 'mas_stores_id');
+        return $this->hasMany(MasStore::class, 'parent_store_id');
     }
 
      //accessors & mutators
@@ -30,8 +39,8 @@ class MasStore extends Model
              $query->where('store_name', 'LIKE', '%' . $request->query('store_name') . '%');
          }
          
-         if ($request->has('location') && $request->query('location') != '') {
-             $query->where('location', 'LIKE', '%' . $request->query('location') . '%');
+         if ($request->has('store_location') && $request->query('store_location') != '') {
+             $query->where('store_location', 'LIKE', '%' . $request->query('store_location') . '%');
          }
  
          if ($request->has('status') && $request->query('status') != '') {

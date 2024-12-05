@@ -100,7 +100,10 @@ class AdvanceLoanApplicationApiController extends Controller
 
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);

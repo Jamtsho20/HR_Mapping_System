@@ -124,7 +124,10 @@ class TravelAuthorizationApplicationController extends Controller
             
         $travelAuthorization = new  TravelAuthorizationApplication();
             // dd($request->all());
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $conditionFields = approvalHeadConditionFields(TRAVEL_AUTHORIZATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         //dd($conditionFields);
         $approvalService = new ApprovalService();
@@ -224,7 +227,10 @@ class TravelAuthorizationApplicationController extends Controller
     {
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
 
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $date= formatDate(request('date'));
         try {
 

@@ -9,6 +9,7 @@ use App\Models\LeaveEncashmentApplication;
 use App\Models\LeaveEncashmentType;
 use Carbon\Carbon;
 use App\Services\ApprovalService;
+use App\Models\MasLeavePolicy;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -56,9 +57,13 @@ class LeaveEncashmentApplicationController extends Controller
 
         $applyFlag = false;
 
-      
-        $requiredBalance = 37;
-        $earnedLeaveEncahsment = 30;
+        $leavePolicy = MasLeavePolicy::with('yearEnd')->where('mas_leave_type_id', EARNED_LEAVE)->first();
+        if (!$leavePolicy) {
+            return back()->withInput()->with('Leave policy not found.', 404);
+            
+        }
+        $requiredBalance = $leavePolicy->yearEnd->min_balance_required;
+        $earnedLeaveEncahsment = $leavePolicy->yearEnd->min_encashment_per_year;
         $message="";
         if($earnedLeaveBalance < $requiredBalance ){
             $message="Insufficient Balance";
@@ -82,8 +87,7 @@ class LeaveEncashmentApplicationController extends Controller
 
     public function store(Request $request){
         $leaveEncashment = new  LeaveEncashmentApplication();
-        // dd($request);
-        // $this->validate($request, $this->rules, $this->messages);
+    
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $encashmentType = LeaveEncashmentType::first()?->id;

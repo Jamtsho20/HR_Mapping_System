@@ -196,7 +196,7 @@ class AdvanceLoanApprovalController extends Controller
                     // dd($applicationForwardedTo);
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
-                            'level_id' => $applicationForwardedTo['next_level']->id,
+                            'next_level_id' => $applicationForwardedTo['next_level']->id,
                             'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
                             'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
                             'level_sequence' => $applicationForwardedTo['next_level']->sequence,
@@ -236,7 +236,7 @@ class AdvanceLoanApprovalController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
+            return response()->json(['message' => 'Selected advance has been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Bulk approval/rejection error: ' . $e->getMessage());

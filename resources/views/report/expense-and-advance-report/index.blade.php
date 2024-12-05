@@ -2,211 +2,189 @@
 @section('page-title', 'Expense and Advance')
 @section('content')
 
+<div class="col-md-12 d-flex justify-content-end gap-2">
+    <div class="d-flex gap-2">
+        <a href="{{route('expense-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('expense-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{ route('expense-report-print',Request::query()) }}" target="_blank" onclick="openPrintPreview(event)">
+            <span><i class="fa fa-print fa-lg"></i></span>
+        </a>
 
-<div class="col-sm-6">
-    <h5>Expense and Advance Report</h5>
+    </div>
 </div>
+
 <br>
-<div class="row">
-    <div class="col-md-12">
-        <div class="block">
-            <div class="block-header block-header-default">
-                @component('layouts.includes.filter')
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Select Expense</label>
-                            <select class="form-control" name="year">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="2023">2023</option>
-                            </select>
-                        </div>
-                    </div>
+<div class="block-header block-header-default">
+    @component('layouts.includes.filter')
+    <div class="col-md-2 form-group">
+        <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+    </div>
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="mas_expense_type_id">
+            <option value="" disabled="" selected="" hidden="">Select Expense</option>
+            @foreach($expenses as $expense)
+            <option value="{{ $expense->id }}" {{ request()->get('mas_expense_type_id') == $expense->id ? 'selected' : '' }}>
+                {{ $expense->name }}
+            </option>
+            @endforeach
+        </select>
 
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Employe Name</label>
-                            <select class="form-control" name="month">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="jan">January</option>
-                                <option value="feb">February</option>
+    </div>
 
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Department</label>
-                            <select class="form-control" name="department">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="1">Strategic Planning and Projects</option>
-                                <option value="2">Core Network and Carrier Services</option>
-                                <option value="4">Finance</option>
-                                <option value="7">Management Information System</option>
-                                <option value="8">Commercial</option>
-                            </select>
-                        </div>
-                    </div>
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="employee">
+            <option value="" disabled="" selected="" hidden="">Select Employee</option>
+            @foreach($employeeLists as $employee)
+            <option value="{{ $employee->id }}" {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+                {{ $employee->name }}
+            </option>
+            @endforeach
+        </select>
 
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Section</label>
-                            <select class="form-control" name="department">
-                                <option value="14">ISP Access</option>
-                                <option value="32">Power &amp; Utilities</option>
-                            </select>
-                        </div>
-                    </div>
+    </div>
+    <div class="col-md-3 form-group">
+        <select class="form-control" name="department">
+            <option value="" disabled="" selected="" hidden="">Select Department</option>
+            @foreach($departments as $department)
+            <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                {{ $department->name }}
+            </option>
+            @endforeach
+        </select>
 
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Region</label>
-                            <select class="form-control" name="department">
-                                <option value="14">ISP Access</option>
-                                <option value="32">Power &amp; Utilities</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Location</label>
-                            <select class="form-control" name="department">
-                                <option value="14">ISP Access</option>
-                                <option value="32">Power &amp; Utilities</option>
-                            </select>
-                        </div>
-                    </div>
+    </div>
 
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Managerr</label>
-                            <select class="form-control" name="department">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="1">Strategic Planning and Projects</option>
-                                <option value="2">Core Network and Carrier Services</option>
-                                <option value="4">Finance</option>
-                                <option value="7">Management Information System</option>
-                                <option value="8">Commercial</option>
-                            </select>
-                        </div>
-                    </div>
+    <div class="col-md-3 form-group">
+        <select class="form-control" name="section">
+            <option value="" disabled selected hidden>Select Sections</option>
+            @foreach($sections as $section)
+            <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
+                {{ $section->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
 
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Year</label>
-                            <select class="form-control" name="department">
-                                <option value="14">ISP Access</option>
-                                <option value="32">Power &amp; Utilities</option>
-                                <option value="49">Access Network</option>
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="region">
+            <option value="" disabled selected hidden>Select Region</option>
+            @foreach($regions as $section)
+            <option value="{{ $section->id }}" {{ request()->get('region') == $section->id ? 'selected' : '' }}>
+                {{ $section->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="office">
+            <option value="" disabled selected hidden>Select Location</option>
+            @foreach($offices as $office)
+            <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
+                {{ $office->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
 
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Month</label>
-                            <select class="form-control" name="department">
-                                <option value="14">ISP Access</option>
-                                <option value="32">Power &amp; Utilities</option>
-                                <option value="49">Access Network</option>
+    <div class="col-md-2 form-group">
+        <select class="form-control" name="manager">
+            <option value="" disabled selected hidden>Select Manager</option>
 
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Paid Status</label>
-                            <select class="form-control" name="leavetype">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="1">Fully Paid</option>
-                                <option value="2">Not Paid</option>
+            @foreach($managers as $manager)
+            <option value="{{ $manager->id }}" {{ request()->get('manager') == $manager->id ? 'selected' : '' }}>
+                {{ $manager->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
 
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group form-focus select-focus">
-                            <label class="control-label">Invoice Status</label>
-                            <select class="form-control" name="leavetype">
-                                <option value="" disabled selected hidden>Select</option>
-                                <option value="1">Validated</option>
-                                <option value="2">Never Validated</option>
-                                <option value="3">Cancelled</option>
-                                <option value="4">Unalidated</option>
-                                <option value="5">Available</option>
-                                <option value="6">Available Payment</option>
-                                <option value="8">Manual</option>
-                            </select>
-                        </div>
-                    </div>
+
+    @endcomponent
+    <div class="row row-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Expense and Advance Report</h3>
                 </div>
-                @endcomponent
-            </div>
-            <br>
-            <div class="row row-sm">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <label data-select2-id="26">
-                                                Show
-                                                <select class="select2">
-                                                    <option value="10">10</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
-                                                </select>
-                                                entries
-                                            </label>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="dataTables_scroll">
+                                        <div class="dataTables_scrollHead"
+                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                            <div class="dataTables_scrollHeadInner"
+                                                style="box-sizing: content-box; padding-right: 0px;">
+                                                <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
+                                                    <thead class="thead-light">
+                                                        <tr role="row">
+                                                            <th>
+                                                                #
+                                                            </th>
 
-                                            <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
+                                                            <th>
+                                                                Employee NAME
+                                                            </th>
+                                                            <th>
+                                                                DESIGNATION
+                                                            </th>
+                                                            <th>
+                                                                Department
+                                                            </th>
+                                                            <th>
+                                                                Expense Type
+                                                            </th>
+                                                            <th>
+                                                                Expense AMount
+                                                            </th>
+                                                            <th>
+                                                                Description
+                                                            </th>
+                                                            <th>
+                                                                Status
+                                                            </th>
+                                                            <th>
+                                                                Approved By
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse($expenseApplications as $application)
+                                                        <tr>
+                                                            <td>{{$loop->iteration}}</td>
+                                                            <td>{{$application->employee->name}}</td>
+                                                            <td>{{$application->employee->empJob->designation->name}}</td>
+                                                            <td>{{$application->employee->empJob->department->name}}</td>
+                                                            <td>{{$application->expenseType->name}}</td>
+                                                            <td>{{$application->expense_amount}}</td>
+                                                            <td>{{$application->description}}</td>
+                                                            @php
+                                                            $statusClasses = [
+                                                            -1 => 'Rejected',
+                                                            0 => 'Cancelled',
+                                                            1 => 'Submitted',
+                                                            2 => 'Verified',
+                                                            3 => 'Approved',
+                                                            ];
+                                                            $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
+                                                            $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
+                                                            @endphp
+                                                            <td>
 
-                                                <thead class="thead-light">
-                                                    <tr role="row">
-                                                        <th>
-                                                            #
-                                                        </th>
-                                                        <th>
-                                                            CODE
-                                                        </th>
-                                                        <th>
-                                                            NAME
-                                                        </th>
-                                                        <th>
-                                                            DESIGNATION
-                                                        </th>
-                                                        <th>
-                                                            Region Name
-                                                        </th>
-                                                        <th>
-                                                            date of entry
-                                                        </th>
-                                                        <th>
-                                                            vehicle type
-                                                        </th>
-                                                        <th>
-                                                            vehicle number
-                                                        </th>
-                                                        <th>
-                                                            mileage
-                                                        </th>
-                                                        <th>
-                                                            amount
-                                                        </th>
-
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td colspan="10" class="text-center text-danger">No Vehicle Fuel report found</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                                                {{ $statusText }}
+                                                            </td>
+                                                            <td>{{$application->expense_approved_by->name}}</td>
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="10" class="text-center text-danger">No Expense report found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
@@ -215,10 +193,12 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
-</div>
+
+
+
+
 
 
 

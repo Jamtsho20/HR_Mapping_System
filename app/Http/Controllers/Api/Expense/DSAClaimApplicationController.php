@@ -71,7 +71,7 @@ class DSAClaimApplicationController extends Controller
              ->where('status', 3)
              ->whereNotIn('id', $excludedAdvanceIds)
              ->get(['id', 'advance_no']);
-        return response()->json(["advances"=>$advances,"travels"=> $travels], 200);
+        return response()->json(["travels"=> $travels], 200);
         return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
          
     }catch(\Exception $e){
@@ -90,7 +90,10 @@ class DSAClaimApplicationController extends Controller
     public function store(Request $request)
     {
         try{
-            $this->validate($request, $this->rules, $this->messages);
+            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
 
             $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
             $approvalService = new ApprovalService();
