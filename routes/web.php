@@ -36,9 +36,39 @@ Route::redirect('/', '/login', 301);
 Route::get('/debug', function () {
     $sap = new ApiController();
 
-    $session = $sap->startSession();
+    $response = $sap->startSession();
+    // Check if the response is a valid JSON string
+    if (json_last_error() === JSON_ERROR_NONE) {
+        $session = json_decode($response->getContent(), true);
 
-    return $session;
+        dd($session['sessionId']);
+    } else {
+        // Output the error if JSON decoding fails
+        dd(json_last_error_msg());
+    }
+    // $sessionId = $session['sessionId'] ?? '';
+
+    $postFields = '{
+        "ReferenceDate":"2024-11-11",
+        "Memo": "Travel Allowance",
+        "JournalEntryLines": [
+            {
+                "ShortName": "E00993",
+                "CostingCode": null,
+                "Credit": 111,
+                "Debit": 0
+            },
+            {
+                "AccountCode": "52136",
+                "CostingCode": null,
+                "Credit": 0,
+                "Debit": 111
+            }
+        ]
+    }';
+
+    // Call postJournalEntries method
+    $response = $sap->postJournalEntries($postFields);
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');

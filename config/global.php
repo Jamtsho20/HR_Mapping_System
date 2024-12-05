@@ -170,5 +170,13 @@ return [
         1 => 'badge bg-primary',
         2 => 'badge bg-success',
         3 => 'badge bg-info',
-        ]
+    ],
+
+    'applications' => [
+        1 => App\Models\LeaveApplication::class,
+        2 => App\Models\ExpenseApplication::class,
+        3 => App\Models\DsaClaimApplication::class,
+        4 => App\Models\TransferClaimApplication::class,
+        5 => App\Models\TravelAuthorizationApplication::class,
+    ]
 ];
