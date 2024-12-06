@@ -89,16 +89,14 @@
                                                                         STATUS
                                                                     </th>
                                                                     <th>
-                                                                        Action
+                                                                        Actionx
                                                                     </th>
                                                                 </tr>
                                                             <tbody>
                                                                 @forelse ($expenseApplications as $expense)
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
-                                                                    <td>{{ $expense->employee->employee_id }}
-                                                                        ({{ $expense->employee->title . ' ' . $expense->employee->name }})
-                                                                    </td>
+                                                                    <td>{{ $empIdName }} </td>
                                                                     <td>{{ $expense->date }}</td>
                                                                     <td>{{ $expense->expenseType->name }}
                                                                     </td>
@@ -204,8 +202,8 @@
                                                                 @forelse ($dsaClaimApplications as $dsaClaim)
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
-                                                                    <td>{{ $dsaClaim->employee->employee_id }}
-                                                                        ({{ $dsaClaim->employee->title . ' ' . $dsaClaim->employee->name }})
+                                                                    <td>{{ $empIdName }}
+
                                                                     <td>{{ $dsaClaim->created_at->format('d-m-Y') }}
                                                                     <td>{{ $dsaClaim->net_payable_amount }}
                                                                     </td>
@@ -315,8 +313,8 @@
                                                                 @forelse ($transferClaims as $transfer)
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
-                                                                    <td>{{ $transfer->employee->employee_id }}
-                                                                        ({{ $transfer->employee->title . ' ' . $transfer->employee->name }})
+                                                                    <td>{{ $empIdName}}
+
                                                                     <td>{{ $transfer->created_at->format('d-m-Y') }}
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}

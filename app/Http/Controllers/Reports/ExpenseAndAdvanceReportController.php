@@ -30,7 +30,7 @@ class ExpenseAndAdvanceReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::select('name', 'id')->get();
+        $expenses = MasExpenseType::select('name', 'id')->whereNotIn('id', [3, 4])->get(); //3 and 4 is transfer claim and dsa
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
         $regions = MasRegion::select('name', 'id')->get();

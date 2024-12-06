@@ -90,7 +90,7 @@ class TransferClaimReportController extends Controller
     {
         //
     }
-    public function exportTransferCaim(Request $request)
+    public function exportTransferClaim(Request $request)
     {
 
         // Load all bookings with their dzongkhag names
