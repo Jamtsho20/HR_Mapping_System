@@ -21,8 +21,8 @@
                     <tr>
                         <th width="3%" class="text-center">#</th>
                         <th>Budget Code</th>
-                        <th>From Date</th>
-                        <th>To Date</th>
+                        <!-- <th>From Date</th>
+                        <th>To Date</th> -->
                         <th>Dzongkhag</th>
                         <th>Site Location</th>
                         <th>Advance Required</th>
@@ -42,12 +42,12 @@
                                     @endforeach
                             </select>
                         </td>
-                        <td>
-                            <input type="date" name="details[AAAAA][from_date]" class="form-control form-control-sm resetKeyForNew" required>
+                        <!-- <td>
+                            <input type="date" name="details[AAAAA][from_date]" class="form-control form-control-sm resetKeyForNew" >
                         </td>
                         <td>
-                            <input type="date" name="details[AAAAA][to_date]" class="form-control form-control-sm resetKeyForNew" required>
-                        </td>
+                            <input type="date" name="details[AAAAA][to_date]" class="form-control form-control-sm resetKeyForNew" >
+                        </td> -->
                         <td>
                             <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][dzongkhag]" required>
                                 <option value="" disabled selected hidden>Select Dzongkhag</option>
@@ -67,7 +67,7 @@
                         </td>
                     </tr>
                     <tr class="notremovefornew">
-                        <td colspan="7"></td>
+                        <td colspan="5"></td>
                         <td class="text-right">
                             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                         </td>
