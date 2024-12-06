@@ -17,13 +17,14 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceDetail;
 use Illuminate\Support\Facades\Mail;
+use App\services\ApplicationHistoriesService;
 
 class AdvanceLoanApplicationApiController extends Controller
 {
     use JsonResponseTrait;
     public function __construct()
     {
-        $this->middleware('auth:api'); 
+        $this->middleware('auth:api');
     }
 
     private $attachmentPath = 'images/advance/';
@@ -88,8 +89,8 @@ class AdvanceLoanApplicationApiController extends Controller
                                         $query->whereNotIn('id', $excludedTravelAuthorizationIds);
                                     })
                                     ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
-        return response()->json(['advanceTypes' => $advanceTypes, 'dzongkhags' => $dzongkhags, 'budgetCodes' => $budgetCodes, 'excludedTravelAuthorizationIds' => $excludedTravelAuthorizationIds, 'travelAuthorizations' => $travelAuthorizations]);                         
- 
+        return response()->json(['advanceTypes' => $advanceTypes, 'dzongkhags' => $dzongkhags, 'budgetCodes' => $budgetCodes, 'excludedTravelAuthorizationIds' => $excludedTravelAuthorizationIds, 'travelAuthorizations' => $travelAuthorizations]);
+
     }catch (\Exception $e) {
         return $this->errorResponse($e->getMessage(), 500);
     }
@@ -100,7 +101,7 @@ class AdvanceLoanApplicationApiController extends Controller
 
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
-        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
@@ -133,28 +134,20 @@ class AdvanceLoanApplicationApiController extends Controller
             $advanceApplication->remark = $request->remark ?? null;
             $advanceApplication->interest_rate = $request->interest_rate ?? null;
             $advanceApplication->status = $approverByHierarchy['application_status'];
-            
+
             $advanceApplication->save();
-           
+
             if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
                 $this->saveAdvanceDetails($request->details, $advanceApplication->id);
-                
-                
+
+
             }
-           
+
             // Create a corresponding history record for advance
             // Create a history record
-            $advanceApplication->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarks' => $request->remarks ?? null,
-                'action_performed_by' => loggedInUser(),
-            ]);
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
+
 
             DB::commit();
 
@@ -165,7 +158,7 @@ class AdvanceLoanApplicationApiController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
+           return $this->errorResponse($e->getMessage(), 500);
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
         return $this->successResponse($advanceApplication, 'Advance application created successfully');
@@ -278,13 +271,13 @@ class AdvanceLoanApplicationApiController extends Controller
             // Handle the error by returning back with error message
             return $this ->errorResponse($e->getMessage(), 500);
         }
-        
+
      return $this->successResponse($advanceApplication, 'Advance application updated successfully');
     }catch (\Exception $e) {
         return $this->errorResponse($e->getMessage(), 500);
     }
-       
-       
+
+
     }
 
 

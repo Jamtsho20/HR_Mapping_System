@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
+use App\services\ApplicationHistoriesService;
 
 class TransferClaimApplicationController extends Controller
 {
@@ -23,7 +24,7 @@ class TransferClaimApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api'); 
+        $this->middleware('auth:api');
     }
     private $filePath = 'images/files/';
 
@@ -40,19 +41,19 @@ class TransferClaimApplicationController extends Controller
 
     public function index(Request $request)
     {
-        try{ 
-            
+        try{
+
             $empIdName = LoggedInUserEmpIdName();
             $user = loggedInUser();
-    
+
             $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
-            
+
             return $this->successResponse($transferClaims, 'Expense applications retrieved successfully');
-         
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
         }
-       
+
     }
 
     /**
@@ -63,7 +64,7 @@ class TransferClaimApplicationController extends Controller
     public function create()
     {
         try {
-            
+
             $trasnferClaim = MasTransferClaim::get();
             return $this->successResponse($trasnferClaim, 'Expense applications create function retrieved successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -79,7 +80,7 @@ class TransferClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {   try {
-        
+
         $validator = \Validator::make($request->all(), $this->rules, $this->messages);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
@@ -88,7 +89,7 @@ class TransferClaimApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(TRANSFER_CLAIM_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
+        dd($approverByHierarchy);
         if ($approverByHierarchy) {
 
             try {
@@ -116,17 +117,8 @@ class TransferClaimApplicationController extends Controller
                 ]);
 
                 // Create a history record
-                $transferClaimApplication->histories()->create([
-                    'approval_option' => $approverByHierarchy['approval_option'],
-                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                    'status' => $approverByHierarchy['application_status'],
-                    'remarks' => $request->remarks,
-                    'action_performed_by' => loggedInUser(),
-                ]);
+                $historyService = new ApplicationHistoriesService();
+                $historyService->saveHistory($transferClaimApplication->histories(), $approverByHierarchy, $request->remarks);
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
@@ -136,19 +128,19 @@ class TransferClaimApplicationController extends Controller
                     // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                 }
                 return $this->successResponse($transferClaimApplication, 'Transfer Claim applied successfully');
-                
+
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error($e->getMessage());
-                return back()->withInput()->with('msg_error', $e->getMessage());
+                return $this->errorResponse($e->getMessage(), 500);
             }
         } else {
-            return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
+            return $this->errorResponse('Failed to create application', 500);
         }
     }catch (\Illuminate\Validation\ValidationException $e) {
         return $this->errorResponse('Failed to create application', 500);
     }
-       
+
     }
 
     /**
@@ -198,17 +190,17 @@ class TransferClaimApplicationController extends Controller
                 return $this->validationErrorResponse($validator->errors());
             }
             $transfer = TransferClaimApplication::findOrFail($id);
-    
+
             if ($request->hasFile('attachment')) {
                 // Upload file and get the file path
                 $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
-    
+
                 // Store it as a JSON array
                 $attachment = json_encode([$attachmentPath]);
             } else {
                 $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
             }
-    
+
             $transfer->transfer_claim_id = $request->transfer_claim;
             $transfer->current_location = $request->current_location;
             $transfer->new_location = $request->new_location;
@@ -220,7 +212,7 @@ class TransferClaimApplicationController extends Controller
         }catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to update application', 500);
         }
-       
+
     }
 
     /**

@@ -134,17 +134,9 @@ class DSAClaimApplicationController extends Controller
                 }
 
                 // Create a history record
-                $dsaClaimApplication->histories()->create([
-                    'approval_option' => $approverByHierarchy['approval_option'],
-                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                    'status' => $approverByHierarchy['application_status'] ?? 1,
-                    'remarks' => $request->remarks,
-                    'action_performed_by' => loggedInUser(),
-                ]);
+                $historyService = new ApplicationHistoriesService();
+                $historyService->saveHistory($dsaClaimApplication->histories(), $approverByHierarchy, $request->remarks);
+                 
 
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {

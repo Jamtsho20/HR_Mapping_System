@@ -216,7 +216,7 @@ var hrms = function () {
                                 formId.find("input, select, textarea").prop("disabled", false); // Disable fields in formId only
                                 // $("#leave_type").prop("disabled", false);
                             }
-                            
+
                             //handle half day by enabling and disabling in form
                             if (!response.data.is_half_day) {
                                 disableHalfDayOptions();
@@ -254,7 +254,7 @@ var hrms = function () {
                     });
                 });
             }
-        
+
             function enableAllDayOptions() {
                 ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
                     var select = document.getElementById(id);
@@ -263,7 +263,7 @@ var hrms = function () {
                     });
                 });
             }
-        
+
             // Trigger on change of leave type
             $(document).on("change", "#leave_type", function () {
                 populateLeaveBalance();
@@ -566,7 +566,7 @@ var hrms = function () {
                         dataType: 'JSON',
                         type: 'GET',
                         success: function (data) {
-                            console.log(data.travel_authorization_details )
+                            // console.log(data.travel_authorization_details )
                             // Clear the existing table rows
                             const tbody = $("#basic-datatable tbody");
                             tbody.empty();

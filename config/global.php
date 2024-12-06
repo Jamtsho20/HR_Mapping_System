@@ -179,5 +179,8 @@ return [
         4 => App\Models\TransferClaimApplication::class,
         // 5=>
         6 => App\Models\TravelAuthorizationApplication::class,
+        7 => App\Models\SifaRegistration::class,
+        8 => App\Models\AdvanceApplication::class,
+        9 => App\Models\LeaveEncashmentApplication::class
     ]
 ];
