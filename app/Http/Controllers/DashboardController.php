@@ -83,17 +83,29 @@ class DashboardController extends Controller
             ->whereYear('created_at', $currentYear)
             ->exists();
 
-        if ($closingBalance >= 37 && !$hasEncashed) {
-            // Fetch user details from the User model
-            $user = User::find($employeeId);
-
-            if ($user && $user->email) {
-                // Send email notification
-                Mail::to($user->email)->send(new LeaveEncashmentMail($user));
+            if ($closingBalance >= 37 && !$hasEncashed) {
+                $user = User::find($employeeId);
+            
+                if ($user && $user->email && !$user->encashment_email_sent) {
+                    try {
+                        // Send email notification
+                        Mail::to($user->email)->send(new LeaveEncashmentMail($user));
+            
+                        // Update the flag to indicate the email has been sent
+                        $user->encashment_email_sent = true;
+                        $user->save();
+            
+                        return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
+                    } catch (\Exception $e) {
+                        // Log the exception
+                        Log::error('Failed to send leave encashment email: ' . $e->getMessage());
+                        return 'You are eligible for leave encashment, but there was an error sending the email.';
+                    }
+                }
+            
+                return 'You are eligible for leave encashment, but the email has already been sent.';
             }
-
-            return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
-        }
+            
 
         return 'You are not eligible for leave encashment this year.';
     }

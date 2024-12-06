@@ -29,6 +29,9 @@ return new class extends Migration
             $table->string('cid_copy');
             $table->tinyInteger('no_probation')->default(0);
             $table->tinyInteger('status')->default(0);
+            $table->tinyInteger('registered_email_sent')->default(0);
+            $table->tinyInteger('encashment_email_sent')->default(0);
+            $table->date('regularized_on')->nullable();
         });
     }
 
