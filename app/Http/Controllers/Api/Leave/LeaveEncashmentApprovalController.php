@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\ApprovalService;
 use Illuminate\Support\Facades\Log;
-use App\traits\JsonResponseTrait;
+use App\Traits\JsonResponseTrait;
 
 class LeaveEncashmentApprovalController extends Controller
 {

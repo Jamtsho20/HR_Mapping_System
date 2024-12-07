@@ -10,7 +10,7 @@ use App\Models\LeaveEncashmentType;
 use Carbon\Carbon;
 use App\Services\ApprovalService;
 use App\Models\MasLeavePolicy;
-use App\traits\JsonResponseTrait;
+use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;

@@ -12,7 +12,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\traits\JsonResponseTrait;
+use App\Traits\JsonResponseTrait;
 
 class LeaveApprovalController extends Controller
 {
