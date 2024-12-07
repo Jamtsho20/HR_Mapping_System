@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 class TransferClaimApplicationController extends Controller
 {

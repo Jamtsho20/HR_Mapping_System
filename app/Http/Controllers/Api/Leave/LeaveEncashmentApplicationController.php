@@ -14,7 +14,7 @@ use App\traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 class LeaveEncashmentApplicationController extends Controller
 {

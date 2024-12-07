@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationForwardedMail;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\AjaxRequestController;

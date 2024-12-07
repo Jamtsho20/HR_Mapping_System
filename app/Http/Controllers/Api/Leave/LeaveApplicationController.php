@@ -18,7 +18,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use App\Traits\JsonResponseTrait;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 class LeaveApplicationController extends Controller
 {

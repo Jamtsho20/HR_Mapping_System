@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TravelAuthorizationApplication;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 class DSAClaimApplicationController extends Controller
 {   use JsonResponseTrait;

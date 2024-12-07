@@ -18,7 +18,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;

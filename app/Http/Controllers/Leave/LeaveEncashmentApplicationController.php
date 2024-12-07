@@ -10,7 +10,7 @@ use App\Models\LeaveEncashmentType;
 use Carbon\Carbon;
 use App\Services\ApprovalService;
 use App\Models\MasLeavePolicy;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

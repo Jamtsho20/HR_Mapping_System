@@ -20,7 +20,7 @@ use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
 use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 use App\Services\ApprovalService;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 
 class ExpenseApplicationController extends Controller

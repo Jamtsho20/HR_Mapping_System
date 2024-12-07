@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceDetail;
 use Illuminate\Support\Facades\Mail;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 class AdvanceLoanApplicationApiController extends Controller
 {
