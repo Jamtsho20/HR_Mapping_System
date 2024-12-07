@@ -55,6 +55,9 @@ return new class extends Migration
             $table->dropColumn('date_of_appointment');
             $table->dropColumn('cid_copy');
             $table->dropColumn('status');
+            $table->dropColumn('registered_email_sent');
+            $table->dropColumn('encashment_email_sent');
+            $table->dropColumn('regularized_on');
         });
     }
 };
