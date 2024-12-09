@@ -134,7 +134,7 @@ class SystemSubMenusTableSeeder extends Seeder
             // LTC
             ['system_menu_id' => 15, 'name' => 'LTC', 'route' => 'ltc/ltc', 'display_order' => 1],
             //submenu for Report
-            ['system_menu_id' => 16, 'name' => 'LTC', 'route' => 'report/ltc', 'display_order' => 1],
+            ['system_menu_id' => 16, 'name' => 'LTC', 'route' => 'report/ltc-report', 'display_order' => 1],
             ['system_menu_id' => 16, 'name' => 'Leave Availed Report', 'route' => 'report/leave-availed-report', 'display_order' => 1],
             ['system_menu_id' => 16, 'name' => 'Leave Balance Report', 'route' => 'report/leave-balance-report', 'display_order' => 2],
             ['system_menu_id' => 16, 'name' => 'Leave Encashment Report', 'route' => 'report/leave-encashment-report', 'display_order' => 3],

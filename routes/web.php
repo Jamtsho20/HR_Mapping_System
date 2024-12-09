@@ -10,8 +10,10 @@ use App\Http\Controllers\Reports\EmployeeReportController;
 use App\Http\Controllers\Reports\ExpenseAndAdvanceReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
+use App\Http\Controllers\Reports\LoanReportController;
 use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\SalaryReportController;
+use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
@@ -212,6 +214,10 @@ Route::middleware('auth')->group(function () {
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
     Route::get('/export-salary-excel-report', [SalaryReportController::class, 'exportSalaryExcel'])->name('salary-report-excel.export');
+    Route::get('/export-sifa-report', [SIFAContributionController::class, 'exportSifa'])->name('sifa-report-pdf.export');
+    Route::get('/export-sifa-excel-report', [SIFAContributionController::class, 'exportSifaExcel'])->name('sifa-report-excel.export');
+    Route::get('/export-loan-report', [LoanReportController::class, 'exportLoan'])->name('loan-report-pdf.export');
+    Route::get('/export-loan-excel-report', [LoanReportController::class, 'exportLoanExcel'])->name('loan-report-excel.export');
     Route::get('/export-leave-availed-report', [LeaveAvailedReportController::class, 'exportLeaveAvailed'])->name('leave-availed-pdf.export');
     Route::get('/export-leave-availed-excel-report', [LeaveAvailedReportController::class, 'exportLeaveAvailedExcel'])->name('leave-availed-excel.export');
     Route::get('/export-leave-balance-report', [LeaveBalanceReportController::class, 'exportLeaveBalance'])->name('leave-balance-pdf.export');
@@ -233,6 +239,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
     Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
+    Route::get('/print-sifa-report', [SIFAContributionController::class, 'printSifa'])->name('sifa-report-print');
+    Route::get('/print-loan-report', [LoanReportController::class, 'printLoan'])->name('loan-report-print');
     Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
     Route::get('/print-advance-loan-report', [AdvanceLoanReportController::class, 'printAdvanceLoan'])->name('advance-loan-print');
     Route::get('/print-employee-report', [EmployeeReportController::class, 'printEmployee'])->name('employee-report-print');

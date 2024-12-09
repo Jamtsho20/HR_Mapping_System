@@ -18,6 +18,8 @@ return new class extends Migration
             $table->date("start_date");
             $table->date("end_date")->nullable();
             $table->decimal("amount", 20,2);
+            $table->decimal("loan_number", 20,2)->comment("accpunt nunber for loan");
+            $table->string("loan_type");
             $table->boolean("recurring")->default(0)->comment("1 for Yes, 0 for No");
             $table->integer("recurring_months")->nullable();
             $table->text("remarks")->nullable();

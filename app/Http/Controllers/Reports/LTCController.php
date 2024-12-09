@@ -16,10 +16,10 @@ class LTCController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:report/ltc,view')->only('index');
-        $this->middleware('permission:report/ltc,create')->only('store');
-        $this->middleware('permission:report/ltc,edit')->only('update');
-        $this->middleware('permission:report/ltc,delete')->only('destroy');
+        $this->middleware('permission:report/ltc-report,view')->only('index');
+        $this->middleware('permission:report/ltc-report,create')->only('store');
+        $this->middleware('permission:report/ltc-report,edit')->only('update');
+        $this->middleware('permission:report/ltc-report,delete')->only('destroy');
     }
     public function index(Request $request)
     {

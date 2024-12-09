@@ -29,8 +29,9 @@ class FinalPaySlip extends Model
             $query->whereYear('for_month', $year)
                 ->whereMonth('for_month', $month);
         }
+        //specify table name final_pay_slip for loan report where tables are joined
         if ($request->has('employee_id') && $request->get('employee_id')) {
-            $query->where('mas_employee_id', $request->get('employee_id'));
+            $query->where('final_pay_slips.mas_employee_id', $request->get('employee_id'));
         }
 
         // Add more filters here if needed
@@ -45,4 +46,8 @@ class FinalPaySlip extends Model
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
+
+
+
+ 
 }
