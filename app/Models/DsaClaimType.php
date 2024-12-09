@@ -14,6 +14,6 @@ class DsaClaimType extends Model
 
     public function approvableRule() // relationship with mas_approvable_rules
     {
-        return $this->morphMany(MasApprovalRule::class, 'approvable');
+        return $this->morphMany(MasApprovalRule::class, 'approvable');//
     }
 }
