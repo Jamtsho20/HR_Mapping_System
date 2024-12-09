@@ -22608,11 +22608,11 @@ a.text-primary:focus {
 }
 
 .login-img {
-    background: var(--primary-bg-color);
+    background: #eff3f6;
 }
 
 body.dark-mode.login-img {
-    background: var(--primary-bg-color);
+    background: #eff3f6;
 }
 
 .avatar {

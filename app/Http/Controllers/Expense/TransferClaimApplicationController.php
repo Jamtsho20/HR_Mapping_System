@@ -68,13 +68,12 @@ class TransferClaimApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
+    { 
         $this->validate($request, $this->rules, $this->messages);
 
-        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy(TRANSFER_CLAIM_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
         if ($approverByHierarchy) {
 
             try {

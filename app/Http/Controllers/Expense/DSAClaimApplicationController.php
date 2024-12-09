@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Expense;
 
+use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimApplication;
+use App\Models\DsaClaimDetail;
+use App\Models\TravelAuthorizationApplication;
+use App\Services\ApplicationHistoriesService;
+use App\Services\ApprovalService;
 use DateTime;
 use Illuminate\Http\Request;
-use App\Models\DailyAllowance;
-use App\Models\DsaClaimDetail;
-use App\Services\ApprovalService;
-use App\Models\AdvanceApplication;
-use Illuminate\Support\Facades\DB;
-use App\Models\DsaClaimApplication;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\TravelAuthorizationApplication;
+use Illuminate\Support\Facades\DB;
 
 class DSAClaimApplicationController extends Controller
 {
@@ -37,6 +38,8 @@ class DSAClaimApplicationController extends Controller
     protected $messages = [
 
     ];
+
+    private $attachmentPath = 'images/dsa/';
 
     public function index(Request $request)
     {
@@ -80,9 +83,10 @@ class DSAClaimApplicationController extends Controller
     {
         $this->validate($request, $this->rules, $this->messages);
 
-        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy(DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
+        //dd($approverByHierarchy);
 
         if ($approverByHierarchy) {
             try {
@@ -90,7 +94,7 @@ class DSAClaimApplicationController extends Controller
 
                 if ($request->hasFile('attachment')) {
                     // Upload file and get the file path
-                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                     // Store it as a JSON array
                     $attachment = json_encode([$attachmentPath]);
@@ -100,6 +104,7 @@ class DSAClaimApplicationController extends Controller
 
                 $dsaClaimApplication = DsaClaimApplication::create([
                     'dsa_claim_no' => $request->dsa_claim_no,
+                    'dsa_claim_type_id' => $request->dsa_claim_type_id,
                     'travel_authorization_id' => $request->travel_authorization_id,
                     'advance_application_id' => $request->advance_no ?? null,
                     'total_amount' => $request->total_amount,

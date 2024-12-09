@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
+use App\Models\DsaClaimType;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalCondition;
@@ -80,6 +81,7 @@ class ApprovalRuleController extends Controller
             6 => MasTransferClaim::class,
             7 => MasTravelType::class,
             8 => MasSifaType::class,
+            9 => DsaClaimType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

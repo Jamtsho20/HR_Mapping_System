@@ -74,6 +74,7 @@ class ApprovalService
 
 	public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
 	{
+		//dd($approvableId, $approvableType, $conditionfields);
 		$approvalRule = MasApprovalRule::with('approvalConditions')
 			->where('approvable_id', $approvableId)
 			->where('approvable_type', $approvableType)
