@@ -109,6 +109,7 @@
                             @csrf
                             <div class="card">
                                 <div class="card-body">
+                                <input type="hidden" name="dsa_claim_type_id" id="dsa_claim_type_id" value="1">
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">

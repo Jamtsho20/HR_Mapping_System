@@ -145,7 +145,6 @@ class ExpenseApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();

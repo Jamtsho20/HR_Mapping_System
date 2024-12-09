@@ -6,11 +6,11 @@ use App\Http\Controllers\Api\SAP\ApiController;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\DsaClaimApplication;
+use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
 use App\Models\ExpenseApplication;
 use App\Models\GoodIssueApplication;
 use App\Models\GoodReceiptApplication;
-use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasConditionField;
@@ -313,6 +313,7 @@ class AjaxRequestController extends Controller
             6 => MasTransferClaim::class,
             7 => MasTravelType::class,
             8 => MasSifaType::class,
+            9 => DsaClaimType::class,
         ];
 
         if (isset($modelMap[$id])) {
