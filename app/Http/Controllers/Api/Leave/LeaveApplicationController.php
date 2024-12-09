@@ -23,10 +23,10 @@ use App\Services\ApplicationHistoriesService;
 class LeaveApplicationController extends Controller
 {
     use JsonResponseTrait;
-      
+
     public function __construct()
     {
-        $this->middleware('auth:api'); 
+        $this->middleware('auth:api');
     }
 
     protected $rules = [
@@ -39,7 +39,7 @@ class LeaveApplicationController extends Controller
     ];
 
     protected $messages = [
-        
+
     ];
 
     private $attachmentPath = 'images/leaves/';
@@ -50,7 +50,7 @@ class LeaveApplicationController extends Controller
      */
     public function index(Request $request)
     {
-      
+
         try{$privileges = $request->instance();
         $leaveApplications = LeaveApplication::with('leaveType:id,name')->filter($request)->orderBy('created_at')->get();
         return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
@@ -77,7 +77,7 @@ class LeaveApplicationController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage. 
+     * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -109,7 +109,7 @@ class LeaveApplicationController extends Controller
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
-                'status' => $approverByHierarchy['application_status'],    
+                'status' => $approverByHierarchy['application_status'],
             ]);
             // Create a history record
             $historyService = new ApplicationHistoriesService();
@@ -152,7 +152,7 @@ class LeaveApplicationController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *                    
+     *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -172,7 +172,7 @@ class LeaveApplicationController extends Controller
      */
     public function update(Request $request, $id)
     { //need to writ code if image or file already exists then first insert the new one the delete the existing from application folder
-        try{    
+        try{
         $leaveApplication = LeaveApplication::findOrFail($id);
         $result = $this->handleLeaveApplication($request, $leaveApplication);
         // If $result is a RedirectResponse, return it immediately
@@ -184,7 +184,7 @@ class LeaveApplicationController extends Controller
             if ($validator->fails()) {
                 return $this->validationErrorResponse($validator->errors());
             }
-    
+
             DB::beginTransaction();
             $leaveApplication->update([
                 // 'mas_employee_id' => $leaveApplication->mas_employee_id,
@@ -198,7 +198,7 @@ class LeaveApplicationController extends Controller
                 'attachment' => $result['attachment'],
                 'status' => $leaveApplication->status,
             ]);
-    
+
             // this will be inserted to application audit history table
             // $leaveApplication->histories()->create([
             //     'level' => 'Test Level',
@@ -207,7 +207,7 @@ class LeaveApplicationController extends Controller
             //     'created_by' => $leaveApplication->created_by,
             //     'updated_by' => loggedInUser()
             // ]);
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -217,7 +217,7 @@ class LeaveApplicationController extends Controller
         return $this->successResponse($leaveApplication, 'Leave Application updated successfully');
     }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());
-        } 
+        }
     }
 
     /**
@@ -246,6 +246,35 @@ class LeaveApplicationController extends Controller
         }
     }
 
+
+    public function getLeaveData($currentYear)
+    {
+        // Get all leave types for the current user with their names
+        $leaveTypes = EmployeeLeave::with('leaveType:id,name')
+            ->where('mas_employee_id', auth()->id())
+            ->whereYear('created_at', $currentYear)
+            ->get();
+
+        $response = $leaveTypes->map(function ($leaveType) use ($currentYear) {
+            $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
+                ->createdBy()
+                ->whereYear('created_at', $currentYear)
+                ->where('mas_leave_type_id', $leaveType->mas_leave_type_id)
+                ->groupBy('status')
+                ->pluck('total', 'status');
+            $balance = $leaveType->closing_balance ?? 0;
+            return [
+                'leaveTypeId' => $leaveType->mas_leave_type_id,
+                'leaveTypeName' => $leaveType->leaveType->name ?? 'Unknown',
+                'Approved' => $statusCounts[3] ?? 0,
+                'Balance' => $balance,
+                'In-Progress' => ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0),
+            ];
+
+        });
+        return response()->json($response);
+    }
+
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave
         $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
             ->where('mas_employee_id', loggedInUser())
@@ -260,11 +289,11 @@ class LeaveApplicationController extends Controller
             ->where('mas_leave_type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
-             
+
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
-            
+
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
             $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
@@ -315,7 +344,7 @@ class LeaveApplicationController extends Controller
         //     'maxLeaveDays' => $maxLeaveDays,
         //     'leaveType' => $leaveType,
         //     'attachment' => $attachment
-        // ]; 
+        // ];
         if ($request->hasFile('attachment')) {
             // Check if there is an existing file and delete it
             if ($leaveApplication && $leaveApplication->attachment) {
@@ -340,7 +369,7 @@ class LeaveApplicationController extends Controller
             'maxLeaveDays' => $maxLeaveDays,
             'leaveType' => $leaveType,
             'attachment' => $validatedData['attachment']
-        ];  
+        ];
     }
 
 }

@@ -21,7 +21,7 @@ use App\Services\ApplicationHistoriesService;
 
 class LeaveApplicationController extends Controller
 {
-      
+
     public function __construct()
     {
         $this->middleware('permission:leave/leave-apply,view')->only('index', 'show', 'leaveBalance');
@@ -40,7 +40,7 @@ class LeaveApplicationController extends Controller
     ];
 
     protected $messages = [
-        
+
     ];
 
     private $attachmentPath = 'images/leaves/';
@@ -51,7 +51,7 @@ class LeaveApplicationController extends Controller
      */
     public function index(Request $request)
     {
-      
+
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
         $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
@@ -68,12 +68,12 @@ class LeaveApplicationController extends Controller
      */
     public function create()
     {
-        $leaveTypes = MasLeaveType::get(['id', 'name']); 
+        $leaveTypes = MasLeaveType::get(['id', 'name']);
           return view('leave.leave.create',compact('leaveTypes')); // Ensure the view name is correct
     }
 
     /**
-     * Store a newly created resource in storage. 
+     * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -101,7 +101,7 @@ class LeaveApplicationController extends Controller
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
-                'status' => $approverByHierarchy['application_status'],    
+                'status' => $approverByHierarchy['application_status'],
             ]);
             // Create a history record
             $historyService = new ApplicationHistoriesService();
@@ -139,7 +139,7 @@ class LeaveApplicationController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *                    
+     *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -167,7 +167,7 @@ class LeaveApplicationController extends Controller
         }
         try {
             $this->validate($request, $this->rules, $this->messages);
-    
+
             DB::beginTransaction();
             $leaveApplication->update([
                 // 'mas_employee_id' => $leaveApplication->mas_employee_id,
@@ -181,7 +181,7 @@ class LeaveApplicationController extends Controller
                 'attachment' => $result['attachment'],
                 'status' => $leaveApplication->status,
             ]);
-    
+
             // this will be inserted to application audit history table
             // $leaveApplication->histories()->create([
             //     'level' => 'Test Level',
@@ -190,7 +190,7 @@ class LeaveApplicationController extends Controller
             //     'created_by' => $leaveApplication->created_by,
             //     'updated_by' => loggedInUser()
             // ]);
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -198,7 +198,7 @@ class LeaveApplicationController extends Controller
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');  
+        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');
     }
 
     /**
@@ -238,11 +238,11 @@ class LeaveApplicationController extends Controller
             ->where('mas_leave_type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
-             
+
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
-            
+
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
             $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
@@ -293,7 +293,7 @@ class LeaveApplicationController extends Controller
         //     'maxLeaveDays' => $maxLeaveDays,
         //     'leaveType' => $leaveType,
         //     'attachment' => $attachment
-        // ]; 
+        // ];
         if ($request->hasFile('attachment')) {
             // Check if there is an existing file and delete it
             if ($leaveApplication && $leaveApplication->attachment) {
@@ -318,7 +318,7 @@ class LeaveApplicationController extends Controller
             'maxLeaveDays' => $maxLeaveDays,
             'leaveType' => $leaveType,
             'attachment' => $validatedData['attachment']
-        ];  
+        ];
     }
 
 }

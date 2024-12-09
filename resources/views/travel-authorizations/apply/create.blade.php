@@ -59,7 +59,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -225,9 +225,10 @@
             }
         })
         travel_type.dispatchEvent(new Event('change'));
+
         document.querySelector('#travel_details').addEventListener('change', function(event) {
             if (event.target && event.target.matches('.from_date')) {
-                var fromDate = event.target.value;
+                const fromDate = new Date(event.target.value).toISOString().split('T')[0];
                 var toDateField = event.target.closest('tr').querySelector('.to_date');
 
                 if (fromDate) {

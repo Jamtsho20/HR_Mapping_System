@@ -48,7 +48,7 @@ class LeaveApprovalController extends Controller
         // })->where('approver_emp_id', $user->id)
         //   ->get();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $leaves = LeaveApplication::whereHas('histories', function ($query) use ($user) {
+        $leaves = LeaveApplication::with('employee:id,name', 'leaveType:id,name')->whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', \App\Models\LeaveApplication::class);
         })

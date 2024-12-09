@@ -22,10 +22,10 @@ class LeaveEncashmentApprovalController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api');
-       
+
     }
     public function index(Request $request)
-    {   
+    {
 
         try{
         $user = auth()->user();
@@ -71,7 +71,12 @@ class LeaveEncashmentApprovalController extends Controller
      */
     public function show($id)
     {
-        //
+       try{
+        $leaveEncashment = LeaveEncashmentApplication::with('employee:id,name,username')->where('id', $id)->first();
+        return $this->successResponse($leaveEncashment, "Leave Encashment details");
+       }catch(\Exception $e){
+        return $this->errorResponse($e->getMessage());
+       }
     }
 
     /**
@@ -109,7 +114,7 @@ class LeaveEncashmentApprovalController extends Controller
     }
 
     public function bulkApprovalRejection(Request $request)
-    {   
+    {
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
@@ -119,7 +124,7 @@ class LeaveEncashmentApprovalController extends Controller
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
-            
+
             foreach ($itemIds as $id) {
                 $encashmentApplication = LeaveEncashmentApplication::findOrFail($id);
                 $applicationHistory = $encashmentApplication->histories

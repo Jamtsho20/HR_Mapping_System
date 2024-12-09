@@ -92,7 +92,7 @@ class AdvanceLoanApprovalController extends Controller
         }
 
         return view('advance-loan.approval.show', compact('advance', 'empDetails', 'advanceDetails', 'budgetCodes', 'dzongkhags'));
-    
+
     }
 
     /**
@@ -102,7 +102,7 @@ class AdvanceLoanApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {   
+    {
         $user = auth()->user();
         $advance = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
@@ -124,8 +124,8 @@ class AdvanceLoanApprovalController extends Controller
             $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
         }
         $redirectUrl = 'advance-loan/advance-loan-approval';
-        
-        
+
+
         return view('advance-loan.apply.edit', compact( 'redirectUrl','advance', 'advanceType', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
     }
 
@@ -157,7 +157,7 @@ class AdvanceLoanApprovalController extends Controller
             return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
         }
     }
-    
+
     public function bulkApprovalRejection(Request $request)
     {
         $action = $request->action;
