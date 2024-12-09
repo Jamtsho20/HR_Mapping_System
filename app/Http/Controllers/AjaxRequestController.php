@@ -409,28 +409,28 @@ class AjaxRequestController extends Controller
                         // }
                     } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                          // Post to SAP after final Approval
-                         $postFields = '{
-                            "ReferenceDate":"2024-11-11",
-                            "Memo": "Travel Claim",
-                            "JournalEntryLines": [
-                                {
-                                    "ShortName": "E00993", // search from application
-                                    "CostingCode": null,
-                                    "Credit": 111,
-                                    "Debit": 0
-                                },
-                                {
-                                    "AccountCode": "52136",
-                                    "CostingCode": null,
-                                    "Credit": 0,
-                                    "Debit": 111
-                                }
-                            ]
-                        }';
+                        //  $postFields = '{
+                        //     "ReferenceDate":"2024-11-11",
+                        //     "Memo": "Travel Claim",
+                        //     "JournalEntryLines": [
+                        //         {
+                        //             "ShortName": "E00993", // search from application
+                        //             "CostingCode": null,
+                        //             "Credit": 111,
+                        //             "Debit": 0
+                        //         },
+                        //         {
+                        //             "AccountCode": "52136",
+                        //             "CostingCode": null,
+                        //             "Credit": 0,
+                        //             "Debit": 111
+                        //         }
+                        //     ]
+                        // }';
 
-                        // Call postJournalEntries method
-                        // postJournalEntries to sap begins
-                        $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                        // // Call postJournalEntries method
+                        // // postJournalEntries to sap begins
+                        // $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                         // If postJournalEntries fails, show relevent message from postJournalEntriesResponse else proceed with HRMS update status
                         // postJournalEntries to sap ends
 

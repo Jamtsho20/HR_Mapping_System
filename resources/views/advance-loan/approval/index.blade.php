@@ -143,6 +143,7 @@
                                                                 @endforelse
                                                             </tbody>
                                                         </table>
+                                                        <div>{{ $advances->links() }}</div>
                                                     </div>
                                                 </div>
                                             </div>
