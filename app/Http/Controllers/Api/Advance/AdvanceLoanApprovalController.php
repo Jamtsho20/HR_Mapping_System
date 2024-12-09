@@ -37,7 +37,7 @@ class AdvanceLoanApprovalController extends Controller
         $user = auth()->user();
         $employeeLists = employeeList();
         // Fetch advance loan applications with histories where the approver matches the current user
-        $advances = AdvanceApplication::with('advanceType:id,name')->with('employee:id,name')->with('advance_approved_by:id,name')->whereHas('histories', function ($query) use ($user) {
+        $advances = AdvanceApplication::with('advanceType:id,name')->with('employee:id,name,username')->with('advance_approved_by:id,name')->whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', 'App\Models\AdvanceApplication');
         })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
