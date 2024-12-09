@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\CreatedByTrait;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\TravelAuthorizationDetails;
 use App\Models\MasTravelType;
+use App\Models\TravelAuthorizationDetails;
+use App\Traits\CreatedByTrait;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class TravelAuthorizationApplication extends Model
 {
@@ -63,20 +64,35 @@ class TravelAuthorizationApplication extends Model
 
     // scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true){
-        if ($request->has('status') && $request->query('status') != '') {
-            $query->where('status', '=', $request->mode_of_travel);
-            
+        if ($request->has('status') && $request->query('status') !== '') {
+            $query->where('status', '=', $request->query('status'));
         }
+        
 
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('date', [$request->from_date, $request->to_date]);
-        }
-        elseif ($request->filled('from_date')) {
-            $query->where('date', '=', $request->from_date);
-        }
+        // if ($request->filled('from_date') && $request->filled('to_date')) {
+        //     $query->whereBetween('date', [$request->from_date, $request->to_date]);
+        // }
+        // elseif ($request->filled('from_date')) {
+        //     $query->where('date', '=', $request->from_date);
+        // }
 
         if($onesOwnRecord){
             $query->where('created_by', auth()->user()->id);
+        }
+        if ($request->get('year')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('year'));
+
+            // Step 2: Convert each date to Y-m format using Carbon
+            $startDate = Carbon::createFromFormat('Y-m', trim($dates[0]));
+
+            // Extract year and month
+            $year = $startDate->year;
+            $month = $startDate->month;
+
+            // Filter by year and month
+            $query->whereYear('date', $year)
+            ->whereMonth('date', $month);
         }
     // elseif ($request->filled('to_date')) {
     //     $query->where('date', '<=', $request->to_date); 

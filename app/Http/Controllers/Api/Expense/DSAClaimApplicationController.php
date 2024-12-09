@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TravelAuthorizationApplication;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
+use App\Services\ApplicationHistoriesService;
 
 class DSAClaimApplicationController extends Controller
 {   use JsonResponseTrait;
@@ -71,7 +72,7 @@ class DSAClaimApplicationController extends Controller
              ->where('status', 3)
              ->whereNotIn('id', $excludedAdvanceIds)
              ->get(['id', 'advance_no']);
-        return response()->json(["advances"=>$advances,"travels"=> $travels], 200);
+        return response()->json(["travels"=> $travels], 200);
         return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
          
     }catch(\Exception $e){
@@ -90,7 +91,10 @@ class DSAClaimApplicationController extends Controller
     public function store(Request $request)
     {
         try{
-            $this->validate($request, $this->rules, $this->messages);
+            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
 
             $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
             $approvalService = new ApprovalService();
@@ -146,17 +150,9 @@ class DSAClaimApplicationController extends Controller
                     }
     
                     // Create a history record
-                    $dsaClaimApplication->histories()->create([
-                        'approval_option' => $approverByHierarchy['approval_option'],
-                        'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                        'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                        'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                        'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                        'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                        'status' => $approverByHierarchy['application_status'] ?? 1,
-                        'remarks' => $request->remarks,
-                        'action_performed_by' => loggedInUser(),
-                    ]);
+                    $historyService = new ApplicationHistoriesService();
+                    $historyService->saveHistory($dsaClaimApplication->histories(), $approverByHierarchy, $request->remarks);
+                 
     
                     DB::commit();
                     if (isset($approverByHierarchy['approver_details'])) {

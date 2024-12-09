@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_stores', function (Blueprint $table) {
+        Schema::create('commission_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('location');
-            $table->boolean('status')->default(1);
+            $table->foreignId('receipt_id')->index()->constrained('good_receipt_applications')->cascadeOnUpdate()->restrictOnDelete();
+            $table->string('commission_no')->index();
+            $table->date('commission_date')->index();
+            $table->json('attachment')->nullable();
+            $table->tinyInteger('status')->comment('1 => New, 0 => Cancelled, -1 => rejected, 2 => Verified, 3 => Approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_stores');
+        Schema::dropIfExists('commission_applications');
     }
 };

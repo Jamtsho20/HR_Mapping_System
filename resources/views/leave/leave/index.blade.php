@@ -4,14 +4,14 @@
 <div class="block">
     <div class="block-options">
         <div class="block-options-item">
-            <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
-                <i class="fa fa-plus"></i> Leave Encashment
-            </a>
             <a href="{{route('leave-apply.create')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-plus"></i> Apply Leave
             </a>
             <a href="{{ route('leave.leave-balance')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-calendar"></i> Leave Balance
+            </a>
+            <a href="{{ route('leave.leave-encashment')}}" class="btn btn-sm btn-primary">
+                <i class="fa fa-plus"></i> Leave Encashment
             </a>
             <a href="{{ route('leave.encashment-history')}}" class="btn btn-sm btn-primary">
                 <i class="fa fa-calendar"></i> Encashment History
@@ -26,7 +26,7 @@
                 <select class="form-control" id="leave_type" name="leave_type">
                     <option value="" disabled selected hidden>Select Leave Type</option>
                     @foreach ($leaveTypes as $type)
-                    <option value="{{ $type->id }}" {{ request()->get('leave_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                        <option value="{{ $type->id }}" {{ request()->get('leave_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                     @endforeach
                 </select>
             </div>

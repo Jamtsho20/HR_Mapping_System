@@ -41,9 +41,39 @@ Route::redirect('/', '/login', 301);
 Route::get('/debug', function () {
     $sap = new ApiController();
 
-    $session = $sap->startSession();
+    $response = $sap->startSession();
+    // Check if the response is a valid JSON string
+    if (json_last_error() === JSON_ERROR_NONE) {
+        $session = json_decode($response->getContent(), true);
 
-    return $session;
+        dd($session['sessionId']);
+    } else {
+        // Output the error if JSON decoding fails
+        dd(json_last_error_msg());
+    }
+    // $sessionId = $session['sessionId'] ?? '';
+
+    $postFields = '{
+        "ReferenceDate":"2024-11-11",
+        "Memo": "Travel Allowance",
+        "JournalEntryLines": [
+            {
+                "ShortName": "E00993",
+                "CostingCode": null,
+                "Credit": 111,
+                "Debit": 0
+            },
+            {
+                "AccountCode": "52136",
+                "CostingCode": null,
+                "Credit": 0,
+                "Debit": 111
+            }
+        ]
+    }';
+
+    // Call postJournalEntries method
+    $response = $sap->postJournalEntries($postFields);
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -252,10 +282,13 @@ Route::middleware('auth')->group(function () {
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
-        Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
+        // Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
+        Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
-        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
-        Route::resource('goods-issue', 'GoodsIssueController')->except('create', 'show', 'edit');
+        Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
+        // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
+
+        Route::resource('goods-issue', 'GoodsIssueController');
         Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt', 'GoodsReceiptController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
@@ -323,4 +356,8 @@ Route::middleware('auth')->group(function () {
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
     Route::get('getdsaadvancedetails/{id}', 'AjaxRequestController@getDsaAdvanceDetails');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');
+    Route::get('getrequisitionnobyrequisitiontype/{id}', 'AjaxRequestController@getRequisitionNumber');
+    Route::get('getissuenobyissuetype/{id}', 'AjaxRequestController@getIssueNumber');
+    Route::get('getreceiptnobyreceipttype/{id}', 'AjaxRequestController@getReceiptNumber');
+    Route::get('getrequisitiondetailsbyrequisitionid/{id}', 'AjaxRequestController@getRequisitionDetails');
 });

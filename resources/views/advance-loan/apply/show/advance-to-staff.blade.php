@@ -17,7 +17,7 @@
             <input type="text" class="form-control" id="to_location" value="{{ $advance->to_location }}" readonly>
         </div>
     </div>
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
         <div class="form-group">
             <label for="from_date">From Date</label>
             <input type="text" class="form-control" id="from_date" value="{{ $advance->from_date ? \Carbon\Carbon::parse($advance->from_date)->format('Y-m-d') : 'N/A' }}" readonly>
@@ -28,7 +28,7 @@
             <label for="to_date">To Date</label>
             <input type="text" class="form-control" id="to_date" value="{{ $advance->to_date ? \Carbon\Carbon::parse($advance->to_date)->format('Y-m-d') : 'N/A' }}" readonly>
         </div>
-    </div>
+    </div> -->
     <div class="col-md-4">
         <div class="form-group">
             <label for="amount">Amount</label>

@@ -17,10 +17,11 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Services\ApplicationHistoriesService;
 
 class LeaveApplicationController extends Controller
 {
-      
+
     public function __construct()
     {
         $this->middleware('permission:leave/leave-apply,view')->only('index', 'show', 'leaveBalance');
@@ -39,7 +40,7 @@ class LeaveApplicationController extends Controller
     ];
 
     protected $messages = [
-        
+
     ];
 
     private $attachmentPath = 'images/leaves/';
@@ -50,7 +51,7 @@ class LeaveApplicationController extends Controller
      */
     public function index(Request $request)
     {
-      
+
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
         $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
@@ -67,12 +68,12 @@ class LeaveApplicationController extends Controller
      */
     public function create()
     {
-        $leaveTypes = MasLeaveType::get(['id', 'name']); 
+        $leaveTypes = MasLeaveType::get(['id', 'name']);
           return view('leave.leave.create',compact('leaveTypes')); // Ensure the view name is correct
     }
 
     /**
-     * Store a newly created resource in storage. 
+     * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -100,20 +101,12 @@ class LeaveApplicationController extends Controller
                 'no_of_days' => $request->no_of_days,
                 'remarks' => $request->remarks,
                 'attachment' => $result['attachment'],
-                'status' => $approverByHierarchy['application_status'],    
+                'status' => $approverByHierarchy['application_status'],
             ]);
             // Create a history record
-            $leaveApplication->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarks' => $request->remarks ?? null,
-                'action_performed_by' => loggedInUser(),
-            ]);
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
+
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
@@ -146,7 +139,7 @@ class LeaveApplicationController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *                    
+     *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -174,7 +167,7 @@ class LeaveApplicationController extends Controller
         }
         try {
             $this->validate($request, $this->rules, $this->messages);
-    
+
             DB::beginTransaction();
             $leaveApplication->update([
                 // 'mas_employee_id' => $leaveApplication->mas_employee_id,
@@ -188,7 +181,7 @@ class LeaveApplicationController extends Controller
                 'attachment' => $result['attachment'],
                 'status' => $leaveApplication->status,
             ]);
-    
+
             // this will be inserted to application audit history table
             // $leaveApplication->histories()->create([
             //     'level' => 'Test Level',
@@ -197,7 +190,7 @@ class LeaveApplicationController extends Controller
             //     'created_by' => $leaveApplication->created_by,
             //     'updated_by' => loggedInUser()
             // ]);
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -205,7 +198,7 @@ class LeaveApplicationController extends Controller
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
 
-        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');  
+        return redirect('leave/leave-apply')->with('msg_success', 'Leave has been updated successfully!.');
     }
 
     /**
@@ -231,48 +224,6 @@ class LeaveApplicationController extends Controller
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
 
-    public function leaveEncashment(){
-        $earnedLeave = EmployeeLeave::where('mas_employee_id', auth()->user()->id)
-        ->where('mas_leave_type_id', 2)
-        ->whereYear('created_at', Carbon::now()->year);
-        // ->value('closing_balance');
-        
-        $openingBalance = $earnedLeave->value('opening_balance');
-        $currentEntitlement = $earnedLeave->value('current_entitlement');
-        $closingBalance = $earnedLeave->value('closing_balance');
-        $leaveAppiled = $earnedLeave->value('leaves_availed');
-
-        $earnedLeaveBalance = ($openingBalance + $currentEntitlement)-$leaveAppiled;
-        // dd($closingBalance , $openingBalance, $currentEntitlement);
-        // dd($leaveAppiled);
-
-        $applyFlag = false;
-
-      
-        $requiredBalance = 37;
-        $earnedLeaveEncahsment = 30;
-
-        if($earnedLeaveBalance >= $requiredBalance){
-            $applyFlag = true;
-        }
-        $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
-    ->whereYear('created_at', Carbon::now()->year)
-    ->exists();
-        $message="";
-        if ($applicationExists) {
-            // Application exists
-            $message = "An application already exists for this year.";
-        }
-    
-        $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay'); 
-        return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag', 'message'));
-    }
-
-    public function encashmentHistory(Request $request){
-        $privileges = $request->instance();
-        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->orderBy('created_at', 'desc')->get();
-        return view('leave.leave.encash_index',compact('privileges','leaveEncashment'));
-    }
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave
         $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
             ->where('mas_employee_id', loggedInUser())
@@ -287,11 +238,11 @@ class LeaveApplicationController extends Controller
             ->where('mas_leave_type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
-             
+
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
-            
+
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
             $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
@@ -342,7 +293,7 @@ class LeaveApplicationController extends Controller
         //     'maxLeaveDays' => $maxLeaveDays,
         //     'leaveType' => $leaveType,
         //     'attachment' => $attachment
-        // ]; 
+        // ];
         if ($request->hasFile('attachment')) {
             // Check if there is an existing file and delete it
             if ($leaveApplication && $leaveApplication->attachment) {
@@ -367,7 +318,7 @@ class LeaveApplicationController extends Controller
             'maxLeaveDays' => $maxLeaveDays,
             'leaveType' => $leaveType,
             'attachment' => $validatedData['attachment']
-        ];  
+        ];
     }
 
 }

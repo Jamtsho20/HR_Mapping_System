@@ -20,6 +20,7 @@ use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
 use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 use App\Services\ApprovalService;
+use App\Services\ApplicationHistoriesService;
 
 
 class ExpenseApplicationController extends Controller
@@ -171,7 +172,10 @@ class ExpenseApplicationController extends Controller
     public function store(Request $request)
     {
 
-        $validatedData = $request->validate($this->rules($request));
+        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
 
         $result = $this->handleExpenseApplication($request);
 
@@ -206,17 +210,8 @@ class ExpenseApplicationController extends Controller
             ]);
 
             // Create a history record
-            $expenseApplication->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarks' => $request->remarks,
-                'action_performed_by' => loggedInUser(),
-            ]);
+           $historyService = new ApplicationHistoriesService();
+           $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
         
             DB::commit();
             if (isset($approverByHierarchy['approver_details'])) {
@@ -253,7 +248,10 @@ public function update(Request $request, $id)
             return $this->errorResponse('File upload failed.', 400);
         }
 
-        $validatedData = $request->validate($this->rules($request));
+        $validator = \Validator::make($request->all(), $this->rules($request), $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $date= formatDate(request('date'));
 
         try {
@@ -339,10 +337,11 @@ private function handleExpenseApplication(Request $request, $expenseApplication 
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $this->validate($request, 
-                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
-                ['file.required' => 'The file is required. Please upload a file.']
-            );
+            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+           
         }
         if ($request->hasFile('file')) {
             $file = $request->file('file');

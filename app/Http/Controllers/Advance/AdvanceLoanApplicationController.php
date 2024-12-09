@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
-use App\Models\MasLeaveType;
 use App\Models\TravelAuthorizationApplication;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
@@ -12,6 +11,7 @@ use App\Models\AdvanceApplication;
 use App\Models\AdvanceDetail;
 use App\Models\BudgetCode;
 use App\Services\ApprovalService;
+use App\Services\ApplicationHistoriesService;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasDzongkhag;
 use Illuminate\Http\Request;
@@ -110,7 +110,7 @@ class AdvanceLoanApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
-
+        // dd($approverByHierarchy['max_level_id']);
         $attachment = "";
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -143,18 +143,9 @@ class AdvanceLoanApplicationController extends Controller
             }
 
             // Create a corresponding history record for advance
-            // Create a history record
-            $advanceApplication->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarks' => $request->remarks ?? null,
-                'action_performed_by' => loggedInUser(),
-            ]);
+            // Create a history record it detail code resides in ApplicationHistoriesService classs
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
 
             DB::commit();
 
@@ -329,8 +320,8 @@ class AdvanceLoanApplicationController extends Controller
                 if ($existingDetail) {
                     $existingDetail->update([
                         'budget_code_id' => $detail['budget_code'],
-                        'from_date' => $detail['from_date'],
-                        'to_date' => $detail['to_date'],
+                        'from_date' => isset($detail['from_date']) ? $detail['from_date'] : null,
+                        'to_date' => isset($detail['to_date']) ? $detail['to_date'] : null,
                         'dzongkhag_id' => $detail['dzongkhag'],
                         'site_location' => $detail['site_location'],
                         'amount_required' => $detail['amount_required'],
@@ -344,8 +335,8 @@ class AdvanceLoanApplicationController extends Controller
                 $newDetail = AdvanceDetail::create([
                     'advance_application_id' => $advanceApplicationId,
                     'budget_code_id' => $detail['budget_code'],
-                    'from_date' => $detail['from_date'],
-                    'to_date' => $detail['to_date'],
+                    'from_date' => isset($detail['from_date']) ? $detail['from_date'] : null,
+                    'to_date' => isset($detail['to_date']) ? $detail['to_date'] : null,
                     'dzongkhag_id' => $detail['dzongkhag'],
                     'site_location' => $detail['site_location'],
                     'amount_required' => $detail['amount_required'],
