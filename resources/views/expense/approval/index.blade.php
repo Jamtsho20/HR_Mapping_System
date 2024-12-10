@@ -154,7 +154,7 @@
                                                                         <td>{{ $application->date }}</td>
                                                                         <td>{{ $application->expenseType->name }}
                                                                         </td>
-                                                                        <td>{{ $application->expense_amount }}
+                                                                        <td>{{ $application->amount }}
                                                                         </td>
                                                                         <td>{{ $application->description }}
                                                                         </td>
@@ -267,7 +267,7 @@
                                                                         </td>
                                                                         <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
                                                                         </td>
-                                                                        <td>{{ $dsaclaim->total_amount }}</td>
+                                                                        <td>{{ $dsaclaim->amount }}</td>
 
                                                                         <td class="text-center">
                                                                             @php
@@ -375,7 +375,7 @@
                                                                         </td>
                                                                         <td>{{ $transferclaim->transfer_claim }}
                                                                         </td>
-                                                                        <td>{{ $transferclaim->amount_claimed }}
+                                                                        <td>{{ $transferclaim->amount }}
                                                                         </td>
                                                                         <td>{{ $transferclaim->current_location }}
                                                                         </td>

@@ -152,7 +152,9 @@ class SystemSubMenusTableSeeder extends Seeder
             //submenu for Travel Authorization
             ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
             ['system_menu_id' => 17, 'name' => 'Approval', 'route' => 'travel-authorization/travel-authorization-approval', 'display_order' => 2],
-
+            
+            //submenu for Approval            ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
+            ['system_menu_id' => 18, 'name' => 'Applications', 'route' => 'approval/applications', 'display_order' => 1],
         ]);
     }
 }

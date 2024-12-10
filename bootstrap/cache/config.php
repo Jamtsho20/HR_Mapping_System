@@ -719,11 +719,31 @@
     ),
     'applications' => 
     array (
-      1 => 'App\\Models\\LeaveApplication',
-      2 => 'App\\Models\\ExpenseApplication',
-      3 => 'App\\Models\\DsaClaimApplication',
-      4 => 'App\\Models\\TransferClaimApplication',
-      5 => 'App\\Models\\TravelAuthorizationApplication',
+      1 => 
+      array (
+        'name' => 'App\\Models\\LeaveApplication',
+        'post_to_sap' => false,
+      ),
+      2 => 
+      array (
+        'name' => 'App\\Models\\ExpenseApplication',
+        'post_to_sap' => true,
+      ),
+      3 => 
+      array (
+        'name' => 'App\\Models\\DsaClaimApplication',
+        'post_to_sap' => true,
+      ),
+      4 => 
+      array (
+        'name' => 'App\\Models\\TransferClaimApplication',
+        'post_to_sap' => true,
+      ),
+      5 => 
+      array (
+        'name' => 'App\\Models\\TravelAuthorizationApplication',
+        'post_to_sap' => false,
+      ),
     ),
   ),
   'hashing' => 

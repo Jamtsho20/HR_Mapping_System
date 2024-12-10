@@ -19,10 +19,15 @@ class TransferClaimApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/transfer-claim,view')->only('index');
-        $this->middleware('permission:expense/transfer-claim,create')->only('store');
-        $this->middleware('permission:expense/transfer-claim,edit')->only('update');
-        $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
+        $this->middleware('permission:expense/apply-expense,view')->only('index');
+        $this->middleware('permission:expense/apply-expense,create')->only('store');
+        $this->middleware('permission:expense/apply-expense,edit')->only('update');
+        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
+
+        // $this->middleware('permission:expense/transfer-claim,view')->only('index');
+        // $this->middleware('permission:expense/transfer-claim,create')->only('store');
+        // $this->middleware('permission:expense/transfer-claim,edit')->only('update');
+        // $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
     }
     private $filePath = 'images/files/';
 
@@ -95,7 +100,7 @@ class TransferClaimApplicationController extends Controller
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
                     'distance_travelled' => $request->distance_travelled,
-                    'amount_claimed' => $request->amount_claimed,
+                    'amount' => $request->amount_claimed,
                     'attachment' => $attachment,
                     'status' => 1,
                 ]);
@@ -189,7 +194,7 @@ class TransferClaimApplicationController extends Controller
         $transfer->current_location = $request->current_location;
         $transfer->new_location = $request->new_location;
         $transfer->distance_travelled = $request->distance_travelled;
-        $transfer->amount_claimed = $request->amount_claimed;
+        $transfer->amount = $request->amount_claimed;
         $transfer->attachment = $attachment ?? $transfer->attachment;
         $transfer->save();
 

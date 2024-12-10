@@ -45,7 +45,8 @@ class AjaxRequestController extends Controller
 
     protected $sap;
 
-    public function __construct(ApiController $sap) {
+    public function __construct(ApiController $sap)
+    {
         $this->sap = $sap;
     }
 
@@ -349,132 +350,11 @@ class AjaxRequestController extends Controller
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
 
-    public function bulkApprovalRejection(Request $request)
-    {
-        $model = config('global.applications')[$request->item_type_id];
-
-        $action = $request->action;
-        $itemIds = $request->item_ids;
-        $status = ($action === 'approve') ? 2 : -1;
-        $rejectRemarks = $request->input('reject_remarks', '');
-        $actionBy = auth()->id();
-        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-        DB::beginTransaction();
-        try {
-            $approvalService = new ApprovalService();
-
-            foreach ($itemIds as $id) {
-                $application = $model::findOrFail($id);
-
-                $applicationHistory = $application->histories
-                    ->where('application_type', $model)
-                    ->where('application_id', $id)
-                    ->first();
-                // Update leave application status
-                $application->update([
-                    'status' => $status,
-                    'updated_by' => $actionBy,
-                ]);
-
-                // Forward application if approved
-                $updateData = [
-                    'status' => $status,
-                    'remarks' => $rejectRemarks,
-                    'action_performed_by' => $actionBy,
-                ];
-
-                if ($action === 'approve' && $applicationHistory) {
-                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
-
-                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
-                        $updateData = array_merge($updateData, [
-                            'level_id' => $applicationForwardedTo['next_level']->id,
-                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
-                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
-                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
-                        ]);
-                        // Attempt to send email to next approver need to work on it
-                        // try {
-                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($application, $nextApprover));
-                        // } catch (\Exception $e) {
-                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
-                        // }
-                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
-                         // Post to SAP after final Approval
-                         $postFields = '{
-                            "ReferenceDate":"2024-11-11",
-                            "Memo": "Travel Claim",
-                            "JournalEntryLines": [
-                                {
-                                    "ShortName": "E00993", // search from application
-                                    "CostingCode": null,
-                                    "Credit": 111,
-                                    "Debit": 0
-                                },
-                                {
-                                    "AccountCode": "52136",
-                                    "CostingCode": null,
-                                    "Credit": 0,
-                                    "Debit": 111
-                                }
-                            ]
-                        }';
-
-                        // Call postJournalEntries method
-                        // postJournalEntries to sap begins
-                        $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
-                        // If postJournalEntries fails, show relevent message from postJournalEntriesResponse else proceed with HRMS update status
-                        // postJournalEntries to sap ends
-
-                        // Finalize approval if it's at the maximum level
-                        $application->update([
-                            'status' => 3, // 3 could represent 'final approved'
-                            'updated_by' => $actionBy,
-                        ]);
-                        $updateData['status'] = 3; // Mark the history entry as final approved
-                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
-                        $application->update([
-                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                            'updated_by' => $actionBy,
-                        ]);
-                        $updateData['status'] = $applicationForwardedTo['application_status'];
-                    }
-                }
-                // Update application history
-                if ($applicationHistory) {
-                    $applicationHistory->update($updateData);
-                }
-
-                // Attempt to send email to applicant about the approval/rejection status need to work on it
-                // try {
-                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($application, $action, $rejectRemarks));
-                // } catch (\Exception $e) {
-                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
-                // }
-            }
-
-            DB::commit();
-
-            $model = preg_replace(
-                ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                ['', '$1 Application'],
-                $model
-            );
-
-            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-
-            return response()->json(['msg_error' => 'An error occurred during the operation.'], 500);
-        }
-    }
-
     public function getExpenseNumber($id)
     {
         $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
 
-        $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)
+        $latestTransaction = ExpenseApplication::where('type_id', $id)
             ->latest('id') // Orders by id in descending order
             ->first();
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('dsa_claim_no')->index();
             $table->foreignId('travel_authorization_id')->nullable()->constrained('travel_authorization_applications')->restrictOnDelete()->restrictOnUpdate();
             $table->foreignId('advance_application_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();
-            $table->decimal('total_amount', 12, 2);
+            $table->decimal('amount', 12, 2);
             $table->decimal('net_payable_amount', 12, 2);
             $table->decimal('balance_amount', 12, 2)->nullable();
             $table->json('attachment')->nullable()->comment('relevant attachment path and casted to array');

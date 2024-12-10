@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Expense;
 
+use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimApplication;
+use App\Models\DsaClaimDetail;
+use App\Models\TravelAuthorizationApplication;
+use App\Services\ApprovalService;
 use DateTime;
 use Illuminate\Http\Request;
-use App\Models\DailyAllowance;
-use App\Models\DsaClaimDetail;
-use App\Services\ApprovalService;
-use App\Models\AdvanceApplication;
-use Illuminate\Support\Facades\DB;
-use App\Models\DsaClaimApplication;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\TravelAuthorizationApplication;
+use Illuminate\Support\Facades\DB;
 
 class DSAClaimApplicationController extends Controller
 {
@@ -23,10 +23,15 @@ class DSAClaimApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/dsa-claim-settlement,view')->only('index');
-        $this->middleware('permission:expense/dsa-claim-settlement,create')->only('store');
-        $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
-        $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
+        $this->middleware('permission:expense/apply-expense,view')->only('index');
+        $this->middleware('permission:expense/apply-expense,create')->only('store');
+        $this->middleware('permission:expense/apply-expense,edit')->only('update');
+        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
+
+        // $this->middleware('permission:expense/dsa-claim-settlement,view')->only('index');
+        // $this->middleware('permission:expense/dsa-claim-settlement,create')->only('store');
+        // $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
+        // $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
     }
 
     protected $rules = [
@@ -102,7 +107,7 @@ class DSAClaimApplicationController extends Controller
                     'dsa_claim_no' => $request->dsa_claim_no,
                     'travel_authorization_id' => $request->travel_authorization_id,
                     'advance_application_id' => $request->advance_no ?? null,
-                    'total_amount' => $request->total_amount,
+                    'amount' => $request->total_amount,
                     'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->total_amount,
                     'balance_amount' => $request->balance_amount,
                     'attachment' => $attachment,
@@ -158,6 +163,7 @@ class DSAClaimApplicationController extends Controller
                 DB::rollBack();
                 return back()->withInput()->with('msg_error', $e->getMessage());
             }
+
         } else {
             return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }
@@ -172,7 +178,7 @@ class DSAClaimApplicationController extends Controller
     public function show($id)
     {
         $dsa = DsaClaimApplication::findOrfail($id);
-        $empDetails = empDetails($dsa->created_by);     
+        $empDetails = empDetails($dsa->created_by);
         return view('expense.apply.dsa-show', compact('dsa', 'empDetails'));
     }
 
@@ -215,7 +221,86 @@ class DSAClaimApplicationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $this->validate($request, $this->rules, $this->messages);
+
+            $dsaClaimApplication = DsaClaimApplication::whereId($id)->first();
+
+            $dsaClaimApplication->travel_authorization_id = $request->travel_authorization_id;
+            $dsaClaimApplication->advance_application_id = $request->advance_no ?? null;
+            $dsaClaimApplication->amount = $request->total_amount;
+            $dsaClaimApplication->net_payable_amount = !is_null($request->advance_no) ? $request->net_payable_amount : $request->total_amount;
+            $dsaClaimApplication->balance_amount = $request->balance_amount;
+            $dsaClaimApplication->save();
+
+            if ($dsaClaimApplication) {
+
+                $requestIds = collect($request->input('dsa_claim_detail'))
+                    ->pluck('id') 
+                    ->filter()
+                    ->toArray();
+
+                    DsaClaimDetail::where('dsa_claim_id', $dsaClaimApplication->id)
+                    ->whereNotIn('id', $requestIds)
+                    ->delete();
+
+                foreach ($request->dsa_claim_detail as $detail) {
+                    // Calculate total days if not provided
+                    $from = new DateTime($detail['from_date']);
+                    $to = new DateTime($detail['to_date']);
+                    $interval = $from->diff($to);
+                    $totalDays = $interval->days;
+
+                    // Create or update the record
+                    DsaClaimDetail::updateOrCreate(
+                        [
+                            'dsa_claim_id' => $dsaClaimApplication->id,
+                            'from_date' => $detail['from_date'],
+                        ],
+                        [
+                            'to_date' => $detail['to_date'],
+                            'from_location' => $detail['from_location'],
+                            'to_location' => $detail['to_location'],
+                            'total_days' => $detail['total_days'] ?? $totalDays,
+                            'daily_allowance' => $detail['daily_allowance'] ?? 0,
+                            'travel_allowance' => $detail['travel_allowance'] ?? 0,
+                            'total_amount' => $detail['total_amount'] ?? 0,
+                            'remark' => $detail['remark'],
+                        ]
+                    );
+                }
+
+                if ($request->hasFile('attachment')) {
+                    // Fetch the old attachment from the database
+                    $oldAttachments = json_decode($dsaClaimApplication->attachment ?? '[]', true);
+
+                    // Delete old attachments from the directory
+                    foreach ($oldAttachments as $oldAttachment) {
+                        if (file_exists(public_path($oldAttachment))) {
+                            unlink(public_path($oldAttachment));
+                        }
+                    }
+
+                    // Upload the new file and get the file path
+                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+
+                    // Store the new attachment as a JSON array
+                    $attachment = json_encode([$attachmentPath]);
+
+                    // Update the record in the database
+                    $dsaClaimApplication->update(['attachment' => $attachment]);
+                } else {
+                    // Retain the old attachment if no new file is provided
+                    $attachment = $dsaClaimApplication->attachment;
+                }
+            }
+            DB::beginTransaction();
+            return redirect('expense/apply-expense')->with('msg_success', 'DSA Claim/Settltment has been updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+        }
     }
 
     /**

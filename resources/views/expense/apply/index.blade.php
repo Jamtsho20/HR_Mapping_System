@@ -100,9 +100,9 @@
                                                                         ({{ $expense->employee->title . ' ' . $expense->employee->name }})
                                                                     </td>
                                                                     <td>{{ $expense->date }}</td>
-                                                                    <td>{{ $expense->expenseType->name }}
+                                                                    <td>{{ $expense->type->name }}
                                                                     </td>
-                                                                    <td>{{ $expense->expense_amount }}</td>
+                                                                    <td>{{ $expense->amount }}</td>
                                                                     <td>{{ $expense->description }}</td>
                                                                     <td class="text-center">
                                                                         @php
@@ -211,7 +211,7 @@
                                                                     </td>
                                                                     <td>{{ $dsaClaim->dsaexpense?->amount ?? '0.00' }}
                                                                     </td>
-                                                                    <td>{{ $dsaClaim->total_amount }}</td>
+                                                                    <td>{{ $dsaClaim->amount }}</td>
                                                                     <td class="text-center">
                                                                         @php
                                                                         $statusClasses = [
@@ -321,7 +321,7 @@
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}
                                                                     </td>
-                                                                    <td>{{ $transfer->amount_claimed }}
+                                                                    <td>{{ $transfer->amount }}
                                                                     </td>
                                                                     <td>{{ $transfer->current_location }}
                                                                     </td>
@@ -390,8 +390,6 @@
         </div>
     </div>
 </div>
-
-
 
 @include('layouts.includes.delete-modal')
 @endsection

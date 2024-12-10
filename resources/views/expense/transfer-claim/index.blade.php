@@ -77,7 +77,7 @@
                                                             <td>{{$empIdName}}</td>
                                                             <td>{{ $transfer->created_at->format('d-m-Y') }}</td>
                                                             <td>{{$transfer->transfer_claim}}</td>
-                                                            <td>{{ $transfer->amount_claimed }}</td>
+                                                            <td>{{ $transfer->amount }}</td>
                                                             <td>{{$transfer->current_location}}</td>
                                                             <td>{{$transfer->new_location}}</td>
                                                             <td>

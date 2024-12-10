@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('transfer_claim_id')->constrained('mas_transfer_claims')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->string('current_location');
             $table->string('new_location');
-            $table->decimal('amount_claimed', 10, 2);
+            $table->decimal('amount', 10, 2);
             $table->decimal('distance_travelled', 10, 2)->nullable()->comment('required only if transfer claim is Carriage Charge');
             $table->json('attachment')->nullable()->comment('multiple file path casted to array');
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
