@@ -577,7 +577,7 @@ class AjaxRequestController extends Controller
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
         }
-        
+
     }
 
     public function getIssueNumber($id) {
@@ -591,7 +591,7 @@ class AjaxRequestController extends Controller
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
         }
-        
+
     }
 
     public function getReceiptNumber($id) {
@@ -605,7 +605,7 @@ class AjaxRequestController extends Controller
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
         }
-        
+
     }
 
     public function getRequisitionDetails($id) {
@@ -616,7 +616,7 @@ class AjaxRequestController extends Controller
             return $this->errorResponse('Something went wrong while trying to fetch details, please try again.');
         }
     }
-    
+
     public function getDsaAdvanceDetails($id)
     {
         $advance = AdvanceApplication::whereId($id)->first();

@@ -115,7 +115,7 @@ class ApiController extends BaseController
                 "Cookie: $sessionId; B1SESSION=$sessionId",
                 'Content-Type: application/json',
             ),
-            
+
             // Disable SSL verification. REMOVE IN PRODUCTION.
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
