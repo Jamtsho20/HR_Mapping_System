@@ -20,7 +20,7 @@ class AdvanceLoanController extends Controller
      */
     public function index(Request $request)
     {
-        $advances = MasAdvanceLoan::filter($request)->orderBy('name')->paginate(30);
+        $advances = MasAdvanceLoan::filter($request)->orderBy('name')->paginate(config('global.pagination'));
         $privileges = $request->instance();
         return view('masters.advance-loan.index',compact('privileges','advances'));
     }

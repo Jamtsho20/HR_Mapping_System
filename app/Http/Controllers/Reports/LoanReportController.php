@@ -27,12 +27,13 @@ class LoanReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
+    
         $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
-            ->paginate(30) // Paginate the results
+            ->paginate(config('global.pagination')) // Paginate the results
             ->withQueryString(); // Retain the query string in the pagination links
 
 

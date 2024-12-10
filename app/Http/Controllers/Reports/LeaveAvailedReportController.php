@@ -32,7 +32,7 @@ class LeaveAvailedReportController extends Controller
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $leaveReports = LeaveApplication::filter($request, false)->paginate(30)->withQueryString();
+        $leaveReports = LeaveApplication::filter($request, false)->paginate(config('global.pagination'))->withQueryString();
 
 
         return view('report.leave-availed-report.index', compact('leaveReports', 'leaveTypes', 'departments', 'sections'));

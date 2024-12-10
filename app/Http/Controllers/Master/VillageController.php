@@ -27,7 +27,7 @@ class VillageController extends Controller
     {
         $privileges = $request->instance();
 
-        $villages = MasVillage::filter($request)->orderBy('mas_gewog_id')->with('gewogs')->with('dzongkhag')->paginate(30)->withQueryString();
+        $villages = MasVillage::filter($request)->orderBy('mas_gewog_id')->with('gewogs')->with('dzongkhag')->paginate(config('global.pagination'))->withQueryString();
         $gewogs = MasGewog::select('id', 'name')->get();
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
 

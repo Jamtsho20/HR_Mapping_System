@@ -24,7 +24,7 @@ class SIFAContributionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $sifaContributions = FinalPaySlip::filter($request)->paginate(30)->withQueryString();
+        $sifaContributions = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $employee = employeeList();
 
         return view('report.sifa-contribution.index', compact('privileges','employee', 'sifaContributions'));

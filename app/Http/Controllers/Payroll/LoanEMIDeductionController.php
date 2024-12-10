@@ -26,7 +26,7 @@ class LoanEMIDeductionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $loanEMIDeductions = LoanEMIDeduction::filter($request)->orderBy('created_at')->paginate(30);
+        $loanEMIDeductions = LoanEMIDeduction::filter($request)->orderBy('created_at')->paginate(config('global.pagination'));
 
         return view('payroll.loan-emi-deductions.index', compact('privileges', 'loanEMIDeductions'));
     }

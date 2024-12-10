@@ -24,7 +24,7 @@ class ExpenseTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::with('children')->filter($request)->where('mas_expense_type_id', null)->orderBy('name')->paginate(30);
+        $expenses = MasExpenseType::with('children')->filter($request)->where('mas_expense_type_id', null)->orderBy('name')->paginate(config('global.pagination'));
 
 
         return view('masters.expense-types.index', compact('expenses', 'privileges'));

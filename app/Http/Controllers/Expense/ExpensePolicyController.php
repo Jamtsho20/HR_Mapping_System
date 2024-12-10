@@ -29,7 +29,7 @@ class ExpensePolicyController extends Controller
     {
         $privileges = $request->instance();
         // $Types = MasType::get(['id', 'name']);
-        $expensePolicy = MasExpensePolicy::filter($request)->orderBy('name')->paginate(30);
+        $expensePolicy = MasExpensePolicy::filter($request)->orderBy('name')->paginate(config('global.pagination'));
         return view('expense.expense-policy.index', compact('privileges', 'expensePolicy'));
     }
 

@@ -24,7 +24,7 @@ class LTCController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $ltcs=LeaveTravelConcession::where('status','=',3)->filter($request)->paginate(30)->withQueryString();
+        $ltcs=LeaveTravelConcession::where('status','=',3)->filter($request)->paginate(config('global.pagination'))->withQueryString();
 
                
         return view('report.ltc.index', compact( 'privileges','ltcs'));

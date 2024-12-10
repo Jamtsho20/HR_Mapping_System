@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         $privileges = $request->instance();
         
-        $users = User::filter($request)->orderBy('name')->paginate(30)->withQueryString();
+        $users = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
 
         return view('system-settings.users.index', compact('users', 'privileges'));
     }

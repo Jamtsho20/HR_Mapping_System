@@ -27,7 +27,7 @@ class LeaveBalanceReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $leaveBalances=EmployeeLeave::filter($request)->paginate(30)->withQueryString();
+        $leaveBalances=EmployeeLeave::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $leaveTypes = MasLeaveType::select('id', 'name')->get();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();

@@ -27,14 +27,14 @@ class EmployeeGroupController extends Controller
     {
         // $privileges = $request->instance();
         // $employees = User::all();
-        // $employeeGroups = MasEmployeeGroup::filter($request)->orderBy('name')->paginate(30);
+        // $employeeGroups = MasEmployeeGroup::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         // return view('employee-group.employee-create.index', compact('privileges', 'employeeGroups', 'employees'));
         $privileges = $request->instance();
         $employeeGroups = MasEmployeeGroup::with('employees') // Eager load employees
             ->filter($request)
             ->orderBy('name')
-            ->paginate(30);
+            ->paginate(config('global.pagination'));
 
         return view('employee-group.employee-create.index', compact('privileges', 'employeeGroups'));
     }

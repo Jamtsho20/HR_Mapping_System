@@ -28,7 +28,7 @@ class QualificationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $qualification = MasQualification::filter($request)->orderBy('name')->paginate(30);
+        $qualification = MasQualification::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('masters.qualification.index', compact('qualification', 'privileges'));
     }

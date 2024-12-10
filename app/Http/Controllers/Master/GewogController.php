@@ -25,7 +25,7 @@ class GewogController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $gewogs = MasGewog::filter($request)->orderBy('mas_dzongkhag_id')->with('dzongkhag')->paginate(30)->withQueryString();
+        $gewogs = MasGewog::filter($request)->orderBy('mas_dzongkhag_id')->with('dzongkhag')->paginate(config('global.pagination'))->withQueryString();
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
 
         return view('masters.gewog.index', compact('gewogs', 'privileges', 'dzongkhags'));
