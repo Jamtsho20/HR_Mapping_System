@@ -35,7 +35,7 @@ class PayGroupsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $payGroups = MasPayGroup::filter($request)->orderBy('name')->paginate(30);
+        $payGroups = MasPayGroup::filter($request)->orderBy('name')->paginate(config('global.pagination'));
         $empCategories = MasEmployeeGroup::get(['id', 'name']);
 
         return view('paymaster.pay-groups.index', compact('payGroups', 'privileges', 'empCategories'));

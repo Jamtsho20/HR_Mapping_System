@@ -220,7 +220,7 @@ class LeaveApplicationController extends Controller
 
     public function leaveBalance(Request $request){
         $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(30);
+        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(config('global.pagination'));
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
 

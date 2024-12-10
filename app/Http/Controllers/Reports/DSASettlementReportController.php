@@ -2,17 +2,46 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\DSASettlementExport;
 use App\Http\Controllers\Controller;
+use App\Models\DsaClaimApplication;
+use App\Models\MasDepartment;
+use App\Models\MasOffice;
+use App\Models\MasRegion;
+use App\Models\MasSection;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DSASettlementReportController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function __construct()
     {
-        //
+        $this->middleware('permission:report/dsa-settlement-report,view')->only('index');
+        $this->middleware('permission:report/dsa-settlement-report,create')->only('store');
+        $this->middleware('permission:report/dsa-settlement-report,edit')->only('update');
+        $this->middleware('permission:report/dsa-settlement-report,delete')->only('destroy');
+    }
+    public function index(Request $request)
+    {
+
+        $privileges = $request->instance();
+        $departments = MasDepartment::select('name', 'id')->get();
+        $offices = MasOffice::select('name', 'id')->get();
+        $regions = MasRegion::select('name', 'id')->get();
+        $employeeLists = employeeList();
+        $managers = User::whereHas('roles', function ($query) {
+            $query->whereIn('roles.id', [7, 8]);  // Fetch users with roles 6 or 7
+        })->select('name', 'id')->get();
+        $sections = MasSection::select('name', 'id')->get();
+
+        $dsaClaim = DsaClaimApplication::with('dsaClaimDetails')->filter($request, false)->paginate(config('global.pagination'))->withQueryString();
+
+        return view('report.dsa-settlement-report.index', compact('privileges', 'dsaClaim', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
     }
 
     /**
@@ -61,5 +90,33 @@ class DSASettlementReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function exportDSASettlement(Request $request)
+    {
+
+        // Load all bookings with their dzongkhag names
+        $dsaClaim = DsaClaimApplication::filter($request, false)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.dsa-settlement-report-pdf', compact('dsaClaim'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('DSA-Settlement-Report.pdf');
+    }
+    public function exportDSASettlementExcel(Request $request)
+    {
+        return Excel::download(new DSASettlementExport($request), 'dsa-settlement-report.xlsx');
+    }
+
+    public function printDSASettlement(Request $request)
+    {
+        $dsaClaim = DsaClaimApplication::filter($request, false)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.dsa-settlement-report-pdf', compact('dsaClaim'))
+            ->setPaper('a4', 'landscape');
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('DSA-Settlement-Report.pdf');
     }
 }

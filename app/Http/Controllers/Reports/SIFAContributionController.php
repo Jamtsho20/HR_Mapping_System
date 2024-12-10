@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\SifaExport;
 use App\Http\Controllers\Controller;
+use App\Models\FinalPaySlip;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SIFAContributionController extends Controller
 {
@@ -20,9 +24,10 @@ class SIFAContributionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $sifaContributions = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $employee = employeeList();
 
-        return view('report.sifa-contribution.index', compact('privileges','employee'));
+        return view('report.sifa-contribution.index', compact('privileges','employee', 'sifaContributions'));
     }
 
     /**
@@ -71,5 +76,35 @@ class SIFAContributionController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function exportSifa(Request $request)
+    {
+
+        // Load all bookings with their dzongkhag names
+        $sifaContributions = FinalPaySlip::filter($request)->get();
+
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('Sifa-Contribution.pdf');
+    }
+
+    public function exportSifaExcel(Request $request)
+    {
+        return Excel::download(new SifaExport($request), 'sifa-contribution-report.xlsx');
+    }
+    public function printSifa(Request $request)
+    {
+        $sifaContributions = FinalPaySlip::filter($request)->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions'))->setPaper('a4', 'landscape');;
+
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('Sifa-Contribution.pdf');
     }
 }

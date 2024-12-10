@@ -23,7 +23,7 @@ class DzongkhagController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $dzongkhags = MasDzongkhag::filter($request)->orderBy('dzongkhag')->paginate(30);
+        $dzongkhags = MasDzongkhag::filter($request)->orderBy('dzongkhag')->paginate(config('global.pagination'));
 
         return view('masters.dzongkhag.index', compact('dzongkhags', 'privileges'));
     }

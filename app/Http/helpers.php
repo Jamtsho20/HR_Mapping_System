@@ -236,7 +236,8 @@ if(!function_exists('loggedInUser')){
 if (!function_exists('LoggedInUserEmpIdName')) {
     function LoggedInUserEmpIdName()
     {
-        return auth()->user()->username;
+        return auth()->user()->username . ' - ' . auth()->user()->name;
+;
     }
 }
 if(!function_exists('generateTransactionNumber')){

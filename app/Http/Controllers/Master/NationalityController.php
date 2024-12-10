@@ -27,7 +27,7 @@ class NationalityController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $nationalities = MasNationality::filter($request)->orderBy('name')->paginate(30);
+        $nationalities = MasNationality::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('masters.nationality.index', compact('nationalities', 'privileges'));
     }

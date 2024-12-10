@@ -27,7 +27,7 @@ class OtherPayChangeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $payChanges = OtherPayChange::filter($request)->orderBy('for_month')->paginate(30);
+        $payChanges = OtherPayChange::filter($request)->orderBy('for_month')->paginate(config('global.pagination'));
 
         return view('payroll.other-pay-changes.index', compact('privileges', 'payChanges'));
     }
@@ -85,7 +85,7 @@ class OtherPayChangeController extends Controller
         $gradeSteps = MasGradeStep::select(['id', 'name'])->get();
 
         $payChange = OtherPayChange::whereId($id)->first();
-        $details = $payChange->details()->paginate(30)->withQueryString();
+        $details = $payChange->details()->paginate(config('global.pagination'))->withQueryString();
 
         return view('payroll.other-pay-changes.show', compact('payChange', 'details', 'employees', 'gradeSteps'));
     }

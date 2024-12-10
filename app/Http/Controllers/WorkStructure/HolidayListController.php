@@ -32,7 +32,7 @@ class HolidayListController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $holidays = WorkHolidayList::filter($request)->orderBy('start_date')->paginate(30)->withQueryString();
+        $holidays = WorkHolidayList::filter($request)->orderBy('start_date')->paginate(config('global.pagination'))->withQueryString();
         $regions = MasRegion::select('id', 'name')->get();    
         $dates = DB::table("work_holiday_lists")->distinct()->selectRaw("YEAR(start_date) as year")->pluck('year')->toArray();
     

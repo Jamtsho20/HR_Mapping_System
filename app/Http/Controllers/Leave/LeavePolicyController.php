@@ -50,7 +50,7 @@ class LeavePolicyController extends Controller
     {
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $leavePolicy = MasLeavePolicy::filter($request)->orderBy('name')->paginate(30);
+        $leavePolicy = MasLeavePolicy::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('leave.leave-policy.index', compact('privileges', 'leaveTypes', 'leavePolicy'));
     }

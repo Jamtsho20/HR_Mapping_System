@@ -38,7 +38,7 @@ class TransferClaimReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $trasferClaims = TransferClaimApplication::filter($request, false)->paginate(30)->withQueryString();
+        $trasferClaims = TransferClaimApplication::filter($request, false)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.transfer-claim-report.index', compact('privileges', 'trasferClaims', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
     }
@@ -90,7 +90,7 @@ class TransferClaimReportController extends Controller
     {
         //
     }
-    public function exportTransferCaim(Request $request)
+    public function exportTransferClaim(Request $request)
     {
 
         // Load all bookings with their dzongkhag names

@@ -23,7 +23,7 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $departments = MasDepartment::filter($request)->orderBy('name')->paginate(30);
+        $departments = MasDepartment::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('masters.department.index', compact('departments', 'privileges'));
     }
