@@ -27,6 +27,16 @@
             @endforeach
         </select>
     </div>
+    <div class="col-3 form-group">
+        <select name="mas_pay_head_id" class="form-control">
+            <option value="" disabled="" selected="" hidden="">Select Bank Type</option>
+            @foreach($banks as $bank)
+            <option value="{{$bank->id }}" {{ request()->get('mas_pay_head_id') ==  $bank->id ? 'selected' : '' }}>
+                {{$bank->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
     @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">

@@ -8,7 +8,7 @@ use App\Traits\CreatedByTrait;
 use App\Models\AssetTransferApplication;
 use App\Models\MasApprovalRule;
 
-class DSAClaimType extends Model
+class DsaClaimType extends Model
 {
     use HasFactory, CreatedByTrait;
 

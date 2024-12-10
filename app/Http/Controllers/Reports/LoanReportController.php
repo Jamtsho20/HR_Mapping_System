@@ -6,6 +6,7 @@ use App\Exports\LoanExport;
 use App\Http\Controllers\Controller;
 use App\Models\BankLoan;
 use App\Models\FinalPaySlip;
+use App\Models\MasPayHead;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -27,7 +28,7 @@ class LoanReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
-    
+        $banks = MasPayHead::whereIn('id', [12, 13])->get();
         $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
@@ -37,7 +38,7 @@ class LoanReportController extends Controller
             ->withQueryString(); // Retain the query string in the pagination links
 
 
-        return view('report.loan-report.index', compact('privileges', 'loans', 'employee'));
+        return view('report.loan-report.index', compact('privileges', 'loans', 'employee', 'banks'));
     }
 
     /**
@@ -115,9 +116,9 @@ class LoanReportController extends Controller
     public function printLoan(Request $request)
     {
         $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-        ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
-        ->filter($request) // Apply the filters
+            ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name')->get();
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans'))->setPaper('a4', 'landscape');;
