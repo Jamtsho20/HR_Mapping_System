@@ -17,7 +17,7 @@ class MasDepartmentSeeder extends Seeder
             INSERT INTO `mas_departments` (`short_name`, `name`, `created_by`) VALUES
             ("HRAD", "Human Resource and Administration Department", 1),
             ("Marketing", "Marketing Department", 1),
-            ("Finance", "Finance Department", 1),
+            ("FD", "Finance Department", 1),
             ("AND", "Access Network Department", 1),
             ("CNCS", "Core Network and Carrier Services Department", 1),
             ("SPPD", "Strategic Planning and Projects Departmen", 1),
