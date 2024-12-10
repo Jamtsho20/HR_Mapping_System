@@ -7,20 +7,26 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="short_name">Short Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="short_name" name="short_name" value="{{ old('short_name') }}" required>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="name">Department <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="name">Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="mas_employee_id">Department Head</label>
                         <select class="form-control" name="mas_employee_id">

@@ -15,6 +15,7 @@ class LeaveEncashmentApplication extends Model
 
     protected $fillable = [
         'mas_employee_id',
+        'type_id',
         'leave_applied_for_encashment',
         'created_by',
         'updated_by',

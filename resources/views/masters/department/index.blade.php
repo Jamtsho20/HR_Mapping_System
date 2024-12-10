@@ -30,6 +30,7 @@
                                             <th>#</th>
                                             <th>Short Name</th>
                                             <th>Name</th>
+                                            <th>Code</th>
                                             <th>Department Head</th>
                                             <th class="text-center">Action</th>
                                         </tr>
@@ -40,6 +41,7 @@
                                             <td>{{ $departments->firstItem() + ($loop->iteration - 1) }}</td>
                                             <td>{{ $department->short_name }}</td>
                                             <td>{{$department->name}}</td>
+                                            <td>{{$department->code}}</td>
                                             <td>{{ $department->employee->emp_id_name ?? config('global.null_value')}}</td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)

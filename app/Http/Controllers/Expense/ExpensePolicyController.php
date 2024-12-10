@@ -29,7 +29,7 @@ class ExpensePolicyController extends Controller
     {
         $privileges = $request->instance();
         // $Types = MasType::get(['id', 'name']);
-        $expensePolicy = MasExpensePolicy::filter($request)->orderBy('name')->paginate(30);
+        $expensePolicy = MasExpensePolicy::filter($request)->orderBy('name')->paginate(config('global.pagination'));
         return view('expense.expense-policy.index', compact('privileges', 'expensePolicy'));
     }
 
@@ -140,7 +140,7 @@ class ExpensePolicyController extends Controller
     private function saveExpensePolicy($policy, $id)
     {
         $expensePolicyData = [
-            'mas_expense_type_id' => $policy['mas_expense_type_id'],
+            'type_id' => $policy['type_id'],
             'name' => $policy['policy_name'],
             'description' => $policy['description'],
             'start_date' => $policy['start_date'],

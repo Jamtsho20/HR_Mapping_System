@@ -22,7 +22,7 @@ class EmploymentTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $employmentTypes = MasEmploymentType::filter($request)->orderBy('name')->paginate(30)->withQueryString();
+        $employmentTypes = MasEmploymentType::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
         return view('masters.employment-types.index', compact('employmentTypes', 'privileges'));
     }
 

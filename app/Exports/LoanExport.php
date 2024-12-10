@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\finalPaySlip;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
+class LoanExport implements FromCollection,WithHeadings
+{
+    protected $request;
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function __construct($request)
+    {
+        $this->request = $request;
+    }
+
+    public function collection()
+    {
+        $serialNo = 1;
+        return FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
+            ->filter($this->request) // Apply the filters
+            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name')->get()->map(function ($loans) use (&$serialNo) {
+                return [
+                    $serialNo++,
+                    $loans->employee->name,
+                    $loans->pay_head_name,
+                    $loans->loan_number,
+                    $loans->loan_type,
+                    $loans->amount,           
+                ];
+            });
+    }
+    public function headings(): array
+    {
+        return [
+            'Sl No',
+            'Employee Name',
+            'Bank',
+            'Loan Number',
+            'Loan Type',
+            'Monthly Installment',
+
+        ];
+    }
+}

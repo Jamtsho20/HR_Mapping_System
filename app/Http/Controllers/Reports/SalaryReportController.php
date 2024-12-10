@@ -24,7 +24,7 @@ class SalaryReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
-        $salaries = FinalPaySlip::filter($request)->paginate(30)->withQueryString();
+        $salaries = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.salary-report.index', compact('privileges', 'salaries', 'employee'));
     }

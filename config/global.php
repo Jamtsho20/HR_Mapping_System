@@ -83,6 +83,15 @@ return [
         'T Bank' => 'T Bank',
         'DK Bank' => 'Digital Kidu'
     ],
+    'loan_type' => [
+        'Consumer Loan',
+        'Personal Loan',
+        'Employee Loan',
+        'Vehicle Loan',
+        'Festival Loan',
+        'PPF',
+        'Housing Loan'
+    ],
 
     'calculation__method' => [
         1 => 'Actual Amount',

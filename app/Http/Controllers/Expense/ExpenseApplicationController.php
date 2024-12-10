@@ -110,7 +110,7 @@ class ExpenseApplicationController extends Controller
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no'])
@@ -152,7 +152,7 @@ class ExpenseApplicationController extends Controller
                 $expenseApplication = ExpenseApplication::create([
                     // 'mas_employee_id' => loggedInUser(),
                     'expense_no' => $request->expense_no,
-                    'mas_expense_type_id' => $request->expense_type,
+                    'type_id' => $request->expense_type,
                     'date' => $request->date,
                     'expense_amount' => $request->amount,
                     'description' => $request->description,
@@ -237,7 +237,7 @@ class ExpenseApplicationController extends Controller
             DB::beginTransaction();
             $expenseApplication->update([
                 // 'mas_employee_id' => $expenseApplication->mas_employee_id,
-                'mas_expense_type_id' => $request->expense_type,
+                'type_id' => $request->expense_type,
                 'date' => $request->date,
                 'expense_amount' => $request->amount,
                 'description' => $request->description,
@@ -297,7 +297,7 @@ class ExpenseApplicationController extends Controller
                         ->whereStatus(1);
                 }]);
         }, 'policyEnforcement'])
-            ->where('mas_expense_type_id', $request->expense_type)
+            ->where('type_id', $request->expense_type)
             ->whereStatus(1)
             ->first();
         //check weather attachment is required while applying expense from expense policy

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('leave_encashment_applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mas_employee_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('type_id')->constrained('leave_encashment_types')->cascadeOnDelete()->cascadeOnUpdate();
             // $table->float('total_leave_for_encashment')->comment('No. of days that the emp have that can be encashed');
             // $table->float('leave_eligible_for_encashment')->comment('No. of days that is eligible for encashment');
             $table->float('leave_applied_for_encashment')->comment('No. of days employee have applied for encashment');
