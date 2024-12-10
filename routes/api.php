@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApprovalC
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
+use App\Http\Controllers\Api\v1\GeneralApporvalController;
 
 
 /*
@@ -49,6 +50,9 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('advance_approval', 'AdvanceLoanApprovalController');
     });
 
+    Route::namespace('Api\v1')->middleware('auth:sanctum')->group(function () {
+        Route::resource('approval_count', 'GeneralApporvalController');
+    });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
         Route::resource('expense', 'ExpenseApplicationController');
@@ -105,6 +109,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('leave_encashment_approval', 'LeaveEncashmentApprovalController');
         Route::post('leave_encashment_approval/bulk', [LeaveEncashmentApprovalController::class, 'bulkApprovalRejection']);
         Route::resource('leave_approval', 'LeaveApprovalController');
+
     });
     // Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
