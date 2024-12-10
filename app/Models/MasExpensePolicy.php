@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasExpensePolicy extends Model
 {
-    protected $fillable = ['mas_expense_type_id', 'name', 'description', 'start_date', 'end_date', 'status']; 
+    protected $fillable = ['type_id', 'name', 'description', 'start_date', 'end_date', 'status']; 
 
     use HasFactory, CreatedByTrait;
     //realtions
     public function expenseType()
     {
-        return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
+        return $this->belongsTo(MasExpenseType::class, 'type_id');
     }
     public function rateDefinition()
     {

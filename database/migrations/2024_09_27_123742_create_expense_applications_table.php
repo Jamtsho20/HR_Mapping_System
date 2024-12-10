@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('expense_no')->index();
             // $table->foreignId('mas_employee_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->date('date');
-            $table->foreignId('mas_expense_type_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('type_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('travel_type')->nullable();
             $table->string('travel_mode')->nullable();
             $table->date('travel_from_date')->nullable();

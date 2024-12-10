@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationForwardedMail;
-use App\services\ApplicationHistoriesService;
+use App\Services\ApplicationHistoriesService;
 
 class TravelAuthorizationApplicationController extends Controller
 {
@@ -63,7 +63,6 @@ class TravelAuthorizationApplicationController extends Controller
     {
         $privileges = $request->instance();
         $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-
         return view('travel-authorizations.apply.index', compact('privileges', 'travelAuthorizations'));
     }
 
@@ -104,7 +103,7 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorization->status = 1;
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
-            $travelAuthorization->travel_type_id = $request->travel_type;
+            $travelAuthorization->type_id = $request->travel_type;
 
 
             $travelAuthorization->save();
@@ -181,7 +180,7 @@ class TravelAuthorizationApplicationController extends Controller
                 'status' => 1,
                 'daily_allowance' => $request->daily_allowance,
                 'updated_by' => Auth::id(),
-                'travel_type_id' => $request->travel_type,
+                'type_id' => $request->travel_type,
             ]);
 
 

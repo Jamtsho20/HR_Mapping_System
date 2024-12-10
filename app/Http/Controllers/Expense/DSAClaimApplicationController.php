@@ -24,10 +24,10 @@ class DSAClaimApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:expense/dsa-claim-settlement,view')->only('index');
-        $this->middleware('permission:expense/dsa-claim-settlement,create')->only('store');
-        $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
-        $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
+        $this->middleware('permission:expense/apply-expense,view')->only('index');
+        $this->middleware('permission:expense/apply-expense,create')->only('store');
+        $this->middleware('permission:expense/apply-expense,edit')->only('update');
+        $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
     }
 
     protected $rules = [
@@ -63,7 +63,7 @@ class DSAClaimApplicationController extends Controller
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
 
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->where('status', 3)
             ->whereNotIn('id', $excludedAdvanceIds)
@@ -85,7 +85,7 @@ class DSAClaimApplicationController extends Controller
 
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
         //dd($approverByHierarchy);
 
         if ($approverByHierarchy) {
@@ -104,7 +104,7 @@ class DSAClaimApplicationController extends Controller
 
                 $dsaClaimApplication = DsaClaimApplication::create([
                     'dsa_claim_no' => $request->dsa_claim_no,
-                    'dsa_claim_type_id' => $request->dsa_claim_type_id,
+                    'type_id' => $request->type_id,
                     'travel_authorization_id' => $request->travel_authorization_id,
                     'advance_application_id' => $request->advance_no ?? null,
                     'total_amount' => $request->total_amount,
@@ -194,7 +194,7 @@ class DSAClaimApplicationController extends Controller
 
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no'])

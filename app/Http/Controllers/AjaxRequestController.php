@@ -246,7 +246,7 @@ class AjaxRequestController extends Controller
         $sifaInterestRate = 0;
         $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
 
-        $latestTransaction = AdvanceApplication::where('advance_type_id', $id)
+        $latestTransaction = AdvanceApplication::where('type_id', $id)
             ->latest('id') // Orders by id in descending order
             ->first();
 
@@ -482,7 +482,7 @@ class AjaxRequestController extends Controller
     {
         $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
 
-        $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)
+        $latestTransaction = ExpenseApplication::where('type_id', $id)
             ->latest('id') // Orders by id in descending order
             ->first();
 

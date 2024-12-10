@@ -13,7 +13,7 @@ class ExpenseApplication extends Model
     protected $fillable = [
         // 'mas_employee_id',
         'expense_no',
-        'mas_expense_type_id',
+        'type_id',
         'date',
         'expense_amount',
         'description',
@@ -38,7 +38,7 @@ class ExpenseApplication extends Model
 
     public function expenseType()
     {
-        return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
+        return $this->belongsTo(MasExpenseType::class, 'type_id');
     }
 
     public function travelType()

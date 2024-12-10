@@ -17,6 +17,10 @@
                 <input type="text" class="form-control" name="name" value="{{$department->name}}" required="required">
             </div>
             <div class="form-group">
+                <label for="code">Code <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="code" value="{{$department->code}}" required="required">
+            </div>
+            <div class="form-group">
                 <label for="mas_employee_id">Department Head</span></label>
                 <select name="mas_employee_id" class="form-control" id="dzongkhag1">
                     <option value="" disabled selected hidden>Select your option</option>
