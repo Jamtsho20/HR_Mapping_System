@@ -233,7 +233,11 @@ class ApprovalService
 			})
 				->whereHas('empJob', function ($query) use ($loggedInUserDeptIdAndSecId) {
 					$query->where('mas_department_id', $loggedInUserDeptIdAndSecId->mas_department_id)
-						->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
+					// 	->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
+					->where(function ($query) use ($loggedInUserDeptIdAndSecId) {
+						$query->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id)
+							  ->orWhereNull('mas_section_id');
+					});
 				})
 				->first();
 		} else {

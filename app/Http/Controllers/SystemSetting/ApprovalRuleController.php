@@ -16,6 +16,7 @@ use App\Models\MasRequisitionType;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
+use App\Models\Role;
 use App\Models\SystemHierarchy;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -48,11 +49,12 @@ class ApprovalRuleController extends Controller
     {
         $privileges = $request->instance();
         $employees = User::select('id', 'name', 'employee_id')->get();
+        $roles = Role::get(['id', 'name']);
         $heads = MasApprovalHead::get();
         $operators = MasApprovalRuleConditionOperator::select('id', 'name', 'value')->orderBy('name')->get();
         $hierarchies = SystemHierarchy::select('id', 'name')->get();
 
-        return view('system-settings.approval-rule.create', compact('privileges', 'employees', 'heads', 'operators', 'hierarchies'));
+        return view('system-settings.approval-rule.create', compact('privileges', 'employees', 'roles', 'heads', 'operators', 'hierarchies'));
     }
 
     /**

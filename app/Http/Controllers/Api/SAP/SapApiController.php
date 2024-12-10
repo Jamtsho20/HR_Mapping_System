@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\SapApi;
+namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasItem;
