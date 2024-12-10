@@ -74,6 +74,7 @@ class ApprovalService
 
 	public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
 	{
+		//dd($approvableId, $approvableType, $conditionfields);
 		$approvalRule = MasApprovalRule::with('approvalConditions')
 			->where('approvable_id', $approvableId)
 			->where('approvable_type', $approvableType)
@@ -99,7 +100,7 @@ class ApprovalService
 					// Dynamically evaluate the condition
 					if ($this->evaluateCondition(!$conditionfields[0]['has_employee_field'] ? (float)$conditionValue : $conditionValue, $operatorSymbol, !$conditionfields[0]['has_employee_field'] ? (float)$appvlCondition->value : $appvlCondition->value)) {
 						if ($appvlCondition->approval_option == HIERARCHICAL_APPVL_OPTION) {
-							
+
 							$systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function ($query) {
 								$query->whereStatus(1)->orderBy('sequence');
 							}])->find($appvlCondition->system_hierarchy_id);
@@ -203,7 +204,7 @@ class ApprovalService
 					->sequence ?? null;
 				// Find the next level based on the sequence after comparing with max_level_id
 				$nextLevel = null;
-				if($currentLevel < $applicationHistory->max_level_id){
+				if ($currentLevel < $applicationHistory->max_level_id) {
 					$nextLevel = $systemHierarchy->hierarchyLevels
 						->where('sequence', $currentLevelSequence + 1)
 						->first();
@@ -233,11 +234,11 @@ class ApprovalService
 			})
 				->whereHas('empJob', function ($query) use ($loggedInUserDeptIdAndSecId) {
 					$query->where('mas_department_id', $loggedInUserDeptIdAndSecId->mas_department_id)
-					// 	->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
-					->where(function ($query) use ($loggedInUserDeptIdAndSecId) {
-						$query->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id)
-							  ->orWhereNull('mas_section_id');
-					});
+						//   ->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id);
+						->where(function ($query) use ($loggedInUserDeptIdAndSecId) {
+							$query->where('mas_section_id', $loggedInUserDeptIdAndSecId->mas_section_id)
+								->orWhereNull('mas_section_id');
+						});
 				})
 				->first();
 		} else {

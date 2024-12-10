@@ -35,7 +35,7 @@ class PaySlipController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $paySlips = PaySlip::filter($request)->orderBy('for_month')->paginate(30);
+        $paySlips = PaySlip::filter($request)->orderBy('for_month')->paginate(config('global.pagination'));
 
         return view('payroll.pay-slips.index', compact('paySlips', 'privileges'));
     }
@@ -96,7 +96,7 @@ class PaySlipController extends Controller
         if (!$count) {
             $this->payrollService->populateReportTable($paySlip);
         }
-        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(30)->withQueryString();
+        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(config('global.pagination'))->withQueryString();
         $details = $paySlip->details()->filter($request)->paginate(50)->withQueryString();
 
         return view('payroll.pay-slips.show', compact('employees', 'paySlip', 'payHeads', 'records', 'details'));

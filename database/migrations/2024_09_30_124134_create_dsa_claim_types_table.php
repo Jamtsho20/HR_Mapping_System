@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_stores', function (Blueprint $table) {
+        Schema::create('dsa_claim_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('location');
-            $table->boolean('status')->default(1);
-            $table->foreignId('created_by')->index()->constrained('mas_employees');
-            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_stores');
+        Schema::dropIfExists('dsa_claim_types');
     }
 };

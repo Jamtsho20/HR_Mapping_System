@@ -20,7 +20,7 @@ class PaySlabsDetailsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $paySlabDetails = MasPaySlabDetails::filter($request)->orderBy('created_at', 'desc')->paginate(30);
+        $paySlabDetails = MasPaySlabDetails::filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'));
         return view('paymaster.pay-slabs-details.index', compact('paySlabDetails', 'privileges'));
     }
 

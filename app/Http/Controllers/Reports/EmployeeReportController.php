@@ -27,7 +27,7 @@ class EmployeeReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $employees = User::filter($request)->paginate(30)->withQueryString();
+        $employees = User::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);

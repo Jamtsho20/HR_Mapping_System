@@ -83,6 +83,15 @@ return [
         'T Bank' => 'T Bank',
         'DK Bank' => 'Digital Kidu'
     ],
+    'loan_type' => [
+        'Consumer Loan',
+        'Personal Loan',
+        'Employee Loan',
+        'Vehicle Loan',
+        'Festival Loan',
+        'PPF',
+        'Housing Loan'
+    ],
 
     'calculation__method' => [
         1 => 'Actual Amount',
@@ -179,5 +188,8 @@ return [
         4 => App\Models\TransferClaimApplication::class,
         // 5=>
         6 => App\Models\TravelAuthorizationApplication::class,
+        7 => App\Models\SifaRegistration::class,
+        8 => App\Models\AdvanceApplication::class,
+        9 => App\Models\LeaveEncashmentApplication::class
     ]
 ];

@@ -19,11 +19,11 @@ class SapApiController extends Controller
             'name' => 'required',
             'code' => 'required',
             'store_location' => 'required',
-            'store_email' => 'required',
-            'phone_number' => 'required',
-            'contact_person' => 'required',
-            'contact_email' => 'required',
-            'contact_number' => 'required',
+            // 'store_email' => 'required',
+            // 'phone_number' => 'required',
+            // 'contact_person' => 'required',
+            // 'contact_email' => 'required',
+            // 'contact_number' => 'required',
             // 'dzongkhag_code' => 'required',
             'region_id' => 'required'
         ];
@@ -50,13 +50,13 @@ class SapApiController extends Controller
                 $store->parent_store_id = $parentStoreId;
                 $store->name = $request->name;
                 $store->store_location = $request->store_location;
-                $store->store_email = $request->store_email;
-                $store->phone_number = $request->phone_number;
-                $store->contact_person = $request->contact_person;
-                $store->contact_email = $request->contact_email;
-                $store->contact_number = $request->contact_number;
+                $store->store_email = isset($request->store_email) ? $request->store_email : null;
+                $store->phone_number = isset($request->phone_number) ? $request->phone_number : null;
+                $store->contact_person = isset($request->contact_person) ? $request->contact_person : null;
+                $store->contact_email = isset($request->contact_email) ? $request->contact_email : null;
+                $store->contact_number = isset($request->contact_number) ? $request->contact_number : null;
                 $store->country_id = $this->countryId;
-                $store->region_id = $request->region_id;
+                $store->region_id = isset($request->region_id) ? $request->region_id : null;
                 $store->status = $request->status ?? 1;
                 $store->updated_by = $this->superUser; // Track who updated it
                 $store->save();
@@ -68,13 +68,13 @@ class SapApiController extends Controller
                 $store->name = $request->name;
                 $store->code = $request->code;
                 $store->store_location = $request->store_location;
-                $store->store_email = $request->store_email;
-                $store->phone_number = $request->phone_number;
-                $store->contact_person = $request->contact_person;
-                $store->contact_email = $request->contact_email;
-                $store->contact_number = $request->contact_number;
+                $store->store_email = isset($request->store_email) ? $request->store_email : null;
+                $store->phone_number = isset($request->phone_number) ? $request->phone_number : null;
+                $store->contact_person = isset($request->contact_person) ? $request->contact_person : null;
+                $store->contact_email = isset($request->contact_email) ? $request->contact_email : null;
+                $store->contact_number = isset($request->contact_number) ? $request->contact_number : null;
                 $store->country_id = $this->countryId;
-                $store->region_id = $request->region_id;
+                $store->region_id = isset($request->region_id) ? $request->region_id : null;
                 $store->status = $request->status ?? 1;
                 $store->created_by = $this->superUser;
                 $store->save();
@@ -120,9 +120,12 @@ class SapApiController extends Controller
                 // If item exists, update it
                 $item->store_id = $storeId;
                 $item->item_category = $request->item_category;
+                $item->asset_type = $request->asset_type;
+                $item->asset_class = $request->asset_class;
                 $item->item_description = $request->item_description;
                 $item->uom = $request->uom;
                 $item->quantity = $request->quantity;
+                $item->fa_enabled = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
                 $item->updated_by = $this->superUser; // Track who updated it
                 $item->save();
@@ -132,12 +135,14 @@ class SapApiController extends Controller
                 $item = new MasItem();
                 $item->store_id = $storeId;
                 $item->item_category = $request->item_category;
-                $item->item_number = $request->item_number;
+                $item->asset_type = $request->asset_type;
+                $item->asset_class = $request->asset_class;
                 $item->item_description = $request->item_description;
                 $item->uom = $request->uom;
                 $item->quantity = $request->quantity;
+                $item->fa_enabled = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
-                $item->created_by = $this->superUser;
+                $item->updated_by = $this->superUser;
                 $item->save();
                 $message = 'Item created successfully.';
             }

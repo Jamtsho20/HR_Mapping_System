@@ -196,9 +196,11 @@ class EmployeeController extends Controller
             }
             $employee = User::where('id', $id)->first();
 
-            if ($employee->status == 'Completed') {
+            if ($employee->status == 'Completed' && !$employee->registered_email_sent) {
                 Mail::to($employee->email)->send(new SendCredentialsMail($employee, config('global.default_password')));
             }
+            $employee->registered_email_sent = true;
+            $employee->save();
 
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');
         }

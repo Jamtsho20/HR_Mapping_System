@@ -24,7 +24,7 @@ class LeaveTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $leaveTypes = MasLeaveType::filter($request)->orderBy('name')->paginate(30);
+        $leaveTypes = MasLeaveType::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('masters.leave-types.index', compact('leaveTypes', 'privileges'));
     }

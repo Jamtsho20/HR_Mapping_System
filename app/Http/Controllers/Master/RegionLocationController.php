@@ -30,7 +30,7 @@ class RegionLocationController extends Controller
         $regionLocations = MasRegionLocation::with(['region', 'dzongkhag']) // Load both relationships
             ->filter($request) // If you have a filter method
             ->orderBy('created_at', 'desc')
-            ->paginate(30);
+            ->paginate(config('global.pagination'));
         $region = MasRegion::first(); // Adjust this as needed
 
         return view('masters.region-location.index', compact('regionLocations', 'privileges', 'region'));
