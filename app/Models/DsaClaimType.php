@@ -12,7 +12,7 @@ class DsaClaimType extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    public function approvableRule() // relationship with mas_approvable_rules
+    public function approvableRule() // relationship with mas_approvable_rules dd
     {
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
