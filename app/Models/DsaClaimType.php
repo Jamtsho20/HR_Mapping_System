@@ -21,6 +21,4 @@ class DsaClaimType extends Model
     {
         return $this->hasMany(AssetTransferApplication::class, 'transfer_type_id');
     }
-
- 
 }
