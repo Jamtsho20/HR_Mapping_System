@@ -460,182 +460,177 @@
 
 @push('page_scripts')
 <script>
-    $(document).ready(function() {
-        window.DAILY_ALLOWANCE = {
-            {
-                $dailyAllowance - > da_in_country
+        $(document).ready(function() {
+            window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
+
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+
+                // Loop through each row and sum up the total amounts
+                $("input[name*='[total_amount]']").each(function() {
+                    const rowTotal = parseFloat($(this).val() || 0, 10);
+                    grandTotal += rowTotal;
+                });
+
+                // Update the grand total input field
+                $('#grand_total_amount').val(grandTotal);
             }
-        };
 
-        function calculateGrandTotal() {
-            let grandTotal = 0;
+            function calculateNetPayable() {
+                // Retrieve input values
+                let totalAmount = parseFloat($('#grand_total_amount').val()) || 0;
+                let advanceAmount = parseFloat($('#advance_amount').val()) || 0;
 
-            // Loop through each row and sum up the total amounts
-            $("input[name*='[total_amount]']").each(function() {
-                const rowTotal = parseFloat($(this).val() || 0, 10);
-                grandTotal += rowTotal;
+                // Calculate net payable
+                let netPayable = totalAmount - advanceAmount;
+
+                // Update net payable amount field
+                $('#net_payable_amount').val(netPayable.toFixed(2));
+            }
+
+            calculateNetPayable();
+
+            $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
+                const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
+                const targetContent = $(`#content-${targetContentId}`);
+                const itemType = targetContent.data('item-type');
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('item_type', itemType);
+                history.pushState(null, '', url);
             });
 
-            // Update the grand total input field
-            $('#grand_total_amount').val(grandTotal);
-        }
+            var selectedExpenseType = $('#expense_type');
+            var formSections = $('.dynamic-form');
 
-        function calculateNetPayable() {
-            // Retrieve input values
-            let totalAmount = parseFloat($('#grand_total_amount').val()) || 0;
-            let advanceAmount = parseFloat($('#advance_amount').val()) || 0;
+            selectedExpenseType.on('change', function() {
+                var selectedType = selectedExpenseType.val();
 
-            // Calculate net payable
-            let netPayable = totalAmount - advanceAmount;
+                // Hide all dynamic form sections and disable their inputs
+                formSections.each(function() {
+                    $(this).hide();
+                    disableFormFields($(this));
+                });
 
-            // Update net payable amount field
-            $('#net_payable_amount').val(netPayable.toFixed(2));
-        }
+                // Show and enable the corresponding form section based on the selected type
+                if (selectedType === '1') {
+                    var section = $('#conveyance_expense_form');
+                    section.show();
+                    enableFormFields(section);
+                }
+            });
 
-        calculateNetPayable();
-
-        $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
-            const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
-            const targetContent = $(`#content-${targetContentId}`);
-            const itemType = targetContent.data('item-type');
-
-            const url = new URL(window.location.href);
-            url.searchParams.set('item_type', itemType);
-            history.pushState(null, '', url);
-        });
-
-        var selectedExpenseType = $('#expense_type');
-        var formSections = $('.dynamic-form');
-
-        selectedExpenseType.on('change', function() {
-            var selectedType = selectedExpenseType.val();
-
-            // Hide all dynamic form sections and disable their inputs
+            // Initially hide all dynamic form sections
             formSections.each(function() {
                 $(this).hide();
                 disableFormFields($(this));
             });
 
-            // Show and enable the corresponding form section based on the selected type
-            if (selectedType === '1') {
-                var section = $('#conveyance_expense_form');
-                section.show();
-                enableFormFields(section);
+            // Show the correct form section based on the old input value
+            var oldSelectedExpenseType = '{{ old('expense_type') }}';
+            if (oldSelectedExpenseType) {
+                selectedExpenseType.val(oldSelectedExpenseType);
+                selectedExpenseType.trigger('change'); // Trigger the change event to show the relevant section
             }
-        });
 
-        // Initially hide all dynamic form sections
-        formSections.each(function() {
-            $(this).hide();
-            disableFormFields($(this));
-        });
-
-        // Show the correct form section based on the old input value
-        var oldSelectedExpenseType = '{{ old('
-        expense_type ') }}';
-        if (oldSelectedExpenseType) {
-            selectedExpenseType.val(oldSelectedExpenseType);
-            selectedExpenseType.trigger('change'); // Trigger the change event to show the relevant section
-        }
-
-        // Function to enable form fields in the visible section
-        function enableFormFields(form) {
-            form.find('input, select, textarea').prop('disabled', false); // Enable the input fields
-        }
-
-        // Function to disable form fields in hidden sections
-        function disableFormFields(form) {
-            form.find('input, select, textarea').prop('disabled', true); // Disable the input fields
-        }
-
-        $('#transferclaim').on('change', function() {
-            var selectedValue = $(this).val();
-            var distanceField = $('#distanceField');
-
-            if (selectedValue === '2') {
-                distanceField.show();
-            } else {
-                distanceField.hide();
+            // Function to enable form fields in the visible section
+            function enableFormFields(form) {
+                form.find('input, select, textarea').prop('disabled', false); // Enable the input fields
             }
-        });
 
-        // Event delegation to handle dynamically added rows
-        $(document).on(
-            "input change",
-            "input[name*='[daily_allowance]'], input[name*='[travel_allowance]'], input[name*='[total_days]'], input[name*='[from_date]'], input[name*='[to_date]']",
-            function() {
-                // Find the closest row for the current input
-                const $row = $(this).closest("tr");
+            // Function to disable form fields in hidden sections
+            function disableFormFields(form) {
+                form.find('input, select, textarea').prop('disabled', true); // Disable the input fields
+            }
 
-                // Ensure all values are fetched from the same row
-                const dailyAllowance = parseFloat($row.find("input[name*='[daily_allowance]']").val() ||
-                    DAILY_ALLOWANCE, 10);
-                const travelAllowance = parseFloat($row.find("input[name*='[travel_allowance]']").val() ||
-                    0, 10);
+            $('#transferclaim').on('change', function() {
+                var selectedValue = $(this).val();
+                var distanceField = $('#distanceField');
 
-                // Get the current total days (allow manual edit)
-                let totalDays = parseFloat($row.find("input[name*='[total_days]']").val() || 0, 10);
-
-                // Recalculate total days if from_date and to_date are present
-                const fromDate = $row.find("input[name*='[from_date]']").val();
-                const toDate = $row.find("input[name*='[to_date]']").val();
-
-                if (fromDate && toDate) {
-                    const from = new Date(fromDate);
-                    const to = new Date(toDate);
-
-                    // Check if to_date is less than from_date
-                    if (to < from) {
-                        alert("The 'To Date' must be equal to or later than the 'From Date'.");
-                        $row.find("input[name*='[to_date]']").val(""); // Clear invalid date
-                        return; // Exit the function early
-                    }
-
-                    // Recalculate total days only when dates are modified
-                    if ($(this).is("input[name*='[from_date]'], input[name*='[to_date]']")) {
-                        totalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
-                        $row.find("input[name*='[total_days]']").val(totalDays); // Update total days input
-                    }
+                if (selectedValue === '2') {
+                    distanceField.show();
+                } else {
+                    distanceField.hide();
                 }
+            });
 
-                // Calculate the total amount for the current row
-                const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+            // Event delegation to handle dynamically added rows
+            $(document).on(
+                "input change",
+                "input[name*='[daily_allowance]'], input[name*='[travel_allowance]'], input[name*='[total_days]'], input[name*='[from_date]'], input[name*='[to_date]']",
+                function() {
+                    // Find the closest row for the current input
+                    const $row = $(this).closest("tr");
 
-                // Update the total amount for the current row only
-                $row.find("input[name*='[total_amount]']").val(totalAmount);
+                    // Ensure all values are fetched from the same row
+                    const dailyAllowance = parseFloat($row.find("input[name*='[daily_allowance]']").val() ||
+                        DAILY_ALLOWANCE, 10);
+                    const travelAllowance = parseFloat($row.find("input[name*='[travel_allowance]']").val() ||
+                        0, 10);
 
+                    // Get the current total days (allow manual edit)
+                    let totalDays = parseFloat($row.find("input[name*='[total_days]']").val() || 0, 10);
+
+                    // Recalculate total days if from_date and to_date are present
+                    const fromDate = $row.find("input[name*='[from_date]']").val();
+                    const toDate = $row.find("input[name*='[to_date]']").val();
+
+                    if (fromDate && toDate) {
+                        const from = new Date(fromDate);
+                        const to = new Date(toDate);
+
+                        // Check if to_date is less than from_date
+                        if (to < from) {
+                            alert("The 'To Date' must be equal to or later than the 'From Date'.");
+                            $row.find("input[name*='[to_date]']").val(""); // Clear invalid date
+                            return; // Exit the function early
+                        }
+
+                        // Recalculate total days only when dates are modified
+                        if ($(this).is("input[name*='[from_date]'], input[name*='[to_date]']")) {
+                            totalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
+                            $row.find("input[name*='[total_days]']").val(totalDays); // Update total days input
+                        }
+                    }
+
+                    // Calculate the total amount for the current row
+                    const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+
+                    // Update the total amount for the current row only
+                    $row.find("input[name*='[total_amount]']").val(totalAmount);
+
+                    calculateGrandTotal();
+                    calculateNetPayable();
+                }
+            );
+
+            $(document).on("click", ".add-table-row", function() {
                 calculateGrandTotal();
                 calculateNetPayable();
-            }
-        );
+            });
 
-        $(document).on("click", ".add-table-row", function() {
-            calculateGrandTotal();
-            calculateNetPayable();
-        });
+            function getTravelAuthorizationDetails() {
+                const travelAuthorizationId = $("#travel_autorization").val();
 
-        function getTravelAuthorizationDetails() {
-            const travelAuthorizationId = $("#travel_autorization").val();
+                if (travelAuthorizationId !== '') {
+                    $.ajax({
+                        url: `/gettravelauthorizationbytravelauthorizationid/${travelAuthorizationId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(data) {
+                            const tbody = $("#travelstable tbody");
+                            tbody.empty(); // Clear the existing rows
 
-            if (travelAuthorizationId !== '') {
-                $.ajax({
-                    url: `/gettravelauthorizationbytravelauthorizationid/${travelAuthorizationId}`,
-                    dataType: 'JSON',
-                    type: 'GET',
-                    success: function(data) {
-                        const tbody = $("#travelstable tbody");
-                        tbody.empty(); // Clear the existing rows
+                            if (data.travel_authorization_details && data.travel_authorization_details
+                                .details.length > 0) {
+                                let grandTotal = 0;
 
-                        if (data.travel_authorization_details && data.travel_authorization_details
-                            .details.length > 0) {
-                            let grandTotal = 0;
+                                // Loop through the travel authorization details
+                                data.travel_authorization_details.details.forEach((detail, index) => {
+                                    const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    grandTotal += totalAmount;
 
-                            // Loop through the travel authorization details
-                            data.travel_authorization_details.details.forEach((detail, index) => {
-                                const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
-                                grandTotal += totalAmount;
-
-                                const row = `
+                                    const row = `
                         <tr class="data-row">
                             <td class="text-center">
                                 <input type="date"
@@ -692,11 +687,11 @@
                             </td>
                         </tr>`;
 
-                                tbody.append(row); // Append the row to the table body
-                            });
+                                    tbody.append(row); // Append the row to the table body
+                                });
 
-                            // Add the row for adding a new entry (Add New Row)
-                            const btnRow = `
+                                // Add the row for adding a new entry (Add New Row)
+                                const btnRow = `
                     <tr class="notremovefornew">
                         <td colspan="8"></td>
                         <td class="text-right">
@@ -705,93 +700,93 @@
                             </a>
                         </td>
                     </tr>`;
-                            tbody.append(btnRow);
+                                tbody.append(btnRow);
 
-                            const lastDataRow = tbody.find("tr.data-row").last();
-                            const lastDataRowDailyAllowanceField = lastDataRow.find(
-                                "input[name*='[daily_allowance]']");
-                            lastDataRowDailyAllowanceField.val(
-                                DAILY_ALLOWANCE);
+                                const lastDataRow = tbody.find("tr.data-row").last();
+                                const lastDataRowDailyAllowanceField = lastDataRow.find(
+                                    "input[name*='[daily_allowance]']");
+                                lastDataRowDailyAllowanceField.val(
+                                    DAILY_ALLOWANCE);
 
-                            // Update the grand total
-                            $('#grand_total_amount').val(grandTotal);
-                        } else {
-                            tbody.append(
-                                `<tr><td colspan="9" class="text-center text-danger">No details found</td></tr>`
-                            );
-                        }
-                    },
-                    error: function(error) {
-                        alert(`Error fetching data: ${error.responseText || error.statusText}`);
-                        $("#travelstable tbody").empty().append(`
+                                // Update the grand total
+                                $('#grand_total_amount').val(grandTotal);
+                            } else {
+                                tbody.append(
+                                    `<tr><td colspan="9" class="text-center text-danger">No details found</td></tr>`
+                                );
+                            }
+                        },
+                        error: function(error) {
+                            alert(`Error fetching data: ${error.responseText || error.statusText}`);
+                            $("#travelstable tbody").empty().append(`
                     <tr>
                         <td colspan="9" class="text-center text-danger">Error fetching details</td>
                     </tr>`);
-                    }
-                });
-            }
-        }
-
-        function getDsaAvanceByTravelAuth() {
-            const travelAuthorizationId = $("#travel_autorization").val();
-
-            if (travelAuthorizationId !== '') {
-                $.ajax({
-                    url: `/getdsaadvancebytravelauth/${travelAuthorizationId}`,
-                    dataType: 'JSON',
-                    type: 'GET',
-                    success: function(data) {
-                        $("#dsa_advance_tour").empty();
-
-                        // Check if data contains any options
-                        if (data.length > 0) {
-                            // Append a placeholder or default option
-                            $("#dsa_advance_tour").append(
-                                '<option value="">Select DSA Advance</option>');
-
-                            // Loop through the data and create options
-                            data.forEach(item => {
-                                const option =
-                                    `<option value="${item.id}">${item.advance_no}</option>`;
-                                $("#dsa_advance_tour").append(option);
-                            });
-                        } else {
-                            // Append a message if no data is available
-                            $("#dsa_advance_tour").append(
-                                '<option value="">No DSA Advances availed</option>');
                         }
-                    },
-                    error: function(error) {
-                        alert("Error fetching data", error);
-                    }
-                });
+                    });
+                }
             }
-        }
 
-        function getDsaAvanceDetails() {
-            const dsaAdvanceId = $("#dsa_advance_tour").val();
+            function getDsaAvanceByTravelAuth() {
+                const travelAuthorizationId = $("#travel_autorization").val();
 
-            if (dsaAdvanceId !== '') {
-                $.ajax({
-                    url: `/getdsaadvancedetails/${dsaAdvanceId}`,
-                    dataType: 'JSON',
-                    type: 'GET',
-                    success: function(data) {
-                        $('#advance_amount').val(data.amount ?? 0);
-                        calculateNetPayable();
-                    },
-                    error: function(error) {
-                        alert("Error fetching data", error);
-                    }
-                });
+                if (travelAuthorizationId !== '') {
+                    $.ajax({
+                        url: `/getdsaadvancebytravelauth/${travelAuthorizationId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(data) {
+                            $("#dsa_advance_tour").empty();
+
+                            // Check if data contains any options
+                            if (data.length > 0) {
+                                // Append a placeholder or default option
+                                $("#dsa_advance_tour").append(
+                                    '<option value="">Select DSA Advance</option>');
+
+                                // Loop through the data and create options
+                                data.forEach(item => {
+                                    const option =
+                                        `<option value="${item.id}">${item.advance_no}</option>`;
+                                    $("#dsa_advance_tour").append(option);
+                                });
+                            } else {
+                                // Append a message if no data is available
+                                $("#dsa_advance_tour").append(
+                                    '<option value="">No DSA Advances availed</option>');
+                            }
+                        },
+                        error: function(error) {
+                            alert("Error fetching data", error);
+                        }
+                    });
+                }
             }
-        }
 
-        // Trigger the function when the dropdown value changes
-        $(document).on("change", "#travel_autorization", getTravelAuthorizationDetails);
-        $(document).on("change", "#travel_autorization", getDsaAvanceByTravelAuth);
-        $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
-        $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']", calculateNetPayable);
-    });
-</script>
+            function getDsaAvanceDetails() {
+                const dsaAdvanceId = $("#dsa_advance_tour").val();
+
+                if (dsaAdvanceId !== '') {
+                    $.ajax({
+                        url: `/getdsaadvancedetails/${dsaAdvanceId}`,
+                        dataType: 'JSON',
+                        type: 'GET',
+                        success: function(data) {
+                            $('#advance_amount').val(data.amount ?? 0);
+                            calculateNetPayable();
+                        },
+                        error: function(error) {
+                            alert("Error fetching data", error);
+                        }
+                    });
+                }
+            }
+
+            // Trigger the function when the dropdown value changes
+            $(document).on("change", "#travel_autorization", getTravelAuthorizationDetails);
+            $(document).on("change", "#travel_autorization", getDsaAvanceByTravelAuth);
+            $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
+            $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']", calculateNetPayable);
+        });
+    </script>
 @endpush
