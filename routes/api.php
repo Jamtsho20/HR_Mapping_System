@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApprovalController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
-use App\Http\Controllers\SapApi\SapApiController;
+use App\Http\Controllers\Api\SAP\SapApiController;
 use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
 use App\Http\Controllers\Api\Expense\DSAClaimApplicationController;
 use App\Http\Controllers\Api\Leave\LeaveApplicationController;
@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 */
 Route::middleware('api.access.log')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
+    Route::post('sap/login', [LoginController::class, 'sapLogin']);
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
 
     //other app related route
@@ -106,6 +107,12 @@ Route::middleware('api.access.log')->group(function () {
         Route::post('leave_encashment_approval/bulk', [LeaveEncashmentApprovalController::class, 'bulkApprovalRejection']);
         Route::resource('leave_approval', 'LeaveApprovalController');
     });
+
+    // incoming data from SAP ERP to save store and item as SAP team will be pushing data
+    Route::namespace('Api\SAP')->middleware('auth:sanctum')->group(function () {
+        Route::post('save-stores', [SapApiController::class, 'saveStore']);
+        Route::post('save-items', [SapApiController::class, 'saveItem']);
+    });
     // Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
     //     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);
@@ -114,10 +121,4 @@ Route::middleware('api.access.log')->group(function () {
     //     Route::delete('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'destroy']);
     // });
 
-});
-
-// incoming data from SAP ERP to save store and item as SAP team will be pushing data
-Route::namespace('SapApi')->group(function () {
-    Route::post('save-stores', [SapApiController::class, 'saveStore']);
-    Route::post('save-items', [SapApiController::class, 'saveItem']);
 });
