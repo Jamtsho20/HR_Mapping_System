@@ -18,7 +18,7 @@
                     <div class="table-responsive">
                         <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
                             <thead>
-                                <tr>
+                                <tr class="thead-light">
                                     <th>#</th>
                                     <th>Employee Name</th>
                                     <th>Designation</th>

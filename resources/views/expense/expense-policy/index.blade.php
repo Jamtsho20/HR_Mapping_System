@@ -42,7 +42,7 @@
                                                 style="box-sizing: content-box; padding-right: 0px;">
                                                 <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                     <thead>
-                                                        <tr role="row">
+                                                        <tr role="row" class="thead-light">
                                                             <th>
                                                                 #
                                                             </th>
