@@ -26,7 +26,7 @@
                                             style="box-sizing: content-box; padding-right: 0px;">
                                             <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                 <thead>
-                                                    <tr role="row">
+                                                    <tr role="row" class="thead-light">
                                                         @if($payGroup->applicable_on == 1) <!-- Applicable to Employee Group -->
                                                         <th>Employee Category</th>
                                                         @elseif($payGroup->applicable_on == 2) <!-- Applicable to Grade -->

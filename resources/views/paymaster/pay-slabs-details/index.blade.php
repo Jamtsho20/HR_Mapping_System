@@ -24,7 +24,7 @@
                                                 class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                 id="basic-datatable table-responsive">
                                                 <thead>
-                                                    <tr role="row">
+                                                    <tr role="row" class="thead-light">
                                                         <th>Pay From</th>
                                                         <th>Pay To</th>
                                                         <th>Amount</th>
