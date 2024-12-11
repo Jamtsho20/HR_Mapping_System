@@ -42,7 +42,7 @@ class HierarchyController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $hierarchies = SystemHierarchy::filter($request)->with('hierarchyLevels')->paginate(10)->withQueryString();
+        $hierarchies = SystemHierarchy::filter($request)->with('hierarchyLevels')->paginate(30)->withQueryString();
         return view('system-settings.hierarchy.index', compact('privileges', 'hierarchies'));
     }
 

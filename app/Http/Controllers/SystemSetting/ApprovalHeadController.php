@@ -20,7 +20,7 @@ class ApprovalHeadController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $approval = MasApprovalHead::paginate(10);
+        $approval = MasApprovalHead::paginate(30);
         return view('system-settings.approval-head.index', compact('privileges','approval'));
     }
 
