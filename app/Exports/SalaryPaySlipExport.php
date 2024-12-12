@@ -45,6 +45,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
                 $salaries->details['deductions']['SIFA'] ?? '0',
                 $salaries->details['deductions']['TDS'] ?? '0',
                 $salaries->details['deductions']['H/Tax'] ?? '0',
+                $salaries->details['net_pay']??'0',
             ];
         });
     }
@@ -73,6 +74,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
             'SIFA',
             'TDS',
             'H/Tax',
+            'Net Pay',
         ];
     }
 }

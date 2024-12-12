@@ -31,6 +31,7 @@ use App\Models\MasSection;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
+use App\Models\MasVehicle;
 use App\Models\MasVillage;
 use App\Models\RequisitionApplication;
 use App\Models\SystemHierarchyLevel;
@@ -44,6 +45,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\s;
+use App\Models\GoodCommissionApplication;
+use App\Models\MasCommissionTypes;
+use App\Models\GoodReceiptApplicationDetail;
 
 class AjaxRequestController extends Controller
 {
@@ -52,7 +57,8 @@ class AjaxRequestController extends Controller
 
     protected $sap;
 
-    public function __construct(ApiController $sap) {
+    public function __construct(ApiController $sap)
+    {
         $this->sap = $sap;
     }
 
@@ -246,7 +252,7 @@ class AjaxRequestController extends Controller
         $sifaInterestRate = 0;
         $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
 
-        $latestTransaction = AdvanceApplication::where('advance_type_id', $id)
+        $latestTransaction = AdvanceApplication::where('type_id', $id)
             ->latest('id') // Orders by id in descending order
             ->first();
 
@@ -357,132 +363,11 @@ class AjaxRequestController extends Controller
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
 
-    public function bulkApprovalRejection(Request $request)
-    {
-        $model = config('global.applications')[$request->item_type_id];
-
-        $action = $request->action;
-        $itemIds = $request->item_ids;
-        $status = ($action === 'approve') ? 2 : -1;
-        $rejectRemarks = $request->input('reject_remarks', '');
-        $actionBy = auth()->id();
-        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-        DB::beginTransaction();
-        try {
-            $approvalService = new ApprovalService();
-
-            foreach ($itemIds as $id) {
-                $application = $model::findOrFail($id);
-
-                $applicationHistory = $application->histories
-                    ->where('application_type', $model)
-                    ->where('application_id', $id)
-                    ->first();
-                // Update leave application status
-                $application->update([
-                    'status' => $status,
-                    'updated_by' => $actionBy,
-                ]);
-
-                // Forward application if approved
-                $updateData = [
-                    'status' => $status,
-                    'remarks' => $rejectRemarks,
-                    'action_performed_by' => $actionBy,
-                ];
-
-                if ($action === 'approve' && $applicationHistory) {
-                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
-
-                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
-                        $updateData = array_merge($updateData, [
-                            'next_level_id' => $applicationForwardedTo['next_level']->id,
-                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
-                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
-                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
-                        ]);
-                        // Attempt to send email to next approver need to work on it
-                        // try {
-                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($application, $nextApprover));
-                        // } catch (\Exception $e) {
-                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
-                        // }
-                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
-                         // Post to SAP after final Approval
-                        //  $postFields = '{
-                        //     "ReferenceDate":"2024-11-11",
-                        //     "Memo": "Travel Claim",
-                        //     "JournalEntryLines": [
-                        //         {
-                        //             "ShortName": "E00993", // search from application
-                        //             "CostingCode": null,
-                        //             "Credit": 111,
-                        //             "Debit": 0
-                        //         },
-                        //         {
-                        //             "AccountCode": "52136",
-                        //             "CostingCode": null,
-                        //             "Credit": 0,
-                        //             "Debit": 111
-                        //         }
-                        //     ]
-                        // }';
-
-                        // // Call postJournalEntries method
-                        // // postJournalEntries to sap begins
-                        // $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
-                        // If postJournalEntries fails, show relevent message from postJournalEntriesResponse else proceed with HRMS update status
-                        // postJournalEntries to sap ends
-
-                        // Finalize approval if it's at the maximum level
-                        $application->update([
-                            'status' => 3, // 3 could represent 'final approved'
-                            'updated_by' => $actionBy,
-                        ]);
-                        $updateData['status'] = 3; // Mark the history entry as final approved
-                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
-                        $application->update([
-                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                            'updated_by' => $actionBy,
-                        ]);
-                        $updateData['status'] = $applicationForwardedTo['application_status'];
-                    }
-                }
-                // Update application history
-                if ($applicationHistory) {
-                    $applicationHistory->update($updateData);
-                }
-
-                // Attempt to send email to applicant about the approval/rejection status need to work on it
-                // try {
-                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($application, $action, $rejectRemarks));
-                // } catch (\Exception $e) {
-                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
-                // }
-            }
-
-            DB::commit();
-
-            $model = preg_replace(
-                ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                ['', '$1 Application'],
-                $model
-            );
-
-            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-
-            return response()->json(['msg_error' => 'An error occurred during the operation.'], 500);
-        }
-    }
-
     public function getExpenseNumber($id)
     {
         $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
 
-        $latestTransaction = ExpenseApplication::where('mas_expense_type_id', $id)
+        $latestTransaction = ExpenseApplication::where('type_id', $id)
             ->latest('id') // Orders by id in descending order
             ->first();
 
@@ -577,7 +462,7 @@ class AjaxRequestController extends Controller
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
         }
-        
+
     }
 
     public function getIssueNumber($id) {
@@ -591,7 +476,7 @@ class AjaxRequestController extends Controller
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
         }
-        
+
     }
 
     public function getReceiptNumber($id) {
@@ -599,13 +484,27 @@ class AjaxRequestController extends Controller
             $receiptType = MasGoodReceiptType::findOrFail($id);
             $latestTransaction = GoodReceiptApplication::latest('id')->first();
             // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->receipt_no, -4) + 1 : 1;
             $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
             return $this->successResponse(['receipt_no' => $receiptNo]);
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
         }
-        
+
+    }
+
+    public function getCommissionNumber($id) {
+        try{
+            $receiptType = MasCommissionTypes::findOrFail($id);
+            $latestTransaction = GoodCommissionApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->commission_no, -4) + 1 : 1;
+            $commissionNo = generateTransactionNumber($receiptType->code, $nextSequence);
+            return $this->successResponse(['commission_no' => $commissionNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate commission no, please try again.');
+        }
+
     }
 
     public function getRequisitionDetails($id) {
@@ -616,12 +515,39 @@ class AjaxRequestController extends Controller
             return $this->errorResponse('Something went wrong while trying to fetch details, please try again.');
         }
     }
-    
+
     public function getDsaAdvanceDetails($id)
     {
         $advance = AdvanceApplication::whereId($id)->first();
 
         return response()->json($advance);
-
     }
+    
+    public function getVehicleDetailTypeById($id) { // Vehicle Detail and Type
+        $vehicleDetailType = MasVehicle::with('vehicleType')->whereId($id)->first();
+
+        return response()->json($vehicleDetailType);
+    }
+
+    public function getDetailsByIssue($issue_no)
+{
+    // Fetch the data based on the issue_no, e.g. using Eloquent
+    $goodsDetails = GoodIssueApplication::where('issue_no', $issue_no)->with('detail')->get();
+    $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
+
+    return response()->json([
+        'data' => $goodsDetails
+    ]);
+}
+
+public function getDetailsByReceipt($receipt_no)
+{
+    // Fetch the data based on the issue_no, e.g. using Eloquent
+    $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status',0)->get();
+    $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
+
+    return response()->json([
+        'data' => $goodsDetails
+    ]);
+}
 }

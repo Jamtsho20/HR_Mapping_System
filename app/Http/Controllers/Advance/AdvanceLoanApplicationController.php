@@ -76,6 +76,7 @@ class AdvanceLoanApplicationController extends Controller
         $advances = AdvanceApplication::with('advanceType')
             ->filter($request)
             ->createdBy() // Apply the createdBy scope
+            ->orderBy('date', 'desc')
             ->paginate(10);
         $advanceTypes = MasAdvanceTypes::get(['id', 'name']);
 
@@ -121,7 +122,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->date = $request->date;
             $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
-            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
             $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
 
@@ -189,12 +190,12 @@ class AdvanceLoanApplicationController extends Controller
         $dzongkhags = MasDzongkhag::get();
         $travelAuthorizations = [];
         $advanceDetails = []; // only if advance type is ADVANCE_TO_STAFF
-        if ($advance->advance_type_id == DSA_ADVANCE) {
+        if ($advance->type_id == DSA_ADVANCE) {
             $travelAuthorizations = TravelAuthorizationApplication::with('details')->where('created_by', loggedInUser())
                 ->where('id', $advance->travel_authorization_id)
                 ->first();
         }
-        if ($advance->advance_type_id == ADVANCE_TO_STAFF) {
+        if ($advance->type_id == ADVANCE_TO_STAFF) {
             $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
         }
         $redirectUrl = null;
@@ -243,7 +244,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->date = $request->date;
             // $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
-            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
             $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
 

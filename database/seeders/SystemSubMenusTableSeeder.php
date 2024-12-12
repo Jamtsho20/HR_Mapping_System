@@ -145,16 +145,23 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 16, 'name' => 'SIFA Contribution', 'route' => 'report/sifa-contribution', 'display_order' => 8],
             ['system_menu_id' => 16, 'name' => 'Salary Report', 'route' => 'report/salary-report', 'display_order' => 9],
             ['system_menu_id' => 16, 'name' => 'GIS Report', 'route' => 'report/gis-report', 'display_order' => 10],
-            ['system_menu_id' => 16, 'name' => 'Loan Report', 'route' => 'report/loan-report', 'display_order' => 11],
-            ['system_menu_id' => 16, 'name' => 'Employee Report', 'route' => 'report/employee-report', 'display_order' => 12],
-            ['system_menu_id' => 16, 'name' => 'Transfer Claim Report', 'route' => 'report/transfer-claim-report', 'display_order' => 13],
-            ['system_menu_id' => 16, 'name' => 'DSA Settlement Report', 'route' => 'report/dsa-settlement-report', 'display_order' => 14],
+            ['system_menu_id' => 16, 'name' => 'PF Report', 'route' => 'report/pf-report', 'display_order' => 11],
+            ['system_menu_id' => 16, 'name' => 'Loan Report', 'route' => 'report/loan-report', 'display_order' => 12],
+            ['system_menu_id' => 16, 'name' => 'Cheque Payment Report', 'route' => 'report/cheque-report', 'display_order' => 13],
+            ['system_menu_id' => 16, 'name' => 'Cash Payment Report', 'route' => 'report/cash-report', 'display_order' => 14],
+            ['system_menu_id' => 16, 'name' => 'Employee Report', 'route' => 'report/employee-report', 'display_order' => 15],
+            ['system_menu_id' => 16, 'name' => 'Transfer Claim Report', 'route' => 'report/transfer-claim-report', 'display_order' => 16],
+            ['system_menu_id' => 16, 'name' => 'DSA Settlement Report', 'route' => 'report/dsa-settlement-report', 'display_order' => 17],
+            ['system_menu_id' => 16, 'name' => 'Samsung Deduction Report', 'route' => 'report/samsung-deduction-report', 'display_order' => 18],
+            ['system_menu_id' => 16, 'name' => 'Pay Comparison Report', 'route' => 'report/pay-comparision-report', 'display_order' => 19],
 
 
             //submenu for Travel Authorization
             ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
             ['system_menu_id' => 17, 'name' => 'Approval', 'route' => 'travel-authorization/travel-authorization-approval', 'display_order' => 2],
-
+            
+            //submenu for Approval            ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
+            ['system_menu_id' => 18, 'name' => 'Applications', 'route' => 'approval/applications', 'display_order' => 1],
         ]);
     }
 }

@@ -349,7 +349,6 @@ class EmployeeController extends Controller
 
     private function saveJob($job, $employeeId, $request)
     {
-        // dd($job);
         $messages = [
             'mas_office_id.required' => 'Job location field is required',
             'job.bank.required_if' => 'The bank field is required when the salary disbursement mode is saving account.',
@@ -376,7 +375,7 @@ class EmployeeController extends Controller
             [
                 'mas_employee_id' => $employeeId,
                 'mas_department_id' => $job['mas_department_id'],
-                'mas_section_id' => $job['mas_section_id'],
+                'mas_section_id' => $job['mas_section_id'] ?? null,
                 'mas_designation_id' => $job['mas_designation_id'],
                 'mas_grade_id' => $job['mas_grade_id'],
                 'mas_grade_step_id' => $job['mas_grade_step_id'],
@@ -645,6 +644,6 @@ class EmployeeController extends Controller
 
     private function fetchHighestEmpId()
     {
-        return User::max('employee_id');
+        return User::where('username', '<>', 'SAP000')->max('employee_id');
     }
 }

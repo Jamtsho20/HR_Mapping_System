@@ -40,24 +40,25 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="dsa_advance_tour">Advance No</label>
-                            <select class="form-control" id="dsa_advance_tour" name="dsa_advance_tour">
+                            <select class="form-control" id="dsa_advance_tour" name="advance_no">
                                 <option value="" disabled>Select your option</option>
-                                <option value="{{ $dsaClaimApplication->advance_application_id }}" selected>{{ $dsaClaimApplication->dsaadvance->advance_no }}</option>
                             </select>
                         </div>
                     </div>
+
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="advance_amount">Advance Amount </label>
                             <input type="number" class="form-control" id="advance_amount" name="advance_amount"
-                                value="" readonly>
+                                value="{{ $dsaClaimApplication->dsaadvance }}" readonly>
                         </div>
                     </div>
+
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="grand_total_amount">Total Amount </label>
                             <input type="number" class="form-control" id="grand_total_amount" name="total_amount"
-                                value="{{ $dsaClaimApplication->total_amount }}" required readonly />
+                                value="{{ $dsaClaimApplication->amount }}" required readonly />
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -94,21 +95,36 @@
                                 class="table table-condensed table-bordered table-striped table-sm basic-datatable">
                                 <thead>
                                     <tr role="row">
-                                        <th>From Date</th>
-                                        <th>From Location</th>
-                                        <th>To Date</th>
-                                        <th>To Location</th>
-                                        <th>Days</th>
-                                        <th>DA</th>
-                                        <th>TA</th>
-                                        <th>Total Amount</th>
-                                        <th>Remarks</th>
+                                        <th class="text-center" rowspan="2">#</th>
+                                        <th colspan="2">From</th>
+                                        <th colspan="2">To</th>
+                                        <th rowspan="2">Total Days</th>
+                                        <th rowspan="2">Daily Allowance</th>
+                                        <th rowspan="2">Travel Allowance</th>
+                                        <th rowspan="2">Total Amount</th>
+                                        <th rowspan="2">Remarks</th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Location</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Location</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($dsaClaimApplication->dsaClaimDetails as $dsaClaimDetail)
+                                    @forelse ($dsaClaimApplication->dsaClaimDetails as $dsaClaimDetail)
                                         <tr class="data-row">
                                             <td class="text-center">
+                                                <a href="#" class="delete-table-row btn btn-danger btn-sm">
+                                                    <i class="fa fa-times"></i>
+                                                </a>
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="hidden"
+                                                    name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][id]"
+                                                    value="{{ $dsaClaimDetail->id }}"
+                                                    class="form-control form-control-sm resetKeyForNew" />
+
                                                 <input type="date"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][from_date]"
                                                     value="{{ $dsaClaimDetail->from_date }}"
@@ -119,66 +135,65 @@
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][from_location]"
                                                     value="{{ $dsaClaimDetail->from_location }}"
                                                     class="form-control form-control-sm resetKeyForNew" required />
-                                                </td>
-
-                                                <td class="text-center">
-                                                    <input type="date"
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="date"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][to_date]"
                                                     value="{{ $dsaClaimDetail->to_date }}"
                                                     class="form-control form-control-sm resetKeyForNew" required />
-                                                </td>
-                                                <td class="text-center">
-                                                    <input type="text"
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="text"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][to_location]"
                                                     value="{{ $dsaClaimDetail->to_location }}"
                                                     class="form-control form-control-sm resetKeyForNew" required />
-                                                </td>
-                                                <td class="text-center">
-                                                    <input type="number"
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][total_days]"
                                                     value="{{ $dsaClaimDetail->total_days }}"
-                                                    class="form-control form-control-sm resetKeyForNew mycal hasDatepicker" />
-                                                </td>
-
-                                                <td class="text-center">
-                                                    <input type="number" min="0"
+                                                    class="form-control form-control-sm resetKeyForNew mycal" />
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number" min="0"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][daily_allowance]"
                                                     value="{{ $dailyAllowance->da_in_country }}"
                                                     class="form-control form-control-sm resetKeyForNew notclearfornew"
                                                     readonly />
-                                                </td>
-                                                <td class="text-center">
-                                                    <input type="number" min="0"
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number" min="0"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][travel_allowance]"
                                                     value="{{ $dsaClaimDetail->travel_allowance }}"
                                                     class="form-control form-control-sm resetKeyForNew" />
-                                                </td>
-                                                <td class="text-center">
-                                                    <input type="number"
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number"
                                                     name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][total_amount]"
                                                     value="{{ $dsaClaimDetail->total_amount }}"
                                                     class="form-control form-control-sm resetKeyForNew" readonly />
-                                                </td>
-                                                <td class="text-center">
-                                                    <textarea name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][remark]"
-                                                    value="{{ $dsaClaimDetail->remark }}"
-                                                    class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
                                             </td>
-
+                                            <td class="text-center">
+                                                <textarea name="dsa_claim_detail[AAAAA{{ $dsaClaimDetail->id }}][remark]"
+                                                    class="form-control form-control-sm resetKeyForNew" rows="2">{{ $dsaClaimDetail->remark }}</textarea>
+                                            </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="10" class="text-center">No travel details found.</td>
+                                        </tr>
+                                    @endforelse
                                     <tr class="notremovefornew">
-                                        <td colspan="8"></td>
+                                        <td colspan="9"></td>
                                         <td class="text-right">
-                                            <a href="#" class="add-table-row btn btn-sm btn-info"
-                                                style="font-size: 12px"><i class="fa fa-plus"></i> Add
-                                                New Row</a>
+                                            <a href="#" class="add-table-row btn btn-sm btn-info">
+                                                <i class="fa fa-plus"></i> Add New Row
+                                            </a>
                                         </td>
                                     </tr>
-
                                 </tbody>
-
                             </table>
+
                         </div>
                     </div>
                 </div>
@@ -186,7 +201,7 @@
             <div class="card-footer">
                 @include('layouts.includes.buttons', [
                     'buttonName' => 'Submit',
-                    'cancelUrl' => url('/expense/dsa-claim-settlement'),
+                    'cancelUrl' => url('/expense/apply-expense'),
                     'cancelName' => 'CANCEL',
                 ])
 
@@ -201,8 +216,9 @@
     <script>
         $(document).ready(function() {
             getDsaAvanceDetails();
-            getDsaAvanceByTravelAuth();
             window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
+
+            getDsaAvanceByTravelAuth();
 
             function calculateGrandTotal() {
                 let grandTotal = 0;
@@ -307,6 +323,11 @@
 
                                     const row = `
                         <tr class="data-row">
+                            <td>
+                                <a href=""
+                                        class="delete-table-row btn btn-danger btn-sm"><i
+                                            class="fa fa-times"></i></a>
+                            </td>
                             <td class="text-center">
                                 <input type="date"
                                     value="${detail.from_date}"
@@ -368,7 +389,7 @@
                                 // Add the row for adding a new entry (Add New Row)
                                 const btnRow = `
                     <tr class="notremovefornew">
-                        <td colspan="8"></td>
+                        <td colspan="9"></td>
                         <td class="text-right">
                             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
                                 <i class="fa fa-plus"></i> Add New Row
@@ -413,6 +434,8 @@
                         dataType: 'JSON',
                         type: 'GET',
                         success: function(data) {
+                            const selectedAdvanceId =
+                                "{{ $dsaClaimApplication->advance_application_id ?? '' }}"; // Preselected value
                             $("#dsa_advance_tour").empty();
 
                             // Check if data contains any options
@@ -423,9 +446,13 @@
 
                                 // Loop through the data and create options
                                 data.forEach(item => {
+                                    const selected = item.id == selectedAdvanceId ? 'selected' :
+                                        '';
                                     const option =
-                                        `<option value="${item.id}">${item.advance_no}</option>`;
+                                        `<option value="${item.id}" ${selected}>${item.advance_no}</option>`;
                                     $("#dsa_advance_tour").append(option);
+
+                                    getDsaAvanceDetails();
                                 });
                             } else {
                                 // Append a message if no data is available

@@ -63,9 +63,11 @@ class RequisitionApprovalController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $application = RequisitionApplication::with('details', 'requisitionType:id,name')->findOrFail($id);
+        $reqTypes = MasRequisitionType::get();
+        return view('asset.requisition-apply.edit', compact('application', 'reqTypes'));
     }
 
     /**

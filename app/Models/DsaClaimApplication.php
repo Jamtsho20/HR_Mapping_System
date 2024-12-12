@@ -41,6 +41,11 @@ class DsaClaimApplication extends Model
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
     }
 
+    public function type()
+    {
+        return $this->belongsTo(DsaClaimType::class, 'type_id');
+    }
+
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {

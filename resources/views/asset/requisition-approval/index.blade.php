@@ -94,11 +94,11 @@
                                                 <a href="{{ url('requisition/approval/' . $requisition->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                 @endif
                                                 @if ($privileges->edit)
-                                                <a href="{{ url('requisition/approval/' . $requisition->id . '/edit') }}"
+                                                <a href="{{ url('asset/requisition-approval/' . $requisition->id . '/edit') }}"
                                                     class="btn btn-sm btn-rounded btn-outline-success">
                                                     <i class="fa fa-edit"></i> EDIT
                                                 </a>
-                                                
+
                                                 @endif
                                                 @if ($privileges->delete)
                                                 <a href="#"

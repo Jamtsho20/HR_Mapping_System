@@ -15,7 +15,7 @@ class AdvanceApplication extends Model
     protected $fillable = [
         'advance_no',
         'date',
-        'advance_type_id',
+        'type_id',
         'travel_authorization_id',
         'mas_employee_id',
         'mode_of_travel',
@@ -52,7 +52,7 @@ class AdvanceApplication extends Model
     }
     public function advanceType()
     {
-        return $this->belongsTo(MasAdvanceTypes::class, 'advance_type_id');
+        return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
     }
 
     public function advanceDetails()

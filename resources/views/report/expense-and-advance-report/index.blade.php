@@ -191,6 +191,12 @@
                         </div>
                     </div>
                 </div>
+                @if ($expenseApplications->hasPages())
+                <div class="card-footer">
+                    {{ $expenseApplications->links() }}
+                </div>
+                @endif
+
             </div>
         </div>
     </div>

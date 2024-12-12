@@ -87,9 +87,9 @@
                                                                             @if ($record->status['key'] == 1)
                                                                                 <a href="{{ route('pay-slips.process', ['id' => $record->id, 'status' => 2]) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-success"
-                                                                                    id="process-btn">
+                                                                                    id="prepare-btn">
                                                                                     <i class="fa fa-spinner"></i>
-                                                                                    PROCESS
+                                                                                    PREPARE
                                                                                 </a>
                                                                             @endif
                                                                             @if ($record->status['key'] == 2)
@@ -103,7 +103,7 @@
                                                                                 <a href="{{ route('pay-slips.approve', ['id' => $record->id, 'status' => 4]) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-success"
                                                                                     id="approve-btn">
-                                                                                    <i class="fa fa-check"></i> APPROVE
+                                                                                    <i class="fa fa-check"></i> POST
                                                                                 </a>
                                                                             @endif
                                                                             @if ($record->status['key'] == 4)
@@ -112,6 +112,16 @@
                                                                                     id="email-payslip-btn">
                                                                                     <i class="fa fa-envelope"></i> MAIL
                                                                                     PAYSLIPS
+                                                                                </a>
+                                                                            @endif
+                                                                        @endif
+                                                                        @if ($privileges->delete)
+                                                                            @if ($record->status['key'] == 1)
+                                                                                <a href="javascript:void(0);"
+                                                                                    class="btn btn-sm btn-rounded btn-outline-danger delete-btn"
+                                                                                    data-url="{{ route('pay-slips.destroy', $record->id) }}">
+                                                                                    <i class="fa fa-list"></i>
+                                                                                    DELETE
                                                                                 </a>
                                                                             @endif
                                                                         @endif
@@ -143,31 +153,33 @@
     <script>
         $(document).ready(function() {
             // PROCESS PAYSLIP
-            $('#process-btn').on('click', function() {
+            $('#prepare-btn').on('click', function() {
                 event.preventDefault();
 
                 var processUrl = $(this).attr('href');
 
-                $.confirm({
-                    title: 'Process Payslip',
-                    content: 'Please ensure all allowances, deductions, changes in salary are done prior to processing Pay Slip.',
-                    buttons: {
-                        confirm: {
-                            text: 'Yes, Proceed',
-                            btnClass: 'btn-primary',
-                            action: function() {
-                                window.location.href = processUrl;
-                            }
-                        },
-                        cancel: {
-                            text: 'Cancel',
-                            btnClass: 'btn-danger',
-                            action: function() {
-                                //
-                            }
-                        }
-                    }
-                });
+                window.location.href = processUrl;
+
+                // $.confirm({
+                //     title: 'Process Payslip',
+                //     content: 'Please ensure all allowances, deductions, changes in salary are done prior to processing Pay Slip.',
+                //     buttons: {
+                //         confirm: {
+                //             text: 'Yes, Proceed',
+                //             btnClass: 'btn-primary',
+                //             action: function() {
+                //                 window.location.href = processUrl;
+                //             }
+                //         },
+                //         cancel: {
+                //             text: 'Cancel',
+                //             btnClass: 'btn-danger',
+                //             action: function() {
+                //                 //
+                //             }
+                //         }
+                //     }
+                // });
             });
 
             // VERIFY PAYSLIP

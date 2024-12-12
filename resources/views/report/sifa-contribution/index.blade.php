@@ -62,6 +62,9 @@
                                                     <th>
                                                         amount
                                                     </th>
+                                                    <th>
+                                                        Date
+                                                    </th>
 
                                                 </tr>
                                             </thead>
@@ -73,6 +76,7 @@
                                                     <td>{{$sifa->employee->empJob->designation->name}}</td>
                                                     <td>{{$sifa->employee->empJob->empType->name}}</td>
                                                     <td>{{ $sifa->details['deductions']['SIFA'] ?? '0'}}</td>
+                                                    <td>{{ $sifa->for_month}}</td>
 
                                                 </tr>
                                                 @empty
@@ -88,6 +92,11 @@
                         </div>
                     </div>
                 </div>
+                @if ($sifaContributions->hasPages())
+                <div class="card-footer">
+                    {{ $sifaContributions->links() }}
+                </div>
+                @endif
 
             </div>
         </div>

@@ -86,10 +86,9 @@ class TransferClaimApplicationController extends Controller
             return $this->validationErrorResponse($validator->errors());
         }
 
-        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy(TRANSFER_CLAIM_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-        dd($approverByHierarchy);
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
         if ($approverByHierarchy) {
 
             try {
@@ -107,7 +106,7 @@ class TransferClaimApplicationController extends Controller
 
                 $transferClaimApplication = TransferClaimApplication::create([
                     'transfer_claim_no' => $request->transfer_claim_no,
-                    'transfer_claim_id' => $request->transfer_claim,
+                    'type_id' => $request->transfer_claim,
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
                     'distance_travelled' => $request->distance_travelled,

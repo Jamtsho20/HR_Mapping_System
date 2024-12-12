@@ -26,12 +26,22 @@ class LoanReportController extends Controller
     }
     public function index(Request $request)
     {
+        $bankCode = ['BOB_Loan', 'TBank_loan'];
         $privileges = $request->instance();
         $employee = employeeList();
         $banks = MasPayHead::whereIn('id', [12, 13])->get();
+        // $jsonData = FinalPaySlip::select('details')->get();
+        // $details = $jsonData[0]->details; // Decoded into an array
+
+        // $loanDeductions = array_filter($details['deductions'], function ($key) {
+        //     return stripos($key, 'loan') !== false;
+        // }, ARRAY_FILTER_USE_KEY);
+
+        // dd($loanDeductions);
+
         $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])          
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
             ->paginate(config('global.pagination')) // Paginate the results

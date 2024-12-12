@@ -14,15 +14,15 @@ class MasDepartmentSeeder extends Seeder
     public function run(): void
     {
         DB::statement('
-            INSERT INTO `mas_departments` (`short_name`, `name`, `created_by`) VALUES
-            ("HRAD", "Human Resource and Administration Department", 1),
-            ("Marketing", "Marketing Department", 1),
-            ("Finance", "Finance Department", 1),
-            ("AND", "Access Network Department", 1),
-            ("CNCS", "Core Network and Carrier Services Department", 1),
-            ("SPPD", "Strategic Planning and Projects Departmen", 1),
-            ("MIS", "Management Information System Department", 1),
-            ("IAU", "Internal Audit Unit", 1);
+            INSERT INTO `mas_departments` (`short_name`, `name`, `code`, `created_by`) VALUES
+            ("HRAD", "Human Resource and Administration Department", 105, 1),
+            ("Marketing", "Marketing Department", 108, 1),
+            ("FD", "Finance Department", 101, 1),
+            ("AND", "Access Network Department",102, 1),
+            ("CNCS", "Core Network and Carrier Services Department", 104, 1),
+            ("SPPD", "Strategic Planning and Projects Department", 106, 1),
+            ("MIS", "Management Information System Department", 103, 1),
+            ("IAU", "Internal Audit Unit", 107, 1);
         ');
     }
 }

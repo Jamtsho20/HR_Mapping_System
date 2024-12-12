@@ -16,6 +16,10 @@ class MasVehicle extends Model
         'name', 'vehicle_no', 'vehicle_type',
     ];
 
+    public function vehicleType() {
+        return $this->belongsTo(MasVehicleType::class, 'vehicle_type_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {

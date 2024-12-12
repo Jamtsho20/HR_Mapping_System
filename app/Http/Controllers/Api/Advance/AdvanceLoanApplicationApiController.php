@@ -120,7 +120,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $advanceApplication->date = $date;
             $advanceApplication->date = $date;
             $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
-            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
             $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
 
@@ -233,7 +233,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $advanceApplication->date = formatDate($request->date);
             // $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
-            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
             $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
 

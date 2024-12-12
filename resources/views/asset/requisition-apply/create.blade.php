@@ -16,7 +16,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="requisition_type">Requisition Type <span class="text-danger">*</span></label>
-                        <select class="form-control" name="requisition_type" id="requisition_type">
+                        <select class="form-control" name="type_id" id="requisition_type">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($reqTypes as $type)
                                 <option value="{{ $type->id }}"

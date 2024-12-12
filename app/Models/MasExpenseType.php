@@ -9,7 +9,7 @@ use App\Traits\CreatedByTrait;
 class MasExpenseType extends Model
 {
     use HasFactory, CreatedByTrait;
-    protected $fillable = ['name', 'mas_expense_type_id'];
+    protected $fillable = ['name', 'type_id'];
 
     public function approvableRule() // relationship with mas_approvable_rules
     {
@@ -20,12 +20,12 @@ class MasExpenseType extends Model
 
     public function parent()
     {
-        return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
+        return $this->belongsTo(MasExpenseType::class, 'type_id');
     }
 
     public function children()
     {
-        return $this->hasMany(MasExpenseType::class, 'mas_expense_type_id');
+        return $this->hasMany(MasExpenseType::class, 'type_id');
     }
 
     //accessors & mutators
