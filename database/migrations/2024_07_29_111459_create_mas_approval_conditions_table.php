@@ -20,9 +20,11 @@ return new class extends Migration
             $table->foreignId('operator_id')->constrained('mas_approval_rule_condition_operators')->references('id');
             $table->string('value', 100)->nullable()->comment('value when selected field is not related to user.');
             $table->foreignId('mas_employee_id')->nullable()->constrained('mas_employees')->comment('Employee Id when selected field is related to user from field column.');
+            // $table->foreignId('role_id')->nullable()->constrained('roles')->comment('Role Id when selected field is related to role from field column.');
             $table->string('formula_display', 500)->nullable();
             $table->tinyInteger('approval_option')->comment('1 => hierarchical, 2 => single user, 3 => auto approval');
             $table->foreignId('system_hierarchy_id')->nullable()->constrained();
+            $table->foreignId('initial_level_id')->nullable()->constrained('system_hierarchy_levels')->references('id');
             $table->foreignId('max_level_id')->nullable()->constrained('system_hierarchy_levels')->references('id');
             $table->unsignedTinyInteger('auto_approval')->default(0);
             $table->unsignedTinyInteger('is_single_user')->default(0);

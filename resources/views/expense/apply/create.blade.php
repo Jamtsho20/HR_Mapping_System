@@ -66,8 +66,19 @@
                                                 value="{{ old('date', now()->format('Y-m-d')) }}" required>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
+                                    <div class="col-md-4" style="display: none;" id="vehicle">
+                                        <label for="mas_vehicle_id">Vehicle No <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="mas_vehicle_id" name="mas_vehicle_id">
+                                            <option value="" disabled selected hidden>Select your option
+                                            </option>
+                                            @foreach ($vehicles as $vehicle)
+                                                <option value="{{ $vehicle->id }}"
+                                                    {{ old('mas_vehicle_id') == $vehicle->id ? 'selected' : '' }}>
+                                                    {{ $vehicle->vehicle_no }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="amount">Amount <span class="text-danger">*</span></label>
@@ -90,6 +101,95 @@
                                                 accept="image/*">
                                         </div>
                                     </div>
+
+                                    <div class="tab-pane" id="vehiclefuelclaimsection">
+                                        <div class="card">
+                                            <div class="card-body p-0">
+                                                <div class="table-responsive">
+                                                    <table id="vehiclefuelclaimtable"
+                                                        class="table table-condensed table-bordered table-striped table-sm basic-datatable">
+                                                        <thead>
+                                                            <tr role="row">
+                                                                <th>#</th>
+                                                                <th>Date</th>
+                                                                <th>Initial (KM) Reading</th>
+                                                                <th>Final (KM) Reading</th>
+                                                                <th>Qty.(Ltrs.)</th>
+                                                                <th>Mileage</th>
+                                                                <th>Rate</th>
+                                                                <th>Amount (NU.)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="text-center">
+                                                                    <a href=""
+                                                                        class="delete-table-row btn btn-danger btn-sm"><i
+                                                                            class="fa fa-times"></i></a>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <input type="date"
+                                                                        name="fuel_claim_details[AAAAA][date]"
+                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        required />
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <input type="number"
+                                                                        name="fuel_claim_details[AAAAA][initial_reading]"
+                                                                        class="form-control form-control-sm resetKeyForNew initial-reading"
+                                                                        readonly required />
+                                                                </td>
+
+                                                                <td class="text-center">
+                                                                    <input type="number"
+                                                                        name="fuel_claim_details[AAAAA][final_reading]"
+                                                                        class="form-control form-control-sm resetKeyForNew final-reading"
+                                                                        required />
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <input type="text"
+                                                                        name="fuel_claim_details[AAAAA][quantity]"
+                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        required />
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <input type="number"
+                                                                        name="fuel_claim_details[AAAAA][mileage]"
+                                                                        class="form-control form-control-sm resetKeyForNew notclearfornew"
+                                                                        readonly required />
+                                                                </td>
+
+                                                                <td class="text-center">
+                                                                    <input type="number" min="0"
+                                                                        name="fuel_claim_details[AAAAA][rate]"
+                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        required />
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <input type="number" min="0" step="0.01"
+                                                                        name="fuel_claim_details[AAAAA][amount]"
+                                                                        class="form-control form-control-sm resetKeyForNew" />
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr class="notremovefornew">
+                                                                <td colspan="7"></td>
+                                                                <td class="text-right">
+                                                                    <a href="#"
+                                                                        class="add-table-row btn btn-sm btn-info"
+                                                                        style="font-size: 12px">
+                                                                        <i class="fa fa-plus"></i> Add New Row</a>
+                                                                </td>
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <!--Conveyance Form-->
                                 @include('expense.apply.types.conveyance')
@@ -109,7 +209,8 @@
                             @csrf
                             <div class="card">
                                 <div class="card-body">
-                                <input type="hidden" name="dsa_claim_type_id" id="dsa_claim_type_id" value="1">
+                                    <input type="hidden" name="dsa_claim_type_id" id="dsa_claim_type_id"
+                                        value="1">
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
@@ -145,8 +246,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="dsa_advance_tour">Advance No</label>
-                                                <select class="form-control" id="dsa_advance_tour"
-                                                    name="dsa_advance_tour">
+                                                <select class="form-control" id="dsa_advance_tour" name="advance_no">
                                                     <option value="" selected disabled>Select your option</option>
                                                 </select>
                                             </div>
@@ -163,8 +263,8 @@
                                             <div class="form-group">
                                                 <label for="grand_total_amount">Total Amount </label>
                                                 <input type="number" class="form-control" id="grand_total_amount"
-                                                    name="total_amount" value="{{ old('grand_total_amount') }}"
-                                                    required readonly />
+                                                    name="amount" value="{{ old('amount') }}" required
+                                                    readonly />
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -179,7 +279,8 @@
                                             <div class="form-group">
                                                 <label for="balance_amount">Balance Amount </label>
                                                 <input type="number" class="form-control" id="balance_amount"
-                                                    name="balance_amount" value="{{ old('balance_amount', 0) }}" readonly />
+                                                    name="balance_amount" value="{{ old('balance_amount', 0) }}"
+                                                    readonly />
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -202,37 +303,31 @@
                                                 <table id="travelstable"
                                                     class="table table-condensed table-bordered table-striped table-sm basic-datatable">
                                                     <thead>
-
                                                         <tr role="row">
-                                                            <th colspan="2" class="text-center">From</th>
-                                                            <th colspan="2" class="text-center">To</th>
-                                                            <th rowspan="2">Total Days</th>
-                                                            <th rowspan="2">Daily Allowance</th>
-                                                            <th rowspan="2">Travel Allowance</th>
-                                                            <th rowspan="2">Total Amount</th>
-                                                            <th rowspan="2">Remarks</th>
+                                                            <th class="text-center" rowspan="2">#</th>
+                                                            <th class="text-center" colspan="2">From</th>
+                                                            <th class="text-center" colspan="2">To</th>
+                                                            <th class="text-center" rowspan="2">Total Days</th>
+                                                            <th class="text-center" rowspan="2">Daily Allowance</th>
+                                                            <th class="text-center" rowspan="2">Travel Allowance</th>
+                                                            <th class="text-center" rowspan="2">Total Amount</th>
+                                                            <th class="text-center" rowspan="2">Remarks</th>
                                                         </tr>
                                                         <tr role="row">
-                                                            <th>Date</th>
-                                                            <th>Location</th>
-                                                            <th>Date</th>
-                                                            <th>Location</th>
+                                                            <th class="text-center">Date</th>
+                                                            <th class="text-center">Location</th>
+                                                            <th class="text-center">Date</th>
+                                                            <th class="text-center">Location</th>
                                                         </tr>
-
-                                                        {{-- <tr role="row">
-                                                            <th>From Date</th>
-                                                            <th>From Location</th>
-                                                            <th>To Date</th>
-                                                            <th>To Location</th>
-                                                            <th>Days</th>
-                                                            <th>DA</th>
-                                                            <th>TA</th>
-                                                            <th>Total Amount</th>
-                                                            <th>Remarks</th>
-                                                        </tr> --}}
                                                     </thead>
                                                     <tbody>
                                                         <tr class="data-row">
+                                                            <td class="text-center">
+                                                                <a href="#"
+                                                                    class="delete-table-row btn btn-danger btn-sm">
+                                                                    <i class="fa fa-times"></i>
+                                                                </a>
+                                                            </td>
                                                             <td class="text-center">
                                                                 <input type="date"
                                                                     name="dsa_claim_detail[AAAAA][from_date]"
@@ -245,7 +340,6 @@
                                                                     class="form-control form-control-sm resetKeyForNew"
                                                                     required />
                                                             </td>
-
                                                             <td class="text-center">
                                                                 <input type="date"
                                                                     name="dsa_claim_detail[AAAAA][to_date]"
@@ -261,9 +355,8 @@
                                                             <td class="text-center">
                                                                 <input type="number"
                                                                     name="dsa_claim_detail[AAAAA][total_days]"
-                                                                    class="form-control form-control-sm resetKeyForNew mycal hasDatepicker" />
+                                                                    class="form-control form-control-sm resetKeyForNew mycal" />
                                                             </td>
-
                                                             <td class="text-center">
                                                                 <input type="number" min="0"
                                                                     name="dsa_claim_detail[AAAAA][daily_allowance]"
@@ -285,21 +378,19 @@
                                                             <td class="text-center">
                                                                 <textarea name="dsa_claim_detail[AAAAA][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
                                                             </td>
-
                                                         </tr>
                                                         <tr class="notremovefornew">
-                                                            <td colspan="8"></td>
+                                                            <td colspan="9"></td>
                                                             <td class="text-right">
                                                                 <a href="#"
-                                                                    class="add-table-row btn btn-sm btn-info"
-                                                                    style="font-size: 12px"><i class="fa fa-plus"></i> Add
-                                                                    New Row</a>
+                                                                    class="add-table-row btn btn-sm btn-info">
+                                                                    <i class="fa fa-plus"></i> Add New Row
+                                                                </a>
                                                             </td>
                                                         </tr>
-
                                                     </tbody>
-
                                                 </table>
+
                                             </div>
                                         </div>
                                     </div>
@@ -417,8 +508,8 @@
                                             <div class="form-group">
                                                 <label for="">Amount Claimed <span
                                                         class="text-danger">*</span></label>
-                                                <input type="number" class="form-control" name="amount_claimed"
-                                                    value="{{ old('amount_claimed') }}">
+                                                <input type="number" class="form-control" name="amount"
+                                                    value="{{ old('amount') }}">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -433,7 +524,7 @@
                             <div class="card-footer">
                                 @include('layouts.includes.buttons', [
                                     'buttonName' => 'SUBMIT',
-                                    'cancelUrl' => url('expense/transfer-claim'),
+                                    'cancelUrl' => url('expense/apply-expense'),
                                     'cancelName' => 'CANCEL',
                                 ])
 
@@ -480,6 +571,20 @@
 
             calculateNetPayable();
 
+            const initialType = $('#expense_type').val();
+            toggleFuelClaimSection(initialType === '5');
+
+            function toggleFuelClaimSection(shouldShow) {
+                const fuelClaimSection = $('#vehiclefuelclaimsection');
+                if (shouldShow) {
+                    fuelClaimSection.show();
+                    fuelClaimSection.find('input, select, textarea').prop('disabled', false).attr('required', true);
+                } else {
+                    fuelClaimSection.hide();
+                    fuelClaimSection.find('input, select, textarea').prop('disabled', true).attr('required', false);
+                }
+            }
+
             $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
                 const targetContentId = $(e.target).data('bs-target').replace('#content-', '');
                 const targetContent = $(`#content-${targetContentId}`);
@@ -502,11 +607,41 @@
                     disableFormFields($(this));
                 });
 
-                // Show and enable the corresponding form section based on the selected type
                 if (selectedType === '1') {
-                    var section = $('#conveyance_expense_form');
+                    const section = $('#conveyance_expense_form');
                     section.show();
                     enableFormFields(section);
+                } else {
+                    const section = $('#vehicle');
+                    const fuelClaimSection = $('#vehiclefuelclaimsection');
+
+                    // Show/hide sections based on selectedType
+                    const showVehicle = selectedType === '5' || selectedType === '6'; // fuel || parking fee.
+                    const showFuelClaim = selectedType === '5';
+
+                    section.toggle(showVehicle);
+                    fuelClaimSection.toggle(showFuelClaim);
+
+                    if (showVehicle) {
+                        enableFormFields(section);
+                        toggleFuelClaimSection(showFuelClaim);
+
+                        if (selectedType === '5') {
+                            $('#amount').prop('readonly', true);
+                        } else {
+                            $('#amount').prop('readonly', false);
+                        }
+                    } else {
+                        // Reset form sections when no matching type
+                        formSections.each(function() {
+                            $(this).hide();
+                            disableFormFields($(this));
+                        });
+
+                        toggleFuelClaimSection(false);
+                        section.find('select').attr("required", false);
+                        disableFormFields(section);
+                    }
                 }
             });
 
@@ -527,6 +662,7 @@
             function enableFormFields(form) {
                 form.find('input, select, textarea').prop('disabled', false); // Enable the input fields
             }
+
 
             // Function to disable form fields in hidden sections
             function disableFormFields(form) {
@@ -622,6 +758,11 @@
 
                                     const row = `
                         <tr class="data-row">
+                            <td>
+                                <a href=""
+                                        class="delete-table-row btn btn-danger btn-sm"><i
+                                            class="fa fa-times"></i></a>
+                            </td>
                             <td class="text-center">
                                 <input type="date"
                                     value="${detail.from_date}"
@@ -683,7 +824,7 @@
                                 // Add the row for adding a new entry (Add New Row)
                                 const btnRow = `
                     <tr class="notremovefornew">
-                        <td colspan="8"></td>
+                        <td colspan="9"></td>
                         <td class="text-right">
                             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
                                 <i class="fa fa-plus"></i> Add New Row
@@ -772,11 +913,140 @@
                 }
             }
 
+            function calculateFuelClaimTotal() {
+                let totalAmount = 0;
+
+                $('input[name^="fuel_claim_details"][name$="[amount]"]').each(function() {
+                    const value = parseFloat($(this).val());
+                    if (!isNaN(value)) {
+                        totalAmount += value;
+                    }
+                });
+
+                console.log(totalAmount);
+
+                $('#amount').val(totalAmount.toFixed(2));
+            }
+
+            function getVehicleDetails(vehicleId) {
+                $.ajax({
+                    url: '/getvehicledetailtypebyid/' + vehicleId,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log(response);
+
+                        var initialReading = response.final_reading;
+                        var mileage = response.vehicle_type.mileage;
+
+                        if (!mileage) {
+                            alert('Mileage not set for this vehicle')
+                        }
+                        if (!initialReading) {
+                            alert('Initial reading not set for this vehicle')
+                        }
+
+                        $('input[name="fuel_claim_details[AAAAA][initial_reading]"]').val(
+                            initialReading);
+                        $('input[name="fuel_claim_details[AAAAA][mileage]"]').val(mileage);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log('Error: ' + textStatus + ' - ' + errorThrown);
+                        alert('An error occurred while fetching vehicle details.');
+                    }
+                });
+            }
+
+            function calculateFuelFromDistance(row) {
+                var initialReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[initial_reading]"]').val()) || 0;
+                var finalReadingReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[final_reading]"]').val()) || 0;
+
+                var mileage = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[mileage]"]').val()) ||
+                    0;
+
+                if (finalReadingReading > initialReading) {
+                    if (mileage > 0) {
+                        var distance = finalReadingReading - initialReading;
+                        var fuelinLtr = (distance / mileage).toFixed(2);
+
+                        row.find('input[name^="fuel_claim_details"][name$="[quantity]"]').val(fuelinLtr)
+                    }
+                } else {
+                    row.find('input[name^="fuel_claim_details"][name$="[quantity]"]').val(0)
+                }
+            }
+
+            function calculateMileageFromFuel(row) {
+                var initialReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[initial_reading]"]').val()) || 0;
+                var finalReadingReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[final_reading]"]').val()) || 0;
+
+                var fuelinLtr = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[quantity]"]')
+                    .val()) || 0;
+
+                if (fuelinLtr > 0) {
+                    var distance = finalReadingReading - initialReading;
+                    var mileage = (distance / fuelinLtr).toFixed(2);
+
+                    row.find('input[name^="fuel_claim_details"][name$="[mileage]"]').val(mileage);
+                } else {
+                    row.find('input[name^="fuel_claim_details"][name$="[mileage]"]').val(mileage);
+                }
+            }
+
+            function calculateTotalAmountForRow(row) {
+                var fuelinLtr = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[quantity]"]')
+                    .val()) || 0;
+                var rate = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[rate]"]').val()) || 0;
+
+                var amount = (fuelinLtr * rate).toFixed(2);
+
+                row.find('input[name^="fuel_claim_details"][name$="[amount]"]').val(amount);
+                calculateFuelClaimTotal();
+            }
+
+            $('#mas_vehicle_id').change(function() {
+                var vehicleId = $(this).val();
+
+                if (vehicleId) {
+                    getVehicleDetails(vehicleId);
+                } else {
+                    alert('Please select a valid vehicle.');
+                }
+            });
+
             // Trigger the function when the dropdown value changes
             $(document).on("change", "#travel_autorization", getTravelAuthorizationDetails);
             $(document).on("change", "#travel_autorization", getDsaAvanceByTravelAuth);
             $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
-            $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']", calculateNetPayable);
+            $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']",
+                calculateNetPayable);
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[amount]"]', function() {
+                calculateFuelClaimTotal();
+            });
+
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[final_reading]"]',
+                function() {
+                    var row = $(this).closest('tr');
+                    calculateFuelFromDistance(row);
+                });
+
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[quantity]"]', function() {
+                var row = $(this).closest('tr');
+                calculateMileageFromFuel(row);
+            });
+
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[rate]"]', function() {
+                var row = $(this).closest('tr');
+                calculateTotalAmountForRow(row);
+            });
+
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[quantity]"]', function() {
+                var row = $(this).closest('tr');
+                calculateTotalAmountForRow(row);
+            });
         });
     </script>
 @endpush

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('advance_no')->index();
             $table->date('date')->index();
             $table->foreignId('mas_employee_id')->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate()->comment('if advance is applied on behalf of someone');
-            $table->foreignId('advance_type_id')->constrained('mas_advance_types')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('type_id')->constrained('mas_advance_types')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('travel_authorization_id')->nullable()->constrained('travel_authorization_applications')->cascadeOnDelete()->cascadeOnUpdate()->restrictOnDelete()->comment('required only if advance_type is dsa advance');
             $table->date('advance_settlement_date')->nullable();
             $table->decimal("amount", 12, 2)->nullable();

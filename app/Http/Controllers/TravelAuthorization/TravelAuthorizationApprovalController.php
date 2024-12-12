@@ -146,7 +146,7 @@ class TravelAuthorizationApprovalController extends Controller
                 'status' => 1,
                 'daily_allowance' => $request->daily_allowance,
                 'updated_by' => Auth::id(),
-                'travel_type_id' => $request->travel_type,
+                'type_id' => $request->travel_type,
             ]);
 
             

@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('mas_vehicles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->index();
             $table->string('vehicle_no')->index();
-            $table->unsignedTinyInteger('vehicle_type')->index()->comment('1 => Light, 2 => Medium, 3 => Heavy, 4 => Two Wheeler');
+            $table->foreignId('vehicle_type_id')->constrained('mas_vehicle_types')->references('id')->restrictOnDelete()->cascadeOnUpdate();
+            $table->string('location');
+            $table->decimal('final_reading');
+            $table->foreignId('department_id')->constrained('mas_department_id')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->boolean('is_active')->default(1)->comment('1 => vehicle is operable, 0 => vehicle is in-operable');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');

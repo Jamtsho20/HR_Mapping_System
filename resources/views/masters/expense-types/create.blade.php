@@ -13,11 +13,11 @@
                     <div class="form-group">
                         <label for="expense_type">Expense Category Name <span class="text-danger">*</span></label>
                         @if($parentExpenseTypes->isNotEmpty())
-                        <label for="mas_expense_type_id"></label>
-                        <select name="mas_expense_type_id" class="form-control">
+                        <label for="type_id"></label>
+                        <select name="type_id" class="form-control">
                             <option value="" disabled selected hidden>Select your option</option>
                             @foreach ($parentExpenseTypes as $parentType)
-                            <option value="{{ $parentType->id }}" {{ old('mas_expense_type_id') == $parentType->id ? 'selected' : '' }}>
+                            <option value="{{ $parentType->id }}" {{ old('type_id') == $parentType->id ? 'selected' : '' }}>
                                 {{ $parentType->name }}
                             </option>
                             @endforeach

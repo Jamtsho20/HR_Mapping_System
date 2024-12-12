@@ -225,7 +225,7 @@ class MasPayHeadsSeeder extends Seeder
                 (
                     'Device EMI',
                     'Device EMI',
-                    '',
+                    '34605',
                     2,
                     7,
                     0,

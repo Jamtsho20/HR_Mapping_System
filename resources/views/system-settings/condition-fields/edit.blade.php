@@ -43,6 +43,14 @@
                         <input type="checkbox" id="chkIsInformationOnly" value="1" {{ old('leave_policy.has_employee_field', $field->has_employee_field==1) ? 'checked' : '' }} name="has_employee_field" />
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <label>Has Role</label>
+                    <div>
+                        <!-- Hidden input to ensure 0 is passed if checkbox is unchecked -->
+                        <input type="hidden" name="has_role" value="0">
+                        <input type="checkbox" id="chkIsInformationOnly" value="1" {{ old('has_role', $field->has_role==1) ? 'checked' : '' }} name="has_role" />
+                    </div>
+                </div>
             </div>
             <br><br>
             <div class="card-footer">

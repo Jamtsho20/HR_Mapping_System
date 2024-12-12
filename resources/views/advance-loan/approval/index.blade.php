@@ -59,7 +59,7 @@
                                                     <div class="dataTables_scrollHeadInner" style="box-sizing: content-box; padding-right: 0px;">
                                                         <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                             <thead>
-                                                                <tr role="row">
+                                                                <tr role="row" class="thead-light">
                                                                     <th>
                                                                         <input type="checkbox" id="select_all" class="select_all"
                                                                             data-item-class="advance_checkbox" title="select all">

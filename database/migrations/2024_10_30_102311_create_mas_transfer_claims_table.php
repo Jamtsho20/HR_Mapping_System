@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('mas_transfer_claims', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string("code",50)->index();
+            $table->boolean('status')->default(1);
             $table->text('description')->nullable();
             $table->timestamps();
         });

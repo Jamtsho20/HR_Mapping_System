@@ -7,7 +7,7 @@
 <div class="row">
     <span class="col-sm-4">Expense Type <span class="text-danger">*</span> </span>
     <div class="col-sm-4">
-        <select class="form-control" id="expense_policy_name" name="expense_policy[mas_expense_type_id]">
+        <select class="form-control" id="expense_policy_name" name="expense_policy[type_id]">
             <option value="" disabled selected hidden>Select your option</option>
             @foreach($expenses as $expense)
             <option value="{{ $expense->id }}" {{ $expensePolicy->expenseType->id == $expense->id ? 'selected' : '' }}>

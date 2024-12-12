@@ -14,7 +14,7 @@
                     <input type="month" class="form-control" name="for_month"
                         value="{{ substr($paySlip->for_month, 0, 7) }}" required="required">
                 </div>
-                <div class="d-flex align-items-center">
+                {{-- <div class="d-flex align-items-center">
                     <button type="submit" class="btn btn-primary mr-2">
                         <i class="fa fa-upload"></i> UPDATE
                     </button>
@@ -22,7 +22,7 @@
                     <a href="{{ url('payroll/pay-slips') }}" class="btn btn-danger">
                         <i class="fa fa-undo"></i> CANCEL
                     </a>
-                </div>
+                </div> --}}
             </div>
         </div>
     </form>
@@ -145,17 +145,26 @@
                                                                 <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d H:i:s') : '' }}
                                                                 </td>
                                                                 <td>
-                                                                    <a href="javascript:void(0);"
-                                                                        class="btn btn-sm btn-rounded btn-outline-success"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#edit-pay-slip-detail-modal"
-                                                                        data-id="{{ $detail->id ?? '' }}"
-                                                                        data-employee-id="{{ $detail->mas_employee_id ?? '' }}"
-                                                                        data-pay-head-id="{{ $detail->mas_pay_head_id ?? '' }}"
-                                                                        data-amount="{{ $detail->amount ?? '' }}"
-                                                                        data-update-url="{{ route('pay-slip-detail.update', [$paySlip->id, $detail->id ?? 0]) }}">
-                                                                        <i class="fa fa-edit"></i> EDIT
-                                                                    </a>
+                                                                    @if ($paySlip->status['key'] == 2)
+                                                                        <a href="javascript:void(0);"
+                                                                            class="btn btn-sm btn-rounded btn-outline-success"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#edit-pay-slip-detail-modal"
+                                                                            data-id="{{ $detail->id ?? '' }}"
+                                                                            data-employee-id="{{ $detail->mas_employee_id ?? '' }}"
+                                                                            data-pay-head-id="{{ $detail->mas_pay_head_id ?? '' }}"
+                                                                            data-amount="{{ $detail->amount ?? '' }}"
+                                                                            data-update-url="{{ route('pay-slip-detail.update', [$paySlip->id, $detail->id ?? 0]) }}">
+                                                                            <i class="fa fa-edit"></i> EDIT
+                                                                        </a>
+                                                                        <a href="javascript:void(0);"
+                                                                            id="delete-pay-slip-detail"
+                                                                            class="btn btn-sm btn-rounded btn-outline-danger"
+                                                                            data-id="{{ $detail->id ?? '' }}"
+                                                                            data-delete-url="{{ route('pay-slip-detail.delete', [$paySlip->id, $detail->id ?? 0]) }}">
+                                                                            <i class="fa fa-bin"></i> DELETE
+                                                                        </a>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         @empty
@@ -251,7 +260,7 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="mas_employee_id">Employee <span class="text-danger">*</span></label>
-                                <select class="form-control" name="mas_employee_id" required>
+                                <select class="form-control" name="mas_employee_id" required readonly>
                                     <option value="">Select</option>
                                     @foreach ($employees as $employee)
                                         <option value="{{ $employee->id }}">
@@ -263,7 +272,7 @@
 
                             <div class="form-group col-md-6">
                                 <label for="mas_pay_head_id">Pay Head <span class="text-danger">*</span></label>
-                                <select class="form-control" name="mas_pay_head_id" required>
+                                <select class="form-control" name="mas_pay_head_id" required readonly>
                                     <option value="">Select</option>
                                     @foreach ($payHeads as $payHead)
                                         <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
@@ -306,6 +315,31 @@
                 modal.find('input[name="amount"]').val(amount);
 
                 modal.find('form').attr('action', updateUrl);
+            });
+
+            $(document).on("click", "#delete-pay-slip-detail", function() {
+                e.preventDefault();
+
+                const deleteUrl = $(this).data('delete-url');
+
+                $.confirm({
+                    title: 'Delete!',
+                    content: 'Are you sure you want to delete the entry?',
+                    type: 'green',
+                    buttons: {
+                        ok: {
+                            text: "Yes",
+                            btnClass: 'btn-primary',
+                            keys: ['enter'],
+                            action: function() {
+                                window.location.href = deleteUrl;
+                            }
+                        },
+                        cancel: function() {
+                            console.log('the user clicked cancel');
+                        }
+                    }
+                });
             });
         });
     </script>

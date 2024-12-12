@@ -24,11 +24,8 @@ return new class extends Migration
             $table->tinyInteger('status')->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Verified, 3 => Approved');
             $table->text('remarks')->nullable();
             $table->foreignId('action_performed_by')->index()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
-            // $table->foreignId('approved_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
-            // $table->foreignId('rejected_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
-            // $table->foreignId('cancelled_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
-            // $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees')->cascadeOnDelete()->cascadeOnUpdate();
-
+            $table->json('sap_response')->nullable();
+            
             $table->timestamps();
         });
     }

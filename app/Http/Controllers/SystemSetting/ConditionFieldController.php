@@ -22,7 +22,7 @@ class ConditionFieldController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $fields = MasConditionField::get();
+        $fields = MasConditionField::paginate(config('global.pagination'));
 
         return view('system-settings.condition-fields.index', compact('privileges', 'fields'));
     }
@@ -53,6 +53,7 @@ class ConditionFieldController extends Controller
         $field->name = $request->name;
         $field->label = $request->label;
         $field->has_employee_field = $request->has_employee_field;
+        $field->has_role_id = $request->has_role;
         $field->save();
 
         return redirect('system-setting/condition-fields')->with('msg_success', 'Condition Fields  created successfully');

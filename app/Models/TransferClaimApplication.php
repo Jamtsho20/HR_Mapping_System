@@ -38,7 +38,7 @@ class TransferClaimApplication extends Model
 
     public function type()
     {
-        return $this->belongsTo(MasTransferClaim::class, 'transfer_claim_id');
+        return $this->belongsTo(MasTransferClaim::class, 'type_id');
     }
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)

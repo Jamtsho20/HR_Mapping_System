@@ -13,9 +13,10 @@ class ExpenseApplication extends Model
     protected $fillable = [
         // 'mas_employee_id',
         'expense_no',
-        'mas_expense_type_id',
+        'type_id',
+        'mas_vehicle_id',
         'date',
-        'expense_amount',
+        'amount',
         'description',
         'file',
         'travel_type',
@@ -36,14 +37,22 @@ class ExpenseApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
-    public function expenseType()
+    public function type()
     {
-        return $this->belongsTo(MasExpenseType::class, 'mas_expense_type_id');
+        return $this->belongsTo(MasExpenseType::class, 'type_id');
     }
 
     public function travelType()
     {
         return $this->belongsTo(MasTravelType::class, 'travel_type');
+    }
+
+    public function details() {
+        return $this->hasMany(ExpenseFuelClaimDetail::class, 'expense_id');
+    }
+
+    public function vehicle() {
+        return $this->belongsTo(MasVehicle::class, 'mas_vehicle_id');
     }
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)

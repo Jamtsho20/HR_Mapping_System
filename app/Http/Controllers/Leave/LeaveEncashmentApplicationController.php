@@ -97,6 +97,7 @@ class LeaveEncashmentApplicationController extends Controller
             DB::beginTransaction();
 
             $leaveEncashment->mas_employee_id = Auth::id();
+            $leaveEncashment->type_id = 1;
             $leaveEncashment->leave_applied_for_encashment = $request->leave_applied_for_encashment;
             $leaveEncashment->encashment_amount = $request->encashment_amount;
             $leaveEncashment->created_by = Auth::id();

@@ -23,6 +23,7 @@ use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
+use App\Models\ExpenseApplication;
 use App\Models\PaySlip;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Route;
@@ -46,16 +47,22 @@ Route::redirect('/', '/login', 301);
 
 Route::get('/debug', function () {
     $sap = new ApiController();
+    $pay = new PayrollService();
+
+    dd($pay->checkFormulaValidity("THEN ([GROSS_PAY] * 0.01)"));
+
+    $application = ExpenseApplication::findOrFail(1);
+
+    dd($application);
 
     $response = $sap->startSession();
+
     // Check if the response is a valid JSON string
     if (json_last_error() === JSON_ERROR_NONE) {
         $session = json_decode($response->getContent(), true);
 
-        dd($session['sessionId']);
     } else {
         // Output the error if JSON decoding fails
-        dd(json_last_error_msg());
     }
     // $sessionId = $session['sessionId'] ?? '';
 
@@ -80,6 +87,17 @@ Route::get('/debug', function () {
 
     // Call postJournalEntries method
     $response = $sap->postJournalEntries($postFields);
+
+    $statusCode = $response->getStatusCode();
+
+    $responseData = json_decode($response->getContent(), true);
+
+    if ($statusCode != 201) {
+        return response()->json(['msg_error' => $responseData['msg_error'] ?? 'Unknown error'], $statusCode);
+    }
+
+    return $responseData;
+
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -343,6 +361,7 @@ Route::middleware('auth')->group(function () {
 
     //Payroll
     require __DIR__ . '/payroll.php';
+    require __DIR__ . '/approval.php';
 
     //EmployeeCategory
     Route::namespace('EmployeeGroup')->prefix('employee-group')->group(function () {
@@ -377,7 +396,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getexpensenobyexpensetype/{id}', 'AjaxRequestController@getExpenseNumber');
     Route::get('getmaxexpenseamountbyexpensetype/{id}', 'AjaxRequestController@getExpenseAmount');
 
-    Route::post('approverejectbulk', 'AjaxRequestController@bulkApprovalRejection')->name('approverejectbulk');
+    // Route::post('approverejectbulk', 'AjaxRequestController@bulkApprovalRejection')->name('approverejectbulk');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
@@ -387,4 +406,5 @@ Route::middleware('auth')->group(function () {
     Route::get('getissuenobyissuetype/{id}', 'AjaxRequestController@getIssueNumber');
     Route::get('getreceiptnobyreceipttype/{id}', 'AjaxRequestController@getReceiptNumber');
     Route::get('getrequisitiondetailsbyrequisitionid/{id}', 'AjaxRequestController@getRequisitionDetails');
+    Route::get('getvehicledetailtypebyid/{id}', 'AjaxRequestController@getVehicleDetailTypeById');
 });

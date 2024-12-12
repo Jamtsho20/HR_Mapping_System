@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_condition_fields', function (Blueprint $table) {
+        Schema::create('mas_vehicle_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_approval_head_id')->constrained();
-            $table->string('name', 50);
-            $table->string('label', 50)->nullable();
-            $table->boolean('has_employee_field')->nullable();
-            $table->boolean('has_role_id')->nullable();
-
+            $table->string('name');
+            $table->decimal('mileage');
+            
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_condition_fields');
+        Schema::dropIfExists('mas_vehicle_types');
     }
 };

@@ -67,6 +67,11 @@ var tashicellHrms = function () {
         // Set a unique key for the row
         $('#' + tableId + ' tr:last td:first .rowIndex').attr("value", key);
 
+            // Set the final reading of the previous row to the initial reading of the new row
+            var finalReadingValue = parseFloat(lastRow.find('.final-reading').val()) || 0; // Default to 0 if NaN
+            row.find('.initial-reading').val(finalReadingValue);          // Use class for initial reading
+
+
         // Reinitialize select2 for both the previous and the newly added row
         lastRow.find('select.select2').select2(); // Reinitialize for the previous row
         row.find('select.select2').select2();     // Initialize for the cloned row

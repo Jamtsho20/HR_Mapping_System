@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApprovalController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
-use App\Http\Controllers\SapApi\SapApiController;
+use App\Http\Controllers\Api\SAP\SapApiController;
 use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
 use App\Http\Controllers\Api\Expense\DSAClaimApplicationController;
 use App\Http\Controllers\Api\Leave\LeaveApplicationController;
@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApprovalC
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
+use App\Http\Controllers\Api\v1\GeneralApporvalController;
 
 
 /*
@@ -34,6 +35,7 @@ use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 */
 Route::middleware('api.access.log')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
+    Route::post('sap/login', [LoginController::class, 'sapLogin']);
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
 
     //other app related route
@@ -49,6 +51,9 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('advance_approval', 'AdvanceLoanApprovalController');
     });
 
+    Route::namespace('Api\v1')->middleware('auth:sanctum')->group(function () {
+        Route::resource('approval_count', 'GeneralApporvalController');
+    });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
         Route::resource('expense', 'ExpenseApplicationController');
@@ -105,6 +110,13 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('leave_encashment_approval', 'LeaveEncashmentApprovalController');
         Route::post('leave_encashment_approval/bulk', [LeaveEncashmentApprovalController::class, 'bulkApprovalRejection']);
         Route::resource('leave_approval', 'LeaveApprovalController');
+
+    });
+
+    // incoming data from SAP ERP to save store and item as SAP team will be pushing data
+    Route::namespace('Api\SAP')->middleware('auth:sanctum')->group(function () {
+        Route::post('save-stores', [SapApiController::class, 'saveStore']);
+        Route::post('save-items', [SapApiController::class, 'saveItem']);
     });
     // Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
@@ -114,10 +126,4 @@ Route::middleware('api.access.log')->group(function () {
     //     Route::delete('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'destroy']);
     // });
 
-});
-
-// incoming data from SAP ERP to save store and item as SAP team will be pushing data
-Route::namespace('SapApi')->group(function () {
-    Route::post('save-stores', [SapApiController::class, 'saveStore']);
-    Route::post('save-items', [SapApiController::class, 'saveItem']);
 });

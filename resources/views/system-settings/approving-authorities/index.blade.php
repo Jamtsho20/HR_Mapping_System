@@ -85,8 +85,9 @@
                                                     </tbody>
 
                                                 </table>
-
-                                                {{ $approvingAuthorities->links() }} <!-- For pagination links -->
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    {{ $approvingAuthorities->links() }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
