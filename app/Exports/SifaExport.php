@@ -31,6 +31,7 @@ class SifaExport implements FromCollection, WithHeadings
                 $sifaContributions->employee->empJob->designation->name,
                 $sifaContributions->employee->empJob->empType->name,
                 $sifaContributions->details['deductions']['SIFA'] ?? '0',
+                $sifaContributions->for_month,
 
             ];
         });
@@ -44,6 +45,7 @@ class SifaExport implements FromCollection, WithHeadings
             'Job Title',
             'Employee Status',
             'SIFA',
+            'Date',
 
         ];
     }

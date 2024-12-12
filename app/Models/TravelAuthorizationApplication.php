@@ -46,6 +46,9 @@ class TravelAuthorizationApplication extends Model
     {
         return $this->belongsTo(MasTravelType::class, 'type_id');
     }
+     public function dsaadvance() {
+        return $this->hasMany(DsaClaimApplication::class, 'travel_authorization_id');
+     }
 
 
     //accessors and mutations

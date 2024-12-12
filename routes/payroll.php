@@ -26,6 +26,7 @@ use App\Http\Controllers\Payroll\LTCController;
     Route::get('mail-pay-slips/{id}', 'PaySlipController@mailPaySlip')->name('pay-slips.mail');
     Route::any('add-pay-slip-detail/{id}', 'PaySlipController@addPaySlipDetail')->name('pay-slip-detail.add');
     Route::any('update-pay-slip-detail/{payslipId}/{id}', 'PaySlipController@updatePaySlipDetail')->name('pay-slip-detail.update');
+    Route::any('delete-pay-slip-detail/{payslipId}/{id}', 'PaySlipController@deletePaySlipDetail')->name('pay-slip-detail.delete');
 
     Route::patch('annual-increment-toggle-status', 'AnnualIncrementController@toggleStatus')->name('annual-increment.toggles-status');
     Route::patch('annual-increment-update-remarks', 'AnnualIncrementController@updateRemarks')->name('annual-increment.update-remarks');

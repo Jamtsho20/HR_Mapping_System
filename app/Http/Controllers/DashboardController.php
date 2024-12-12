@@ -107,7 +107,7 @@ class DashboardController extends Controller
             }
             
 
-        return 'You are not eligible for leave encashment this year.';
+        return '';
     }
 
     /**

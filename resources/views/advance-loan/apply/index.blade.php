@@ -40,7 +40,7 @@
                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                             id="basic-datatable">
                                             <thead>
-                                                <tr role="row">
+                                                <tr role="row" class="thead-light">
                                                     <th>#</th>
                                                     <th>ADVANCE NUMBER</th>
                                                     <th>ADVANCE/LOAN TYPE</th>

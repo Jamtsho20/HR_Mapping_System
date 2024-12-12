@@ -8,10 +8,12 @@ use App\Models\AdvanceApplication;
 use App\Models\DailyAllowance;
 use App\Models\DsaClaimApplication;
 use App\Models\ExpenseApplication;
+use App\Models\ExpenseFuelClaimDetail;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasTransferClaim;
+use App\Models\MasVehicle;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
 use App\Services\ApprovalService;
@@ -95,7 +97,7 @@ class ExpenseApplicationController extends Controller
     {
         $itemType = $request->get('item_type', null);
 
-        $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
+        $expenses = MasExpenseType::whereNotIn('id', [1, 2, 3, 4])->get(); // exclude general and conveyance and dsa claim and transfer claim
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
 
         $job = Auth::user()->empJob;
@@ -122,8 +124,9 @@ class ExpenseApplicationController extends Controller
         $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
         $dsaClaimNo = $this->ajax->getDsaClaimNumber();
         $transferClaimNo = $this->ajax->getTransferClaimNumber();
+        $vehicles = MasVehicle::all();
 
-        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dailyAllowance', 'dsaClaimNo', 'transferClaimNo'));
+        return view('expense.apply.create', compact('expenses', 'headers', 'empIdName', 'advances', 'transferClaimTypes', 'itemType', 'travels', 'dailyAllowance', 'dsaClaimNo', 'transferClaimNo', 'vehicles'));
     }
     /**
      * Store a newly created resource in storage.
@@ -133,6 +136,17 @@ class ExpenseApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->expense_type == 5) {
+            // $request->validate([
+            //     'fuel_claim_details.*.date' => 'required|date',
+            //     'fuel_claim_details.*.initial_reading' => 'required|numeric',
+            //     'fuel_claim_details.*.final_reading' => 'required|numeric',
+            //     'fuel_claim_details.*.quantity' => 'required|numeric',
+            // ]);
+        } else {
+            $request->request->remove('fuel_claim_details');
+        }
+
         $result = $this->handleExpenseApplication($request);
 
         // If $result is a RedirectResponse, return it immediately
@@ -153,8 +167,9 @@ class ExpenseApplicationController extends Controller
                     // 'mas_employee_id' => loggedInUser(),
                     'expense_no' => $request->expense_no,
                     'type_id' => $request->expense_type,
+                    'mas_vehicle_id' => $request->mas_vehicle_id ?? null,
                     'date' => $request->date,
-                    'expense_amount' => $request->amount,
+                    'amount' => $request->amount,
                     'description' => $request->description,
                     'file' => $result['file'],
                     'travel_type' => $request->travel_type,
@@ -166,6 +181,32 @@ class ExpenseApplicationController extends Controller
                     'status' => $request->status ?? 1,
                 ]);
 
+                if ($expenseApplication) {
+                    if ($request->has('fuel_claim_details')) { // for fuel claim
+                        foreach ($request->input('fuel_claim_details') as $key => $detail) {
+                            // Access each detail
+                            $date = $detail['date'];
+                            $initialReading = $detail['initial_reading'] ?? 1000;
+                            $finalReading = $detail['final_reading'] ?? 1234;
+                            $quantity = $detail['quantity'] ?? 24;
+                            $mileage = $detail['mileage'] ?? 8;
+                            $rate = $detail['rate'] ?? 8;
+                            $amount = $detail['amount'] ?? 3535;
+
+                            // Save to database or perform logic
+                            ExpenseFuelClaimDetail::create([
+                                'expense_id' => $expenseApplication->id,
+                                'date' => $date,
+                                'initial_reading' => $initialReading,
+                                'final_reading' => $finalReading,
+                                'quantity' => $quantity,
+                                'mileage' => $mileage,
+                                'rate' => $rate,
+                                'amount' => $amount,
+                            ]);
+                        }
+                    }
+                }
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
                 $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
@@ -212,7 +253,9 @@ class ExpenseApplicationController extends Controller
     {
         $expenses = MasExpenseType::all();
         $expenseApplication = ExpenseApplication::findOrfail($id);
-        return view('expense.apply.edit', compact('expenses', 'expenseApplication'));
+        $vehicles = MasVehicle::all();
+
+        return view('expense.apply.edit', compact('expenses', 'expenseApplication', 'vehicles'));
     }
 
     /**
@@ -236,10 +279,10 @@ class ExpenseApplicationController extends Controller
         try {
             DB::beginTransaction();
             $expenseApplication->update([
-                // 'mas_employee_id' => $expenseApplication->mas_employee_id,
                 'type_id' => $request->expense_type,
+                'mas_vehicle_id' => $request->mas_vehicle_id ?? null,
                 'date' => $request->date,
-                'expense_amount' => $request->amount,
+                'amount' => $request->amount,
                 'description' => $request->description,
                 'file' => $result['attachment'] ?? $expenseApplication->file,
                 'travel_type' => $request->travel_type,
@@ -250,6 +293,47 @@ class ExpenseApplicationController extends Controller
                 'travel_to' => $request->travel_to,
                 'status' => $request->status ?? 1,
             ]);
+
+            if ($request->has('fuel_claim_details')) {
+
+                $requestIds = collect($request->input('fuel_claim_details'))
+                    ->pluck('id') 
+                    ->filter()
+                    ->toArray();
+
+                ExpenseFuelClaimDetail::where('expense_id', $expenseApplication->id)
+                    ->whereNotIn('id', $requestIds)
+                    ->delete();
+
+                foreach ($request->input('fuel_claim_details') as $key => $detail) {
+                    $date = $detail['date'];
+                    $initialReading = $detail['initial_reading'] ?? 1000;
+                    $finalReading = $detail['final_reading'] ?? 1234;
+                    $quantity = $detail['quantity'] ?? 24;
+                    $mileage = $detail['mileage'] ?? 8;
+                    $rate = $detail['rate'] ?? 8;
+                    $amount = $detail['amount'] ?? 3535;
+
+                    $fuelClaimId = $detail['id'] ?? null;
+
+                    ExpenseFuelClaimDetail::updateOrCreate(
+                        [
+                            'id' => $fuelClaimId,
+                        ],
+                        [
+                            'expense_id' => $expenseApplication->id,
+                            'date' => $date,
+                            'initial_reading' => $initialReading,
+                            'final_reading' => $finalReading,
+                            'quantity' => $quantity,
+                            'mileage' => $mileage,
+                            'rate' => $rate,
+                            'amount' => $amount,
+                        ]
+                    );
+                }
+
+            }
 
             DB::commit();
         } catch (\Exception $e) {

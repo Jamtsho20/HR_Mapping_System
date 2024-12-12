@@ -36,7 +36,7 @@ class LoanEMIDeductionController extends Controller
      */
     public function create(Request $request)
     {
-        $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->get();
+        $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->whereNot('id', 11)->get(); // show loan related and exlude device emi
         $employees = User::filter($request)->select(['id', 'name', 'employee_id'])->get();
 
         return view('payroll.loan-emi-deductions.create', compact('payHeads', 'employees'));
@@ -82,7 +82,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->loan_type = $validated['loan_type'];
             $loanEMIDeduction->loan_number = $validated['loan_number'];
             $loanEMIDeduction->amount = $validated['amount'];
-            $loanEMIDeduction->recurring = $request->recurring;
+            $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
             $loanEMIDeduction->recurring_months = $validated['recurring_months'];
             $loanEMIDeduction->remarks = $request->remarks;
             $loanEMIDeduction->is_paid_off = $request->is_paid_off ?? false;

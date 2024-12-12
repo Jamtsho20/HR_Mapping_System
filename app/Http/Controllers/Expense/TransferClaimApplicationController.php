@@ -33,7 +33,7 @@ class TransferClaimApplicationController extends Controller
         'current_location' => 'required',
         'new_location' => 'required',
         'distance_travelled' => 'required_if:transfer_claim,Carriage Charge',
-        'amount_claimed' => 'required|numeric|max:20000',
+        'amount' => 'required',
     ];
 
     protected $messages = [];
@@ -95,7 +95,7 @@ class TransferClaimApplicationController extends Controller
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
                     'distance_travelled' => $request->distance_travelled,
-                    'amount_claimed' => $request->amount_claimed,
+                    'amount' => $request->amount,
                     'attachment' => $attachment,
                     'status' => 1,
                 ]);
@@ -181,7 +181,7 @@ class TransferClaimApplicationController extends Controller
         $transfer->current_location = $request->current_location;
         $transfer->new_location = $request->new_location;
         $transfer->distance_travelled = $request->distance_travelled;
-        $transfer->amount_claimed = $request->amount_claimed;
+        $transfer->amount = $request->amount;
         $transfer->attachment = $attachment ?? $transfer->attachment;
         $transfer->save();
 

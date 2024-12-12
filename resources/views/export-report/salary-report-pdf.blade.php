@@ -99,13 +99,16 @@
                     PF
                 </th>
                 <th>
-                   SIFA
+                    SIFA
                 </th>
                 <th>
-                   TDS
+                    TDS
                 </th>
                 <th>
                     H/Tax
+                </th>
+                <th>
+                    Net Pay
                 </th>
 
             </tr>
@@ -135,6 +138,8 @@
                 <td>{{ $salary->details['deductions']['SIFA'] ?? '0'}}</td>
                 <td>{{ $salary->details['deductions']['TDS'] ?? '0'}}</td>
                 <td>{{ $salary->details['deductions']['H/Tax'] ?? '0'}}</td>
+                <td>{{ $salary->details['net_pay']}}</td>
+
 
             </tr>
             @empty

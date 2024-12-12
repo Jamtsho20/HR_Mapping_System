@@ -88,19 +88,6 @@
                                         class="dataTables_wrapper dt-bootstrap5 no-footer">
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <div class="dataTables_length" id="responsive-datatable_length"
-                                                    data-select2-id="responsive-datatable_length">
-                                                    <label data-select2-id="26">
-                                                        Show
-                                                        <select class="select2">
-                                                            <option value="10">10</option>
-                                                            <option value="25">25</option>
-                                                            <option value="50">50</option>
-                                                            <option value="100">100</option>
-                                                        </select>
-                                                        entries
-                                                    </label>
-                                                </div>
                                                 <div class="dataTables_scroll">
                                                     <div class="dataTables_scrollHead"
                                                         style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -110,7 +97,7 @@
                                                                 class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                                 id="basic-datatable table-responsive">
                                                                 <thead>
-                                                                    <tr role="row">
+                                                                    <tr role="row" class="thead-light">
                                                                         <th>
                                                                             <input type="checkbox"
                                                                                 id="select_all"
@@ -154,7 +141,7 @@
                                                                         <td>{{ $application->date }}</td>
                                                                         <td>{{ $application->expenseType->name }}
                                                                         </td>
-                                                                        <td>{{ $application->expense_amount }}
+                                                                        <td>{{ $application->amount }}
                                                                         </td>
                                                                         <td>{{ $application->description }}
                                                                         </td>
@@ -267,7 +254,7 @@
                                                                         </td>
                                                                         <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
                                                                         </td>
-                                                                        <td>{{ $dsaclaim->total_amount }}</td>
+                                                                        <td>{{ $dsaclaim->amount }}</td>
 
                                                                         <td class="text-center">
                                                                             @php
@@ -375,7 +362,7 @@
                                                                         </td>
                                                                         <td>{{ $transferclaim->transfer_claim }}
                                                                         </td>
-                                                                        <td>{{ $transferclaim->amount_claimed }}
+                                                                        <td>{{ $transferclaim->amount }}
                                                                         </td>
                                                                         <td>{{ $transferclaim->current_location }}
                                                                         </td>

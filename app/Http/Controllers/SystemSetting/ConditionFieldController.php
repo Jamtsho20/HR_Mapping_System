@@ -22,7 +22,7 @@ class ConditionFieldController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $fields = MasConditionField::get();
+        $fields = MasConditionField::paginate(config('global.pagination'));
 
         return view('system-settings.condition-fields.index', compact('privileges', 'fields'));
     }

@@ -58483,7 +58483,9 @@ html [type=button],
     background: linear-gradient(to right, #fc6075 0%, #ff9b44 100%); /* Optional hover effect */
 }
 
-
+.custom-border{
+    border:  0.8px solid lightgray!important;
+}
 
 
 /*# sourceMappingURL=style.css.map */

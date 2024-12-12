@@ -182,14 +182,25 @@ return [
     ],
 
     'applications' => [
-        1 => App\Models\LeaveApplication::class,
-        2 => App\Models\ExpenseApplication::class,
-        3 => App\Models\DsaClaimApplication::class,
-        4 => App\Models\TransferClaimApplication::class,
-        5=> App\Models\RequisitionApplication::class,
-        6 => App\Models\TravelAuthorizationApplication::class,
-        7 => App\Models\SifaRegistration::class,
-        8 => App\Models\AdvanceApplication::class,
-        9 => App\Models\LeaveEncashmentApplication::class
+        1 => [
+            'name' => App\Models\LeaveApplication::class,
+            'post_to_sap' => false
+        ],
+        2 => [
+            'name' => App\Models\ExpenseApplication::class,
+            'post_to_sap' => true
+        ],
+        3 => [
+            'name' => App\Models\DsaClaimApplication::class,
+            'post_to_sap' => true
+        ],
+        4 => [
+            'name' => App\Models\TransferClaimApplication::class,
+            'post_to_sap' => true
+        ],
+        5 => [
+            'name' => App\Models\TravelAuthorizationApplication::class,
+            'post_to_sap' => false
+        ]
     ]
 ];
