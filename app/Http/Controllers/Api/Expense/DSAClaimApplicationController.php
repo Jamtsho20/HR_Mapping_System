@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TravelAuthorizationApplication;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
+
 use App\Services\ApplicationHistoriesService;
 
 class DSAClaimApplicationController extends Controller
@@ -26,7 +27,7 @@ class DSAClaimApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api'); 
+        $this->middleware('auth:api');
     }
 
     protected $rules = [
@@ -63,22 +64,22 @@ class DSAClaimApplicationController extends Controller
          $empIdName = LoggedInUserEmpIdName();
          //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
          $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
- 
-         $travels = TravelAuthorizationApplication::with('details')->whereCreatedBy(loggedInUser())->whereStatus(3)->get();
-    
-         //get dsa advance which has been approved for settlement
-         $advances = AdvanceApplication::with('advanceDetails')->where('advance_type_id', DSA_ADVANCE)
-             ->where('created_by', loggedInUser())
-             ->where('status', 3)
-             ->whereNotIn('id', $excludedAdvanceIds)
-             ->get(['id', 'advance_no']);
+
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+
+        //get dsa advance which has been approved for settlement
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
+            ->where('created_by', loggedInUser())
+            ->where('status', 3)
+            ->whereNotIn('id', $excludedAdvanceIds)
+            ->get(['id', 'advance_no']);
         return response()->json(["travels"=> $travels], 200);
         return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
-         
+
     }catch(\Exception $e){
         return $this->errorResponse($e->getMessage(), 500);
     }
-       
+
 
     }
 
@@ -96,26 +97,27 @@ class DSAClaimApplicationController extends Controller
                 return $this->validationErrorResponse($validator->errors());
             }
 
-            $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+            $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
             $approvalService = new ApprovalService();
-            $approverByHierarchy = $approvalService->getApproverByHierarchy(DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-    
+            $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
+
             if ($approverByHierarchy) {
                 try {
                     DB::beginTransaction();
-    
+
                     if ($request->hasFile('attachment')) {
                         // Upload file and get the file path
                         $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
-    
+
                         // Store it as a JSON array
                         $attachment = json_encode([$attachmentPath]);
                     } else {
                         $attachment = json_encode([]);
                     }
-    
+
                     $dsaClaimApplication = DsaClaimApplication::create([
                         'dsa_claim_no' => $request->dsa_claim_no,
+                        'type_id' => $request->type_id,
                         'travel_authorization_id' => $request->travel_authorization_id,
                         'advance_application_id' => $request->advance_no ?? null,
                         'total_amount' => $request->total_amount,
@@ -124,16 +126,16 @@ class DSAClaimApplicationController extends Controller
                         'attachment' => $attachment,
                         'status' => 1,
                     ]);
-    
+
                     if ($dsaClaimApplication) {
                         foreach ($request->dsa_claim_detail as $detail) {
-    
+
                             $from = new DateTime($detail['from_date']);
                             $to = new DateTime($detail['to_date']);
-    
+
                             $interval = $from->diff($to);
                             $totalDays = $interval->days;
-    
+
                             $applicationDetail = new DsaClaimDetail();
                             $applicationDetail->dsa_claim_id = $dsaClaimApplication->id;
                             $applicationDetail->from_date = $detail['from_date'];
@@ -148,19 +150,19 @@ class DSAClaimApplicationController extends Controller
                             $applicationDetail->save();
                         }
                     }
-    
+
                     // Create a history record
                     $historyService = new ApplicationHistoriesService();
                     $historyService->saveHistory($dsaClaimApplication->histories(), $approverByHierarchy, $request->remarks);
-                 
-    
+
+
                     DB::commit();
                     if (isset($approverByHierarchy['approver_details'])) {
                         $emailContent = 'has submitted a expense request of amount ' . $dsaClaimApplication->total_amount . ' is awaiting your approval.';
                         $emailSubject = 'DSA Claim/Settlement Application';
                         // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                     }
-    
+
                     } catch (\Exception $e) {
                     DB::rollBack();
                     return $this->errorResponse($e->getMessage(), 500);
@@ -172,7 +174,7 @@ class DSAClaimApplicationController extends Controller
         }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return $this->errorResponse($e->getMessage(), 500);
         }
-       
+
     }
 
     /**
@@ -184,7 +186,7 @@ class DSAClaimApplicationController extends Controller
     public function show($id)
     {
         try{
-        $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);    
+        $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);
         return $this->successResponse($dsa, 'DSA claim application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
@@ -212,7 +214,7 @@ class DSAClaimApplicationController extends Controller
 
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no'])

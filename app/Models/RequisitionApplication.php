@@ -6,6 +6,7 @@ use App\Traits\CreatedByTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\RequisitionDetail;
 
 class RequisitionApplication extends Model
 {
@@ -25,7 +26,7 @@ class RequisitionApplication extends Model
 
     public function requisitionType()
     {
-        return $this->belongsTo(MasRequisitionType::class, 'requisition_type_id');
+        return $this->belongsTo(MasRequisitionType::class, 'type_id');
     }
 
     public function employee()
@@ -38,16 +39,16 @@ class RequisitionApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
-    public function details() 
+    public function details()
     {
-        return $this->hasMany(RequisitionApplication::class, 'requisition_id');
+        return $this->hasMany(RequisitionDetail::class, 'requisition_id');
     }
 
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if($request->req_type){
-            $query->where('requisition_type_id', $request->req_type);
+            $query->where('type_id', $request->req_type);
         }
 
         if ($onesOwnRecord) {

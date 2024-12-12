@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\GoodCommissionApplication;
+use App\Models\GoodReceiptApplication;
 
 class CommissionController extends Controller
 {
@@ -20,15 +22,17 @@ class CommissionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-      
-        return view('asset.commission.index',compact('privileges'));
+        $goods_commissions = GoodCommissionApplication::all();
+
+        return view('asset.commission.index',compact('privileges', 'goods_commissions'));
     }
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+        $receipts = GoodReceiptApplication::where('status',0)->get();
+        return view('asset.commission.create',compact('receipts'));
     }
 
     /**
