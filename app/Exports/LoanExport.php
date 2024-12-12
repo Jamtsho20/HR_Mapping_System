@@ -32,6 +32,7 @@ class LoanExport implements FromCollection,WithHeadings
                     $loans->loan_number,
                     $loans->loan_type,
                     $loans->amount,           
+                    $loans->for_month,           
                 ];
             });
     }
@@ -44,6 +45,7 @@ class LoanExport implements FromCollection,WithHeadings
             'Loan Number',
             'Loan Type',
             'Monthly Installment',
+            'Date',
 
         ];
     }

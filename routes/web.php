@@ -20,6 +20,7 @@ use App\Http\Controllers\Reports\PFReportController;
 use App\Http\Controllers\Reports\SalaryReportController;
 use App\Http\Controllers\Reports\SamsungDeductionReportController;
 use App\Http\Controllers\Reports\SIFAContributionController;
+use App\Http\Controllers\Reports\TaxScheduleReportController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
@@ -267,6 +268,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('dsa-settlement-report', 'DSASettlementReportController')->except('create', 'show', 'edit');
         Route::resource('samsung-deduction-report', 'SamsungDeductionReportController')->except('create', 'show', 'edit');
         Route::resource('pay-comparision-report', 'PayComparisionReportController')->except('create', 'show', 'edit');
+        Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -303,7 +305,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-dsa-settlement-report', [DSASettlementReportController::class, 'exportDSASettlement'])->name('dsa-settlement-pdf.export');
     Route::get('/export-dsa-settlement-excel-report', [DSASettlementReportController::class, 'exportDSASettlementExcel'])->name('dsa-settlement-excel.export');
     Route::get('/pay-comparision-report', [PayComparisionReportController::class, 'exportPayComparision'])->name('pay-comparision-report-pdf.export');
-    Route::get('/pay-comparision-excel-report', [PayComparisionReportController::class, 'exportPayComparision'])->name('pay-comparision-report-excel.export');
+    // Route::get('/pay-comparision-excel-report', [PayComparisionReportController::class, 'exportPayComparision'])->name('pay-comparision-report-excel.export');
+    Route::get('/tax-schedule-report', [TaxScheduleReportController::class, 'exportTaxSchedule'])->name('tax-schedule-report-pdf.export');
+    Route::get('/tax-schedule-excel-report', [TaxScheduleReportController::class, 'exportTaxScheduleExcel'])->name('tax-schedule-report-excel.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
@@ -322,6 +326,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-expense-report', [ExpenseAndAdvanceReportController::class, 'printExpense'])->name('expense-report-print');
     Route::get('/print-transfer-claim-report', [TransferClaimReportController::class, 'printTransferClaim'])->name('transfer-claim-print');
     Route::get('/print-dsa-settlement-report', [DSASettlementReportController::class, 'printDSASettlement'])->name('dsa-settlement-print');
+    Route::get('/print-tax-schedle-report', [TaxScheduleReportController::class, 'printTaxSchedule'])->name('tax-schedule-report-print');
 
 
     //AssetsReport
