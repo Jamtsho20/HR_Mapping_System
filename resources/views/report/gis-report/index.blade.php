@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('page-title', 'sifa')
+@section('page-title', 'GIS')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
     <div class="d-flex gap-2">
-        <a href="{{route('sifa-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-        <a href="{{route('sifa-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href="{{route('sifa-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
+        <a href="{{route('gis-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('gis-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{route('gis-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
     </div>
 </div>
 
@@ -33,7 +33,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">SIFA Contribution</h3>
+                    <h3 class="card-title">Group Insurance Scheme</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -54,34 +54,43 @@
                                                         EMployee Name
                                                     </th>
                                                     <th>
-                                                        Designtion
+                                                        Policy Number
                                                     </th>
                                                     <th>
-                                                        Employee Status
+                                                        CID
                                                     </th>
                                                     <th>
-                                                        amount
+                                                        DOB
                                                     </th>
                                                     <th>
-                                                        Date
+                                                        Basic
                                                     </th>
+                                                    <th>
+                                                        GIS AMount
+                                                    </th>
+                                                    <th>
+                                                       Date
+                                                    </th>
+                                               
 
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($sifaContributions as $sifa)
+                                                @forelse($gisDeductions as $gis)
                                                 <tr>
                                                     <td>{{$loop->iteration}}</td>
-                                                    <td>{{$sifa->employee->name}}</td>
-                                                    <td>{{$sifa->employee->empJob->designation->name}}</td>
-                                                    <td>{{$sifa->employee->empJob->empType->name}}</td>
-                                                    <td>{{ $sifa->details['deductions']['SIFA'] ?? '0'}}</td>
-                                                    <td>{{ $sifa->for_month}}</td>
+                                                    <td>{{$gis->employee->name}}</td>
+                                                    <td>-</td>
+                                                    <td>{{$gis->employee->cid_no}}</td>
+                                                    <td>{{$gis->employee->dob}}</td>
+                                                    <td>{{$gis->employee->empJob->basic_pay}}</td>
+                                                    <td>{{ $gis->details['deductions']['GSLI'] ?? '0'}}</td>
+                                                    <td>{{ $gis->for_month}}</td>
 
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-danger">No SIFA contributon Reports found</td>
+                                                    <td colspan="5" class="text-center text-danger">No GIS Reports found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -92,9 +101,9 @@
                         </div>
                     </div>
                 </div>
-                @if ($sifaContributions->hasPages())
+                @if ($gisDeductions->hasPages())
                 <div class="card-footer">
-                    {{ $sifaContributions->links() }}
+                    {{ $gisDeductions->links() }}
                 </div>
                 @endif
 

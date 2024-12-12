@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'transfer claim')
+@section('page-title', 'DSA Settlement')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
@@ -90,7 +90,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">SIFA Contribution</h3>
+                    <h3 class="card-title">DSA Settlement</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -220,6 +220,11 @@
                         </div>
                     </div>
                 </div>
+                @if ($dsaClaim->hasPages())
+                <div class="card-footer">
+                    {{ $dsaClaim->links() }}
+                </div>
+                @endif
 
             </div>
         </div>

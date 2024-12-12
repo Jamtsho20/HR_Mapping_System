@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('page-title', 'sifa')
+@section('page-title', 'Loan Report')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
     <div class="d-flex gap-2">
-        <a href="{{route('sifa-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-        <a href="{{route('sifa-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href="{{route('sifa-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
+        <a href="{{route('samsung-deduction-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('samsung-deduction-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{route('samsung-deduction-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
     </div>
 </div>
 
@@ -16,7 +16,6 @@
     @component('layouts.includes.filter')
     <div class="col-3 form-group">
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-
     </div>
     <div class="col-3 form-group">
         <select name="employee_id" class="form-control ">
@@ -28,12 +27,13 @@
             @endforeach
         </select>
     </div>
+
     @endcomponent
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">SIFA Contribution</h3>
+                    <h3 class="card-title">Loan Report</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -51,16 +51,17 @@
                                                         #
                                                     </th>
                                                     <th>
-                                                        EMployee Name
+                                                        Employee Name
                                                     </th>
                                                     <th>
-                                                        Designtion
+                                                        loan type
                                                     </th>
                                                     <th>
-                                                        Employee Status
+                                                        Loan number
                                                     </th>
+
                                                     <th>
-                                                        amount
+                                                        Monthly Installment
                                                     </th>
                                                     <th>
                                                         Date
@@ -68,20 +69,20 @@
 
                                                 </tr>
                                             </thead>
+
                                             <tbody>
-                                                @forelse($sifaContributions as $sifa)
+                                                @forelse($samsungDeductions as $loan)
                                                 <tr>
                                                     <td>{{$loop->iteration}}</td>
-                                                    <td>{{$sifa->employee->name}}</td>
-                                                    <td>{{$sifa->employee->empJob->designation->name}}</td>
-                                                    <td>{{$sifa->employee->empJob->empType->name}}</td>
-                                                    <td>{{ $sifa->details['deductions']['SIFA'] ?? '0'}}</td>
-                                                    <td>{{ $sifa->for_month}}</td>
-
+                                                    <td>{{$loan->employee->name}}</td>
+                                                    <td>{{$loan->pay_head_name}}</td>
+                                                    <td>{{$loan->loan_number}}</td>
+                                                    <td>{{$loan->amount}}</td>
+                                                    <td>{{$loan->for_month}}</td>
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-danger">No SIFA contributon Reports found</td>
+                                                    <td colspan="21" class="text-center text-danger">No Samsung Deduction Reports found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -92,16 +93,21 @@
                         </div>
                     </div>
                 </div>
-                @if ($sifaContributions->hasPages())
+                @if ($samsungDeductions->hasPages())
                 <div class="card-footer">
-                    {{ $sifaContributions->links() }}
+                    {{ $samsungDeductions->links() }}
                 </div>
                 @endif
-
             </div>
         </div>
     </div>
 </div>
+
+
+
+
+
+
 
 
 @endsection

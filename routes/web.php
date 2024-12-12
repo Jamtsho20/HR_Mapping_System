@@ -5,14 +5,20 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\AdvanceLoanReportController;
+use App\Http\Controllers\Reports\CashReportController;
+use App\Http\Controllers\Reports\ChequeReportController;
 use App\Http\Controllers\Reports\DSASettlementReportController;
 use App\Http\Controllers\Reports\EmployeeReportController;
 use App\Http\Controllers\Reports\ExpenseAndAdvanceReportController;
+use App\Http\Controllers\Reports\GISReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
 use App\Http\Controllers\Reports\LoanReportController;
 use App\Http\Controllers\Reports\LTCController;
+use App\Http\Controllers\Reports\PayComparisionReportController;
+use App\Http\Controllers\Reports\PFReportController;
 use App\Http\Controllers\Reports\SalaryReportController;
+use App\Http\Controllers\Reports\SamsungDeductionReportController;
 use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
@@ -179,8 +185,6 @@ Route::middleware('auth')->group(function () {
         Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
 
         Route::get('/send-encashment-notifications', [DashboardController::class, 'sendEncashmentNotification']);
-
-
     });
 
     // DELEGATION APPROVAL
@@ -234,11 +238,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
         Route::resource('loan-report', 'LoanReportController')->except('create', 'show', 'edit');
+        Route::resource('cheque-report', 'ChequeReportController')->except('create', 'show', 'edit');
+        Route::resource('cash-report', 'CashReportController')->except('create', 'show', 'edit');
+        Route::resource('gis-report', 'GISReportController')->except('create', 'show', 'edit');
+        Route::resource('pf-report', 'PFReportController')->except('create', 'show', 'edit');
         Route::resource('sifa-contribution', 'SIFAContributionController')->except('create', 'show', 'edit');
         Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
         Route::resource('employee-report', 'EmployeeReportController')->except('create', 'show', 'edit');
         Route::resource('transfer-claim-report', 'TransferClaimReportController')->except('create', 'show', 'edit');
         Route::resource('dsa-settlement-report', 'DSASettlementReportController')->except('create', 'show', 'edit');
+        Route::resource('samsung-deduction-report', 'SamsungDeductionReportController')->except('create', 'show', 'edit');
+        Route::resource('pay-comparision-report', 'PayComparisionReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -246,8 +256,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-salary-excel-report', [SalaryReportController::class, 'exportSalaryExcel'])->name('salary-report-excel.export');
     Route::get('/export-sifa-report', [SIFAContributionController::class, 'exportSifa'])->name('sifa-report-pdf.export');
     Route::get('/export-sifa-excel-report', [SIFAContributionController::class, 'exportSifaExcel'])->name('sifa-report-excel.export');
+    Route::get('/export-gis-report', [GISReportController::class, 'exportGIS'])->name('gis-report-pdf.export');
+    Route::get('/export-gis-excel-report', [GISReportController::class, 'exportGISExcel'])->name('gis-report-excel.export');
+    Route::get('/export-pf-report', [PFReportController::class, 'exportPF'])->name('pf-report-pdf.export');
+    Route::get('/export-pf-excel-report', [PFReportController::class, 'exportPFExcel'])->name('pf-report-excel.export');
     Route::get('/export-loan-report', [LoanReportController::class, 'exportLoan'])->name('loan-report-pdf.export');
     Route::get('/export-loan-excel-report', [LoanReportController::class, 'exportLoanExcel'])->name('loan-report-excel.export');
+    Route::get('/export-samsung-deduction-report', [SamsungDeductionReportController::class, 'exportSamsungDeduction'])->name('samsung-deduction-report-pdf.export');
+    Route::get('/export-samsung-deduction-excel-report', [SamsungDeductionReportController::class, 'exportSamsungDeductionExcel'])->name('samsung-deduction-report-excel.export');
+    Route::get('/export-cheque-report', [ChequeReportController::class, 'exportCheque'])->name('cheque-report-pdf.export');
+    Route::get('/export-cheque-excel-report', [ChequeReportController::class, 'exportChequeExcel'])->name('cheque-report-excel.export');
+    Route::get('/export-cash-report', [CashReportController::class, 'exportCash'])->name('cash-report-pdf.export');
+    Route::get('/export-cash-excel-report', [CashReportController::class, 'exportCashExcel'])->name('cash-report-excel.export');
     Route::get('/export-leave-availed-report', [LeaveAvailedReportController::class, 'exportLeaveAvailed'])->name('leave-availed-pdf.export');
     Route::get('/export-leave-availed-excel-report', [LeaveAvailedReportController::class, 'exportLeaveAvailedExcel'])->name('leave-availed-excel.export');
     Route::get('/export-leave-balance-report', [LeaveBalanceReportController::class, 'exportLeaveBalance'])->name('leave-balance-pdf.export');
@@ -264,13 +284,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-transfer-claim-excel-report', [TransferClaimReportController::class, 'exportTransferClaimExcel'])->name('transfer-claim-excel.export');
     Route::get('/export-dsa-settlement-report', [DSASettlementReportController::class, 'exportDSASettlement'])->name('dsa-settlement-pdf.export');
     Route::get('/export-dsa-settlement-excel-report', [DSASettlementReportController::class, 'exportDSASettlementExcel'])->name('dsa-settlement-excel.export');
+    Route::get('/pay-comparision-report', [PayComparisionReportController::class, 'exportPayComparision'])->name('pay-comparision-report-pdf.export');
+    Route::get('/pay-comparision-excel-report', [PayComparisionReportController::class, 'exportPayComparision'])->name('pay-comparision-report-excel.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
     Route::get('/print-salary-report', [SalaryReportController::class, 'printSalary'])->name('salary-report-print');
     Route::get('/print-sifa-report', [SIFAContributionController::class, 'printSifa'])->name('sifa-report-print');
+    Route::get('/print-gis-report', [GISReportController::class, 'printGIS'])->name('gis-report-print');
+    Route::get('/print-pf-report', [PFReportController::class, 'printPF'])->name('pf-report-print');
     Route::get('/print-loan-report', [LoanReportController::class, 'printLoan'])->name('loan-report-print');
+    Route::get('/print-samsung-deduction-report', [SamsungDeductionReportController::class, 'printSamsungDeduction'])->name('samsung-deduction-report-print');
+    Route::get('/print-cheque-report', [ChequeReportController::class, 'printCheque'])->name('cheque-report-print');
+    Route::get('/print-cash-report', [CashReportController::class, 'printCash'])->name('cash-report-print');
     Route::get('/print-ltc-report', [LTCController::class, 'printLTC'])->name('ltc-print');
     Route::get('/print-advance-loan-report', [AdvanceLoanReportController::class, 'printAdvanceLoan'])->name('advance-loan-print');
     Route::get('/print-employee-report', [EmployeeReportController::class, 'printEmployee'])->name('employee-report-print');

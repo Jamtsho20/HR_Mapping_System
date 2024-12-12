@@ -100,6 +100,11 @@
                         </div>
                     </div>
                 </div>
+                @if ($ltcs->hasPages())
+                <div class="card-footer">
+                    {{ $ltcs->links() }}
+                </div>
+                @endif
             </div>
         </div>
     </div>

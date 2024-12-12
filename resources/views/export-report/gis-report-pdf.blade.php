@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIFA COntribution Report</title>
+    <title>GIS Report</title>
     <style>
         body {
             font-size: 12px;
@@ -37,7 +37,7 @@
 </head>
 
 <body>
-    <h1>SIFA COntribution Report</h1>
+    <h1>GIS Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">
@@ -48,35 +48,43 @@
                     EMployee Name
                 </th>
                 <th>
-                    Designtion
+                    Policy Number
                 </th>
                 <th>
-                    Employee Status
+                    CID
                 </th>
                 <th>
-                    amount
+                    DOB
+                </th>
+                <th>
+                    Basic
+                </th>
+                <th>
+                    GIS AMount
                 </th>
                 <th>
                     Date
                 </th>
 
+
             </tr>
         </thead>
         <tbody>
-            @forelse($sifaContributions as $sifa)
+            @forelse($gisDeductions as $gis)
             <tr>
                 <td>{{$loop->iteration}}</td>
-                <td>{{$sifa->employee->name}}</td>
-                <td>{{$sifa->employee->empJob->designation->name}}</td>
-                <td>{{$sifa->employee->empJob->empType->name}}</td>
-                <td>{{ $sifa->details['deductions']['SIFA'] ?? '0'}}</td>
-                <td>{{ $sifa->for_month}}</td>
-
+                <td>{{$gis->employee->name}}</td>
+                <td>-</td>
+                <td>{{$gis->employee->cid_no}}</td>
+                <td>{{$gis->employee->dob}}</td>
+                <td>{{$gis->employee->empJob->basic_pay}}</td>
+                <td>{{ $gis->details['deductions']['GSLI'] ?? '0'}}</td>
+                <td>{{ $gis->for_month}}</td>
 
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center text-danger">No SIFA contributon Reports found</td>
+                <td colspan="5" class="text-center text-danger">No GIS Reports found</td>
             </tr>
             @endforelse
         </tbody>

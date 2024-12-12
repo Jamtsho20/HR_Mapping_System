@@ -90,7 +90,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">SIFA Contribution</h3>
+                    <h3 class="card-title">Transfer Claim</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -191,6 +191,11 @@
                         </div>
                     </div>
                 </div>
+                @if ($trasferClaims->hasPages())
+                <div class="card-footer">
+                    {{ $trasferClaims->links() }}
+                </div>
+                @endif
 
             </div>
         </div>

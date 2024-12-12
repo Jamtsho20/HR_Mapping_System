@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('page-title', 'sifa')
+@section('page-title', 'PF')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
     <div class="d-flex gap-2">
-        <a href="{{route('sifa-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-        <a href="{{route('sifa-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href="{{route('sifa-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
+        <a href="{{route('pf-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('pf-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{route('pf-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
     </div>
 </div>
 
@@ -33,12 +33,12 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">SIFA Contribution</h3>
+                    <h3 class="card-title">Provident Fund</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <div class="col-sm-12">
-
+ 
                             <div class="dataTables_scroll">
                                 <div class="dataTables_scrollHead"
                                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -51,37 +51,40 @@
                                                         #
                                                     </th>
                                                     <th>
-                                                        EMployee Name
+                                                        Employee Name
                                                     </th>
                                                     <th>
-                                                        Designtion
+                                                        PF Number
                                                     </th>
                                                     <th>
-                                                        Employee Status
+                                                        CID
                                                     </th>
                                                     <th>
-                                                        amount
+                                                        Member COntribution
                                                     </th>
                                                     <th>
-                                                        Date
+                                                        Employee COntribution
                                                     </th>
+                                                    <th>
+                                                        Total COntribution
+                                                    </th>
+
 
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($sifaContributions as $sifa)
+                                                @forelse($pfDeductions as $pf)
                                                 <tr>
                                                     <td>{{$loop->iteration}}</td>
-                                                    <td>{{$sifa->employee->name}}</td>
-                                                    <td>{{$sifa->employee->empJob->designation->name}}</td>
-                                                    <td>{{$sifa->employee->empJob->empType->name}}</td>
-                                                    <td>{{ $sifa->details['deductions']['SIFA'] ?? '0'}}</td>
-                                                    <td>{{ $sifa->for_month}}</td>
+                                                    <td>{{$pf->employee->name}}</td>
+                                                    <td>{{$pf->employee->empJob->pf_number}}</td>
+                                                    <td>{{$pf->employee->cid_no}}</td>                                          
+                                                    <td>{{ $pf->details['deductions']['PF'] ?? '0'}}</td>
 
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-danger">No SIFA contributon Reports found</td>
+                                                    <td colspan="5" class="text-center text-danger">No PF Reports found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -92,9 +95,9 @@
                         </div>
                     </div>
                 </div>
-                @if ($sifaContributions->hasPages())
+                @if ($pfDeductions->hasPages())
                 <div class="card-footer">
-                    {{ $sifaContributions->links() }}
+                    {{ $pfDeductions->links() }}
                 </div>
                 @endif
 
