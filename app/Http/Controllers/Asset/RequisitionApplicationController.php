@@ -11,6 +11,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Services\ApplicationHistoriesService;
 
 class RequisitionApplicationController extends Controller
 {
@@ -24,12 +25,12 @@ class RequisitionApplicationController extends Controller
         $this->middleware('permission:asset/requisition,create')->only('store');
         $this->middleware('permission:asset/requisition,edit')->only('update');
         $this->middleware('permission:asset/requisition,delete')->only('destroy');
-    
+
      }
 
      protected $rules = [
-        'requisition_no' => 'required|unique',
-        'requisition_type' => 'required',
+        'requisition_no' => 'required|unique:requisition_applications,requisition_no',
+        'type_id' => 'required',
         'requisition_date' => 'required',
         'need_by_date' => 'required',
         'item_category' => 'required',
@@ -61,7 +62,7 @@ class RequisitionApplicationController extends Controller
          $requisitions = RequisitionApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
          return view('asset.requisition-apply.index', compact('privileges', 'requisitions', 'reqTypes'));
      }
- 
+
      /**
       * Show the form for creating a new resource.
       */
@@ -70,7 +71,7 @@ class RequisitionApplicationController extends Controller
         $reqTypes = MasRequisitionType::get();
          return view('asset.requisition-apply.create', compact('reqTypes'));
      }
- 
+
      /**
       * Store a newly created resource in storage.
       */
@@ -81,12 +82,11 @@ class RequisitionApplicationController extends Controller
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->requisition_type, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
-
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
         try {
             DB::beginTransaction();
             $requisition->requisition_no = $request->requisition_no;
-            $requisition->requisition_type_id = $request->requisition_type;
+            $requisition->type_id = $request->type_id;
             $requisition->requisition_date = $request->requisition_date;
             $requisition->need_by_date = $request->need_by_date;
             $requisition->item_category = $request->item_category;
@@ -99,17 +99,9 @@ class RequisitionApplicationController extends Controller
 
             // Create a corresponding history record for advance
             // Create a history record
-            $requisition->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarks' => $request->remarks,
-                'action_performed_by' => loggedInUser(),
-            ]);
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($requisition->histories(), $approverByHierarchy, $request->remarks);
+
 
             DB::commit();
 
@@ -125,7 +117,7 @@ class RequisitionApplicationController extends Controller
         }
         return redirect('asset/requisition')->with('msg_success', 'Requisition has been applied successfully!');
      }
- 
+
      /**
       * Display the specified resource.
       */
@@ -133,7 +125,7 @@ class RequisitionApplicationController extends Controller
      {
          //
      }
- 
+
      /**
       * Show the form for editing the specified resource.
       */
@@ -141,7 +133,7 @@ class RequisitionApplicationController extends Controller
      {
          //
      }
- 
+
      /**
       * Update the specified resource in storage.
       */
@@ -149,7 +141,7 @@ class RequisitionApplicationController extends Controller
      {
          //
      }
- 
+
      /**
       * Remove the specified resource from storage.
       */

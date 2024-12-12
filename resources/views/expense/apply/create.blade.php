@@ -461,11 +461,7 @@
 @push('page_scripts')
 <script>
     $(document).ready(function() {
-        window.DAILY_ALLOWANCE = {
-            {
-                $dailyAllowance - > da_in_country
-            }
-        };
+        window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
 
         function calculateGrandTotal() {
             let grandTotal = 0;
@@ -531,8 +527,7 @@
         });
 
         // Show the correct form section based on the old input value
-        var oldSelectedExpenseType = '{{ old('
-        expense_type ') }}';
+        var oldSelectedExpenseType = '{{ old('expense_type') }}';
         if (oldSelectedExpenseType) {
             selectedExpenseType.val(oldSelectedExpenseType);
             selectedExpenseType.trigger('change'); // Trigger the change event to show the relevant section
@@ -636,75 +631,75 @@
                                 grandTotal += totalAmount;
 
                                 const row = `
-                        <tr class="data-row">
-                            <td class="text-center">
-                                <input type="date"
-                                    value="${detail.from_date}"
-                                    name="dsa_claim_detail[${detail.id}][from_date]"
-                                    class="form-control form-control-sm resetKeyForNew"  required />
-                            </td>
-                            <td class="text-center">
-                                <input type="text"
-                                    value="${detail.from_location}"
-                                    name="dsa_claim_detail[${detail.id}][from_location]"
-                                    class="form-control form-control-sm resetKeyForNew"  required />
-                            </td>
-                            <td class="text-center">
-                                <input type="date"
-                                    name="dsa_claim_detail[${detail.id}][to_date]"
-                                    value="${detail.to_date}"
-                                    class="form-control form-control-sm resetKeyForNew"  required />
-                            </td>
-                            <td class="text-center">
-                                <input type="text"
-                                    name="dsa_claim_detail[${detail.id}][to_location]"
-                                    value="${detail.to_location}"
-                                    class="form-control form-control-sm resetKeyForNew"  required />
-                            </td>
-                            <td class="text-center">
-                                <input type="number"
-                                    min="0"
-                                    name="dsa_claim_detail[${detail.id}][total_days]"
-                                    value="${detail.no_of_days}"
-                                    class="form-control form-control-sm resetKeyForNew" />
-                            </td>
-                            <td class="text-center">
-                                <input type="number"
-                                    name="dsa_claim_detail[${detail.id}][daily_allowance]"
-                                    value="${DAILY_ALLOWANCE}"
-                                    class="form-control form-control-sm resetKeyForNew notclearfornew"
-                                    readonly />
-                            </td>
-                            <td class="text-center">
-                                <input type="number"
-                                    min="0"
-                                    name="dsa_claim_detail[${detail.id}][travel_allowance]"
-                                    class="form-control form-control-sm resetKeyForNew" />
-                            </td>
-                            <td class="text-center">
-                                <input type="number"
-                                    value="${totalAmount}"
-                                    name="dsa_claim_detail[${detail.id}][total_amount]"
-                                    class="form-control form-control-sm resetKeyForNew" readonly>
-                            </td>
-                            <td class="text-center">
-                                <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
-                            </td>
-                        </tr>`;
+                    <tr class="data-row">
+                        <td class="text-center">
+                            <input type="date"
+                                value="${detail.from_date}"
+                                name="dsa_claim_detail[${detail.id}][from_date]"
+                                class="form-control form-control-sm resetKeyForNew"  required />
+                        </td>
+                        <td class="text-center">
+                            <input type="text"
+                                value="${detail.from_location}"
+                                name="dsa_claim_detail[${detail.id}][from_location]"
+                                class="form-control form-control-sm resetKeyForNew"  required />
+                        </td>
+                        <td class="text-center">
+                            <input type="date"
+                                name="dsa_claim_detail[${detail.id}][to_date]"
+                                value="${detail.to_date}"
+                                class="form-control form-control-sm resetKeyForNew"  required />
+                        </td>
+                        <td class="text-center">
+                            <input type="text"
+                                name="dsa_claim_detail[${detail.id}][to_location]"
+                                value="${detail.to_location}"
+                                class="form-control form-control-sm resetKeyForNew"  required />
+                        </td>
+                        <td class="text-center">
+                            <input type="number"
+                                min="0"
+                                name="dsa_claim_detail[${detail.id}][total_days]"
+                                value="${detail.no_of_days}"
+                                class="form-control form-control-sm resetKeyForNew" />
+                        </td>
+                        <td class="text-center">
+                            <input type="number"
+                                name="dsa_claim_detail[${detail.id}][daily_allowance]"
+                                value="${DAILY_ALLOWANCE}"
+                                class="form-control form-control-sm resetKeyForNew notclearfornew"
+                                readonly />
+                        </td>
+                        <td class="text-center">
+                            <input type="number"
+                                min="0"
+                                name="dsa_claim_detail[${detail.id}][travel_allowance]"
+                                class="form-control form-control-sm resetKeyForNew" />
+                        </td>
+                        <td class="text-center">
+                            <input type="number"
+                                value="${totalAmount}"
+                                name="dsa_claim_detail[${detail.id}][total_amount]"
+                                class="form-control form-control-sm resetKeyForNew" readonly>
+                        </td>
+                        <td class="text-center">
+                            <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
+                        </td>
+                    </tr>`;
 
                                 tbody.append(row); // Append the row to the table body
                             });
 
                             // Add the row for adding a new entry (Add New Row)
                             const btnRow = `
-                    <tr class="notremovefornew">
-                        <td colspan="8"></td>
-                        <td class="text-right">
-                            <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
-                                <i class="fa fa-plus"></i> Add New Row
-                            </a>
-                        </td>
-                    </tr>`;
+                <tr class="notremovefornew">
+                    <td colspan="8"></td>
+                    <td class="text-right">
+                        <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
+                            <i class="fa fa-plus"></i> Add New Row
+                        </a>
+                    </td>
+                </tr>`;
                             tbody.append(btnRow);
 
                             const lastDataRow = tbody.find("tr.data-row").last();
@@ -724,9 +719,9 @@
                     error: function(error) {
                         alert(`Error fetching data: ${error.responseText || error.statusText}`);
                         $("#travelstable tbody").empty().append(`
-                    <tr>
-                        <td colspan="9" class="text-center text-danger">Error fetching details</td>
-                    </tr>`);
+                <tr>
+                    <td colspan="9" class="text-center text-danger">Error fetching details</td>
+                </tr>`);
                     }
                 });
             }

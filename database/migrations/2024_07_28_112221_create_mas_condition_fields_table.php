@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name', 50);
             $table->string('label', 50)->nullable();
             $table->boolean('has_employee_field')->nullable();
-            $table->boolean('has_role_id')->nullable();
+        
 
             $table->timestamps();
         });

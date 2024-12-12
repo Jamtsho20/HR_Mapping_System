@@ -5,14 +5,20 @@ namespace App\Models;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\GoodIssueApplicationDetail;
 
 class GoodIssueApplication extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    public function issueType () 
+    public function issueType ()
     {
         return $this->belongsTo(MasGoodIssueType::class, 'issue_type_id');
+    }
+
+    public function detail ()
+    {
+        return $this->hasMany(GoodIssueApplicationDetail::class, 'good_issue_id');
     }
 
     public function histories()

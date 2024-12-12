@@ -186,7 +186,7 @@ return [
         2 => App\Models\ExpenseApplication::class,
         3 => App\Models\DsaClaimApplication::class,
         4 => App\Models\TransferClaimApplication::class,
-        // 5=>
+        5=> App\Models\RequisitionApplication::class,
         6 => App\Models\TravelAuthorizationApplication::class,
         7 => App\Models\SifaRegistration::class,
         8 => App\Models\AdvanceApplication::class,

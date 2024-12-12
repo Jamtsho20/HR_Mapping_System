@@ -44,6 +44,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\s;
+use App\Models\GoodCommissionApplication;
+use App\Models\MasCommissionTypes;
+use App\Models\GoodReceiptApplicationDetail;
 
 class AjaxRequestController extends Controller
 {
@@ -599,11 +603,25 @@ class AjaxRequestController extends Controller
             $receiptType = MasGoodReceiptType::findOrFail($id);
             $latestTransaction = GoodReceiptApplication::latest('id')->first();
             // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->receipt_no, -4) + 1 : 1;
             $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
             return $this->successResponse(['receipt_no' => $receiptNo]);
         }catch(\Exception $e){
             return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
+        }
+
+    }
+
+    public function getCommissionNumber($id) {
+        try{
+            $receiptType = MasCommissionTypes::findOrFail($id);
+            $latestTransaction = GoodCommissionApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->commission_no, -4) + 1 : 1;
+            $commissionNo = generateTransactionNumber($receiptType->code, $nextSequence);
+            return $this->successResponse(['commission_no' => $commissionNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate commission no, please try again.');
         }
 
     }
@@ -624,4 +642,26 @@ class AjaxRequestController extends Controller
         return response()->json($advance);
 
     }
+
+    public function getDetailsByIssue($issue_no)
+{
+    // Fetch the data based on the issue_no, e.g. using Eloquent
+    $goodsDetails = GoodIssueApplication::where('issue_no', $issue_no)->with('detail')->get();
+    $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
+
+    return response()->json([
+        'data' => $goodsDetails
+    ]);
+}
+
+public function getDetailsByReceipt($receipt_no)
+{
+    // Fetch the data based on the issue_no, e.g. using Eloquent
+    $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status',0)->get();
+    $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
+
+    return response()->json([
+        'data' => $goodsDetails
+    ]);
+}
 }

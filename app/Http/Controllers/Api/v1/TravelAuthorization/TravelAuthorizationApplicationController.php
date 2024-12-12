@@ -143,7 +143,7 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorization->status = 1;
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
-            $travelAuthorization->travel_type_id = $request->travel_type;
+            $travelAuthorization->type_id = $request->travel_type;
 
 
             $travelAuthorization->save();
@@ -236,7 +236,7 @@ class TravelAuthorizationApplicationController extends Controller
                 'status' => 1,
                 'daily_allowance' => $request->daily_allowance,
                 'updated_by' => Auth::id(),
-                'travel_type_id' => $request->travel_type,
+                'type_id' => $request->travel_type,
             ]);
 
 

@@ -290,9 +290,9 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('goods-issue', 'GoodsIssueController');
         Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
-        Route::resource('goods-receipt', 'GoodsReceiptController')->except('create', 'show', 'edit');
+        Route::resource('goods-receipt', 'GoodsReceiptController')->except( 'show', 'edit');
         Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
-        Route::resource('commission', 'CommissionController')->except('create', 'show', 'edit');
+        Route::resource('commission', 'CommissionController')->except( 'show', 'edit');
         Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
         Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
         Route::resource('asset-transfer', 'AssetTransferController')->except('create', 'show', 'edit');
@@ -360,4 +360,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getissuenobyissuetype/{id}', 'AjaxRequestController@getIssueNumber');
     Route::get('getreceiptnobyreceipttype/{id}', 'AjaxRequestController@getReceiptNumber');
     Route::get('getrequisitiondetailsbyrequisitionid/{id}', 'AjaxRequestController@getRequisitionDetails');
+    Route::get('getdetailsbyissue/{issue_no}', 'AjaxRequestController@getDetailsByIssue')->name('get.details.by.issue');
+    Route::get('getcommissionnobycommissiontype/{id}', 'AjaxRequestController@getCommissionNumber');
+    Route::get('getdetailsbyreceipt/{receipt_no}', 'AjaxRequestController@getDetailsByReceipt')->name('get.details.by.receipt');
 });

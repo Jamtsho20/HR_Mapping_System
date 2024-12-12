@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('good_receipt_applications', function (Blueprint $table) {
+        Schema::create('good_commission_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('issue_id')->index()->constrained('good_issue_applications')->cascadeOnUpdate()->restrictOnDelete();
-            $table->string('receipt_no')->index();
-            $table->date('receipt_date')->index();
-            $table->tinyInteger('status')->comment('1 => Received, 0 => Not Received');
+            $table->string('commission_no')->index();
+            $table->foreignId('receipt_no')->index()->constrained('good_receipt_applications')->cascadeOnUpdate()->restrictOnDelete();
+            $table->date('commission_date')->index();
+            $table->tinyInteger('status')->comment('1 => Commissioned, 0 => Not Commissioned');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('good_receipt_applications');
+        Schema::dropIfExists('good_commission_applications');
     }
 };
