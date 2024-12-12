@@ -63,7 +63,7 @@ class DSAClaimApplicationController extends Controller
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
 
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->where('status', 3)
             ->whereNotIn('id', $excludedAdvanceIds)
@@ -193,7 +193,7 @@ class DSAClaimApplicationController extends Controller
 
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no'])

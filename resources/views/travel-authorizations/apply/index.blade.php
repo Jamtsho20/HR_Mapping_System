@@ -40,7 +40,7 @@
                                 <div class="dataTables_scrollHeadInner" style="box-sizing: content-box; padding-right: 0px;">
                                     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable">
                                         <thead>
-                                            <tr role="row">
+                                            <tr role="row" class="thead-light">
                                                 <th>#</th>
                                                 <th>Travel Authorizaiton number</th>
                                                 <th>Travel Type</th>

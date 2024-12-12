@@ -19,7 +19,7 @@ class ApprovingAuthorityController extends Controller
 
     public function index(Request $request)
     {
-        $approvingAuthorities = ApprovingAuthority::with('role')->paginate(10);
+        $approvingAuthorities = ApprovingAuthority::with('role')->paginate(30);
         $privileges = $request->instance();
         return view('system-settings.approving-authorities.index', compact('privileges', 'approvingAuthorities'));
     }

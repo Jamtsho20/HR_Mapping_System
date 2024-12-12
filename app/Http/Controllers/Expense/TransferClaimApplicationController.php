@@ -91,7 +91,7 @@ class TransferClaimApplicationController extends Controller
 
                 $transferClaimApplication = TransferClaimApplication::create([
                     'transfer_claim_no' => $request->transfer_claim_no,
-                    'transfer_claim_id' => $request->transfer_claim,
+                    'type_id' => $request->transfer_claim,
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
                     'distance_travelled' => $request->distance_travelled,

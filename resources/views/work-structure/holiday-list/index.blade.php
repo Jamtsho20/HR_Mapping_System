@@ -14,7 +14,7 @@
                     <select class="form-control" name="year">
                         <option value="" disabled selected hidden>Select year</option>
                         @foreach ($dates as $date)
-                            <option @if ($date == request()->get('year')) selected @endif value="{{ $date }}">
+                            <option @if ($date = request()->get('year')) selected @endif value="{{ $date }}">
                                 {{ $date }}
                             </option>
                         @endforeach
@@ -30,20 +30,6 @@
                         <div class="table-responsive">
                             <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                                 <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="dataTables_length" id="responsive-datatable_length"
-                                            data-select2-id="responsive-datatable_length">
-                                            <label data-select2-id="26">
-                                                Show
-                                                <select class="select2">
-                                                    <option value="10">10</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
-                                                </select>
-                                                entries
-                                            </label>
-                                        </div>
                                         <div class="dataTables_scroll">
                                             <div class="dataTables_scrollHead"
                                                 style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -53,7 +39,7 @@
                                                         class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                         id="basic-datatable table-responsive">
                                                         <thead>
-                                                            <tr role="row">
+                                                            <tr role="row" class="thead-light">
                                                                 <th>#</th>
                                                                 <th>HOLIDAY NAME</th>
                                                                 <th>HOLIDAY TYPE</th>

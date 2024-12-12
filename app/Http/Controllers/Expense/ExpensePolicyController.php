@@ -140,7 +140,7 @@ class ExpensePolicyController extends Controller
     private function saveExpensePolicy($policy, $id)
     {
         $expensePolicyData = [
-            'mas_expense_type_id' => $policy['mas_expense_type_id'],
+            'type_id' => $policy['type_id'],
             'name' => $policy['policy_name'],
             'description' => $policy['description'],
             'start_date' => $policy['start_date'],

@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('leave_encashment_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('remarks')->nullable();
+            $table->string("code",50)->index();
+            $table->boolean('status')->default(1);
+            $table->text('description')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

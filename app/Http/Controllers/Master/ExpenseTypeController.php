@@ -24,7 +24,7 @@ class ExpenseTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::with('children')->filter($request)->where('mas_expense_type_id', null)->orderBy('name')->paginate(config('global.pagination'));
+        $expenses = MasExpenseType::with('children')->filter($request)->where('type_id', null)->orderBy('name')->paginate(config('global.pagination'));
 
 
         return view('masters.expense-types.index', compact('expenses', 'privileges'));
@@ -37,7 +37,7 @@ class ExpenseTypeController extends Controller
      */
     public function create()
     {
-        $parentExpenseTypes = MasExpenseType::whereNull('mas_expense_type_id')->get(); // Fetch all top-level expense types
+        $parentExpenseTypes = MasExpenseType::whereNull('type_id')->get(); // Fetch all top-level expense types
 
         return view('masters.expense-types.create', compact('parentExpenseTypes'));
     }
@@ -55,7 +55,7 @@ class ExpenseTypeController extends Controller
     {
         // Validate the incoming request data
         $request->validate([
-            'mas_expense_type_id' => 'nullable|exists:mas_expense_types,id',
+            'type_id' => 'nullable|exists:mas_expense_types,id',
             'expense_names' => 'required|array|min:1',
             'expense_names.*' => 'required|string|max:255', // Validate each expense name
         ]);
@@ -67,7 +67,7 @@ class ExpenseTypeController extends Controller
 
             // Create a new expense type first
             $expenseType = MasExpenseType::create([
-                'mas_expense_type_id' => $request->mas_expense_type_id ?? null, // Use the selected parent ID or null
+                'type_id' => $request->type_id ?? null, // Use the selected parent ID or null
                 'name' => $name,
 
             ]);

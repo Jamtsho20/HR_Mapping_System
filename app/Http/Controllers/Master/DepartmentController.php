@@ -44,11 +44,13 @@ class DepartmentController extends Controller
         $request->validate([
             'short_name' => 'required',
             'name' => 'required',
+            'code' => 'required',
         ]);
 
         $department = new MasDepartment;
         $department->short_name = $request->short_name;
         $department->name = $request->name;
+        $department->code = $request->code;
         $department->mas_employee_id = $request->mas_employee_id;
         $department->save();
 
@@ -74,11 +76,13 @@ class DepartmentController extends Controller
         $request->validate([
             'short_name' => 'required',
             'name' => 'required',
+            'code' => 'required',
         ]);
 
         $department = MasDepartment::findOrFail($id);
         $department->short_name = $request->short_name;
         $department->name = $request->name;
+        $department->code = $request->code;
         $department->mas_employee_id = $request->mas_employee_id;
         $department->save();
 

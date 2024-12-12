@@ -18,6 +18,7 @@ class TravelAuthorizationApplication extends Model
     protected $fillable = [
         'travel_authorization_no',
         'date',
+        'type_id',
         'created_by',
         'updated_by',
         'status',
@@ -43,7 +44,7 @@ class TravelAuthorizationApplication extends Model
 
     public function travelType()
     {
-        return $this->belongsTo(MasTravelType::class, 'travel_type_id');
+        return $this->belongsTo(MasTravelType::class, 'type_id');
     }
      public function dsaadvance() {
         return $this->hasMany(DsaClaimApplication::class, 'travel_authorization_id');
