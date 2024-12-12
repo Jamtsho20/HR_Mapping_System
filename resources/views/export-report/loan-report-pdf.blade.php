@@ -58,6 +58,9 @@
                 <th>
                     Monthly Installment
                 </th>
+                <th>
+                    Date
+                </th>
 
             </tr>
         </thead>
@@ -71,6 +74,7 @@
                 <td>{{$loan->loan_number}}</td>
                 <td>{{$loan->loan_type}}</td>
                 <td>{{$loan->amount}}</td>
+                <td>{{$loan->for_month}}</td>
 
             </tr>
             @empty
