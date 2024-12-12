@@ -225,7 +225,7 @@ class LeaveApplicationController extends Controller
     }
 
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave
-        $leaveBalance = EmployeeLeave::where('type_id', $request->leave_type)
+        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
             ->where('mas_employee_id', loggedInUser())
             ->value('closing_balance');
 
@@ -244,16 +244,16 @@ class LeaveApplicationController extends Controller
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
 
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
-        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
-            $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
-            $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
-            $unit = match($uom) {
-                3 => 'years',
-                2 => 'months',
-                default => 'days',
-            };
-            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
-        }
+        // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
+        //     $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
+        //     $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
+        //     $unit = match($uom) {
+        //         3 => 'years',
+        //         2 => 'months',
+        //         default => 'days',
+        //     };
+        //     return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
+        // }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
             if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
