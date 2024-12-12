@@ -9,6 +9,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\ApplicationHistoriesService;
 
 class TransferClaimApplicationController extends Controller
 {
@@ -23,11 +24,6 @@ class TransferClaimApplicationController extends Controller
         $this->middleware('permission:expense/apply-expense,create')->only('store');
         $this->middleware('permission:expense/apply-expense,edit')->only('update');
         $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
-
-        // $this->middleware('permission:expense/transfer-claim,view')->only('index');
-        // $this->middleware('permission:expense/transfer-claim,create')->only('store');
-        // $this->middleware('permission:expense/transfer-claim,edit')->only('update');
-        // $this->middleware('permission:expense/transfer-claim,delete')->only('destroy');
     }
     private $filePath = 'images/files/';
 
@@ -37,7 +33,7 @@ class TransferClaimApplicationController extends Controller
         'current_location' => 'required',
         'new_location' => 'required',
         'distance_travelled' => 'required_if:transfer_claim,Carriage Charge',
-        'amount_claimed' => 'required',
+        'amount' => 'required',
     ];
 
     protected $messages = [];
@@ -72,13 +68,12 @@ class TransferClaimApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    { 
         $this->validate($request, $this->rules, $this->messages);
 
-        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy(TRANSFER_CLAIM_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
         if ($approverByHierarchy) {
 
             try {
@@ -100,23 +95,15 @@ class TransferClaimApplicationController extends Controller
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
                     'distance_travelled' => $request->distance_travelled,
-                    'amount' => $request->amount_claimed,
+                    'amount' => $request->amount,
                     'attachment' => $attachment,
                     'status' => 1,
                 ]);
 
                 // Create a history record
-                $transferClaimApplication->histories()->create([
-                    'approval_option' => $approverByHierarchy['approval_option'],
-                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                    'status' => $approverByHierarchy['application_status'],
-                    'remarks' => $request->remarks,
-                    'action_performed_by' => loggedInUser(),
-                ]);
+                $historyService = new ApplicationHistoriesService();
+                $historyService->saveHistory($transferClaimApplication->histories(), $approverByHierarchy, $request->remarks);
+
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
@@ -148,7 +135,7 @@ class TransferClaimApplicationController extends Controller
         $empIdName = LoggedInUserEmpIdName();
 
         $transfer = TransferClaimApplication::findOrfail($id);
-     
+
 
         return view('expense.transfer-claim.show', compact('transfer', 'empIdName'));
     }
@@ -194,7 +181,7 @@ class TransferClaimApplicationController extends Controller
         $transfer->current_location = $request->current_location;
         $transfer->new_location = $request->new_location;
         $transfer->distance_travelled = $request->distance_travelled;
-        $transfer->amount = $request->amount_claimed;
+        $transfer->amount = $request->amount;
         $transfer->attachment = $attachment ?? $transfer->attachment;
         $transfer->save();
 

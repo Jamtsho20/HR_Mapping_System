@@ -35,7 +35,7 @@ class PaySlipController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $paySlips = PaySlip::filter($request)->orderBy('for_month')->paginate(30);
+        $paySlips = PaySlip::filter($request)->orderBy('for_month')->paginate(config('global.pagination'));
 
         return view('payroll.pay-slips.index', compact('paySlips', 'privileges'));
     }
@@ -96,7 +96,7 @@ class PaySlipController extends Controller
         if (!$count) {
             $this->payrollService->populateReportTable($paySlip);
         }
-        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(30)->withQueryString();
+        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(config('global.pagination'))->withQueryString();
         $details = $paySlip->details()->filter($request)->paginate(50)->withQueryString();
 
         return view('payroll.pay-slips.show', compact('employees', 'paySlip', 'payHeads', 'records', 'details'));
@@ -141,9 +141,21 @@ class PaySlipController extends Controller
      */
     public function destroy(string $id)
     {
-        //
-    }
+        try {
+            $paySlip = PaySlip::findOrFail($id);
 
+            $paySlip->delete();
+
+            return redirect()->route('pay-slips.index')->with('msg_success', 'Payslip has been deleted successfully.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('msg_error', 'Payslip not found.');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting payslip: ' . $e->getMessage());
+            return redirect()->back()->with('msg_error', 'An unexpected error occurred while deleting the payslip.');
+        }
+    }
+    
+    // <PREPARE> IN UI 
     public function processPaySlip($id, Request $request)
     {
         try {
@@ -173,6 +185,7 @@ class PaySlipController extends Controller
         }
     }
 
+    //  VERIFY IN UI
     public function verifyPaySlip($id, Request $request)
     {
         try {
@@ -196,6 +209,7 @@ class PaySlipController extends Controller
         }
     }
 
+    // <POST> IN UI
     public function approvePaySlip($id, Request $request)
     {
         try {
@@ -319,14 +333,17 @@ class PaySlipController extends Controller
         try {
             $employeeId = $request->mas_employee_id;
             $payHeadId = $request->mas_pay_head_id;
-            $amount = $request->amount;
+            $newAmount = $request->amount;
 
             $paySlipDetail = PaySlipDetail::findOrFail($id);
+
+            // Get the old amount for adjustment
+            $oldAmount = $paySlipDetail->amount;
 
             $paySlipDetail->pay_slip_id = $payslipId;
             $paySlipDetail->mas_employee_id = $employeeId;
             $paySlipDetail->mas_pay_head_id = $payHeadId;
-            $paySlipDetail->amount = $amount;
+            $paySlipDetail->amount = round($newAmount, 2);
             $paySlipDetail->save();
 
             $paySlip = $paySlipDetail->paySlip;
@@ -341,24 +358,29 @@ class PaySlipController extends Controller
             }
 
             $allowance = $payHead->accountHead;
-            $paySlipDetailView = PaySlipDetailView::whereMasEmployeeId($employeeId)->whereForMonth($paySlip->for_month)->firstOrFail();
+            $paySlipDetailView = PaySlipDetailView::whereMasEmployeeId($employeeId)
+                ->whereForMonth($paySlip->for_month)
+                ->firstOrFail();
 
             PaySlipDetailView::unguard();
 
-            $paySlipDetailView->update([$column => $amount]);
+            // Update the specific column with the new amount
+            $paySlipDetailView->update([$column => round($newAmount, 2)]);
 
+            // Adjust gross_pay and net_pay by removing the old amount and adding the new amount
             if ($allowance) { // Allowance
-                if ($allowance->type == 1) {
+                if ($allowance->type == 1) { // Allowance
                     $paySlipDetailView->update([
-                        'gross_pay' => ($paySlipDetailView->gross_pay + $amount),
-                        'net_pay' => ($paySlipDetailView->net_pay + $amount),
+                        'gross_pay' => ($paySlipDetailView->gross_pay - $oldAmount + $newAmount),
+                        'net_pay' => ($paySlipDetailView->net_pay - $oldAmount + $newAmount),
                     ]);
                 } elseif ($allowance->type == 2) { // Deduction
                     $paySlipDetailView->update([
-                        'net_pay' => ($paySlipDetailView->net_pay - $amount),
+                        'net_pay' => ($paySlipDetailView->net_pay + $oldAmount - $newAmount),
                     ]);
                 }
             }
+
             PaySlipDetailView::reguard();
 
             DB::commit();
@@ -369,6 +391,63 @@ class PaySlipController extends Controller
             Log::error('Error updating payslip detail: ' . $e->getMessage());
 
             return redirect()->back()->with('msg_error', 'An unexpected error occurred while updating the payslip detail.');
+        }
+    }
+
+    public function deletePaySlipDetail($payslipId, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $paySlipDetail = PaySlipDetail::findOrFail($id);
+
+            // Get the necessary details for adjustment
+            $oldAmount = $paySlipDetail->amount;
+            $paySlip = $paySlipDetail->paySlip;
+            $employee = $paySlipDetail->employee;
+            $payHead = $paySlipDetail->payHead;
+            $employeeId = $paySlipDetail->mas_employee_id;
+            $payHeadId = $paySlipDetail->mas_pay_head_id;
+            $column = str_replace(" ", "_", $payHead->name);
+
+            $allowance = $payHead->accountHead;
+            $paySlipDetailView = PaySlipDetailView::whereMasEmployeeId($employeeId)
+                ->whereForMonth($paySlip->for_month)
+                ->firstOrFail();
+
+            PaySlipDetailView::unguard();
+
+            // Update gross_pay and net_pay based on allowance type
+            if ($allowance) {
+                if ($allowance->type == 1) { // Allowance
+                    $paySlipDetailView->update([
+                        'gross_pay' => ($paySlipDetailView->gross_pay - $oldAmount),
+                        'net_pay' => ($paySlipDetailView->net_pay - $oldAmount),
+                    ]);
+                } elseif ($allowance->type == 2) { // Deduction
+                    $paySlipDetailView->update([
+                        'net_pay' => ($paySlipDetailView->net_pay + $oldAmount),
+                    ]);
+                }
+            }
+
+            // Set the specific column to null in pay_slip_detail_views
+            if (Schema::hasColumn('pay_slip_detail_views', $column)) {
+                $paySlipDetailView->update([$column => 0.00]);
+            }
+
+            PaySlipDetailView::reguard();
+
+            // Delete the PaySlipDetail entry
+            $paySlipDetail->delete();
+
+            DB::commit();
+
+            return redirect()->route('pay-slips.show', $payslipId)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been deleted successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting payslip detail: ' . $e->getMessage());
+
+            return redirect()->back()->with('msg_error', 'An unexpected error occurred while deleting the payslip detail.');
         }
     }
 }

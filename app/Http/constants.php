@@ -19,8 +19,8 @@ const CONVEYANCE_EXPENSE = 1;
 const DOMESTIC_TRAVEL_TYPE = 1;
 
 //constant extracted from approving_authoritioes tbl
-const IMMEDIATE_HEAD = 1;
-const DEPARTMENT_HEAD = 2;
+const IMMEDIATE_HEAD = 7;
+const DEPARTMENT_HEAD = 8;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;
@@ -28,11 +28,14 @@ const EXPENSE_APPVL_HEAD = 2;
 const ADVANCE_APPVL_HEAD = 3;
 const LEAVE_ENCASHMENT_APPVL_HEAD = 4;
 const REQUISITION_APPVL_HEAD = 5;
+const TRANSFER_CLAIM_APPVL_HEAD = 6;
 const TRAVEL_AUTHORIZATION_APPVL_HEAD = 7;
 const SIFA_REGISTRATION_APPVL_HEAD = 8;
+const DSA_CLAIM_SETTLEMENT_APPVL_HEAD = 9;
 
 const DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE = 3;
 const TRANSFER_CLAIM_EXPENSE_TYPE = 4;
+
 
 // Approval Option from mas_approval_conditions
 const HIERARCHICAL_APPVL_OPTION = 1;

@@ -8,7 +8,7 @@
         <div class="card">
             <div class="card-body">
                 <input type="hidden" name="employee_id" value="{{ auth()->id() }}">
-
+                <input type="hidden" name="status" id="status" value="1">
                 @include('sifa.sifa-registration.forms.personalinfo')
                 <hr>
 
@@ -58,11 +58,13 @@
 
 @section('scripts')
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
     // Get the radio buttons for SIFA membership
     const yesRadio = document.querySelector('input[name="is_registered"][value="yes"]');
     const noRadio = document.querySelector('input[name="is_registered"][value="no"]');
     
+
     // Get the sections to show/hide
     const sifaSections = document.getElementById('sifa-sections');
     const remarksSection = document.getElementById('remarks-section');

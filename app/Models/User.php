@@ -156,7 +156,7 @@ class User extends Authenticatable
             $query->where('name', 'LIKE', '%' .$request->query('name') . '%');
         }
 
-        $query->where('username', '<>', 'E00000');
+        $query->where('username', '<>', 'E00000')->where('username','<>', 'E99999');
 
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('empJob.department', function ($q) use ($request) {

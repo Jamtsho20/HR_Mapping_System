@@ -558,8 +558,14 @@
                                 alert(response.msg_success);
                                 location.reload();
                             },
-                            error: function() {
-                                alert(response.msg_error);
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                try {
+                                    var errorResponse = JSON.parse(jqXHR.responseText);
+                                    alert(errorResponse.msg_error ||
+                                        'An unexpected error occurred.');
+                                } catch (e) {
+                                    alert('An error occurred: ' + errorThrown);
+                                }
                             }
                         });
 
@@ -581,8 +587,14 @@
                             alert(response.msg_success);
                             location.reload();
                         },
-                        error: function() {
-                            alert(response.msg_error);
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            try {
+                                var errorResponse = JSON.parse(jqXHR.responseText);
+                                alert(errorResponse.msg_error ||
+                                    'An unexpected error occurred.');
+                            } catch (e) {
+                                alert('An error occurred: ' + errorThrown);
+                            }
                         }
                     });
                 }

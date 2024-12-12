@@ -8,6 +8,7 @@ use App\Models\DailyAllowance;
 use App\Models\DsaClaimApplication;
 use App\Models\DsaClaimDetail;
 use App\Models\TravelAuthorizationApplication;
+use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
 use DateTime;
 use Illuminate\Http\Request;
@@ -27,21 +28,18 @@ class DSAClaimApplicationController extends Controller
         $this->middleware('permission:expense/apply-expense,create')->only('store');
         $this->middleware('permission:expense/apply-expense,edit')->only('update');
         $this->middleware('permission:expense/apply-expense,delete')->only('destroy');
-
-        // $this->middleware('permission:expense/dsa-claim-settlement,view')->only('index');
-        // $this->middleware('permission:expense/dsa-claim-settlement,create')->only('store');
-        // $this->middleware('permission:expense/dsa-claim-settlement,edit')->only('update');
-        // $this->middleware('permission:expense/dsa-claim-settlement,delete')->only('destroy');
     }
 
     protected $rules = [
         'dsa_claim_no' => 'required|string',
-        'total_amount' => 'required',
+        'amount' => 'required',
     ];
 
     protected $messages = [
 
     ];
+
+    private $attachmentPath = 'images/dsa/';
 
     public function index(Request $request)
     {
@@ -85,9 +83,9 @@ class DSAClaimApplicationController extends Controller
     {
         $this->validate($request, $this->rules, $this->messages);
 
-        $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
+        $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy(DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE, \App\Models\MasExpenseType::class, $conditionFields ?? []);
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
 
         if ($approverByHierarchy) {
             try {
@@ -95,7 +93,7 @@ class DSAClaimApplicationController extends Controller
 
                 if ($request->hasFile('attachment')) {
                     // Upload file and get the file path
-                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                     // Store it as a JSON array
                     $attachment = json_encode([$attachmentPath]);
@@ -105,10 +103,11 @@ class DSAClaimApplicationController extends Controller
 
                 $dsaClaimApplication = DsaClaimApplication::create([
                     'dsa_claim_no' => $request->dsa_claim_no,
+                    'type_id' => $request->dsa_claim_type_id,
                     'travel_authorization_id' => $request->travel_authorization_id,
                     'advance_application_id' => $request->advance_no ?? null,
-                    'amount' => $request->total_amount,
-                    'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->total_amount,
+                    'amount' => $request->amount,
+                    'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->amount,
                     'balance_amount' => $request->balance_amount,
                     'attachment' => $attachment,
                     'status' => 1,
@@ -139,21 +138,12 @@ class DSAClaimApplicationController extends Controller
                 }
 
                 // Create a history record
-                $dsaClaimApplication->histories()->create([
-                    'approval_option' => $approverByHierarchy['approval_option'],
-                    'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                    'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                    'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                    'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                    'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                    'status' => $approverByHierarchy['application_status'] ?? 1,
-                    'remarks' => $request->remarks,
-                    'action_performed_by' => loggedInUser(),
-                ]);
-
+                $historyService = new ApplicationHistoriesService();
+                $historyService->saveHistory($dsaClaimApplication->histories(), $approverByHierarchy, $request->remarks);
+                 
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $dsaClaimApplication->total_amount . ' is awaiting your approval.';
+                    $emailContent = 'has submitted a expense request of amount ' . $dsaClaimApplication->amount . ' is awaiting your approval.';
                     $emailSubject = 'DSA Claim/Settlement Application';
                     // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                 }
@@ -228,8 +218,8 @@ class DSAClaimApplicationController extends Controller
 
             $dsaClaimApplication->travel_authorization_id = $request->travel_authorization_id;
             $dsaClaimApplication->advance_application_id = $request->advance_no ?? null;
-            $dsaClaimApplication->amount = $request->total_amount;
-            $dsaClaimApplication->net_payable_amount = !is_null($request->advance_no) ? $request->net_payable_amount : $request->total_amount;
+            $dsaClaimApplication->amount = $request->amount;
+            $dsaClaimApplication->net_payable_amount = !is_null($request->advance_no) ? $request->net_payable_amount : $request->amount;
             $dsaClaimApplication->balance_amount = $request->balance_amount;
             $dsaClaimApplication->save();
 

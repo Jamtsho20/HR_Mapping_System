@@ -629,6 +629,16 @@
       'T Bank' => 'T Bank',
       'DK Bank' => 'Digital Kidu',
     ),
+    'loan_type' => 
+    array (
+      0 => 'Consumer Loan',
+      1 => 'Personal Loan',
+      2 => 'Employee Loan',
+      3 => 'Vehicle Loan',
+      4 => 'Festival Loan',
+      5 => 'PPF',
+      6 => 'Housing Loan',
+    ),
     'calculation__method' => 
     array (
       1 => 'Actual Amount',

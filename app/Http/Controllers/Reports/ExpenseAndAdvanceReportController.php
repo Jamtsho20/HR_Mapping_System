@@ -30,7 +30,7 @@ class ExpenseAndAdvanceReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $expenses = MasExpenseType::select('name', 'id')->get();
+        $expenses = MasExpenseType::select('name', 'id')->whereNotIn('id', [3, 4])->get(); //3 and 4 is transfer claim and dsa
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
         $regions = MasRegion::select('name', 'id')->get();
@@ -40,7 +40,7 @@ class ExpenseAndAdvanceReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $expenseApplications = ExpenseApplication::filter($request, false)->paginate(30)->withQueryString();
+        $expenseApplications = ExpenseApplication::filter($request, false)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.expense-and-advance-report.index', compact('privileges', 'expenseApplications', 'regions', 'departments', 'sections', 'expenses', 'employeeLists', 'offices', 'managers'));
     }

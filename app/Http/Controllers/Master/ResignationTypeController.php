@@ -24,7 +24,7 @@ class ResignationTypeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $resignationTypes = MasResignationType::filter($request)->orderBy('name')->paginate(30);
+        $resignationTypes = MasResignationType::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('masters.resignation-types.index', compact('resignationTypes', 'privileges'));
     }

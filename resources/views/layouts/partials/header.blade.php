@@ -12,7 +12,8 @@
     <meta name="robots" content="noindex, nofollow">
 
     <!-- FAVICON -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/brand/favicon.ico') }}">
+    <link rel="shortcut icon"  href="{{ asset('assets/images/brand/logo3.png') }}">
+    
     <!-- TITLE -->
     <title>@yield('name')</title>
     <!-- BOOTSTRAP CSS -->

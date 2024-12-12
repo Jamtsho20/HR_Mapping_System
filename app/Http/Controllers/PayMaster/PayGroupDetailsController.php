@@ -26,7 +26,7 @@ class PayGroupDetailsController extends Controller
         $payGroupDetails = MasPayGroupDetail::with('employeeGroup')
             ->filter($request)
             ->orderBy('created_at', 'desc')
-            ->paginate(30);
+            ->paginate(config('global.pagination'));
 
         return view('paymaster.pay-group-details.index', compact('payGroupDetails', 'privileges'));
     }

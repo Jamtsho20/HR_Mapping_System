@@ -21,51 +21,34 @@ class ExpenseApprovalController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api'); 
+        $this->middleware('auth:api');
     }
     public function index(Request $request)
     {
 
         try {
-            
-            $privileges = $request->instance();
-            $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
             $empIdName = LoggedInUserEmpIdName();
             $user = auth()->user();
-    
-            $models = [
-                2 => \App\Models\ExpenseApplication::class,
-                3 => \App\Models\DsaClaimApplication::class,
-                4 => \App\Models\TransferClaimApplication::class,
-            ];
-    
-            $results = collect();
-    
-            foreach ($models as $key => $modelClass) {
-                $data = $modelClass::whereHas('histories', function ($query) use ($user, $modelClass) {
-                    $query->where('approver_emp_id', $user->id)
-                        ->where('application_type', $modelClass);
-                })
-                    ->whereNotIn('status', [-1, 3])
-                    ->filter($request, false)
-                    ->orderBy('created_at')
-                    ->paginate(config('global.pagination'))
-                    ->withQueryString();
-    
-                $results->put($key, $data);
-            }
-    
-            $expenses = $results->get(2);
-            $dsaclaims = $results->get(3);
-            $transferclaims = $results->get(4);
+
+            $data = ExpenseApplication::with('expenseType:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+                $query->where('approver_emp_id', $user->id)
+                    ->where('application_type', \App\Models\ExpenseApplication::class);
+            })
+                ->whereNotIn('status', [-1, 3])
+                ->filter($request, false)
+                ->orderBy('created_at')
+                ->get();
+
+
+
+
+            $expenses = $data;
+
         return response()->json([
             'success' => true,
             'message' => 'Expense applications retrieved successfully!',
-            'data' => [
-                'expenses' => $expenses,
-                'dsaClaims' => $dsaclaims, // Corrected
-                'transferClaims' => $transferclaims, // Corrected
-            ]
+            'data' =>  $expenses
+
         ]);
 
         // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
@@ -74,11 +57,78 @@ class ExpenseApprovalController extends Controller
     }
     }
 
+    public function indexDsa(Request $request)
+    {
+        try {
+            $empIdName = LoggedInUserEmpIdName();
+            $user = auth()->user();
+
+            $data = DSAClaimApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+                $query->where('approver_emp_id', $user->id)
+                    ->where('application_type', \App\Models\DSAClaimApplication::class);
+            })
+                ->whereNotIn('status', [-1, 3])
+                ->filter($request, false)
+                ->orderBy('created_at')
+                ->get();
+
+
+
+
+            $expenses = $data;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'DSA claim applications retrieved successfully!',
+            'data' =>  $expenses
+
+        ]);
+
+        // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
+    } catch (\Exception $e) {
+        return $this->errorResponse($e->getMessage(), 404);
+    }
+}
+
+
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function indexTransfer(Request $request)
+    {
+        try {
+            $empIdName = LoggedInUserEmpIdName();
+            $user = auth()->user();
+
+            $data = TransferClaimApplication::with('type:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+                $query->where('approver_emp_id', $user->id)
+                    ->where('application_type', \App\Models\TransferClaimApplication::class);
+            })
+                ->whereNotIn('status', [-1, 3])
+                ->filter($request, false)
+                ->orderBy('created_at')
+                ->get();
+
+
+
+
+            $expenses = $data;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'DSA claim applications retrieved successfully!',
+            'data' =>  $expenses
+
+        ]);
+
+        // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
+    } catch (\Exception $e) {
+        return $this->errorResponse($e->getMessage(), 404);
+    }
+}
     public function create()
     {
         //
@@ -102,15 +152,15 @@ class ExpenseApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {   
+    {
         try{
             $expense = ExpenseApplication::findOrfail($id);
-            
+
             return $this->successResponse($expense, 'Expense application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 404);
         }
-        
+
 
     }
 
@@ -132,7 +182,7 @@ class ExpenseApprovalController extends Controller
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 404);
         }
-        
+
     }
 
     /**

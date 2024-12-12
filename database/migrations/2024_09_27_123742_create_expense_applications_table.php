@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('travel_from')->nullable();
             $table->string('travel_to')->nullable();
             $table->integer('travel_distance')->nullable();
-            $table->integer('amount')->nullable();
+            $table->decimal('amount')->nullable();
             $table->string('description')->nullable();
             $table->string('file')->nullable();
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');

@@ -24,7 +24,7 @@ class DesignationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $designations = MasDesignation::filter($request)->orderBy('name')->paginate(30);
+        $designations = MasDesignation::filter($request)->orderBy('name')->paginate(config('global.pagination'));
 
         return view('masters.designation.index', compact('designations', 'privileges'));
     }

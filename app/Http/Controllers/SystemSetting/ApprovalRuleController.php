@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SystemSetting;
 
 use App\Http\Controllers\Controller;
+use App\Models\DsaClaimType;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasApprovalCondition;
@@ -12,9 +13,11 @@ use App\Models\MasApprovalRuleConditionOperator;
 use App\Models\MasConditionField;
 use App\Models\MasExpenseType;
 use App\Models\MasLeaveType;
+use App\Models\MasRequisitionType;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
+use App\Models\Role;
 use App\Models\SystemHierarchy;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -47,11 +50,12 @@ class ApprovalRuleController extends Controller
     {
         $privileges = $request->instance();
         $employees = User::select('id', 'name', 'employee_id')->get();
+        $roles = Role::get(['id', 'name']);
         $heads = MasApprovalHead::get();
         $operators = MasApprovalRuleConditionOperator::select('id', 'name', 'value')->orderBy('name')->get();
         $hierarchies = SystemHierarchy::select('id', 'name')->get();
 
-        return view('system-settings.approval-rule.create', compact('privileges', 'employees', 'heads', 'operators', 'hierarchies'));
+        return view('system-settings.approval-rule.create', compact('privileges', 'employees', 'roles', 'heads', 'operators', 'hierarchies'));
     }
 
     /**
@@ -75,10 +79,11 @@ class ApprovalRuleController extends Controller
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
             4 => LeaveEncashmentType::class,
-            5 => MasAdvanceTypes::class,
+            5 => MasRequisitionType::class,
             6 => MasTransferClaim::class,
             7 => MasTravelType::class,
             8 => MasSifaType::class,
+            9 => DsaClaimType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

@@ -118,7 +118,7 @@ class LTCController extends Controller
     public function show(string $id)
     {
         $ltc = LeaveTravelConcession::whereId($id)->first();
-        $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
+        $details = $ltc->ltcDetails()->paginate(config('global.pagination'))->withQueryString();
 
         return view('payroll.ltc.show', compact('ltc', 'details'));
     }
@@ -129,7 +129,7 @@ class LTCController extends Controller
     public function edit(string $id)
     {
         $ltc = LeaveTravelConcession::whereId($id)->first();
-        $details = $ltc->ltcDetails()->paginate(30)->withQueryString();
+        $details = $ltc->ltcDetails()->paginate(config('global.pagination'))->withQueryString();
 
         return view('payroll.ltc.edit', compact('ltc', 'details'));
     }

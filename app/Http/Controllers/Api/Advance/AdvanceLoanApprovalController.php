@@ -13,10 +13,11 @@ use App\Models\TravelAuthorizationApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Traits\JsonResponseTrait;
 
 class AdvanceLoanApprovalController extends Controller
 {
-
+    use JsonResponseTrait;
     /**
      * Display a listing of the resource.
      *
@@ -32,21 +33,23 @@ class AdvanceLoanApprovalController extends Controller
 
     public function index(Request $request)
     {
-        $privileges = $request->instance();
+        try {
         $user = auth()->user();
         $employeeLists = employeeList();
         // Fetch advance loan applications with histories where the approver matches the current user
-        $advances = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
+        $advances = AdvanceApplication::with('advanceType:id,name')->with('employee:id,name,username')->with('advance_approved_by:id,name')->whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
                 ->where('application_type', 'App\Models\AdvanceApplication');
         })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
             ->filter($request, false)
             ->orderBy('created_at')
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
-        $advanceTypes = MasAdvanceTypes::get(['id', 'name']);
+            ->get();
+        return response()->json(['advances' => $advances], 200);
+    } catch (\Exception $e) {
+        return $this->errorResponse($e->getMessage(), 404);
+    }
 
-        return view('advance-loan.approval.index', compact('privileges', 'employeeLists', 'advances','advanceTypes'));
+
     }
 
 
@@ -87,12 +90,10 @@ class AdvanceLoanApprovalController extends Controller
 
 
             $empDetails = empDetails($advance->created_by);
+            return response()->json(['advance' => $advance, 'empDetails' => $empDetails, 'advanceDetails' => $advanceDetails]);
         } catch (\Exception $e) {
-            return back()->with('err_msg', 'Advance Loan apllication not found!');
+            return $this->errorResponse($e->getMessage(), 404);
         }
-
-        return view('advance-loan.approval.show', compact('advance', 'empDetails', 'advanceDetails', 'budgetCodes', 'dzongkhags'));
-    
     }
 
     /**
@@ -102,7 +103,7 @@ class AdvanceLoanApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {   
+    {
         $user = auth()->user();
         $advance = AdvanceApplication::whereHas('histories', function ($query) use ($user) {
             $query->where('approver_emp_id', $user->id)
@@ -124,8 +125,8 @@ class AdvanceLoanApprovalController extends Controller
             $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
         }
         $redirectUrl = 'advance-loan/advance-loan-approval';
-        
-        
+
+
         return view('advance-loan.apply.edit', compact( 'redirectUrl','advance', 'advanceType', 'travelAuthorizations', 'budgetCodes', 'dzongkhags', 'advanceDetails'));
     }
 
@@ -157,7 +158,7 @@ class AdvanceLoanApprovalController extends Controller
             return back()->with('msg_error', 'Advance Applicaton cannot be deleted as it is used by other modules.');
         }
     }
-    
+
     public function bulkApprovalRejection(Request $request)
     {
         $action = $request->action;

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
+use App\Models\GoodIssueApplication;
+use App\Models\RequisitionApplication;
 use Illuminate\Http\Request;
 
 class GoodsIssueController extends Controller
@@ -12,7 +14,7 @@ class GoodsIssueController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:asset/goods-issue,view')->only('index');
+        $this->middleware('permission:asset/goods-issue,view')->only('index', 'show');
         $this->middleware('permission:asset/goods-issue,create')->only('store');
         $this->middleware('permission:asset/goods-issue,edit')->only('update');
         $this->middleware('permission:asset/goods-issue,delete')->only('destroy');
@@ -28,7 +30,14 @@ class GoodsIssueController extends Controller
      */
     public function create()
     {
-        //
+        $excludedRequisitionIds = GoodIssueApplication::pluck('requisition_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
+        $requisitions = RequisitionApplication::where('status', 3)
+                                    ->when(!empty($excludedRequisitionIds), function ($query) use ($excludedRequisitionIds) {
+                                        $query->whereNotIn('id', $excludedRequisitionIds);
+                                    })
+                                    ->get(['id', 'requisition_no']); // Always fetch after conditions are applied
+
+        return view('asset.goods-issue.create', compact('requisitions'));
     }
 
     /**

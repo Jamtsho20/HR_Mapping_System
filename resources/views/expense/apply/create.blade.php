@@ -136,14 +136,14 @@
                                                                 <td class="text-center">
                                                                     <input type="number"
                                                                         name="fuel_claim_details[AAAAA][initial_reading]"
-                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        class="form-control form-control-sm resetKeyForNew initial-reading"
                                                                         readonly required />
                                                                 </td>
 
                                                                 <td class="text-center">
                                                                     <input type="number"
                                                                         name="fuel_claim_details[AAAAA][final_reading]"
-                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        class="form-control form-control-sm resetKeyForNew final-reading"
                                                                         required />
                                                                 </td>
                                                                 <td class="text-center">
@@ -155,18 +155,18 @@
                                                                 <td class="text-center">
                                                                     <input type="number"
                                                                         name="fuel_claim_details[AAAAA][mileage]"
-                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        class="form-control form-control-sm resetKeyForNew notclearfornew"
                                                                         readonly required />
                                                                 </td>
 
                                                                 <td class="text-center">
                                                                     <input type="number" min="0"
                                                                         name="fuel_claim_details[AAAAA][rate]"
-                                                                        class="form-control form-control-sm resetKeyForNew notclearfornew"
-                                                                        readonly />
+                                                                        class="form-control form-control-sm resetKeyForNew"
+                                                                        required />
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <input type="number" min="0"
+                                                                    <input type="number" min="0" step="0.01"
                                                                         name="fuel_claim_details[AAAAA][amount]"
                                                                         class="form-control form-control-sm resetKeyForNew" />
                                                                 </td>
@@ -209,6 +209,8 @@
                             @csrf
                             <div class="card">
                                 <div class="card-body">
+                                    <input type="hidden" name="dsa_claim_type_id" id="dsa_claim_type_id"
+                                        value="1">
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
@@ -261,7 +263,7 @@
                                             <div class="form-group">
                                                 <label for="grand_total_amount">Total Amount </label>
                                                 <input type="number" class="form-control" id="grand_total_amount"
-                                                    name="total_amount" value="{{ old('grand_total_amount') }}" required
+                                                    name="amount" value="{{ old('amount') }}" required
                                                     readonly />
                                             </div>
                                         </div>
@@ -506,8 +508,8 @@
                                             <div class="form-group">
                                                 <label for="">Amount Claimed <span
                                                         class="text-danger">*</span></label>
-                                                <input type="number" class="form-control" name="amount_claimed"
-                                                    value="{{ old('amount_claimed') }}">
+                                                <input type="number" class="form-control" name="amount"
+                                                    value="{{ old('amount') }}">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -605,43 +607,6 @@
                     disableFormFields($(this));
                 });
 
-                // Show and enable the corresponding form section based on the selected type
-                // if (selectedType === '1') {
-                //     var section = $('#conveyance_expense_form');
-                //     section.show();
-                //     enableFormFields(section);
-                // }
-
-                // var section = $('#vehicle');
-                // var fuelClaimSection = $('#vehiclefuelclaimsection');
-
-                // if (selectedType === '5' || selectedType === '7') {
-                //     if (selectedType === '7') {
-                //         section.show();
-                //     } else {
-                //         section.show();
-                //         fuelClaimSection.show();
-                //         enableFormFields(section);
-                //         toggleFuelClaimSection(true);
-                //     }
-
-                // } else {
-                //     section.hide();
-                //     fuelClaimSection.hide();
-
-                //     toggleFuelClaimSection(false);
-
-                //     formSections.each(function() {
-                //         $(this).hide();
-                //         disableFormFields($(this));
-                //     });
-                //     toggleFuelClaimSection(false);
-                //     section.find('select').attr("required", false);
-
-                //     disableFormFields($(this));
-                // }
-
-
                 if (selectedType === '1') {
                     const section = $('#conveyance_expense_form');
                     section.show();
@@ -651,7 +616,7 @@
                     const fuelClaimSection = $('#vehiclefuelclaimsection');
 
                     // Show/hide sections based on selectedType
-                    const showVehicle = selectedType === '5' || selectedType === '7';
+                    const showVehicle = selectedType === '5' || selectedType === '6'; // fuel || parking fee.
                     const showFuelClaim = selectedType === '5';
 
                     section.toggle(showVehicle);
@@ -660,6 +625,12 @@
                     if (showVehicle) {
                         enableFormFields(section);
                         toggleFuelClaimSection(showFuelClaim);
+
+                        if (selectedType === '5') {
+                            $('#amount').prop('readonly', true);
+                        } else {
+                            $('#amount').prop('readonly', false);
+                        }
                     } else {
                         // Reset form sections when no matching type
                         formSections.each(function() {
@@ -952,8 +923,99 @@
                     }
                 });
 
+                console.log(totalAmount);
+
                 $('#amount').val(totalAmount.toFixed(2));
             }
+
+            function getVehicleDetails(vehicleId) {
+                $.ajax({
+                    url: '/getvehicledetailtypebyid/' + vehicleId,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log(response);
+
+                        var initialReading = response.final_reading;
+                        var mileage = response.vehicle_type.mileage;
+
+                        if (!mileage) {
+                            alert('Mileage not set for this vehicle')
+                        }
+                        if (!initialReading) {
+                            alert('Initial reading not set for this vehicle')
+                        }
+
+                        $('input[name="fuel_claim_details[AAAAA][initial_reading]"]').val(
+                            initialReading);
+                        $('input[name="fuel_claim_details[AAAAA][mileage]"]').val(mileage);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log('Error: ' + textStatus + ' - ' + errorThrown);
+                        alert('An error occurred while fetching vehicle details.');
+                    }
+                });
+            }
+
+            function calculateFuelFromDistance(row) {
+                var initialReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[initial_reading]"]').val()) || 0;
+                var finalReadingReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[final_reading]"]').val()) || 0;
+
+                var mileage = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[mileage]"]').val()) ||
+                    0;
+
+                if (finalReadingReading > initialReading) {
+                    if (mileage > 0) {
+                        var distance = finalReadingReading - initialReading;
+                        var fuelinLtr = (distance / mileage).toFixed(2);
+
+                        row.find('input[name^="fuel_claim_details"][name$="[quantity]"]').val(fuelinLtr)
+                    }
+                } else {
+                    row.find('input[name^="fuel_claim_details"][name$="[quantity]"]').val(0)
+                }
+            }
+
+            function calculateMileageFromFuel(row) {
+                var initialReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[initial_reading]"]').val()) || 0;
+                var finalReadingReading = parseFloat(row.find(
+                    'input[name^="fuel_claim_details"][name$="[final_reading]"]').val()) || 0;
+
+                var fuelinLtr = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[quantity]"]')
+                    .val()) || 0;
+
+                if (fuelinLtr > 0) {
+                    var distance = finalReadingReading - initialReading;
+                    var mileage = (distance / fuelinLtr).toFixed(2);
+
+                    row.find('input[name^="fuel_claim_details"][name$="[mileage]"]').val(mileage);
+                } else {
+                    row.find('input[name^="fuel_claim_details"][name$="[mileage]"]').val(mileage);
+                }
+            }
+
+            function calculateTotalAmountForRow(row) {
+                var fuelinLtr = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[quantity]"]')
+                    .val()) || 0;
+                var rate = parseFloat(row.find('input[name^="fuel_claim_details"][name$="[rate]"]').val()) || 0;
+
+                var amount = (fuelinLtr * rate).toFixed(2);
+
+                row.find('input[name^="fuel_claim_details"][name$="[amount]"]').val(amount);
+                calculateFuelClaimTotal();
+            }
+
+            $('#mas_vehicle_id').change(function() {
+                var vehicleId = $(this).val();
+
+                if (vehicleId) {
+                    getVehicleDetails(vehicleId);
+                } else {
+                    alert('Please select a valid vehicle.');
+                }
+            });
 
             // Trigger the function when the dropdown value changes
             $(document).on("change", "#travel_autorization", getTravelAuthorizationDetails);
@@ -961,10 +1023,30 @@
             $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
             $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']",
                 calculateNetPayable);
-            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[amount]"]',
-                calculateFuelClaimTotal);
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[amount]"]', function() {
+                calculateFuelClaimTotal();
+            });
 
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[final_reading]"]',
+                function() {
+                    var row = $(this).closest('tr');
+                    calculateFuelFromDistance(row);
+                });
 
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[quantity]"]', function() {
+                var row = $(this).closest('tr');
+                calculateMileageFromFuel(row);
+            });
+
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[rate]"]', function() {
+                var row = $(this).closest('tr');
+                calculateTotalAmountForRow(row);
+            });
+
+            $(document).on('input change', 'input[name^="fuel_claim_details"][name$="[quantity]"]', function() {
+                var row = $(this).closest('tr');
+                calculateTotalAmountForRow(row);
+            });
         });
     </script>
 @endpush

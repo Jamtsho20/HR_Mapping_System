@@ -20,7 +20,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use App\Services\ApplicationHistoriesService;
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;
@@ -97,7 +97,7 @@ class ExpenseApplicationController extends Controller
     {
         $itemType = $request->get('item_type', null);
 
-        $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
+        $expenses = MasExpenseType::whereNotIn('id', [1, 2, 3, 4])->get(); // exclude general and conveyance and dsa claim and transfer claim
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
 
         $job = Auth::user()->empJob;
@@ -112,7 +112,7 @@ class ExpenseApplicationController extends Controller
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
         //get dsa advance which has been approved for settlement
-        $advances = AdvanceApplication::where('advance_type_id', DSA_ADVANCE)
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no'])
@@ -159,7 +159,6 @@ class ExpenseApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();
@@ -207,20 +206,11 @@ class ExpenseApplicationController extends Controller
                             ]);
                         }
                     }
-
-                    // Create a history record
-                    $expenseApplication->histories()->create([
-                        'approval_option' => $approverByHierarchy['approval_option'],
-                        'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                        'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                        'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                        'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                        'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                        'status' => $approverByHierarchy['application_status'],
-                        'remarks' => $request->remarks,
-                        'action_performed_by' => loggedInUser(),
-                    ]);
                 }
+                // Create a history record
+                $historyService = new ApplicationHistoriesService();
+                $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
+                 
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();

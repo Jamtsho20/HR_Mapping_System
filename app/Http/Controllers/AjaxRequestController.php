@@ -6,8 +6,11 @@ use App\Http\Controllers\Api\SAP\ApiController;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\DsaClaimApplication;
+use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
 use App\Models\ExpenseApplication;
+use App\Models\GoodIssueApplication;
+use App\Models\GoodReceiptApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasConditionField;
@@ -15,17 +18,22 @@ use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
+use App\Models\MasGoodIssueType;
+use App\Models\MasGoodReceiptType;
 use App\Models\MasGradeStep;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
+use App\Models\MasRequisitionType;
 use App\Models\MasSection;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
+use App\Models\MasVehicle;
 use App\Models\MasVillage;
+use App\Models\RequisitionApplication;
 use App\Models\SystemHierarchyLevel;
 use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
@@ -303,10 +311,11 @@ class AjaxRequestController extends Controller
             2 => MasExpenseType::class,
             3 => MasAdvanceTypes::class,
             4 => LeaveEncashmentType::class,
-            5 => MasAdvanceTypes::class,
+            5 => MasRequisitionType::class,
             6 => MasTransferClaim::class,
             7 => MasTravelType::class,
             8 => MasSifaType::class,
+            9 => DsaClaimType::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -438,11 +447,67 @@ class AjaxRequestController extends Controller
 
     }
 
+    public function getRequisitionNumber($id) {
+        try{
+            $requisitionType = MasRequisitionType::findOrFail($id);
+            $latestTransaction = RequisitionApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $requisitionNo = generateTransactionNumber($requisitionType->code, $nextSequence);
+            return $this->successResponse(['requisition_no' => $requisitionNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
+        }
+        
+    }
+
+    public function getIssueNumber($id) {
+        try{
+            $issueType = MasGoodIssueType::findOrFail($id);
+            $latestTransaction = GoodIssueApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $issueNo = generateTransactionNumber($issueType->code, $nextSequence);
+            return $this->successResponse(['issue_no' => $issueNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
+        }
+        
+    }
+
+    public function getReceiptNumber($id) {
+        try{
+            $receiptType = MasGoodReceiptType::findOrFail($id);
+            $latestTransaction = GoodReceiptApplication::latest('id')->first();
+            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
+            $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
+            return $this->successResponse(['receipt_no' => $receiptNo]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
+        }
+        
+    }
+
+    public function getRequisitionDetails($id) {
+        try{
+            $requisitionDetails = RequisitionApplication::with('details')->findOrFail($id);
+            return $this->successResponse(['requisition_details' => $requisitionDetails]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wrong while trying to fetch details, please try again.');
+        }
+    }
+    
     public function getDsaAdvanceDetails($id)
     {
         $advance = AdvanceApplication::whereId($id)->first();
 
         return response()->json($advance);
+    }
+    
+    public function getVehicleDetailTypeById($id) { // Vehicle Detail and Type
+        $vehicleDetailType = MasVehicle::with('vehicleType')->whereId($id)->first();
 
+        return response()->json($vehicleDetailType);
     }
 }

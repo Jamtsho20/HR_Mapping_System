@@ -18,7 +18,7 @@ class AccountHeadsController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $accountHeads = MasAccAccountHead::filter($request)->orderBy('name')->paginate(30);
+        $accountHeads = MasAccAccountHead::filter($request)->orderBy('name')->paginate(config('global.pagination'));
         return view('paymaster.account-heads.index', compact('accountHeads', 'privileges'));
     }
     public function create()

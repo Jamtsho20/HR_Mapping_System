@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationForwardedMail;
+use App\Services\ApplicationHistoriesService;
 
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\AjaxRequestController;
@@ -31,11 +32,11 @@ class TravelAuthorizationApplicationController extends Controller
     protected $ajax;
     public function __construct(AjaxRequestController $ajaxRequestController)
     {
-        $this->middleware('auth:api'); 
+        $this->middleware('auth:api');
         $this->ajaxRequestController = $ajaxRequestController;
         $this->ajax = $ajaxRequestController;
     }
-   
+
 
     protected $rules = [
         'date' => 'required|date',
@@ -75,7 +76,7 @@ class TravelAuthorizationApplicationController extends Controller
           } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
         }
-       
+
     }
 
     public function create()
@@ -90,7 +91,7 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
             $travelTypes = MasTravelType::all();
             // $defaultTravelTypeId = 1;
-    
+
             $defaultTravelTypeId = request()->get('travel_type', 1);
                  return response()->json([
                 'success' => true,
@@ -99,10 +100,10 @@ class TravelAuthorizationApplicationController extends Controller
                     'travelTypes' => $travelTypes,
                     'dailyAllowance' => $dailyAllowance,
                     'defaultTravelTypeId' => $defaultTravelTypeId
-                    
+
                 ]
             ]);
-            
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);
         }
@@ -121,7 +122,7 @@ class TravelAuthorizationApplicationController extends Controller
     public function store(Request $request)
     {
         try{
-            
+
         $travelAuthorization = new  TravelAuthorizationApplication();
             // dd($request->all());
         $validator = \Validator::make($request->all(), $this->rules, $this->messages);
@@ -143,13 +144,13 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
             $travelAuthorization->travel_type_id = $request->travel_type;
-            
+
 
             $travelAuthorization->save();
-           
+
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
-            
+
                     $travelAuthorization->details()->create([
                         'mode_of_travel' => $detail['mode_of_travel'],
                         'from_location' => $detail['from_location'],
@@ -158,26 +159,17 @@ class TravelAuthorizationApplicationController extends Controller
                         'to_date' => formatDate($detail['to_date']),
                         'purpose' => $detail['purpose'],
                     ]);
-                               
+
                 }
             }
 
 
 
-           
-            $travelAuthorization->histories()->create([
-                'approval_option' => $approverByHierarchy['approval_option'],
-                'hierarchy_id' => $approverByHierarchy['hierarchy_id'] ?? null,
-                'level_id' => $approverByHierarchy['next_level']->id ?? null,
-                'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'] ?? null,
-                'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id ?? null,
-                'level_sequence' => $approverByHierarchy['next_level']->sequence ?? null,
-                'status' => $approverByHierarchy['application_status'],
-                'remarks' => $request->remarks ?? null,
-                'action_performed_by' => loggedInUser(),
-            ]);
-           
-            
+
+            $historyService = new ApplicationHistoriesService();
+            $historyService->saveHistory($travelAuthorization->histories(), $approverByHierarchy, $request->remarks);
+
+
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
                 $emailContent = 'has submitted a travel authorization application and is awaiting your approval for a estimated travel expense of ' . $request->estimated_travel_expenses ;
@@ -186,14 +178,14 @@ class TravelAuthorizationApplicationController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            return back()->withInput()->with('msg_error', $e->getMessage());
-           
+
+            return $this->errorResponse('Failed to store application', 500);
+
         }
 
         return $this->successResponse($travelAuthorization, 'Travel Authorization application has been successfully created.', 201);
     }catch (\Illuminate\Validation\ValidationException $e) {
-        
+
         return $this->errorResponse('Failed to store application', 500, $e);
     }
     }

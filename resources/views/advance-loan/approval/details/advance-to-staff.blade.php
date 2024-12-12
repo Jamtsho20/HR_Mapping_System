@@ -8,8 +8,8 @@
                     <tr>
                         <th width="3%" class="text-center">#</th>
                         <th>Budget Code</th>
-                        <th>From Date</th>
-                        <th>To Date</th>
+                        <!-- <th>From Date</th>
+                        <th>To Date</th> -->
                         <th>Dzongkhag</th>
                         <th>Site Location</th>
                         <th>Advance Required</th>
@@ -26,12 +26,12 @@
                         <td>
                             {{$detail->budgetCode->code}}
                         </td>
-                        <td>
+                        <!-- <td>
                             {{$detail->from_date}}
                         </td>
                         <td>
                             {{$detail->to_date}}
-                        </td>
+                        </td> -->
                         <td>
                             {{$detail->dzongkhag->dzongkhag}}
                         </td>

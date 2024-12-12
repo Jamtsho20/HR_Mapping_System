@@ -13,8 +13,8 @@ class TransferClaimSeeder extends Seeder
     public function run(): void
     {
         \DB::table('mas_transfer_claims')->insert([
-            ['id' => 1, 'name' => 'Transfer Grant', 'description' => 'Transfer Grant'],
-            ['id' => 2, 'name' => 'Carriage Charge', 'description' => 'Carriage Charge'],
+            ['id' => 1, 'name' => 'Transfer Grant', 'code' => '52349', 'description' => 'Transfer Grant'],
+            ['id' => 2, 'name' => 'Carriage Charge', 'code' => '52345', 'description' => 'Carriage Charge'],
         ]);
     }
 }
