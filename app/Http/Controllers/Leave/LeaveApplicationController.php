@@ -93,7 +93,7 @@ class LeaveApplicationController extends Controller
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => $request->from_date,
@@ -171,7 +171,7 @@ class LeaveApplicationController extends Controller
             DB::beginTransaction();
             $leaveApplication->update([
                 // 'mas_employee_id' => $leaveApplication->mas_employee_id,
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => $request->from_date,
@@ -225,7 +225,7 @@ class LeaveApplicationController extends Controller
     }
 
     private function handleLeaveApplication(Request $request, $leaveApplication = null){ //common function to handle store and update of leave
-        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
+        $leaveBalance = EmployeeLeave::where('type_id', $request->leave_type)
             ->where('mas_employee_id', loggedInUser())
             ->value('closing_balance');
 
@@ -235,7 +235,7 @@ class LeaveApplicationController extends Controller
         $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan.leavePolicyRule' => function($query) use($empJobDetail) {
             $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)->whereStatus(1);
         }, 'leaveType'])
-            ->where('mas_leave_type_id', $request->leave_type)
+            ->where('type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
 

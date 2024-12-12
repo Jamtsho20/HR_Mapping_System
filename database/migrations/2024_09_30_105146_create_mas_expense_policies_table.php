@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mas_expense_policies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('type_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('type_id')->index()->constrained('mas_expense_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('name', 50);
             $table->date('start_date');
             $table->date('end_date')->nullable();

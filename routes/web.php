@@ -170,14 +170,14 @@ Route::middleware('auth')->group(function () {
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplicationController');
-        Route::resource('expense-policy', 'ExpensePolicyController');
+        Route::resource('expense-policy', 'ExpensePolicyCappontroller');
         Route::resource('approval', 'ExpenseApprovalController')->except('create', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'edit');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');
-        Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'edit');
-        Route::resource('expense-fuel', 'ExpenseFuelController');
-        Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
+        // Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'edit');
+        // Route::resource('expense-fuel', 'ExpenseFuelController');
+        // Route::resource('fuel-approval', 'FuelApprovalController')->except('create', 'show', 'edit');
         // Route::resource('requisition-apply', 'RequisitionApplyController')->except('create', 'show', 'edit');
         // Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         // Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'show', 'edit');
