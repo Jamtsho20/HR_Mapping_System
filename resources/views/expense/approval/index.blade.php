@@ -139,7 +139,7 @@
                                                                         <td>{{ $application->employee->name }}
                                                                         </td>
                                                                         <td>{{ $application->date }}</td>
-                                                                        <td>{{ $application->expenseType->name }}
+                                                                        <td>{{ $application->type->name }}
                                                                         </td>
                                                                         <td>{{ $application->amount }}
                                                                         </td>
