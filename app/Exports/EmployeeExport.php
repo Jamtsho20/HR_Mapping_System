@@ -30,7 +30,7 @@ class EmployeeExport implements FromCollection, WithHeadings
                 $employee->username,
                 $employee->name,
                 $employee->empJob->department->name,
-                $employee->empJob->section->name,
+                $employee->empJob->section->name ?? '-',
                 $employee->empJob->designation->name,
                 $employee->empJob->gradeStep->name,
                 $employee->empJob->office->name,
