@@ -151,6 +151,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let manualEdit = false;
     let rowCount = document.querySelectorAll('#travel_details tbody tr').length - 1;
 
+
+    document.querySelector('#advance_required').addEventListener('change', function (event) {
+        if (estimatedTravelExpensesInput.value < event.target.value) {
+            alert('Advance amount exceeds the estimated travel expenses!');
+            event.target.value = 0;
+        }
+
+        calculateEstimatedTravelExpenses();
+    })
     // Function to update the date constraints dynamically
     function updateDateConstraints() {
         const tableRows = document.querySelectorAll('#travel_details tr');
@@ -179,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         fromDateField.setAttribute('min', minDate);
 
                     }
-                    console.log(minDate);
+
 
                 } else {
                     fromDateField.removeAttribute('min');
@@ -228,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function calculateEstimatedTravelExpenses() {
         const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
         const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
+
         const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
         const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
         estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
@@ -293,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
             calculateEstimatedTravelExpenses();
         }
     });
+
 
     // Initialize constraints on page load
     updateDateConstraints();

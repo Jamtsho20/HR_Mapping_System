@@ -320,6 +320,7 @@ class AjaxRequestController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
+            10 => MasCommissionTypes::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -522,7 +523,7 @@ class AjaxRequestController extends Controller
 
         return response()->json($advance);
     }
-    
+
     public function getVehicleDetailTypeById($id) { // Vehicle Detail and Type
         $vehicleDetailType = MasVehicle::with('vehicleType')->whereId($id)->first();
 
@@ -544,7 +545,6 @@ public function getDetailsByReceipt($receipt_no)
 {
     // Fetch the data based on the issue_no, e.g. using Eloquent
     $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status',0)->get();
-    $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
 
     return response()->json([
         'data' => $goodsDetails

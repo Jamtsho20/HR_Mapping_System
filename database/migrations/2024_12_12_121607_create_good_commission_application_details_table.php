@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('item_description');
             $table->string('uom');
             $table->decimal('quantity', 5, 2);
+            $table->date('date_placed_in_service');
             $table->string('dzongkhag');
             $table->string('site_name');
             $table->text('remark')->nullable();

@@ -21,6 +21,7 @@ use App\Models\Role;
 use App\Models\SystemHierarchy;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\MasCommissionTypes;
 
 class ApprovalRuleController extends Controller
 {
@@ -84,6 +85,7 @@ class ApprovalRuleController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
+            10 => MasCommissionTypes::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {
