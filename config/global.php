@@ -198,9 +198,21 @@ return [
             'name' => App\Models\TransferClaimApplication::class,
             'post_to_sap' => true
         ],
-        5 => [
+        6 => [
             'name' => App\Models\TravelAuthorizationApplication::class,
             'post_to_sap' => false
-        ]
+        ], 
+        7 => [
+            'name' => App\Models\SifaRegistration::class,
+            'post_to_sap' => false
+        ], 
+        8 => [
+            'name' => App\Models\AdvanceApplication::class,
+            'post_to_sap' => false
+        ],
+        9 => [
+            'name' => App\Models\LeaveEncashmentApplication::class,
+            'post_to_sap' => false
+        ],
     ]
 ];

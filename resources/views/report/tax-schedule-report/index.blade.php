@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('page-title', 'PF')
+@section('page-title', 'Tax Schedule')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
     <div class="d-flex gap-2">
-        <a href="{{route('pf-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-        <a href="{{route('pf-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href="{{route('pf-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
+        <a href="{{route('tax-schedule-report-excel.export',Request::query())}}" data-toggle="tooltip" data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+        <a href="{{route('tax-schedule-report-pdf.export', Request::query())}}" data-toggle="tooltip" data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+        <a href="{{route('tax-schedule-report-print',Request::query())}}" target="_blank" onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
     </div>
 </div>
 
@@ -33,7 +33,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Provident Fund</h3>
+                    <h3 class="card-title">Tax Schedule Report</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -53,40 +53,65 @@
                                                     <th>
                                                         Employee Name
                                                     </th>
-                                                    <th>
-                                                        PF Number
-                                                    </th>
+
                                                     <th>
                                                         CID
                                                     </th>
                                                     <th>
-                                                        Member COntribution
+                                                        Basic Pay
                                                     </th>
                                                     <th>
-                                                        Employee COntribution
+                                                        Critical ALL
                                                     </th>
                                                     <th>
-                                                        Total COntribution
+                                                        House ALL
+                                                    </th>
+                                                    <th>
+                                                        Medical ALL
+                                                    </th>
+                                                    <th>
+                                                        Corporate ALL
+                                                    </th>
+                                                    <th>
+                                                        Cash ALL
+                                                    </th>
+                                                    <th>
+                                                        Health Tax
+                                                    </th>
+                                                    <th>
+                                                        Salary Tax
+                                                    </th>
+                                                    <th>
+                                                        Total Tax
+                                                    </th>
+                                                    <th>
+                                                        Date
                                                     </th>
 
 
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($pfDeductions as $pf)
+                                                @forelse($taxSchedules as $pf)
                                                 <tr>
                                                     <td>{{$loop->iteration}}</td>
                                                     <td>{{$pf->employee->name}}</td>
-                                                    <td>{{$pf->employee->empJob->pf_number}}</td>
                                                     <td>{{$pf->employee->cid_no}}</td>
-                                                    <td>{{ $pf->details['deductions']['PF'] ?? '0'}}</td>
-                                                    <td>{{( $pf->details['deductions']['PF'] ?? '0')*0.1}}</td>
-                                                    <td>{{($pf->details['deductions']['PF'] ?? '0')+(( $pf->details['deductions']['PF'] ?? '0')*0.1)}}</td>
+                                                    <td>{{ $pf->details['basic_pay'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['allowances']['Critical ALL'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['allowances']['House ALL'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['allowances']['Medical ALL'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['allowances']['Medical ALL'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['allowances']['Corporate ALL'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['deductions']['H/Tax'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['deductions']['TDS'] ?? '0'}}</td>
+                                                    <td>{{ $pf->details['deductions']['TDS'] ?? '0' + $pf->details['deductions']['H/Tax'] ?? '0'}}</td>
+                                                    <td>{{ $pf->for_month}}</td>
 
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-danger">No PF Reports found</td>
+                                                    <td colspan="13" class="text-center text-danger">No Tax Schedule Reports found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -97,9 +122,9 @@
                         </div>
                     </div>
                 </div>
-                @if ($pfDeductions->hasPages())
+                @if ($taxSchedules->hasPages())
                 <div class="card-footer">
-                    {{ $pfDeductions->links() }}
+                    {{ $taxSchedules->links() }}
                 </div>
                 @endif
 

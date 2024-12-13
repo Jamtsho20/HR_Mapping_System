@@ -93,7 +93,7 @@ class LeaveApplicationController extends Controller
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => $request->from_date,
@@ -171,7 +171,7 @@ class LeaveApplicationController extends Controller
             DB::beginTransaction();
             $leaveApplication->update([
                 // 'mas_employee_id' => $leaveApplication->mas_employee_id,
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => $request->from_date,
@@ -235,7 +235,7 @@ class LeaveApplicationController extends Controller
         $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan.leavePolicyRule' => function($query) use($empJobDetail) {
             $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)->whereStatus(1);
         }, 'leaveType'])
-            ->where('mas_leave_type_id', $request->leave_type)
+            ->where('type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
 
@@ -244,16 +244,16 @@ class LeaveApplicationController extends Controller
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
 
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
-        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
-            $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
-            $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
-            $unit = match($uom) {
-                3 => 'years',
-                2 => 'months',
-                default => 'days',
-            };
-            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
-        }
+        // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
+        //     $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
+        //     $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
+        //     $unit = match($uom) {
+        //         3 => 'years',
+        //         2 => 'months',
+        //         default => 'days',
+        //     };
+        //     return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
+        // }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
             if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){

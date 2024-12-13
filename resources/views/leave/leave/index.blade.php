@@ -76,6 +76,9 @@
                                                                 <th>
                                                                     STATUS
                                                                 </th>
+                                                                <th>
+                                                                    ACTION
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>

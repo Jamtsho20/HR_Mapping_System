@@ -4,8 +4,7 @@
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
     <div class="d-flex gap-2">
-        <a href="{{ route('pay-comparision-report-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
-            title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+
         <a href="{{ route('pay-comparision-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
             title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
         <a href="{{ route('cash-report-print', Request::query()) }}" target="_blank"
@@ -71,7 +70,8 @@
 
                                             </thead>
                                             <tbody>
-                                                @forelse ($payslipData as $data)
+                                                @if($payslips)
+                                                @foreach ($payslipData as $data)
                                                 <tr>
                                                     <td>{{ $loop->iteration}}</td>
                                                     <td>{{ $data['employee_name'] }}</td>
@@ -88,9 +88,13 @@
                                                     <td>{{ number_format($data['allowances_diff'], 2) }}</td>
                                                     <td>{{ number_format($data['gross_diff'], 2) }}</td>
                                                 </tr>
-                                                @empty
+                                                @endforeach
+
+
+                                                @else
                                                 <tr colspan="12">No PAy Comparision Reports Found</tr>
-                                                @endforelse
+
+                                                @endif
                                             </tbody>
                                         </table>
                                     </div>

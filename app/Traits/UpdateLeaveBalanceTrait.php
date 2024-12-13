@@ -35,7 +35,7 @@ trait UpdateLeaveBalanceTrait
         // Check if the leave status is approved (status 3)
         if ($leaveApplication != null && $leaveApplication->status == 3 ) { // Status 3 means 'Approved'
             $employeeId = $leaveApplication->created_by;
-            $leaveTypeId = $leaveApplication->mas_leave_type_id;
+            $leaveTypeId = $leaveApplication->type_id;
             $noOfDays = $leaveApplication->no_of_days; //aviled no of days
 
             // Fetch the leave balance for the employee and leave type

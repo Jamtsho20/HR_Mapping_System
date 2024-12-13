@@ -154,12 +154,13 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 16, 'name' => 'DSA Settlement Report', 'route' => 'report/dsa-settlement-report', 'display_order' => 17],
             ['system_menu_id' => 16, 'name' => 'Samsung Deduction Report', 'route' => 'report/samsung-deduction-report', 'display_order' => 18],
             ['system_menu_id' => 16, 'name' => 'Pay Comparison Report', 'route' => 'report/pay-comparision-report', 'display_order' => 19],
+            ['system_menu_id' => 16, 'name' => 'Tax Schedule Report', 'route' => 'report/tax-schedule-report', 'display_order' => 20],
 
 
             //submenu for Travel Authorization
             ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
             ['system_menu_id' => 17, 'name' => 'Approval', 'route' => 'travel-authorization/travel-authorization-approval', 'display_order' => 2],
-            
+
             //submenu for Approval            ['system_menu_id' => 17, 'name' => 'Apply', 'route' => 'travel-authorization/apply-travel-authorization', 'display_order' => 1],
             ['system_menu_id' => 18, 'name' => 'Applications', 'route' => 'approval/applications', 'display_order' => 1],
         ]);
