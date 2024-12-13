@@ -156,7 +156,7 @@
                                                             <td>{{$application->employee->name}}</td>
                                                             <td>{{$application->employee->empJob->designation->name}}</td>
                                                             <td>{{$application->employee->empJob->department->name}}</td>
-                                                            <td>{{$application->expenseType->name}}</td>
+                                                            <td>{{$application->type->name}}</td>
                                                             <td>{{$application->expense_amount}}</td>
                                                             <td>{{$application->description}}</td>
                                                             @php
@@ -174,7 +174,7 @@
 
                                                                 {{ $statusText }}
                                                             </td>
-                                                            <td>{{$application->expense_approved_by->name}}</td>
+                                                            <td>{{$application->expense_approved_by->name ?? '-'}}</td>
                                                         </tr>
                                                         @empty
                                                         <tr>
