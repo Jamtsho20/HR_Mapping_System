@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mas_leave_policies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mas_leave_type_id')->constrained();
+            $table->foreignId('type_id')->constrained('mas_leave_types');
             $table->string('name', 50)->comment('leave policy name');
             $table->text('description')->nullable();
             $table->date('start_date');

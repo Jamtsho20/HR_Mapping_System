@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('leave_applications', function (Blueprint $table) {
             $table->id();
             // $table->foreignId('mas_employee_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('mas_leave_type_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('type_id')->constrained('mas_leave_types')->restrictOnDelete()->cascadeOnUpdate();
             $table->date('from_date');
             $table->date('to_date');
             $table->unsignedSmallInteger('from_day')->comment('1 => Full Day, 2 => First Half, 3 => Second Half, 4 => Shift');

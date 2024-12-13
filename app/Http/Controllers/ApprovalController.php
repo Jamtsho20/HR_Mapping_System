@@ -58,8 +58,8 @@ class ApprovalController extends Controller
      */
     public function approveReject(Request $request)
     {
+        // dd($request->all());
         $applicationModel = config('global.applications')[$request->item_type_id];
-
         $model = $applicationModel['name'];
         $postToSap = $applicationModel['post_to_sap'];
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
@@ -119,9 +119,8 @@ class ApprovalController extends Controller
                 } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
 
                     $type = $application->type;
-
-                    $accountCode = $type->code;
-                    $memo = $type->name;
+                    $accountCode = $type->code ?? null;
+                    $memo = $type->name ?? null;
 
                     $employeeId = $application->employee->username = "E00993";
                     $amount = $application->amount;

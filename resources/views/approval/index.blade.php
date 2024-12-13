@@ -158,7 +158,7 @@
                                                                                         </td>
                                                                                         <td>{{ $application->description }}
                                                                                         </td>
-                                                                                        <td>
+                                                                                        <td class="text-center">
                                                                                             @php
                                                                                                 $statusClasses = [
                                                                                                     -1 => 'badge bg-danger',
@@ -167,20 +167,11 @@
                                                                                                     2 => 'badge bg-success',
                                                                                                     3 => 'badge bg-info',
                                                                                                 ];
-                                                                                                $statusText = config(
-                                                                                                    "global.application_status.{$application->status}",
-                                                                                                    'Unknown Status',
-                                                                                                );
-                                                                                                $statusClass =
-                                                                                                    $statusClasses[
-                                                                                                        $application
-                                                                                                            ->status
-                                                                                                    ] ??
-                                                                                                    'badge bg-secondary';
+                                                                                                $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
+                                                                                                $statusClass = $statusClasses[$leave->status] ?? 'badge bg-secondary';
                                                                                             @endphp
-
-                                                                                            <span
-                                                                                                class="{{ $statusClass }}">{{ $statusText }}</span>
+                        
+                                                                                            <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                                         </td>
                                                                                         <td class="text-center">
                                                                                             @if ($privileges->view)

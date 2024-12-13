@@ -58,7 +58,7 @@ class LeaveEncashmentApplicationController extends Controller
 
         $applyFlag = false;
 
-        $leavePolicy = MasLeavePolicy::with('yearEnd')->where('mas_leave_type_id', EARNED_LEAVE)->first();
+        $leavePolicy = MasLeavePolicy::with('yearEnd')->where('type_id', EARNED_LEAVE)->first();
         if (!$leavePolicy) {
             return back()->withInput()->with('Leave policy not found.', 404);
 

@@ -12,17 +12,16 @@ class MasDepartmentSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
-        DB::statement('
-            INSERT INTO `mas_departments` (`short_name`, `name`, `code`, `created_by`) VALUES
-            ("HRAD", "Human Resource and Administration Department", 105, 1),
-            ("Marketing", "Marketing Department", 108, 1),
-            ("FD", "Finance Department", 101, 1),
-            ("AND", "Access Network Department",102, 1),
-            ("CNCS", "Core Network and Carrier Services Department", 104, 1),
-            ("SPPD", "Strategic Planning and Projects Department", 106, 1),
-            ("MIS", "Management Information System Department", 103, 1),
-            ("IAU", "Internal Audit Unit", 107, 1);
-        ');
-    }
+{
+    DB::table('mas_departments')->insert([
+        ['short_name' => 'HRAD', 'name' => 'Human Resource and Administration Department', 'code' => 105, 'created_by' => 1],
+        ['short_name' => 'Marketing', 'name' => 'Marketing Department', 'code' => 108, 'created_by' => 1],
+        ['short_name' => 'FD', 'name' => 'Finance Department', 'code' => 101, 'created_by' => 1],
+        ['short_name' => 'AND', 'name' => 'Access Network Department', 'code' => 102, 'created_by' => 1],
+        ['short_name' => 'CNCS', 'name' => 'Core Network and Carrier Services Department', 'code' => 104, 'created_by' => 1],
+        ['short_name' => 'SPPD', 'name' => 'Strategic Planning and Projects Department', 'code' => 106, 'created_by' => 1],
+        ['short_name' => 'MIS', 'name' => 'Management Information System Department', 'code' => 103, 'created_by' => 1],
+        ['short_name' => 'IAU', 'name' => 'Internal Audit Unit', 'code' => 107, 'created_by' => 1],
+    ]);
+}
 }

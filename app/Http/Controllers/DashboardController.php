@@ -118,7 +118,7 @@ class DashboardController extends Controller
         $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
             ->createdBy()
             ->whereYear('created_at', $currentYear)
-            ->when($leaveTypeId, fn ($query) => $query->where('mas_leave_type_id', $leaveTypeId))
+            ->when($leaveTypeId, fn ($query) => $query->where('type_id', $leaveTypeId))
             ->groupBy('status')
             ->pluck('total', 'status');
 

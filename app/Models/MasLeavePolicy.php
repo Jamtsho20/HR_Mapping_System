@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class MasLeavePolicy extends Model
 {
     use HasFactory, CreatedByTrait;
-    protected $fillable = ['mas_leave_type_id','name','description','is_information_only','start_date','end_date','status']; 
+    protected $fillable = ['type_id','name','description','is_information_only','start_date','end_date','status']; 
 
 
     //realtions
     public function leaveType(){
-        return $this->belongsTo(MasLeaveType::class, 'mas_leave_type_id');
+        return $this->belongsTo(MasLeaveType::class, 'type_id');
     }
 
     public function leavePolicyPlan(){

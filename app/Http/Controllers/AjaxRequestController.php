@@ -114,7 +114,7 @@ class AjaxRequestController extends Controller
     {
         try {
             $empGender = auth()->user()->gender;
-            $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('mas_leave_type_id', $id)->whereStatus(1)->first();
+            $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('type_id', $id)->whereStatus(1)->first();
             if (!$leavePolicy || !$leavePolicy->status || $leavePolicy->is_information_only) {
                 return $this->errorResponse('You cannot apply leave as leave policy for this leave type has not been enforced or is for information purpose only, please contact system admin.');
             }
@@ -154,7 +154,7 @@ class AjaxRequestController extends Controller
 
         try {
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')
-                ->where('mas_leave_type_id', $leaveTypeId)
+                ->where('type_id', $leaveTypeId)
                 ->whereStatus(1)
                 ->first();
             $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan
