@@ -44,7 +44,7 @@ return [
         -1 => 'Rejected',
         0 => 'Cancelled',
         1 => 'Submitted',
-        2 => 'Verified',
+        2 => 'In-Progress',
         3 => 'Approved'
     ],
 
