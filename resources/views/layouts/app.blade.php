@@ -8,7 +8,6 @@
                 <!-- PAGE-HEADER -->
                 <div class="page-header">
                     <div>
-                        <h1 class="page-title">@yield('page-title')</h1>
                         @include('layouts.partials.breadcrumb')
                     </div>
                     <div class="ms-auto pageheader-btn">

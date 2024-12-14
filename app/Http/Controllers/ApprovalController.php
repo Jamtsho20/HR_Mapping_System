@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\SAP\ApiController;
+use App\Models\ApprovalHead;
+use App\Models\MasApprovalHead;
 use App\Models\MasExpenseType;
+use App\Models\MasPayHead;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +25,7 @@ class ApprovalController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
+        $headers = MasApprovalHead::all();
         $empIdName = LoggedInUserEmpIdName();
         $user = auth()->user();
 
