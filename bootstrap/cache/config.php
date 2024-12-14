@@ -749,9 +749,24 @@
         'name' => 'App\\Models\\TransferClaimApplication',
         'post_to_sap' => true,
       ),
-      5 => 
+      6 => 
       array (
         'name' => 'App\\Models\\TravelAuthorizationApplication',
+        'post_to_sap' => false,
+      ),
+      7 => 
+      array (
+        'name' => 'App\\Models\\SifaRegistration',
+        'post_to_sap' => false,
+      ),
+      8 => 
+      array (
+        'name' => 'App\\Models\\AdvanceApplication',
+        'post_to_sap' => false,
+      ),
+      9 => 
+      array (
+        'name' => 'App\\Models\\LeaveEncashmentApplication',
         'post_to_sap' => false,
       ),
     ),

@@ -58,7 +58,7 @@ class ApprovalController extends Controller
      */
     public function approveReject(Request $request)
     {
-        // dd($request->all());
+
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
         $postToSap = $applicationModel['post_to_sap'];
@@ -81,7 +81,7 @@ class ApprovalController extends Controller
             if(!$application) {
                 continue;
             }
-            
+
             $costingCode2 = null;
             if ($applicationType == 2) { // Expense
                 $type = $application->type;
@@ -171,7 +171,7 @@ class ApprovalController extends Controller
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
 
             return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);

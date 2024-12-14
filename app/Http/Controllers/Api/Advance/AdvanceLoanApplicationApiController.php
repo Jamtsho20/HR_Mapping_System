@@ -67,7 +67,6 @@ class AdvanceLoanApplicationApiController extends Controller
 
     public function index(Request $request)
     {
-        $privileges = $request->instance();
 
         try {
             $applications = AdvanceApplication::with('advanceType')->createdBy()->get();
