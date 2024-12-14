@@ -63,7 +63,7 @@ return [
     'marital_status' => [
         1 => 'Single',
         2 => 'Married',
-        3 => 'Divorced'
+        3 => 'Divorced',
     ],
 
     'leave_year' => [
