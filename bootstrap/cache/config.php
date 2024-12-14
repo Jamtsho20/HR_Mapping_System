@@ -10,7 +10,7 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:fH3aV5HqgJf3Aiol7fxZRbfVKspWB3OjJ4YjYmw9ZDo=',
+    'key' => 'base64:L6qVWXzOrLe9mUGPjAgoC0dxz0GvJzdo605C4hIdCVY=',
     'cipher' => 'AES-256-CBC',
     'maintenance' => 
     array (
@@ -203,7 +203,7 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework/cache/data',
+        'path' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -298,7 +298,7 @@
         'port' => '3306',
         'database' => 'tashi_group_hrms',
         'username' => 'root',
-        'password' => 'tandin123',
+        'password' => '',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -318,7 +318,7 @@
         'port' => '3306',
         'database' => 'tashi_group_hrms',
         'username' => 'root',
-        'password' => 'tandin123',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -333,7 +333,7 @@
         'port' => '3306',
         'database' => 'tashi_group_hrms',
         'username' => 'root',
-        'password' => 'tandin123',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -481,7 +481,7 @@
     ),
     'temporary_files' => 
     array (
-      'local_path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework/cache/laravel-excel',
+      'local_path' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\framework/cache/laravel-excel',
       'local_permissions' => 
       array (
       ),
@@ -498,13 +498,13 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\app',
+        'root' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\app',
         'throw' => false,
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\app/public',
+        'root' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -524,7 +524,7 @@
     ),
     'links' => 
     array (
-      'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\public\\storage' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\app/public',
+      'C:\\laragon\\www\\tashi-group-hrms\\public\\storage' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\app/public',
     ),
   ),
   'global' => 
@@ -580,7 +580,7 @@
       -1 => 'Rejected',
       0 => 'Cancelled',
       1 => 'Submitted',
-      2 => 'Verified',
+      2 => 'In-Progress',
       3 => 'Approved',
     ),
     'gender' => 
@@ -749,9 +749,24 @@
         'name' => 'App\\Models\\TransferClaimApplication',
         'post_to_sap' => true,
       ),
-      5 => 
+      6 => 
       array (
         'name' => 'App\\Models\\TravelAuthorizationApplication',
+        'post_to_sap' => false,
+      ),
+      7 => 
+      array (
+        'name' => 'App\\Models\\SifaRegistration',
+        'post_to_sap' => false,
+      ),
+      8 => 
+      array (
+        'name' => 'App\\Models\\AdvanceApplication',
+        'post_to_sap' => false,
+      ),
+      9 => 
+      array (
+        'name' => 'App\\Models\\LeaveEncashmentApplication',
         'post_to_sap' => false,
       ),
     ),
@@ -792,14 +807,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\logs/laravel.log',
+        'path' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\logs/laravel.log',
+        'path' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -864,7 +879,7 @@
       ),
       'emergency' => 
       array (
-        'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\logs/laravel.log',
+        'path' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\logs/laravel.log',
       ),
     ),
   ),
@@ -931,7 +946,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\resources\\views/vendor/mail',
+        0 => 'C:\\laragon\\www\\tashi-group-hrms\\resources\\views/vendor/mail',
       ),
     ),
   ),
@@ -1069,7 +1084,7 @@
     'lifetime' => '120',
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework/sessions',
+    'files' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1089,9 +1104,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\resources\\views',
+      0 => 'C:\\laragon\\www\\tashi-group-hrms\\resources\\views',
     ),
-    'compiled' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework\\views',
+    'compiled' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\framework\\views',
   ),
   'debugbar' => 
   array (
@@ -1107,7 +1122,7 @@
       'enabled' => true,
       'open' => NULL,
       'driver' => 'file',
-      'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\debugbar',
+      'path' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\debugbar',
       'connection' => NULL,
       'provider' => '',
       'hostname' => '127.0.0.1',
@@ -1255,10 +1270,10 @@
     'convert_entities' => true,
     'options' => 
     array (
-      'font_dir' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\fonts',
-      'font_cache' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\fonts',
-      'temp_dir' => 'C:\\Users\\Norbu\\AppData\\Local\\Temp',
-      'chroot' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms',
+      'font_dir' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\fonts',
+      'font_cache' => 'C:\\laragon\\www\\tashi-group-hrms\\storage\\fonts',
+      'temp_dir' => 'C:\\Users\\user\\AppData\\Local\\Temp',
+      'chroot' => 'C:\\laragon\\www\\tashi-group-hrms',
       'allowed_protocols' => 
       array (
         'file://' => 
@@ -1381,7 +1396,7 @@
     array (
     ),
     'enable_runnable_solutions' => NULL,
-    'remote_sites_path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms',
+    'remote_sites_path' => 'C:\\laragon\\www\\tashi-group-hrms',
     'local_sites_path' => '',
     'housekeeping_endpoint_prefix' => '_ignition',
     'settings_file_path' => '',

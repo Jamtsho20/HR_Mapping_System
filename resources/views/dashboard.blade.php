@@ -29,7 +29,7 @@
 @endif
 
 
-<div class="card">
+<!-- <div class="card">
     <div class="card-body card-box">
         <div class="col-md-4">
             <div class="row">
@@ -71,7 +71,8 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
+
 <div class="row">
     <!-- Casual Leave Chart -->
     <div class="col-md-6">

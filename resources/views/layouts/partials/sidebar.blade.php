@@ -4,7 +4,9 @@
         <!-- app-Header -->
         <div class="app-header header sticky fixed-header visible-title stickyClass" style="margin-bottom: -74px;">
             <div class="container-fluid main-container">
+
                 <div class="d-flex align-items-center">
+
                     <a aria-label="Hide Sidebar" class="app-sidebar__toggle" data-bs-toggle="sidebar" href="javascript:void(0);"></a>
                     <div class="responsive-logo">
                         <a href="/" class="header-logo">
@@ -64,7 +66,10 @@
                             </div>
                         </div>
                     </div>
+                   <div class="ms-auto"><h1 class="page-title">@yield('page-title')</h1></div> 
+
                 </div>
+
             </div>
         </div>
         <!-- /app-Header -->

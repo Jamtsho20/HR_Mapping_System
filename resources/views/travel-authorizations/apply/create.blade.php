@@ -59,7 +59,7 @@
                     </div>
                 </div>
             </div>
-
+<!-- 
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -67,7 +67,8 @@
                         <input type="number" class="form-control" name="advance_required" id="advance_required">
                     </div>
                 </div>
-            </div>
+            </div> -->
+            <br>
 
             <div class="card-body  p-0">
                 <div class="table-responsive">

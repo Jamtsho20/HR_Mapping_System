@@ -33,7 +33,7 @@ class TransferClaimApplicationController extends Controller
         'current_location' => 'required',
         'new_location' => 'required',
         'distance_travelled' => 'required_if:transfer_claim,Carriage Charge',
-        'amount' => 'required',
+        'amount' => 'required|numeric|max:20000',
     ];
 
     protected $messages = [];
