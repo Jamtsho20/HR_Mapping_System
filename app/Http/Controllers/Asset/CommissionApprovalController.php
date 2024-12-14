@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\GoodCommissionApplication;
 
 class CommissionApprovalController extends Controller
 {
@@ -20,8 +21,18 @@ class CommissionApprovalController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-      
-        return view('asset.commission-approval.index',compact('privileges'));
+        $user = auth()->user();
+        $goods_commissions = GoodCommissionApplication::whereHas('histories', function ($query) use ($user) {
+            $query->where('approver_emp_id', $user->id)
+                ->where('application_type', 'App\Models\GoodCommissionApplication');
+        })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
+
+            ->with('employee:id,name,username')
+            ->orderBy('created_at')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+
+        return view('asset.commission-approval.index',compact('privileges', 'goods_commissions'));
     }
     /**
      * Show the form for creating a new resource.

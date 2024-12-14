@@ -31,7 +31,7 @@ class LeaveEncashmentApplication extends Model
     protected static function booted()
     {
         static::updated(function ($leaveEncashment) {
-            if ($leaveEncashment->isDirty('status') && $leaveEncashment->status == 3) { 
+            if ($leaveEncashment->isDirty('status') && $leaveEncashment->status == 3) {
                 $leaveEncashment->updateLeaveBalance(null, $leaveEncashment);
             }
         });
@@ -40,4 +40,10 @@ class LeaveEncashmentApplication extends Model
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+        
+    }
+
+    
 }

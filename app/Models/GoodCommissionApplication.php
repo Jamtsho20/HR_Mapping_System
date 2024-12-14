@@ -11,17 +11,31 @@ class GoodCommissionApplication extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $cast = [
-        'attachment' => 'array'
+    protected $fillable = [
+        'id',
+        'commission_no',
+        'receipt_no',
+        'commission_date',
+        'file',
+        'status'
     ];
 
     public function commisionType ()
     {
         return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
     }
-    public function detail ()
+    public function details ()
     {
         return $this->hasMany(GoodCommissionApplicationDetail::class, 'good_commission_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function empJob(){
+        return $this->hasOne(MasEmployeeJob::class, 'mas_employee_id');
     }
 
     public function histories()

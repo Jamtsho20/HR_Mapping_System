@@ -38,7 +38,7 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <div class="col-sm-12">
- 
+
                             <div class="dataTables_scroll">
                                 <div class="dataTables_scrollHead"
                                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -78,8 +78,10 @@
                                                     <td>{{$loop->iteration}}</td>
                                                     <td>{{$pf->employee->name}}</td>
                                                     <td>{{$pf->employee->empJob->pf_number}}</td>
-                                                    <td>{{$pf->employee->cid_no}}</td>                                          
+                                                    <td>{{$pf->employee->cid_no}}</td>
                                                     <td>{{ $pf->details['deductions']['PF'] ?? '0'}}</td>
+                                                    <td>{{( $pf->details['deductions']['PF'] ?? '0')*0.1}}</td>
+                                                    <td>{{($pf->details['deductions']['PF'] ?? '0')+(( $pf->details['deductions']['PF'] ?? '0')*0.1)}}</td>
 
                                                 </tr>
                                                 @empty

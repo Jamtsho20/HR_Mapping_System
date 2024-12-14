@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('good_commission_applications', function (Blueprint $table) {
             $table->id();
             $table->string('commission_no')->index();
-            $table->foreignId('receipt_no')->index()->constrained('good_receipt_applications')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('receipt_id')->index()->constrained('good_receipt_applications')->cascadeOnUpdate()->restrictOnDelete();
             $table->date('commission_date')->index();
             $table->tinyInteger('status')->comment('1 => Commissioned, 0 => Not Commissioned');
+            $table->string('file')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

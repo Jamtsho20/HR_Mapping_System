@@ -10,7 +10,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="receipt_no">Receipt Number <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="receipt_no" name="receipt_no" value="{{ old('requisition_no')  }}" readonly>
+                        <input type="text" class="form-control" id="receipt_no" name="receipt_no" value="genereating..." readonly>
                     </div>
                 </div>
 
@@ -33,7 +33,23 @@
                         </select>
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="employee">Employee Name</label>
+                        <input type="text" class="form-control" name="employee" value="{{ Auth::user()->name }}" disabled>
+                    </div>
+                </div>
 
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" class="form-control" name="department" value="{{ $department->name }}" disabled>
+                    </div>
+                </div>
+            </div>
 
                 <div class="table-responsive">
                     <table id="details" class="table table-condensed table-bordered table-striped table-sm">
@@ -105,7 +121,7 @@
                 </div>
             </div>
 
-        </div>
+
         <div class="card-footer">
             @include('layouts.includes.buttons', [
                 'buttonName' => 'Receive',
@@ -147,7 +163,7 @@
             type: "GET",
 
             success: function (response) {
-                
+
                 if (response.data) {
                     // Clear previous table rows
                     $('#details tbody').empty();

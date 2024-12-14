@@ -46,6 +46,7 @@ class PayComparisionReportController extends Controller
             ->paginate(config('global.pagination')) // Paginate the results
             ->withQueryString();
 
+
         //get the name of month and year
         $current = $payslips->where('for_month', now()->format('Y-m-01'))->first();
         $previous = $payslips->where('for_month', now()->subMonth()->format('Y-m-01'))->first();
@@ -73,7 +74,6 @@ class PayComparisionReportController extends Controller
 
             ];
         });
-
 
 
 

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('dzongkhag');
             $table->string('site_name');
             $table->text('remark')->nullable();
+            $table->decimal('balance', 5,2);
             $table->boolean('status')->comment('1 => Not commissioned, 0 =>Commisioned');
             $table->timestamps();
         });
