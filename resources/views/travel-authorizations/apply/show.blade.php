@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('page-title', 'Travel Authorization Details')
 @section('buttons')
-    @if ($context === 'application')
-        <a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-primary">
-            <i class="fa fa-reply"></i> Back to Travel Authorization List
-        </a>
-    @elseif ($context === 'approval')
-        <a href="{{ route('travel-authorization-approval.index') }}" class="btn btn-primary">
-            <i class="fa fa-reply"></i> Back to Approval List
-        </a>
-    @endif
+@if ($context === 'application')
+<a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-primary">
+    <i class="fa fa-reply"></i> Back to Travel Authorization List
+</a>
+@elseif ($context === 'approval')
+<a href="{{ route('travel-authorization-approval.index') }}" class="btn btn-primary">
+    <i class="fa fa-reply"></i> Back to Approval List
+</a>
+@endif
 @endsection
 
 @section('content')
@@ -34,10 +34,10 @@
                             <li class="list-group-item">
                                 <b>Estimated Expense</b> <a class="pull-right">{{ $travelAuthorization->estimated_travel_expenses }}</a>
                             </li>
-                            <li class="list-group-item">
+                            <!-- <li class="list-group-item">
                                 <b>Advance Required</b> <a class="pull-right">{{ $travelAuthorization->advance_required ? $travelAuthorization->advance_required : '-' }}</a>
-                            </li>
-                            
+                            </li> -->
+
                         </ul>
                     </div>
                     <hr>
@@ -57,21 +57,21 @@
                                 @foreach($travelAuthorization->details as $index => $detail)
                                 <tr>
                                     <td>
-                                      <p>{{ $detail->from_date }}</p>
+                                        <p>{{ $detail->from_date }}</p>
                                     </td>
                                     <td>
                                         <p>{{ $detail->to_date }}</p>
                                     </td>
                                     <td>
-                                       <p>{{ $detail->from_location }}</p>
+                                        <p>{{ $detail->from_location }}</p>
                                     </td>
                                     <td>
                                         <p>{{ $detail->to_location }}</p>
                                     </td>
                                     <td>
-                                    <p class="form-control-static">
-                                        {{ config('global.travel_modes')[$detail->mode_of_travel] ?? 'Unknown' }}
-                                    </p>
+                                        <p class="form-control-static">
+                                            {{ config('global.travel_modes')[$detail->mode_of_travel] ?? 'Unknown' }}
+                                        </p>
                                     </td>
                                     <td colspan="2">
                                         <p>{{ $detail->purpose }}</p>
@@ -86,17 +86,14 @@
             </div>
             <div class="card-footer">
                 <ul class="list-group list-group-unbordered">
-
                     <li class="list-group-item">
-                        <b>Approved By</b>
-                        <a class="pull-right"></a>
+                        <strong>Approved By</strong>
+                        <span class="pull-right">{{ $travelAuthorization->status == 3 ? $travelAuthorization->travel_approved_by->name : 'N/A' }}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>Rejected By</b> <a class="pull-right"></a>
-
+                        <strong>Rejected By</strong>
+                        <span class="pull-right">{{ $travelAuthorization->status == -1 ? $travelAuthorization->travel_approved_by->name : 'N/A' }}</span>
                     </li>
-
-
                 </ul>
             </div>
 

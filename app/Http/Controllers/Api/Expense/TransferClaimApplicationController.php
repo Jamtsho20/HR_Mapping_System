@@ -34,7 +34,7 @@ class TransferClaimApplicationController extends Controller
         'current_location' => 'required',
         'new_location' => 'required',
         'distance_travelled' => 'required_if:transfer_claim,Carriage Charge',
-        'amount_claimed' => 'required',
+        'amount' => 'required',
     ];
 
     protected $messages = [];
@@ -110,7 +110,7 @@ class TransferClaimApplicationController extends Controller
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
                     'distance_travelled' => $request->distance_travelled,
-                    'amount_claimed' => $request->amount_claimed,
+                    'amount' => $request->amount,
                     'attachment' => $attachment,
                     'status' => 1,
                 ]);
@@ -134,10 +134,10 @@ class TransferClaimApplicationController extends Controller
                 return $this->errorResponse($e->getMessage(), 500);
             }
         } else {
-            return $this->errorResponse('Failed to create application', 500);
+            return $this->errorResponse('No approver hierarchy found', 500);
         }
     }catch (\Illuminate\Validation\ValidationException $e) {
-        return $this->errorResponse('Failed to create application', 500);
+        return $this->errorResponse($e->getMessage(), 500);
     }
 
     }
