@@ -49,7 +49,7 @@
                     <input type="number" class="form-control" name="loan_number" required="required">
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="amount">Amount <span class="text-danger">*</span></label>
+                    <label for="amount">EMI<span class="text-danger">*</span></label>
                     <input type="number" class="form-control" name="amount" required="required">
                 </div>
                 <div class="form-group col-md-6">

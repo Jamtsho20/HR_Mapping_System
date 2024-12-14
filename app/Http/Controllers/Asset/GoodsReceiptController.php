@@ -8,6 +8,8 @@ use App\Models\GoodReceiptApplication;
 use App\Models\GoodIssueApplication;
 use Illuminate\Support\Facades\DB;
 use App\Models\GoodReceiptApplicationDetail;
+use App\Models\User;
+use App\Models\MasDepartment;
 
 class GoodsReceiptController extends Controller
 {
@@ -38,7 +40,7 @@ class GoodsReceiptController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $goods_receipts = GoodReceiptApplication::all();
+        $goods_receipts = GoodReceiptApplication::where('created_by', auth()->user()->id)->get();
         return view('asset.goods-receipt.index',compact('privileges', 'goods_receipts'));
     }
 
@@ -48,8 +50,9 @@ class GoodsReceiptController extends Controller
     public function create()
     {
        $goods_issued = GoodIssueApplication::where('status',0)->get();
-
-       return view('asset.goods-receipt.create',compact('goods_issued'));
+       $user = User::where('id', auth()->user()->id)->with('empJob')->first();
+       $department = MasDepartment::where('id', $user->empJob->mas_department_id)->first('name');
+       return view('asset.goods-receipt.create',compact('goods_issued', 'department'));
 
     }
 
@@ -135,6 +138,7 @@ class GoodsReceiptController extends Controller
                         'store' => $detail['store'],
                         'stock_status' => $detail['stock_status'],
                         'receipt_quantity' => $detail['receipt_quantity'],
+                        'balance' => $detail['receipt_quantity'],
                         'dzongkhag' => $detail['dzongkhag'],
                         'site_name' => $detail['site_name'],
                         'remark' => $detail['remark'],
@@ -155,6 +159,7 @@ class GoodsReceiptController extends Controller
                     'dzongkhag' => $detail['dzongkhag'],
                     'site_name' => $detail['site_name'],
                     'remark' => $detail['remark'],
+                    'balance' => $detail['receipt_quantity'],
                     'status' => 0
                 ]);
 
