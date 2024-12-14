@@ -32,7 +32,7 @@ class DSAClaimApplicationController extends Controller
 
     protected $rules = [
         'dsa_claim_no' => 'required|string',
-        'total_amount' => 'required',
+        'amount' => 'required',
     ];
 
     protected $messages = [
@@ -120,8 +120,8 @@ class DSAClaimApplicationController extends Controller
                         'type_id' => $request->type_id,
                         'travel_authorization_id' => $request->travel_authorization_id,
                         'advance_application_id' => $request->advance_no ?? null,
-                        'total_amount' => $request->total_amount,
-                        'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->total_amount,
+                        'amount' => $request->amount,
+                        'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->amount,
                         'balance_amount' => $request->balance_amount,
                         'attachment' => $attachment,
                         'status' => 1,
@@ -187,6 +187,7 @@ class DSAClaimApplicationController extends Controller
     {
         try{
         $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);
+
         return $this->successResponse($dsa, 'DSA claim application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);

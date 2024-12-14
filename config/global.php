@@ -201,11 +201,11 @@ return [
         6 => [
             'name' => App\Models\TravelAuthorizationApplication::class,
             'post_to_sap' => false
-        ], 
+        ],
         7 => [
             'name' => App\Models\SifaRegistration::class,
             'post_to_sap' => false
-        ], 
+        ],
         8 => [
             'name' => App\Models\AdvanceApplication::class,
             'post_to_sap' => false

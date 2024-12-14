@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Leave\LeaveEncashmentApplicationController;
 use App\Http\Controllers\Api\Leave\LeaveEncashmentApprovalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApprovalController;
+use App\Http\Controllers\ApprovalController;
 
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
@@ -74,7 +75,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('expense_dsa', [ExpenseApprovalController::class, 'indexDsa']);
         Route::get('expense_transfer_claim', [ExpenseApprovalController::class, 'indexTransfer']);
         Route::get('expense_transfer_claim/{id}', [ExpenseApprovalController::class, 'showTransferClaim']);
-        Route::post('approval/bulk', [AjaxRequestController::class, 'bulkApprovalRejection']);
+        Route::post('approval/bulk', [ApprovalController::class, 'approveReject']);
         // Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
     });
 

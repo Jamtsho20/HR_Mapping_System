@@ -15,12 +15,12 @@ class AdvanceTypesSeeder extends Seeder
     {
         DB::statement('
            INSERT INTO `mas_advance_types` (`name`, `code`, `status`, `created_by`) VALUES
-            ("Advance to Staff", "ADV_Staff", 1 , 1),
-            ("DSA Advance(Tour)", "DSA_ADV", 1, 1),
-            ("Electricity Imprest Advance", "ELC_IMP_ADV", 1, 1),
-            ("Gadget EMI", "GAD_EMI", 1, 1),
-            ("Imprest Advance", "IMP_ADV", 1, 1),
-            ("Salary Advance", "SAL_ADV", 1, 1),
+            ("Advance to Staff", "36117", 1 , 1),
+            ("DSA Advance(Tour)", "36145", 1, 1),
+            ("Electricity Imprest Advance", "36127", 1, 1),
+            ("Gadget EMI", "34605", 1, 1),
+            ("Imprest Advance", "36126", 1, 1),
+            ("Salary Advance", "36144", 1, 1),
             ("SIFA LOAN", "SIFA", 1, 1);
 
         ');
