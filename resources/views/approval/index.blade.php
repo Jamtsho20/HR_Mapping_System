@@ -5,34 +5,15 @@
     <div class="block">
         <div class="block-header block-header-default">
             @component('layouts.includes.filter')
-                <div class="col-8 form-group">
+                <div class="col-12 form-group">
                     <input type="text" name="expense" class="form-control" value="{{ request()->get('expense') }}"
                         placeholder="Search">
                 </div>
             @endcomponent
-            <div class="block-options">
-                <div class="row" style="float:right;">
-                    <div class=" col-6 ">
-                        <div class="btn-group mt-2 mb-2">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
-                                Approval Status
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:void(0);">Pending</a></li>
-                                <li><a href="javascript:void(0);">Approved</a></li>
-                            </ul>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            
         </div>
         <div class="block-content">
             <div class="block-options">
-                <div class="col-sm-8">
-                    <h5>Expense Approval</h5>
-                </div>
                 @if ($privileges->edit)
                     <div class="col-sm-6">
                         <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
@@ -167,8 +148,8 @@
                                                                                                     2 => 'badge bg-success',
                                                                                                     3 => 'badge bg-info',
                                                                                                 ];
-                                                                                                $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
-                                                                                                $statusClass = $statusClasses[$leave->status] ?? 'badge bg-secondary';
+                                                                                                $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
+                                                                                                $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
                                                                                             @endphp
                         
                                                                                             <span class="{{ $statusClass }}">{{ $statusText }}</span>

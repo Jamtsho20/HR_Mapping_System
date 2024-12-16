@@ -52,8 +52,9 @@ class ApprovalController extends Controller
         $expenses = $results->get(2);
         $dsaclaims = $results->get(3);
         $transferclaims = $results->get(4);
+        $travelAuthorizations = $results->get(6);
 
-        return view('approval.index', compact('privileges', 'headers', 'expenses', 'dsaclaims', 'transferclaims'));
+        return view('approval.index', compact('privileges', 'headers', 'expenses', 'dsaclaims', 'transferclaims','travelAuthorizations'));
     }
 
     /**
