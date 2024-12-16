@@ -125,7 +125,8 @@ class ExpenseApplicationController extends Controller
             $itemType = $request->get('item_type', null);
 
             // Fetch required data for creating the expense application
-            $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
+            // $expenses = MasExpenseType::whereNotIn('id', [3, 4])->get();
+            $expenses = MasExpenseType::whereNotIn('id', [1, 2, 3, 4])->get(); // exclude general and conveyance and dsa claim and transfer claim
             $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
             $empIdName = LoggedInUserEmpIdName(); // Get logged-in user's employee details
             $travelTypes = MasTravelType::get();

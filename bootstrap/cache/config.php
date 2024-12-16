@@ -1,7 +1,7 @@
 <?php return array (
-  'app' => 
+  'app' =>
   array (
-    'name' => 'Laravel',
+    'name' => 'TIPL HRMS',
     'env' => 'local',
     'debug' => true,
     'url' => 'http://localhost',
@@ -12,11 +12,11 @@
     'faker_locale' => 'en_US',
     'key' => 'base64:fH3aV5HqgJf3Aiol7fxZRbfVKspWB3OjJ4YjYmw9ZDo=',
     'cipher' => 'AES-256-CBC',
-    'maintenance' => 
+    'maintenance' =>
     array (
       'driver' => 'file',
     ),
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Illuminate\\Auth\\AuthServiceProvider',
       1 => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',
@@ -46,7 +46,7 @@
       25 => 'App\\Providers\\RouteServiceProvider',
       26 => 'App\\Providers\\ComposerServiceProvider',
     ),
-    'aliases' => 
+    'aliases' =>
     array (
       'App' => 'Illuminate\\Support\\Facades\\App',
       'Arr' => 'Illuminate\\Support\\Arr',
@@ -91,42 +91,42 @@
       'Vite' => 'Illuminate\\Support\\Facades\\Vite',
     ),
   ),
-  'auth' => 
+  'auth' =>
   array (
-    'defaults' => 
+    'defaults' =>
     array (
       'guard' => 'web',
       'passwords' => 'users',
     ),
-    'guards' => 
+    'guards' =>
     array (
-      'web' => 
+      'web' =>
       array (
         'driver' => 'session',
         'provider' => 'users',
       ),
-      'api' => 
+      'api' =>
       array (
         'driver' => 'sanctum',
         'provider' => 'users',
       ),
-      'sanctum' => 
+      'sanctum' =>
       array (
         'driver' => 'sanctum',
         'provider' => NULL,
       ),
     ),
-    'providers' => 
+    'providers' =>
     array (
-      'users' => 
+      'users' =>
       array (
         'driver' => 'eloquent',
         'model' => 'App\\Models\\User',
       ),
     ),
-    'passwords' => 
+    'passwords' =>
     array (
-      'users' => 
+      'users' =>
       array (
         'provider' => 'users',
         'table' => 'password_reset_tokens',
@@ -136,18 +136,18 @@
     ),
     'password_timeout' => 10800,
   ),
-  'broadcasting' => 
+  'broadcasting' =>
   array (
     'default' => 'log',
-    'connections' => 
+    'connections' =>
     array (
-      'pusher' => 
+      'pusher' =>
       array (
         'driver' => 'pusher',
         'key' => '',
         'secret' => '',
         'app_id' => '',
-        'options' => 
+        'options' =>
         array (
           'host' => 'api-mt1.pusher.com',
           'port' => '443',
@@ -155,71 +155,71 @@
           'encrypted' => true,
           'useTLS' => true,
         ),
-        'client_options' => 
+        'client_options' =>
         array (
         ),
       ),
-      'ably' => 
+      'ably' =>
       array (
         'driver' => 'ably',
         'key' => NULL,
       ),
-      'redis' => 
+      'redis' =>
       array (
         'driver' => 'redis',
         'connection' => 'default',
       ),
-      'log' => 
+      'log' =>
       array (
         'driver' => 'log',
       ),
-      'null' => 
+      'null' =>
       array (
         'driver' => 'null',
       ),
     ),
   ),
-  'cache' => 
+  'cache' =>
   array (
     'default' => 'file',
-    'stores' => 
+    'stores' =>
     array (
-      'apc' => 
+      'apc' =>
       array (
         'driver' => 'apc',
       ),
-      'array' => 
+      'array' =>
       array (
         'driver' => 'array',
         'serialize' => false,
       ),
-      'database' => 
+      'database' =>
       array (
         'driver' => 'database',
         'table' => 'cache',
         'connection' => NULL,
         'lock_connection' => NULL,
       ),
-      'file' => 
+      'file' =>
       array (
         'driver' => 'file',
         'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework/cache/data',
       ),
-      'memcached' => 
+      'memcached' =>
       array (
         'driver' => 'memcached',
         'persistent_id' => NULL,
-        'sasl' => 
+        'sasl' =>
         array (
           0 => NULL,
           1 => NULL,
         ),
-        'options' => 
+        'options' =>
         array (
         ),
-        'servers' => 
+        'servers' =>
         array (
-          0 => 
+          0 =>
           array (
             'host' => '127.0.0.1',
             'port' => 11211,
@@ -227,13 +227,13 @@
           ),
         ),
       ),
-      'redis' => 
+      'redis' =>
       array (
         'driver' => 'redis',
         'connection' => 'cache',
         'lock_connection' => 'default',
       ),
-      'dynamodb' => 
+      'dynamodb' =>
       array (
         'driver' => 'dynamodb',
         'key' => '',
@@ -242,47 +242,47 @@
         'table' => 'cache',
         'endpoint' => NULL,
       ),
-      'octane' => 
+      'octane' =>
       array (
         'driver' => 'octane',
       ),
     ),
-    'prefix' => 'laravel_cache_',
+    'prefix' => 'tipl_hrms_cache_',
   ),
-  'cors' => 
+  'cors' =>
   array (
-    'paths' => 
+    'paths' =>
     array (
       0 => 'api/*',
       1 => 'sanctum/csrf-cookie',
     ),
-    'allowed_methods' => 
+    'allowed_methods' =>
     array (
       0 => '*',
     ),
-    'allowed_origins' => 
+    'allowed_origins' =>
     array (
       0 => '*',
     ),
-    'allowed_origins_patterns' => 
+    'allowed_origins_patterns' =>
     array (
     ),
-    'allowed_headers' => 
+    'allowed_headers' =>
     array (
       0 => '*',
     ),
-    'exposed_headers' => 
+    'exposed_headers' =>
     array (
     ),
     'max_age' => 0,
     'supports_credentials' => false,
   ),
-  'database' => 
+  'database' =>
   array (
     'default' => 'mysql',
-    'connections' => 
+    'connections' =>
     array (
-      'sqlite' => 
+      'sqlite' =>
       array (
         'driver' => 'sqlite',
         'url' => NULL,
@@ -290,7 +290,7 @@
         'prefix' => '',
         'foreign_key_constraints' => true,
       ),
-      'mysql' => 
+      'mysql' =>
       array (
         'driver' => 'mysql',
         'url' => NULL,
@@ -306,11 +306,11 @@
         'prefix_indexes' => true,
         'strict' => true,
         'engine' => NULL,
-        'options' => 
+        'options' =>
         array (
         ),
       ),
-      'pgsql' => 
+      'pgsql' =>
       array (
         'driver' => 'pgsql',
         'url' => NULL,
@@ -325,7 +325,7 @@
         'search_path' => 'public',
         'sslmode' => 'prefer',
       ),
-      'sqlsrv' => 
+      'sqlsrv' =>
       array (
         'driver' => 'sqlsrv',
         'url' => NULL,
@@ -340,15 +340,15 @@
       ),
     ),
     'migrations' => 'migrations',
-    'redis' => 
+    'redis' =>
     array (
       'client' => 'phpredis',
-      'options' => 
+      'options' =>
       array (
         'cluster' => 'redis',
-        'prefix' => 'laravel_database_',
+        'prefix' => 'tipl_hrms_database_',
       ),
-      'default' => 
+      'default' =>
       array (
         'url' => NULL,
         'host' => '127.0.0.1',
@@ -357,7 +357,7 @@
         'port' => '6379',
         'database' => '0',
       ),
-      'cache' => 
+      'cache' =>
       array (
         'url' => NULL,
         'host' => '127.0.0.1',
@@ -368,14 +368,14 @@
       ),
     ),
   ),
-  'excel' => 
+  'excel' =>
   array (
-    'exports' => 
+    'exports' =>
     array (
       'chunk_size' => 1000,
       'pre_calculate_formulas' => false,
       'strict_null_comparison' => false,
-      'csv' => 
+      'csv' =>
       array (
         'delimiter' => ',',
         'enclosure' => '"',
@@ -387,7 +387,7 @@
         'output_encoding' => '',
         'test_auto_detect' => true,
       ),
-      'properties' => 
+      'properties' =>
       array (
         'creator' => '',
         'lastModifiedBy' => '',
@@ -400,15 +400,15 @@
         'company' => '',
       ),
     ),
-    'imports' => 
+    'imports' =>
     array (
       'read_only' => true,
       'ignore_empty' => false,
-      'heading_row' => 
+      'heading_row' =>
       array (
         'formatter' => 'slug',
       ),
-      'csv' => 
+      'csv' =>
       array (
         'delimiter' => NULL,
         'enclosure' => '"',
@@ -416,7 +416,7 @@
         'contiguous' => false,
         'input_encoding' => 'guess',
       ),
-      'properties' => 
+      'properties' =>
       array (
         'creator' => '',
         'lastModifiedBy' => '',
@@ -428,14 +428,14 @@
         'manager' => '',
         'company' => '',
       ),
-      'cells' => 
+      'cells' =>
       array (
-        'middleware' => 
+        'middleware' =>
         array (
         ),
       ),
     ),
-    'extension_detector' => 
+    'extension_detector' =>
     array (
       'xlsx' => 'Xlsx',
       'xlsm' => 'Xlsx',
@@ -454,35 +454,35 @@
       'tsv' => 'Csv',
       'pdf' => 'Dompdf',
     ),
-    'value_binder' => 
+    'value_binder' =>
     array (
       'default' => 'Maatwebsite\\Excel\\DefaultValueBinder',
     ),
-    'cache' => 
+    'cache' =>
     array (
       'driver' => 'memory',
-      'batch' => 
+      'batch' =>
       array (
         'memory_limit' => 60000,
       ),
-      'illuminate' => 
+      'illuminate' =>
       array (
         'store' => NULL,
       ),
       'default_ttl' => 10800,
     ),
-    'transactions' => 
+    'transactions' =>
     array (
       'handler' => 'db',
-      'db' => 
+      'db' =>
       array (
         'connection' => NULL,
       ),
     ),
-    'temporary_files' => 
+    'temporary_files' =>
     array (
       'local_path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework/cache/laravel-excel',
-      'local_permissions' => 
+      'local_permissions' =>
       array (
       ),
       'remote_disk' => NULL,
@@ -490,18 +490,18 @@
       'force_resync_remote' => NULL,
     ),
   ),
-  'filesystems' => 
+  'filesystems' =>
   array (
     'default' => 'local',
-    'disks' => 
+    'disks' =>
     array (
-      'local' => 
+      'local' =>
       array (
         'driver' => 'local',
         'root' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\app',
         'throw' => false,
       ),
-      'public' => 
+      'public' =>
       array (
         'driver' => 'local',
         'root' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\app/public',
@@ -509,7 +509,7 @@
         'visibility' => 'public',
         'throw' => false,
       ),
-      's3' => 
+      's3' =>
       array (
         'driver' => 's3',
         'key' => '',
@@ -522,36 +522,36 @@
         'throw' => false,
       ),
     ),
-    'links' => 
+    'links' =>
     array (
       'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\public\\storage' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\app/public',
     ),
   ),
-  'global' => 
+  'global' =>
   array (
     'general_error_msg' => 'An error occurred while processing your request. It seems like some required information is missing or invalid. Please ensure all necessary fields are filled in and try again.',
     'default_password' => 'password',
     'null_value' => '-',
     'pagination' => 30,
-    'holiday_types' => 
+    'holiday_types' =>
     array (
       0 => 'Government',
       1 => 'Private',
     ),
-    'level' => 
+    'level' =>
     array (
       0 => 'level 1',
       1 => 'level 2',
       2 => 'level 3',
     ),
-    'level_with_all' => 
+    'level_with_all' =>
     array (
       0 => 'ALL',
       1 => 'level 1',
       2 => 'level 2',
       3 => 'level 3',
     ),
-    'value' => 
+    'value' =>
     array (
       0 => 'Immediate Supervisor',
       1 => 'Section Head',
@@ -560,14 +560,14 @@
       4 => 'Human Resource',
       5 => 'Finance Head',
     ),
-    'status' => 
+    'status' =>
     array (
       1 => 'active',
       0 => 'inactive',
     ),
     'regular_emp_type_id' => 2,
     'probational_emp_type_id' => 3,
-    'leave_limits' => 
+    'leave_limits' =>
     array (
       1 => 'Include Public Holidays',
       2 => 'Can be clubbed with CL',
@@ -575,7 +575,7 @@
       4 => 'Can be half day',
       5 => 'Can be clubbed with EL',
     ),
-    'application_status' => 
+    'application_status' =>
     array (
       -1 => 'Rejected',
       0 => 'Cancelled',
@@ -583,36 +583,36 @@
       2 => 'In-Progress',
       3 => 'Approved',
     ),
-    'gender' => 
+    'gender' =>
     array (
       1 => 'Male',
       2 => 'Female',
       3 => 'Other',
     ),
-    'gender_with_all' => 
+    'gender_with_all' =>
     array (
       1 => 'Male',
       2 => 'Female',
       3 => 'All',
     ),
-    'marital_status' => 
+    'marital_status' =>
     array (
       1 => 'Single',
       2 => 'Married',
       3 => 'Divorced',
     ),
-    'leave_year' => 
+    'leave_year' =>
     array (
       1 => 'Calendar Year',
       2 => 'Financial Year',
     ),
-    'nationality' => 
+    'nationality' =>
     array (
       0 => 'Bhutanese',
       1 => 'Indian',
       2 => 'Canadian',
     ),
-    'title' => 
+    'title' =>
     array (
       0 => 'Mr.',
       1 => 'Miss.',
@@ -620,7 +620,7 @@
       3 => 'Dr.',
       4 => 'Dasho',
     ),
-    'bank' => 
+    'bank' =>
     array (
       'BoB' => 'Bank of Bhutan',
       'BNB' => 'Bhutan National Bank',
@@ -629,7 +629,7 @@
       'T Bank' => 'T Bank',
       'DK Bank' => 'Digital Kidu',
     ),
-    'loan_type' => 
+    'loan_type' =>
     array (
       0 => 'Consumer Loan',
       1 => 'Personal Loan',
@@ -639,7 +639,7 @@
       5 => 'PPF',
       6 => 'Housing Loan',
     ),
-    'calculation__method' => 
+    'calculation__method' =>
     array (
       1 => 'Actual Amount',
       2 => 'Division',
@@ -649,7 +649,7 @@
       6 => 'By Formula',
       7 => 'Employee Wise',
     ),
-    'calculated_on' => 
+    'calculated_on' =>
     array (
       1 => 'Basic Pay',
       2 => 'Gross Pay',
@@ -658,7 +658,7 @@
       5 => 'By Formula',
       6 => 'Pay Scale Base Pay',
     ),
-    'calculation_methods_for_payheads' => 
+    'calculation_methods_for_payheads' =>
     array (
       1 => 'Actual Amount',
       2 => 'Division',
@@ -668,26 +668,26 @@
       6 => 'By Formula',
       7 => 'Employee Wise',
     ),
-    'calculation_method' => 
+    'calculation_method' =>
     array (
       0 => 'N/A',
       1 => 'Actual Method',
       2 => 'Division',
       3 => 'Percentage',
     ),
-    'leave_days' => 
+    'leave_days' =>
     array (
       1 => 'Full Day',
       2 => 'First Half',
       3 => 'Second Half',
       4 => 'Shift',
     ),
-    'salary_disbursement_mode' => 
+    'salary_disbursement_mode' =>
     array (
       1 => 'Cash',
       2 => 'Saving Account',
     ),
-    'travel_modes' => 
+    'travel_modes' =>
     array (
       1 => 'Bike',
       2 => 'Bus',
@@ -695,31 +695,31 @@
       4 => 'Flight',
       5 => 'Train',
     ),
-    'travel_types' => 
+    'travel_types' =>
     array (
       1 => 'Domestic',
     ),
-    'no_of_emi' => 
+    'no_of_emi' =>
     array (
       3 => '3 Months',
       6 => '6 Months',
       9 => '9 Months',
       12 => '12 Months',
     ),
-    'rate_limits' => 
+    'rate_limits' =>
     array (
       1 => 'Daily',
       2 => 'Monthly',
       3 => 'Yearly',
     ),
-    'vehicle_types' => 
+    'vehicle_types' =>
     array (
       1 => 'Light',
       2 => 'Medium',
       3 => 'Heavy',
       4 => 'Two Wheeler',
     ),
-    'status_classes' => 
+    'status_classes' =>
     array (
       -1 => 'badge bg-danger',
       0 => 'badge bg-warning',
@@ -727,91 +727,91 @@
       2 => 'badge bg-success',
       3 => 'badge bg-info',
     ),
-    'applications' => 
+    'applications' =>
     array (
-      1 => 
+      1 =>
       array (
         'name' => 'App\\Models\\LeaveApplication',
         'post_to_sap' => false,
       ),
-      2 => 
+      2 =>
       array (
         'name' => 'App\\Models\\ExpenseApplication',
         'post_to_sap' => true,
       ),
-      3 => 
+      3 =>
       array (
         'name' => 'App\\Models\\DsaClaimApplication',
         'post_to_sap' => true,
       ),
-      4 => 
+      4 =>
       array (
         'name' => 'App\\Models\\TransferClaimApplication',
         'post_to_sap' => true,
       ),
-      6 => 
+      6 =>
       array (
         'name' => 'App\\Models\\TravelAuthorizationApplication',
         'post_to_sap' => false,
       ),
-      7 => 
+      7 =>
       array (
         'name' => 'App\\Models\\SifaRegistration',
         'post_to_sap' => false,
       ),
-      8 => 
+      8 =>
       array (
         'name' => 'App\\Models\\AdvanceApplication',
         'post_to_sap' => false,
       ),
-      9 => 
+      9 =>
       array (
         'name' => 'App\\Models\\LeaveEncashmentApplication',
         'post_to_sap' => false,
       ),
     ),
   ),
-  'hashing' => 
+  'hashing' =>
   array (
     'driver' => 'bcrypt',
-    'bcrypt' => 
+    'bcrypt' =>
     array (
       'rounds' => 10,
     ),
-    'argon' => 
+    'argon' =>
     array (
       'memory' => 65536,
       'threads' => 1,
       'time' => 4,
     ),
   ),
-  'logging' => 
+  'logging' =>
   array (
     'default' => 'stack',
-    'deprecations' => 
+    'deprecations' =>
     array (
       'channel' => NULL,
       'trace' => false,
     ),
-    'channels' => 
+    'channels' =>
     array (
-      'stack' => 
+      'stack' =>
       array (
         'driver' => 'stack',
-        'channels' => 
+        'channels' =>
         array (
           0 => 'daily',
         ),
         'ignore_exceptions' => false,
       ),
-      'single' => 
+      'single' =>
       array (
         'driver' => 'single',
         'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
-      'daily' => 
+      'daily' =>
       array (
         'driver' => 'daily',
         'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\logs/laravel.log',
@@ -819,7 +819,7 @@
         'days' => 14,
         'replace_placeholders' => true,
       ),
-      'slack' => 
+      'slack' =>
       array (
         'driver' => 'slack',
         'url' => NULL,
@@ -828,138 +828,138 @@
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
-      'papertrail' => 
+      'papertrail' =>
       array (
         'driver' => 'monolog',
         'level' => 'debug',
         'handler' => 'Monolog\\Handler\\SyslogUdpHandler',
-        'handler_with' => 
+        'handler_with' =>
         array (
           'host' => NULL,
           'port' => NULL,
           'connectionString' => 'tls://:',
         ),
-        'processors' => 
+        'processors' =>
         array (
           0 => 'Monolog\\Processor\\PsrLogMessageProcessor',
         ),
       ),
-      'stderr' => 
+      'stderr' =>
       array (
         'driver' => 'monolog',
         'level' => 'debug',
         'handler' => 'Monolog\\Handler\\StreamHandler',
         'formatter' => NULL,
-        'with' => 
+        'with' =>
         array (
           'stream' => 'php://stderr',
         ),
-        'processors' => 
+        'processors' =>
         array (
           0 => 'Monolog\\Processor\\PsrLogMessageProcessor',
         ),
       ),
-      'syslog' => 
+      'syslog' =>
       array (
         'driver' => 'syslog',
         'level' => 'debug',
         'facility' => 8,
         'replace_placeholders' => true,
       ),
-      'errorlog' => 
+      'errorlog' =>
       array (
         'driver' => 'errorlog',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
-      'null' => 
+      'null' =>
       array (
         'driver' => 'monolog',
         'handler' => 'Monolog\\Handler\\NullHandler',
       ),
-      'emergency' => 
+      'emergency' =>
       array (
         'path' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\logs/laravel.log',
       ),
     ),
   ),
-  'mail' => 
+  'mail' =>
   array (
     'default' => 'smtp',
-    'mailers' => 
+    'mailers' =>
     array (
-      'smtp' => 
+      'smtp' =>
       array (
         'transport' => 'smtp',
         'url' => NULL,
-        'host' => 'smtp1.tashicell.com',
-        'port' => '587',
+        'host' => 'sandbox.smtp.mailtrap.io',
+        'port' => '2525',
         'encryption' => NULL,
-        'username' => 'ticl-alerts@tashicell.com',
-        'password' => '77889977',
+        'username' => '6daedc2acdbbd9',
+        'password' => '90523e0ff57bcc',
         'timeout' => NULL,
         'local_domain' => 'localhost',
       ),
-      'ses' => 
+      'ses' =>
       array (
         'transport' => 'ses',
       ),
-      'mailgun' => 
+      'mailgun' =>
       array (
         'transport' => 'mailgun',
       ),
-      'postmark' => 
+      'postmark' =>
       array (
         'transport' => 'postmark',
       ),
-      'sendmail' => 
+      'sendmail' =>
       array (
         'transport' => 'sendmail',
         'path' => '/usr/sbin/sendmail -bs -i',
       ),
-      'log' => 
+      'log' =>
       array (
         'transport' => 'log',
         'channel' => NULL,
       ),
-      'array' => 
+      'array' =>
       array (
         'transport' => 'array',
       ),
-      'failover' => 
+      'failover' =>
       array (
         'transport' => 'failover',
-        'mailers' => 
+        'mailers' =>
         array (
           0 => 'smtp',
           1 => 'log',
         ),
       ),
     ),
-    'from' => 
+    'from' =>
     array (
-      'address' => 'ticl-alerts@tashicell.com',
-      'name' => 'HRMS',
+      'address' => 'tipl.hrms@example.com',
+      'name' => 'TIPL HRMS',
     ),
-    'markdown' => 
+    'markdown' =>
     array (
       'theme' => 'default',
-      'paths' => 
+      'paths' =>
       array (
         0 => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\resources\\views/vendor/mail',
       ),
     ),
   ),
-  'printing' => 
+  'printing' =>
   array (
     'driver' => 'printnode',
-    'drivers' => 
+    'drivers' =>
     array (
-      'printnode' => 
+      'printnode' =>
       array (
         'key' => NULL,
       ),
-      'cups' => 
+      'cups' =>
       array (
         'ip' => NULL,
         'username' => NULL,
@@ -968,7 +968,7 @@
       ),
     ),
     'default_printer_id' => NULL,
-    'receipts' => 
+    'receipts' =>
     array (
       'line_character_length' => 45,
       'print_width' => 550,
@@ -976,16 +976,16 @@
       'barcode_width' => 2,
     ),
   ),
-  'queue' => 
+  'queue' =>
   array (
     'default' => 'sync',
-    'connections' => 
+    'connections' =>
     array (
-      'sync' => 
+      'sync' =>
       array (
         'driver' => 'sync',
       ),
-      'database' => 
+      'database' =>
       array (
         'driver' => 'database',
         'table' => 'jobs',
@@ -993,7 +993,7 @@
         'retry_after' => 90,
         'after_commit' => false,
       ),
-      'beanstalkd' => 
+      'beanstalkd' =>
       array (
         'driver' => 'beanstalkd',
         'host' => 'localhost',
@@ -1002,7 +1002,7 @@
         'block_for' => 0,
         'after_commit' => false,
       ),
-      'sqs' => 
+      'sqs' =>
       array (
         'driver' => 'sqs',
         'key' => '',
@@ -1013,7 +1013,7 @@
         'region' => 'us-east-1',
         'after_commit' => false,
       ),
-      'redis' => 
+      'redis' =>
       array (
         'driver' => 'redis',
         'connection' => 'default',
@@ -1023,21 +1023,21 @@
         'after_commit' => false,
       ),
     ),
-    'batching' => 
+    'batching' =>
     array (
       'database' => 'mysql',
       'table' => 'job_batches',
     ),
-    'failed' => 
+    'failed' =>
     array (
       'driver' => 'database-uuids',
       'database' => 'mysql',
       'table' => 'failed_jobs',
     ),
   ),
-  'sanctum' => 
+  'sanctum' =>
   array (
-    'stateful' => 
+    'stateful' =>
     array (
       0 => 'localhost',
       1 => 'localhost:3000',
@@ -1046,39 +1046,39 @@
       4 => '::1',
       5 => 'localhost',
     ),
-    'guard' => 
+    'guard' =>
     array (
       0 => 'web',
     ),
     'expiration' => NULL,
     'token_prefix' => '',
-    'middleware' => 
+    'middleware' =>
     array (
       'verify_csrf_token' => 'App\\Http\\Middleware\\VerifyCsrfToken',
       'encrypt_cookies' => 'App\\Http\\Middleware\\EncryptCookies',
     ),
   ),
-  'services' => 
+  'services' =>
   array (
-    'mailgun' => 
+    'mailgun' =>
     array (
       'domain' => NULL,
       'secret' => NULL,
       'endpoint' => 'api.mailgun.net',
       'scheme' => 'https',
     ),
-    'postmark' => 
+    'postmark' =>
     array (
       'token' => NULL,
     ),
-    'ses' => 
+    'ses' =>
     array (
       'key' => '',
       'secret' => '',
       'region' => 'us-east-1',
     ),
   ),
-  'session' => 
+  'session' =>
   array (
     'driver' => 'file',
     'lifetime' => '120',
@@ -1088,36 +1088,36 @@
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
-    'lottery' => 
+    'lottery' =>
     array (
       0 => 2,
       1 => 100,
     ),
-    'cookie' => 'laravel_session',
+    'cookie' => 'tipl_hrms_session',
     'path' => '/',
     'domain' => NULL,
     'secure' => NULL,
     'http_only' => true,
     'same_site' => 'lax',
   ),
-  'view' => 
+  'view' =>
   array (
-    'paths' => 
+    'paths' =>
     array (
       0 => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\resources\\views',
     ),
     'compiled' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\framework\\views',
   ),
-  'debugbar' => 
+  'debugbar' =>
   array (
     'enabled' => NULL,
     'hide_empty_tabs' => false,
-    'except' => 
+    'except' =>
     array (
       0 => 'telescope*',
       1 => 'horizon*',
     ),
-    'storage' => 
+    'storage' =>
     array (
       'enabled' => true,
       'open' => NULL,
@@ -1138,7 +1138,7 @@
     'ajax_handler_enable_tab' => true,
     'error_handler' => false,
     'clockwork' => false,
-    'collectors' => 
+    'collectors' =>
     array (
       'phpinfo' => true,
       'messages' => true,
@@ -1164,133 +1164,129 @@
       'models' => true,
       'livewire' => true,
       'jobs' => false,
-      'pennant' => false,
     ),
-    'options' => 
+    'options' =>
     array (
-      'time' => 
+      'time' =>
       array (
         'memory_usage' => false,
       ),
-      'messages' => 
+      'messages' =>
       array (
         'trace' => true,
       ),
-      'memory' => 
+      'memory' =>
       array (
         'reset_peak' => false,
         'with_baseline' => false,
         'precision' => 0,
       ),
-      'auth' => 
+      'auth' =>
       array (
         'show_name' => true,
         'show_guards' => true,
       ),
-      'db' => 
+      'db' =>
       array (
         'with_params' => true,
-        'exclude_paths' => 
-        array (
-        ),
         'backtrace' => true,
-        'backtrace_exclude_paths' => 
+        'backtrace_exclude_paths' =>
         array (
         ),
         'timeline' => false,
         'duration_background' => true,
-        'explain' => 
+        'explain' =>
         array (
           'enabled' => false,
         ),
         'hints' => false,
-        'show_copy' => true,
+        'show_copy' => false,
         'slow_threshold' => false,
         'memory_usage' => false,
         'soft_limit' => 100,
         'hard_limit' => 500,
       ),
-      'mail' => 
+      'mail' =>
       array (
         'timeline' => false,
         'show_body' => true,
       ),
-      'views' => 
+      'views' =>
       array (
         'timeline' => false,
         'data' => false,
         'group' => 50,
-        'exclude_paths' => 
+        'exclude_paths' =>
         array (
           0 => 'vendor/filament',
         ),
       ),
-      'route' => 
+      'route' =>
       array (
         'label' => true,
       ),
-      'session' => 
+      'session' =>
       array (
-        'hiddens' => 
+        'hiddens' =>
         array (
         ),
       ),
-      'symfony_request' => 
+      'symfony_request' =>
       array (
-        'hiddens' => 
+        'hiddens' =>
         array (
         ),
       ),
-      'events' => 
+      'events' =>
       array (
         'data' => false,
       ),
-      'logs' => 
+      'logs' =>
       array (
         'file' => NULL,
       ),
-      'cache' => 
+      'cache' =>
       array (
         'values' => true,
       ),
     ),
     'inject' => true,
     'route_prefix' => '_debugbar',
-    'route_middleware' => 
+    'route_middleware' =>
     array (
     ),
     'route_domain' => NULL,
     'theme' => 'auto',
     'debug_backtrace_limit' => 50,
   ),
-  'dompdf' => 
+  'dompdf' =>
   array (
     'show_warnings' => false,
     'public_path' => NULL,
     'convert_entities' => true,
-    'options' => 
+    'options' =>
     array (
       'font_dir' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\fonts',
       'font_cache' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms\\storage\\fonts',
       'temp_dir' => 'C:\\Users\\Norbu\\AppData\\Local\\Temp',
       'chroot' => 'C:\\Users\\Norbu\\OneDrive\\Desktop\\TashiCell\\tipl-hrms',
-      'allowed_protocols' => 
+      'allowed_protocols' =>
       array (
-        'file://' => 
+        'file://' =>
         array (
-          'rules' => 
+          'rules' =>
           array (
           ),
         ),
-        'http://' => 
+        'http://' =>
         array (
-          'rules' => 
+          'rules' =>
           array (
           ),
         ),
-        'https://' => 
+        'https://' =>
         array (
-          'rules' => 
+          'rules' =>
           array (
           ),
         ),
@@ -1312,10 +1308,10 @@
       'enable_html5_parser' => true,
     ),
   ),
-  'flare' => 
+  'flare' =>
   array (
     'key' => NULL,
-    'flare_middleware' => 
+    'flare_middleware' =>
     array (
       0 => 'Spatie\\FlareClient\\FlareMiddleware\\RemoveRequestIp',
       1 => 'Spatie\\FlareClient\\FlareMiddleware\\AddGitInformation',
@@ -1323,32 +1319,32 @@
       3 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddEnvironmentInformation',
       4 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddExceptionInformation',
       5 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddDumps',
-      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddLogs' => 
+      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddLogs' =>
       array (
         'maximum_number_of_collected_logs' => 200,
       ),
-      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddQueries' => 
+      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddQueries' =>
       array (
         'maximum_number_of_collected_queries' => 200,
         'report_query_bindings' => true,
       ),
-      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddJobs' => 
+      'Spatie\\LaravelIgnition\\FlareMiddleware\\AddJobs' =>
       array (
         'max_chained_job_reporting_depth' => 5,
       ),
       6 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddContext',
       7 => 'Spatie\\LaravelIgnition\\FlareMiddleware\\AddExceptionHandledStatus',
-      'Spatie\\FlareClient\\FlareMiddleware\\CensorRequestBodyFields' => 
+      'Spatie\\FlareClient\\FlareMiddleware\\CensorRequestBodyFields' =>
       array (
-        'censor_fields' => 
+        'censor_fields' =>
         array (
           0 => 'password',
           1 => 'password_confirmation',
         ),
       ),
-      'Spatie\\FlareClient\\FlareMiddleware\\CensorRequestHeaders' => 
+      'Spatie\\FlareClient\\FlareMiddleware\\CensorRequestHeaders' =>
       array (
-        'headers' => 
+        'headers' =>
         array (
           0 => 'API-KEY',
           1 => 'Authorization',
@@ -1361,13 +1357,13 @@
     ),
     'send_logs_as_events' => true,
   ),
-  'ignition' => 
+  'ignition' =>
   array (
     'editor' => 'phpstorm',
     'theme' => 'auto',
     'enable_share_button' => true,
     'register_commands' => false,
-    'solution_providers' => 
+    'solution_providers' =>
     array (
       0 => 'Spatie\\Ignition\\Solutions\\SolutionProviders\\BadMethodCallSolutionProvider',
       1 => 'Spatie\\Ignition\\Solutions\\SolutionProviders\\MergeConflictSolutionProvider',
@@ -1392,7 +1388,7 @@
       20 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\UnknownMysql8CollationSolutionProvider',
       21 => 'Spatie\\LaravelIgnition\\Solutions\\SolutionProviders\\UnknownMariadbCollationSolutionProvider',
     ),
-    'ignored_solution_providers' => 
+    'ignored_solution_providers' =>
     array (
     ),
     'enable_runnable_solutions' => NULL,
@@ -1400,7 +1396,7 @@
     'local_sites_path' => '',
     'housekeeping_endpoint_prefix' => '_ignition',
     'settings_file_path' => '',
-    'recorders' => 
+    'recorders' =>
     array (
       0 => 'Spatie\\LaravelIgnition\\Recorders\\DumpRecorder\\DumpRecorder',
       1 => 'Spatie\\LaravelIgnition\\Recorders\\JobRecorder\\JobRecorder',
@@ -1409,7 +1405,7 @@
     ),
     'open_ai_key' => NULL,
     'with_stack_frame_arguments' => true,
-    'argument_reducers' => 
+    'argument_reducers' =>
     array (
       0 => 'Spatie\\Backtrace\\Arguments\\Reducers\\BaseTypeArgumentReducer',
       1 => 'Spatie\\Backtrace\\Arguments\\Reducers\\ArrayArgumentReducer',
@@ -1424,15 +1420,15 @@
       10 => 'Spatie\\Backtrace\\Arguments\\Reducers\\StringableArgumentReducer',
     ),
   ),
-  'tinker' => 
+  'tinker' =>
   array (
-    'commands' => 
+    'commands' =>
     array (
     ),
-    'alias' => 
+    'alias' =>
     array (
     ),
-    'dont_alias' => 
+    'dont_alias' =>
     array (
       0 => 'App\\Nova',
     ),

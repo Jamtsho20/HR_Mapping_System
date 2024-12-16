@@ -102,9 +102,9 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-lists', 'display_order' => 1],
 
             //submenu for sifa
-            ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
-            ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-approval', 'display_order' => 2],
-            ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registered-user', 'display_order' => 3],
+            ['system_menu_id' => 11, 'name' => 'Apply', 'route' => 'sifa/sifa-registration', 'display_order' => 1],
+            ['system_menu_id' => 11, 'name' => 'Approval', 'route' => 'sifa/sifa-approval', 'display_order' => 2],
+            ['system_menu_id' => 11, 'name' => 'Sifa Registered User', 'route' => 'sifa/sifa-registered-user', 'display_order' => 3],
 
             //submenu for asset
             ['system_menu_id' => 13, 'name' => 'Store Master', 'route' => 'asset/mas-store', 'display_order' => 1],
