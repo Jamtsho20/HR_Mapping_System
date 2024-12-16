@@ -64,10 +64,11 @@ class GeneralApporvalController extends Controller
         ->count();
 
     // Fetch Expense Applications
-    $expenseCount = ExpenseApplication::with('expenseType:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+    $expenseCount = ExpenseApplication::with('type:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
         $query->where('approver_emp_id', $user->id)
             ->where('application_type', \App\Models\ExpenseApplication::class);
     })
+
         ->whereNotIn('status', [-1, 3])
         ->filter($request, false)
         ->count();
@@ -75,7 +76,7 @@ class GeneralApporvalController extends Controller
     // Fetch DSA Claim Applications
     $dsaClaimCount = DSAClaimApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
         $query->where('approver_emp_id', $user->id)
-            ->where('application_type', \App\Models\DSAClaimApplication::class);
+            ->where('application_type', \App\Models\DsaClaimApplication::class);
     })
         ->whereNotIn('status', [-1, 3])
         ->filter($request, false)
