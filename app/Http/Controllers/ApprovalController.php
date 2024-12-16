@@ -64,7 +64,7 @@ class ApprovalController extends Controller
 
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
-        $postToSap = $applicationModel['post_to_sap'];
+
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
 
         $action = $request->action;
@@ -89,6 +89,7 @@ class ApprovalController extends Controller
             if ($applicationType == 2) { // Expense
                 $type = $application->type;
                 $typeId = $type->id;
+
                 if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
                     $costingCode2 = $application->vehicle->vehicle_no;
                 }
@@ -124,18 +125,18 @@ class ApprovalController extends Controller
                     $type = $application->type;
                     $accountCode = $type->code ?? null;
                     $memo = $type->name ?? null;
-
+                    $postToSap = $type->post_to_sap;
                     $employeeId = $application->employee->username = "E00993";
                     $amount = $application->amount;
-
                     if ($postToSap && ($accountCode && $employeeId && $amount)) {
                         // Post to SAP after final Approval
-                        $postJournalEntriesResponse = $this->sap->postJournalEntries($accountCode, $employeeId, $memo, $amount, $costingCode2 = "BP1D1831");
+
+                        $postJournalEntriesResponse = $this->sap->postJournalEntries($accountCode, $employeeId, $memo, $amount, $costingCode2);
                         $statusCode = $postJournalEntriesResponse->getStatusCode();
                         $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
                         if ($statusCode != 201) {
-                            throw new \Exception($postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                        throw new \Exception($postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                         }
                     }
 
@@ -156,7 +157,6 @@ class ApprovalController extends Controller
             }
 
             $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
-
             // Update application history
             if ($applicationHistory) {
                 $applicationHistory->update($updateData);

@@ -20,13 +20,24 @@ class LeaveEncashmentApplication extends Model
         'created_by',
         'updated_by',
         'status',
-        'encashment_amount',
+        'post_to_sap',
+        'amount',
     ];
 
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+
+    public function type()
+    {
+        return $this->belongsTo(LeaveEncashmentType::class, 'type_id');
+    }
+
+    // public function employee()
+    // {
+    //     return $this->belongsTo(User::class, 'created_by');
+    // }
 
     protected static function booted()
     {
@@ -42,8 +53,8 @@ class LeaveEncashmentApplication extends Model
     }
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        
+
     }
 
-    
+
 }

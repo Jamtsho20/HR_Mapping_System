@@ -208,11 +208,11 @@ return [
         ],
         8 => [
             'name' => App\Models\AdvanceApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => true
         ],
         9 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => true
         ],
     ]
 ];

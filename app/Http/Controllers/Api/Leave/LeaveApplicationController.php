@@ -52,7 +52,7 @@ class LeaveApplicationController extends Controller
     {
 
         try{$privileges = $request->instance();
-        $leaveApplications = LeaveApplication::with('leaveType:id,name')->filter($request)->orderBy('created_at')->get();
+        $leaveApplications = LeaveApplication::with('leaveType:id,name')->filter($request)->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());

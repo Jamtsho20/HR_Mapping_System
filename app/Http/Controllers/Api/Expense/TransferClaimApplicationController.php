@@ -46,7 +46,7 @@ class TransferClaimApplicationController extends Controller
             $empIdName = LoggedInUserEmpIdName();
             $user = loggedInUser();
 
-            $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
+            $transferClaims = TransferClaimApplication::where('created_by', $user)->orderBy('created_at', 'desc')->get();
 
             return $this->successResponse($transferClaims, 'Expense applications retrieved successfully');
 
