@@ -17,12 +17,13 @@
                 <!-- PAGE-HEADER END -->
 
                 @include('layouts.includes.messages')
+                
 
                 <!-- Row -->
                 <div class="row">
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12"> -->
                         @yield('content')
-                    </div>
+                    <!-- </div> -->
                 </div>
                 <!--End Row-->
             </div>
