@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_advance_loans', function (Blueprint $table) {
+        Schema::create('mas_loan_types', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string("code",50)->nullable();
+            $table->foreignId('created_by')->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_advance_loans');
+        Schema::dropIfExists('mas_loan_types');
     }
 };

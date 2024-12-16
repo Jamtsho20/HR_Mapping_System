@@ -290,7 +290,7 @@
     }
 </style>
 @push('page_scripts')
-<script>
+<!-- <script>
     document.addEventListener("DOMContentLoaded", () => {
         // Select all notification rows
         const rows = document.querySelectorAll(".notification-row");
@@ -306,6 +306,6 @@
             }, index * 1000); // Add delay between rows for effect
         });
     });
-</script>
+</script> -->
 
 @endpush
