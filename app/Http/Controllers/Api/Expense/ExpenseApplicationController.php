@@ -243,10 +243,7 @@ class ExpenseApplicationController extends Controller
                             $mileage = $detail['mileage'] ?? 8;
                             $rate = $detail['rate'] ?? 8;
                             $amount = $detail['amount'] ?? 3535;
-
-                            // Save to database or perform logic
-                            ExpenseFuelClaimDetail::create([
-                                'expense_id' => $expenseApplication->id,
+                            $expenseApplication->details()->create([
                                 'date' => $date,
                                 'initial_reading' => $initialReading,
                                 'final_reading' => $finalReading,
@@ -255,6 +252,17 @@ class ExpenseApplicationController extends Controller
                                 'rate' => $rate,
                                 'amount' => $amount,
                             ]);
+                            // Save to database or perform logic
+                            // ExpenseFuelClaimDetail::create([
+                            //     'expense_id' => $expenseApplication->id,
+                            //     'date' => $date,
+                            //     'initial_reading' => $initialReading,
+                            //     'final_reading' => $finalReading,
+                            //     'quantity' => $quantity,
+                            //     'mileage' => $mileage,
+                            //     'rate' => $rate,
+                            //     'amount' => $amount,
+                            // ]);
                         }
                     }
                 }
