@@ -65,7 +65,7 @@
                     <div class="form-group">
                         <label for="no_of_days">No of Days <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="no_of_days_leave" name="no_of_days" value="{{ old('no_of_days') }}" placeholder="0.00" required readonly>
-                        <small class="form-text text-muted">No of days cannot exceed more than leave balance.</small>
+                        <small class="form-text" style="color: #28a745;">No of days cannot exceed more than leave balance.</small>
                     </div>
                 </div>
             </div>
@@ -74,14 +74,13 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="remarks">Remarks</label>
-                        <textarea class="form-control" name="remarks" value="{{ old('remarks') }}"></textarea>
+                        <textarea class="form-control" name="remarks">{{ old('remarks') }}</textarea>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="attachment">Attachment <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
                         <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*">
-                        {{-- <small id="hint_text" class="form-text text-muted" style="display:none;"></small> --}}
                     </div>
                 </div>
             </div>
@@ -94,45 +93,72 @@
 </form>
 @include('layouts.includes.delete-modal')
 @endsection
+
 @push('page_scripts')
 <script>
-    document.getElementById('ddl_from_day').addEventListener('change', calculateLeaveDays);
-    document.getElementById('ddl_to_day').addEventListener('change', calculateLeaveDays);
-    document.getElementById('from_date').addEventListener('change', calculateLeaveDays);
-    document.getElementById('to_date').addEventListener('change', calculateLeaveDays);
+    const calculateLeaveDays = () => {
+        const leaveType = $('#leave_type').val();
+        const fromDate = $('#from_date').val();
+        const toDate = $('#to_date').val();
+        const fromDay = $('#ddl_from_day').val();
+        const toDay = $('#ddl_to_day').val();
 
-    function calculateLeaveDays() {
-        var leaveType = document.getElementById('leave_type').value;
-        var fromDate = document.getElementById('from_date').value;
-        var toDate = document.getElementById('to_date').value;
-        var fromDay = document.getElementById('ddl_from_day').value;
-        var toDay = document.getElementById('ddl_to_day').value;
-
-        // Send the data via AJAX
         if (fromDate && toDate) {
             $.ajax({
-                url: '/getnoofdaysbydate', // Update with the correct path
+                url: '/getnoofdaysbydate',
                 method: 'GET',
-                data: {
-                    leave_type: leaveType,
-                    from_date: fromDate,
-                    to_date: toDate,
-                    from_day: fromDay,
-                    to_day: toDay
-                },
+                data: { leave_type: leaveType, from_date: fromDate, to_date: toDate, from_day: fromDay, to_day: toDay },
                 success: function(response) {
-                    document.getElementById('no_of_days_leave').value = response.data.total_days;
+                    $('#no_of_days_leave').val(response.data.total_days);
                 },
                 error: function(error) {
-                    // alert('Error calculating leave days.');
-                    alert(error.responseJSON.message);
+                    alert(error.responseJSON.message || 'Error calculating leave days.');
                 }
             });
         } else {
-            document.getElementById('no_of_days_leave ').value = '';
+            $('#no_of_days_leave').val('');
         }
-    }
+    };
+
+    const disableHalfDayOption = () => {
+        const fromDate = $('#from_date').val();
+        const toDate = $('#to_date').val();
+        const fromDay = $('#ddl_from_day').val();
+        const toDay = $('#ddl_to_day').val();
+
+        if (fromDate && toDate && fromDate === toDate) {
+            const optionsToDisableFromToDay = fromDay === '2' || fromDay === '3' ? ['2', '3'] : [];
+            const optionsToDisableFromFromDay = toDay === '2' || toDay === '3' ? ['2', '3'] : [];
+            $('#ddl_to_day option').prop('disabled', false);
+            $('#ddl_from_day option').prop('disabled', false);
+            optionsToDisableFromToDay.forEach(opt => $(`#ddl_to_day option[value="${opt}"]`).prop('disabled', true));
+            optionsToDisableFromFromDay.forEach(opt => $(`#ddl_from_day option[value="${opt}"]`).prop('disabled', true));
+        }
+    };
+
+    // const selectHalfDayOptionIfSatuarday = () => {
+    //     const fromDate = $('#from_date').val();
+    //     const toDate = $('#to_date').val();
+    //     // Helper function to check if a date is Saturday
+    //     const isSaturday = (date) => {
+    //         const day = new Date(date).getDay();
+    //         return day === 6; // 6 represents Saturday
+    //     };
+
+    //     // Disable First Half and Second Half if either date is Saturday
+    //     if (fromDate && isSaturday(fromDate)) {
+    //         $('#ddl_from_day option[value="2"], #ddl_from_day option[value="3"]').prop('disabled', true);
+    //     }
+    //     if (toDate && isSaturday(toDate)) {
+    //         $('#ddl_to_day option[value="2"], #ddl_to_day option[value="3"]').prop('disabled', true);
+    //     }
+
+    // }
+
+    $('#ddl_from_day, #ddl_to_day, #from_date, #to_date').on('change', () => {
+        calculateLeaveDays();
+        disableHalfDayOption();
+        // selectHalfDayOptionIfSatuarday();
+    });
 </script>
-
-
 @endpush
