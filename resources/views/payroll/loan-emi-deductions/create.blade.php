@@ -39,8 +39,10 @@
                     <label for="loan_type">Loan Type <span class="text-danger">*</span></label>
                     <select name="loan_type" id="loan_type" class="form-control" required="required">
                         <option value="">Select</option>
-                        @foreach (config('global.loan_type') as $type)
-                        <option value="{{ $type}}">{{ $type }}</option>
+                        @foreach ($loanTypes as $loanType)
+                        <option value="{{ $loanType->id }}" {{ old('loan_type', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
+                            {{ $loanType->name }} 
+                        </option>
                         @endforeach
                     </select>
                 </div>

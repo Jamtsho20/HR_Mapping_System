@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->boolean('status')->default(1)->comment('1=active,0=inactive');
+            $table->boolean('post_to_sap')->default(0)->comment('1=active,0=inactive');
             $table->timestamps();
         });
     }

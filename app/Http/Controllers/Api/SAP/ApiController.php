@@ -115,7 +115,7 @@ class ApiController extends BaseController
                 {
                     "ShortName": "' . $employeeId . '",
                     "CostingCode": "", // department
-                    "CostingCode2": "'. $costingCode2 .'", 
+                    "CostingCode2": "'. $costingCode2 .'",
                     "Credit": "' . $amount . '",
                     "Debit": 0
                 },

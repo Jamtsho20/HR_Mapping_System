@@ -10,14 +10,14 @@
                     <a aria-label="Hide Sidebar" class="app-sidebar__toggle" data-bs-toggle="sidebar" href="javascript:void(0);"></a>
                     <div class="responsive-logo">
                         <a href="/" class="header-logo">
-                            <img src="assets/images/brand/logo3.png" class="mobile-logo logo-1" alt="logo">
-                            <img src="assets/images/brand/logo3.png" class="mobile-logo dark-logo-1" alt="logo">
+                            <img src="{{ asset('assets/images/brand/logo3.png') }}" class="mobile-logo logo-1" alt="logo">
+                            <img src="{{ asset('assets/images/brand/logo3.png') }}" class="mobile-logo dark-logo-1" alt="logo">
                         </a>
                     </div>
                     <!-- sidebar-toggle-->
                     <a class="logo-horizontal" href="/">
-                        <img src="assets/images/brand/logo3.png" class="header-brand-img desktop-logo" alt="logo">
-                        <img src="assets/images/brand/logo3.png" class="header-brand-img light-logo1" alt="logo">
+                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img desktop-logo" alt="logo">
+                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1" alt="logo">
                     </a>
                     <!-- LOGO -->
                     <div class="d-flex order-lg-2 ms-auto header-right-icons">

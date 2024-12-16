@@ -12,9 +12,6 @@
         @endcomponent
         <div class="block-content">
             <div class="block-options">
-                <div class="col-sm-8">
-                    <h5>Sifa Approval</h5>
-                </div>
                 @if ($privileges->edit)
                 <div class="col-sm-6">
                     <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"

@@ -43,7 +43,7 @@ class DSAClaimApplicationController extends Controller
     {
         try{
             $user = loggedInUser();
-            $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->get();
+            $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->orderBy('created_at', 'desc')->get();
             return $this->successResponse($dsaClaimApplications, 'DSA claim applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);

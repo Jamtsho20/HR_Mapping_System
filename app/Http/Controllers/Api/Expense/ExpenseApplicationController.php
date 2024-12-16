@@ -81,10 +81,10 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name'])->filter($request)->createdBy()->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
 
-            $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->get();
-            $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
+            $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $transferClaims = TransferClaimApplication::where('created_by', $user)->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,
@@ -244,10 +244,7 @@ class ExpenseApplicationController extends Controller
                             $mileage = $detail['mileage'] ?? 8;
                             $rate = $detail['rate'] ?? 8;
                             $amount = $detail['amount'] ?? 3535;
-
-                            // Save to database or perform logic
-                            ExpenseFuelClaimDetail::create([
-                                'expense_id' => $expenseApplication->id,
+                            $expenseApplication->details()->create([
                                 'date' => $date,
                                 'initial_reading' => $initialReading,
                                 'final_reading' => $finalReading,
@@ -256,6 +253,17 @@ class ExpenseApplicationController extends Controller
                                 'rate' => $rate,
                                 'amount' => $amount,
                             ]);
+                            // Save to database or perform logic
+                            // ExpenseFuelClaimDetail::create([
+                            //     'expense_id' => $expenseApplication->id,
+                            //     'date' => $date,
+                            //     'initial_reading' => $initialReading,
+                            //     'final_reading' => $finalReading,
+                            //     'quantity' => $quantity,
+                            //     'mileage' => $mileage,
+                            //     'rate' => $rate,
+                            //     'amount' => $amount,
+                            // ]);
                         }
                     }
                 }

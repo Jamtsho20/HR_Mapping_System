@@ -63,7 +63,7 @@ return [
     'marital_status' => [
         1 => 'Single',
         2 => 'Married',
-        3 => 'Divorced'
+        3 => 'Divorced',
     ],
 
     'leave_year' => [
@@ -212,7 +212,7 @@ return [
         ],
         9 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => true
         ],
     ]
 ];
