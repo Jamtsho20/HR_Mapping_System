@@ -144,21 +144,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         const dailyAllowanceInput = document.getElementById('daily_allowance');
         const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
-        const advanceRequiredInput = document.getElementById('advance_required');
         const daysDifferenceInput = document.getElementById('days_difference');
         const travelType = document.getElementById('travel_type');
         const travelNo = document.getElementById('travel_no');
 
         let manualEdit = false;
         let rowCount = document.querySelectorAll('#travel_details tbody tr').length - 1;
-        document.querySelector('#advance_required').addEventListener('change', function(event) {
-            if (estimatedTravelExpensesInput.value < event.target.value) {
-                alert('Advance amount exceeds the estimated travel expenses!');
-                event.target.value = 0;
-            }
-
-            calculateEstimatedTravelExpenses();
-        })
+        
 
         // Function to update the date constraints dynamically
         function updateDateConstraints() {
@@ -236,9 +228,8 @@
 
         function calculateEstimatedTravelExpenses() {
             const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
-            const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
             const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
-            const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
+            const estimatedAmount = (totalDays * dailyAllowance);
             estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
         }
 

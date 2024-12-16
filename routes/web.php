@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('offices', 'OfficeController');
         Route::resource('vehicles', 'VehicleController');
         Route::resource('budget-code', 'BudgetCodeController');
+        Route::resource('loan-types', 'MasLoanTypeController');
     });
 
     // WORK STRUCTURE
