@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use App\Models\AdvanceApplication;
 use App\Models\TravelAuthorizationApplication;
 use App\Models\ExpenseApplication;
-use App\Models\DSAClaimApplication;
+use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
 
 class GeneralApporvalController extends Controller
@@ -74,7 +74,7 @@ class GeneralApporvalController extends Controller
         ->count();
 
     // Fetch DSA Claim Applications
-    $dsaClaimCount = DSAClaimApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+    $dsaClaimCount = DsaClaimApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
         $query->where('approver_emp_id', $user->id)
             ->where('application_type', \App\Models\DsaClaimApplication::class);
     })
