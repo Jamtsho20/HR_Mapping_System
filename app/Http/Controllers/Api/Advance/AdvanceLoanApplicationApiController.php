@@ -80,7 +80,7 @@ class AdvanceLoanApplicationApiController extends Controller
 
     public function create()
     {   try {
-        $advanceTypes = MasAdvanceTypes::whereStatus(1)->all();
+        $advanceTypes = MasAdvanceTypes::whereStatus(1)->get();
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
