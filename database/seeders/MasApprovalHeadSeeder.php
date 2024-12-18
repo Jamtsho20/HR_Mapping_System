@@ -22,6 +22,7 @@ class MasApprovalHeadSeeder extends Seeder
             ['id' => 6, 'name' => 'Transfer Claim', 'description' => 'Transfer Claim','created_by' => 1], // TransferClaimType
             ['id' => 7, 'name' => 'Travel Authorization', 'description' => 'Travel Authorization','created_by' => 1], // TravelType
             ['id' => 8, 'name' => 'Sifa Registration', 'description' => 'Sifa Registration','created_by' => 1], // TravelType
+            ['id' => 9, 'name' => 'DSA Claim Settlement', 'description' => 'DSA Claim Settlement','created_by' => 1], // TravelType
         ]);
     }
 }
