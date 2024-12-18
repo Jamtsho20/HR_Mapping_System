@@ -68,7 +68,7 @@ class TravelAuthorizationApplicationController extends Controller
     {
         try {
             $privileges = $request->instance();
-            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name')->with('details')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
             return response()->json([
                 'message' => 'Travel authorization applications retrieved successfully',
                'travelAuthorizations' => $travelAuthorizations

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->tinyInteger('applicable_to')->comment('regular=1, probation=0, both=2');
             $table->smallInteger('max_days')->nullable()->comment('no of leave days');
             $table->text('remarks')->nullable();
+            $table->boolean('post_to_sap')->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

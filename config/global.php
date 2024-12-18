@@ -192,11 +192,11 @@ return [
         ],
         3 => [
             'name' => App\Models\AdvanceApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => true
         ],
         4 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => true
         ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,

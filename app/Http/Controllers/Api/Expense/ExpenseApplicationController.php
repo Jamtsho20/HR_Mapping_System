@@ -81,10 +81,10 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name'])->filter($request)->createdBy()->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
 
-            $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->get();
-            $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
+            $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $transferClaims = TransferClaimApplication::where('created_by', $user)->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,
