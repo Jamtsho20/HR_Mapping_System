@@ -54,6 +54,10 @@ class AdvanceApplication extends Model
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
     }
+    public function type()
+    {
+        return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
+    }
 
     public function advanceDetails()
     {

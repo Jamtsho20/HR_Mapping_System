@@ -741,33 +741,33 @@
       ),
       3 => 
       array (
-        'name' => 'App\\Models\\DsaClaimApplication',
-        'post_to_sap' => true,
+        'name' => 'App\\Models\\AdvanceApplication',
+        'post_to_sap' => false,
       ),
       4 => 
+      array (
+        'name' => 'App\\Models\\LeaveEncashmentApplication',
+        'post_to_sap' => false,
+      ),
+      6 => 
       array (
         'name' => 'App\\Models\\TransferClaimApplication',
         'post_to_sap' => true,
       ),
-      6 => 
+      7 => 
       array (
         'name' => 'App\\Models\\TravelAuthorizationApplication',
         'post_to_sap' => false,
       ),
-      7 => 
+      8 => 
       array (
         'name' => 'App\\Models\\SifaRegistration',
         'post_to_sap' => false,
       ),
-      8 => 
-      array (
-        'name' => 'App\\Models\\AdvanceApplication',
-        'post_to_sap' => false,
-      ),
       9 => 
       array (
-        'name' => 'App\\Models\\LeaveEncashmentApplication',
-        'post_to_sap' => false,
+        'name' => 'App\\Models\\DsaClaimApplication',
+        'post_to_sap' => true,
       ),
     ),
   ),

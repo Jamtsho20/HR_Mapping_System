@@ -41,6 +41,10 @@ class LeaveApplication extends Model
     {
         return $this->belongsTo(MasLeaveType::class, 'type_id');
     }
+    public function type()
+    {
+        return $this->belongsTo(MasLeaveType::class, 'type_id');
+    }
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
