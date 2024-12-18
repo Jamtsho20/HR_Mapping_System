@@ -15,96 +15,43 @@ use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
 
 class GeneralApporvalController extends Controller
-{
-    use JsonResponseTrait;
+{    use JsonResponseTrait;
 
     public function index(Request $request)
-{
-    try{
-        $user = auth()->user();
+    {
+        try {
+            $user = auth()->user();
 
-    // Fetch Leave Applications
-    $leaveCount = LeaveApplication::with('employee:id,name,username', 'leaveType:id,name')
-        ->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\LeaveApplication::class);
-        })
-        ->whereNotIn('status', [-1, 3])
-        ->filter($request, false) // Ensure proper filtering
-        ->count();
+            // Common fetch function for counts
+            $fetchCount = function ($modelClass, $relationships = [], $extraConditions = []) use ($request, $user) {
+                return $modelClass::with($relationships)
+                    ->whereHas('histories', function ($query) use ($user, $modelClass) {
+                        $query->where('approver_emp_id', $user->id)
+                            ->where('application_type', $modelClass); // Use class name directly
+                    })
+                    ->whereNotIn('status', [-1, 3])
+                    ->filter($request, false)
+                    ->when(!empty($extraConditions), function ($query) use ($extraConditions) {
+                        $query->where($extraConditions);
+                    })
+                    ->count();
+            };
 
-    // Fetch Earned Leave Applications
-    $earnedLeaveCount = LeaveEncashmentApplication::with('employee:id,name,username')
-        ->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\LeaveEncashmentApplication::class);
-        })
-        ->whereYear('created_at', Carbon::now()->year)
-        ->whereNotIn('status', [-1, 3])
-        ->count();
+            // Fetch counts for each application type
+            $response = [
+                'leave_applications_count' => $fetchCount(LeaveApplication::class, ['employee:id,name,username', 'leaveType:id,name']),
+                'leave_encashment_applications_count' => $fetchCount(LeaveEncashmentApplication::class, ['employee:id,name,username'], [['created_at', '>=', Carbon::now()->startOfYear()]]),
+                'advance_applications_count' => $fetchCount(AdvanceApplication::class, ['advanceType:id,name', 'employee:id,name,username', 'advance_approved_by:id,name']),
+                'travel_authorization_applications_count' => $fetchCount(TravelAuthorizationApplication::class, ['employee:id,name,username', 'travelType:id,name']),
+                'expense_applications_count' => $fetchCount(ExpenseApplication::class, ['type:id,name', 'employee:id,name,username']),
+                'dsa_claim_applications_count' => $fetchCount(DsaClaimApplication::class, ['employee:id,name,username']),
+                'transfer_claim_applications_count' => $fetchCount(TransferClaimApplication::class, ['type:id,name', 'employee:id,name,username']),
+            ];
 
-    // Fetch Advance Applications
-    $advanceCount = AdvanceApplication::with('advanceType:id,name', 'employee:id,name,username', 'advance_approved_by:id,name')
-        ->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\AdvanceApplication::class);
-        })
-        ->whereNotIn('status', [-1, 3])
-        ->filter($request, false)
-        ->count();
-
-    // Fetch Travel Authorization Applications
-    $travelAuthorizationCount = TravelAuthorizationApplication::with('employee:id,name,username', 'travelType:id,name')
-        ->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\TravelAuthorizationApplication::class);
-        })
-        ->whereNotIn('status', [-1, 3])
-        ->filter($request, false)
-        ->count();
-
-    // Fetch Expense Applications
-    $expenseCount = ExpenseApplication::with('type:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
-        $query->where('approver_emp_id', $user->id)
-            ->where('application_type', \App\Models\ExpenseApplication::class);
-    })
-
-        ->whereNotIn('status', [-1, 3])
-        ->filter($request, false)
-        ->count();
-
-    // Fetch DSA Claim Applications
-    $dsaClaimCount = DsaClaimApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
-        $query->where('approver_emp_id', $user->id)
-            ->where('application_type', \App\Models\DsaClaimApplication::class);
-    })
-        ->whereNotIn('status', [-1, 3])
-        ->filter($request, false)
-        ->count();
-
-    // Fetch Transfer Claim
-    $transferCount = TransferClaimApplication::with('type:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
-        $query->where('approver_emp_id', $user->id)
-            ->where('application_type', \App\Models\TransferClaimApplication::class);
-    })
-        ->whereNotIn('status', [-1, 3])
-        ->filter($request, false)
-        ->count();
-    // Prepare JSON response
-    $response = [
-        'leave_applications_count' => $leaveCount,
-        'leave_encashment_applications_count' => $earnedLeaveCount,
-        'advance_applications_count' => $advanceCount,
-        'travel_authorization_applications_count' => $travelAuthorizationCount,
-        'expense_applications_count' => $expenseCount,
-        'dsa_claim_applications_count' => $dsaClaimCount,
-        'transfer_claim_applications_count' => $transferCount,
-    ];
-
-    return response()->json($response);
-}catch(\Exception $e){
-    return $this->errorResponse($e->getMessage(), 500);
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
+    }
 }
 
-}
-}

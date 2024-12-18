@@ -18,6 +18,7 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceDetail;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\User;
 
 class AdvanceLoanApplicationApiController extends Controller
 {
@@ -69,10 +70,11 @@ class AdvanceLoanApplicationApiController extends Controller
     {
 
         try {
-            $applications = AdvanceApplication::with('advanceType')->createdBy()->orderBy('created_at', 'desc')->get();
+            $applications = AdvanceApplication::with('advanceType', 'advance_approved_by:id,name')->createdBy()->orderBy('created_at', 'desc')->get();
+
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to retrieve applications', 500);
+            return $this->errorResponse('Failed to retrieve applications'.$e->getMessage(), 500);
         }
     }
 
