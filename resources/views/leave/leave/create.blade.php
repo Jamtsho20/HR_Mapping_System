@@ -84,6 +84,7 @@
                     </div>
                 </div>
             </div>
+            {{-- <div class="aa"></div> display leave that will be converted to EL --}}
         </div>
         <div class="card-footer">    
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
