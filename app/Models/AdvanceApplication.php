@@ -54,7 +54,6 @@ class AdvanceApplication extends Model
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
     }
-
     public function type()
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
@@ -153,7 +152,7 @@ class AdvanceApplication extends Model
             'end_date' => $endDate,
             'amount' => $this->monthly_emi_amount,
             'loan_number' => $this->advance_no,
-            'loan_type' => 'Device EMI',
+            'loan_type_id' => 4,
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,
             'remark' => $this->remark ?? null,

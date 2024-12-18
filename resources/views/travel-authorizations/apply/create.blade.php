@@ -130,7 +130,7 @@
 
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i>Submit</button>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Submit</button>
             <a href="{{ route('apply-travel-authorization.index')  }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>

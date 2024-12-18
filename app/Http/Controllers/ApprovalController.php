@@ -49,11 +49,17 @@ class ApprovalController extends Controller
             $results->put($key, $data);
         }
 
+        $leaves = $results->get(1);
         $expenses = $results->get(2);
-        $dsaclaims = $results->get(3);
-        $transferclaims = $results->get(4);
+        $advances = $results->get(3);
+        $earnedLeave = $results->get(4);
+        $transferclaims = $results->get(6);
+        $travelAuthorizations = $results->get(7);
+        $sifas = $results->get(8);
+        $dsaclaims = $results->get(9);
+        
 
-        return view('approval.index', compact('privileges', 'headers', 'expenses', 'dsaclaims', 'transferclaims'));
+        return view('approval.index', compact('privileges', 'headers', 'expenses', 'advances','leaves','earnedLeave','transferclaims','travelAuthorizations','dsaclaims','sifas'));
     }
 
     /**

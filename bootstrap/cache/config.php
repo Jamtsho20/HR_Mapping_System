@@ -680,7 +680,6 @@
       1 => 'Full Day',
       2 => 'First Half',
       3 => 'Second Half',
-      4 => 'Shift',
     ),
     'salary_disbursement_mode' => 
     array (
@@ -741,32 +740,32 @@
       ),
       3 => 
       array (
-        'name' => 'App\\Models\\DsaClaimApplication',
+        'name' => 'App\\Models\\AdvanceApplication',
         'post_to_sap' => true,
       ),
       4 => 
       array (
-        'name' => 'App\\Models\\TransferClaimApplication',
+        'name' => 'App\\Models\\LeaveEncashmentApplication',
         'post_to_sap' => true,
       ),
       6 => 
       array (
-        'name' => 'App\\Models\\TravelAuthorizationApplication',
-        'post_to_sap' => false,
+        'name' => 'App\\Models\\TransferClaimApplication',
+        'post_to_sap' => true,
       ),
       7 => 
       array (
-        'name' => 'App\\Models\\SifaRegistration',
+        'name' => 'App\\Models\\TravelAuthorizationApplication',
         'post_to_sap' => false,
       ),
       8 => 
       array (
-        'name' => 'App\\Models\\AdvanceApplication',
-        'post_to_sap' => true,
+        'name' => 'App\\Models\\SifaRegistration',
+        'post_to_sap' => false,
       ),
       9 => 
       array (
-        'name' => 'App\\Models\\LeaveEncashmentApplication',
+        'name' => 'App\\Models\\DsaClaimApplication',
         'post_to_sap' => true,
       ),
     ),
