@@ -112,6 +112,23 @@ class LeaveApplicationController extends Controller
             // if this leave combination El + CL + EL happens then middle CL will be converted to EL and accordingly update data and update leave balance accordingly
             if($request->leave_type == EARNED_LEAVE && $matchingLeaves->count() == 2){
                 if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
+                    DB::table('employee_leaves')
+                        ->where('mas_leave_type_id', $matchingLeaves[0]->type_id)
+                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
+                        ->update([
+                            'leaves_availed' => DB::raw('leaves_availed + ' . $matchingLeaves[0]->no_of_days),
+                            'closing_balance' => DB::raw('closing_balance + ' . $matchingLeaves[0]->no_of_days),
+                        ]);
+
+                    // Deduct from the second leave type (decrement) which is converted leave type
+                    DB::table('employee_leaves')
+                        ->where('mas_leave_type_id', EARNED_LEAVE)
+                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
+                        ->update([
+                            'leaves_availed' => DB::raw('leaves_availed - ' . $matchingLeaves[0]->no_of_days),
+                            'closing_balance' => DB::raw('closing_balance - ' . $matchingLeaves[0]->no_of_days),
+                        ]);
+
                     DB::table('leave_applications')->where('id', $matchingLeaves[0]->id)->update(['type_id' => 2]);
                     DB::table('application_histories')
                         ->where('application_type', \App\Models\MasLeaveType::class)
