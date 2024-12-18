@@ -149,8 +149,7 @@ class AjaxRequestController extends Controller
         $leaveType = $request->leave_type; // Type of leave in the current request
         $fromDate = Carbon::parse($request->from_date); // Current 'from_date'
         $matchingLeaves = prepareLeaveCombination($fromDate); // leave combination logic code in helper class
-        // dd($matchingLeaves);
-        // Example validation logic (customize based on business rules)
+        // validation logic (customize based on business rules)
         if ($leaveType == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
             if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
                 return $this->errorResponse('Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
@@ -165,9 +164,7 @@ class AjaxRequestController extends Controller
         
         return;
     }
-
-
-
+    
     public function getNoOfDays(Request $request)
     {
         $leaveTypeId = $request->input('leave_type');
