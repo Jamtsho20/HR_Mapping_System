@@ -160,5 +160,35 @@
         disableHalfDayOption();
         // selectHalfDayOptionIfSatuarday();
     });
+    //validating leave combination
+    const validateLeaveCombination = () => {
+        const leaveType = $('#leave_type').val();
+        const leaveBalance = $('#leave_balance').val();
+        const fromDate = $('#from_date').val();
+        if (leaveBalance != 0 && fromDate) {
+            $.ajax({
+                url: '/validateleavecombination',
+                method: 'GET',
+                data: { leave_type: leaveType, from_date: fromDate },
+                success: function(response) {
+                    // $('#no_of_days_leave').val(response.data.total_days);
+                    return;
+                },
+                error: function(error) {
+                    alert(error.responseJSON.message);
+                    if(leaveType == 1){
+                        $("#from_date").val('');
+                        $("#to_date").val('');
+                    }
+                }
+            });
+        } else {
+            return;
+        }
+    }
+
+    $('#from_date').on('change', () => {
+        validateLeaveCombination();
+    });
 </script>
 @endpush

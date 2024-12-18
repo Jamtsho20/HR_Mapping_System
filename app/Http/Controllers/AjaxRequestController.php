@@ -49,6 +49,7 @@ use App\Models\s;
 use App\Models\GoodCommissionApplication;
 use App\Models\MasCommissionTypes;
 use App\Models\GoodReceiptApplicationDetail;
+use App\Models\LeaveApplication;
 
 class AjaxRequestController extends Controller
 {
@@ -121,8 +122,9 @@ class AjaxRequestController extends Controller
 
             $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
             if ($balance == 0) {
-                return $this->errorResponse('You are not eligible for this leave type since there is no balance.');
+                return $this->errorResponse('You are not eligible for this leave type since there is no leave balance.');
             }
+
             $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) : [];
             $isHalfDay = in_array(4, $leaveLimits);
             $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
@@ -142,6 +144,29 @@ class AjaxRequestController extends Controller
         }
     }
 
+    public function validateLeaveCombinations(Request $request)
+    {
+        $leaveType = $request->leave_type; // Type of leave in the current request
+        $fromDate = Carbon::parse($request->from_date); // Current 'from_date'
+        $matchingLeaves = prepareLeaveCombination($fromDate); // leave combination logic code in helper class
+        // Example validation logic (customize based on business rules)
+        if ($leaveType == CASUAL_LEAVE && $matchingLeaves->count() == 2) {
+            if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
+                return $this->errorResponse('Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
+            }
+        }
+
+        if($leaveType == EARNED_LEAVE && $matchingLeaves->count() == 2){
+            if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
+                return $this->errorResponse('During leave combination of EL + CL + EL, middle CL will be converted to EL.');
+            }
+        }
+        
+        return;
+    }
+
+
+
     public function getNoOfDays(Request $request)
     {
         $leaveTypeId = $request->input('leave_type');
@@ -158,16 +183,16 @@ class AjaxRequestController extends Controller
                 ->whereStatus(1)
                 ->first();
             $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan
-            ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
-            : [];
+                ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
+                : [];
 
             // Calculate initial days with adjustments
             $dayDifference = $toDate->diff($fromDate)->days;
             $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
             $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
             $totalDays = ($dayDifference === 0)
-            ? $fromDayAdjustment + $toDayAdjustment - 1
-            : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
+                ? $fromDayAdjustment + $toDayAdjustment - 1
+                : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
             if (!empty($leaveLimits)) {
                 $holidayDates = $this->getHolidayDates($loggedInUserRegion);
@@ -449,70 +474,70 @@ class AjaxRequestController extends Controller
         $advances = AdvanceApplication::where('travel_authorization_id', $id)->whereStatus(3)->get();
 
         return response()->json($advances);
-
     }
 
-    public function getRequisitionNumber($id) {
-        try{
+    public function getRequisitionNumber($id)
+    {
+        try {
             $requisitionType = MasRequisitionType::findOrFail($id);
             $latestTransaction = RequisitionApplication::latest('id')->first();
             // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
             $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
             $requisitionNo = generateTransactionNumber($requisitionType->code, $nextSequence);
             return $this->successResponse(['requisition_no' => $requisitionNo]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wront while trying to generate requisition no, please try again.');
         }
-
     }
 
-    public function getIssueNumber($id) {
-        try{
+    public function getIssueNumber($id)
+    {
+        try {
             $issueType = MasGoodIssueType::findOrFail($id);
             $latestTransaction = GoodIssueApplication::latest('id')->first();
             // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
             $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
             $issueNo = generateTransactionNumber($issueType->code, $nextSequence);
             return $this->successResponse(['issue_no' => $issueNo]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
         }
-
     }
 
-    public function getReceiptNumber($id) {
-        try{
+    public function getReceiptNumber($id)
+    {
+        try {
             $receiptType = MasGoodReceiptType::findOrFail($id);
             $latestTransaction = GoodReceiptApplication::latest('id')->first();
             // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
             $nextSequence = $latestTransaction ? (int) substr($latestTransaction->receipt_no, -4) + 1 : 1;
             $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
             return $this->successResponse(['receipt_no' => $receiptNo]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
         }
-
     }
 
-    public function getCommissionNumber($id) {
-        try{
+    public function getCommissionNumber($id)
+    {
+        try {
             $receiptType = MasCommissionTypes::findOrFail($id);
             $latestTransaction = GoodCommissionApplication::latest('id')->first();
             // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
             $nextSequence = $latestTransaction ? (int) substr($latestTransaction->commission_no, -4) + 1 : 1;
             $commissionNo = generateTransactionNumber($receiptType->code, $nextSequence);
             return $this->successResponse(['commission_no' => $commissionNo]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wront while trying to generate commission no, please try again.');
         }
-
     }
 
-    public function getRequisitionDetails($id) {
-        try{
+    public function getRequisitionDetails($id)
+    {
+        try {
             $requisitionDetails = RequisitionApplication::with('details')->findOrFail($id);
             return $this->successResponse(['requisition_details' => $requisitionDetails]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return $this->errorResponse('Something went wrong while trying to fetch details, please try again.');
         }
     }
@@ -524,30 +549,31 @@ class AjaxRequestController extends Controller
         return response()->json($advance);
     }
 
-    public function getVehicleDetailTypeById($id) { // Vehicle Detail and Type
+    public function getVehicleDetailTypeById($id)
+    { // Vehicle Detail and Type
         $vehicleDetailType = MasVehicle::with('vehicleType')->whereId($id)->first();
 
         return response()->json($vehicleDetailType);
     }
 
     public function getDetailsByIssue($issue_no)
-{
-    // Fetch the data based on the issue_no, e.g. using Eloquent
-    $goodsDetails = GoodIssueApplication::where('issue_no', $issue_no)->with('detail')->get();
-    $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
+    {
+        // Fetch the data based on the issue_no, e.g. using Eloquent
+        $goodsDetails = GoodIssueApplication::where('issue_no', $issue_no)->with('detail')->get();
+        $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
 
-    return response()->json([
-        'data' => $goodsDetails
-    ]);
-}
+        return response()->json([
+            'data' => $goodsDetails
+        ]);
+    }
 
-public function getDetailsByReceipt($receipt_no)
-{
-    // Fetch the data based on the issue_no, e.g. using Eloquent
-    $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status',0)->get();
+    public function getDetailsByReceipt($receipt_no)
+    {
+        // Fetch the data based on the issue_no, e.g. using Eloquent
+        $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status', 0)->get();
 
-    return response()->json([
-        'data' => $goodsDetails
-    ]);
-}
+        return response()->json([
+            'data' => $goodsDetails
+        ]);
+    }
 }

@@ -392,6 +392,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getpayscalebygradestep/{id}', 'AjaxRequestController@getPayScale');
     Route::get('getleavebalancebyleavetype/{id}', 'AjaxRequestController@getLeaveBalance');
     Route::get('getnoofdaysbydate', 'AjaxRequestController@getNoOfDays');
+    Route::get('validateleavecombination', 'AjaxRequestController@validateLeaveCombinations');
     Route::get('getemployeebyapprovingauthority/{id}', 'AjaxRequestController@getEmployeeSelect');
     Route::get('getapprovalheadtypesbyapprovalhead/{id}', 'AjaxRequestController@getApprovalHeadTypes');
     Route::get('getapprovalruleconditionfieldsbyhead/{id}', 'AjaxRequestController@getApprovalRuleConditionFields');
