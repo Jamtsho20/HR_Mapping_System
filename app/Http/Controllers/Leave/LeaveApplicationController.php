@@ -88,7 +88,7 @@ class LeaveApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
         $matchingLeaves = prepareLeaveCombination(Carbon::parse($request->from_date));
-        if ($request->leave_type == CASUAL_LEAVE && $matchingLeaves->count() == 2) {
+        if ($request->leave_type == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
             if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
                 return back()->withInput()->with('msg_error', 'Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
             }
@@ -110,7 +110,7 @@ class LeaveApplicationController extends Controller
             // Create a history record
             $historyService = new ApplicationHistoriesService();
             // if this leave combination El + CL + EL happens then middle CL will be converted to EL and accordingly update data and update leave balance accordingly
-            if($request->leave_type == EARNED_LEAVE && $matchingLeaves->count() == 2){
+            if($request->leave_type == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2){
                 if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
                     DB::table('employee_leaves')
                         ->where('mas_leave_type_id', $matchingLeaves[0]->type_id)
