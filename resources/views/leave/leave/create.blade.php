@@ -84,6 +84,7 @@
                     </div>
                 </div>
             </div>
+            <div class="show-leave"></div>
         </div>
         <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
@@ -176,6 +177,13 @@
                 },
                 error: function(error) {
                     alert(error.responseJSON.message);
+                    if(leaveType == 2 && error.responseJSON.data){
+                        const container = document.querySelector('.show-leave');
+                        container.style.display = 'block';
+                        container.innerHTML = `
+                            <b>#</b> <span style="color: #28a745; font-weight: bold;">Please note, previous CL for <u>${error.responseJSON.data.no_of_days} day(s) from ${error.responseJSON.data.from_date} to ${error.responseJSON.data.to_date}</u> will be converted to EL since cannot have combination of EL + CL + EL in a row.</span>
+                        `;
+                    }
                     if(leaveType == 1){
                         $("#from_date").val('');
                         $("#to_date").val('');
