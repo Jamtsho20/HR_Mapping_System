@@ -40,7 +40,7 @@ class LeaveEncashmentApplicationController extends Controller
 
     public function index(Request $request){
         try{$privileges = $request->instance();
-        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->orderBy('created_at', 'desc')->get();
+        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->with('updated_by:id,name')->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveEncashment, 'Leave encashment applications retrieved successfully');
     }catch (\Exception $e) {
           return $this->errorResponse($e->getMessage());
@@ -75,6 +75,7 @@ class LeaveEncashmentApplicationController extends Controller
             }
             $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
         ->whereYear('created_at', Carbon::now()->year)
+        ->whereNot('status', -1)
         ->exists();
 
             if ($applicationExists) {

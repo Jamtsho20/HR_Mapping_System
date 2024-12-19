@@ -121,4 +121,43 @@ class AdvanceApplication extends Model
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
+
+    //insert to loan_e_m_i_deductions table as when advance for device emi gets approved
+    protected static function boot()
+    {
+        parent::boot();
+        static::updated(function ($advance) {
+                if($advance->type_id == GADGET_EMI && $advance->status == 3) {
+                    $payHeadId = \DB::table('mas_pay_heads')
+                    ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
+                    ->where('mas_advance_types.id', $advance->type_id)
+                    ->value('mas_pay_heads.id');
+
+                if ($payHeadId) {
+                    $advance->insertInToLoanEmiDeductions($payHeadId);
+                }
+            }
+        });
+    }
+
+    public function insertInToLoanEmiDeductions($payHeadId) 
+    {
+        $startDate = Carbon::parse($this->deduction_from_period); // Ensure Carbon instance
+        $endDate = $startDate->copy()->addMonths($this->no_of_emi)->subDay();
+
+        \App\Models\LoanEMIDeduction::create([
+            'mas_pay_head_id' => $payHeadId,
+            'mas_employee_id' => $this->created_by,
+            'start_date' => $this->deduction_from_period,
+            'end_date' => $endDate,
+            'amount' => $this->monthly_emi_amount,
+            'loan_number' => $this->advance_no,
+            'loan_type_id' => 4,
+            'recurring' => 1,
+            'recurring_months' => $this->no_of_emi,
+            'remark' => $this->remark ?? null,
+            'is_paid_of' => 0,
+            'created_at' => now(),
+        ]);
+    }
 }

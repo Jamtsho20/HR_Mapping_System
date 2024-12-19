@@ -19,11 +19,11 @@
             @if ($privileges->edit)
             <div class="col-sm-6">
                 <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
-                    data-route="{{ route('approverejectbulk') }}" data-item-type="9" data-item-class="leave_checkbox"
+                    data-route="{{ route('approverejectbulk') }}" data-item-type="4" data-item-class="leave_checkbox"
                     data-item-name="leave" value="Approve">
                 <input class="btn-sm btn-danger buttonsubmit" type="button" id="btn_reject" data-value="reject"
                     data-route="{{ route('approverejectbulk') }}" data-item-class="leave_checkbox"
-                    data-item-name="leave" data-item-type="9" value="Reject">
+                    data-item-name="leave" data-item-type="4" value="Reject">
             </div>
             @endif
         </div>

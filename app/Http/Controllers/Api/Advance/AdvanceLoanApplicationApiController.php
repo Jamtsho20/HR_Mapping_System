@@ -18,6 +18,7 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceDetail;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\User;
 
 class AdvanceLoanApplicationApiController extends Controller
 {
@@ -69,16 +70,17 @@ class AdvanceLoanApplicationApiController extends Controller
     {
 
         try {
-            $applications = AdvanceApplication::with('advanceType')->createdBy()->orderBy('created_at', 'desc')->get();
+            $applications = AdvanceApplication::with('advanceType', 'advance_approved_by:id,name')->createdBy()->orderBy('created_at', 'desc')->get();
+
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to retrieve applications', 500);
+            return $this->errorResponse('Failed to retrieve applications'.$e->getMessage(), 500);
         }
     }
 
     public function create()
     {   try {
-        $advanceTypes = MasAdvanceTypes::whereStatus(1)->all();
+        $advanceTypes = MasAdvanceTypes::whereStatus(1)->get();
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those

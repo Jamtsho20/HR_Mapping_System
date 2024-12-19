@@ -133,7 +133,7 @@ return [
         1 => 'Full Day',
         2 => 'First Half',
         3 => 'Second Half',
-        4 => 'Shift'
+        // 4 => 'Shift'
     ],
 
     'salary_disbursement_mode' => [

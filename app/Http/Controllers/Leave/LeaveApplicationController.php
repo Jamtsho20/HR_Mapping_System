@@ -7,17 +7,14 @@ use App\Models\LeaveApplication;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\EmployeeLeave;
-use App\Models\PaySlipDetailView;
 use App\Models\MasEmployeeJob;
-use App\Models\LeaveEncashmentApplication;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ApplicationForwardedMail;
-use App\Models\User;
 use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
 use App\Services\ApplicationHistoriesService;
+use Carbon\Carbon;
 
 class LeaveApplicationController extends Controller
 {
@@ -90,8 +87,15 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+        $matchingLeaves = prepareLeaveCombination(Carbon::parse($request->from_date));
+        if ($request->leave_type == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
+            if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
+                return back()->withInput()->with('msg_error', 'Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
+            }
+        }
         try {
             DB::beginTransaction();
+            
             $leaveApplication = LeaveApplication::create([
                 'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
@@ -105,12 +109,47 @@ class LeaveApplicationController extends Controller
             ]);
             // Create a history record
             $historyService = new ApplicationHistoriesService();
+            // if this leave combination El + CL + EL happens then middle CL will be converted to EL and accordingly update data and update leave balance accordingly
+            if($request->leave_type == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2){
+                if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
+                    DB::table('employee_leaves')
+                        ->where('mas_leave_type_id', $matchingLeaves[0]->type_id)
+                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
+                        ->update([
+                            'leaves_availed' => DB::raw('leaves_availed + ' . $matchingLeaves[0]->no_of_days),
+                            'closing_balance' => DB::raw('closing_balance + ' . $matchingLeaves[0]->no_of_days),
+                        ]);
+
+                    // Deduct from the second leave type (decrement) which is converted leave type
+                    DB::table('employee_leaves')
+                        ->where('mas_leave_type_id', EARNED_LEAVE)
+                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
+                        ->update([
+                            'leaves_availed' => DB::raw('leaves_availed - ' . $matchingLeaves[0]->no_of_days),
+                            'closing_balance' => DB::raw('closing_balance - ' . $matchingLeaves[0]->no_of_days),
+                        ]);
+
+                    DB::table('leave_applications')->where('id', $matchingLeaves[0]->id)->update(['type_id' => 2]);
+                    DB::table('application_histories')
+                        ->where('application_type', \App\Models\MasLeaveType::class)
+                        ->where('application_id', $matchingLeaves[0]->id)
+                        ->update([
+                            'hierarchy_id' => $approverByHierarchy['hierarchy_id'],
+                            'max_level_id' => $approverByHierarchy['max_level_id'],
+                            'next_level_id' => $approverByHierarchy['next_level']->id,
+                            'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
+                            'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                            'level_sequence' => $approverByHierarchy['next_level']->sequence,
+                        ]);
+                    
+                }
+            }
             $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
 
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days.';
+                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . 'to' . $request->to_date . '.';
                 $emailSubject = 'Leave Application';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
             }
