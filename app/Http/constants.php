@@ -21,6 +21,7 @@ const DOMESTIC_TRAVEL_TYPE = 1;
 //constant extracted from approving_authoritioes tbl
 const IMMEDIATE_HEAD = 7;
 const DEPARTMENT_HEAD = 8;
+const MANAGING_DIRECTOR = 10;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;
@@ -32,6 +33,7 @@ const TRANSFER_CLAIM_APPVL_HEAD = 6;
 const TRAVEL_AUTHORIZATION_APPVL_HEAD = 7;
 const SIFA_REGISTRATION_APPVL_HEAD = 8;
 const DSA_CLAIM_SETTLEMENT_APPVL_HEAD = 9;
+const COMMISSION_APPVL_HEAD = 10;
 
 const DSA_CLAIM_SETTLEMENT_EXPENSE_TYPE = 3;
 const TRANSFER_CLAIM_EXPENSE_TYPE = 4;

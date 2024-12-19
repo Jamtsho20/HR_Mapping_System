@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('issue_id')->index()->constrained('good_issue_applications')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('receipt_no')->index();
             $table->date('receipt_date')->index();
-            $table->tinyInteger('status')->comment('1 => New, 0 => Cancelled, -1 => rejected, 2 => Verified, 3 => Approved');
+            $table->tinyInteger('status')->comment('1 => Received, 0 => Not Received');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

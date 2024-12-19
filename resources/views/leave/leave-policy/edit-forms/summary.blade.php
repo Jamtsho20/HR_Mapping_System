@@ -177,7 +177,7 @@
         const formData = new FormData(form);
 
         // Use formData directly to populate summary
-        document.getElementById('summary_leave_type').textContent = leavesMap[formData.get('leave_policy[mas_leave_type_id]')] || 'N/A';
+        document.getElementById('summary_leave_type').textContent = leavesMap[formData.get('leave_policy[type_id]')] || 'N/A';
         document.getElementById('summary_leave_policy_name').textContent = formData.get('leave_policy[name]') || 'N/A';
         document.getElementById('summary_description').textContent = formData.get('leave_policy[description]') || 'N/A';
         document.getElementById('summary_start_date').textContent = formData.get('leave_policy[start_date]') || 'N/A';

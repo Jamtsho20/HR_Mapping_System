@@ -12,7 +12,7 @@ class LeaveApplication extends Model
 {
     use HasFactory, CreatedByTrait, UpdateLeaveBalanceTrait;
     protected $fillable = [
-        'mas_leave_type_id',
+        'type_id',
         'from_day',
         'to_day',
         'from_date',
@@ -39,13 +39,17 @@ class LeaveApplication extends Model
     }
     public function leaveType()
     {
-        return $this->belongsTo(MasLeaveType::class, 'mas_leave_type_id');
+        return $this->belongsTo(MasLeaveType::class, 'type_id');
+    }
+    public function type()
+    {
+        return $this->belongsTo(MasLeaveType::class, 'type_id');
     }
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($request->has('leave_type') && $request->query('leave_type') != '') {
-            $query->where('mas_leave_type_id', $request->query('leave_type'));
+            $query->where('type_id', $request->query('leave_type'));
         }
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('employee.empJob.department', function ($q) use ($request) {
@@ -85,11 +89,15 @@ class LeaveApplication extends Model
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
-    
+
     protected static function booted()
     {
+        static::created(function ($leaveApplication) {
+            $leaveApplication->updateLeaveBalance($leaveApplication);
+        });
+
         static::updated(function ($leaveApplication) {
-            if ($leaveApplication->isDirty('status')) {
+            if ($leaveApplication->isDirty('status') && $leaveApplication->status == -1) {
                 $leaveApplication->updateLeaveBalance($leaveApplication);
             }
         });

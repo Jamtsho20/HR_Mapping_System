@@ -53,7 +53,6 @@ class ConditionFieldController extends Controller
         $field->name = $request->name;
         $field->label = $request->label;
         $field->has_employee_field = $request->has_employee_field;
-        $field->has_role_id = $request->has_role;
         $field->save();
 
         return redirect('system-setting/condition-fields')->with('msg_success', 'Condition Fields  created successfully');

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string("code",50)->index();
             $table->boolean('status')->default(1);
+            $table->boolean('post_to_sap')->default(0);
             $table->text('description')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');

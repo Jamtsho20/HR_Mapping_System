@@ -60,14 +60,19 @@
                                                             <td>{{ $leave->encashment_amount }}</td>
                                                             <td class="text-center">
                                                                 @php
+                                                                    $statusClasses = [
+                                                                        -1 => 'badge bg-danger',
+                                                                        0 => 'badge bg-warning',
+                                                                        1 => 'badge bg-primary',
+                                                                        2 => 'badge bg-success',
+                                                                        3 => 'badge bg-info',
+                                                                    ];
                                                                     $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
+                                                                    $statusClass = $statusClasses[$leave->status] ?? 'badge bg-secondary';
                                                                 @endphp
-                                                                    <span class="badge bg-{{ $leave->status == 1 ? 'primary' : ($leave->status == -1 ? 'danger' : ($leave->status == 2 ? 'success' : 'secondary')) }}">
-                                                                    {{ $statusText }}
-                                                                    </span>
-                                                                </td>
-                                                            
-                                                               
+        
+                                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                            </td>
                                                         </tr>
                                                     @empty 
                                                     @if (empty($leaveEncashment) && $leaveApplications->isEmpty())

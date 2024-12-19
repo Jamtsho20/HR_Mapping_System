@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Services\ApprovalService;
 use App\Models\MasLeavePolicy;
 use App\Services\ApplicationHistoriesService;
+use App\Models\MasEmployeeJob;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,7 @@ class LeaveEncashmentApplicationController extends Controller
 
         $applyFlag = false;
 
-        $leavePolicy = MasLeavePolicy::with('yearEnd')->where('mas_leave_type_id', EARNED_LEAVE)->first();
+        $leavePolicy = MasLeavePolicy::with('yearEnd')->where('type_id', EARNED_LEAVE)->first();
         if (!$leavePolicy) {
             return back()->withInput()->with('Leave policy not found.', 404);
 
@@ -71,6 +72,7 @@ class LeaveEncashmentApplicationController extends Controller
         }
         $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
     ->whereYear('created_at', Carbon::now()->year)
+    ->whereNot('status', -1)
     ->exists();
 
         if ($applicationExists) {
@@ -82,7 +84,8 @@ class LeaveEncashmentApplicationController extends Controller
             $applyFlag = true;
         }
 
-        $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay');
+        $encashedAmount = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('basic_pay');
+
         return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag', 'message'));
     }
 
@@ -99,7 +102,7 @@ class LeaveEncashmentApplicationController extends Controller
             $leaveEncashment->mas_employee_id = Auth::id();
             $leaveEncashment->type_id = 1;
             $leaveEncashment->leave_applied_for_encashment = $request->leave_applied_for_encashment;
-            $leaveEncashment->encashment_amount = $request->encashment_amount;
+            $leaveEncashment->amount = $request->encashment_amount;
             $leaveEncashment->created_by = Auth::id();
             $leaveEncashment->status = 1;
             $leaveEncashment->save();

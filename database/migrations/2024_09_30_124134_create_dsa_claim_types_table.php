@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string("code",50)->index();
             $table->string('name');
-            $table->string("code",50)->index();
             $table->boolean('status')->default(1);
+            $table->boolean('post_to_sap')->default(0);
             $table->text('description')->nullable();
             $table->timestamps();
         });

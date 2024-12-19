@@ -196,7 +196,7 @@
                             </div>
                             <div class="card-footer">
                                 @include('layouts.includes.buttons', [
-                                    'buttonName' => 'Apply Expense',
+                                    'buttonName' => 'SUBMIT',
                                     'cancelUrl' => url('expense/apply-expense'),
                                     'cancelName' => 'CANCEL',
                                 ])
@@ -397,7 +397,7 @@
                                 </div>
                                 <div class="card-footer">
                                     @include('layouts.includes.buttons', [
-                                        'buttonName' => 'Submit',
+                                        'buttonName' => 'SUBMIT',
                                         'cancelUrl' => url('/expense/dsa-claim-settlement'),
                                         'cancelName' => 'CANCEL',
                                     ])

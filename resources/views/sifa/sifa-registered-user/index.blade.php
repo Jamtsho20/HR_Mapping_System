@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Sifa Registration')
+@section('page-title', 'Sifa Registered Employee List')
 @section('content')
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
@@ -11,9 +11,6 @@
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Sifa Registered Employee List</h3>
-                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">

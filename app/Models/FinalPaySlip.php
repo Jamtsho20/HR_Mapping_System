@@ -33,7 +33,17 @@ class FinalPaySlip extends Model
         if ($request->has('employee_id') && $request->get('employee_id')) {
             $query->where('final_pay_slips.mas_employee_id', $request->get('employee_id'));
         }
-        
+        if ($request->has('employee_id') && $request->get('employee_id')) {
+            $query->where('final_pay_slips.mas_employee_id', $request->get('employee_id'));
+        }
+
+        if ($request->has('bank_location') && $request->get('bank_location')) {
+            
+            $query->whereHas('employee.empJob', function ($query) use ($request) {
+                $query->where('bank', $request->get('bank_location')); // Changed 'bank' to 'bank_location'
+            });
+        }
+
         if ($request->has('mas_pay_head_id') && $request->get('mas_pay_head_id')) {
             $query->where('loan_e_m_i_deductions.mas_pay_head_id', $request->get('mas_pay_head_id'));
         }
@@ -50,8 +60,4 @@ class FinalPaySlip extends Model
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
-
-
-
- 
 }

@@ -78,7 +78,7 @@ class AdvanceLoanApplicationController extends Controller
             ->createdBy() // Apply the createdBy scope
             ->orderBy('date', 'desc')
             ->paginate(10);
-        $advanceTypes = MasAdvanceTypes::get(['id', 'name']);
+        $advanceTypes = MasAdvanceTypes::where('status', 1)->get(['id', 'name']);
 
         foreach ($advances as $advance) {
             $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
@@ -89,7 +89,7 @@ class AdvanceLoanApplicationController extends Controller
 
     public function create()
     {
-        $advanceTypes = MasAdvanceTypes::all();
+        $advanceTypes = MasAdvanceTypes::where('status', 1)->get();
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
@@ -111,7 +111,6 @@ class AdvanceLoanApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
-        // dd($approverByHierarchy['max_level_id']);
         $attachment = "";
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');

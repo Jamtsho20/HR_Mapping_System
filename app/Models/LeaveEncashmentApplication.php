@@ -20,7 +20,8 @@ class LeaveEncashmentApplication extends Model
         'created_by',
         'updated_by',
         'status',
-        'encashment_amount',
+        'post_to_sap',
+        'amount',
     ];
 
     public function histories()
@@ -28,16 +29,41 @@ class LeaveEncashmentApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
+    public function type()
+    {
+        return $this->belongsTo(LeaveEncashmentType::class, 'type_id');
+    }
+
+    // public function employee()
+    // {
+    //     return $this->belongsTo(User::class, 'created_by');
+    // }
+
     protected static function booted()
     {
+        static::created(function ($leaveEncashment) {
+            $leaveEncashment->updateLeaveBalance(null, $leaveEncashment);
+        });
+
         static::updated(function ($leaveEncashment) {
-            if ($leaveEncashment->isDirty('status') && $leaveEncashment->status == 3) { 
+            if ($leaveEncashment->isDirty('status') && $leaveEncashment->status == -1) {
                 $leaveEncashment->updateLeaveBalance(null, $leaveEncashment);
             }
         });
+      
     }
     public function employee()
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
+    public function updated_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+
+    }
+
+
 }

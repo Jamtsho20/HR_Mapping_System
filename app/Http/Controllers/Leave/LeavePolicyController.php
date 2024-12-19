@@ -28,7 +28,7 @@ class LeavePolicyController extends Controller
      */
     protected $rules = [
         //rules for leave_policy
-        'leave_policy.mas_leave_type_id' => 'required',
+        'leave_policy.type_id' => 'required',
         'leave_policy.name' => 'required',
         'leave_policy.start_date' => 'required|date',
         // //rules for leave_plan
@@ -168,7 +168,7 @@ class LeavePolicyController extends Controller
 
     {
         $leavePolicyData = [
-            'mas_leave_type_id' => $policy['mas_leave_type_id'],
+            'type_id' => $policy['type_id'],
             'name' => $policy['name'],
             'description' => $policy['description'],
             'start_date' => $policy['start_date'],

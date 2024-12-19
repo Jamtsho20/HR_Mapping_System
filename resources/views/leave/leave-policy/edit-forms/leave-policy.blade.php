@@ -6,10 +6,10 @@
 <div class="row">
     <span class="col-sm-4">Leave Type <span class="text-danger">*</span> </span>
     <div class="col-sm-4">
-        <select class="form-control" id="ddlLeaveType" name="leave_policy[mas_leave_type_id]">
+        <select class="form-control" id="ddlLeaveType" name="leave_policy[type_id]">
             <option value="" disabled selected hidden>Select your option</option>
             @foreach($leaves as $leave)
-            <option value="{{ $leave->id }}" {{  $leavePolicy->mas_leave_type_id == $leave->id ? 'selected' : '' }}>{{ $leave->name }}</option>
+            <option value="{{ $leave->id }}" {{  $leavePolicy->type_id == $leave->id ? 'selected' : '' }}>{{ $leave->name }}</option>
             @endforeach
         </select>
     </div>

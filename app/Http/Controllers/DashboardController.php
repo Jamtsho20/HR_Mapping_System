@@ -27,7 +27,7 @@ class DashboardController extends Controller
         // Fetch holiday list with filtering
         $holidays = WorkHolidayList::filter($request)
             ->orderBy('start_date')
-            ->paginate(10)
+            ->paginate(30)
             ->withQueryString();
 
         // Get all system notifications
@@ -118,7 +118,7 @@ class DashboardController extends Controller
         $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
             ->createdBy()
             ->whereYear('created_at', $currentYear)
-            ->when($leaveTypeId, fn ($query) => $query->where('mas_leave_type_id', $leaveTypeId))
+            ->when($leaveTypeId, fn ($query) => $query->where('type_id', $leaveTypeId))
             ->groupBy('status')
             ->pluck('total', 'status');
 

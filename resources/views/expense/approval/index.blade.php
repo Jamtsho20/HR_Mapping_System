@@ -10,29 +10,10 @@
                 placeholder="Search">
         </div>
         @endcomponent
-        <div class="block-options">
-            <div class="row" style="float:right;">
-                <div class=" col-6 ">
-                    <div class="btn-group mt-2 mb-2">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown">
-                            Approval Status
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="javascript:void(0);">Pending</a></li>
-                            <li><a href="javascript:void(0);">Approved</a></li>
-                        </ul>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+        
     </div>
     <div class="block-content">
         <div class="block-options">
-            <div class="col-sm-8">
-                <h5>Expense Approval</h5>
-            </div>
             @if ($privileges->edit)
             <div class="col-sm-6">
                 <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
@@ -139,7 +120,7 @@
                                                                         <td>{{ $application->employee->name }}
                                                                         </td>
                                                                         <td>{{ $application->date }}</td>
-                                                                        <td>{{ $application->expenseType->name }}
+                                                                        <td>{{ $application->type->name }}
                                                                         </td>
                                                                         <td>{{ $application->amount }}
                                                                         </td>

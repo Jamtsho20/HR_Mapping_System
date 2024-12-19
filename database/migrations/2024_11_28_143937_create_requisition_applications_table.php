@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('requisition_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('requisition_type_id')->index()->constrained('mas_requisition_types')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('type_id')->index()->constrained('mas_requisition_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('requisition_no')->index();
             $table->date('requisition_date')->index();
             $table->string('asset_type')->index()->nullable()->comment('if required in future, can make use of it');

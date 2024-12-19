@@ -34,7 +34,7 @@ return new class extends Migration
                         t1.id, 
                         t1.name
                     FROM mas_leave_types t1
-                        JOIN mas_leave_policies t2 ON t1.id = t2.mas_leave_type_id
+                        JOIN mas_leave_policies t2 ON t1.id = t2.type_id
                     WHERE t2.status = 1 AND t2.is_information_only = 0;
 
                 -- Continue handler for cursor
@@ -63,7 +63,7 @@ return new class extends Migration
                     FROM mas_leave_policies t1
                         LEFT JOIN leave_policy_plans t2 ON t1.id = t2.mas_leave_policy_id
                         LEFT JOIN leave_policy_rules t3 ON t2.id = t3.leave_policy_plan_id
-                    WHERE t1.mas_leave_type_id = leave_id
+                    WHERE t1.type_id = leave_id
                         AND t1.status = 1
                         AND t1.is_information_only = 0
                         AND t3.mas_grade_step_id = grade_step_id

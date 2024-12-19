@@ -131,7 +131,7 @@ class LeaveApprovalController extends Controller
 
             DB::beginTransaction();
             $leaveApplication->update([
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => $request->from_date,
@@ -164,97 +164,97 @@ class LeaveApprovalController extends Controller
         //
     }
 
-    public function bulkApprovalRejection(Request $request)
-    {
-        $action = $request->action;
-        $itemIds = $request->item_ids;
-        $status = ($action === 'approve') ? 2 : -1;
-        $rejectRemarks = $request->input('reject_remarks', '');
-        $userId = auth()->id();
-        $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-        // dd($itemIds);
-        DB::beginTransaction();
-        try {
-            $approvalService = new ApprovalService();
+    // public function bulkApprovalRejection(Request $request)
+    // {
+    //     $action = $request->action;
+    //     $itemIds = $request->item_ids;
+    //     $status = ($action === 'approve') ? 2 : -1;
+    //     $rejectRemarks = $request->input('reject_remarks', '');
+    //     $userId = auth()->id();
+    //     $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+    //     // dd($itemIds);
+    //     DB::beginTransaction();
+    //     try {
+    //         $approvalService = new ApprovalService();
 
-            foreach ($itemIds as $id) {
-                $leaveApplication = LeaveApplication::findOrFail($id);
-                $applicationHistory = $leaveApplication->histories
-                    ->where('application_type', LeaveApplication::class)
-                    ->where('application_id', $id)
-                    ->first();
+    //         foreach ($itemIds as $id) {
+    //             $leaveApplication = LeaveApplication::findOrFail($id);
+    //             $applicationHistory = $leaveApplication->histories
+    //                 ->where('application_type', LeaveApplication::class)
+    //                 ->where('application_id', $id)
+    //                 ->first();
 
-                // Update leave application status
-                $leaveApplication->update([
-                    'status' => $status,
-                    'updated_by' => $userId,
-                ]);
+    //             // Update leave application status
+    //             $leaveApplication->update([
+    //                 'status' => $status,
+    //                 'updated_by' => $userId,
+    //             ]);
 
-                // Forward application if approved
-                $updateData = [
-                    'status' => $status,
-                    'remarks' => $rejectRemarks,
-                    'action_performed_by' => $userId,
-                ];
+    //             // Forward application if approved
+    //             $updateData = [
+    //                 'status' => $status,
+    //                 'remarks' => $rejectRemarks,
+    //                 'action_performed_by' => $userId,
+    //             ];
 
-                if ($action === 'approve' && $applicationHistory) {
-                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, LeaveApplication::class);
-                    // dd($applicationForwardedTo);
-                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
-                        $updateData = array_merge($updateData, [
-                            'level_id' => $applicationForwardedTo['next_level']->id,
-                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
-                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
-                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
-                        ]);
-                        // Attempt to send email to next approver need to work on it
-                        // try {
-                        //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($leaveApplication, $nextApprover));
-                        // } catch (\Exception $e) {
-                        //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
-                        // }
-                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
-                        // Finalize approval if it's at the maximum level
-                        $leaveApplication->update([
-                            'status' => 3, // 3 could represent 'final approved'
-                            'updated_by' => $userId,
-                        ]);
-                        $updateData['status'] = 3; // Mark the history entry as final approved
-                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
-                        $leaveApplication->update([
-                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                            'updated_by' => $userId,
-                        ]);
-                        $updateData['status'] = $applicationForwardedTo['application_status'];
-                    }
-                }
-                // Update application history
-                if ($applicationHistory) {
-                    $applicationHistory->update($updateData);
-                }
+    //             if ($action === 'approve' && $applicationHistory) {
+    //                 $applicationForwardedTo = $approvalService->applicationForwardedTo($id, LeaveApplication::class);
+    //                 // dd($applicationForwardedTo);
+    //                 if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+    //                     $updateData = array_merge($updateData, [
+    //                         'level_id' => $applicationForwardedTo['next_level']->id,
+    //                         'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
+    //                         'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+    //                         'level_sequence' => $applicationForwardedTo['next_level']->sequence,
+    //                     ]);
+    //                     // Attempt to send email to next approver need to work on it
+    //                     // try {
+    //                     //     Mail::to($nextApprover->email)->send(new NextApproverNotificationMail($leaveApplication, $nextApprover));
+    //                     // } catch (\Exception $e) {
+    //                     //     \Log::error('Failed to send email to next approver: ' . $e->getMessage());
+    //                     // }
+    //                 } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+    //                     // Finalize approval if it's at the maximum level
+    //                     $leaveApplication->update([
+    //                         'status' => 3, // 3 could represent 'final approved'
+    //                         'updated_by' => $userId,
+    //                     ]);
+    //                     $updateData['status'] = 3; // Mark the history entry as final approved
+    //                 } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
+    //                     $leaveApplication->update([
+    //                         'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+    //                         'updated_by' => $userId,
+    //                     ]);
+    //                     $updateData['status'] = $applicationForwardedTo['application_status'];
+    //                 }
+    //             }
+    //             // Update application history
+    //             if ($applicationHistory) {
+    //                 $applicationHistory->update($updateData);
+    //             }
 
-                // Attempt to send email to applicant about the approval/rejection status need to work on it
-                // try {
-                //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
-                // } catch (\Exception $e) {
-                //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
-                // }
-            }
+    //             // Attempt to send email to applicant about the approval/rejection status need to work on it
+    //             // try {
+    //             //     Mail::to($user->email)->send(new LeaveApplicationStatusMail($leaveApplication, $action, $rejectRemarks));
+    //             // } catch (\Exception $e) {
+    //             //     \Log::error('Failed to send email to applicant: ' . $e->getMessage());
+    //             // }
+    //         }
 
-            DB::commit();
-            return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
-        } catch (\Exception $e) {
+    //         DB::commit();
+    //         return response()->json(['message' => 'All leave has been successfully ' . $responseMessage], 200);
+    //     } catch (\Exception $e) {
 
-            DB::rollBack();
-            Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-            return response()->json(['message' => 'An error occurred during the operation.'], 500);
-        }
-    }
+    //         DB::rollBack();
+    //         Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+    //         return response()->json(['message' => 'An error occurred during the operation.'], 500);
+    //     }
+    // }
 
     private function handleLeaveApplication(Request $request, $leaveApplication = null)
     { //common function to handle store and update of leave
 
-        $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
+        $leaveBalance = EmployeeLeave::where('type_id', $request->leave_type)
             ->where('mas_employee_id', $leaveApplication->created_by)
             ->value('closing_balance');
 
@@ -265,7 +265,7 @@ class LeaveApprovalController extends Controller
         $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan.leavePolicyRule' => function ($query) use ($empJobDetail) {
             $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)->whereStatus(1);
         }, 'leaveType'])
-            ->where('mas_leave_type_id', $request->leave_type)
+            ->where('type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
 

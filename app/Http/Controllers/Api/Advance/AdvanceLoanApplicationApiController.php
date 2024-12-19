@@ -18,6 +18,7 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceDetail;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\User;
 
 class AdvanceLoanApplicationApiController extends Controller
 {
@@ -67,19 +68,19 @@ class AdvanceLoanApplicationApiController extends Controller
 
     public function index(Request $request)
     {
-        $privileges = $request->instance();
 
         try {
-            $applications = AdvanceApplication::with('advanceType')->createdBy()->get();
+            $applications = AdvanceApplication::with('advanceType', 'advance_approved_by:id,name')->createdBy()->orderBy('created_at', 'desc')->get();
+
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to retrieve applications', 500);
+            return $this->errorResponse('Failed to retrieve applications'.$e->getMessage(), 500);
         }
     }
 
     public function create()
     {   try {
-        $advanceTypes = MasAdvanceTypes::all();
+        $advanceTypes = MasAdvanceTypes::whereStatus(1)->get();
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
@@ -120,7 +121,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $advanceApplication->date = $date;
             $advanceApplication->date = $date;
             $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
-            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
             $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
 
@@ -233,7 +234,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $advanceApplication->date = formatDate($request->date);
             // $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
-            $advanceApplication->advance_type_id = $request->advance_type;
+            $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
             $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
 

@@ -90,7 +90,7 @@
                 <td>{{$employee->username}}</td>
                 <td>{{$employee->name}}</td>
                 <td>{{$employee->empJob->department->name}}</td>
-                <td>{{$employee->empJob->section->name}}</td>
+                <td>{{$employee->empJob->section->name??'-'}}</td>
                 <td>{{$employee->empJob->designation->name}}</td>
                 <td>{{$employee->empJob->gradeStep->name}}</td>
                 <td>{{$employee->empJob->office->name}}</td>

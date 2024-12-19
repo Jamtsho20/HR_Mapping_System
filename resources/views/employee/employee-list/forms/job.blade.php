@@ -172,6 +172,10 @@
                     <label for="">TPN Number <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="job[tpn_number]" value="{{ old('job.tpn_number',isset($employee->empJob) ? $employee->empJob->tpn_number:'') }}" required>
                 </div>
+                <div class="form-group col-md-4">
+                    <label for="">GIS Policy Number</label>
+                    <input type="text" class="form-control form-control-sm" name="job[gis_policy_number]" value="{{ old('job.gis_policy_number',isset($employee->empJob) ? $employee->empJob->gis_policy_number:'') }}" required>
+                </div>
         </div>
 </div>
 @push('page_scripts')

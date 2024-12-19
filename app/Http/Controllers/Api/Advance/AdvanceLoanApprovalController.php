@@ -111,17 +111,17 @@ class AdvanceLoanApprovalController extends Controller
         })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
             ->orderBy('created_at')
             ->firstOrFail();;
-        $advanceType = MasAdvanceTypes::where('id', $advance->advance_type_id)->first(); // Fetch advance types
+        $advanceType = MasAdvanceTypes::where('id', $advance->type_id)->first(); // Fetch advance types
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $travelAuthorizations = [];
         $advanceDetails = []; // only if advance type is ADVANCE_TO_STAFF
-        if($advance->advance_type_id == DSA_ADVANCE){
+        if($advance->type_id == DSA_ADVANCE){
             $travelAuthorizations = TravelAuthorizationApplication::with('details')->where('created_by', loggedInUser())
                                         ->where('id', $advance->travel_authorization_id)
                                         ->first();
         }
-        if($advance->advance_type_id == ADVANCE_TO_STAFF){
+        if($advance->type_id == ADVANCE_TO_STAFF){
             $advanceDetails = AdvanceDetail::where('advance_application_id', $advance->id)->get();
         }
         $redirectUrl = 'advance-loan/advance-loan-approval';

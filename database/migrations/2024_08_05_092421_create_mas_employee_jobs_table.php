@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('account_number')->nullable();
             $table->string('pf_number', 100);
             $table->string('tpn_number', 100);
+            $table->string('gis_policy_number', 100)->nullable();
             $table->timestamps();
         });
     }

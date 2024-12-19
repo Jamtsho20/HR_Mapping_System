@@ -16972,7 +16972,9 @@ div.conv-form-wrapper div.options div.option.selected {
         right: 0;
         text-align: center;
         position: absolute;
-        top: 17px;
+        top: 9px!important;
+        width: 73px!important;
+     
     }
 
     .leftmenu-styles {
@@ -58483,7 +58485,9 @@ html [type=button],
     background: linear-gradient(to right, #fc6075 0%, #ff9b44 100%); /* Optional hover effect */
 }
 
-
+.custom-border{
+    border:  0.8px solid lightgray!important;
+}
 
 
 /*# sourceMappingURL=style.css.map */
