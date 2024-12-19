@@ -210,7 +210,7 @@ class ExpenseApplicationController extends Controller
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
                 $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
-                 
+
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
@@ -297,7 +297,7 @@ class ExpenseApplicationController extends Controller
             if ($request->has('fuel_claim_details')) {
 
                 $requestIds = collect($request->input('fuel_claim_details'))
-                    ->pluck('id') 
+                    ->pluck('id')
                     ->filter()
                     ->toArray();
 
@@ -381,7 +381,7 @@ class ExpenseApplicationController extends Controller
                         ->whereStatus(1);
                 }]);
         }, 'policyEnforcement'])
-            ->where('mas_expense_type_id', $request->expense_type)
+            ->where('type_id', $request->expense_type)
             ->whereStatus(1)
             ->first();
         //check weather attachment is required while applying expense from expense policy

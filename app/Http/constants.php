@@ -75,3 +75,7 @@ const PREPARED = 2;
 const VERIFIED = 3;
 const APPROVED_POSTED = 4;
 const UNPAID_SALARY_STAFF = 23197;
+
+
+//Encashment Tax GL code
+const TAX_GL_CODE = 23173;
