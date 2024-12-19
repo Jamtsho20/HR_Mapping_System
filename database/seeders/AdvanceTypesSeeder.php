@@ -22,7 +22,6 @@ class AdvanceTypesSeeder extends Seeder
             ("Imprest Advance", "36126", 1, 1),
             ("Salary Advance", "36144", 1, 1),
             ("SIFA LOAN", "SIFA", 1, 1);
-
         ');
     }
 }
