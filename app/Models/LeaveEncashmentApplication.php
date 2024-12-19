@@ -20,6 +20,7 @@ class LeaveEncashmentApplication extends Model
         'created_by',
         'updated_by',
         'status',
+        'tax_amount',
         'post_to_sap',
         'amount',
     ];
@@ -50,7 +51,7 @@ class LeaveEncashmentApplication extends Model
                 $leaveEncashment->updateLeaveBalance(null, $leaveEncashment);
             }
         });
-      
+
     }
     public function employee()
     {

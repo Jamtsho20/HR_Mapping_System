@@ -19,6 +19,7 @@ return new class extends Migration
             // $table->float('leave_eligible_for_encashment')->comment('No. of days that is eligible for encashment');
             $table->float('leave_applied_for_encashment')->comment('No. of days employee have applied for encashment');
             $table->decimal('amount', 16,2);
+            $table->decimal('tax_amount', 16,2);
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
