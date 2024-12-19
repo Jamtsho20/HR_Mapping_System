@@ -85,7 +85,7 @@
                 </div>
             </div>
         </div>
-        <div class="card-footer">    
+        <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
