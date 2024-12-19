@@ -72,6 +72,7 @@ class LeaveEncashmentApplicationController extends Controller
         }
         $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
     ->whereYear('created_at', Carbon::now()->year)
+    ->whereNot('status', -1)
     ->exists();
 
         if ($applicationExists) {

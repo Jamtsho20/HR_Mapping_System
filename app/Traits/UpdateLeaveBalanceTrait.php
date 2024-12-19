@@ -24,7 +24,7 @@ trait UpdateLeaveBalanceTrait
                 ->where('mas_leave_type_id', EARNED_LEAVE)
                 ->first();
 
-                if ($employeeLeave && $leaveApplication->status == -1) {
+                if ($employeeLeave && $leaveEncashment->status == -1) {
                     $employeeLeave->leaves_availed -=$noOfDays;
                     $employeeLeave->closing_balance +=$noOfDays;
                     $employeeLeave->save();

@@ -93,11 +93,7 @@ class LeaveApplication extends Model
     protected static function booted()
     {
         static::created(function ($leaveApplication) {
-
-            // \Log::info($leaveApplication);
-            // if ($leaveApplication->isDirty('status')) {
-                $leaveApplication->updateLeaveBalance($leaveApplication);
-            // }
+            $leaveApplication->updateLeaveBalance($leaveApplication);
         });
 
         static::updated(function ($leaveApplication) {

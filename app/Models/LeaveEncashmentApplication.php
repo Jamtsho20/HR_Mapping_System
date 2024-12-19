@@ -41,11 +41,16 @@ class LeaveEncashmentApplication extends Model
 
     protected static function booted()
     {
+        static::created(function ($leaveEncashment) {
+            $leaveEncashment->updateLeaveBalance(null, $leaveEncashment);
+        });
+
         static::updated(function ($leaveEncashment) {
-            if ($leaveEncashment->isDirty('status') && $leaveEncashment->status == 3) {
+            if ($leaveEncashment->isDirty('status') && $leaveEncashment->status == -1) {
                 $leaveEncashment->updateLeaveBalance(null, $leaveEncashment);
             }
         });
+      
     }
     public function employee()
     {

@@ -59,7 +59,7 @@
                     </div>
                 </div>
             </div>
-<!-- 
+<!--
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -150,7 +150,7 @@
 
         let manualEdit = false;
         let rowCount = document.querySelectorAll('#travel_details tbody tr').length - 1;
-        
+
 
         // Function to update the date constraints dynamically
         function updateDateConstraints() {
@@ -191,6 +191,7 @@
                 const fromDateValue = fromDateField.value;
                 if (fromDateValue) {
                     toDateField.setAttribute('min', fromDateValue);
+                  
                     toDateField.disabled = false;
                 } else {
                     toDateField.disabled = true;
