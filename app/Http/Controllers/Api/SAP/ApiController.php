@@ -115,14 +115,14 @@ class ApiController extends BaseController
                 {
                     "ShortName": "' . $employeeId . '",
                     "CostingCode": "", // department
-                    "CostingCode2": "'. $costingCode2 .'",
+                    "CostingCode2": "' . $costingCode2 . '",
                     "Credit": "' . $amount . '",
                     "Debit": 0
                 },
                 {
                     "AccountCode": "' . $accountCode . '",
                     "CostingCode": "", // department
-                    "CostingCode2": "'. $costingCode2 .'",
+                    "CostingCode2": "' . $costingCode2 . '",
                     "Credit": 0,
                     "Debit": "' . $amount . '"
                 }
@@ -183,4 +183,47 @@ class ApiController extends BaseController
         return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
 
+    public function postEmployee($data)
+    {
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://192.168.196.23:50000/b1s/v1/BusinessPartners',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => '{
+                    "CardCode": "E001049",
+                    "CardName": "Heran Ghalley",
+                    "CardType": "C", 
+                    "GroupCode": 108, 
+                    "Currency": "",
+                    "CardForeignName": 11211000920, 
+                    "Country": "BT", 
+                    "DebitorAccount": "34611", 
+                    "DownPaymentInterimAccount": "23245", 
+                    "BPFiscalTaxIDCollection": [
+                        {
+                            
+                            "TaxId0": "00HAP17001" 
+                        
+                        }
+                    ]   
+                }',
+            CURLOPT_HTTPHEADER => array(
+                'Cookie: 97fa5a60-bde5-11ef-c000-00505683694d-140388240156544-1432; B1SESSION=97fa5a60-bde5-11ef-c000-00505683694d-140388240156544-1432; ROUTEID=.node3',
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
+    }
 }

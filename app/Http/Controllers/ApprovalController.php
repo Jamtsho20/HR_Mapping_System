@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\SAP\ApiController;
-use App\Models\ApprovalHead;
 use App\Models\MasApprovalHead;
-use App\Models\MasExpenseType;
-use App\Models\MasPayHead;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -168,7 +165,6 @@ class ApprovalController extends Controller
                 $applicationHistory->update($updateData);
             }
         }
-
         DB::commit();
 
         $model = preg_replace(
@@ -176,6 +172,8 @@ class ApprovalController extends Controller
             ['', '$1 Application'],
             $model
         );
+
+        
 
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
