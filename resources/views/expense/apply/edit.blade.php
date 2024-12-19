@@ -1,7 +1,10 @@
 @extends('layouts.app')
 @section('page-title', 'Create Expense')
+@section('buttons')
+    <a href="{{ url('expense/apply-expense/') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to
+        List</a>
+@endsection
 @section('content')
-
     <form action="{{ route('apply-expense.update', $expenseApplication->id) }}" id="leave-form" method="post"
         enctype="multipart/form-data">
         @csrf
@@ -111,43 +114,52 @@
                                                                 class="fa fa-times"></i></a>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="hidden" name="fuel_claim_details[AAAAA{{ $detail->id }}][id]"
-                                                            class="form-control form-control-sm resetKeyForNew" value="{{ $detail->id }}" />
+                                                        <input type="hidden"
+                                                            name="fuel_claim_details[AAAAA{{ $detail->id }}][id]"
+                                                            class="form-control form-control-sm resetKeyForNew"
+                                                            value="{{ $detail->id }}" />
 
-                                                        <input type="date" name="fuel_claim_details[AAAAA{{ $detail->id }}][date]"
-                                                            class="form-control form-control-sm resetKeyForNew" value="{{ $detail->date }}" required />
+                                                        <input type="date"
+                                                            name="fuel_claim_details[AAAAA{{ $detail->id }}][date]"
+                                                            class="form-control form-control-sm resetKeyForNew"
+                                                            value="{{ $detail->date }}" required />
                                                     </td>
                                                     <td class="text-center">
                                                         <input type="number"
                                                             name="fuel_claim_details[AAAAA{{ $detail->id }}][initial_reading]"
-                                                            class="form-control form-control-sm resetKeyForNew" value="{{ $detail->initial_reading }}" readonly
-                                                            required />
+                                                            class="form-control form-control-sm resetKeyForNew"
+                                                            value="{{ $detail->initial_reading }}" readonly required />
                                                     </td>
 
                                                     <td class="text-center">
                                                         <input type="number"
                                                             name="fuel_claim_details[AAAAA{{ $detail->id }}][final_reading]"
-                                                            class="form-control form-control-sm resetKeyForNew" value="{{ $detail->final_reading }}" required />
+                                                            class="form-control form-control-sm resetKeyForNew"
+                                                            value="{{ $detail->final_reading }}" required />
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="text" name="fuel_claim_details[AAAAA{{ $detail->id }}][quantity]"
-                                                            class="form-control form-control-sm resetKeyForNew" value="{{ $detail->quantity }}" required />
+                                                        <input type="text"
+                                                            name="fuel_claim_details[AAAAA{{ $detail->id }}][quantity]"
+                                                            class="form-control form-control-sm resetKeyForNew"
+                                                            value="{{ $detail->quantity }}" required />
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="number" name="fuel_claim_details[AAAAA{{ $detail->id }}][mileage]"
-                                                            class="form-control form-control-sm resetKeyForNew" value="{{ $detail->mileage }}" readonly
-                                                            required />
+                                                        <input type="number"
+                                                            name="fuel_claim_details[AAAAA{{ $detail->id }}][mileage]"
+                                                            class="form-control form-control-sm resetKeyForNew"
+                                                            value="{{ $detail->mileage }}" readonly required />
                                                     </td>
 
                                                     <td class="text-center">
                                                         <input type="number" min="0"
                                                             name="fuel_claim_details[AAAAA{{ $detail->id }}][rate]"
-                                                            class="form-control form-control-sm resetKeyForNew notclearfornew" value="{{ $detail->rate }}"
-                                                            readonly />
+                                                            class="form-control form-control-sm resetKeyForNew notclearfornew"
+                                                            value="{{ $detail->rate }}" readonly />
                                                     </td>
                                                     <td class="text-center">
                                                         <input type="number" min="0"
-                                                            name="fuel_claim_details[AAAAA{{ $detail->id }}][amount]" value="{{ $detail->amount }}"
+                                                            name="fuel_claim_details[AAAAA{{ $detail->id }}][amount]"
+                                                            value="{{ $detail->amount }}"
                                                             class="form-control form-control-sm resetKeyForNew" />
                                                     </td>
                                                 </tr>

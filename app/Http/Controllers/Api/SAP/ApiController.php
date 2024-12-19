@@ -106,29 +106,9 @@ class ApiController extends BaseController
         }
     }
 
-    public function postJournalEntries($accountCode, $employeeId, $memo, $amount, $costingCode2 = null)
+    // public function postJournalEntries($accountCode, $shortName, $memo, $amount, $costingCode = null, $costingCode2 = null)
+    public function postJournalEntries($postFields)
     {
-        $postFields = '{
-            "ReferenceDate":"' . date('Y-m-d') . '",
-            "Memo": "' . $memo . '",
-            "JournalEntryLines": [
-                {
-                    "ShortName": "' . $employeeId . '",
-                    "CostingCode": "", // department
-                    "CostingCode2": "'. $costingCode2 .'", 
-                    "Credit": "' . $amount . '",
-                    "Debit": 0
-                },
-                {
-                    "AccountCode": "' . $accountCode . '",
-                    "CostingCode": "", // department
-                    "CostingCode2": "'. $costingCode2 .'",
-                    "Credit": 0,
-                    "Debit": "' . $amount . '"
-                }
-            ]
-        }';
-
         // Start SAP session and retrieve session ID
         $response = $this->startSession();
 

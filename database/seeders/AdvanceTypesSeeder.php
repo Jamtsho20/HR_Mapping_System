@@ -20,9 +20,8 @@ class AdvanceTypesSeeder extends Seeder
             ("Electricity Imprest Advance", "ELC_IMP_ADV", 1, 1),
             ("Gadget EMI", "GAD_EMI", 1, 1),
             ("Imprest Advance", "IMP_ADV", 1, 1),
-            ("Salary Advance", "SAL_ADV", 1, 1),
+            ("Salary Advance", "36144", 1, 1),
             ("SIFA LOAN", "SIFA", 1, 1);
-
         ');
     }
 }

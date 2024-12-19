@@ -156,9 +156,9 @@
             $('#prepare-btn').on('click', function() {
                 event.preventDefault();
 
-                var processUrl = $(this).attr('href');
+                var prepareUrl = $(this).attr('href');
 
-                window.location.href = processUrl;
+                window.location.href = prepareUrl;
 
                 // $.confirm({
                 //     title: 'Process Payslip',
@@ -168,7 +168,7 @@
                 //             text: 'Yes, Proceed',
                 //             btnClass: 'btn-primary',
                 //             action: function() {
-                //                 window.location.href = processUrl;
+                //                 window.location.href = prepareUrl;
                 //             }
                 //         },
                 //         cancel: {
