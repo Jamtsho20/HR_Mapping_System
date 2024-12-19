@@ -329,8 +329,8 @@ if(!function_exists('prepareLeaveCombination')) {
         $matchingLeaves = collect();
         if ($latestLeave) $matchingLeaves->push($latestLeave);
         if ($secondLeave) $matchingLeaves->push($secondLeave);
-
-        return $matchingLeaves;
+        
+        return $matchingLeaves ? $matchingLeaves : [];
     }
 }
 // if(!function_exists('') ) {
