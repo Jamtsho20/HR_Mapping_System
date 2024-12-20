@@ -47,7 +47,7 @@
                                             </th>
                                         </tr>
                                     <tbody>
-                                        @forelse ($transferclaims as $transferclaim)
+                                        @forelse ($results->get(6) as $transferclaim)
                                         <tr>
                                             <td>
                                                 <input type="checkbox"
@@ -58,7 +58,7 @@
                                             </td>
                                             <td>{{ $transferclaim->created_at->format('d-m-Y') }}
                                             </td>
-                                            <td>{{ $transferclaim->transfer_claim }}
+                                            <td>{{ $transferclaim->type->name}}
                                             </td>
                                             <td>{{ $transferclaim->amount }}
                                             </td>

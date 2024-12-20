@@ -37,7 +37,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($advances as $advance)
+                                    @forelse ($results->get(3) as $advance)
                                     <tr>
                                         <td><input type="checkbox" class="bulk_checkbox" value="{{ $advance->id }}"></td>
                                         <td>{{ $advance->employee->emp_id_name }}</td>
@@ -81,7 +81,7 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <div>{{ $advances->links() }}</div>
+                            <div>{{ $results->get(3)->links() }}</div>
                         </div>
                     </div>
                 </div>

@@ -140,7 +140,7 @@ class AdvanceApplication extends Model
         });
     }
 
-    public function insertInToLoanEmiDeductions($payHeadId) 
+    public function insertInToLoanEmiDeductions($payHeadId)
     {
         $startDate = Carbon::parse($this->deduction_from_period); // Ensure Carbon instance
         $endDate = $startDate->copy()->addMonths($this->no_of_emi)->subDay();
@@ -155,8 +155,8 @@ class AdvanceApplication extends Model
             'loan_type_id' => 4,
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,
-            'remark' => $this->remark ?? null,
-            'is_paid_of' => 0,
+            'remarks' => $this->remark ?? null,
+            'is_paid_off' => 0,
             'created_at' => now(),
         ]);
     }

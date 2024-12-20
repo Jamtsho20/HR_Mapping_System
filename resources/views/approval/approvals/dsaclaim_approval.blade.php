@@ -45,7 +45,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($dsaclaims as $dsaclaim)
+                                        @forelse ($results->get(9) as $dsaclaim)
                                         <tr>
                                             <td>
                                                 <input type="checkbox"

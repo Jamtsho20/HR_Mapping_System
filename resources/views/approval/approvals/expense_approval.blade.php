@@ -44,7 +44,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($expenses as $application)
+                                    @forelse ($results->get(2) as $application)
                                     <tr>
                                         <td>
                                             <input type="checkbox"

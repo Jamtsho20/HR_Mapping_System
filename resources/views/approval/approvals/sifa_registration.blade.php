@@ -39,7 +39,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @forelse ($sifas as $sifa)
+                                                    @forelse ($results->get(8) as $sifa)
                                                     <tr>
                                                         <td><input type="checkbox" class="bulk_checkbox" value="{{ $sifa->id }}"></td>
                                                         <td>{{ $sifa->employee->emp_id_name }}</td>

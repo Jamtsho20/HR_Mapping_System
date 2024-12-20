@@ -129,7 +129,7 @@
                     </div>
                     <div class="card-footer float-end">
                         <button type="button" onclick="saveTabData()" class="btn btn-secondary " id="save-button">Save &
-                            Progress</button>
+                            Proceed</button>
                         <a href=" {{route('employee-lists.index')}}" id="cancel" name="cancel"
                             class="btn btn-primary">Cancel</a>
                     </div>
