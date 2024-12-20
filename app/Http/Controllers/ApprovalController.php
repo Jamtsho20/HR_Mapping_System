@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\SAP\ApiController;
-use App\Models\ApprovalHead;
 use App\Models\MasApprovalHead;
-use App\Models\MasExpenseType;
-use App\Models\MasPayHead;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ApprovalController extends Controller
@@ -57,9 +55,8 @@ class ApprovalController extends Controller
         $travelAuthorizations = $results->get(7);
         $sifas = $results->get(8);
         $dsaclaims = $results->get(9);
-        
 
-        return view('approval.index', compact('privileges', 'headers', 'expenses', 'advances','leaves','earnedLeave','transferclaims','travelAuthorizations','dsaclaims','sifas'));
+        return view('approval.index', compact('privileges', 'headers', 'expenses', 'advances', 'leaves', 'earnedLeave', 'transferclaims', 'travelAuthorizations', 'dsaclaims', 'sifas'));
     }
 
     /**
@@ -81,26 +78,26 @@ class ApprovalController extends Controller
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
 
         DB::beginTransaction();
-        try {
+        // try {
         $approvalService = new ApprovalService();
 
         foreach ($itemIds as $id) {
             $application = $model::findOrFail($id);
 
-            if(!$application) {
+            if (!$application) {
                 continue;
             }
 
             $costingCode2 = null;
+            $type = $application->type;
+
             if ($applicationType == 2) { // Expense
-                $type = $application->type;
                 $typeId = $type->id;
 
                 if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
                     $costingCode2 = $application->vehicle->vehicle_no;
                 }
             }
-
             $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
             // Update application status
@@ -127,22 +124,27 @@ class ApprovalController extends Controller
                         'level_sequence' => $applicationForwardedTo['next_level']->sequence,
                     ]);
                 } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
-
-                    $type = $application->type;
                     $accountCode = $type->code ?? null;
                     $memo = $type->name ?? null;
-                    $postToSap = $type->post_to_sap;
-                    $employeeId = $application->employee->username = "E00993";
+                    $shortName = $application->employee->username = "E00993";
                     $amount = $application->amount;
-                    if ($postToSap && ($accountCode && $employeeId && $amount)) {
+                    $tax_amount = $application->tax_amount ?? null;
+                    $postToSap = $type->post_to_sap;
+                    $costingCode = null;
+
+                    if ($postToSap && ($accountCode && $shortName && $amount)) {
                         // Post to SAP after final Approval
 
-                        $postJournalEntriesResponse = $this->sap->postJournalEntries($accountCode, $employeeId, $memo, $amount, $costingCode2);
+                        $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+
+                        Log::debug($postFields);
+
+                        $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                         $statusCode = $postJournalEntriesResponse->getStatusCode();
                         $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
                         if ($statusCode != 201) {
-                        throw new \Exception($postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                            throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                         }
                     }
 
@@ -163,27 +165,89 @@ class ApprovalController extends Controller
             }
 
             $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+
+            // Update application history
+            if ($applicationHistory) {
+                $applicationHistory->update($updateData);
+            }
+
+
+            DB::commit();
+
+            $model = preg_replace(
+                ['/App\\\\Models\\\\/', '/([a-z])Application/'],
+                ['', '$1 Application'],
+                $model
+            );
+            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
             // Update application history
             if ($applicationHistory) {
                 $applicationHistory->update($updateData);
             }
         }
 
-        DB::commit();
-
-        $model = preg_replace(
-            ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-            ['', '$1 Application'],
-            $model
-        );
-
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
 
-            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+        //     \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
 
-            return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
+        //     return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
+        // }
+    }
+
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount = null)
+    {
+        if ($tax_amount) {
+            return $postFields = '{
+                "ReferenceDate":"' . date('Y-m-d') . '",
+                "Memo": "' . $memo . '",
+                "JournalEntryLines": [
+                    {
+                        "AccountCode": "' . $accountCode . '",
+                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode2": "' . $costingCode2 . '",
+                        "Credit": 0,
+                        "Debit": "' . $amount . '"
+                    },
+                    {
+                        "ShortName": "' . $shortName . '",
+                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode2": "' . $costingCode2 . '",
+                        "Credit": "' . $amount - $tax_amount . '",
+                        "Debit": 0
+                    },
+                    {
+                        "AccountCode": "' . TAX_GL_CODE . '",
+                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode2": "' . $costingCode2 . '",
+                        "Credit": "' . $tax_amount . '",
+                        "Debit": 0
+                    }
+
+                ]
+            }';
+        } else {
+            return $postFields = '{
+                            "ReferenceDate":"' . date('Y-m-d') . '",
+                            "Memo": "' . $memo . '",
+                            "JournalEntryLines": [
+                                {
+                                    "ShortName": "' . $shortName . '",
+                                    "CostingCode": "' . $costingCode . '", // department
+                                    "CostingCode2": "' . $costingCode2 . '",
+                                    "Credit": "' . $amount . '",
+                                    "Debit": 0
+                                },
+                                {
+                                    "AccountCode": "' . $accountCode . '",
+                                    "CostingCode": "' . $costingCode . '", // department
+                                    "CostingCode2": "' . $costingCode2 . '",
+                                    "Credit": 0,
+                                    "Debit": "' . $amount . '"
+                                }
+                            ]
+                        }';
         }
     }
 

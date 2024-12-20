@@ -68,7 +68,7 @@
             </div>
         </div>
     </div>
-    @if($expense->mas_expense_type_id == 1)
+    @if($expense->type_id == 1)
 
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">

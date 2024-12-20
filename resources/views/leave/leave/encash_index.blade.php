@@ -45,19 +45,19 @@
                                                             <th>
                                                                 STATUS
                                                             </th>
-                                                           
-                                                    
+
+
                                                         </tr>
                                                     </thead>
                                                     <tbody>
 
                                                         @forelse($leaveEncashment as $leave)
-                                                    
+
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $leave->created_at->format('Y') }}</td>
                                                             <td>{{ $leave->leave_applied_for_encashment }}</td>
-                                                            <td>{{ $leave->encashment_amount }}</td>
+                                                            <td>{{ $leave->amount }}</td>
                                                             <td class="text-center">
                                                                 @php
                                                                     $statusClasses = [
@@ -70,11 +70,11 @@
                                                                     $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
                                                                     $statusClass = $statusClasses[$leave->status] ?? 'badge bg-secondary';
                                                                 @endphp
-        
+
                                                                 <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                             </td>
                                                         </tr>
-                                                    @empty 
+                                                    @empty
                                                     @if (empty($leaveEncashment) && $leaveApplications->isEmpty())
                                                         <tr>
                                                             <td colspan="9" class="text-center text-danger">No Leave Found</td>

@@ -20,10 +20,10 @@
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
     </div>
     <div class="col-md-2 form-group">
-        <select class="form-control" name="mas_expense_type_id">
+        <select class="form-control" name="type_id">
             <option value="" disabled="" selected="" hidden="">Select Expense</option>
             @foreach($expenses as $expense)
-            <option value="{{ $expense->id }}" {{ request()->get('mas_expense_type_id') == $expense->id ? 'selected' : '' }}>
+            <option value="{{ $expense->id }}" {{ request()->get('type_id') == $expense->id ? 'selected' : '' }}>
                 {{ $expense->name }}
             </option>
             @endforeach

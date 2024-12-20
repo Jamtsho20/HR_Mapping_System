@@ -38,7 +38,7 @@
                             </tr>
                             <tr>
                                 <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $leave->remarks }}</td>
+                                <td style="padding-left:25px;"> {{ $leave->remarks ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>

@@ -126,7 +126,7 @@
             // console.log('Saved Data:', data); // Debugging statement
 
             // Display Leave Policy Data
-            document.getElementById('summary_expense_type').textContent = expensesMap[data['expense_policy[mas_expense_type_id]']] || 'N/A';
+            document.getElementById('summary_expense_type').textContent = expensesMap[data['expense_policy[type_id]']] || 'N/A';
             document.getElementById('summary_expense_policy_name').textContent = data['expense_policy[policy_name]'] || 'N/A';
             document.getElementById('summary_description').textContent = data['expense_policy[description]'] || 'N/A';
             document.getElementById('summary_start_date').textContent = data['expense_policy[start_date]'] || 'N/A';
@@ -134,7 +134,7 @@
             document.getElementById('summary_status').textContent = data['expense_policy[status]'] === '1' ? 'Enforced' : 'Draft';
 
 
-            //display 
+            //display
             document.getElementById('summary_attachment_required').checked = data['rate_definition[attachment_required]'] === '1';
             const summaryTravelType = document.getElementById('summary_travel_type');
             let travelType = 'N/A';
@@ -174,7 +174,7 @@
             }
             summaryCurrency.textContent = currency;
 
-            // Display credit 
+            // Display credit
             const summary_rate_limit = document.getElementById('summary_limit');
             let credit = 'N/A';
             switch (data['rate_definition[rate_limit]']) {
@@ -230,7 +230,7 @@
                         <td>${latestRule.region}</td>
                         <td>${latestRule.limit_amount}</td>
                         <td>${latestRule.start_date}</td>
-                        <td>${latestRule.end_date}</td>                
+                        <td>${latestRule.end_date}</td>
                         <td>${latestRule.status}</td>
                     </tr>
                 `;

@@ -2,19 +2,18 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Mail\PaySlipMail;
-use App\Models\MasPayHead;
-use App\Models\FinalPaySlip;
-use App\Models\PaySlipDetail;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EmployeeOvertime;
+use App\Models\FinalPaySlip;
 use App\Models\LoanEMIDeduction;
 use App\Models\MasEmployeeJob;
+use App\Models\MasPayHead;
+use App\Models\PaySlipDetail;
 use App\Models\PaySlipDetailView;
-use App\Models\SifaRegistration;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class PayrollService
@@ -29,7 +28,6 @@ class PayrollService
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
             $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
-            $sifaMember = SifaRegistration::whereMasEmployeeId($employee->id)->whereIsRegistered(1)->whereStatus(APPROVED_POSTED)->first();
 
             $employeeVariableValues = [];
             $employeeVariableValues['grade'] = $employee->empJob->grade->name;
@@ -39,7 +37,6 @@ class PayrollService
             $employeeVariableValues['yearsSinceRegularization'] = $durationOfService['years'];
             $employeeVariableValues['monthsSinceRegularization'] = $durationOfService['months'];
             $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
-            $employeeVariableValues['sifaMember'] = $sifaMember ? 1 : 0;
 
             $basicPay = $employeeVariableValues['basicPay'] = $employee->empJob->basic_pay;
             $forMonthObject = date_create($payslip->for_month);
@@ -231,7 +228,6 @@ class PayrollService
             "GRADE",
             "GRADE_STEP",
             "EMPLOYMENT_TYPE",
-            "SIFA_MEMBER",
         ];
         $variableValueMap = [
             "BASIC_PAY" => $employeeVariableValues['basicPay'],
@@ -248,7 +244,6 @@ class PayrollService
             "GRADE" => $employeeVariableValues['grade'],
             "GRADE_STEP" => $employeeVariableValues['gradeStep'],
             "EMPLOYMENT_TYPE" => $employeeVariableValues['employmentType'],
-            "SIFA_MEMBER" => $employeeVariableValues['sifaMember'],
         ];
 
         $calculation_method = (int) $calculation_method;
@@ -347,7 +342,6 @@ class PayrollService
             "GRADE",
             "GRADE_STEP",
             "EMPLOYMENT_TYPE",
-            "SIFA_MEMBER",
         ];
         $z = 1;
         $value = 0;
@@ -534,7 +528,7 @@ class PayrollService
         $payslip->status = $status;
         $payslip->update();
 
-        if ($status == 4) {  // Getting posted to SAP
+        if ($status == 4) { // Getting posted to SAP
             $individualPayRecords = DB::table("pay_slip_detail_views")->whereForMonth($payslip->for_month)->get();
 
             foreach ($individualPayRecords as $individualPayRecord) {

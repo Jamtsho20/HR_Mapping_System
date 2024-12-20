@@ -204,7 +204,7 @@ class TransferClaimApplicationController extends Controller
             $transfer->current_location = $request->current_location;
             $transfer->new_location = $request->new_location;
             $transfer->distance_travelled = $request->distance_travelled;
-            $transfer->amount_claimed = $request->amount_claimed;
+            $transfer->amount = $request->amount;
             $transfer->attachment = $attachment ?? $transfer->attachment;
             $transfer->save();
             return $this->successResponse($transfer, 'Transfer Claim Updated successfully');

@@ -80,7 +80,7 @@ class ExpenseApplicationController extends Controller
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
         $user = loggedInUser();
         $empIdName = LoggedInUserEmpIdName();
-        $expenseTypes = MasExpenseType::get(['id', 'name']);
+        $expenseTypes = MasExpenseType::whereStatus(1)->get(['id', 'name']);
         $expenseApplications = ExpenseApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
@@ -210,7 +210,7 @@ class ExpenseApplicationController extends Controller
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
                 $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
-                 
+
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
@@ -297,7 +297,7 @@ class ExpenseApplicationController extends Controller
             if ($request->has('fuel_claim_details')) {
 
                 $requestIds = collect($request->input('fuel_claim_details'))
-                    ->pluck('id') 
+                    ->pluck('id')
                     ->filter()
                     ->toArray();
 
