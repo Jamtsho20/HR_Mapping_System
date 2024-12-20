@@ -33,7 +33,7 @@
                             </tr>
                             <tr>
                                 <th style="width:35%;">Expense Amount <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{$expense->expense_amount }}</td>
+                                <td style="padding-left:25px;"> {{$expense->amount }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Description<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
@@ -45,7 +45,7 @@
 
                             <tr>
                                 <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{$expense->remarks }}</td>
+                                <td style="padding-left:25px;"> {{$expense->remarks ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>

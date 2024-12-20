@@ -18,7 +18,7 @@ class ApprovalController extends Controller
 
     public function __construct(ApiController $sap)
     {
-        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject');
+        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -186,4 +186,16 @@ class ApprovalController extends Controller
             return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
         }
     }
-}
+
+    public function show(Request $request, $id)
+    {
+        $tab = $request->query('tab');
+        $mappedModel = config('global.applications')[$request->query('tab')];
+        $data = $mappedModel['name']::findOrFail($id);
+        $approverDetails = []; //do later on
+        $empDetails = empDetails($data->created_by);
+            return view('approval.show', compact('data', 'tab', 'empDetails'));
+        }
+       
+    }
+

@@ -64,7 +64,7 @@
                                                         </td>
                                                         <td class="text-center">
                                                             @if ($privileges->view)
-                                                            <a href="{{ url('sifa/sifa-approval/' . $sifa->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                            <a href="{{ url('approval/applications/' . $sifa->id) . '?tab=8'}}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                             @endif
                                                             <!-- @if ($privileges->edit)
                                                                         <a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"

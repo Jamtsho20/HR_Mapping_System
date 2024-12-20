@@ -89,7 +89,7 @@
                                                                         STATUS
                                                                     </th>
                                                                     <th>
-                                                                        Actionx
+                                                                        Action
                                                                     </th>
                                                                 </tr>
                                                             <tbody>

@@ -1,15 +1,16 @@
 @extends('layouts.app')
 @section('page-title', 'View Advance Application')
 @section('buttons')
-<a href="{{ url('advance-loan/apply') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Applied List</a>
+<a href="{{ url('advance-loan/approval') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
 @endsection
 @section('content')
 
 <div class="row">
+    @include('components.employee-details', ['empDetails' => $empDetails])
 
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
-            <div class="row" >
+            <div class="row">
                 <div class="col-md-12">
                     <h6>Advance Details</h6>
                 </div>
@@ -58,13 +59,13 @@
                             <tr>
                                 <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
-                                    {{$advance->total_amount ?? '-'}}
+                                    {{$advance->total_amount ?? '-' }}
                                 </td>
                             </tr>
 
                             <tr>
                                 <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{$advance->remarks ?? '-' }}</td>
+                                <td style="padding-left:25px;"> {{$advance->remarks ?? '-'}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>

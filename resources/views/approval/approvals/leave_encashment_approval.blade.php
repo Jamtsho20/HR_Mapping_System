@@ -27,9 +27,9 @@
                                     <th>
                                         STATUS
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         ACTION
-                                    </th>
+                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -41,14 +41,23 @@
                                     <td>{{ $leave->created_at }}</td>
                                     <td>{{ $leave->encashment_amount }}</td>
                                     <td class="text-center">
+
                                         @php
+                                        $statusClasses = [
+                                        -1 => 'badge bg-danger',
+                                        0 => 'badge bg-warning',
+                                        1 => 'badge bg-primary',
+                                        2 => 'badge bg-success',
+                                        3 => 'badge bg-info',
+                                        ];
                                         $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
+                                        $statusClass = config("global.status_classes.{$leave->status}", 'badge bg-secondary');
                                         @endphp
-                                        <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $leave->status == 1 ? 'primary' : ($leave->status == -1 ? 'danger' : ($leave->status == 2 ? 'success' : 'secondary')) }}">
-                                            {{ $statusText }}
-                                        </span>
+
+                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
+
                                     </td>
-                                    <td class="text-center">
+                                    <!-- <td class="text-center">
                                         @if ($privileges->edit)
                                         <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
                                             class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
@@ -60,7 +69,7 @@
                                             data-url="{{ url('leave/approval/' . $leave->id) }}"><i
                                                 class="fa fa-trash"></i> DELETE</a>
                                         @endif
-                                    </td>
+                                    </td> -->
                                 </tr>
                                 @empty
                                 <tr>

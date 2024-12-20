@@ -92,7 +92,7 @@
                                             </td>
                                             <td class="text-center">
                                                 @if ($privileges->view)
-                                                <a href="{{ url('expense/transfer-claim-approval/' . $transferclaim->id) }}"
+                                                <a href="{{ url('approval/applications/' . $transferclaim->id) . '?tab=6' }}"
                                                     class="btn btn-sm btn-outline-secondary"><i
                                                         class="fa fa-list"></i>
                                                     Detail</a>

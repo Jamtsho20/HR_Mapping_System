@@ -73,7 +73,7 @@ class AdvanceApplication extends Model
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($request->has('advance_type') && $request->query('advance_type') != '') {
-            $query->where('advance_type_id', $request->query('advance_type'));
+            $query->where('type_id', $request->query('advance_type'));
         }
 
         if ($onesOwnRecord) {

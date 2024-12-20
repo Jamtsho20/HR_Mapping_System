@@ -67,7 +67,7 @@
                                     </td>
                                     <td class="text-center">
                                         @if ($privileges->view)
-                                        <a href="{{ url('leave/approval/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                        <a href="{{ url('approval/applications/' . $leave->id) . '?tab=1' }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                         @endif
                                         @if ($privileges->edit)
                                         <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"

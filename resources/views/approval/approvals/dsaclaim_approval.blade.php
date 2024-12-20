@@ -89,7 +89,7 @@
                                             </td>
                                             <td class="text-center">
                                                 @if ($privileges->view)
-                                                <a href="{{ url('expense/dsa-approval/' . $dsaclaim->id) }}"
+                                                <a href="{{ url('approval/applications/' . $dsaclaim->id) . '?tab=9'}}"
                                                     class="btn btn-sm btn-outline-secondary"><i
                                                         class="fa fa-list"></i>
                                                     Detail</a>

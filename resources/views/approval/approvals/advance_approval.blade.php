@@ -63,11 +63,14 @@
                                         </td>
                                         <td class="text-center">
                                             @if ($privileges->view)
-                                            <a href="{{ route('advance-loan-approval.show',  $advance->id) }}"
-                                                class="btn btn-sm btn-outline-secondary"><i
-                                                    class="fa fa-list"></i> Detail</a>
+
+                                            <a href="{{ url('approval/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+
                                             @endif
                                         </td>
+
                                     </tr>
                                     @empty
                                     <tr>

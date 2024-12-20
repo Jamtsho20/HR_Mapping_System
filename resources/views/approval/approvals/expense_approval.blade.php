@@ -77,7 +77,7 @@
                                         </td>
                                         <td class="text-center">
                                             @if ($privileges->view)
-                                            <a href="{{ url('expense/approval/' . $application->id) }}"
+                                            <a href="{{ url('approval/applications/' . $application->id) . '?tab=2'}}"
                                                 class="btn btn-sm btn-outline-secondary"><i
                                                     class="fa fa-list"></i>
                                                 Detail</a>
