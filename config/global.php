@@ -44,7 +44,7 @@ return [
         -1 => 'Rejected',
         0 => 'Cancelled',
         1 => 'Submitted',
-        2 => 'Verified',
+        2 => 'In-Progress',
         3 => 'Approved'
     ],
 
@@ -63,7 +63,7 @@ return [
     'marital_status' => [
         1 => 'Single',
         2 => 'Married',
-        3 => 'Divorced'
+        3 => 'Divorced',
     ],
 
     'leave_year' => [
@@ -133,7 +133,7 @@ return [
         1 => 'Full Day',
         2 => 'First Half',
         3 => 'Second Half',
-        4 => 'Shift'
+        // 4 => 'Shift'
     ],
 
     'salary_disbursement_mode' => [
@@ -191,28 +191,28 @@ return [
             'post_to_sap' => true
         ],
         3 => [
-            'name' => App\Models\DsaClaimApplication::class,
+            'name' => App\Models\AdvanceApplication::class,
             'post_to_sap' => true
         ],
         4 => [
-            'name' => App\Models\TransferClaimApplication::class,
+            'name' => App\Models\LeaveEncashmentApplication::class,
             'post_to_sap' => true
         ],
         6 => [
+            'name' => App\Models\TransferClaimApplication::class,
+            'post_to_sap' => true
+        ],
+        7 => [
             'name' => App\Models\TravelAuthorizationApplication::class,
             'post_to_sap' => false
-        ], 
-        7 => [
-            'name' => App\Models\SifaRegistration::class,
-            'post_to_sap' => false
-        ], 
+        ],
         8 => [
-            'name' => App\Models\AdvanceApplication::class,
+            'name' => App\Models\SifaRegistration::class,
             'post_to_sap' => false
         ],
         9 => [
-            'name' => App\Models\LeaveEncashmentApplication::class,
-            'post_to_sap' => false
+            'name' => App\Models\DsaClaimApplication::class,
+            'post_to_sap' => true
         ],
     ]
 ];

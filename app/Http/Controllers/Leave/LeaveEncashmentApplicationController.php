@@ -11,7 +11,8 @@ use Carbon\Carbon;
 use App\Services\ApprovalService;
 use App\Models\MasLeavePolicy;
 use App\Services\ApplicationHistoriesService;
-
+use App\Models\MasEmployeeJob;
+use App\Models\MasPaySlabDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,8 @@ class LeaveEncashmentApplicationController extends Controller
     // }
     protected $rules = [
        'encashment_amount' => 'required|numeric',
-        'leave_applied_for_encashment' => 'required',
+        'leave_applied_for_encashment' => 'required'
+
     ];
 
     protected $messages = [
@@ -71,6 +73,7 @@ class LeaveEncashmentApplicationController extends Controller
         }
         $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
     ->whereYear('created_at', Carbon::now()->year)
+    ->whereNot('status', -1)
     ->exists();
 
         if ($applicationExists) {
@@ -82,7 +85,8 @@ class LeaveEncashmentApplicationController extends Controller
             $applyFlag = true;
         }
 
-        $encashedAmount = PaySlipDetailView::where('mas_employee_id', auth()->user()->id)->whereForMonth(Carbon::now()->subMonth()->format('Y-m-01'))->value('basic_pay');
+        $encashedAmount = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('basic_pay');
+
         return view('leave.leave.leave-encashment', compact('earnedLeaveBalance', 'encashedAmount', 'requiredBalance', 'earnedLeaveEncahsment', 'applyFlag', 'message'));
     }
 
@@ -92,14 +96,19 @@ class LeaveEncashmentApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $encashmentType = LeaveEncashmentType::first()?->id;
+        $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->value('amount');
+        if (!$tax_amount ) {
+            return redirect()->back()->with('alert', 'Tax amount has not been intialized, contact admin!');
+        }
         $approverByHierarchy = $approvalService->getApproverByHierarchy($encashmentType, \App\Models\LeaveEncashmentType::class, $conditionFields ?? []);
         try {
             DB::beginTransaction();
 
             $leaveEncashment->mas_employee_id = Auth::id();
             $leaveEncashment->type_id = 1;
+            $leaveEncashment->tax_amount=$tax_amount;
             $leaveEncashment->leave_applied_for_encashment = $request->leave_applied_for_encashment;
-            $leaveEncashment->encashment_amount = $request->encashment_amount;
+            $leaveEncashment->amount = $request->encashment_amount;
             $leaveEncashment->created_by = Auth::id();
             $leaveEncashment->status = 1;
             $leaveEncashment->save();

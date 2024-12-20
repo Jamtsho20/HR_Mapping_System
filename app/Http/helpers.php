@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use Carbon\Carbon;
@@ -297,6 +298,39 @@ if (!function_exists('formatDate')) {
         $carbonDate = Carbon::parse($date);
         $formatedDate = $carbonDate->format('Y-m-d');
         return $formatedDate;
+    }
+}
+
+if(!function_exists('prepareLeaveCombination')) {
+    function prepareLeaveCombination($fromDate)
+    {
+        $leaveApplications = LeaveApplication::where('created_by', loggedInUser())
+            ->where('status', 1)
+            ->orderBy('to_date', 'desc')
+            ->get();
+
+        // Find the latest leave with a 1-day difference from the current from_date
+        $latestLeave = $leaveApplications->first(function ($leave) use ($fromDate) {
+            return Carbon::parse($leave->to_date)->diffInDays($fromDate) == 1;
+        });
+
+        // Return early if no latest leave is found
+        if (!$latestLeave) {
+            return;
+        }
+
+        // Find the second leave with a 1-day difference from the latest leave's from_date
+        $secondLeave = $leaveApplications->first(function ($leave) use ($latestLeave) {
+            $latestFromDate = Carbon::parse($latestLeave->from_date);
+            return Carbon::parse($leave->to_date)->diffInDays($latestFromDate) == 1;
+        });
+
+        // Combine both leaves into a collection for further use
+        $matchingLeaves = collect();
+        if ($latestLeave) $matchingLeaves->push($latestLeave);
+        if ($secondLeave) $matchingLeaves->push($secondLeave);
+        
+        return $matchingLeaves ? $matchingLeaves : [];
     }
 }
 // if(!function_exists('') ) {

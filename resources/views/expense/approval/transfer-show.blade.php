@@ -39,7 +39,7 @@
                             </tr>
                             <tr>
                                 <th style="width:35%;">Amount Claimed <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $transfer->amount_claimed }}</td>
+                                <td style="padding-left:25px;"> {{ $transfer->amount }}</td>
                             </tr>
                             @if($transfer->transfer_claim_id==2)
                             <tr>

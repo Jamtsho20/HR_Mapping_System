@@ -8,7 +8,6 @@
                 <!-- PAGE-HEADER -->
                 <div class="page-header">
                     <div>
-                        <h1 class="page-title">@yield('page-title')</h1>
                         @include('layouts.partials.breadcrumb')
                     </div>
                     <div class="ms-auto pageheader-btn">
@@ -18,12 +17,13 @@
                 <!-- PAGE-HEADER END -->
 
                 @include('layouts.includes.messages')
+                
 
                 <!-- Row -->
                 <div class="row">
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12"> -->
                         @yield('content')
-                    </div>
+                    <!-- </div> -->
                 </div>
                 <!--End Row-->
             </div>

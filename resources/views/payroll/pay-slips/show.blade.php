@@ -317,7 +317,7 @@
                 modal.find('form').attr('action', updateUrl);
             });
 
-            $(document).on("click", "#delete-pay-slip-detail", function() {
+            $(document).on("click", "#delete-pay-slip-detail", function(e) {
                 e.preventDefault();
 
                 const deleteUrl = $(this).data('delete-url');
@@ -325,7 +325,7 @@
                 $.confirm({
                     title: 'Delete!',
                     content: 'Are you sure you want to delete the entry?',
-                    type: 'green',
+                    type: 'none',
                     buttons: {
                         ok: {
                             text: "Yes",
@@ -336,7 +336,7 @@
                             }
                         },
                         cancel: function() {
-                            console.log('the user clicked cancel');
+
                         }
                     }
                 });

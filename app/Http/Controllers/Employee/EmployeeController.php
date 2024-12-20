@@ -251,8 +251,8 @@ class EmployeeController extends Controller
             'personal.cid_no' => 'required|digits:11',
             'personal.gender' => 'required',
             'personal.dob' => 'required|date',
-            'personal.birth_place' => 'required',
-            'personal.birth_country' => 'required',
+            'personal.birth_place' => '',
+            'personal.birth_country' => '',
             'personal.marital_status' => 'required',
             'personal.email' => 'required|email|unique:mas_employees,email,' . ($employeeId ?? 'null'),
             'personal.contact_number' => 'required|digits:8',
@@ -388,6 +388,7 @@ class EmployeeController extends Controller
             'job.account_number' => 'requiredif:salary_disbursement_mode,2',
             'job.pf_number' => 'required',
             'job.tpn_number' => 'required',
+            'job.gis_policy_number' => '',
         ], $messages);
 
         $empJob = MasEmployeeJob::updateOrCreate(
@@ -409,6 +410,7 @@ class EmployeeController extends Controller
                 'account_number' => $job['account_number'] ?? null,
                 'pf_number' => $job['pf_number'],
                 'tpn_number' => $job['tpn_number'],
+                'gis_policy_number' => $job['gis_policy_number'],
             ]
         );
 

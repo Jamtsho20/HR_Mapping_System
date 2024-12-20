@@ -54,10 +54,10 @@ const EARNED_LEAVE = 2;
 
 
 // SAP constants;
-const SAP_BASE_URL = "https://192.168.196.8";
+const SAP_BASE_URL = "https://192.168.196.23";
 const SAP_PORT = 50000;
-const SAP_CONPANY_DB = "ZTEST_DB";
-const SAP_USERNAME = "TEST04";
+const SAP_CONPANY_DB = "TIPL_DB_TEST";
+const SAP_USERNAME = "manager";
 const SAP_PASSWORD = "Sap@2024";
 
 const MEDICAL_LEAVE = 3;
@@ -68,3 +68,14 @@ const STUDY_LEAVE = 7;
 const BEREAVEMENT_LEAVE = 8;
 const EARNED_LEAVE_CREDIT_AMOUNT = 2.5;
 const CASUAL_LEAVE_CREDIT_AMOUNT = 10;
+
+// Payslip statuses
+const NEWLY_CREATED = 1;
+const PREPARED = 2;
+const VERIFIED = 3;
+const APPROVED_POSTED = 4;
+const UNPAID_SALARY_STAFF = 23197;
+
+
+//Encashment Tax GL code
+const TAX_GL_CODE = 23173;

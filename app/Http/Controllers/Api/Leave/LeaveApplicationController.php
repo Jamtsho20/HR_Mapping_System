@@ -52,7 +52,7 @@ class LeaveApplicationController extends Controller
     {
 
         try{$privileges = $request->instance();
-        $leaveApplications = LeaveApplication::with('leaveType:id,name')->filter($request)->orderBy('created_at')->get();
+        $leaveApplications = LeaveApplication::with('leaveType:id,name','leave_approved_by:id,name', 'histories:application_id,remarks')->filter($request)->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());
@@ -85,11 +85,14 @@ class LeaveApplicationController extends Controller
     public function store(Request $request)
     {
         try{
+
         $result = $this->handleLeaveApplication($request);
+
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return $result;
+            return response()->json($result);
         }
+
         $validator = \Validator::make($request->all(), $this->rules, $this->messages);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
@@ -98,10 +101,16 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
+        $matchingLeaves = prepareLeaveCombination(Carbon::parse($request->from_date));
+        if ($request->leave_type == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
+            if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
+                return back()->withInput()->with('msg_error', 'Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
+            }
+        }
         try {
             DB::beginTransaction();
             $leaveApplication = LeaveApplication::create([
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => formatDate($request->from_date),
@@ -113,6 +122,41 @@ class LeaveApplicationController extends Controller
             ]);
             // Create a history record
             $historyService = new ApplicationHistoriesService();
+            // if this leave combination El + CL + EL happens then middle CL will be converted to EL and accordingly update data and update leave balance accordingly
+            if($request->leave_type == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2){
+                if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
+                    DB::table('employee_leaves')
+                        ->where('mas_leave_type_id', $matchingLeaves[0]->type_id)
+                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
+                        ->update([
+                            'leaves_availed' => DB::raw('leaves_availed + ' . $matchingLeaves[0]->no_of_days),
+                            'closing_balance' => DB::raw('closing_balance + ' . $matchingLeaves[0]->no_of_days),
+                        ]);
+
+                    // Deduct from the second leave type (decrement) which is converted leave type
+                    DB::table('employee_leaves')
+                        ->where('mas_leave_type_id', EARNED_LEAVE)
+                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
+                        ->update([
+                            'leaves_availed' => DB::raw('leaves_availed - ' . $matchingLeaves[0]->no_of_days),
+                            'closing_balance' => DB::raw('closing_balance - ' . $matchingLeaves[0]->no_of_days),
+                        ]);
+
+                    DB::table('leave_applications')->where('id', $matchingLeaves[0]->id)->update(['type_id' => 2]);
+                    DB::table('application_histories')
+                        ->where('application_type', \App\Models\MasLeaveType::class)
+                        ->where('application_id', $matchingLeaves[0]->id)
+                        ->update([
+                            'hierarchy_id' => $approverByHierarchy['hierarchy_id'],
+                            'max_level_id' => $approverByHierarchy['max_level_id'],
+                            'next_level_id' => $approverByHierarchy['next_level']->id,
+                            'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
+                            'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
+                            'level_sequence' => $approverByHierarchy['next_level']->sequence,
+                        ]);
+
+                }
+            }
             $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
 
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
@@ -187,8 +231,7 @@ class LeaveApplicationController extends Controller
 
             DB::beginTransaction();
             $leaveApplication->update([
-                // 'mas_employee_id' => $leaveApplication->mas_employee_id,
-                'mas_leave_type_id' => $request->leave_type,
+                'type_id' => $request->leave_type,
                 'from_day' => $request->from_day,
                 'to_day' => $request->to_day,
                 'from_date' => formatDate($request->from_date),
@@ -259,7 +302,7 @@ class LeaveApplicationController extends Controller
             $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
                 ->createdBy()
                 ->whereYear('created_at', $currentYear)
-                ->where('mas_leave_type_id', $leaveType->mas_leave_type_id)
+                ->where('type_id', $leaveType->mas_leave_type_id)
                 ->groupBy('status')
                 ->pluck('total', 'status');
             $balance = $leaveType->closing_balance ?? 0;
@@ -286,7 +329,7 @@ class LeaveApplicationController extends Controller
         $leavePolicy = MasLeavePolicy::with(['leavePolicyPlan.leavePolicyRule' => function($query) use($empJobDetail) {
             $query->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)->whereStatus(1);
         }, 'leaveType'])
-            ->where('mas_leave_type_id', $request->leave_type)
+            ->where('type_id', $request->leave_type)
             ->whereStatus(1)
             ->first();
 
@@ -295,16 +338,16 @@ class LeaveApplicationController extends Controller
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
 
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
-        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
-            $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
-            $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
-            $unit = match($uom) {
-                3 => 'years',
-                2 => 'months',
-                default => 'days',
-            };
-            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
-        }
+        // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
+        //     $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
+        //     $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
+        //     $unit = match($uom) {
+        //         3 => 'years',
+        //         2 => 'months',
+        //         default => 'days',
+        //     };
+        //     return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' in a row for ' . $leaveType . '.');
+        // }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
             if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){

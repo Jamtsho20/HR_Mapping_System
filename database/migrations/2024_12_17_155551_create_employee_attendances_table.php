@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_advance_loans', function (Blueprint $table) {
+        Schema::create('employee_attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->date('for_month');
+        
             $table->timestamps();
         });
     }
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_advance_loans');
+        Schema::dropIfExists('employee_attendances');
     }
 };

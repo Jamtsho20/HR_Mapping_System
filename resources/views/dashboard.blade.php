@@ -29,84 +29,30 @@
 @endif
 
 
-<div class="card">
-    <div class="card-body card-box">
-        <div class="col-md-4">
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="profileinfo">
-                        <img src="{{ $user->profile_picture }}" class="responsive" alt="profile image">
-                    </div>
-                </div>
-                <div class="col-sm-8" style="margin-top:1px">
-                    <strong>{{ $user->username }} ({{ $user->title }} {{($user->name) }})</strong>
-                    <br>
-                    {{ $user->email }}
-                    <br>
-                    {{ $user->empJob->designation->name ?? 'N/A' }}, {{ $user->empJob->section->name ?? 'N/A'  }}<br>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="divider">
-                <strong>Department :</strong> {{ $user->empJob->department->name ?? 'N/A'  }}<br>
-                <strong>D.O.B :</strong> {{ $user->dob}} <br>
-                <strong>D.O.J :</strong> {{ $user->date_of_appointment }}
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="divider">
-                <strong>Region : </strong> {{ $user->empJob->office->name ?? 'N/A' }}<br>
-                <strong>Gender : </strong> {{ $user->gender_name }}<br>
-                <strong>Employment Type :</strong> {{$user->empJob->empType->name ?? 'N/A'  }}
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="divider">
-                <strong>Grade : </strong> {{ $user->empJob->gradeStep->name ?? 'N/A' }}<br>
-                <strong>Role : </strong> @foreach ($user->roles as $role)
-                {{ $role->name }}<br>
-                @endforeach<br>
-                <strong>Manager : </strong> {{ $user->title }} {{ $user->empJob->supervisor->name ?? config('global.null_value') }}
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
+<!-- <div class="row"> -->
     <!-- Casual Leave Chart -->
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Casual Leave</h5>
-                <div style="width: 50%; margin: auto;">
-                    <canvas id="casualLeaveChart"></canvas>
-                </div>
+        <div class="bg-white p-4 mb-5">
+            <h5>Casual Leave</h5>
+            <div style="width:50%; margin: auto;">
+                <canvas id="casualLeaveChart"></canvas>
             </div>
         </div>
     </div>
-
     <!-- Earned Leave Chart -->
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                @if ($showEarnedLeave)
-
-                <h5 class="card-title">Earned Leave</h5>
-                <div style="width: 50%; margin: auto;">
-                    <canvas id="earnedLeaveChart"></canvas>
-                </div>
-                @else
-
-                <p>Earned leave chart is not available for your employment type.</p>
-                @endif
+        <div class="bg-white p-4 mb-5">
+            <h5>Earned Leave</h5>
+            @if ($showEarnedLeave)
+            <div style="width:50%; margin: auto;">
+                <canvas id="earnedLeaveChart"></canvas>
             </div>
-
+            @else
+            <p>Earned leave chart is not available for your employment type.</p>
+            @endif
         </div>
     </div>
-
-
-
-</div>
+<!-- </div> -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -141,8 +87,8 @@
                         position: 'top',
                         align: 'start',
                         labels: {
-                            boxWidth: 20,
-                            padding: 15
+                            // boxWidth: 10,
+                            // padding: 5
                         }
                     },
                     tooltip: {
@@ -174,7 +120,6 @@
 </script>
 
 
-<div class="row">
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
@@ -182,14 +127,15 @@
                     <table class="table table-condensed table-striped table-bordered table-sm">
                         <thead>
                             <tr>
-                                <th colspan="3">
+                                <th colspan="4">
                                     <h5><strong>Holidays</strong></h5>
                                 </th>
                             </tr>
                             <tr class="thead-light">
                                 <th>#</th>
                                 <th>Name</th>
-                                <th>Date Range</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -197,11 +143,13 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $holiday->holiday_name }}</td>
-                                <td>{{ $holiday->start_date }} to {{ $holiday->end_date }}</td>
+                                <td>{{ $holiday->start_date }}</td>
+                                <td>{{ $holiday->end_date }}</td>
+                                
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="text-center text-danger">No holidays found</td>
+                                <td colspan="4" class="text-center text-danger">No holidays found</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -285,7 +233,7 @@
         border: 1px solid #ddd;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin: 20px;
+        /* margin: 20px; */
         padding: 20px;
     }
 
@@ -299,11 +247,11 @@
         display: flex;
     }
 
-    .col-md-4,
+    /* .col-md-4,
     .col-md-3,
     .col-md-2 {
         padding: 20px;
-    }
+    } */
 
     .col-md-3 {
         position: relative;
@@ -345,7 +293,7 @@
     }
 </style>
 @push('page_scripts')
-<script>
+<!-- <script>
     document.addEventListener("DOMContentLoaded", () => {
         // Select all notification rows
         const rows = document.querySelectorAll(".notification-row");
@@ -361,6 +309,6 @@
             }, index * 1000); // Add delay between rows for effect
         });
     });
-</script>
+</script> -->
 
 @endpush

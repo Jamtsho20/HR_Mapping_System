@@ -67,14 +67,14 @@
                 value="{{old('personal.dob', isset($employee) ? $employee->dob : '')}}" required>
         </div>
         <div class="form-group col-md-4">
-            <label for="birth_place">Birth Place <span class="text-danger">*</span></label>
+            <label for="birth_place">Birth Place </label>
             <div class="input-group input-group-sm">
                 <input type="text" class="form-control form-control-sm" name="personal[birth_place]"
                     value="{{ old('personal.birth_place', isset($employee) ? $employee->birth_place : '') }}" required>
             </div>
         </div>
         <div class="form-group col-md-4">
-            <label for="birth_country">Birth Country <span class="text-danger">*</span></label>
+            <label for="birth_country">Birth Country </label>
             <div class="input-group input-group-sm">
                 <input type="text" class="form-control form-control-sm" name="personal[birth_country]"
                     value="{{ old('personal.birth_country', isset($employee) ? $employee->birth_country : '')}}" required>

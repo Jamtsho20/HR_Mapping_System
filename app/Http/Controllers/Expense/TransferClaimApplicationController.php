@@ -33,7 +33,7 @@ class TransferClaimApplicationController extends Controller
         'current_location' => 'required',
         'new_location' => 'required',
         'distance_travelled' => 'required_if:transfer_claim,Carriage Charge',
-        'amount' => 'required',
+        'amount' => 'required|numeric|max:20000',
     ];
 
     protected $messages = [];
@@ -68,7 +68,7 @@ class TransferClaimApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    { 
+    {
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -164,7 +164,14 @@ class TransferClaimApplicationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, $this->rules, $this->messages);
+
+        $rules = [
+            'current_location' => 'required',
+            'new_location' => 'required',
+            'distance_travelled' => 'required_if:Transfer Claim, Carriage Charge',
+            'amount' => 'required|numeric|max:20000',
+        ];
+        $this->validate($request, $rules, $this->messages);
         $transfer = TransferClaimApplication::findOrFail($id);
 
         if ($request->hasFile('attachment')) {
@@ -177,7 +184,7 @@ class TransferClaimApplicationController extends Controller
             $attachment = $transfer ? $transfer->attachment : json_encode([]); // Empty JSON array if null
         }
 
-        $transfer->transfer_claim = $request->transfer_claim;
+
         $transfer->current_location = $request->current_location;
         $transfer->new_location = $request->new_location;
         $transfer->distance_travelled = $request->distance_travelled;
@@ -185,7 +192,7 @@ class TransferClaimApplicationController extends Controller
         $transfer->attachment = $attachment ?? $transfer->attachment;
         $transfer->save();
 
-        return redirect('expense/transfer-claim')->with('msg_success', 'Transfer Claim Updated successfully');
+        return redirect('expense/apply-expense')->with('msg_success', 'Transfer Claim Updated successfully');
     }
 
     /**

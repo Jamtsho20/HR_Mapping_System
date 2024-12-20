@@ -41,6 +41,10 @@ class LeaveApplication extends Model
     {
         return $this->belongsTo(MasLeaveType::class, 'type_id');
     }
+    public function type()
+    {
+        return $this->belongsTo(MasLeaveType::class, 'type_id');
+    }
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
@@ -85,11 +89,15 @@ class LeaveApplication extends Model
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
-    
+
     protected static function booted()
     {
+        static::created(function ($leaveApplication) {
+            $leaveApplication->updateLeaveBalance($leaveApplication);
+        });
+
         static::updated(function ($leaveApplication) {
-            if ($leaveApplication->isDirty('status')) {
+            if ($leaveApplication->isDirty('status') && $leaveApplication->status == -1) {
                 $leaveApplication->updateLeaveBalance($leaveApplication);
             }
         });

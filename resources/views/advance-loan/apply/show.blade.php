@@ -58,13 +58,13 @@
                             <tr>
                                 <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
-                                    {{$advance->total_amount}}
+                                    {{$advance->total_amount ?? '-'}}
                                 </td>
                             </tr>
 
                             <tr>
                                 <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{$advance->remarks }}</td>
+                                <td style="padding-left:25px;"> {{$advance->remarks ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>

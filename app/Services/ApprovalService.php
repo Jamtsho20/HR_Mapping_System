@@ -182,7 +182,7 @@ class ApprovalService
 			return ['application_status' => 3];
 		}
 	}
-	
+
 
 	// this function is written for those cases when Immediate Head and Department Head applies if they exist in hierarchy as approver
 	private function approverUsingRole($matchingApprovingAuthority, $originalLevel, $evaluatedMaxLevel, $systemHierarchy)

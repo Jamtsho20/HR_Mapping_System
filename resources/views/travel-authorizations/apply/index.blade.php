@@ -46,7 +46,7 @@
                                                 <th>Travel Type</th>
                                                 <th>Date</th>
                                                 <th>ESTIMATED EXPENSES</th>
-                                                <th>ADVANCE REQUIRED</th>
+                                                <!-- <th>ADVANCE REQUIRED</th> -->
                                                 <th>STATUS</th>
                                                 <th>ACTION</th>
                                             </tr>
@@ -62,7 +62,7 @@
 
                                                 <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
                                                 <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
-                                                <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td>
+                                                <!-- <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td> -->
 
                                                 <td>@php
                                                     $statusClasses = [

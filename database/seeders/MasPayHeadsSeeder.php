@@ -102,7 +102,7 @@ class MasPayHeadsSeeder extends Seeder
                 (
                     'Corporate Allowance',
                     'Corporate ALL',
-                    'Corporate1001',
+                    '52336',
                     1,
                     4,
                     6,

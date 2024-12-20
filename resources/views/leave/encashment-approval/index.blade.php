@@ -1,5 +1,3 @@
-
-
 @extends('layouts.app')
 @section('page-title', 'Encashment Approval')
 @section('content')
@@ -16,17 +14,14 @@
 
     <div class="block-content">
         <div class="block-options">
-            <div class="col-sm-8">
-                <h5>Encashment Approval</h5>
-            </div>
             @if ($privileges->edit)
             <div class="col-sm-6">
                 <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
-                    data-route="{{ route('approverejectbulk') }}" data-item-type="9" data-item-class="leave_checkbox"
+                    data-route="{{ route('approverejectbulk') }}" data-item-type="4" data-item-class="leave_checkbox"
                     data-item-name="leave" value="Approve">
                 <input class="btn-sm btn-danger buttonsubmit" type="button" id="btn_reject" data-value="reject"
                     data-route="{{ route('approverejectbulk') }}" data-item-class="leave_checkbox"
-                    data-item-name="leave" data-item-type="9" value="Reject">
+                    data-item-name="leave" data-item-type="4" value="Reject">
             </div>
             @endif
         </div>
@@ -78,12 +73,21 @@
                                             <td>{{ $leave->created_at }}</td>
                                             <td>{{ $leave->encashment_amount }}</td>
                                             <td class="text-center">
-                                            @php
+
+                                                @php
+                                                $statusClasses = [
+                                                -1 => 'badge bg-danger',
+                                                0 => 'badge bg-warning',
+                                                1 => 'badge bg-primary',
+                                                2 => 'badge bg-success',
+                                                3 => 'badge bg-info',
+                                                ];
                                                 $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
-                                            @endphp
-                                                <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $leave->status == 1 ? 'primary' : ($leave->status == -1 ? 'danger' : ($leave->status == 2 ? 'success' : 'secondary')) }}">
-                                                {{ $statusText }}
-                                                </span>
+                                                $statusClass = config("global.status_classes.{$leave->status}", 'badge bg-secondary');
+                                                @endphp
+
+                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
+
                                             </td>
                                             <td class="text-center">
                                                 @if ($privileges->edit)

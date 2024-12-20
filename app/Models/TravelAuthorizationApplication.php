@@ -46,10 +46,20 @@ class TravelAuthorizationApplication extends Model
     {
         return $this->belongsTo(MasTravelType::class, 'type_id');
     }
+    
+    public function type()
+    {
+        return $this->belongsTo(MasTravelType::class, 'type_id');
+    }
+
      public function dsaadvance() {
         return $this->hasMany(DsaClaimApplication::class, 'travel_authorization_id');
      }
 
+     public function travel_approved_by()
+     {
+         return $this->belongsTo(User::class, 'updated_by');
+     }
 
     //accessors and mutations
     public function getStatusNameAttribute() {

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('mas_designation_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_grade_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_grade_step_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
-            $table->boolean('has_probation')->default(0);
+            $table->boolean('has_probation')->default(1);
             $table->foreignId('mas_employment_type_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('immediate_supervisor')->index()->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('mas_office_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete()->comment('job location');
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('account_number')->nullable();
             $table->string('pf_number', 100);
             $table->string('tpn_number', 100);
+            $table->string('gis_policy_number', 100)->nullable();
             $table->timestamps();
         });
     }

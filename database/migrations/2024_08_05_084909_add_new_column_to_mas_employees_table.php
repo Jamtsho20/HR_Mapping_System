@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('employee_id', 30)->unique();
             $table->string('gender', 30);
             $table->date('dob')->default(now());
-            $table->string('birth_place', 100);
-            $table->string('birth_country', 100);
+            $table->string('birth_place', 100)->nullable();
+            $table->string('birth_country', 100)->nullable();
             $table->string('marital_status', 50);
             $table->integer('contact_number');
             $table->string('nationality', 50);

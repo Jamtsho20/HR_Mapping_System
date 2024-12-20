@@ -43,8 +43,8 @@ class TransferClaimApplication extends Model
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        if ($request->has('mas_expense_type_id') && $request->query('mas_expense_type_id') != '') {
-            $query->where('mas_expense_type_id', $request->query('mas_expense_type_id'));
+        if ($request->has('type_id') && $request->query('type_id') != '') {
+            $query->where('type_id', $request->query('type_id'));
         }
         if ($request->has('employee') && $request->query('employee') !== '') {
             $query->where('created_by', $request->query('employee'));
@@ -92,5 +92,10 @@ class TransferClaimApplication extends Model
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }
+    }
+
+    public function expense_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

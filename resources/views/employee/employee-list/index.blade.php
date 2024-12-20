@@ -21,9 +21,6 @@
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Employee List</h3>
-                </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
