@@ -100,6 +100,7 @@ class SystemSubMenusTableSeeder extends Seeder
 
             //submenu for employee
             ['system_menu_id' => 10, 'name' => 'Employee', 'route' => 'employee/employee-lists', 'display_order' => 1],
+            ['system_menu_id' => 10, 'name' => 'Regularize Employee', 'route' => 'employee/regularize-employee', 'display_order' => 2],
 
             //submenu for sifa
             ['system_menu_id' => 11, 'name' => 'SIFA', 'route' => 'sifa/sifa-registration', 'display_order' => 1],

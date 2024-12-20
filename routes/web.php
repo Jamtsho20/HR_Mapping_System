@@ -244,6 +244,10 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Employee')->prefix('employee')->group(function () {
         Route::resource('employee-lists', 'EmployeeController');
         Route::get('/employee/details', [EmployeeController::class, 'showEmployeeDetails'])->name('employee.details');
+        Route::get('regularize-employee', [EmployeeController::class, 'showRegularizeDetails'])->name('employee.regularize');
+        Route::patch('regularize-toggle-status', 'EmployeeController@toggleStatus')->name('employee-regularize.toggles-status');
+        Route::patch('generate-regular-ao', 'EmployeeController@generateRegularAO')->name('employee.generate-regular-ao');
+
     });
 
     //reports
