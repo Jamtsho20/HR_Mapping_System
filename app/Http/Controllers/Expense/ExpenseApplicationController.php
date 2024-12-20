@@ -80,7 +80,7 @@ class ExpenseApplicationController extends Controller
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
         $user = loggedInUser();
         $empIdName = LoggedInUserEmpIdName();
-        $expenseTypes = MasExpenseType::get(['id', 'name']);
+        $expenseTypes = MasExpenseType::whereStatus(1)->get(['id', 'name']);
         $expenseApplications = ExpenseApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $transferClaims = TransferClaimApplication::where('created_by', $user)->get();

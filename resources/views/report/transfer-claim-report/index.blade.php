@@ -158,7 +158,7 @@
                                                     <td>{{$transfer->current_location}}</td>
                                                     <td>{{$transfer->distance_travelled}}</td>
                                                     <td>{{$transfer->new_location}}</td>
-                                                    <td>{{$transfer->amount_claimed}}</td>
+                                                    <td>{{$transfer->amount}}</td>
                                                     @php
                                                     $statusClasses = [
                                                     -1 => 'Rejected',

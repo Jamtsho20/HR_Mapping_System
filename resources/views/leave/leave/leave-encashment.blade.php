@@ -6,6 +6,11 @@
     @csrf
     <div class="card">
         <div class="card-body">
+            @if(session('alert'))
+                <div  style="color: red; ">
+                    {{ session('alert') }}
+                </div>
+            @endif
         @if(!empty($message))
         <div style="color: red; ">
                     *{{ $message }}
@@ -41,21 +46,21 @@
                     </div>
                 </div>
 
-               
+
             </div>
         </div>
         <div class="card-footer">
-            
+
         @if($applyFlag && empty($message))
                 <button type="submit" class="btn btn-primary">
-                   
+
             @else
                 <button type="button" class="btn btn-secondary" disabled>
             @endif
             <i class="fa fa-upload"></i> SUBMIT
             </button>
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
-        
+
         </div>
     </div>
 </form>

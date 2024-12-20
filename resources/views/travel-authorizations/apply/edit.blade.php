@@ -9,9 +9,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3>Edit Travel Authorization</h3>
-                <a href="{{ route('apply-travel-authorization.index') }}" class="close custom-close-btn" id="btn_addClose" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </a>
+                
             </div>
             <div class="card-body">
             <div class="row">
@@ -21,7 +19,7 @@
                             <input type="text" class="form-control" name="travel_authorization_no" value="{{ $travelAuthorizations->travel_authorization_no }}" id="travel_no" placeholder="Generating..." readonly>
                         </div>
                 </div>
-        
+
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="date">Date <span class="text-danger"></span></label>
@@ -33,7 +31,7 @@
                 <select class="form-control" id="travel_type" name="travel_type">
                     <option value="" disabled hidden>Select your option</option>
                     @foreach($travelTypes as $type)
-                        <option value="{{ $type->id }}" 
+                        <option value="{{ $type->id }}"
                             {{ old('travel_type', $travelAuthorizations->travel_type_id) == $type->id ? 'selected' : '' }}>
                             {{ $type->name }}
                         </option>
@@ -150,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
     const advanceRequiredInput = document.getElementById('advance_required');
     const daysDifferenceInput = document.getElementById('days_difference');
-    
-    
+
+
     let manualEdit = false;
 
 
@@ -160,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Loop through each row and calculate the days difference
         document.querySelectorAll('input[name^="details["][name$="][from_date]"]').forEach(function(startDateInput, index) {
-            const row = startDateInput.closest('tr'); 
+            const row = startDateInput.closest('tr');
             const endDateInput = row.querySelector('input[name$="[to_date]"]');
 
         // Ensure both start and end dates exist and are enabled
@@ -183,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return totalDays;
         }
 
-    
+
     function calculateEstimatedTravelExpenses() {
         const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
         const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
@@ -195,7 +193,7 @@ document.querySelector('#travel_details').addEventListener('click', function(eve
 if (event.target && event.target.matches('.delete-row')) {
     var thisRow = event.target.closest('tr');
     thisRow.remove();
-    calculateEstimatedTravelExpenses(); 
+    calculateEstimatedTravelExpenses();
 }
 });
 
@@ -209,7 +207,7 @@ document.querySelector('#advance_required').addEventListener('change', function(
     if (advanceAmount > (totalDays * dailyAllowance)) {
         const advanceRequiredInput = document.getElementById('advance_required');
         advanceRequiredInput.value=0;
-        calculateEstimatedTravelExpenses(); 
+        calculateEstimatedTravelExpenses();
         alert('Advance amount exceeds the estimated travel expenses!');
     }
 });
@@ -218,20 +216,20 @@ document.querySelector('#travel_details').addEventListener('change', function(ev
     if (event.target && event.target.matches('.from_date')) {
         var fromDate = event.target.value;
         var toDateField = event.target.closest('tr').querySelector('.to_date');
-        
+
         if (fromDate) {
             toDateField.setAttribute('min', fromDate);
             toDateField.disabled = false;
         } else {
             toDateField.disabled = true;
-            toDateField.value = ''; 
+            toDateField.value = '';
         }
         calculateEstimatedTravelExpenses();
-        
+
     }
 
     if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
-        calculateEstimatedTravelExpenses(); 
+        calculateEstimatedTravelExpenses();
     }
 });
     // Recalculate days difference and estimated travel expenses when any date input changes
@@ -246,12 +244,12 @@ document.querySelector('#travel_details').addEventListener('input', function(eve
 
     // Recalculate estimated travel expenses when the number of days is manually changed
     daysDifferenceInput.addEventListener('input', function() {
-        manualEdit = true; 
+        manualEdit = true;
         calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
     });
 
     daysDifferenceInput.addEventListener('blur', function() {
-        manualEdit = false; 
+        manualEdit = false;
     });
 
     let rowCount = document.querySelectorAll('#travel_details tbody tr').length-1;
@@ -296,7 +294,7 @@ document.querySelector('.add-row').addEventListener('click', function(e) {
 
         // Increment row count for next row
         rowCount++;
-    }); 
+    });
 
     calculateEstimatedTravelExpenses();
 

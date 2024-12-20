@@ -28,7 +28,8 @@ class LeaveEncashmentApplicationController extends Controller
     // }
     protected $rules = [
        'encashment_amount' => 'required|numeric',
-        'leave_applied_for_encashment' => 'required',
+        'leave_applied_for_encashment' => 'required'
+
     ];
 
     protected $messages = [
@@ -96,7 +97,9 @@ class LeaveEncashmentApplicationController extends Controller
         $approvalService = new ApprovalService();
         $encashmentType = LeaveEncashmentType::first()?->id;
         $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->value('amount');
-
+        if (!$tax_amount ) {
+            return redirect()->back()->with('alert', 'Tax amount has not been intialized, contact admin!');
+        }
         $approverByHierarchy = $approvalService->getApproverByHierarchy($encashmentType, \App\Models\LeaveEncashmentType::class, $conditionFields ?? []);
         try {
             DB::beginTransaction();
