@@ -20,7 +20,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($travelAuthorizations as $travelAuthorization)
+                                @forelse ($results->get(7) as $travelAuthorization)
                                 <tr>
                                     <td>
                                         <input type="checkbox" class="bulk_checkbox" value="{{ $travelAuthorization->id }}">

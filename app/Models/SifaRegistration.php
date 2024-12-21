@@ -20,6 +20,9 @@ class SifaRegistration extends Model
         'updated_by',
     ];
 
+    public function type(){
+        return $this->belongsTo(MasSifaType::class, 'sifa_type_id');
+    }
     public function employee()
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
@@ -51,7 +54,7 @@ class SifaRegistration extends Model
     }
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        
+
     }
 
 }

@@ -39,7 +39,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($leaves as $leave)
+                                @forelse ($results->get(1) as $leave)
                                 <tr>
                                     <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}"></td>
                                     <td>{{ $leave->employee->created_at }}</td>

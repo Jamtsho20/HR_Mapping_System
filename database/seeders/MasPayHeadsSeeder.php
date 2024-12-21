@@ -229,7 +229,7 @@ class MasPayHeadsSeeder extends Seeder
                     2,
                     7,
                     0,
-                    NULL,
+                    NULL
                     NULL,
                     NULL,
                     2,
