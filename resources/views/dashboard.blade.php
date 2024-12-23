@@ -29,7 +29,7 @@
 @endif
 
 
-<!-- <div class="row"> -->
+<div class="row">
     <!-- Casual Leave Chart -->
     <div class="col-md-6">
         <div class="bg-white p-4 mb-5">
@@ -52,7 +52,7 @@
             @endif
         </div>
     </div>
-<!-- </div> -->
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -119,7 +119,7 @@
     });
 </script>
 
-
+<div class="row">
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
@@ -145,7 +145,7 @@
                                 <td>{{ $holiday->holiday_name }}</td>
                                 <td>{{ $holiday->start_date }}</td>
                                 <td>{{ $holiday->end_date }}</td>
-                                
+
                             </tr>
                             @empty
                             <tr>
@@ -198,6 +198,8 @@
             </div>
         </div>
     </div>
+
+</div>
 
 </div>
 
