@@ -405,6 +405,10 @@ class ExpenseApplicationController extends Controller
             );
         }
         if ($request->hasFile('file')) {
+            $this->validate($request,
+                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
+                ['file.required' => 'The file is required. Please upload a file.']
+            );
             $file = $request->file('file');
             if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
                 delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment

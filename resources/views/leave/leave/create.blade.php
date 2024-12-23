@@ -80,7 +80,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="attachment">Attachment <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
-                        <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*">
+                        <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*,.pdf,.doc,.docx">
                     </div>
                 </div>
             </div>
