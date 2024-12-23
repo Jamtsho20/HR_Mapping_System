@@ -25,6 +25,7 @@ class PFReportController extends Controller
     {
         $privileges = $request->instance();
         $pfDeductions = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
+       
         $employee = employeeList();
 
         return view('report.pf-report.index', compact('privileges', 'employee', 'pfDeductions'));

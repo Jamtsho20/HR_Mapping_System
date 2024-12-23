@@ -53,7 +53,7 @@
     }
 
     .details {
-        font-size: 20px;
+        font-size: 16px;
         padding-left: 80px;
 
     }

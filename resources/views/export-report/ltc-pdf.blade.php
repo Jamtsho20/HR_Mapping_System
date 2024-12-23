@@ -16,6 +16,20 @@
             border-collapse: collapse;
         }
 
+        .img-container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+
+
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
         table,
         th,
         td {
@@ -37,7 +51,11 @@
 </head>
 
 <body>
-    <h1>LTC Report</h1>
+    <div class="img-container">
+        @include('layouts.includes.letter-head')
+    </div>
+    <hr>
+    <h1 class="title">LTC Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">
@@ -100,6 +118,8 @@
 
         </tbody>
     </table>
+    @include('layouts.includes.report-footer')
+
 </body>
 
 </html>

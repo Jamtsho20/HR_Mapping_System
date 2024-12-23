@@ -381,6 +381,40 @@
             </div>
         </div>
     </div>
+    <!-- Appointment Order -->
+    <div class="row col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-1 mt-1">Appointment Order</h3>
+            </div>
+            <div class="card-body">
+                <div class="row ">
+
+                    <div class="col-md-12">
+                        @if($employee->appointment_order)
+
+                        <a href="{{ Storage::url($employee->appointment_order) }}" class="btn btn-primary" target="_blank">
+                            <i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>&nbsp; Probation Appointment Order
+                        </a>
+                        @endif
+
+                        @if($employee->regular_appointment_order)
+                        <a href="{{ Storage::url($employee->regular_appointment_order) }}" class="btn btn-primary"
+                            target="_blank"  target="_blank" target="_blank">
+                            <i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>&nbsp; Regular Appointment Order
+                        </a>
+
+                        @endif
+
+
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
     @endsection
     @push('page_scripts')
     <script>

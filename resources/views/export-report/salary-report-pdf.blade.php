@@ -7,8 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salary Report</title>
     <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        /* .img-container {
+            display: flex !important;
+            justify-content: center !important;
+        } */
+        .img-container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+
+
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
+
         body {
             font-size: 12px;
+            width: 100%;
         }
 
         table {
@@ -37,7 +62,12 @@
 </head>
 
 <body>
-    <h1>Salary Report</h1>
+    <div class="img-container">
+        @include('layouts.includes.letter-head')
+    </div>
+    <hr>
+
+    <h1 class="title">Salary Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">
@@ -149,6 +179,7 @@
             @endforelse
         </tbody>
     </table>
+    @include('layouts.includes.report-footer')
 </body>
 
 </html>
