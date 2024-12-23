@@ -1,6 +1,6 @@
 <form action="{{ url()->current() }}" method="GET">
     <div class="d-flex justify-content-between">
-        <div class="w-100">
+        <div class="w-90">
             <div class="row">
                 {{ $slot }}
             </div>
