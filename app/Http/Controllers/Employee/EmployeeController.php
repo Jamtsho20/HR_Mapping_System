@@ -31,19 +31,27 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\Api\SAP\ApiController;
+use App\Http\Controllers\Api\SOMs\ApiController as SomsApiController;
 use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
+    protected $apiController;
+    protected $somsApiController;
+
     /**
      * Display a listing of the resource.
      */
-    public function __construct()
+    public function __construct(ApiController $apiController, SomsApiController $somsApiController)
     {
         $this->middleware('permission:employee/employee-lists,view')->only('index', 'show');
         $this->middleware('permission:employee/employee-lists,create')->only('store');
         $this->middleware('permission:employee/employee-lists,edit')->only('update', 'edit');
         $this->middleware('permission:employee/employee-lists,delete')->only('destroy');
+
+        $this->apiController = $apiController;
+        $this->somsApiController = $somsApiController;
     }
 
     private $filePath = 'images/employee/';
@@ -205,6 +213,11 @@ class EmployeeController extends Controller
             }
             $employee->registered_email_sent = true;
             $employee->save();
+            if($employee->status == 'Completed'){
+                $this->postEmployeeToSap($employee);
+                $this->postEmployeeToSoms($employee);
+                // $somsData = $this->prepareSomsData();
+            }
             if (!$employee->appointment_order) {
                 $this->appointmentOrder($employee);
             }
@@ -670,6 +683,57 @@ class EmployeeController extends Controller
         return User::where('username', '<>', 'SAP000')->max('employee_id');
     }
 
+    private function postEmployeeToSap($employee)
+    {
+        // dd($employee);
+        $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
+        $sapData = [
+            'CardCode' => $employee->username,
+            'CardName' => trim($employee->first_name . ' ' . ($employee->middle_name ?? '') . ' ' . ($employee->last_name ?? '')),
+            'CardType' => 'C',
+            'GroupCode' => 108,
+            'Currency' => '',
+            'CardForeignName' => $employee->cid_no,
+            'Country' => 'BT',
+            'DebitorAccount' => '34611',
+            'DownPaymentInterimAccount' => '23245',
+            "BPFiscalTaxIDCollection" => 
+                [
+
+                    ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID    
+                ]
+        ];
+        $this->apiController->postEmployeeToSap($sapData);
+    }
+
+    private function postEmployeeToSoms($employee)
+    {
+        $masOfficeId = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('mas_office_id');
+        $empDzongkhag = \DB::select("
+            select 
+                t2.dzongkhag
+            from mas_offices t1
+                left join mas_dzongkhags t2 on t2.id = t1.mas_dzongkhag_id
+            where t1.id = ?
+        ", [$masOfficeId])[0];
+
+        $somsData = [
+            'employee_code' => str_replace('E', '', $employee->username),
+            // 'employee_code' => 2005,
+            'person_id' => $employee->id,
+            'first_name' => $employee->first_name,
+            'middle_name' => $employee->middle_name,
+            'last_name' => $employee->last_name,
+            'title' => $employee->title,
+            'sex' => config('global.gender')[$employee->gender],
+            'dateOfBirth' => $employee->dob,
+            'mobile_number' => $employee->contact_number,
+            'email_address' => $employee->email,
+            'status' => $employee->is_active,
+            'locatorId' => $empDzongkhag->dzongkhag,
+        ];
+        $this->somsApiController->postEmployeeToSoms($somsData);
+    }
     public function showRegularizeDetails(Request $request)
     {
 

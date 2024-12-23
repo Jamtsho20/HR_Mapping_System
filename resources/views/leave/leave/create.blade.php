@@ -128,12 +128,12 @@
         const toDay = $('#ddl_to_day').val();
 
         if (fromDate && toDate && fromDate === toDate) {
-            const optionsToDisableFromToDay = fromDay === '2' || fromDay === '3' ? ['2', '3'] : [];
-            const optionsToDisableFromFromDay = toDay === '2' || toDay === '3' ? ['2', '3'] : [];
+            const optionsToDisableFromToDay = fromDay === '1' || fromDay === '2' || fromDay === '3' ? ['2', '3'] : [];
+            // const optionsToDisableFromFromDay = toDay === '2' || toDay === '3' ? ['2', '3'] : [];
             $('#ddl_to_day option').prop('disabled', false);
             $('#ddl_from_day option').prop('disabled', false);
             optionsToDisableFromToDay.forEach(opt => $(`#ddl_to_day option[value="${opt}"]`).prop('disabled', true));
-            optionsToDisableFromFromDay.forEach(opt => $(`#ddl_from_day option[value="${opt}"]`).prop('disabled', true));
+            // optionsToDisableFromFromDay.forEach(opt => $(`#ddl_from_day option[value="${opt}"]`).prop('disabled', true));
         }
     };
 

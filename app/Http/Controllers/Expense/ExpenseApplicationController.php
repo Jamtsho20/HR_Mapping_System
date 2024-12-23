@@ -400,7 +400,7 @@ class ExpenseApplicationController extends Controller
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
             $this->validate($request,
-                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
+                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
                 ['file.required' => 'The file is required. Please upload a file.']
             );
         }
