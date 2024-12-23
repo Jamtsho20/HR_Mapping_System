@@ -80,7 +80,7 @@ class ExpenseApplicationController extends Controller
         $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
         $user = loggedInUser();
         $empIdName = LoggedInUserEmpIdName();
-        $expenseTypes = MasExpenseType::get(['id', 'name']);
+        $expenseTypes = MasExpenseType::whereStatus(1)->get(['id', 'name']);
         $expenseApplications = ExpenseApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $dsaClaimApplications = DsaClaimApplication::filter($request)->createdBy()->paginate(config('global.pagination'));
         $transferClaims = TransferClaimApplication::where('created_by', $user)->get();
@@ -210,12 +210,12 @@ class ExpenseApplicationController extends Controller
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
                 $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
-                 
+
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->expense_amount . ' is awaiting your approval.';
+                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
                     $emailSubject = 'Expense Application';
                     // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
                 }
@@ -297,7 +297,7 @@ class ExpenseApplicationController extends Controller
             if ($request->has('fuel_claim_details')) {
 
                 $requestIds = collect($request->input('fuel_claim_details'))
-                    ->pluck('id') 
+                    ->pluck('id')
                     ->filter()
                     ->toArray();
 
@@ -381,7 +381,7 @@ class ExpenseApplicationController extends Controller
                         ->whereStatus(1);
                 }]);
         }, 'policyEnforcement'])
-            ->where('mas_expense_type_id', $request->expense_type)
+            ->where('type_id', $request->expense_type)
             ->whereStatus(1)
             ->first();
         //check weather attachment is required while applying expense from expense policy
@@ -400,7 +400,7 @@ class ExpenseApplicationController extends Controller
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
             $this->validate($request,
-                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
+                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
                 ['file.required' => 'The file is required. Please upload a file.']
             );
         }

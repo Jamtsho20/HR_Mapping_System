@@ -9,28 +9,26 @@
                             <thead>
                                 <tr role="row" class="thead-light">
                                     <th>
-                                    <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
+                                        <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
                                     </th>
                                     <th>APPLIED ON</th>
                                     <th>EMPLOYEE</th>
                                     <th>TRAVEL TYPES</th>
                                     <th>ESTIMATED EXPENSES</th>
-                                    <th>ADVANCE REQUIRED</th>
                                     <th>STATUS</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($travelAuthorizations as $travelAuthorization)
+                                @forelse ($results->get(7) as $travelAuthorization)
                                 <tr>
                                     <td>
-                                    <input type="checkbox" class="bulk_checkbox" value="{{ $travelAuthorization->id }}">
+                                        <input type="checkbox" class="bulk_checkbox" value="{{ $travelAuthorization->id }}">
                                     </td>
                                     <td>{{ $travelAuthorization->employee->created_at }}</td>
                                     <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                     <td>{{ $travelAuthorization->travelType->name }}</td>
                                     <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
-                                    <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td>
                                     <td>@php
                                         $statusClasses = [
                                         -1 => 'badge bg-danger',
@@ -48,14 +46,17 @@
                                     <td class="text-center">
 
                                         @if ($privileges->view)
-                                        <a href="{{ route('travel-authorization-approval.show', $travelAuthorization->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                        <a href="{{ url('approval/applications/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+
                                         @endif
-                                        @if ($privileges->edit)
+                                        <!-- @if ($privileges->edit)
                                         <a href="{{ route('travel-authorization-approval.edit', $travelAuthorization->id) }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
                                         @endif
                                         @if ($privileges->delete)
                                         <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('travel-authorization/apply-travel-authorization/' . $travelAuthorization->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                                        @endif
+                                        @endif -->
                                     </td>
                                 </tr>
                                 @empty

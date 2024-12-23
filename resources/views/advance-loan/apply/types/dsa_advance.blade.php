@@ -59,3 +59,24 @@
         </div>
     </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get the input elements
+    var estimated_travel_expenses = document.getElementById('estimated_travel_expenses');
+    var advance_amount = document.getElementById('advance_amount');
+
+    // Add an event listener to the advance_amount input field
+    advance_amount.addEventListener('input', function() {
+        // Convert the values to numbers for comparison
+        var estimatedValue = parseFloat(estimated_travel_expenses.value) || 0;
+        var advanceValue = parseFloat(advance_amount.value) || 0;
+
+        // Check if the advance amount is greater than or equal to the estimated travel expenses
+        if (advanceValue > estimatedValue) {
+            alert('Advance amount cannot be greater than or equal to the estimated travel expenses!');
+            advance_amount.value = ''; // Reset the field
+        }
+    });
+});
+
+</script>

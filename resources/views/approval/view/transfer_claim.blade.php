@@ -27,7 +27,7 @@
                             </tr>
                             <tr>
                                 <th style="width:35%;">Transfer Claim <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $transfer->transfer_claim_id }}</td>
+                                <td style="padding-left:25px;"> {{ $transfer->type->name }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Current Location <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
@@ -41,7 +41,7 @@
                                 <th style="width:35%;">Amount Claimed <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $transfer->amount }}</td>
                             </tr>
-                            @if($transfer->transfer_claim_id==2)
+                            @if($transfer->type->id==2)
                             <tr>
                                 <th style="width:35%;">Distance Travelled <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $transfer->distance_travelled }}</td>

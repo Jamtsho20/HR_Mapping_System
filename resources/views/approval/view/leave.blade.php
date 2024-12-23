@@ -1,12 +1,13 @@
 @extends('layouts.app')
 @section('page-title', 'View Leave Application')
 @section('buttons')
-<a href="{{ url('leave/leave-apply') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Leave List</a>
+<a href="{{ url('approval/applications') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
 @endsection
 @section('content')
 
 <div class="row">
     @include('components.employee-details', ['empDetails' => $empDetails])
+
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">
@@ -69,32 +70,16 @@
                 <div class="col-md-12">
                     <table style="width:100%;" class="simple-table">
                         <tbody>
-                            @if ($leave->status == 3) <!-- Approved -->
                             <tr>
                                 <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
-                                    {{$leave->leave_approved_by->name ?? 'N/A'}}
+                                    {{$leave->status == 3 ? $leave -> leave_approved_by->name:'N/A'}}
                                 </td>
                             </tr>
-                            @elseif ($leave->status == -1) <!-- Rejected -->
                             <tr>
                                 <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;">
-                                    {{$leave->leave_approved_by->name ?? 'N/A'}}
-                                </td>
+                                <td style="padding-left:25px;"> {{$leave->status == -1 ?$leave->leave_approved_by->name:'N/A'}} </td>
                             </tr>
-                            <tr>
-                                <th style="width:35%;">Rejection Remarks <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;">
-                                    {{$rejectionRemarks ?? 'No remarks provided'}}
-                                </td>
-                            </tr>
-                            @else <!-- Neither Approved nor Rejected -->
-                            <tr>
-                                <th style="width:35%;">Status <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;">In-Progress</td>
-                            </tr>
-                            @endif
                         </tbody>
                     </table>
                 </div>

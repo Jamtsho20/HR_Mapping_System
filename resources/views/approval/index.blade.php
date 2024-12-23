@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Expense Approval')
+@section('page-title', 'Application Approvals')
 @section('content')
 
 <div class="block">
@@ -63,28 +63,28 @@
                             aria-labelledby="tab-{{ $sanitizedName }}" data-item-name="{{ $header->name }}"
                             data-item-type="{{ $id }}">
                             @if ($id == 1)
-                            @include('approval.leave_approval')
+                            @include('approval.approvals.leave_approval')
 
                             @elseif ($id == 2)
-                            @include('approval.expense_approval')
+                            @include('approval.approvals.expense_approval')
 
                             @elseif ($id == 3)
-                            @include('approval.advance_approval')
+                            @include('approval.approvals.advance_approval')
 
                             @elseif ($id == 4)
-                            @include('approval.leave_encashment_approval')
+                            @include('approval.approvals.leave_encashment_approval')
 
                             @elseif ($id == 6)
-                            @include('approval.transfer_claim')
+                            @include('approval.approvals.transfer_claim')
 
                             @elseif ($id == 7)
-                            @include('approval.travel_authorization')
+                            @include('approval.approvals.travel_authorization')
 
                             @elseif ($id == 8)
-                            @include('approval.sifa_registration')
+                            @include('approval.approvals.sifa_registration')
 
                             @elseif ($id == 9)
-                            @include('approval.dsaclaim_approval')
+                            @include('approval.approvals.dsaclaim_approval')
 
                             @endif
 

@@ -318,19 +318,19 @@ class LeaveApplicationController extends Controller
         }
 
         // Handle file upload if required based on defined in leave policy(old code)
-        // $attachment = $leaveApplication ? $leaveApplication->attachment : '';
-        // if ($attachmentRequired && !$attachment) {
-        //     $this->validate($request, [
-        //         'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-        //     ]);
-        // }
-        // if ($request->hasFile('attachment')) {
-        //     $file = $request->file('attachment');
-        //     if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
-        //         delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
-        //     }
-        //     $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-        // }
+        $attachment = $leaveApplication ? $leaveApplication->attachment : '';
+        if ($attachmentRequired && !$attachment) {
+            $this->validate($request, [
+                'attachment' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'
+            ]);
+        }
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
+                delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
+            }
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        }
 
         // return [
         //     'leaveBalance' => $leaveBalance,

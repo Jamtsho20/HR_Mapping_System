@@ -69,7 +69,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Amount Claimed <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="amount_claimed" value="{{old('amount_claimed')}}">
+                        <input type="text" class="form-control" name="amount" value="{{old('amount')}}">
                     </div>
                 </div>
                 <div class="col-md-6">

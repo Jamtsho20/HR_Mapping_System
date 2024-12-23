@@ -1,3 +1,4 @@
+
 <div class="row row-sm">
     <div class="col-lg-12">
         <div class="card">
@@ -9,20 +10,25 @@
                             <thead>
                                 <tr role="row" class="thead-light">
                                     <th>
-                                        <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
-                                    </th>
-                                    <th>
-                                        EMPLOYEE ID
-                                    </th>
-                                    <th>
-                                        EMPLOYEE NAME
+                                    <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
                                     </th>
                                     <th>
                                         APPLIED ON
                                     </th>
-
                                     <th>
-                                        Encashment Amount
+                                        EMPLOYEE
+                                    </th>
+                                    <th>
+                                        LEAVE TYPE
+                                    </th>
+                                    <th>
+                                        FROM DATE
+                                    </th>
+                                    <th>
+                                        TO DATE
+                                    </th>
+                                    <th>
+                                        NO OF DAYS
                                     </th>
                                     <th>
                                         STATUS
@@ -33,26 +39,42 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($earnedLeave as $leave)
+                                @forelse ($results->get(1) as $leave)
                                 <tr>
                                     <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}"></td>
-                                    <td>{{$leave->employee->username}}</td>
-                                    <td>{{$leave->employee->name}}</td>
-                                    <td>{{ $leave->created_at }}</td>
-                                    <td>{{ $leave->encashment_amount }}</td>
+                                    <td>{{ $leave->employee->created_at }}</td>
+                                    <td>{{ $leave->employee->emp_id_name }}</td>
+                                    <td>{{ $leave->leaveType->name }}</td>
+                                    <td>{{ $leave->from_date }}</td>
+                                    <td>{{ $leave->to_date }}</td>
+                                    <td class="text-right">{{ $leave->no_of_days }}</td>
                                     <td class="text-center">
+
                                         @php
+                                        $statusClasses = [
+                                        -1 => 'badge bg-danger',
+                                        0 => 'badge bg-warning',
+                                        1 => 'badge bg-primary',
+                                        2 => 'badge bg-success',
+                                        3 => 'badge bg-info',
+                                        ];
                                         $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');
+                                        $statusClass = config("global.status_classes.{$leave->status}", 'badge bg-secondary');
                                         @endphp
-                                        <span class="badge rounded-pill me-1 mb-1 mt-1 bg-{{ $leave->status == 1 ? 'primary' : ($leave->status == -1 ? 'danger' : ($leave->status == 2 ? 'success' : 'secondary')) }}">
-                                            {{ $statusText }}
-                                        </span>
+
+                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
+
                                     </td>
                                     <td class="text-center">
+                                        @if ($privileges->view)
+                                        <a href="{{ url('approval/applications/' . $leave->id) . '?tab=1' }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                        @endif
                                         @if ($privileges->edit)
                                         <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
-                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
-                                                class="fa fa-edit"></i> EDIT</a>
+                                            class="btn btn-sm btn-rounded btn-outline-success">
+                                            <i class="fa fa-edit"></i> EDIT
+                                        </a>
+
                                         @endif
                                         @if ($privileges->delete)
                                         <a href="#"
@@ -65,7 +87,7 @@
                                 @empty
                                 <tr>
                                     <td colspan="8" class="text-center text-danger">
-                                        No Encashment Application Found
+                                        No Leave found
                                     </td>
                                 </tr>
                                 @endforelse

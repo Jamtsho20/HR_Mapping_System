@@ -26,10 +26,14 @@ use App\Models\MasQualification;
 use App\Models\MasSection;
 use App\Models\Role;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\Api\SOMs\ApiController as SomsApiController;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
@@ -214,11 +218,28 @@ class EmployeeController extends Controller
                 $this->postEmployeeToSoms($employee);
                 // $somsData = $this->prepareSomsData();
             }
+            if (!$employee->appointment_order) {
+                $this->appointmentOrder($employee);
+            }
+
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');
         }
         $nextTab = $this->getNextTab($tab);
         return redirect()->route('employee-lists.edit', ['employee_list' => $id, 'tab' => $nextTab])->with('msg_success', 'Data saved successfully for ' . $tab . '.');
     }
+
+    public function appointmentOrder($employee)
+    {
+        $pdf = Pdf::loadView('office-order.appointment-order-pdf', compact('employee'));
+
+        $fileName = 'AO-' . $employee->username . '.pdf';
+        $filePath = 'office-order/appointment-order/' . $fileName;
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        $employee->appointment_order = $filePath;
+        $employee->save();
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -235,8 +256,8 @@ class EmployeeController extends Controller
     }
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
-    { 
-        $user = $employeeId ? User::findOrFail($employeeId): "";
+    {
+        $user = $employeeId ? User::findOrFail($employeeId) : "";
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -514,11 +535,11 @@ class EmployeeController extends Controller
     {
         $filteredExperiences = array_filter($experiences, function ($experience) {
             return !empty($experience['organization']) ||
-            !empty($experience['place']) ||
-            !empty($experience['designation']) ||
-            !empty($experience['start_date']) ||
-            !empty($experience['end_date']) ||
-            !empty($experience['certificate']);
+                !empty($experience['place']) ||
+                !empty($experience['designation']) ||
+                !empty($experience['start_date']) ||
+                !empty($experience['end_date']) ||
+                !empty($experience['certificate']);
         });
         $experienceIdsInRequest = []; // Track IDs from the request
 
@@ -633,7 +654,8 @@ class EmployeeController extends Controller
             ]
         );
     }
-    private function assignRoles($roles, $id, $request){
+    private function assignRoles($roles, $id, $request)
+    {
         $user = User::findOrFail($id);
         $rolesAssigned = [];
         foreach ($request->roles as $key => $value) {
@@ -711,5 +733,116 @@ class EmployeeController extends Controller
             'locatorId' => $empDzongkhag->dzongkhag,
         ];
         $this->somsApiController->postEmployeeToSoms($somsData);
+    }
+    public function showRegularizeDetails(Request $request)
+    {
+
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $employees = User::filter($request)
+            ->whereHas('empJob.empType', function ($query) {
+                $query->where('id', 3);
+            })
+            ->whereBetween(
+                DB::raw("DATE_ADD(date_of_appointment, INTERVAL 6 MONTH)"),
+                [$startOfMonth, $endOfMonth]
+            )
+            ->orderBy('name')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+        return view('employee/regularize-list.index', compact('employees'));
+    }
+
+    public function toggleStatus(Request $request)
+    {
+        try {
+            $record = User::findOrFail($request->id);
+
+            if (!$record) {
+                return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+            }
+            DB::beginTransaction();
+
+            $record->is_regularized = $request->is_regularized;
+            $record->save();
+
+            DB::commit();
+
+            // $record->regularized_on = Carbon::now();    
+            // $record->save();
+
+            // if (!$record->regular_appointment_order && $record->is_regularized == 1) {
+            //     $this->RegularappointmentOrder($record);
+            // }
+
+            return response()->json(['success' => true, 'message' => 'regularize status updated successfully!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating regularize status: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the regularize status.',
+                'refreshPage' => true
+            ]);
+        }
+    }
+
+    public function generateRegularAO(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $record = User::findOrFail($request->id);
+
+            if (!$record) {
+                return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+            }
+
+            // Ensure empJob exists
+            if (!$record->empJob) {
+                return response()->json(['success' => false, 'message' => 'Employee job details not found'], 404);
+            }
+
+            // Update the employee record and related job details
+            $record->regularized_on = Carbon::now();
+            $record->empJob->mas_employment_type_id = 2;
+            $record->empJob->save();
+            $record->save();
+
+            // Generate the regular appointment order if required
+            if (!$record->regular_appointment_order && $record->is_regularized == 1) {
+                try {
+                    $this->RegularappointmentOrder($record);
+                } catch (\Exception $e) {
+                    throw new \Exception("Error in RegularappointmentOrder: " . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Appointment Order generated successfully!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error generating Appointment order: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while generating the Appointment order.',
+                'refreshPage' => true
+            ]);
+        }
+    }
+
+    public function RegularappointmentOrder($employee)
+    {
+        $pdf = Pdf::loadView('office-order.regular-appointment-order-pdf', compact('employee'));
+
+        $fileName = 'RAO-' . $employee->username . '.pdf';
+        $filePath = 'office-order/appointment-order/' . $fileName;
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        $employee->regular_appointment_order = $filePath;
+        $employee->save();
     }
 }

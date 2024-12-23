@@ -48,7 +48,7 @@
 
                             <tr>
                                 <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{$expense->remarks }}</td>
+                                <td style="padding-left:25px;"> {{$expense->remarks ?? '-'}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
@@ -68,7 +68,7 @@
             </div>
         </div>
     </div>
-    @if($expense->type_id == 1)
+    @if($expense->mas_expense_type_id == 1)
 
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">

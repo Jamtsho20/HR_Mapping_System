@@ -14,19 +14,26 @@
                                 <thead>
                                     <tr role="row" class="thead-light">
                                         <th>
-                                            <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
+                                            <input type="checkbox"
+                                                id="select_all"
+                                                class="select_all"
+                                                data-item-class="bulk_checkbox"
+                                                title="select all">
                                         </th>
                                         <th>
                                             EMPLOYEE
                                         </th>
                                         <th>
-                                            APPLIED ON
+                                            EXPENSE DATE
                                         </th>
                                         <th>
-                                            ADVANCE TYPE
+                                            EXPENSE TYPE
                                         </th>
                                         <th>
-                                            AMOUNT
+                                            EXPENSE AMOUNT
+                                        </th>
+                                        <th>
+                                            DESCRIPTION
                                         </th>
                                         <th>
                                             STATUS
@@ -37,15 +44,23 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($advances as $advance)
+                                    @forelse ($results->get(2) as $application)
                                     <tr>
-                                        <td><input type="checkbox" class="bulk_checkbox" value="{{ $advance->id }}"></td>
-                                        <td>{{ $advance->employee->emp_id_name }}</td>
-                                        <td>{{ $advance->date }}</td>
-                                        <td>{{ $advance->advanceType->name }}</td>
-                                        <td>{{ $advance->amount }}</td>
+                                        <td>
+                                            <input type="checkbox"
+                                                class="bulk_checkbox"
+                                                value="{{ $application->id }}">
+                                        </td>
+                                        <td>{{ $application->employee->name }}
+                                        </td>
+                                        <td>{{ $application->date }}</td>
+                                        <td>{{ $application->type->name }}
+                                        </td>
+                                        <td>{{ $application->amount }}
+                                        </td>
+                                        <td>{{ $application->description }}
+                                        </td>
                                         <td class="text-center">
-
                                             @php
                                             $statusClasses = [
                                             -1 => 'badge bg-danger',
@@ -54,31 +69,31 @@
                                             2 => 'badge bg-success',
                                             3 => 'badge bg-info',
                                             ];
-                                            $statusText = config("global.application_status.{$advance->status}", 'Unknown Status');
-                                            $statusClass = config("global.status_classes.{$advance->status}", 'badge bg-secondary');
+                                            $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
+                                            $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
                                             @endphp
 
                                             <span class="{{ $statusClass }}">{{ $statusText }}</span>
-
                                         </td>
                                         <td class="text-center">
                                             @if ($privileges->view)
-                                            <a href="{{ route('advance-loan-approval.show',  $advance->id) }}"
+                                            <a href="{{ url('approval/applications/' . $application->id) . '?tab=2'}}"
                                                 class="btn btn-sm btn-outline-secondary"><i
-                                                    class="fa fa-list"></i> Detail</a>
+                                                    class="fa fa-list"></i>
+                                                Detail</a>
                                             @endif
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center text-danger">
-                                            No Advance found
-                                        </td>
+                                        <td colspan="8"
+                                            class="text-center text-danger">
+                                            No
+                                            records found</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
                             </table>
-                            <div>{{ $advances->links() }}</div>
                         </div>
                     </div>
                 </div>

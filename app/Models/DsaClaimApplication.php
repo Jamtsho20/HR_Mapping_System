@@ -49,8 +49,9 @@ class DsaClaimApplication extends Model
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        if ($request->has('mas_expense_type_id') && $request->query('mas_expense_type_id') != '') {
-            $query->where('mas_expense_type_id', $request->query('mas_expense_type_id'));
+        if ($request->has('expense_type') && $request->query('expense_type') != '') {
+
+            $query->where('type_id', $request->query('expense_type'));
         }
 
         if ($request->has('employee') && $request->query('employee') !== '') {

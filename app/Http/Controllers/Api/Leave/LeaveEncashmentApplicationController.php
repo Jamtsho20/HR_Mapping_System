@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ApplicationHistoriesService;
 use App\Models\MasEmployeeJob;
+use App\Models\MasPaySlabDetails;
 
 class LeaveEncashmentApplicationController extends Controller
 {
@@ -104,6 +105,11 @@ class LeaveEncashmentApplicationController extends Controller
 
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
+        $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->value('amount');
+        $tax_amount = null;
+        if (!$tax_amount ) {
+             return response()->json(['message' => 'Tax amount has not been intialized, contact admin!']);
+        }
         $encashmentType = LeaveEncashmentType::first()?->id;
         $approverByHierarchy = $approvalService->getApproverByHierarchy($encashmentType, \App\Models\LeaveEncashmentType::class, $conditionFields ?? []);
         try {
@@ -111,6 +117,7 @@ class LeaveEncashmentApplicationController extends Controller
 
             $leaveEncashment->mas_employee_id = Auth::id();
             $leaveEncashment->type_id = 1;
+            $leaveEncashment->tax_amount=$tax_amount;
             $leaveEncashment->leave_applied_for_encashment = $request->leave_applied_for_encashment;
             $leaveEncashment->encashment_amount = $request->encashment_amount;
             $leaveEncashment->created_by = Auth::id();

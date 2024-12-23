@@ -1,16 +1,13 @@
 @extends('layouts.app')
 @section('page-title', 'Travel Authorization Details')
 @section('buttons')
-@if ($context === 'application')
-<a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-primary">
-    <i class="fa fa-reply"></i> Back to Travel Authorization List
-</a>
-@endif
 @endsection
 
 @section('content')
 
 <div class="row">
+    @include('components.employee-details', ['empDetails' => $empDetails])
+
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">
@@ -71,7 +68,6 @@
                                 </td>
                             </tr>
                         </tbody>
-
                     </table>
                 </div>
             </div>
@@ -108,6 +104,3 @@
 </div>
 
 @endsection
-
-
-
