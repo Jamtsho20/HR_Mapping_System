@@ -7,7 +7,7 @@
 
         <a href="{{ route('pay-comparision-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
             title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-        <a href="{{ route('cash-report-print', Request::query()) }}" target="_blank"
+        <a href="{{ route('pay-comparision-report-print', Request::query()) }}" target="_blank"
             onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
     </div>
 </div>

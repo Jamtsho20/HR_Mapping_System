@@ -16,6 +16,20 @@
             border-collapse: collapse;
         }
 
+        .img-container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+
+
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
         table,
         th,
         td {
@@ -37,7 +51,11 @@
 </head>
 
 <body>
-    <h1>PF Report</h1>
+    <div class="img-container">
+        @include('layouts.includes.letter-head')
+    </div>
+    <hr>
+    <h1 class="title">PF Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">
@@ -54,13 +72,13 @@
                     CID
                 </th>
                 <th>
-                    Member COntribution
+                    Member Contribution
                 </th>
                 <th>
-                    Employee COntribution
+                    Employee Contribution
                 </th>
                 <th>
-                    Total COntribution
+                    Total Contribution
                 </th>
 
 
@@ -78,11 +96,13 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center text-danger">No PF Reports found</td>
+                <td colspan="7" class="text-center text-danger">No PF Reports found</td>
             </tr>
             @endforelse
         </tbody>
     </table>
+    @include('layouts.includes.report-footer')
+
 </body>
 
 </html>

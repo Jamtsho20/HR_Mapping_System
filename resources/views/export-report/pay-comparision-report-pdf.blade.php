@@ -16,6 +16,20 @@
             border-collapse: collapse;
         }
 
+        .img-container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+
+
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
         table,
         th,
         td {
@@ -37,7 +51,11 @@
 </head>
 
 <body>
-    <h1>Pay Comparision Report</h1>
+    <div class="img-container">
+        @include('layouts.includes.letter-head')
+    </div>
+    <hr>
+    <h1 class="title">Pay Comparision Report</h1>
     <table
         class="table table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
@@ -81,10 +99,12 @@
                 <td>{{ number_format($data['gross_diff'], 2) }}</td>
             </tr>
             @empty
-            <tr colspan="12">No PAy Comparision Reports Found</tr>
+            <tr colspan="12">No Pay Comparision Reports Found</tr>
             @endforelse
         </tbody>
     </table>
+    @include('layouts.includes.report-footer')
+
 </body>
 
 </html>
