@@ -50,7 +50,36 @@ Route::get('/debug', function () {
     $sap = new ApiController();
     $pay = new PayrollService();
 
-    dd($pay->checkFormulaValidity("THEN ([GROSS_PAY] * 0.01)"));
+
+    $payslip = PaySlip::first();
+    return $pay->generateAndMailPaySlip($payslip, 2);
+
+    dd($pay->checkFormulaValidity(
+"IF ([SIFA_MEMBER] == 1)
+IF ([GRADE] == 'E0')
+THEN (400)
+ENDIF
+IF ([GRADE] == 'P')
+THEN (325)
+ENDIF
+IF ([GRADE] == 'S')
+THEN (125)
+ENDIF
+IF ([GRADE] == 'T1')
+THEN (225)
+ENDIF
+IF ([GRADE] == 'T2')
+THEN (225)
+ENDIF
+IF ([GRADE] == 'GSSG')
+THEN (125)
+ENDIF
+IF ([GRADE] == 'T')
+THEN (225)
+ENDIF
+ELSE
+THEN (0)
+ENDIF"));
 
     $application = ExpenseApplication::findOrFail(1);
 

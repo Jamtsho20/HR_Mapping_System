@@ -27,7 +27,7 @@ class DashboardController extends Controller
         // Fetch holiday list with filtering
         $holidays = WorkHolidayList::filter($request)
             ->orderBy('start_date')
-            ->paginate(10)
+            ->paginate(30)
             ->withQueryString();
 
         // Get all system notifications

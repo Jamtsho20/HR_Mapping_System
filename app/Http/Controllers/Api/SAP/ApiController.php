@@ -3,9 +3,155 @@
 namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller as BaseController;
-
+use App\Models\MasItem;
+use App\Models\MasStore;
+use App\Traits\JsonResponseTrait;
+use Illuminate\Http\Request;
 class ApiController extends BaseController
 {
+
+    use JsonResponseTrait;
+    protected $countryId = 1;
+    protected $superUser = 1;
+
+    public function saveStore(Request $request) {
+        $rules = [
+            'name' => 'required',
+            'code' => 'required',
+            'store_location' => 'required',
+            // 'store_email' => 'required',
+            // 'phone_number' => 'required',
+            // 'contact_person' => 'required',
+            // 'contact_email' => 'required',
+            // 'contact_number' => 'required',
+            // 'dzongkhag_code' => 'required',
+            'region_id' => 'required'
+        ];
+
+        $validator = \Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+
+        $parentStoreId = null;
+        if($request->has('parent_store_code') && $request->parent_store_code){
+            $parentStoreId = MasStore::where('code', $request->parent_store_code)->value('id');
+            if (!$parentStoreId) {
+                return $this->errorResponse('Parent store code not found.');
+            }
+        }
+
+        try {
+            // Check if store exists based on store code
+            $store = MasStore::where('code', $request->code)->first();
+
+            if ($store) {
+                // If store exists, update it
+                $store->parent_store_id = $parentStoreId;
+                $store->name = $request->name;
+                $store->store_location = $request->store_location;
+                $store->store_email = isset($request->store_email) ? $request->store_email : null;
+                $store->phone_number = isset($request->phone_number) ? $request->phone_number : null;
+                $store->contact_person = isset($request->contact_person) ? $request->contact_person : null;
+                $store->contact_email = isset($request->contact_email) ? $request->contact_email : null;
+                $store->contact_number = isset($request->contact_number) ? $request->contact_number : null;
+                $store->country_id = $this->countryId;
+                $store->region_id = isset($request->region_id) ? $request->region_id : null;
+                $store->status = $request->status ?? 1;
+                $store->updated_by = $this->superUser; // Track who updated it
+                $store->save();
+                $message = 'Store updated successfully.';
+            } else {
+                // If store does not exist, create a new one
+                $store = new MasStore();
+                $store->parent_store_id = $parentStoreId;
+                $store->name = $request->name;
+                $store->code = $request->code;
+                $store->store_location = $request->store_location;
+                $store->store_email = isset($request->store_email) ? $request->store_email : null;
+                $store->phone_number = isset($request->phone_number) ? $request->phone_number : null;
+                $store->contact_person = isset($request->contact_person) ? $request->contact_person : null;
+                $store->contact_email = isset($request->contact_email) ? $request->contact_email : null;
+                $store->contact_number = isset($request->contact_number) ? $request->contact_number : null;
+                $store->country_id = $this->countryId;
+                $store->region_id = isset($request->region_id) ? $request->region_id : null;
+                $store->status = $request->status ?? 1;
+                $store->created_by = $this->superUser;
+                $store->save();
+                $message = 'Store created successfully.';
+            }
+        } catch(\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
+        return $this->successResponse($store, $message);
+    }
+
+    public function saveItem(Request $request) {
+        $rules = [
+            'store_code' => 'required',
+            'item_category' => 'required',
+            'item_number' => 'required',
+            'item_description' => 'required',
+            'uom' => 'required',
+            'quantity' => 'required',
+            'status' => 'required',
+        ];
+
+        $validator = \Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+
+        // Find store ID by store code
+        $storeId = null;
+        if ($request->has('store_code') && $request->store_code) {
+            $storeId = MasStore::where('code', $request->store_code)->value('id');
+            if (!$storeId) {
+                return $this->errorResponse('Store code not found.');
+            }
+        }
+
+        try {
+            // Check if item exists based on item_number
+            $item = MasItem::where('item_number', $request->item_number)->first();
+
+            if ($item) {
+                // If item exists, update it
+                $item->store_id = $storeId;
+                $item->item_category = $request->item_category;
+                $item->asset_type = $request->asset_type;
+                $item->asset_class = $request->asset_class;
+                $item->item_description = $request->item_description;
+                $item->uom = $request->uom;
+                $item->quantity = $request->quantity;
+                $item->fa_enabled = $request->fa_enabled ?? 1;
+                $item->status = $request->status ?? 1;
+                $item->updated_by = $this->superUser; // Track who updated it
+                $item->save();
+                $message = 'Item updated successfully.';
+            } else {
+                // If item does not exist, create a new one
+                $item = new MasItem();
+                $item->store_id = $storeId;
+                $item->item_category = $request->item_category;
+                $item->asset_type = $request->asset_type;
+                $item->asset_class = $request->asset_class;
+                $item->item_description = $request->item_description;
+                $item->uom = $request->uom;
+                $item->quantity = $request->quantity;
+                $item->fa_enabled = $request->fa_enabled ?? 1;
+                $item->status = $request->status ?? 1;
+                $item->updated_by = $this->superUser;
+                $item->save();
+                $message = 'Item created successfully.';
+            }
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
+        return $this->successResponse($item, $message);
+    }
     public function startSession()
     {
         try {
@@ -106,29 +252,9 @@ class ApiController extends BaseController
         }
     }
 
-    public function postJournalEntries($accountCode, $employeeId, $memo, $amount, $costingCode2 = null)
+    // public function postJournalEntries($accountCode, $shortName, $memo, $amount, $costingCode = null, $costingCode2 = null)
+    public function postJournalEntries($postFields)
     {
-        $postFields = '{
-            "ReferenceDate":"' . date('Y-m-d') . '",
-            "Memo": "' . $memo . '",
-            "JournalEntryLines": [
-                {
-                    "ShortName": "' . $employeeId . '",
-                    "CostingCode": "", // department
-                    "CostingCode2": "' . $costingCode2 . '",
-                    "Credit": "' . $amount . '",
-                    "Debit": 0
-                },
-                {
-                    "AccountCode": "' . $accountCode . '",
-                    "CostingCode": "", // department
-                    "CostingCode2": "' . $costingCode2 . '",
-                    "Credit": 0,
-                    "Debit": "' . $amount . '"
-                }
-            ]
-        }';
-
         // Start SAP session and retrieve session ID
         $response = $this->startSession();
 
@@ -183,13 +309,27 @@ class ApiController extends BaseController
         return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
 
-    public function postEmployee($data)
+    public function postEmployeeToSap($data)
     {
+        // dd(json_encode($data));
+        $response = $this->startSession();
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $session = json_decode($response->getContent(), true);
+
+            $sessionId = $session['sessionId'] ?? null;
+        } else {
+            return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+        }
+
+        if (empty($sessionId)) {
+            return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+        }
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://192.168.196.23:50000/b1s/v1/BusinessPartners',
+            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . '/b1s/v1/BusinessPartners',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -197,33 +337,35 @@ class ApiController extends BaseController
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => '{
-                    "CardCode": "E001049",
-                    "CardName": "Heran Ghalley",
-                    "CardType": "C", 
-                    "GroupCode": 108, 
-                    "Currency": "",
-                    "CardForeignName": 11211000920, 
-                    "Country": "BT", 
-                    "DebitorAccount": "34611", 
-                    "DownPaymentInterimAccount": "23245", 
-                    "BPFiscalTaxIDCollection": [
-                        {
-                            
-                            "TaxId0": "00HAP17001" 
-                        
-                        }
-                    ]   
-                }',
-            CURLOPT_HTTPHEADER => array(
-                'Cookie: 97fa5a60-bde5-11ef-c000-00505683694d-140388240156544-1432; B1SESSION=97fa5a60-bde5-11ef-c000-00505683694d-140388240156544-1432; ROUTEID=.node3',
-                'Content-Type: application/json'
-            ),
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                "Cookie: $sessionId; B1SESSION=$sessionId",
+                'Content-Type: application/json',
+            ],
+            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+            CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
         ));
 
         $response = curl_exec($curl);
+        $responseArray = json_decode($response, true);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        // dd('http_code:' . $httpCode, $response);
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+            curl_close($curl);
+            return response()->json(['msg_error' => 'Curl error: ' . $error_msg], 500);
+        }
 
         curl_close($curl);
-        echo $response;
+
+        if ($httpCode != 201) {
+            $errorMessage = $responseArray['error']['message']['value'] ?? 'Something went wrong from SAP API';
+            \Log::info($errorMessage);
+            return response()->json(['msg_error' => $errorMessage], $httpCode);
+        }
+        // dd($responseArray);
+        \Log::info('sap response: ' . json_encode($responseArray));
+        return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
+    
 }

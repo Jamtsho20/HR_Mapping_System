@@ -127,14 +127,15 @@
                     <table class="table table-condensed table-striped table-bordered table-sm">
                         <thead>
                             <tr>
-                                <th colspan="3">
+                                <th colspan="4">
                                     <h5><strong>Holidays</strong></h5>
                                 </th>
                             </tr>
                             <tr class="thead-light">
                                 <th>#</th>
                                 <th>Name</th>
-                                <th>Date Range</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -142,11 +143,13 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $holiday->holiday_name }}</td>
-                                <td>{{ $holiday->start_date }} to {{ $holiday->end_date }}</td>
+                                <td>{{ $holiday->start_date }}</td>
+                                <td>{{ $holiday->end_date }}</td>
+                                
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="text-center text-danger">No holidays found</td>
+                                <td colspan="4" class="text-center text-danger">No holidays found</td>
                             </tr>
                             @endforelse
                         </tbody>

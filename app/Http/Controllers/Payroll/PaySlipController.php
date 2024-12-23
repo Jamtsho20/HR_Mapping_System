@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Payroll;
 
+use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\Controller;
+use App\Jobs\PostSalaryToSapJob;
 use App\Models\MasPayHead;
 use App\Models\PaySlip;
 use App\Models\PaySlipDetail;
 use App\Models\PaySlipDetailView;
+use App\Models\PaySlipSummary;
 use App\Models\User;
 use App\Services\PayrollService;
 use Carbon\Carbon;
@@ -18,8 +21,9 @@ use Illuminate\Support\Facades\Schema;
 class PaySlipController extends Controller
 {
     protected $payrollService;
+    protected $sap;
 
-    public function __construct(PayrollService $payrollService)
+    public function __construct(PayrollService $payrollService, ApiController $sap)
     {
         $this->middleware('permission:payroll/pay-slips,view')->only('index');
         $this->middleware('permission:payroll/pay-slips,create')->only('store');
@@ -27,6 +31,7 @@ class PaySlipController extends Controller
         $this->middleware('permission:payroll/pay-slips,delete')->only('destroy');
 
         $this->payrollService = $payrollService;
+        $this->sap = $sap;
     }
 
     /**
@@ -72,7 +77,7 @@ class PaySlipController extends Controller
             $paySlip->for_month = $request->for_month;
             $paySlip->save();
 
-            return redirect()->route('pay-slips.index')->with('msg_success', 'Payslip for the month of ' . Carbon::parse($paySlip->for_month)->format('F Y') . ' has been created successfully');
+            return redirect()->route('pay-slips.index')->with('msg_success', 'Payslip for the month of ' . Carbon::parse($paySlip->for_month)->format('F Y') . ' has been created successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error creating payslip: ' . $e->getMessage());
@@ -128,7 +133,7 @@ class PaySlipController extends Controller
 
             $month = Carbon::parse($paySlip->for_month)->format('F Y');
 
-            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been updated successfully');
+            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been updated successfully.');
         } catch (\Exception $e) {
             Log::error('Error updating payslip: ' . $e->getMessage());
 
@@ -154,13 +159,13 @@ class PaySlipController extends Controller
             return redirect()->back()->with('msg_error', 'An unexpected error occurred while deleting the payslip.');
         }
     }
-    
-    // <PREPARE> IN UI 
+
+    // <PREPARE> IN UI
     public function processPaySlip($id, Request $request)
     {
         try {
             $status = $request->query('status');
-            $paySlip = PaySlip::where('status', 1)->find($id);
+            $paySlip = PaySlip::where('status', NEWLY_CREATED)->find($id);
 
             if (!$paySlip) {
                 return redirect()->back()->with('msg_error', 'Payslip not found.');
@@ -190,7 +195,7 @@ class PaySlipController extends Controller
     {
         try {
             $status = $request->query('status');
-            $paySlip = PaySlip::where('status', 2)->find($id);
+            $paySlip = PaySlip::where('status', PREPARED)->find($id);
 
             $result = $this->payrollService->updateStatus($paySlip, $status);
 
@@ -212,9 +217,18 @@ class PaySlipController extends Controller
     // <POST> IN UI
     public function approvePaySlip($id, Request $request)
     {
-        try {
+        // $this->postToSap();
+
+        // try {
             $status = $request->query('status');
-            $paySlip = PaySlip::where('status', 3)->find($id);
+            $paySlip = PaySlip::where('status', VERIFIED)->find($id);
+
+            // Sap Integration
+            $forMonth = $paySlip->for_month;
+
+            PostSalaryToSapJob::dispatch($forMonth);
+
+            // Sap Integration ends
 
             $result = $this->payrollService->updateStatus($paySlip, $status);
 
@@ -226,17 +240,17 @@ class PaySlipController extends Controller
 
             $month = Carbon::parse($paySlip->for_month)->format('F Y');
             return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been approved successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error approving payslip: ' . $e->getMessage());
+        // } catch (\Exception $e) {
+        //     Log::error('Error approving payslip: ' . $e->getMessage());
 
-            return redirect()->back()->with('msg_error', 'An unexpected error occurred while approving the payslip.');
-        }
+        //     return redirect()->back()->with('msg_error', 'An unexpected error occurred while approving the payslip.');
+        // }
     }
 
     public function mailPaySlip($id)
     {
         try {
-            $paySlip = PaySlip::where('status', 4)->find($id);
+            $paySlip = PaySlip::where('status', APPROVED_POSTED)->find($id);
 
             $result = $this->payrollService->generateAndMailPaySlips($paySlip);
 
@@ -269,18 +283,13 @@ class PaySlipController extends Controller
             $payHeadId = $request->mas_pay_head_id;
             $amount = $request->amount;
 
-            $paySlipDetail = new PaySlipDetail();
-
-            $paySlipDetail->pay_slip_id = $id;
-            $paySlipDetail->mas_employee_id = $employeeId;
-            $paySlipDetail->mas_pay_head_id = $payHeadId;
+            $paySlipDetail = PaySlipDetail::whereMasEmployeeId($employeeId)->whereMasPayHeadId($payHeadId)->wherePaySlipId($id)->firstOrFail();
             $paySlipDetail->amount = $amount;
-
             $paySlipDetail->save();
 
             $paySlip = $paySlipDetail->paySlip;
             $employee = $paySlipDetail->employee;
-            $payHead = MasPayHead::whereId($payHeadId)->first();
+            $payHead = MasPayHead::whereId($payHeadId)->firstOrFail();
             $column = str_replace(" ", "_", $payHead->name);
 
             if (!Schema::hasColumn('pay_slip_detail_views', $column)) {
@@ -312,7 +321,7 @@ class PaySlipController extends Controller
 
             DB::commit();
 
-            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been added successfully');
+            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Pay head ' . $payHead->name . ' for ' . $employee->name . ' (' . $employee->username . ') ' . ' has been added successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error adding payslip detail: ' . $e->getMessage());
@@ -385,7 +394,7 @@ class PaySlipController extends Controller
 
             DB::commit();
 
-            return redirect()->route('pay-slips.show', $payslipId)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been updated successfully');
+            return redirect()->route('pay-slips.show', $payslipId)->with('msg_success', 'Pay head ' . $payHead->name . ' for ' . $employee->name . ' (' . $employee->username . ') ' . ' has been updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating payslip detail: ' . $e->getMessage());
@@ -432,22 +441,99 @@ class PaySlipController extends Controller
 
             // Set the specific column to null in pay_slip_detail_views
             if (Schema::hasColumn('pay_slip_detail_views', $column)) {
-                $paySlipDetailView->update([$column => 0.00]);
+                $paySlipDetailView->update([$column => '0.00']);
             }
 
             PaySlipDetailView::reguard();
 
             // Delete the PaySlipDetail entry
-            $paySlipDetail->delete();
+            $paySlipDetail->update(['amount' => '0.00']);
 
             DB::commit();
 
-            return redirect()->route('pay-slips.show', $payslipId)->with('msg_success', 'Payhead ' . $payHead->name . ' for ' . $employee->name . ' has been deleted successfully');
+            return redirect()->route('pay-slips.show', $payslipId)->withInput()->with('msg_success', 'Pay head ' . $payHead->name . ' for ' . $employee->name . ' (' . $employee->username . ') ' . ' has been deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting payslip detail: ' . $e->getMessage());
 
-            return redirect()->back()->with('msg_error', 'An unexpected error occurred while deleting the payslip detail.');
+            return redirect()->back()->withInput()->with('msg_error', 'An unexpected error occurred while deleting the payslip detail.');
         }
+    }
+
+    public function postToSap($forMonth = "2024-12-01")
+    {
+        $allowances = PaySlipSummary::where('for_month', $forMonth)
+            ->whereHas('payHead', function ($query) {
+                $query->where('payhead_type', 1);
+            })
+            ->with('payHead:id,name')
+            ->get();
+
+        $deductions = PaySlipSummary::where('for_month', $forMonth)
+            ->whereHas('payHead', function ($query) {
+                $query->where('payhead_type', 2);
+            })
+            ->with('payHead:id,name')
+            ->get();
+
+        foreach ($allowances as $data) {
+            $accountCode = $data->general_ledger_code;
+            $accountCode2 = UNPAID_SALARY_STAFF;
+            $costingCode = $data->department_code;
+            $memo = $data->pay_type;
+            $amount = $data->amount;
+
+            $postFields = '{
+                    "ReferenceDate":"' . date('Y-m-d') . '",
+                    "Memo": "' . $memo . '",
+                    "JournalEntryLines": [
+                        {
+                            "AccountCode": "' . $accountCode2 . '",
+                            "CostingCode": "' . $costingCode . '",
+                            "Credit": "' . $amount . '",
+                            "Debit": 0
+                        },
+                        {
+                            "AccountCode": "' . $accountCode . '",
+                            "CostingCode": "' . $costingCode . '",
+                            "Credit": 0,
+                            "Debit": "' . $amount . '"
+                        }
+                    ]
+                }';
+
+            Log::info($this->sap->postJournalEntries($postFields));
+        }
+
+        foreach ($deductions as $data) {
+            $accountCode = $data->general_ledger_code;
+            $accountCode2 = UNPAID_SALARY_STAFF;
+            $costingCode = $data->department_code;
+            $memo = $data->pay_type;
+            $amount = $data->amount;
+
+            $postFields = '{
+                    "ReferenceDate":"' . date('Y-m-d') . '",
+                    "Memo": "' . $memo . '",
+                    "JournalEntryLines": [
+                        {
+                            "AccountCode": "' . $accountCode . '",
+                            "CostingCode": "' . $costingCode . '",
+                            "Credit": "' . $amount . '",
+                            "Debit": 0
+                        },
+                        {
+                            "AccountCode": "' . $accountCode2 . '",
+                            "CostingCode": "' . $costingCode . '",
+                            "Credit": 0,
+                            "Debit": "' . $amount . '"
+                        }
+                    ]
+                }';
+
+            Log::info($this->sap->postJournalEntries($postFields));
+        }
+
+        $this->payrollService->updateStatus($paySlip, $status);
     }
 }

@@ -41,12 +41,15 @@ class AnnualIncrementController extends Controller
         foreach ($employees as $employee) {
             $employeeHasRecord = AnnualIncrementDetail::whereAnnualIncrementId($annualIncrement->id)->whereMasEmployeeId($employee->id)->count();
             if (!$employeeHasRecord) {
-                AnnualIncrementDetail::create([
-                    'annual_increment_id' => $annualIncrement->id,
-                    'mas_employee_id' => $employee->id,
-                    'amount' => $employee->empJob->gradeStep->increment,
-                    'status' => 0,
-                ]);
+                $empJob = $employee->empJob;
+                if ($empJob) {
+                    AnnualIncrementDetail::create([
+                        'annual_increment_id' => $annualIncrement->id,
+                        'mas_employee_id' => $employee->id,
+                        'amount' => $employee->empJob->gradeStep->increment,
+                        'status' => 0,
+                    ]);
+                }
             }
         }
 

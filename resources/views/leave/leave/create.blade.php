@@ -11,7 +11,7 @@
                     <div class="form-group">
                         <label for="employee">Employee <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="employee" value="{{ auth()->user()->emp_id_name }}"
-                            placeholder="{{ auth()->user()->name }}" disabled>
+                            placeholder="{{ auth()->user()->name }}" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -52,7 +52,7 @@
                     <div class="form-group">
                         <label for="to_date">To Date <span class="text-danger">*</span></label>
                         <div class="d-flex" style="gap:4px">
-                            <input type="date" class="js-datepicker form-control" id="to_date" name="to_date" value="{{ old('to_date') }}" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy">
+                            <input type="date" class="js-datepicker form-control" id="to_date" name="to_date" value="{{ old('to_date') }}" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="dd-mm-yyyy" placeholder="dd-mm-yyyy" readonly>
                             <select id="ddl_to_day" name="to_day" class="form-control" style="width:50%">
                                 @foreach(config('global.leave_days') as $key => $value)
                                 <option value="{{ $key }}" {{ old('to_day') == $key ? 'selected' : '' }}>{{ $value }}</option>
@@ -86,7 +86,7 @@
             </div>
             <div class="show-leave"></div>
         </div>
-        <div class="card-footer">    
+        <div class="card-footer">
             <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
@@ -196,6 +196,19 @@
     }
 
     $('#from_date').on('change', () => {
+        const fromDateField = document.getElementById('from_date');
+        const toDateField = document.getElementById('to_date');
+        const fromDateValue = fromDateField.value;
+                if (fromDateValue) {
+                    toDateField.setAttribute('min', fromDateValue);
+                    toDateField.value = '';
+                    toDateField.readOnly = false;
+
+                } else {
+                    toDateField.readOnly = true;
+                    toDateField.value = ''; // Clear to_date if from_date is not set
+
+                }
         validateLeaveCombination();
     });
 </script>

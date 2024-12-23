@@ -128,7 +128,7 @@ class AdvanceApplication extends Model
         parent::boot();
         static::updated(function ($advance) {
                 if($advance->type_id == GADGET_EMI && $advance->status == 3) {
-                    $payHeadId = \DB::table('mas_pay_heads')
+                    $payHeadId = \DB::table('mas_pay_heads') 
                     ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
                     ->where('mas_advance_types.id', $advance->type_id)
                     ->value('mas_pay_heads.id');
