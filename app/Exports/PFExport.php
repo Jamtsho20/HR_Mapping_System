@@ -2,16 +2,49 @@
 
 namespace App\Exports;
 
-use App\Models\finalPaySlip;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class PFExport implements FromCollection
+class PFExport implements FromCollection, WithHeadings
 {
+    protected $pfDeductionsWithPF;
+
+    public function __construct($pfDeductionsWithPF)
+    {
+        $this->pfDeductionsWithPF = $pfDeductionsWithPF;
+    }
+
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * Return a collection of data for export.
+     */
     public function collection()
     {
-        return finalPaySlip::all();
+        return collect($this->pfDeductionsWithPF->map(function ($pf) {
+            return [
+                $pf['employee_name'],
+                $pf['details']['pf_number'] ?? '-',
+                $pf['CID'] ?? '-',
+                $pf['basic_pay'] ?? '-',
+                $pf['details']['deductions']['PF'] ?? 0,
+                $pf['employer_pf_amount'] ?? 0,
+                $pf['total'] ?? 0,
+            ];
+        }));
+    }
+
+    /**
+     * Return the headings for the Excel sheet.
+     */
+    public function headings(): array
+    {
+        return [
+            'Employee Name',
+            'PF Number',
+            'CID',
+            'Basic Pay',
+            'Member Contribution',
+            'Employee COntribution',
+            'Total',
+        ];
     }
 }

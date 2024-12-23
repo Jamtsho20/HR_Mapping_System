@@ -24,11 +24,69 @@ class PFReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $pfDeductions = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
-       
+
+        $pfDeductions = FinalPaySlip::filter($request)
+            ->with(['employee.empJob.empType'], ['employee.empJob']) // Load necessary relationships
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+
+        // Collection to hold data with calculated PF
+        $pfDeductionsWithPF = $pfDeductions->map(function ($pf) {
+            // Decode the details JSON
+            $details = $pf->details;
+
+            // Ensure relationships are not null
+            $empTypeId = $pf->employee?->empJob?->empType?->id;
+
+            // Initialize PF amount
+            $pfAmount = 0;
+
+            if ($empTypeId && isset($details['basic_pay'])) {
+                // Calculate PF based on empType->id and basic_pay
+                $basicPay = $details['basic_pay'];
+                $pfAmount = $this->calculatePF($basicPay, $empTypeId);
+            } else {
+                // Log missing data cases
+                logger()->warning("Unable to calculate PF for FinalPaySlip ID: {$pf->id}");
+            }
+
+            // Return data structure with calculated PF and original slip details
+            return [
+                'id' => $pf->id,
+                'employee_name' => $pf->employee->name ?? 'N/A',
+                'pf_number' => $pf->employee->empJob->pf_number ?? 'N/A',
+                'CID' => $pf->employee->cid_no ?? 'N/A',
+                'basic_pay' => $details['basic_pay'] ?? 0,
+                'employer_pf_amount' => $pfAmount,
+                'net_pay' => $details['net_pay'] ?? 0,
+                'details' => $details, // Include the entire details structure if needed
+                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+            ];
+        });
+
+
         $employee = employeeList();
 
-        return view('report.pf-report.index', compact('privileges', 'employee', 'pfDeductions'));
+        // Pass the calculated data to the view
+        return view('report.pf-report.index', compact('privileges', 'employee', 'pfDeductionsWithPF', 'pfDeductions'));
+    }
+
+
+    public function calculatePF($basicPay,  $empTypeId)
+    {
+        // Define PF rate or logic based on empType->id
+        $pfRates = [
+            2 => 0.10, // regular
+            3 => 0, // probation
+            4 => 0.15, // executive long term contract
+            5 => 0.10, // Long-term Contract(Technical Staff Group 2 Level)
+            6 => 0.05, // general support staff long term contract
+        ];
+
+        //calculate
+        $rate = $pfRates[$empTypeId];
+
+        return $basicPay * $rate;
     }
     /**
      * Show the form for creating a new resource.
@@ -81,12 +139,52 @@ class PFReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $pfDeductions = FinalPaySlip::filter($request)->get();
+        $pfDeductions = FinalPaySlip::filter($request)
+            ->with(['employee.empJob.empType'], ['employee.empJob']) // Load necessary relationships
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+
+        // Collection to hold data with calculated PF
+        $pfDeductionsWithPF = $pfDeductions->map(function ($pf) {
+            // Decode the details JSON
+            $details = $pf->details;
+
+            // Ensure relationships are not null
+            $empTypeId = $pf->employee?->empJob?->empType?->id;
+
+            // Initialize PF amount
+            $pfAmount = 0;
+
+            if (
+                $empTypeId && isset($details['basic_pay'])
+            ) {
+                // Calculate PF based on empType->id and basic_pay
+                $basicPay = $details['basic_pay'];
+                $pfAmount = $this->calculatePF($basicPay, $empTypeId);
+            } else {
+                // Log missing data cases
+                logger()->warning("Unable to calculate PF for FinalPaySlip ID: {$pf->id}");
+            }
+
+            // Return data structure with calculated PF and original slip details
+            return [
+                'id' => $pf->id,
+                'employee_name' => $pf->employee->name ?? 'N/A',
+                'pf_number' => $pf->employee->empJob->pf_number ?? 'N/A',
+                'CID' => $pf->employee->cid_no ?? 'N/A',
+                'basic_pay' => $details['basic_pay'] ?? 0,
+                'employer_pf_amount' => $pfAmount,
+                'net_pay' => $details['net_pay'] ?? 0,
+                'details' => $details, // Include the entire details structure if needed
+                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+            ];
+        });
+
 
 
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions', 'pfDeductionsWithPF'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('PF-Deduction.pdf');
@@ -94,15 +192,85 @@ class PFReportController extends Controller
 
     public function exportPFExcel(Request $request)
     {
-        return Excel::download(new PFExport($request), 'pf-report.xlsx');
+        $pfDeductions = FinalPaySlip::filter($request)
+            ->with(['employee.empJob.empType'])
+            ->get();
+
+        $pfDeductionsWithPF = $pfDeductions->map(function ($pf) {
+            $details = $pf->details;
+            $empTypeId = $pf->employee?->empJob?->empType?->id;
+
+            $pfAmount = 0;
+            if ($empTypeId && isset($details['basic_pay'])) {
+                $basicPay = $details['basic_pay'];
+                $pfAmount = $this->calculatePF($basicPay, $empTypeId);
+                $details['deductions']['pf'] = $pfAmount;
+            }
+
+            return [
+                'employee_name' => $pf->employee->name ?? 'N/A',
+                'pf_number' => $pf->employee->empJob->pf_number ?? 'N/A',
+                'CID' => $pf->employee->cid_no ?? 'N/A',
+                'basic_pay' => $details['basic_pay'] ?? 0,
+                'employer_pf_amount' => $pfAmount,
+                'net_pay' => $details['net_pay'] ?? 0,
+                'details' => $details, // Include the entire details structure if needed
+                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+            ];
+        });
+
+        return Excel::download(new PFExport($pfDeductionsWithPF), 'pf-report.xlsx');
     }
+
     public function printPF(Request $request)
     {
-        $pfDeductions = FinalPaySlip::filter($request)->get();
+        // Load all bookings with their dzongkhag names
+        $pfDeductions = FinalPaySlip::filter($request)
+            ->with(['employee.empJob.empType'], ['employee.empJob']) // Load necessary relationships
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+
+        // Collection to hold data with calculated PF
+        $pfDeductionsWithPF = $pfDeductions->map(function ($pf) {
+            // Decode the details JSON
+            $details = $pf->details;
+
+            // Ensure relationships are not null
+            $empTypeId = $pf->employee?->empJob?->empType?->id;
+
+            // Initialize PF amount
+            $pfAmount = 0;
+
+            if (
+                $empTypeId && isset($details['basic_pay'])
+            ) {
+                // Calculate PF based on empType->id and basic_pay
+                $basicPay = $details['basic_pay'];
+                $pfAmount = $this->calculatePF($basicPay, $empTypeId);
+            } else {
+                // Log missing data cases
+                logger()->warning("Unable to calculate PF for FinalPaySlip ID: {$pf->id}");
+            }
+
+            // Return data structure with calculated PF and original slip details
+            return [
+                'id' => $pf->id,
+                'employee_name' => $pf->employee->name ?? 'N/A',
+                'pf_number' => $pf->employee->empJob->pf_number ?? 'N/A',
+                'CID' => $pf->employee->cid_no ?? 'N/A',
+                'basic_pay' => $details['basic_pay'] ?? 0,
+                'employer_pf_amount' => $pfAmount,
+                'net_pay' => $details['net_pay'] ?? 0,
+                'details' => $details, // Include the entire details structure if needed
+                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+            ];
+        });
+
+
+
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions'))->setPaper('a4', 'landscape');;
-
+        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions', 'pfDeductionsWithPF'))->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
         return $pdf->stream('PF-Deduction.pdf');
