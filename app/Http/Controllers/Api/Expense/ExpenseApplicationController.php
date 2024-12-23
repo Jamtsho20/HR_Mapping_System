@@ -444,7 +444,7 @@ public function update(Request $request, $id)
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
+            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png,doc|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
