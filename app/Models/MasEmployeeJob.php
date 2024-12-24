@@ -10,7 +10,7 @@ class MasEmployeeJob extends Model
     use HasFactory;
 
     protected $fillable = [
-        'mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id', 'mas_grade_id', 'mas_grade_step_id',
+        'mas_employee_id', 'mas_department_id', 'mas_section_id', 'suffix', 'mas_designation_id', 'mas_grade_id', 'mas_grade_step_id',
         'mas_employment_type_id', 'immediate_supervisor', 'mas_office_id', 'basic_pay', 'salary_disbursement_mode', 'bank', 'account_number', 'pf_number', 'tpn_number', 'gis_policy_number'
     ];
 

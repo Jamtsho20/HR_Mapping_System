@@ -72,6 +72,7 @@ class EmployeeController extends Controller
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
         $fixedEmpId = fixEmployeeId($this->fetchHighestEmpId() + 1);
         $roles = Role::orderBy('id')->get();
+        $suffix = MasEmployeeJob::select('suffix')->get();
         $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
 
         return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'gradeSteps', 'sections', 'employmentTypes', 'qualifications', 'fixedEmpId', 'offices', 'roles', 'employeeGroups'));
@@ -398,6 +399,7 @@ class EmployeeController extends Controller
                 'mas_department_id' => $job['mas_department_id'],
                 'mas_section_id' => $job['mas_section_id'] ?? null,
                 'mas_designation_id' => $job['mas_designation_id'],
+                'suffix' => $job['suffix'],
                 'mas_grade_id' => $job['mas_grade_id'],
                 'mas_grade_step_id' => $job['mas_grade_step_id'],
                 'has_probation' => $job['mas_employment_type_id'] == 2 ? 1 : 0,
@@ -705,7 +707,7 @@ class EmployeeController extends Controller
 
             DB::commit();
 
-            // $record->regularized_on = Carbon::now();    
+            // $record->regularized_on = Carbon::now();
             // $record->save();
 
             // if (!$record->regular_appointment_order && $record->is_regularized == 1) {
