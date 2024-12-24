@@ -5,8 +5,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Availed Report</title>
+    <title>Expense Report</title>
     <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
         body {
             font-size: 12px;
         }
@@ -76,8 +81,36 @@
                     Expense Type
                 </th>
                 <th>
-                    Expense AMount
+                    Vehicle No
                 </th>
+                <th>
+                    Expense No
+                </th>
+                <th>
+                    Expense Amount
+                </th>
+                <th>
+                    Travel Type
+                </th>
+                <th>
+                    Travel Mode
+                </th>
+                <th>
+                    Travel From Date
+                </th>
+                <th>
+                    Travel To Date
+                </th>
+                <th>
+                    Travel From
+                </th>
+                <th>
+                    Travel To
+                </th>
+                <th>
+                    Travel Distance
+                </th>
+
                 <th>
                     Description
                 </th>
@@ -96,8 +129,17 @@
                 <td>{{$application->employee->name}}</td>
                 <td>{{$application->employee->empJob->designation->name}}</td>
                 <td>{{$application->employee->empJob->department->name}}</td>
-                <td>{{$application->expenseType->name}}</td>
-                <td>{{$application->expense_amount}}</td>
+                <td>{{$application->type->name}}</td>
+                <td>{{$application->vehicle->vehicle_no}}</td>
+                <td>{{$application->expense_no}}</td>
+                <td>{{$application->amount}}</td>
+                <td>{{$application->travel_type}}</td>
+                <td>{{$application->travel_mode}}</td>
+                <td>{{$application->travel_from_date}}</td>
+                <td>{{$application->travel_to_date}}</td>
+                <td>{{$application->travel_from}}</td>
+                <td>{{$application->travel_to}}</td>
+                <td>{{$application->travel_disatnce}}</td>
                 <td>{{$application->description}}</td>
                 @php
                 $statusClasses = [
@@ -114,7 +156,7 @@
 
                     {{ $statusText }}
                 </td>
-                <td>{{$application->expense_approved_by->name}}</td>
+                <td>{{$application->expense_approved_by->name ?? '-'}}</td>
             </tr>
             @empty
             <tr>

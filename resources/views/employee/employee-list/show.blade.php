@@ -151,7 +151,7 @@
                                     class="pull-right">{{ $employee->empJob->department->code_name }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Section</b> <a class="pull-right">{{ $employee->empJob->section->name }}</a>
+                                <b>Section</b> <a class="pull-right">{{ $employee->empJob->section->name ??'-' }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Designation</b> <a class="pull-right">{{ $employee->empJob->designation->name }}</a>
