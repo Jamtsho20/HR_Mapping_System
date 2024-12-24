@@ -1,7 +1,7 @@
 <form action="{{ url()->current() }}" method="GET">
     <div class="d-flex justify-content-between">
         <div class="w-90">
-            <div class="row">
+            <div class="row pb-2">
                 {{ $slot }}
             </div>
         </div>
