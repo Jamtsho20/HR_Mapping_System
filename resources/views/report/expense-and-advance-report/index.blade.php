@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Expense and Advance')
+@section('page-title', 'Expense Report')
 @section('content')
 
 <div class="col-md-12 d-flex justify-content-end gap-2">
@@ -104,7 +104,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Expense and Advance Report</h3>
+                    <h3 class="card-title">Expense Report</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -124,10 +124,10 @@
                                                             </th>
 
                                                             <th>
-                                                                Employee NAME
+                                                                Employee Name
                                                             </th>
                                                             <th>
-                                                                DESIGNATION
+                                                                Designation
                                                             </th>
                                                             <th>
                                                                 Department
@@ -136,8 +136,36 @@
                                                                 Expense Type
                                                             </th>
                                                             <th>
-                                                                Expense AMount
+                                                                Vehicle No
                                                             </th>
+                                                            <th>
+                                                                Expense No
+                                                            </th>
+                                                            <th>
+                                                                Expense Amount
+                                                            </th>
+                                                            <th>
+                                                                Travel Type
+                                                            </th>
+                                                            <th>
+                                                                Travel Mode
+                                                            </th>
+                                                            <th>
+                                                                Travel From Date
+                                                            </th>
+                                                            <th>
+                                                                Travel To Date
+                                                            </th>
+                                                            <th>
+                                                                Travel From
+                                                            </th>
+                                                            <th>
+                                                                Travel To
+                                                            </th>
+                                                            <th>
+                                                                Travel Distance
+                                                            </th>
+
                                                             <th>
                                                                 Description
                                                             </th>
@@ -157,7 +185,16 @@
                                                             <td>{{$application->employee->empJob->designation->name}}</td>
                                                             <td>{{$application->employee->empJob->department->name}}</td>
                                                             <td>{{$application->type->name}}</td>
-                                                            <td>{{$application->expense_amount}}</td>
+                                                            <td>{{$application->vehicle->vehicle_no}}</td>
+                                                            <td>{{$application->expense_no}}</td>
+                                                            <td>{{$application->amount}}</td>
+                                                            <td>{{$application->travel_type}}</td>
+                                                            <td>{{$application->travel_mode}}</td>
+                                                            <td>{{$application->travel_from_date}}</td>
+                                                            <td>{{$application->travel_to_date}}</td>
+                                                            <td>{{$application->travel_from}}</td>
+                                                            <td>{{$application->travel_to}}</td>
+                                                            <td>{{$application->travel_disatnce}}</td>
                                                             <td>{{$application->description}}</td>
                                                             @php
                                                             $statusClasses = [

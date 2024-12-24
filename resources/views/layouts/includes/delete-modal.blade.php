@@ -14,7 +14,8 @@
                     Are you sure you want to delete this record?
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-danger"><i class="fa fa-check"></i> Yes</button>
+                    <button type="submit" class="btn btn-info"><i class="fa fa-check"></i> Yes</button>
+                    <button type="button" class="btn btn-danger close" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i> No</button>
                 </div>
             </form>
         </div>

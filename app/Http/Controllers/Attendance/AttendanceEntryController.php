@@ -27,7 +27,7 @@ class AttendanceEntryController extends Controller
         $privileges = $request->instance();
   
         $departments = MasDepartment::select('id', 'name')->get();
-        $regions = MasRegion::select('id', 'region_name')->get();
+        $regions = MasRegion::select('id', 'name')->get();
                
         return view('attendance.attendance-entry.index', compact( 'privileges','departments','regions'));
     }

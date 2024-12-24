@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -10,11 +9,10 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ApplicationForwardedMail extends Mailable
+class ApprovalNotificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    // protected $requestingUserId;
     protected $approvingEmpName;
     protected $reqEmpName;
     protected $emailContent;
@@ -22,12 +20,9 @@ class ApplicationForwardedMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($requestingUserId, $approvingUserId, $emailContent, $emailSubject)
+    public function __construct()
     {
-        $this->reqEmpName = User::where('id', $requestingUserId)->value('name');
-        $this->approvingEmpName = User::where('id', $approvingUserId)->value('name');;
-        $this->emailContent = $emailContent;
-        $this->emailSubject = $emailSubject;
+        //
     }
 
     /**
@@ -36,8 +31,7 @@ class ApplicationForwardedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->emailSubject,
-            // subject: 'Application Forwarded Mail',
+            subject: 'Approval Notification Mail',
         );
     }
 
@@ -47,12 +41,7 @@ class ApplicationForwardedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.application-forwarded',
-            with: [
-                'reqEmpName'=> $this->reqEmpName,
-                'approvingEmpName' => $this->approvingEmpName,
-                'emailContent' => $this->emailContent,
-            ]
+            markdown: 'emails.approval-notification',
         );
     }
 

@@ -81,7 +81,7 @@
                                                             <td>{{$employee->email}}</td>
                                                             <td class="text-center">
                                                                 @if($employee->appointment_order)
-                                                                <a href="{{ Storage::url($employee->appointment_order) }}" class="btn-sm btn-info" target="_blank">
+                                                                <a href="{{ Storage::url($employee->appointment_order) }}" class="btn-sm btn btn-outline-info" target="_blank">
                                                                     <i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>&nbsp; View
                                                                 </a>
                                                                 @else
@@ -91,7 +91,7 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 @if($employee->regular_appointment_order)
-                                                                <a href="{{ Storage::url($employee->regular_appointment_order) }}" class="btn-sm btn-info" target="_blank">
+                                                                <a href="{{ Storage::url($employee->regular_appointment_order) }}" class="btn-sm btn btn-outline-info" target="_blank">
                                                                     <i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>&nbsp; View
                                                                 </a>
                                                                 @else

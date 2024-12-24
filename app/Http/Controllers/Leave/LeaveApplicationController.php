@@ -149,9 +149,9 @@ class LeaveApplicationController extends Controller
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . 'to' . $request->to_date . '.';
+                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . ' to ' . $request->to_date . '.';
                 $emailSubject = 'Leave Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
             DB::rollBack();
@@ -318,19 +318,22 @@ class LeaveApplicationController extends Controller
         }
 
         // Handle file upload if required based on defined in leave policy(old code)
-        // $attachment = $leaveApplication ? $leaveApplication->attachment : '';
-        // if ($attachmentRequired && !$attachment) {
-        //     $this->validate($request, [
-        //         'attachment' => 'required|file|mimes:pdf,jpg,png|max:2048'
-        //     ]);
-        // }
-        // if ($request->hasFile('attachment')) {
-        //     $file = $request->file('attachment');
-        //     if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
-        //         delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
-        //     }
-        //     $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-        // }
+        $attachment = $leaveApplication ? $leaveApplication->attachment : '';
+        if ($attachmentRequired && !$attachment) {
+            $this->validate($request, [
+                'attachment' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'
+            ]);
+        }
+        if ($request->hasFile('attachment')) {
+            $this->validate($request, [
+                'attachment' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'
+            ]);
+            $file = $request->file('attachment');
+            if ($leaveApplication && $leaveApplication->attachment && file_exists(public_path($this->attachmentPath . $leaveApplication->attachment))) {
+                delete_image($this->attachmentPath . $leaveApplication->attachment); // Delete old attachment
+            }
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        }
 
         // return [
         //     'leaveBalance' => $leaveBalance,
@@ -338,30 +341,32 @@ class LeaveApplicationController extends Controller
         //     'leaveType' => $leaveType,
         //     'attachment' => $attachment
         // ];
-        if ($request->hasFile('attachment')) {
-            // Check if there is an existing file and delete it
-            if ($leaveApplication && $leaveApplication->attachment) {
-                $existingFilePath = public_path($leaveApplication->attachment);
-                if (file_exists($existingFilePath) && is_file($existingFilePath)) {
-                    unlink($existingFilePath); // Delete the existing file
-                }
-            }
+        // dd('req');
+        // if ($request->hasFile('attachment')) {
+        //     // Check if there is an existing file and delete it
+        //     if ($leaveApplication && $leaveApplication->attachment) {
+        //         $existingFilePath = public_path($leaveApplication->attachment);
+        //         if (file_exists($existingFilePath) && is_file($existingFilePath)) {
+        //             unlink($existingFilePath); // Delete the existing file
+        //         }
+        //     }
 
-            // Upload the new file and save the path
-            $file = $request->file('attachment');
-            $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
-            $validatedData['attachment'] = $path; // Save the relative path
-        } else {
-            // If no new file is uploaded, keep the existing attachment path
-            $validatedData['attachment'] = $leaveApplication ? $leaveApplication->attachment : ''; // Maintain existing or set to empty if none
-        }
+        //     // Upload the new file and save the path
+        //     $file = $request->file('attachment');
+        //     $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
+        //     $validatedData['attachment'] = $path; // Save the relative path
+        // } else {
+        //     // If no new file is uploaded, keep the existing attachment path
+        //     $validatedData['attachment'] = $leaveApplication ? $leaveApplication->attachment : ''; // Maintain existing or set to empty if none
+        // }
 
         // Return the updated data or response as needed
         return [
             'leaveBalance' => $leaveBalance,
             'maxLeaveDays' => $maxLeaveDays,
             'leaveType' => $leaveType,
-            'attachment' => $validatedData['attachment']
+            // 'attachment' => $validatedData['attachment']
+            'attachment' => $attachment
         ];
     }
 

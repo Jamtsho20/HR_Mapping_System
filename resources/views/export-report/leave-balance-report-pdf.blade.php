@@ -16,6 +16,20 @@
             border-collapse: collapse;
         }
 
+        .img-container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+
+
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
         table,
         th,
         td {
@@ -37,7 +51,11 @@
 </head>
 
 <body>
-    <h1>Leave Balance Report</h1>
+    <div class="img-container">
+        @include('layouts.includes.letter-head')
+    </div>
+    <hr>
+    <h1 class="title">Leave Balance Report</h1>
     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
         <thead class="thead-light">
             <tr role="row">
@@ -98,6 +116,8 @@
             @endforelse
         </tbody>
     </table>
+    @include('layouts.includes.report-footer')
+
 </body>
 
 </html>

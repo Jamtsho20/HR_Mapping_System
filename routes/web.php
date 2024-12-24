@@ -361,6 +361,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-transfer-claim-report', [TransferClaimReportController::class, 'printTransferClaim'])->name('transfer-claim-print');
     Route::get('/print-dsa-settlement-report', [DSASettlementReportController::class, 'printDSASettlement'])->name('dsa-settlement-print');
     Route::get('/print-tax-schedle-report', [TaxScheduleReportController::class, 'printTaxSchedule'])->name('tax-schedule-report-print');
+    Route::get('/print-pay-comparision-report', [PayComparisionReportController::class, 'printPayComparision'])->name('pay-comparision-report-print');
+
 
 
     //AssetsReport

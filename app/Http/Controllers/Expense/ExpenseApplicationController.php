@@ -217,7 +217,7 @@ class ExpenseApplicationController extends Controller
                 if (isset($approverByHierarchy['approver_details'])) {
                     $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
                     $emailSubject = 'Expense Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }
 
                 return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
@@ -400,11 +400,15 @@ class ExpenseApplicationController extends Controller
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
             $this->validate($request,
-                ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'],
+                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
                 ['file.required' => 'The file is required. Please upload a file.']
             );
         }
         if ($request->hasFile('file')) {
+            $this->validate($request,
+                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
+                ['file.required' => 'The file is required. Please upload a file.']
+            );
             $file = $request->file('file');
             if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
                 delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment

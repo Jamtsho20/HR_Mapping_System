@@ -5,19 +5,19 @@
 <form action="{{ route('apply-travel-authorization.update', $travelAuthorizations->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
-    <div class="container">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h3>Edit Travel Authorization</h3>
-                
-            </div>
-            <div class="card-body">
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>Edit Travel Authorization</h3>
+
+        </div>
+        <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
-                            <input type="text" class="form-control" name="travel_authorization_no" value="{{ $travelAuthorizations->travel_authorization_no }}" id="travel_no" placeholder="Generating..." readonly>
-                        </div>
+                    <div class="form-group">
+                        <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
+                        <input type="text" class="form-control" name="travel_authorization_no" value="{{ $travelAuthorizations->travel_authorization_no }}" id="travel_no" placeholder="Generating..." readonly>
+                    </div>
                 </div>
 
                 <div class="col-md-4">
@@ -27,16 +27,16 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                <label for="travel_type">Travel Type <span class="text-danger"></span></label>
-                <select class="form-control" id="travel_type" name="travel_type">
-                    <option value="" disabled hidden>Select your option</option>
-                    @foreach($travelTypes as $type)
+                    <label for="travel_type">Travel Type <span class="text-danger"></span></label>
+                    <select class="form-control" id="travel_type" name="travel_type">
+                        <option value="" disabled hidden>Select your option</option>
+                        @foreach($travelTypes as $type)
                         <option value="{{ $type->id }}"
                             {{ old('travel_type', $travelAuthorizations->travel_type_id) == $type->id ? 'selected' : '' }}>
                             {{ $type->name }}
                         </option>
-                    @endforeach
-                </select>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-md-4">
@@ -45,7 +45,7 @@
                         <input type="number" class="form-control" name="daily_allowance" id="daily_allowance" value="{{$travelAuthorizations->daily_allowance}}" readonly>
                     </div>
                 </div>
-                </div>
+            </div>
 
             <div class="row">
                 <div class="col-md-4">
@@ -84,7 +84,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach($travelAuthorizations->details as $index => $detail)
+                        @foreach($travelAuthorizations->details as $index => $detail)
                         <tr>
                             <td class="text-center">
                                 <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
@@ -106,9 +106,9 @@
                                 <select class="form-control form-control-sm" name="details[{{ $index }}][mode_of_travel]" required>
                                     <option value="" disabled selected hidden>Select Mode of Travel</option>
                                     @foreach(config('global.travel_modes') as $travelKey => $label)
-                                        <option value="{{ $travelKey }}" {{ $travelKey == old('details.' . $index . '.mode_of_travel', $detail->mode_of_travel) ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
+                                    <option value="{{ $travelKey }}" {{ $travelKey == old('details.' . $index . '.mode_of_travel', $detail->mode_of_travel) ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </td>
@@ -117,25 +117,25 @@
                                 </textarea>
                             </td>
                         </tr>
-                    @endforeach
+                        @endforeach
 
                         <tr class="notremovefornew">
-                                <td colspan="7"></td>
-                                <td class="text-right">
-                                    <a href="#" class="add-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
-                                </td>
-                            </tr>
+                            <td colspan="7"></td>
+                            <td class="text-right">
+                                <a href="#" class="add-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-                </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
-                    <a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>
-                </div>
-            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Update </button>
+            <a href="{{ route('apply-travel-authorization.index') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL </a>
         </div>
     </div>
+
+
 </form>
 
 @include('layouts.includes.delete-modal')
@@ -143,36 +143,36 @@
 
 @push('page_scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const dailyAllowanceInput = document.getElementById('daily_allowance');
-    const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
-    const advanceRequiredInput = document.getElementById('advance_required');
-    const daysDifferenceInput = document.getElementById('days_difference');
+    document.addEventListener('DOMContentLoaded', function() {
+        const dailyAllowanceInput = document.getElementById('daily_allowance');
+        const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
+        const advanceRequiredInput = document.getElementById('advance_required');
+        const daysDifferenceInput = document.getElementById('days_difference');
 
 
-    let manualEdit = false;
+        let manualEdit = false;
 
 
-    function calculateDaysDifference() {
-        let totalDays = 0;
+        function calculateDaysDifference() {
+            let totalDays = 0;
 
-    // Loop through each row and calculate the days difference
-        document.querySelectorAll('input[name^="details["][name$="][from_date]"]').forEach(function(startDateInput, index) {
-            const row = startDateInput.closest('tr');
-            const endDateInput = row.querySelector('input[name$="[to_date]"]');
+            // Loop through each row and calculate the days difference
+            document.querySelectorAll('input[name^="details["][name$="][from_date]"]').forEach(function(startDateInput, index) {
+                const row = startDateInput.closest('tr');
+                const endDateInput = row.querySelector('input[name$="[to_date]"]');
 
-        // Ensure both start and end dates exist and are enabled
-            if (startDateInput && endDateInput && !endDateInput.disabled) {
-                const startDate = new Date(startDateInput.value);
-                const endDate = new Date(endDateInput.value);
+                // Ensure both start and end dates exist and are enabled
+                if (startDateInput && endDateInput && !endDateInput.disabled) {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
 
-            if (startDate && endDate && endDate >= startDate) {
-                const timeDifference = endDate - startDate;
-                const daysDifference = timeDifference / (1000 * 3600 * 24) + 1;
-                totalDays += daysDifference;
-            }
-        }
-    });
+                    if (startDate && endDate && endDate >= startDate) {
+                        const timeDifference = endDate - startDate;
+                        const daysDifference = timeDifference / (1000 * 3600 * 24) + 1;
+                        totalDays += daysDifference;
+                    }
+                }
+            });
 
             if (!manualEdit) {
                 daysDifferenceInput.value = totalDays;
@@ -182,83 +182,83 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 
-    function calculateEstimatedTravelExpenses() {
-        const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
-        const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
-        const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
-        const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
-        estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
-    }
-document.querySelector('#travel_details').addEventListener('click', function(event) {
-if (event.target && event.target.matches('.delete-row')) {
-    var thisRow = event.target.closest('tr');
-    thisRow.remove();
-    calculateEstimatedTravelExpenses();
-}
-});
-
-document.querySelector('#advance_required').addEventListener('change', function(event) {
-    // Get the input values
-    const dailyAllowance = parseFloat(document.querySelector('#daily_allowance').value) || 0;
-    const advanceAmount = parseFloat(event.target.value) || 0; // Value from the current input
-    const totalDays = parseFloat(document.querySelector('#days_difference').value) || calculateDaysDifference();
-
-    // Check if advanceAmount exceeds estimated travel expenses
-    if (advanceAmount > (totalDays * dailyAllowance)) {
-        const advanceRequiredInput = document.getElementById('advance_required');
-        advanceRequiredInput.value=0;
-        calculateEstimatedTravelExpenses();
-        alert('Advance amount exceeds the estimated travel expenses!');
-    }
-});
-
-document.querySelector('#travel_details').addEventListener('change', function(event) {
-    if (event.target && event.target.matches('.from_date')) {
-        var fromDate = event.target.value;
-        var toDateField = event.target.closest('tr').querySelector('.to_date');
-
-        if (fromDate) {
-            toDateField.setAttribute('min', fromDate);
-            toDateField.disabled = false;
-        } else {
-            toDateField.disabled = true;
-            toDateField.value = '';
+        function calculateEstimatedTravelExpenses() {
+            const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
+            const advanceAmount = parseFloat(advanceRequiredInput.value) || 0;
+            const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
+            const estimatedAmount = (totalDays * dailyAllowance) - advanceAmount;
+            estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
         }
-        calculateEstimatedTravelExpenses();
+        document.querySelector('#travel_details').addEventListener('click', function(event) {
+            if (event.target && event.target.matches('.delete-row')) {
+                var thisRow = event.target.closest('tr');
+                thisRow.remove();
+                calculateEstimatedTravelExpenses();
+            }
+        });
 
-    }
+        document.querySelector('#advance_required').addEventListener('change', function(event) {
+            // Get the input values
+            const dailyAllowance = parseFloat(document.querySelector('#daily_allowance').value) || 0;
+            const advanceAmount = parseFloat(event.target.value) || 0; // Value from the current input
+            const totalDays = parseFloat(document.querySelector('#days_difference').value) || calculateDaysDifference();
 
-    if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
-        calculateEstimatedTravelExpenses();
-    }
-});
-    // Recalculate days difference and estimated travel expenses when any date input changes
-document.querySelector('#travel_details').addEventListener('input', function(event) {
-    if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
-        calculateEstimatedTravelExpenses();
-    }
-});
+            // Check if advanceAmount exceeds estimated travel expenses
+            if (advanceAmount > (totalDays * dailyAllowance)) {
+                const advanceRequiredInput = document.getElementById('advance_required');
+                advanceRequiredInput.value = 0;
+                calculateEstimatedTravelExpenses();
+                alert('Advance amount exceeds the estimated travel expenses!');
+            }
+        });
 
-    // Recalculate estimated travel expenses when the advance amount is changed
-    advanceRequiredInput.addEventListener('input', calculateEstimatedTravelExpenses);
+        document.querySelector('#travel_details').addEventListener('change', function(event) {
+            if (event.target && event.target.matches('.from_date')) {
+                var fromDate = event.target.value;
+                var toDateField = event.target.closest('tr').querySelector('.to_date');
 
-    // Recalculate estimated travel expenses when the number of days is manually changed
-    daysDifferenceInput.addEventListener('input', function() {
-        manualEdit = true;
-        calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
-    });
+                if (fromDate) {
+                    toDateField.setAttribute('min', fromDate);
+                    toDateField.disabled = false;
+                } else {
+                    toDateField.disabled = true;
+                    toDateField.value = '';
+                }
+                calculateEstimatedTravelExpenses();
 
-    daysDifferenceInput.addEventListener('blur', function() {
-        manualEdit = false;
-    });
+            }
 
-    let rowCount = document.querySelectorAll('#travel_details tbody tr').length-1;
+            if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
+                calculateEstimatedTravelExpenses();
+            }
+        });
+        // Recalculate days difference and estimated travel expenses when any date input changes
+        document.querySelector('#travel_details').addEventListener('input', function(event) {
+            if (event.target.matches('input[name^="details["][name$="][from_date]"], input[name^="details["][name$="][to_date]"]')) {
+                calculateEstimatedTravelExpenses();
+            }
+        });
 
-document.querySelector('.add-row').addEventListener('click', function(e) {
-    e.preventDefault();
+        // Recalculate estimated travel expenses when the advance amount is changed
+        advanceRequiredInput.addEventListener('input', calculateEstimatedTravelExpenses);
 
-    const newRow = document.createElement('tr');
-        newRow.innerHTML = `
+        // Recalculate estimated travel expenses when the number of days is manually changed
+        daysDifferenceInput.addEventListener('input', function() {
+            manualEdit = true;
+            calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
+        });
+
+        daysDifferenceInput.addEventListener('blur', function() {
+            manualEdit = false;
+        });
+
+        let rowCount = document.querySelectorAll('#travel_details tbody tr').length - 1;
+
+        document.querySelector('.add-row').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
             <td class="text-center">
                 <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
             </td>
@@ -287,18 +287,18 @@ document.querySelector('.add-row').addEventListener('click', function(e) {
             </td>
         `;
 
-        const referenceRow = document.querySelector('.notremovefornew');
+            const referenceRow = document.querySelector('.notremovefornew');
 
-        // Insert the new row before the reference row
-        referenceRow.parentNode.insertBefore(newRow, referenceRow);
+            // Insert the new row before the reference row
+            referenceRow.parentNode.insertBefore(newRow, referenceRow);
 
-        // Increment row count for next row
-        rowCount++;
+            // Increment row count for next row
+            rowCount++;
+        });
+
+        calculateEstimatedTravelExpenses();
+
     });
-
-    calculateEstimatedTravelExpenses();
-
-});
 </script>
 
 @endpush

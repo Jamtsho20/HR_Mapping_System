@@ -80,7 +80,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="attachment">Attachment <span id="attachment_required" class="text-danger" style="display:none;">*</span></label>
-                        <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*">
+                        <input type="file" id="attachment" class="form-control" name="attachment" accept="image/*,.pdf,.doc,.docx">
                     </div>
                 </div>
             </div>
@@ -128,12 +128,12 @@
         const toDay = $('#ddl_to_day').val();
 
         if (fromDate && toDate && fromDate === toDate) {
-            const optionsToDisableFromToDay = fromDay === '2' || fromDay === '3' ? ['2', '3'] : [];
-            const optionsToDisableFromFromDay = toDay === '2' || toDay === '3' ? ['2', '3'] : [];
+            const optionsToDisableFromToDay = fromDay === '1' || fromDay === '2' || fromDay === '3' ? ['2', '3'] : [];
+            // const optionsToDisableFromFromDay = toDay === '2' || toDay === '3' ? ['2', '3'] : [];
             $('#ddl_to_day option').prop('disabled', false);
             $('#ddl_from_day option').prop('disabled', false);
             optionsToDisableFromToDay.forEach(opt => $(`#ddl_to_day option[value="${opt}"]`).prop('disabled', true));
-            optionsToDisableFromFromDay.forEach(opt => $(`#ddl_from_day option[value="${opt}"]`).prop('disabled', true));
+            // optionsToDisableFromFromDay.forEach(opt => $(`#ddl_from_day option[value="${opt}"]`).prop('disabled', true));
         }
     };
 

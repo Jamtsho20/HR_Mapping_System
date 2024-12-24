@@ -16,6 +16,20 @@
             border-collapse: collapse;
         }
 
+        .img-container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 60%;
+
+
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
         table,
         th,
         td {
@@ -37,7 +51,11 @@
 </head>
 
 <body>
-    <h1>PF Report</h1>
+    <div class="img-container">
+        @include('layouts.includes.letter-head')
+    </div>
+    <hr>
+    <h1 class="title">PF Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">
@@ -54,35 +72,45 @@
                     CID
                 </th>
                 <th>
-                    Member COntribution
+                    Basic Pay
                 </th>
                 <th>
-                    Employee COntribution
+                    Member Contribution
                 </th>
                 <th>
-                    Total COntribution
+                    Employee Contribution
+                </th>
+                <th>
+                    Total Contribution
                 </th>
 
 
             </tr>
         </thead>
         <tbody>
-            @forelse($pfDeductions as $pf)
+
+            @forelse ($pfDeductionsWithPF as $pf)
             <tr>
                 <td>{{$loop->iteration}}</td>
-                <td>{{$pf->employee->name}}</td>
-                <td>{{$pf->employee->empJob->pf_number}}</td>
-                <td>{{$pf->employee->cid_no}}</td>
-                <td>{{ $pf->details['deductions']['PF'] ?? '0'}}</td>
-
+                <td>{{ $pf['employee_name'] }}</td>
+                <td>{{ $pf['details']['pf_number'] ?? '-' }}</td>
+                <td>{{ $pf['CID'] ?? '-' }}</td>
+                <td>{{ $pf['basic_pay'] ?? '-' }}</td>
+                <td>{{ $pf['details']['deductions']['PF'] ?? 0 }}</td>
+                <td>{{ $pf['employer_pf_amount'] ?? 0}}</td>
+                <td>{{ $pf['total'] ?? 0 }}</td>
             </tr>
             @empty
+
             <tr>
-                <td colspan="5" class="text-center text-danger">No PF Reports found</td>
+                <td colspan="6" class="text-center text-danger">No PF Reports found</td>
             </tr>
             @endforelse
+
         </tbody>
     </table>
+    @include('layouts.includes.report-footer')
+
 </body>
 
 </html>

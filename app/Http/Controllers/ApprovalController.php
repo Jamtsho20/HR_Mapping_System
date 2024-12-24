@@ -58,23 +58,25 @@ class ApprovalController extends Controller
 
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
+        //getting relevant Email Subject
+        $emailSubject = ""; 
+        if (preg_match('/([^\\\\\/]+)Application$/', $model, $matches)) {
+            $emailSubject = $matches[1];
+        }
 
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
-
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-
         DB::beginTransaction();
         // try {
         $approvalService = new ApprovalService();
 
         foreach ($itemIds as $id) {
             $application = $model::findOrFail($id);
-
 
             if (!$application) {
                 continue;
@@ -177,7 +179,10 @@ class ApprovalController extends Controller
                 $applicationHistory->update($updateData);
             }
         }
+        //sent email to approver as well as to initiator
+        // if(){
 
+        // }
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
         // } catch (\Exception $e) {
         //     DB::rollBack();
