@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Mail\ApprovalNotificationMail;
+use Illuminate\Support\Facades\Mail;
 
 class ApprovalController extends Controller
 {
@@ -180,9 +182,16 @@ class ApprovalController extends Controller
             }
         }
         //sent email to approver as well as to initiator
-        // if(){
+        if($updateData['status'] == 2){
+            $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . ' to ' . $request->to_date . '.';
+            $subject = $emailSubject;
+            Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $subject));
+        }else if($updateData['status'] == 3){
 
-        // }
+        }else{
+
+        }
+
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
         // } catch (\Exception $e) {
         //     DB::rollBack();
