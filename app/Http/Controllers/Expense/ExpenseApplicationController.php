@@ -217,7 +217,7 @@ class ExpenseApplicationController extends Controller
                 if (isset($approverByHierarchy['approver_details'])) {
                     $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
                     $emailSubject = 'Expense Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }
 
                 return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
