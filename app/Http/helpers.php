@@ -70,9 +70,10 @@ if (!function_exists('delete_image')) {
         if ($path) {
             // unlink(public_path($path)); //incase if path not found provide meaningful message to user to avoid confusion
             $decodedString = decoded_string($path);
-            // dd($decodedString);
+       
             if($decodedString){
                 foreach($decodedString as $string){//incase if path not found provide meaningful message to user to avoid confusion
+                
                     unlink(public_path($string));
                 }
             }else{
