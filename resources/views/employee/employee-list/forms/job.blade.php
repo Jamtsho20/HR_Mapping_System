@@ -28,26 +28,36 @@
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="">Designation <span class="text-danger">*</span></label>
-                    <select name="job[mas_designation_id]" class="form-control form-control-sm" required>
-                        <option value="" disabled selected hidden>Select your option</option>
-                        <!-- for edit form  -->
 
-                        @foreach($designations as $designation)
-                        <option value="{{ $designation->id }}"
-                            {{ old('job.mas_designation_id', isset($employee->empJob->designation->id )? $employee->empJob->designation->id :'') == $designation->id ? 'selected' : '' }}>
-                            {{ $designation->name }}
-                        </option>
-                        @endforeach
-                    </select>
+                    <label for="">Designation <span class="text-danger">*</span></label>
+                    <div class="d-flex" style="gap:4px">
+                        <select id="suffix" name="job[suffix]" class="form-control form-control-sm" style="width:15%">
+                            <option value="0" {{ old('job.suffix', isset($employee->empJob->suffix) && $employee->empJob->suffix == 0 ? 0 : '') == '0' ? 'selected' : '' }}>Select</option>
+                            <option value="1" {{ old('job.suffix', isset($employee->empJob->suffix) && $employee->empJob->suffix == 1 ? 1 : '') == '1' ? 'selected' : '' }}>Sr</option>
+                        </select>
+                        <select name="job[mas_designation_id]" class="form-control form-control-sm" required>
+                            <option value="" disabled selected hidden>Select your option</option>
+                            <!-- for edit form  -->
+
+                            @foreach($designations as $designation)
+                            <option value="{{ $designation->id }}"
+                                {{ old('job.mas_designation_id', isset($employee->empJob->designation->id )? $employee->empJob->designation->id :'') == $designation->id ? 'selected' : '' }}>
+                                {{ $designation->name }}
+                            </option>
+                            @endforeach
+                        </select>
+
+                    </div>
                 </div>
+
+
                 <div class="form-group col-md-4">
                     <label for="">Employment Type <span class="text-danger">*</span></label>
                     <select name="job[mas_employment_type_id]" class="form-control form-control-sm" required>
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($employmentTypes as $type)
                         <option value="{{ $type->id }}"
-                            {{ old('job.mas_employment_type_id', 
+                            {{ old('job.mas_employment_type_id',
                             isset($employee->empJob->empType->id) ? $employee->empJob->empType->id : '') == $type->id ? 'selected' : '' }}>
                             {{ $type->name }}
                         </option>
@@ -108,7 +118,7 @@
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach($offices as $office)
                         <option value="{{ $office->id }}"
-                            {{ old('job.mas_office_id', 
+                            {{ old('job.mas_office_id',
                             isset($employee->empJob->office->id) ? $employee->empJob->office->id: '') == $office->id ? 'selected' : '' }}>
                             {{ $office->name }}
                         </option>
@@ -213,7 +223,7 @@
                 for (var i = 1; i <= maxPoint; i++) {
                     stepPointDropdown.innerHTML += "<option value='" + i + "'>" + i + "</option>";
                 }
-            }  
+            }
         });
 
         // update basic pay using step points
@@ -221,11 +231,11 @@
             var gradeStep = document.getElementById('grade_step_id');
             var selectedGradeStep = gradeStep.options[gradeStep.selectedIndex]; //selected ptions of grade step
             var initialBasicPay = parseFloat(selectedGradeStep.getAttribute('data-starting-salary')) || 0;
-            
+
             var stepPoint = parseFloat(this.value);
             var payScale = document.getElementById('pay_scale').value;
             var parts = payScale.split(" - "); // Split the string by " - "
-            var incrementVal = parseFloat(parts[1]); 
+            var incrementVal = parseFloat(parts[1]);
             if(stepPoint != 0 || null){
                 if(stepPoint == 1){
                     document.getElementById('basic_pay').value = initialBasicPay;
