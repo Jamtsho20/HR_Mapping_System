@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('employee_attendance_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('attendance_id')->constrained('employee_attendances')->references('id');
+            $table->foreignId('attendance_id')->constrained('employee_attendances')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('employee_id')->constrained('mas_employees')->references('id');
             $table->tinyInteger('physical_days')->unsigned()->default(0);
             $table->tinyInteger('working_days')->unsigned()->default(0);

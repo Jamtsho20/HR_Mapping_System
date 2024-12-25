@@ -214,9 +214,9 @@ class EmployeeController extends Controller
             }
             $employee->registered_email_sent = true;
             $employee->save();
-            if($employee->status == 'Completed'){
-                // $this->postEmployeeToSap($employee);
-                // $this->postEmployeeToSoms($employee);
+            if ($employee->status == 'Completed') {
+                $this->postEmployeeToSap($employee);
+                $this->postEmployeeToSoms($employee);
                 // $somsData = $this->prepareSomsData();
             }
             if (!$employee->appointment_order) {
@@ -629,19 +629,35 @@ class EmployeeController extends Controller
         }
 
         // Handle 'other' documents
-        if (isset($doc['other'])) {
-            // Remove old files for 'other' documents
-            if ($empDocument->other) {
-                delete_image($empDocument->other);
-                // $existingOtherDocs = json_decode($empDocument->other, true);
-                // foreach ($existingOtherDocs as $oldFile) {
-                //     if ($oldFile) {
-                //         delete_image($oldFile);
-                //     }
-                // }
+
+
+        if (isset($doc['other']) || $request['existing_documents']) {
+
+            // Combine existing documents with new ones
+            if (isset($request['existing_documents']) && is_array($request['existing_documents'])) {
+                // Use existing documents and upload new ones
+
+                $existingDocuments = $request['existing_documents'];
+            } else {
+
+                $existingDocuments = [];
             }
-            $otherDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other']);
+
+            // Upload new files and merge with existing
+            $uploadedDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), isset($doc['other']) ? $doc['other'] : []);
+            $otherDocuments = array_merge($existingDocuments, $uploadedDocuments);
         } else {
+
+            if (isset($empDocument->other)) {
+
+                delete_image($empDocument->other); // delete from the storage
+
+                // delete from db
+                $empDocument->other = null;
+                $empDocument->save();
+            }
+
+            // If no new documents are provided, just use existing ones if available
             $otherDocuments = $empDocument->other ? json_decode($empDocument->other, true) : [];
         }
 
@@ -701,9 +717,13 @@ class EmployeeController extends Controller
             'DownPaymentInterimAccount' => '23245',
             "BPFiscalTaxIDCollection" =>
                 [
+            "BPFiscalTaxIDCollection" =>
+            [
 
                     ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
                 ]
+                ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+            ]
         ];
         $this->apiController->postEmployeeToSap($sapData);
     }

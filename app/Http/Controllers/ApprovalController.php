@@ -59,7 +59,7 @@ class ApprovalController extends Controller
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
         //getting relevant Email Subject
-        $emailSubject = ""; 
+        $emailSubject = "";
         if (preg_match('/([^\\\\\/]+)Application$/', $model, $matches)) {
             $emailSubject = $matches[1];
         }
@@ -72,7 +72,7 @@ class ApprovalController extends Controller
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
         DB::beginTransaction();
-        // try {
+        try {
         $approvalService = new ApprovalService();
 
         foreach ($itemIds as $id) {
@@ -94,6 +94,8 @@ class ApprovalController extends Controller
             }
             $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
+                $costingCode = null;
+                $type = $application->type;
             // Update application status
             $application->update([
                 'status' => $status,
@@ -184,13 +186,13 @@ class ApprovalController extends Controller
 
         // }
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-        //     \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
 
-        //     return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
-        // }
+            return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
+        }
     }
 
     private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount = null)

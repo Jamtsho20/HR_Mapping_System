@@ -11,15 +11,15 @@
 |
  */
 
-use App\Http\Controllers\Payroll\LTCController;
-
  Route::namespace('Payroll')->prefix('payroll')->group(function () {
     Route::resource('other-pay-changes', 'OtherPayChangeController');
     Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
     Route::resource('annual-increment', 'AnnualIncrementController');
     Route::resource('pay-slips', 'PaySlipController');
     Route::resource('ltc', 'LTCController');
+    Route::resource('attendance', 'AttendanceController');
 
+    Route::get('send-pay-slip/{payslipId}/{employeeId}', 'PaySlipController@sendPayslip')->name('pay-slips.send');
     Route::get('process-pay-slips/{id}', 'PaySlipController@processPaySlip')->name('pay-slips.process');
     Route::get('verify-pay-slips/{id}', 'PaySlipController@verifyPaySlip')->name('pay-slips.verify');
     Route::get('approve-pay-slips/{id}', 'PaySlipController@approvePaySlip')->name('pay-slips.approve');
@@ -37,6 +37,9 @@ use App\Http\Controllers\Payroll\LTCController;
     Route::patch('other-pay-changes-toggle-status', 'OtherPayChangeController@toggleStatus')->name('other-pay-changes.toggles-status');
     Route::patch('other-pay-changes-update-remarks', 'OtherPayChangeController@updateRemarks')->name('other-pay-changes.update-remarks');
     Route::get('other-pay-changes-finalize/{id}', 'OtherPayChangeController@finalizePayChange')->name('other-pay-changes.finalize');
+
+    Route::post('attendance-upload/{id}', 'AttendanceController@upload')->name('attendance.upload');
+    Route::patch('attendance-update-attendance', 'AttendanceController@updateAttendance')->name('attendance.updateattendance');
 
     Route::any('ltc-finalize/{id}', [LTCController::class, 'finalizeLtc'])->name('ltc.finalize');
     Route::patch('ltc-toggles-status', [LTCController::class, 'toggleStatus'])->name('ltc.toggles-status');
