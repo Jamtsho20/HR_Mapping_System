@@ -78,3 +78,7 @@ const APPROVED_POSTED = 4;
 const UNPAID_SALARY_STAFF = 23197;
 const ALLOWANCE = 1;
 const DEDUCTION = 2;
+
+
+//Encashment Tax GL code
+const TAX_GL_CODE = 23173;

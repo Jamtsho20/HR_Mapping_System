@@ -73,7 +73,7 @@ class AdvanceApplication extends Model
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($request->has('advance_type') && $request->query('advance_type') != '') {
-            $query->where('advance_type_id', $request->query('advance_type'));
+            $query->where('type_id', $request->query('advance_type'));
         }
 
         if ($onesOwnRecord) {
@@ -128,7 +128,7 @@ class AdvanceApplication extends Model
         parent::boot();
         static::updated(function ($advance) {
                 if($advance->type_id == GADGET_EMI && $advance->status == 3) {
-                    $payHeadId = \DB::table('mas_pay_heads')
+                    $payHeadId = \DB::table('mas_pay_heads') 
                     ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
                     ->where('mas_advance_types.id', $advance->type_id)
                     ->value('mas_pay_heads.id');
@@ -140,7 +140,7 @@ class AdvanceApplication extends Model
         });
     }
 
-    public function insertInToLoanEmiDeductions($payHeadId) 
+    public function insertInToLoanEmiDeductions($payHeadId)
     {
         $startDate = Carbon::parse($this->deduction_from_period); // Ensure Carbon instance
         $endDate = $startDate->copy()->addMonths($this->no_of_emi)->subDay();
@@ -155,8 +155,8 @@ class AdvanceApplication extends Model
             'loan_type_id' => 4,
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,
-            'remark' => $this->remark ?? null,
-            'is_paid_of' => 0,
+            'remarks' => $this->remark ?? null,
+            'is_paid_off' => 0,
             'created_at' => now(),
         ]);
     }

@@ -48,6 +48,10 @@ class LeaveApplication extends Model
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
+        //specify table name final_pay_slip for loan report where tables are joined
+        if ($request->has('employee_id') && $request->get('employee_id')) {
+            $query->where('created_by', $request->get('employee_id'));
+        }
         if ($request->has('leave_type') && $request->query('leave_type') != '') {
             $query->where('type_id', $request->query('leave_type'));
         }

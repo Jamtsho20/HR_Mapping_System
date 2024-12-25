@@ -12,7 +12,7 @@
     @component('layouts.includes.filter')
     <div class="col-6 form-group">
         <select class="form-control" id="expense_type" name="expense_type">
-            <option value="" disabled selected hidden>Select Advance Type</option>
+            <option value="" disabled selected hidden>Select Expense Type</option>
             @foreach ($expenseTypes as $type)
             <option value="{{ $type->id }}" {{ request()->get('expense_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
             @endforeach
@@ -89,7 +89,7 @@
                                                                         STATUS
                                                                     </th>
                                                                     <th>
-                                                                        Actionx
+                                                                        Action
                                                                     </th>
                                                                 </tr>
                                                             <tbody>

@@ -772,33 +772,8 @@ $(document).ready(function () {
             updateNavigationButtons();
         }
     });
-    //function to check image size
-    //    function validateImage(fileInput) {
-    //         // Check if any file is selected
-    //         if (!fileInput.files || fileInput.files.length === 0) {
-    //             alert("No file selected!");
-    //             return false; // Return false if no file is selected
-    //         }
-
-    //         // Get the first file from the input (assumes only one file is allowed)
-    //         const file = fileInput.files[0];
-
-    //         // Set the maximum allowed size for the image in megabytes (MB)
-    //         const maxSizeInMB = 2; // Maximum size is now 2 MB
-
-    //         // Convert the maximum size from megabytes (MB) to bytes
-    //         const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 2 MB = 2 * 1024 * 1024 bytes
-
-    //         // Validate the file size
-    //         if (file.size > maxSizeInBytes) {
-    //             // If the file size exceeds the maximum limit, display an alert and return false
-    //             alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
-    //              return false;
-    //         }
-
-    //         // If the file size is valid, display a confirmation and return true
-    //         return true;
-    //     }
+    
+    //validate file based on type and size
     function validateImage(fileInput) {
         // Check if any file is selected
         if (!fileInput.files || fileInput.files.length === 0) {
@@ -816,11 +791,12 @@ $(document).ready(function () {
         const maxSizeInBytes = maxSizeInMB * 1024 * 1024; // 2 MB = 2 * 1024 * 1024 bytes
 
         // Set allowed file types (MIME types)
-        const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+        const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword'];
 
         // Validate the file type
         if (!allowedFileTypes.includes(file.type)) {
-            alert(`Invalid file type. Allowed file types are: PDF, JPEG, PNG.`);
+            alert(`Invalid file type. Allowed file types are: PDF, DOCs, JPEG, PNG.`);
+            fileInput.value = "";
             return false; // Return false if the file type is not allowed
         }
 
@@ -828,6 +804,7 @@ $(document).ready(function () {
         if (file.size > maxSizeInBytes) {
             // If the file size exceeds the maximum limit, display an alert and return false
             alert(`File size should not exceed ${maxSizeInMB} MB. Your file size is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+            fileInput.value = "";
             return false;
         }
 
@@ -902,3 +879,213 @@ function openPrintPreview(event) {
         }, 500); // Delay to ensure the PDF is fully loaded before calling print
     };
 }
+
+
+///multiupload for document
+
+const fileList = document.querySelector(".file-list");
+const fileBrowseButton = document.querySelector(".file-browse-button");
+const fileBrowseInput = document.querySelector(".file-browse-input");
+const fileUploadBox = document.querySelector(".file-upload-box");
+const fileCompletedStatus = document.querySelector(".file-completed-status");
+
+let totalFiles = 0;
+let completedFiles = 0;
+
+// Function to create HTML for each file item
+const createFileItemHTML = (file, uniqueIdentifier) => {
+    // Extracting file name, size, and extension
+    const {
+        name,
+        size
+    } = file;
+    const extension = name.split(".").pop();
+    const formattedFileSize = size >= 1024 * 1024 ? `${(size / (1024 * 1024)).toFixed(2)} MB` : `${(size / 1024).toFixed(2)} KB`;
+
+    // Generating HTML for file item
+    return `<li class="file-item" id="file-item-${uniqueIdentifier}">
+                        <div class="file-extension">${extension}</div>
+                            <div class="file-content-wrapper">
+                                <div class="file-content">
+                                <div class="file-details">
+                                <h5 class="file-name">${name}</h5>
+                                <div class="file-info">
+                                    <small class="file-size">0 MB / ${formattedFileSize}</small>
+                                    <small class="file-divider">•</small>
+                                    <small class="file-status">Done</small>
+                                </div>
+                                </div>
+                                <button class="cancel-button">
+                                    <i class="bx bx-x"></i>
+                                </button>
+                            </div>
+                            <div class="file-progress-bar">
+                                <div class="file-progress"></div>
+                            </div>
+                        </div>
+                    </li>`;
+}
+
+// Function to handle file uploading
+const handleFileUploading = (file, uniqueIdentifier) => {
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Adding progress event listener to the ajax request
+    xhr.upload.addEventListener("progress", (e) => {
+        // Updating progress bar and file size element
+        const fileProgress = document.querySelector(`#file-item-${uniqueIdentifier} .file-progress`);
+        const fileSize = document.querySelector(`#file-item-${uniqueIdentifier} .file-size`);
+
+        // Formatting the uploading or total file size into KB or MB accordingly
+        const formattedFileSize = file.size >= 1024 * 1024 ? `${(e.loaded / (1024 * 1024)).toFixed(2)} MB / ${(e.total / (1024 * 1024)).toFixed(2)} MB` : `${(e.loaded / 1024).toFixed(2)} KB / ${(e.total / 1024).toFixed(2)} KB`;
+
+        const progress = Math.round((e.loaded / e.total) * 100);
+        fileProgress.style.width = `${progress}%`;
+        fileSize.innerText = formattedFileSize;
+    });
+
+    // Opening connection to the server API endpoint "api.php" and sending the form data
+    xhr.open("POST", "api.php", true);
+    xhr.send(formData);
+    return xhr;
+}
+
+// Function to handle selected files
+const handleSelectedFiles = ([...files]) => {
+    if (files.length === 0) return; // Check if no files are selected
+    totalFiles += files.length;
+
+    files.forEach((file, index) => {
+        const uniqueIdentifier = Date.now() + index;
+        const fileItemHTML = createFileItemHTML(file, uniqueIdentifier);
+        // Inserting each file item into file list
+        fileList.insertAdjacentHTML("afterbegin", fileItemHTML);
+        const currentFileItem = document.querySelector(`#file-item-${uniqueIdentifier}`);
+        const cancelFileUploadButton = currentFileItem.querySelector(".cancel-button");
+
+        const xhr = handleFileUploading(file, uniqueIdentifier);
+
+        // Update file status text and change color of it 
+        const updateFileStatus = (status, color) => {
+            currentFileItem.querySelector(".file-status").innerText = status;
+            currentFileItem.querySelector(".file-status").style.color = color;
+        }
+
+        xhr.addEventListener("readystatechange", () => {
+            // Handling completion of file upload
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                completedFiles++;
+                cancelFileUploadButton.remove();
+                updateFileStatus("Completed", "#00B125");
+                fileCompletedStatus.innerText = `${completedFiles} / ${totalFiles} files completed`;
+            }
+        });
+
+        // Handling cancellation of file upload
+        cancelFileUploadButton.addEventListener("click", () => {
+            xhr.abort(); // Cancel file upload
+            updateFileStatus("Cancelled", "#E3413F");
+
+            // Remove the file item from the DOM
+            currentFileItem.remove();
+
+            // Update total and completed file counts
+            totalFiles--;
+            completedFiles--; // Only decrement if it was considered completed
+            fileCompletedStatus.innerText = `${completedFiles} / ${totalFiles} files completed`;
+        });
+
+
+        // Show Alert if there is any error occured during file uploading
+        xhr.addEventListener("error", () => {
+            updateFileStatus("Error", "#E3413F");
+            alert("An error occurred during the file upload!");
+        });
+    });
+
+    fileCompletedStatus.innerText = `${completedFiles} / ${totalFiles} files completed`;
+}
+
+// Function to handle file drop event
+fileUploadBox.addEventListener("drop", (e) => {
+    e.preventDefault();
+    handleSelectedFiles(e.dataTransfer.files);
+    fileUploadBox.classList.remove("active");
+    fileUploadBox.querySelector(".file-instruction").innerText = "Drag files here or";
+});
+
+// Function to handle file dragover event
+fileUploadBox.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    fileUploadBox.classList.add("active");
+    fileUploadBox.querySelector(".file-instruction").innerText = "Release to upload or";
+});
+
+// Function to handle file dragleave event
+fileUploadBox.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    fileUploadBox.classList.remove("active");
+    fileUploadBox.querySelector(".file-instruction").innerText = "Drag files here or";
+});
+
+const removedFiles = new Set();
+
+// Handle cancel button click for existing files
+document.querySelectorAll(".file-item.existing-file .cancel-button").forEach((button) => {
+    button.addEventListener("click", function () {
+        const fileItem = button.closest(".file-item");
+
+        // Confirm deletion
+        const confirmDeletion = confirm("Are you sure you want to remove this file?");
+        if (confirmDeletion) {
+            // Track the removed file
+            const fileUrl = fileItem.dataset.url;
+            removedFiles.add(fileUrl);
+
+            // Remove the file item from the DOM
+            fileItem.remove();
+        }
+    });
+});
+
+// On form submission
+document.querySelector("form").addEventListener("submit", function (event) {
+    const form = event.target;
+
+    // Ensure the form contains this file uploader
+    if (!form.querySelector(".file-uploader")) return;
+
+    // Remove all `documents[other][]` fields already present in the form
+    document.querySelectorAll('input[name="documents[other][]"]').forEach((input) => input.remove());
+
+    // Merge existing files (those not removed) into `documents[other][]`
+    form.querySelectorAll('input[name="existing_documents[]"]').forEach((hiddenInput) => {
+        if (!removedFiles.has(hiddenInput.value)) {
+            // Create a new hidden input with the name `documents[other][]`
+            const newInput = document.createElement("input");
+            newInput.type = "hidden";
+            newInput.name = "documents[other][]";
+            newInput.value = hiddenInput.value;
+
+            // Append it to the form
+            form.appendChild(newInput);
+        }
+    });
+
+    // Collect newly uploaded files and append them to `documents[other][]`
+    const uploadedFiles = form.querySelector('input[name="uploaded_files[]"]');
+    if (uploadedFiles && uploadedFiles.files.length > 0) {
+        Array.from(uploadedFiles.files).forEach((file) => {
+            const fileInput = document.createElement("input");
+            fileInput.type = "hidden";
+            fileInput.name = "documents[other][]";
+            fileInput.value = file.name; // You can modify this to send the actual file URL or path
+            form.appendChild(fileInput);
+        });
+    }
+});
+
+fileBrowseInput.addEventListener("change", (e) => handleSelectedFiles(e.target.files));
+fileBrowseButton.addEventListener("click", () => fileBrowseInput.click());

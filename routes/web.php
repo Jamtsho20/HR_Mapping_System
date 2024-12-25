@@ -274,6 +274,10 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Employee')->prefix('employee')->group(function () {
         Route::resource('employee-lists', 'EmployeeController');
         Route::get('/employee/details', [EmployeeController::class, 'showEmployeeDetails'])->name('employee.details');
+        Route::get('regularize-employee', [EmployeeController::class, 'showRegularizeDetails'])->name('employee.regularize');
+        Route::patch('regularize-toggle-status', 'EmployeeController@toggleStatus')->name('employee-regularize.toggles-status');
+        Route::patch('generate-regular-ao', 'EmployeeController@generateRegularAO')->name('employee.generate-regular-ao');
+
     });
 
     //reports
@@ -357,6 +361,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-transfer-claim-report', [TransferClaimReportController::class, 'printTransferClaim'])->name('transfer-claim-print');
     Route::get('/print-dsa-settlement-report', [DSASettlementReportController::class, 'printDSASettlement'])->name('dsa-settlement-print');
     Route::get('/print-tax-schedle-report', [TaxScheduleReportController::class, 'printTaxSchedule'])->name('tax-schedule-report-print');
+    Route::get('/print-pay-comparision-report', [PayComparisionReportController::class, 'printPayComparision'])->name('pay-comparision-report-print');
+
 
 
     //AssetsReport

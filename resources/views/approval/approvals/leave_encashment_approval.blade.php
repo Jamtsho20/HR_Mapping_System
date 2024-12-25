@@ -1,4 +1,3 @@
-
 <div class="row row-sm">
     <div class="col-lg-12">
         <div class="card">
@@ -10,44 +9,37 @@
                             <thead>
                                 <tr role="row" class="thead-light">
                                     <th>
-                                    <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
+                                        <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
+                                    </th>
+                                    <th>
+                                        EMPLOYEE ID
+                                    </th>
+                                    <th>
+                                        EMPLOYEE NAME
                                     </th>
                                     <th>
                                         APPLIED ON
                                     </th>
+
                                     <th>
-                                        EMPLOYEE
-                                    </th>
-                                    <th>
-                                        LEAVE TYPE
-                                    </th>
-                                    <th>
-                                        FROM DATE
-                                    </th>
-                                    <th>
-                                        TO DATE
-                                    </th>
-                                    <th>
-                                        NO OF DAYS
+                                        Encashment Amount
                                     </th>
                                     <th>
                                         STATUS
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         ACTION
-                                    </th>
+                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($leaves as $leave)
+                                @forelse ($results->get(4) as $leave)
                                 <tr>
                                     <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}"></td>
-                                    <td>{{ $leave->employee->created_at }}</td>
-                                    <td>{{ $leave->employee->emp_id_name }}</td>
-                                    <td>{{ $leave->leaveType->name }}</td>
-                                    <td>{{ $leave->from_date }}</td>
-                                    <td>{{ $leave->to_date }}</td>
-                                    <td class="text-right">{{ $leave->no_of_days }}</td>
+                                    <td>{{$leave->employee->username}}</td>
+                                    <td>{{$leave->employee->name}}</td>
+                                    <td>{{ $leave->created_at }}</td>
+                                    <td>{{ $leave->encashment_amount }}</td>
                                     <td class="text-center">
 
                                         @php
@@ -65,16 +57,11 @@
                                         <span class="{{ $statusClass }}">{{ $statusText }}</span>
 
                                     </td>
-                                    <td class="text-center">
-                                        @if ($privileges->view)
-                                        <a href="{{ url('leave/approval/' . $leave->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
-                                        @endif
+                                    <!-- <td class="text-center">
                                         @if ($privileges->edit)
                                         <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
-                                            class="btn btn-sm btn-rounded btn-outline-success">
-                                            <i class="fa fa-edit"></i> EDIT
-                                        </a>
-
+                                            class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
+                                                class="fa fa-edit"></i> EDIT</a>
                                         @endif
                                         @if ($privileges->delete)
                                         <a href="#"
@@ -82,12 +69,12 @@
                                             data-url="{{ url('leave/approval/' . $leave->id) }}"><i
                                                 class="fa fa-trash"></i> DELETE</a>
                                         @endif
-                                    </td>
+                                    </td> -->
                                 </tr>
                                 @empty
                                 <tr>
                                     <td colspan="8" class="text-center text-danger">
-                                        No Leave found
+                                        No Encashment Application Found
                                     </td>
                                 </tr>
                                 @endforelse

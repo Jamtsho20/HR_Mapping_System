@@ -16,7 +16,7 @@ class ApprovalController extends Controller
 
     public function __construct(ApiController $sap)
     {
-        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject');
+        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -47,16 +47,7 @@ class ApprovalController extends Controller
             $results->put($key, $data);
         }
 
-        $leaves = $results->get(1);
-        $expenses = $results->get(2);
-        $advances = $results->get(3);
-        $earnedLeave = $results->get(4);
-        $transferclaims = $results->get(6);
-        $travelAuthorizations = $results->get(7);
-        $sifas = $results->get(8);
-        $dsaclaims = $results->get(9);
-
-        return view('approval.index', compact('privileges', 'headers', 'expenses', 'advances', 'leaves', 'earnedLeave', 'transferclaims', 'travelAuthorizations', 'dsaclaims', 'sifas'));
+        return view('approval.index', compact('privileges', 'headers', 'results'));
     }
 
     /**
@@ -67,124 +58,134 @@ class ApprovalController extends Controller
 
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
+        //getting relevant Email Subject
+        $emailSubject = "";
+        if (preg_match('/([^\\\\\/]+)Application$/', $model, $matches)) {
+            $emailSubject = $matches[1];
+        }
 
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
-
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-
         DB::beginTransaction();
         try {
-            $approvalService = new ApprovalService();
+        $approvalService = new ApprovalService();
 
-            foreach ($itemIds as $id) {
-                $application = $model::findOrFail($id);
+        foreach ($itemIds as $id) {
+            $application = $model::findOrFail($id);
 
-                if (!$application) {
-                    continue;
+            if (!$application) {
+                continue;
+            }
+
+            $costingCode = null;
+            $type = $application->type;
+
+            if ($applicationType == 2) { // Expense
+                $typeId = $type->id;
+
+                if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
+                    $costingCode = $application->vehicle->vehicle_no;
                 }
+            }
+            $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
                 $costingCode = null;
                 $type = $application->type;
+            // Update application status
+            $application->update([
+                'status' => $status,
+                'updated_by' => $actionBy,
+            ]);
 
-                if ($applicationType == 2) { // Expense
-                    $typeId = $type->id;
+            // Forward application if approved
+            $updateData = [
+                'status' => $status,
+                'remarks' => $rejectRemarks,
+                'action_performed_by' => $actionBy,
+            ];
 
-                    if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
-                        $costingCode = $application->vehicle->vehicle_no;
-                    }
+            if ($action === 'approve' && $applicationHistory) {
+                $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
 
-                    $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
-
-                    // Update application status
-                    $application->update([
-                        'status' => $status,
-                        'updated_by' => $actionBy,
+                if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+                    $updateData = array_merge($updateData, [
+                        'next_level_id' => $applicationForwardedTo['next_level']->id,
+                        'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
+                        'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+                        'level_sequence' => $applicationForwardedTo['next_level']->sequence,
                     ]);
+                } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                    $accountCode = $type->code ?? null;
+                    $memo = $type->name ?? null;
+                    $shortName = $application->employee->username = "E00993";
+                    $amount = $application->amount;
+                    $tax_amount = $application->tax_amount ?? null;
+                    $postToSap = $type->post_to_sap;
+                    $costingCode2 = null;
 
-                    // Forward application if approved
-                    $updateData = [
-                        'status' => $status,
-                        'remarks' => $rejectRemarks,
-                        'action_performed_by' => $actionBy,
-                    ];
+                    if ($postToSap && ($accountCode && $shortName && $amount)) {
+                        // Post to SAP after final Approval
 
-                    if ($action === 'approve' && $applicationHistory) {
-                        $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
+                        $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
 
-                        if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
-                            $updateData = array_merge($updateData, [
-                                'next_level_id' => $applicationForwardedTo['next_level']->id,
-                                'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
-                                'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
-                                'level_sequence' => $applicationForwardedTo['next_level']->sequence,
-                            ]);
-                        } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
-                            $accountCode = $type->code ?? null;
-                            $memo = $type->name ?? null;
-                            $shortName = $application->employee->username = "E00993";
-                            $amount = $application->amount;
-                            $postToSap = $type->post_to_sap;
-                            $costingCode2 = null; // department
+                        Log::debug($postFields);
 
-                            if ($postToSap) {
-                                // Post to SAP after final Approval
-                                $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount);
+                        $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                        $statusCode = $postJournalEntriesResponse->getStatusCode();
+                        $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
-                                Log::debug($postFields);
-
-                                $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
-                                $statusCode = $postJournalEntriesResponse->getStatusCode();
-                                $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
-
-                                if ($statusCode != 201) {
-                                    throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
-                                }
-                            }
-
-                            // Finalize approval if it's at the maximum level
-                            $application->update([
-                                'status' => 3, // 3 could represent 'final approved'
-                                'updated_by' => $actionBy,
-                            ]);
-                            $updateData['status'] = 3; // Mark the history entry as final approved
-                        } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
-                            $application->update([
-                                'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                                'updated_by' => $actionBy,
-                            ]);
-
-                            $updateData['status'] = $applicationForwardedTo['application_status'];
+                        if ($statusCode != 201) {
+                            throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                         }
                     }
 
-                    $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+                    // Finalize approval if it's at the maximum level
+                    $application->update([
+                        'status' => 3, // 3 could represent 'final approved'
+                        'updated_by' => $actionBy,
+                    ]);
+                    $updateData['status'] = 3; // Mark the history entry as final approved
+                } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
+                    $application->update([
+                        'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+                        'updated_by' => $actionBy,
+                    ]);
 
-                    // Update application history
-                    if ($applicationHistory) {
-                        $applicationHistory->update($updateData);
-                    }
-                }
-
-                DB::commit();
-
-                $model = preg_replace(
-                    ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                    ['', '$1 Application'],
-                    $model
-                );
-                $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
-                // Update application history
-                if ($applicationHistory) {
-                    $applicationHistory->update($updateData);
+                    $updateData['status'] = $applicationForwardedTo['application_status'];
                 }
             }
 
-            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
+            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+
+            // Update application history
+            if ($applicationHistory) {
+                $applicationHistory->update($updateData);
+            }
+
+
+            DB::commit();
+
+            $model = preg_replace(
+                ['/App\\\\Models\\\\/', '/([a-z])Application/'],
+                ['', '$1 Application'],
+                $model
+            );
+            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+            // Update application history
+            if ($applicationHistory) {
+                $applicationHistory->update($updateData);
+            }
+        }
+        //sent email to approver as well as to initiator
+        // if(){
+
+        // }
+        return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -194,9 +195,39 @@ class ApprovalController extends Controller
         }
     }
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount = null)
     {
-        return $postFields = '{
+        if ($tax_amount) {
+            return $postFields = '{
+                "ReferenceDate":"' . date('Y-m-d') . '",
+                "Memo": "' . $memo . '",
+                "JournalEntryLines": [
+                    {
+                        "AccountCode": "' . $accountCode . '",
+                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode2": "' . $costingCode2 . '",
+                        "Credit": 0,
+                        "Debit": "' . $amount . '"
+                    },
+                    {
+                        "ShortName": "' . $shortName . '",
+                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode2": "' . $costingCode2 . '",
+                        "Credit": "' . $amount - $tax_amount . '",
+                        "Debit": 0
+                    },
+                    {
+                        "AccountCode": "' . TAX_GL_CODE . '",
+                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode2": "' . $costingCode2 . '",
+                        "Credit": "' . $tax_amount . '",
+                        "Debit": 0
+                    }
+
+                ]
+            }';
+        } else {
+            return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
                             "Memo": "' . $memo . '",
                             "JournalEntryLines": [
@@ -216,5 +247,18 @@ class ApprovalController extends Controller
                                 }
                             ]
                         }';
+        }
     }
-}
+
+    public function show(Request $request, $id)
+    {
+        $tab = $request->query('tab');
+        $mappedModel = config('global.applications')[$request->query('tab')];
+        $data = $mappedModel['name']::findOrFail($id);
+        $approverDetails = []; //do later on
+        $empDetails = empDetails($data->created_by);
+            return view('approval.show', compact('data', 'tab', 'empDetails'));
+        }
+
+    }
+

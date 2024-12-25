@@ -52,7 +52,7 @@ class LeaveApplicationController extends Controller
     {
 
         try{$privileges = $request->instance();
-        $leaveApplications = LeaveApplication::with('leaveType:id,name','leave_approved_by:id,name')->filter($request)->orderBy('created_at', 'desc')->get();
+        $leaveApplications = LeaveApplication::with('leaveType:id,name','leave_approved_by:id,name', 'histories:application_id,remarks')->filter($request)->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());
@@ -164,7 +164,7 @@ class LeaveApplicationController extends Controller
             if(isset($approverByHierarchy['approver_details'])){
                 $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days.';
                 $emailSubject = 'Leave Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
             DB::rollBack();

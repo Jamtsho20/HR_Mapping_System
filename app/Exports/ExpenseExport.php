@@ -13,7 +13,7 @@ class ExpenseExport implements FromCollection, WithHeadings
      * @return \Illuminate\Support\Collection
      */
     protected $request;
-    
+
 
     // Constructor to inject the Request
     public function __construct($request)
@@ -40,11 +40,20 @@ class ExpenseExport implements FromCollection, WithHeadings
                 $expense->employee->name,
                 $expense->employee->empJob->designation->name,
                 $expense->employee->empJob->department->name,
-                $expense->expenseType->name,
-                $expense->expense_amount,
+                $expense->type->name,
+                $expense->vehicle->vehicle_no ?? '-',
+                $expense->expense_no,
+                $expense->amount,
+                $expense->travel_type,
+                $expense->travel_mode,
+                $expense->travel_from_date,
+                $expense->travel_to_date,
+                $expense->travel_from,
+                $expense->travel_to,
+                $expense->travel_disatnce,
                 $expense->description,
                 $statusClasses[$expense->status],
-                $expense->expense_approved_by->name,
+                $expense->expense_approved_by->name ?? '-',
 
 
             ];
@@ -58,12 +67,19 @@ class ExpenseExport implements FromCollection, WithHeadings
             'Designation',
             'Department',
             'Expense Type',
+            'Vehicle No',
+            'Expense No',
             'Expense Amount',
+            'Travel Type',
+            'Travel Mode',
+            'Travel From Date',
+            'Travel To Date',
+            'Travel From',
+            'Travel To',
+            'Travel Distance',
             'Description',
             'Status',
             'Approved By',
-
-
         ];
     }
 }

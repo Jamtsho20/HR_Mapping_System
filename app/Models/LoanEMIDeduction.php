@@ -9,7 +9,7 @@ class LoanEMIDeduction extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'mas_pay_head_id', 'mas_employee_id', 'start_date', 'end_date', 'amount', 'loan_number', 'loan_type', 'recurring', 'recurring_months', 'remark', 'is_paid_of'
+        'mas_pay_head_id', 'mas_employee_id', 'start_date', 'end_date', 'amount', 'loan_number',   'loan_type_id',  'recurring', 'recurring_months', 'remark', 'is_paid_of'
     ];
 
     public function employee()

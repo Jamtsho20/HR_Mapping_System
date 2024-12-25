@@ -19,14 +19,14 @@
                                 <option value="" disabled selected hidden>Select your option</option>
                                 @foreach ($expenses as $expense)
                                     <option value="{{ $expense->id }}"
-                                        {{ old('expense_type', $expenseApplication->mas_expense_type_id) == $expense->id ? 'selected' : '' }}>
+                                        {{ old('expense_type', $expenseApplication->type_id) == $expense->id ? 'selected' : '' }}>
                                         {{ $expense->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <!-- Hidden input to store the selected value for disabled field -->
                         <input type="hidden" name="expense_type" id="expense_type"
-                            value="{{ old('expense_type', $expenseApplication->mas_expense_type_id) }}">
+                            value="{{ old('expense_type', $expenseApplication->type_id) }}">
                     </div>
 
                     <div class="col-md-4">
@@ -40,7 +40,7 @@
                     </div>
 
                     {{-- Fuel claim and parking fee --}}
-                    @if (in_array($expenseApplication->mas_expense_type_id, [5, 7]))
+                    @if (in_array($expenseApplication->type_id, [5, 7]))
                         <div class="col-md-4" id="vehicle">
                             <label for="mas_vehicle_id">Vehicle No <span class="text-danger">*</span></label>
                             <select class="form-control" id="mas_vehicle_id" name="mas_vehicle_id">
@@ -86,7 +86,7 @@
                 </div>
                 {{-- Fuel claim and parking fee --}}
 
-                @if ($expenseApplication->mas_expense_type_id == 5)
+                @if ($expenseApplication->type_id == 5)
                     <div class="tab-pane" id="vehiclefuelclaimsection">
                         <div class="card">
                             <div class="card-body p-0">
@@ -191,7 +191,7 @@
                 @endif
                 <!--Conveyance Form-->
 
-                @if ($expenseApplication->mas_expense_type_id == 1)
+                @if ($expenseApplication->type_id == 1)
                     @include('expense.apply.edit-form.conveyance')
                 @endif
             </div>

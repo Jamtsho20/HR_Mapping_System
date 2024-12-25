@@ -22,10 +22,10 @@ class ApplicationForwardedMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($requestingUserId, $approvingEmpName, $emailContent, $emailSubject)
+    public function __construct($requestingUserId, $approvingUserId, $emailContent, $emailSubject)
     {
         $this->reqEmpName = User::where('id', $requestingUserId)->value('name');
-        $this->approvingEmpName = $approvingEmpName;
+        $this->approvingEmpName = User::where('id', $approvingUserId)->value('name');;
         $this->emailContent = $emailContent;
         $this->emailSubject = $emailSubject;
     }

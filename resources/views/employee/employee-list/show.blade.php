@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Showing Employee Details')
+@section('page-title', 'Employee Details')
 @section('buttons')
 <a href="{{ url('employee/employee-lists/')}}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Employee
     List</a>
@@ -79,7 +79,7 @@
         </div>
     </div>
     <!-- Address -->
-    <div class="row col-md-12">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title mb-1 mt-1">Address Details</h3>
@@ -151,7 +151,7 @@
                                     class="pull-right">{{ $employee->empJob->department->code_name }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Section</b> <a class="pull-right">{{ $employee->empJob->section->name }}</a>
+                                <b>Section</b> <a class="pull-right">{{ $employee->empJob->section->name ??'-' }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Designation</b> <a class="pull-right">{{ $employee->empJob->designation->name }}</a>
@@ -345,10 +345,10 @@
         </div>
     </div>
     <!-- Documents -->
-    <div class="row col-md-12">
+    <div class=" col-md-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-1 mt-1">Documents</h3>
+                <h3 class="card-title mb-1 mt-1">Document (s)</h3>
             </div>
             <div class="card-body">
                 <div class="row ">
@@ -381,14 +381,49 @@
             </div>
         </div>
     </div>
-    @endsection
-    @push('page_scripts')
-    <script>
-        $(document).ready(function() {
-            $('.btn-tool').on('click', function() {
-                var icon = $(this).find('i');
-                icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
-            });
+    <!-- Appointment Order -->
+    <div class=" col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-1 mt-1">Appointment Order (s)</h3>
+            </div>
+            <div class="card-body">
+                <div class="row ">
+
+                    <div class="col-md-12">
+                        @if($employee->appointment_order)
+
+                        <a href="{{ Storage::url($employee->appointment_order) }}" class="btn btn-primary" target="_blank">
+                            <i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>&nbsp; Probation Appointment Order
+                        </a>
+                        @endif
+
+                        @if($employee->regular_appointment_order)
+                        <a href="{{ Storage::url($employee->regular_appointment_order) }}" class="btn btn-primary"
+                            target="_blank" target="_blank" target="_blank">
+                            <i class="fa fa-file-pdf-o text-secondary" aria-hidden="true"></i>&nbsp; Regular Appointment Order
+                        </a>
+
+                        @endif
+
+
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+@push('page_scripts')
+<script>
+    $(document).ready(function() {
+        $('.btn-tool').on('click', function() {
+            var icon = $(this).find('i');
+            icon.toggleClass('fa-plus fa-minus'); // Toggle the icon
         });
-    </script>
-    @endpush
+    });
+</script>
+@endpush

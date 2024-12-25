@@ -38,13 +38,20 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="transferclaim">Transfer Claim <span class="text-danger">*</span></label>
-                        <select name="transfer_claim" id="transferclaim" class="form-control form-control-sm" disabled>
-                            <option value="" disabled selected>Select an option</option>
-                            @foreach($trasnferClaim as $claim)
-                            <option value="{{$claim->name}}" {{ old('transfer_claim',$transfer->transfer_claim) == $claim->name ? 'selected' : '' }}>{{$claim->name}}</option>
-                            @endforeach
-                        </select>
+                        <input type="text" id="transferclaim" class="form-control form-control-sm" name="transfer_claim" value="{{$transfer->type->name}}" disabled>
+
                         <input type="hidden" value="{{$transfer->transfer_claim}}" name="transfer_claim">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div>
+                        @if($transfer->type->id==2)
+                        <tr>
+                            <label for="distanceTravelled">Distance Travelled <span class="text-danger">*</span></label>
+                            <input type="number" id="distanceTravelled" class="form-control form-control-sm" name="distance_travelled" value="{{$transfer->distance_travelled }}">
+                        </tr>
+                        @endif
                     </div>
                 </div>
 
@@ -71,7 +78,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="">Amount Claimed <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="amount_claimed" value="{{old('amount_claimed',$transfer->amount_claimed)}}">
+                        <input type="text" class="form-control" name="amount" value="{{old('amount',$transfer->amount)}}">
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -97,15 +104,17 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card-footer">
-        @include('layouts.includes.buttons', [
-        'buttonName' => 'UPDATE',
-        'cancelUrl' => url('expense/transfer-claim'),
-        'cancelName' => 'CANCEL'
-        ])
 
+        <div class="card-footer">
+            @include('layouts.includes.buttons', [
+            'buttonName' => 'UPDATE',
+            'cancelUrl' => url('expense/apply-expense'),
+            'cancelName' => 'CANCEL'
+            ])
+
+        </div>
     </div>
+
 
 </form>
 <script>

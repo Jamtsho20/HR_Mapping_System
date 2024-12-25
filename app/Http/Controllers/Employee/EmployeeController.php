@@ -26,20 +26,32 @@ use App\Models\MasQualification;
 use App\Models\MasSection;
 use App\Models\Role;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\Api\SAP\ApiController;
+use App\Http\Controllers\Api\SOMs\ApiController as SomsApiController;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
+    protected $apiController;
+    protected $somsApiController;
+
     /**
      * Display a listing of the resource.
      */
-    public function __construct()
+    public function __construct(ApiController $apiController, SomsApiController $somsApiController)
     {
         $this->middleware('permission:employee/employee-lists,view')->only('index', 'show');
         $this->middleware('permission:employee/employee-lists,create')->only('store');
         $this->middleware('permission:employee/employee-lists,edit')->only('update', 'edit');
         $this->middleware('permission:employee/employee-lists,delete')->only('destroy');
+
+        $this->apiController = $apiController;
+        $this->somsApiController = $somsApiController;
     }
 
     private $filePath = 'images/employee/';
@@ -68,6 +80,7 @@ class EmployeeController extends Controller
         $offices = MasOffice::orderBy('name')->get(['id', 'name']);
         $fixedEmpId = fixEmployeeId($this->fetchHighestEmpId() + 1);
         $roles = Role::orderBy('id')->get();
+        $suffix = MasEmployeeJob::select('suffix')->get();
         $employeeGroups = MasEmployeeGroup::orderBy('name')->whereStatus(1)->get(['id', 'name']);
 
         return view('employee/employee-list.create', compact('dzongkhags', 'gewogs', 'departments', 'designations', 'grades', 'gradeSteps', 'sections', 'employmentTypes', 'qualifications', 'fixedEmpId', 'offices', 'roles', 'employeeGroups'));
@@ -201,12 +214,33 @@ class EmployeeController extends Controller
             }
             $employee->registered_email_sent = true;
             $employee->save();
+            if ($employee->status == 'Completed') {
+                $this->postEmployeeToSap($employee);
+                $this->postEmployeeToSoms($employee);
+                // $somsData = $this->prepareSomsData();
+            }
+            if (!$employee->appointment_order) {
+                $this->appointmentOrder($employee);
+            }
 
             return redirect()->route('employee-lists.index')->with('msg_success', 'Employee updated successfully');
         }
         $nextTab = $this->getNextTab($tab);
         return redirect()->route('employee-lists.edit', ['employee_list' => $id, 'tab' => $nextTab])->with('msg_success', 'Data saved successfully for ' . $tab . '.');
     }
+
+    public function appointmentOrder($employee)
+    {
+        $pdf = Pdf::loadView('office-order.appointment-order-pdf', compact('employee'));
+
+        $fileName = 'AO-' . $employee->username . '.pdf';
+        $filePath = 'office-order/appointment-order/' . $fileName;
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        $employee->appointment_order = $filePath;
+        $employee->save();
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -223,8 +257,8 @@ class EmployeeController extends Controller
     }
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
-    { 
-        $user = $employeeId ? User::findOrFail($employeeId): "";
+    {
+        $user = $employeeId ? User::findOrFail($employeeId) : "";
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -378,6 +412,7 @@ class EmployeeController extends Controller
                 'mas_department_id' => $job['mas_department_id'],
                 'mas_section_id' => $job['mas_section_id'] ?? null,
                 'mas_designation_id' => $job['mas_designation_id'],
+                'suffix' => $job['suffix'],
                 'mas_grade_id' => $job['mas_grade_id'],
                 'mas_grade_step_id' => $job['mas_grade_step_id'],
                 'has_probation' => $job['mas_employment_type_id'] == 2 ? 1 : 0,
@@ -502,11 +537,11 @@ class EmployeeController extends Controller
     {
         $filteredExperiences = array_filter($experiences, function ($experience) {
             return !empty($experience['organization']) ||
-            !empty($experience['place']) ||
-            !empty($experience['designation']) ||
-            !empty($experience['start_date']) ||
-            !empty($experience['end_date']) ||
-            !empty($experience['certificate']);
+                !empty($experience['place']) ||
+                !empty($experience['designation']) ||
+                !empty($experience['start_date']) ||
+                !empty($experience['end_date']) ||
+                !empty($experience['certificate']);
         });
         $experienceIdsInRequest = []; // Track IDs from the request
 
@@ -594,19 +629,35 @@ class EmployeeController extends Controller
         }
 
         // Handle 'other' documents
-        if (isset($doc['other'])) {
-            // Remove old files for 'other' documents
-            if ($empDocument->other) {
-                delete_image($empDocument->other);
-                // $existingOtherDocs = json_decode($empDocument->other, true);
-                // foreach ($existingOtherDocs as $oldFile) {
-                //     if ($oldFile) {
-                //         delete_image($oldFile);
-                //     }
-                // }
+
+
+        if (isset($doc['other']) || $request['existing_documents']) {
+
+            // Combine existing documents with new ones
+            if (isset($request['existing_documents']) && is_array($request['existing_documents'])) {
+                // Use existing documents and upload new ones
+
+                $existingDocuments = $request['existing_documents'];
+            } else {
+
+                $existingDocuments = [];
             }
-            $otherDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), $doc['other']);
+
+            // Upload new files and merge with existing
+            $uploadedDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), isset($doc['other']) ? $doc['other'] : []);
+            $otherDocuments = array_merge($existingDocuments, $uploadedDocuments);
         } else {
+
+            if (isset($empDocument->other)) {
+
+                delete_image($empDocument->other); // delete from the storage
+
+                // delete from db
+                $empDocument->other = null;
+                $empDocument->save();
+            }
+
+            // If no new documents are provided, just use existing ones if available
             $otherDocuments = $empDocument->other ? json_decode($empDocument->other, true) : [];
         }
 
@@ -621,7 +672,8 @@ class EmployeeController extends Controller
             ]
         );
     }
-    private function assignRoles($roles, $id, $request){
+    private function assignRoles($roles, $id, $request)
+    {
         $user = User::findOrFail($id);
         $rolesAssigned = [];
         foreach ($request->roles as $key => $value) {
@@ -647,5 +699,168 @@ class EmployeeController extends Controller
     private function fetchHighestEmpId()
     {
         return User::where('username', '<>', 'SAP000')->max('employee_id');
+    }
+
+    private function postEmployeeToSap($employee)
+    {
+        // dd($employee);
+        $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
+        $sapData = [
+            'CardCode' => $employee->username,
+            'CardName' => trim($employee->first_name . ' ' . ($employee->middle_name ?? '') . ' ' . ($employee->last_name ?? '')),
+            'CardType' => 'C',
+            'GroupCode' => 108,
+            'Currency' => '',
+            'CardForeignName' => $employee->cid_no,
+            'Country' => 'BT',
+            'DebitorAccount' => '34611',
+            'DownPaymentInterimAccount' => '23245',
+            "BPFiscalTaxIDCollection" =>
+            [
+
+                ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+            ]
+        ];
+        $this->apiController->postEmployeeToSap($sapData);
+    }
+
+    private function postEmployeeToSoms($employee)
+    {
+        $masOfficeId = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('mas_office_id');
+        $empDzongkhag = \DB::select("
+            select
+                t2.dzongkhag
+            from mas_offices t1
+                left join mas_dzongkhags t2 on t2.id = t1.mas_dzongkhag_id
+            where t1.id = ?
+        ", [$masOfficeId])[0];
+
+        $somsData = [
+            'employee_code' => str_replace('E', '', $employee->username),
+            // 'employee_code' => 2005,
+            'person_id' => $employee->id,
+            'first_name' => $employee->first_name,
+            'middle_name' => $employee->middle_name,
+            'last_name' => $employee->last_name,
+            'title' => $employee->title,
+            'sex' => config('global.gender')[$employee->gender],
+            'dateOfBirth' => $employee->dob,
+            'mobile_number' => $employee->contact_number,
+            'email_address' => $employee->email,
+            'status' => $employee->is_active,
+            'locatorId' => $empDzongkhag->dzongkhag,
+        ];
+        $this->somsApiController->postEmployeeToSoms($somsData);
+    }
+    public function showRegularizeDetails(Request $request)
+    {
+
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $employees = User::filter($request)
+            ->whereHas('empJob.empType', function ($query) {
+                $query->where('id', 3);
+            })
+            ->whereBetween(
+                DB::raw("DATE_ADD(date_of_appointment, INTERVAL 6 MONTH)"),
+                [$startOfMonth, $endOfMonth]
+            )
+            ->orderBy('name')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+        return view('employee/regularize-list.index', compact('employees'));
+    }
+
+    public function toggleStatus(Request $request)
+    {
+        try {
+            $record = User::findOrFail($request->id);
+
+            if (!$record) {
+                return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+            }
+            DB::beginTransaction();
+
+            $record->is_regularized = $request->is_regularized;
+            $record->save();
+
+            DB::commit();
+
+            // $record->regularized_on = Carbon::now();
+            // $record->save();
+
+            // if (!$record->regular_appointment_order && $record->is_regularized == 1) {
+            //     $this->RegularappointmentOrder($record);
+            // }
+
+            return response()->json(['success' => true, 'message' => 'regularize status updated successfully!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating regularize status: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the regularize status.',
+                'refreshPage' => true
+            ]);
+        }
+    }
+
+    public function generateRegularAO(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $record = User::findOrFail($request->id);
+
+            if (!$record) {
+                return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+            }
+
+            // Ensure empJob exists
+            if (!$record->empJob) {
+                return response()->json(['success' => false, 'message' => 'Employee job details not found'], 404);
+            }
+
+            // Update the employee record and related job details
+            $record->regularized_on = Carbon::now();
+            $record->empJob->mas_employment_type_id = 2;
+            $record->empJob->save();
+            $record->save();
+
+            // Generate the regular appointment order if required
+            if (!$record->regular_appointment_order && $record->is_regularized == 1) {
+                try {
+                    $this->RegularappointmentOrder($record);
+                } catch (\Exception $e) {
+                    throw new \Exception("Error in RegularappointmentOrder: " . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Appointment Order generated successfully!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error generating Appointment order: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while generating the Appointment order.',
+                'refreshPage' => true
+            ]);
+        }
+    }
+
+    public function RegularappointmentOrder($employee)
+    {
+        $pdf = Pdf::loadView('office-order.regular-appointment-order-pdf', compact('employee'));
+
+        $fileName = 'RAO-' . $employee->username . '.pdf';
+        $filePath = 'office-order/appointment-order/' . $fileName;
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        $employee->regular_appointment_order = $filePath;
+        $employee->save();
     }
 }

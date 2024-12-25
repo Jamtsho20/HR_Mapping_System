@@ -27,7 +27,7 @@ class LeaveAvailedReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $employeeLists = employeeList();
+        $employee = employeeList();    
         $leaveTypes = MasLeaveType::select('id', 'name')->get();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
@@ -35,7 +35,7 @@ class LeaveAvailedReportController extends Controller
         $leaveReports = LeaveApplication::filter($request, false)->paginate(config('global.pagination'))->withQueryString();
 
 
-        return view('report.leave-availed-report.index', compact('leaveReports', 'leaveTypes', 'departments', 'sections'));
+        return view('report.leave-availed-report.index', compact('leaveReports', 'leaveTypes', 'departments', 'sections', 'employee'));
     }
 
     /**

@@ -19,6 +19,16 @@
     <div class="col-3 form-group">
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
     </div>
+    <div class="col-3 form-group">
+        <select name="employee_id" class="form-control ">
+            <option value="" disabled="" selected="" hidden="">Select Employee ID</option>
+            @foreach ($employee as $name)
+            <option value="{{ $name->id }}" {{ request()->get('employee_id') == $name->id ? 'selected' : '' }}>
+                {{ $name->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
 
     <div class="col-2 form-group">
         <select name="leave_type" class="form-control ">
@@ -31,7 +41,7 @@
         </select>
     </div>
 
-    <div class="col-md-2">
+    <div class="col-2">
         <select class="form-control" name="department">
             <option value="" disabled="" selected="" hidden="">Select Department</option>
             @foreach($departments as $department)
@@ -43,7 +53,7 @@
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-3">
         <select class="form-control" name="section">
             <option value="" disabled selected hidden>Select Sections</option>
             @foreach($sections as $section)

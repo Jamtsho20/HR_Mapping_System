@@ -85,7 +85,7 @@ class ExpenseApplicationController extends Controller
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,
-                
+
             ]);
             // return $this->successResponse([$expenseApplications,  $empIdName, $dsaClaimApplications, $transferClaims], 'Expense applications retrieved successfully');
             } catch (\Exception $e) {
@@ -271,9 +271,9 @@ class ExpenseApplicationController extends Controller
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->expense_amount . ' is awaiting your approval.';
+                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
                     $emailSubject = 'Expense Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }
                 return response()->json([
                     'expenseApplication' => $expenseApplication,
@@ -444,7 +444,7 @@ public function update(Request $request, $id)
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
         // if ($attachmentRequired && !$attachment) {
         if ($attachmentRequired && !$attachment) {
-            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
+            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png,doc|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }

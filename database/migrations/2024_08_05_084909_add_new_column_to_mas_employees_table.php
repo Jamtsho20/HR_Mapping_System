@@ -32,6 +32,10 @@ return new class extends Migration
             $table->tinyInteger('registered_email_sent')->default(0);
             $table->tinyInteger('encashment_email_sent')->default(0);
             $table->date('regularized_on')->nullable();
+            $table->string('appointment_order')->nullable();
+            $table->string('regular_appointment_order')->nullable();
+            $table->tinyInteger('is_regularized')->default(0);
+          
         });
     }
 

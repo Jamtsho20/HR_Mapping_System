@@ -18,7 +18,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="interest_rate">Interest Rate (%) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="interest_rate" id="interest_rate_gadget" value="0" required>
+                <input type="number" class="form-control" name="interest_rate" id="interest_rate_gadget" value="0" required readonly>
             </div>
         </div>
     </div>
@@ -63,7 +63,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="attachment">Attachment </label>
-                <input type="file" class="form-control" name="attachment" accept="image/*"/>
+                <input type="file" class="form-control" name="attachment" accept="image/*,.pdf,.doc,.docx"/>
             </div>
         </div>
     </div>

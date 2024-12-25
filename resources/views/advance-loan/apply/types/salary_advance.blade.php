@@ -37,7 +37,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="attachment">Attachment </label>
-                <input type="file" class="form-control" name="attachment" accept="image/*"/>
+                <input type="file" class="form-control" name="attachment" accept="image/*,.pdf,.doc,.docx"/>
             </div>
         </div>
     </div>

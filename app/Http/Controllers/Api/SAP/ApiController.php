@@ -309,4 +309,63 @@ class ApiController extends BaseController
         return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
 
+    public function postEmployeeToSap($data)
+    {
+        // dd(json_encode($data));
+        $response = $this->startSession();
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $session = json_decode($response->getContent(), true);
+
+            $sessionId = $session['sessionId'] ?? null;
+        } else {
+            return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+        }
+
+        if (empty($sessionId)) {
+            return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+        }
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . '/b1s/v1/BusinessPartners',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                "Cookie: $sessionId; B1SESSION=$sessionId",
+                'Content-Type: application/json',
+            ],
+            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+            CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
+        ));
+
+        $response = curl_exec($curl);
+        $responseArray = json_decode($response, true);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        // dd('http_code:' . $httpCode, $response);
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+            curl_close($curl);
+            return response()->json(['msg_error' => 'Curl error: ' . $error_msg], 500);
+        }
+
+        curl_close($curl);
+
+        if ($httpCode != 201) {
+            $errorMessage = $responseArray['error']['message']['value'] ?? 'Something went wrong from SAP API';
+            \Log::info($errorMessage);
+            return response()->json(['msg_error' => $errorMessage], $httpCode);
+        }
+        // dd($responseArray);
+        \Log::info('sap response: ' . json_encode($responseArray));
+        return response()->json(['success' => true, 'data' => $responseArray], 201);
+    }
+    
 }

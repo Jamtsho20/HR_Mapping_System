@@ -39,7 +39,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @forelse ($sifas as $sifa)
+                                                    @forelse ($results->get(8) as $sifa)
                                                     <tr>
                                                         <td><input type="checkbox" class="bulk_checkbox" value="{{ $sifa->id }}"></td>
                                                         <td>{{ $sifa->employee->emp_id_name }}</td>
@@ -64,7 +64,7 @@
                                                         </td>
                                                         <td class="text-center">
                                                             @if ($privileges->view)
-                                                            <a href="{{ url('sifa/sifa-approval/' . $sifa->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
+                                                            <a href="{{ url('approval/applications/' . $sifa->id) . '?tab=8'}}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                             @endif
                                                             <!-- @if ($privileges->edit)
                                                                         <a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"
