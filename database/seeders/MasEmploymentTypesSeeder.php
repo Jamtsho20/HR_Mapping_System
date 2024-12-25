@@ -21,6 +21,7 @@ class MasEmploymentTypesSeeder extends Seeder
             [ 'name' => 'Long-term Contract(Technical Staff Group 2 Level)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
             [ 'name' => 'Long-term Contract(General Support Staff Group)', 'remarks' => 'Long Term Contract Employee', 'created_by' => 1],
             [ 'name' => 'Short-term Contract', 'remarks' => 'Short Term Contract Employee', 'created_by' => 1],
+            [ 'name' => 'Consolidate T Employee', 'remarks' => 'Consolidate T Employee', 'created_by' => 1],
         ]);
     }
 }

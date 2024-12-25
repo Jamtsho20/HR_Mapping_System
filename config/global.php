@@ -184,7 +184,8 @@ return [
     'applications' => [
         1 => [
             'name' => App\Models\LeaveApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => false,
+            // 'mail_content' => ''
         ],
         2 => [
             'name' => App\Models\ExpenseApplication::class,

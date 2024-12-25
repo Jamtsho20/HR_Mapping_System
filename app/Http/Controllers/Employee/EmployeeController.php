@@ -59,8 +59,8 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        // dd(User::get());
         $employees = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
-
         return view('employee/employee-list.index', compact('privileges', 'employees'));
     }
     /**

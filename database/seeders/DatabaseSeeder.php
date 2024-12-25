@@ -47,12 +47,13 @@ class DatabaseSeeder extends Seeder
         $this->call(MasExpenseTypesSeeder::class);
         $this->call(ApprovingAuthoritySeeder::class);
         $this->call(HierarchyTableSeeder::class);
-        // $this->call(MasEmploymentTypesSeeder::class);
         $this->call(AdvanceTypesSeeder::class);
         $this->call(MasApprovalHeadSeeder::class);
         $this->call(MasApprovalRuleConditionOperatorSeeder::class);
         $this->call(InterestRateSeeder::class);
-        $this->call(MasVehicleSeeder::class);
+
+        $this->call(MasVehicleTypeSeeder::class);
+        // $this->call(MasVehicleSeeder::class);
         $this->call(TransferClaimSeeder::class);
         $this->call(BudgetTypesSeeder::class);
         $this->call(BudgetCodeSeeder::class);

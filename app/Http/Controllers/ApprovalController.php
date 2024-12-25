@@ -166,8 +166,7 @@ class ApprovalController extends Controller
             if ($applicationHistory) {
                 $applicationHistory->update($updateData);
             }
-
-
+            // dd($type);
             DB::commit();
 
             $model = preg_replace(
@@ -182,15 +181,15 @@ class ApprovalController extends Controller
             }
         }
         //sent email to approver as well as to initiator
-        if($updateData['status'] == 2){
-            $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . ' to ' . $request->to_date . '.';
-            $subject = $emailSubject;
-            Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $subject));
-        }else if($updateData['status'] == 3){
-
-        }else{
-
-        }
+        // if($updateData['status'] == 2){
+        //     // $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . ' to ' . $request->to_date . '.';
+        //     $this->sentMail($emailSubject, $application, $type, $updateData['status'], $applicationForwardedTo);
+        //     // Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $subject));
+        // }else if($updateData['status'] == 3){
+        //     $this->sentMail($emailSubject, $application, $type, $updateData['status']);
+        // }else{
+        //     $this->sentMail($emailSubject, $application, $type, $updateData['status']);
+        // }
 
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
         // } catch (\Exception $e) {
@@ -267,5 +266,26 @@ class ApprovalController extends Controller
             return view('approval.show', compact('data', 'tab', 'empDetails'));
         }
 
+    private function sentMail($emailSubject, $applicationData, $appType, $status, $applicationForwardedTo = null)
+    {
+        // dd($emailSubject, $applicationData, $appType, $status, $applicationForwardedTo);
+        // mail to approver
+        if($status == 2){
+            $this->prepareEmailContent();
+            Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $applicationForwardedTo['approver_details']['user_with_approving_role']->id, $emailSubject));
+        }else if($status == 3){
+
+        }else{
+
+        }
+        // Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+        //mail to requesting user
     }
+
+    private function prepareEmailContent() 
+    {
+
+    }
+}
+
 
