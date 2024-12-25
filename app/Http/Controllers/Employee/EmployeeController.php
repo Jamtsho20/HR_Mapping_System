@@ -722,7 +722,7 @@ class EmployeeController extends Controller
 
                     ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
                 ]
-                ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+                
             ]
         ];
         $this->apiController->postEmployeeToSap($sapData);
