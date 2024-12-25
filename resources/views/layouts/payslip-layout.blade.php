@@ -32,6 +32,12 @@
             border: none;
         }
 
+        div.borderonlyleft {
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            border-left: 1px solid #000;
+        }
         div.borderonlyright {
             border-left: none;
             border-top: none;

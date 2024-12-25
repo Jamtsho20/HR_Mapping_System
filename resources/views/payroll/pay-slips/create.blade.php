@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Pay Slip')
 @section('buttons')
-    <a href="{{ route('pay-slips.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Payslip
-        List</a>
+    <a href="{{ route('pay-slips.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
     <form action="{{ route('pay-slips.store') }}" method="POST">

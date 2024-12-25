@@ -88,14 +88,14 @@ class ApprovalController extends Controller
                     continue;
                 }
 
-                $costingCode2 = null;
+                $costingCode = null;
                 $type = $application->type;
 
                 if ($applicationType == 2) { // Expense
                     $typeId = $type->id;
 
                     if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
-                        $costingCode2 = $application->vehicle->vehicle_no;
+                        $costingCode = $application->vehicle->vehicle_no;
                     }
 
                     $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
@@ -129,11 +129,10 @@ class ApprovalController extends Controller
                             $shortName = $application->employee->username = "E00993";
                             $amount = $application->amount;
                             $postToSap = $type->post_to_sap;
-                            $costingCode = null;
+                            $costingCode2 = null; // department
 
-                            if ($postToSap && ($accountCode && $shortName && $amount)) {
+                            if ($postToSap) {
                                 // Post to SAP after final Approval
-
                                 $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount);
 
                                 Log::debug($postFields);

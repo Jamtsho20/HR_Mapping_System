@@ -70,8 +70,11 @@ const EARNED_LEAVE_CREDIT_AMOUNT = 2.5;
 const CASUAL_LEAVE_CREDIT_AMOUNT = 10;
 
 // Payslip statuses
+const SIFA_APPROVED = 3;
 const NEWLY_CREATED = 1;
 const PREPARED = 2;
 const VERIFIED = 3;
 const APPROVED_POSTED = 4;
 const UNPAID_SALARY_STAFF = 23197;
+const ALLOWANCE = 1;
+const DEDUCTION = 2;

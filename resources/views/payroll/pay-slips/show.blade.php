@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Showing Payslip Details')
+@section('page-title', 'Showing Pay slip Details')
 @section('buttons')
     <a href="{{ route('pay-slips.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
@@ -34,60 +34,67 @@
                 value="{{ request()->get('search') }}"placeholder="Search by employee name or id. eg. tashi or 1050">
         </div>
     @endcomponent
-    <div class="row row-sm">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Payslip Overview</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="dataTables_scroll">
-                                        <div class="dataTables_scrollHead"
-                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                            <div class="dataTables_scrollHeadInner"
-                                                style="box-sizing: content-box; padding-right: 0px;">
-                                                <table
-                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                    id="basic-datatable table-responsive">
-                                                    <thead>
-                                                        <tr role="row">
-                                                            <th>Name (ID)</th>
-                                                            <th>Basic Pay</th>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Pay slip Overview</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="dataTables_scroll">
+                                    <div class="dataTables_scrollHead"
+                                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                        <div class="dataTables_scrollHeadInner"
+                                            style="box-sizing: content-box; padding-right: 0px;">
+                                            <table
+                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                id="basic-datatable table-responsive">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>Name (ID)</th>
+                                                        <th>Basic Pay</th>
+                                                        @foreach ($payHeads as $payHead)
+                                                            <th>{{ $payHead->code }}</th>
+                                                        @endforeach
+                                                        <th>Gross Pay</th>
+                                                        <th>Net Pay</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse ($records as $record)
+                                                        <tr>
+                                                            <td>{{ $record->employee->name }}
+                                                                ({{ $record->employee->employee_id }})
+                                                            </td>
+                                                            <td>{{ $record->basic_pay }}</td>
                                                             @foreach ($payHeads as $payHead)
-                                                                <th>{{ $payHead->code }}</th>
-                                                            @endforeach
-                                                            <th>Gross Pay</th>
-                                                            <th>Net Pay</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @forelse ($records as $record)
-                                                            <tr>
-                                                                <td>{{ $record->employee->name }}
-                                                                    ({{ $record->employee->employee_id }})
+                                                                <td>{{ $record->{str_replace(' ', '_', $payHead->name)} }}
                                                                 </td>
-                                                                <td>{{ $record->basic_pay }}</td>
-                                                                @foreach ($payHeads as $payHead)
-                                                                    <td>{{ $record->{str_replace(' ', '_', $payHead->name)} }}
-                                                                    </td>
-                                                                @endforeach
-                                                                <td>{{ $record->gross_pay }}</td>
-                                                                <td>{{ $record->net_pay }}</td>
-                                                            </tr>
-                                                        @empty
-                                                            <tr>
-                                                                <td colspan="100" class="text-center text-danger">No
-                                                                    records found</td>
-                                                            </tr>
-                                                        @endforelse
-                                                    </tbody>
-                                                </table>
-                                                <div>{{ $records->links() }}</div>
-                                            </div>
+                                                            @endforeach
+                                                            <td>{{ $record->gross_pay }}</td>
+                                                            <td>{{ $record->net_pay }}</td>
+                                                            <td>
+                                                                @if ($paySlip->status['key'] == 4)
+                                                                    <a href="#" class="btn btn-primary btn-sm"
+                                                                        id="send-payslip"
+                                                                        data-url="{{ route('pay-slips.send', [$paySlip->id, $record->employee->id]) }}">Email
+                                                                        Pay slip</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="100" class="text-center text-danger">No
+                                                                records found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                            <div>{{ $records->links() }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -99,84 +106,82 @@
         </div>
     </div>
 
-    <div class="row row-sm">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Payslip Detail</h3>
-                    @if ($paySlip->status['key'] == 2)
-                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#add-pay-slip-detail-modal">
-                            <i class="fa fa-plus"></i> New
-                            Detail
-                        </button>
-                    @endif
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="dataTables_scroll">
-                                        <div class="dataTables_scrollHead"
-                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                            <div class="dataTables_scrollHeadInner"
-                                                style="box-sizing: content-box; padding-right: 0px;">
-                                                <table
-                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                    id="basic-datatable table-responsive">
-                                                    <thead>
-                                                        <tr role="row">
-                                                            <th>Name (ID)</th>
-                                                            <th>Pay Head</th>
-                                                            <th>Amount</th>
-                                                            <th>Updated At</th>
-                                                            <th>Action</th>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Pay slip Detail</h3>
+                @if ($paySlip->status['key'] == 2)
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#add-pay-slip-detail-modal">
+                        <i class="fa fa-plus"></i> New
+                        Detail
+                    </button>
+                @endif
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="dataTables_scroll">
+                                    <div class="dataTables_scrollHead"
+                                        style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                        <div class="dataTables_scrollHeadInner"
+                                            style="box-sizing: content-box; padding-right: 0px;">
+                                            <table
+                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                id="basic-datatable table-responsive">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>Name (ID)</th>
+                                                        <th>Pay Head</th>
+                                                        <th>Amount</th>
+                                                        <th>Updated At</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse ($details as $detail)
+                                                        <tr>
+                                                            <td>{{ $detail->employee->name }}
+                                                                ({{ $detail->employee->employee_id }})
+                                                            </td>
+                                                            <td>{{ $detail->payHead->name }}</td>
+                                                            <td>{{ $detail->amount }}</td>
+                                                            <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d H:i:s') : '' }}
+                                                            </td>
+                                                            <td>
+                                                                @if ($paySlip->status['key'] == 2)
+                                                                    <a href="javascript:void(0);"
+                                                                        class="btn btn-sm btn-rounded btn-outline-success"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#edit-pay-slip-detail-modal"
+                                                                        data-id="{{ $detail->id ?? '' }}"
+                                                                        data-employee-id="{{ $detail->mas_employee_id ?? '' }}"
+                                                                        data-pay-head-id="{{ $detail->mas_pay_head_id ?? '' }}"
+                                                                        data-amount="{{ $detail->amount ?? '' }}"
+                                                                        data-update-url="{{ route('pay-slip-detail.update', [$paySlip->id, $detail->id ?? 0]) }}">
+                                                                        <i class="fa fa-edit"></i> EDIT
+                                                                    </a>
+                                                                    <a href="javascript:void(0);"
+                                                                        id="delete-pay-slip-detail"
+                                                                        class="btn btn-sm btn-rounded btn-outline-danger"
+                                                                        data-id="{{ $detail->id ?? '' }}"
+                                                                        data-delete-url="{{ route('pay-slip-detail.delete', [$paySlip->id, $detail->id ?? 0]) }}">
+                                                                        <i class="fa fa-bin"></i> DELETE
+                                                                    </a>
+                                                                @endif
+                                                            </td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @forelse ($details as $detail)
-                                                            <tr>
-                                                                <td>{{ $detail->employee->name }}
-                                                                    ({{ $detail->employee->employee_id }})
-                                                                </td>
-                                                                <td>{{ $detail->payHead->name }}</td>
-                                                                <td>{{ $detail->amount }}</td>
-                                                                <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d H:i:s') : '' }}
-                                                                </td>
-                                                                <td>
-                                                                    @if ($paySlip->status['key'] == 2)
-                                                                        <a href="javascript:void(0);"
-                                                                            class="btn btn-sm btn-rounded btn-outline-success"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#edit-pay-slip-detail-modal"
-                                                                            data-id="{{ $detail->id ?? '' }}"
-                                                                            data-employee-id="{{ $detail->mas_employee_id ?? '' }}"
-                                                                            data-pay-head-id="{{ $detail->mas_pay_head_id ?? '' }}"
-                                                                            data-amount="{{ $detail->amount ?? '' }}"
-                                                                            data-update-url="{{ route('pay-slip-detail.update', [$paySlip->id, $detail->id ?? 0]) }}">
-                                                                            <i class="fa fa-edit"></i> EDIT
-                                                                        </a>
-                                                                        <a href="javascript:void(0);"
-                                                                            id="delete-pay-slip-detail"
-                                                                            class="btn btn-sm btn-rounded btn-outline-danger"
-                                                                            data-id="{{ $detail->id ?? '' }}"
-                                                                            data-delete-url="{{ route('pay-slip-detail.delete', [$paySlip->id, $detail->id ?? 0]) }}">
-                                                                            <i class="fa fa-bin"></i> DELETE
-                                                                        </a>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                        @empty
-                                                            <tr>
-                                                                <td colspan="5" class="text-center text-danger">No
-                                                                    records found</td>
-                                                            </tr>
-                                                        @endforelse
-                                                    </tbody>
-                                                </table>
-                                                <div>{{ $details->links() }}</div>
-                                            </div>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="5" class="text-center text-danger">No
+                                                                records found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                            <div>{{ $details->links() }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -337,6 +342,31 @@
                         },
                         cancel: function() {
 
+                        }
+                    }
+                });
+            });
+
+            $(document).on("click", "#send-payslip", function(e) {
+                e.preventDefault();
+
+                const url = $(this).data('url');
+
+                $.confirm({
+                    title: 'Email Pay slip!',
+                    content: 'Are you sure you want to email the payslip? This cannot be undone.',
+                    type: 'none',
+                    buttons: {
+                        ok: {
+                            text: "Yes, Proceed",
+                            btnClass: 'btn-primary',
+                            keys: ['enter'],
+                            action: function() {
+                                window.location.href = url;
+                            }
+                        },
+                        cancel: function() {
+                            //
                         }
                     }
                 });

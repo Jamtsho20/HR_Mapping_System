@@ -29,7 +29,7 @@ class PayrollService
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
             $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
-            $sifaMember = SifaRegistration::whereMasEmployeeId($employee->id)->whereIsRegistered(1)->whereStatus(APPROVED_POSTED)->first();
+            $sifaMember = SifaRegistration::whereMasEmployeeId($employee->id)->whereIsRegistered(1)->whereStatus(SIFA_APPROVED)->first();
 
             $employeeVariableValues = [];
             $employeeVariableValues['grade'] = $employee->empJob->grade->name;
@@ -608,11 +608,11 @@ class PayrollService
     {
         $paySlip = PaySlipDetailView::find($paySlipDetailId);
         $employee = $paySlip->employee;
-        $allowances = MasPayHead::orderBy("Name")->wherePayheadType(1)->get();
-        $deductions = MasPayHead::orderBy("Name")->wherePayheadType(2)->get();
+        $allowances = MasPayHead::orderBy("id")->wherePayheadType(1)->get();
+        $deductions = MasPayHead::orderBy("id")->wherePayheadType(2)->get();
 
         $totalDeductions = count($deductions);
-        $firstHalf = floor($totalDeductions / 2);
+        $firstHalf = ceil($totalDeductions / 2);
 
         $deductions1 = $deductions->splice($firstHalf);
 
@@ -620,7 +620,7 @@ class PayrollService
         $employeeName = str_replace("  ", " ", $employeeName);
 
         $data = compact('paySlip', 'employee', 'allowances', 'deductions', 'deductions1');
-        $pdf = PDF::loadView('pdf_templates.payslip', $data)->setPaper('a4', 'portrait');
+        $pdf = PDF::loadView('pdf_templates.payslip', $data)->setPaper('letter', 'portrait');
         $paySlipMonth = date_format(date_create($paySlip->for_month), "Y_m");
         $friendlyMonth = date_format(date_create($paySlip->for_month), "F, Y");
 
