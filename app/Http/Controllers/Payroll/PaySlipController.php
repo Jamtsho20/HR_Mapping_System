@@ -9,7 +9,6 @@ use App\Models\MasPayHead;
 use App\Models\PaySlip;
 use App\Models\PaySlipDetail;
 use App\Models\PaySlipDetailView;
-use App\Models\PaySlipSummary;
 use App\Models\User;
 use App\Services\PayrollService;
 use Carbon\Carbon;
@@ -217,34 +216,21 @@ class PaySlipController extends Controller
     // <POST> IN UI
     public function approvePaySlip($id, Request $request)
     {
-        // $this->postToSap();
-
-        // try {
+        try {
             $status = $request->query('status');
-            $paySlip = PaySlip::where('status', VERIFIED)->find($id);
+            $paySlip = PaySlip::where(['status' => VERIFIED, 'id' => $id])->firstOrFail();
 
             // Sap Integration
-            $forMonth = $paySlip->for_month;
-
-            PostSalaryToSapJob::dispatch($forMonth);
-
+            PostSalaryToSapJob::dispatch($paySlip);
             // Sap Integration ends
-
-            $result = $this->payrollService->updateStatus($paySlip, $status);
-
-            if (!$result) {
-                Log::error('Error approving payslip: ' . $result);
-
-                return redirect()->back()->with('msg_error', 'An error occurred while approving the payslip.');
-            }
 
             $month = Carbon::parse($paySlip->for_month)->format('F Y');
             return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been approved successfully.');
-        // } catch (\Exception $e) {
-        //     Log::error('Error approving payslip: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Error approving payslip: ' . $e->getMessage());
 
-        //     return redirect()->back()->with('msg_error', 'An unexpected error occurred while approving the payslip.');
-        // }
+            return redirect()->back()->with('msg_error', 'An unexpected error occurred while approving the payslip.');
+        }
     }
 
     public function mailPaySlip($id)
@@ -460,80 +446,22 @@ class PaySlipController extends Controller
         }
     }
 
-    public function postToSap($forMonth = "2024-12-01")
+    public function sendPayslip($payslipId, $employeeId) // inddividual employee
     {
-        $allowances = PaySlipSummary::where('for_month', $forMonth)
-            ->whereHas('payHead', function ($query) {
-                $query->where('payhead_type', 1);
-            })
-            ->with('payHead:id,name')
-            ->get();
+        try {
+            $payslip = PaySlip::findOrFail($payslipId);
+            $employee = User::findOrFail($employeeId);
 
-        $deductions = PaySlipSummary::where('for_month', $forMonth)
-            ->whereHas('payHead', function ($query) {
-                $query->where('payhead_type', 2);
-            })
-            ->with('payHead:id,name')
-            ->get();
+            $response = $this->payrollService->generateAndMailPaySlip($payslip, $employeeId);
 
-        foreach ($allowances as $data) {
-            $accountCode = $data->general_ledger_code;
-            $accountCode2 = UNPAID_SALARY_STAFF;
-            $costingCode = $data->department_code;
-            $memo = $data->pay_type;
-            $amount = $data->amount;
-
-            $postFields = '{
-                    "ReferenceDate":"' . date('Y-m-d') . '",
-                    "Memo": "' . $memo . '",
-                    "JournalEntryLines": [
-                        {
-                            "AccountCode": "' . $accountCode2 . '",
-                            "CostingCode": "' . $costingCode . '",
-                            "Credit": "' . $amount . '",
-                            "Debit": 0
-                        },
-                        {
-                            "AccountCode": "' . $accountCode . '",
-                            "CostingCode": "' . $costingCode . '",
-                            "Credit": 0,
-                            "Debit": "' . $amount . '"
-                        }
-                    ]
-                }';
-
-            Log::info($this->sap->postJournalEntries($postFields));
+            return to_route('pay-slips.show', $payslipId)->with('msg_success', 'Payslip for ' . $employee->name . ' (' . $employee->username . ') has been sent successfully.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Model not found: ' . $e->getMessage());
+            return redirect()->back()->with('msg_error', 'Record not found. Please check the data and try again.');
+        } catch (\Exception $e) {
+            Log::error('Error sending payslip: ' . $e->getMessage());
+            return redirect()->back()->with('msg_error', 'An error occurred while sending the payslip: ' . $e->getMessage());
         }
-
-        foreach ($deductions as $data) {
-            $accountCode = $data->general_ledger_code;
-            $accountCode2 = UNPAID_SALARY_STAFF;
-            $costingCode = $data->department_code;
-            $memo = $data->pay_type;
-            $amount = $data->amount;
-
-            $postFields = '{
-                    "ReferenceDate":"' . date('Y-m-d') . '",
-                    "Memo": "' . $memo . '",
-                    "JournalEntryLines": [
-                        {
-                            "AccountCode": "' . $accountCode . '",
-                            "CostingCode": "' . $costingCode . '",
-                            "Credit": "' . $amount . '",
-                            "Debit": 0
-                        },
-                        {
-                            "AccountCode": "' . $accountCode2 . '",
-                            "CostingCode": "' . $costingCode . '",
-                            "Credit": 0,
-                            "Debit": "' . $amount . '"
-                        }
-                    ]
-                }';
-
-            Log::info($this->sap->postJournalEntries($postFields));
-        }
-
-        $this->payrollService->updateStatus($paySlip, $status);
     }
+
 }

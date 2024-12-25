@@ -75,7 +75,7 @@ class TravelAuthorizationApplicationController extends Controller
         $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
         $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
         $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
-        $travelTypes = MasTravelType::all();
+        $travelTypes = MasTravelType::whereStatus(1)->get();
         // $defaultTravelTypeId = 1;
 
         $defaultTravelTypeId = request()->get('travel_type', 1);
@@ -139,7 +139,7 @@ class TravelAuthorizationApplicationController extends Controller
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
-        
+
         return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization application created successfully!');
     }
 

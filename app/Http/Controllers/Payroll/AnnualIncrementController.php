@@ -27,7 +27,6 @@ class AnnualIncrementController extends Controller
         $privileges = $request->instance();
         $year = date("Y");
         $month = date("m");
-        $month = 10;
         $employees = User::whereRaw("MONTH(date_of_appointment) = ?", [$month])->select(['id', 'name'])->get();
         $increments = AnnualIncrement::all();
         $annualIncrement = AnnualIncrement::whereForMonth("$year-$month-01")->first();

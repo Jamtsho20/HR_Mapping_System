@@ -185,7 +185,7 @@
                                                             <td>{{$application->employee->empJob->designation->name}}</td>
                                                             <td>{{$application->employee->empJob->department->name}}</td>
                                                             <td>{{$application->type->name}}</td>
-                                                            <td>{{$application->vehicle->vehicle_no}}</td>
+                                                            <td>{{$application->vehicle->vehicle_no ?? '-'}}</td>
                                                             <td>{{$application->expense_no}}</td>
                                                             <td>{{$application->amount}}</td>
                                                             <td>{{$application->travel_type}}</td>

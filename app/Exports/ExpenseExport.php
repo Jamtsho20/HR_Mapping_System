@@ -41,7 +41,7 @@ class ExpenseExport implements FromCollection, WithHeadings
                 $expense->employee->empJob->designation->name,
                 $expense->employee->empJob->department->name,
                 $expense->type->name,
-                $expense->vehicle->vehicle_no,
+                $expense->vehicle->vehicle_no ?? '-',
                 $expense->expense_no,
                 $expense->amount,
                 $expense->travel_type,

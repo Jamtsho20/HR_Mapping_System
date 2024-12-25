@@ -37,8 +37,9 @@
         </table>
     </div>
     <div class="row-wrapper w-full">
-        <div class="borderonlyright pt-10 w-32 font-0_9 valign-top">
-            <table class="w-full font-small col-height-mid">
+        {{-- <div class="borderonlyright font-0_9 valign-top"> --}}
+        <div class="font-0_9 valign-top">
+            <table class="w-full font-small col-height-mid font-0_9">
                 <tbody>
                     <tr>
                         <td class="w-half">Basic Pay: </td>
@@ -51,7 +52,7 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half text-right pr-10">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 50px;">{{ number_format($paySlip->$column, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -60,27 +61,8 @@
         @php
             $deductionsTotal = 0;
         @endphp
-        <div class="borderless pt-10 w-32 font-0_9 valign-top">
-            <table class="w-full font-small col-height-mid">
-                <tbody>
-                    @foreach ($deductions1 as $deduction)
-                        @php
-                            $column = str_replace(' ', '_', $deduction->name);
-                            $displayName = strlen($deduction->name) > 10 ? $deduction->code : $deduction->name;
-                        @endphp
-                        <tr>
-                            <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half text-right pr-10">{{ number_format($paySlip->$column, 2) }}</td>
-                            @php
-                                $deductionsTotal += $paySlip->$column ?? 0;
-                            @endphp
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        <div class="borderless pt-10 w-32 font-0_9 valign-top">
-            <table class="w-full font-small col-height-mid">
+        <div class="borderonlyleft font-0_9 valign-top">
+            <table class="w-full font-small col-height-mid font-0_9">
                 <tbody>
                     @foreach ($deductions as $deduction)
                         @php
@@ -89,7 +71,26 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half text-right pr-10">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 50px;">{{ number_format($paySlip->$column, 2) }}</td>
+                            @php
+                                $deductionsTotal += $paySlip->$column ?? 0;
+                            @endphp
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="borderless font-0_9 valign-top">
+            <table class="w-full font-small col-height-mid font-0_9">
+                <tbody>
+                    @foreach ($deductions1 as $deduction)
+                        @php
+                            $column = str_replace(' ', '_', $deduction->name);
+                            $displayName = strlen($deduction->name) > 10 ? $deduction->code : $deduction->name;
+                        @endphp
+                        <tr>
+                            <td class="w-half">{{ $displayName }}: </td>
+                            <td class="w-half" style="text-align: right; padding-left: 120px;">{{ number_format($paySlip->$column, 2) }}</td>
                             @php
                                 $deductionsTotal += $paySlip->$column ?? 0;
                             @endphp
