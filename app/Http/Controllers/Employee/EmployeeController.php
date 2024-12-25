@@ -215,8 +215,8 @@ class EmployeeController extends Controller
             $employee->registered_email_sent = true;
             $employee->save();
             if($employee->status == 'Completed'){
-                $this->postEmployeeToSap($employee);
-                $this->postEmployeeToSoms($employee);
+                // $this->postEmployeeToSap($employee);
+                // $this->postEmployeeToSoms($employee);
                 // $somsData = $this->prepareSomsData();
             }
             if (!$employee->appointment_order) {
@@ -699,10 +699,10 @@ class EmployeeController extends Controller
             'Country' => 'BT',
             'DebitorAccount' => '34611',
             'DownPaymentInterimAccount' => '23245',
-            "BPFiscalTaxIDCollection" => 
+            "BPFiscalTaxIDCollection" =>
                 [
 
-                    ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID    
+                    ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
                 ]
         ];
         $this->apiController->postEmployeeToSap($sapData);
@@ -712,7 +712,7 @@ class EmployeeController extends Controller
     {
         $masOfficeId = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('mas_office_id');
         $empDzongkhag = \DB::select("
-            select 
+            select
                 t2.dzongkhag
             from mas_offices t1
                 left join mas_dzongkhags t2 on t2.id = t1.mas_dzongkhag_id

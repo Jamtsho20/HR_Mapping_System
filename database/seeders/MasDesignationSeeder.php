@@ -96,7 +96,14 @@ class MasDesignationSeeder extends Seeder
             ("Senior General Manager", 1),
             ("Engineer, IP Network", 1),
             ("Officiating Manager", 1),
-            ("Acting Manager", 1);
-        ');
+            ("Acting Manager", 1),
+            ("Security Guard", 1),
+            ("Caretaker", 1),
+            ("Sweeper", 1),
+            ("Tea Lady", 1),
+            ("Receptionist", 1),
+            ("Officiating Technical Suppervisor", 1),
+            ("Network Infra Project, Engineer", 1);
+                ');
     }
 }
