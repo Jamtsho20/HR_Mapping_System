@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Mail\ApprovalNotificationMail;
+use Illuminate\Support\Facades\Mail;
 
 class ApprovalController extends Controller
 {
@@ -59,7 +61,7 @@ class ApprovalController extends Controller
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
         //getting relevant Email Subject
-        $emailSubject = ""; 
+        $emailSubject = "";
         if (preg_match('/([^\\\\\/]+)Application$/', $model, $matches)) {
             $emailSubject = $matches[1];
         }
@@ -72,7 +74,7 @@ class ApprovalController extends Controller
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
         DB::beginTransaction();
-        // try {
+        try {
         $approvalService = new ApprovalService();
 
         foreach ($itemIds as $id) {
@@ -94,6 +96,8 @@ class ApprovalController extends Controller
             }
             $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
+                $costingCode = null;
+                $type = $application->type;
             // Update application status
             $application->update([
                 'status' => $status,
@@ -164,8 +168,7 @@ class ApprovalController extends Controller
             if ($applicationHistory) {
                 $applicationHistory->update($updateData);
             }
-
-
+            // dd($type);
             DB::commit();
 
             $model = preg_replace(
@@ -180,17 +183,24 @@ class ApprovalController extends Controller
             }
         }
         //sent email to approver as well as to initiator
-        // if(){
-
+        // if($updateData['status'] == 2){
+        //     // $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . ' to ' . $request->to_date . '.';
+        //     $this->sentMail($emailSubject, $application, $type, $updateData['status'], $applicationForwardedTo);
+        //     // Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $subject));
+        // }else if($updateData['status'] == 3){
+        //     $this->sentMail($emailSubject, $application, $type, $updateData['status']);
+        // }else{
+        //     $this->sentMail($emailSubject, $application, $type, $updateData['status']);
         // }
+
         return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($model)) . ' have been successfully ' . $responseMessage], 200);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-        //     \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
+            \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
 
-        //     return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
-        // }
+            return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
+        }
     }
 
     private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount = null)
@@ -258,5 +268,26 @@ class ApprovalController extends Controller
             return view('approval.show', compact('data', 'tab', 'empDetails'));
         }
 
+    private function sentMail($emailSubject, $applicationData, $appType, $status, $applicationForwardedTo = null)
+    {
+        // dd($emailSubject, $applicationData, $appType, $status, $applicationForwardedTo);
+        // mail to approver
+        if($status == 2){
+            $this->prepareEmailContent();
+            Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $applicationForwardedTo['approver_details']['user_with_approving_role']->id, $emailSubject));
+        }else if($status == 3){
+
+        }else{
+
+        }
+        // Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+        //mail to requesting user
     }
+
+    private function prepareEmailContent() 
+    {
+
+    }
+}
+
 

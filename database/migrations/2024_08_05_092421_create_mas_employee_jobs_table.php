@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('mas_department_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_section_id')->index()->nullable()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_designation_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
-            $table->boolean('suffix')->default(0);
+            $table->boolean('suffix')->default(0)->comment('eg: senior(Sr.)');
             $table->foreignId('mas_grade_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('mas_grade_step_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             $table->boolean('has_probation')->default(1);

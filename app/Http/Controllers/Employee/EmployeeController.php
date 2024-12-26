@@ -59,8 +59,8 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        // dd(User::get());
         $employees = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
-
         return view('employee/employee-list.index', compact('privileges', 'employees'));
     }
     /**
@@ -716,9 +716,13 @@ class EmployeeController extends Controller
             'DebitorAccount' => '34611',
             'DownPaymentInterimAccount' => '23245',
             "BPFiscalTaxIDCollection" =>
+                [
+            "BPFiscalTaxIDCollection" =>
             [
 
-                ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+                    ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+                ]
+                
             ]
         ];
         $this->apiController->postEmployeeToSap($sapData);

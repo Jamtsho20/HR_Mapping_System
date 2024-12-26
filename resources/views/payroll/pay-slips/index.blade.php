@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('page-title', 'Payslips')
+@section('page-title', 'Pay slips')
 @section('content')
     @if ($privileges->create)
         @section('buttons')
-            <a href="{{ route('pay-slips.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Payslip</a>
+            <a href="{{ route('pay-slips.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Pay slip</a>
         @endsection
     @endif
 
@@ -130,7 +130,7 @@
                                                             @empty
                                                                 <tr>
                                                                     <td colspan="6" class="text-center text-danger">No
-                                                                        Payslips found</td>
+                                                                        Pay slips found</td>
                                                                 </tr>
                                                             @endforelse
                                                         </tbody>
@@ -156,12 +156,12 @@
             $('#prepare-btn').on('click', function() {
                 event.preventDefault();
 
-                var prepareUrl = $(this).attr('href');
+                var url = $(this).attr('href');
 
-                window.location.href = prepareUrl;
+                window.location.href = url;
 
                 // $.confirm({
-                //     title: 'Process Payslip',
+                //     title: 'Process Pay slip',
                 //     content: 'Please ensure all allowances, deductions, changes in salary are done prior to processing Pay Slip.',
                 //     buttons: {
                 //         confirm: {
@@ -189,8 +189,9 @@
                 var verifyUrl = $(this).attr('href');
 
                 $.confirm({
-                    title: 'Verify Payslip',
-                    content: 'Do you verify the Payslip for the month is correct?',
+                    title: 'Verify Pay slip',
+                    content: 'Are you sure the pay slip for the month is verified?',
+                    type: 'alert-primary',
                     buttons: {
                         confirm: {
                             text: 'Yes, Proceed',
@@ -217,8 +218,8 @@
                 var approveUrl = $(this).attr('href');
 
                 $.confirm({
-                    title: 'Approve Payslip',
-                    content: 'Do you approve the Payslip for the month?',
+                    title: 'Approve & Post Pay slip',
+                    content: 'Are you sure you want to approve and post the Pay slip for the month?',
                     buttons: {
                         confirm: {
                             text: 'Yes, Proceed',
@@ -245,7 +246,7 @@
                 var emailUrl = $(this).attr('href');
 
                 $.confirm({
-                    title: 'Mail Payslips',
+                    title: 'Mail Pay slips',
                     content: 'Are you sure to mail employees their pay slips? This cannot be undone.',
                     buttons: {
                         confirm: {

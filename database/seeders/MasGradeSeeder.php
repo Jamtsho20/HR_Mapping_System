@@ -14,15 +14,15 @@ class MasGradeSeeder extends Seeder
     public function run(): void
     {
         DB::statement('
-            INSERT INTO `mas_grades` (`name`, `created_by`) VALUES
-            ("E0", 1),
-            ("T1", 1),
-            ("T2", 1),
-            ("S", 1),
-            ("P", 1),
-            ("GSSG", 1);
-            ("STC", 1);
-
+            INSERT INTO `mas_grades` (`id`, `name`, `created_by`) VALUES
+            (1, "E0", 1),
+            (4, "T1", 1),
+            (5, "T2", 1),
+            (6, "S", 1),
+            (7, "P", 1),
+            (9, "GSSG", 1),
+            (10, "STC", 1),
+            (11, "CTE", 1)
         ');
     }
 }

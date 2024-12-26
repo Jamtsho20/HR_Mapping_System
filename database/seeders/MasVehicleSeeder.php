@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB; // Added DB facade
 
 class MasVehicleSeeder extends Seeder
 {
@@ -12,12 +12,100 @@ class MasVehicleSeeder extends Seeder
      */
     public function run(): void
     {
-        \DB::table('mas_vehicles')->insert([
-            ['id' => 1, 'name' => 'Bolero', 'vehicle_no' => 'BP-1-B3126', 'vehicle_type' => 2, 'is_active' => 1, 'created_by' => 1],
-            ['id' => 2, 'name' => 'Van', 'vehicle_no' => 'BP-1-B2146', 'vehicle_type' => 1, 'is_active' => 1, 'created_by' => 1],
-            ['id' => 3, 'name' => 'Creta', 'vehicle_no' => 'BP-1-B5553', 'vehicle_type' => 1, 'is_active' => 1, 'created_by' => 1],
-            ['id' => 4, 'name' => 'Santafee', 'vehicle_no' => 'BP-1-B3796', 'vehicle_type' => 1, 'is_active' => 1, 'created_by' => 1],
-            ['id' => 5, 'name' => 'Motor Bike', 'vehicle_no' => 'BP-1-B3777', 'vehicle_type' => 4, 'is_active' => 1, 'created_by' => 1],
-        ]);
+        DB::statement('
+            INSERT INTO `mas_vehicles` (`vehicle_no`, `vehicle_type_id`, `location`, `department_id`)
+            VALUES
+            ("BP1E1551", 9, "Thimphu", 1),
+            ("BP1E0231", 7, "Thimphu", 5),
+            ("BP1E1705", 7, "Thimphu", 8),
+            ("BP1E6086", 7, "Thimphu", 1),
+            ("BP1D8986", 8, "Thimphu", 3),
+            ("BP1D1831", 3, "Thimphu", 5),
+            ("BP1D1830", 5, "Thimphu", 1),
+            ("BP1D4604", 5, "Thimphu", 7),
+            ("BP1D4972", 5, "Thimphu", 4),
+            ("BP1D5246", 5, "Thimphu", 6),
+            ("BP1D9163", 5, "Thimphu", 2),
+            ("BP1E6084", 4, "Thimphu", 2),
+            ("BP1F0094", 6, "Thimphu", 7),
+            ("BP1F0095", 6, "Thimphu", 2),
+            ("BP1E3836", 10, "Thimphu", 5),
+            ("BP1D9225", 10, "Nganglam", 2),
+            ("BP1F1142", 10, "Thimphu", 4),
+            ("BP1F2021", 10, "Thimphu", 4),
+            ("BP1D9224", 10, "Thimphu", 6),
+            ("BP1E1184", 10, "Thimphu", 6),
+            ("BP1E1886", 10, "Thimphu", 6),
+            ("BP1F1141", 10, "Thimphu", 6),
+            ("BP1D7235", 10, "Thimphu", 2),
+            ("BP1D7234", 10, "Paro RM", 2),
+            ("BP1E1887", 10, "Paro RMC", 4),
+            ("BP1D5359", 10, "Wangdue RMC", 4),
+            ("BP1D8310", 10, "Bumthang RMC", 4),
+            ("BP1E6851", 10, "Trongsa RMC", 4),
+            ("BP1D8324", 10, "Mongar RM", 2),
+            ("BP1F1145", 10, "Mongar RMC", 4),
+            ("BP1E1187", 10, "Trashigang RMC", 4),
+            ("BP1E6854", 10, "Samdrup Jongkhar RM", 2),
+            ("BP1D8319", 10, "Samdrup Jongkhar RMC", 4),
+            ("BP1D8314", 10, "Pema Gatshel RMC", 4),
+            ("BP1F1146", 10, "Thimphu", 4),
+            ("BP1D5358", 10, "Gelephu RM", 2),
+            ("BP1D5360", 10, "Gelephu RMC", 4),
+            ("BP1E1186", 10, "Zhemgang RMC", 4),
+            ("BP1D8315", 10, "Samtse RM", 2),
+            ("BP1E6853", 10, "Samtse RMC", 4),
+            ("BP1D8312", 10, "Tsirang RMC", 4),
+            ("BP1D5361", 10, "Phuentsholing RM", 2),
+            ("BP1F3378", 10, "Bumthang RM", 2),
+            ("BP1F3373", 10, "Phuentsholing RMC", 4),
+            ("BP1F3379", 10, "Lhuntse RMC", 4),
+            ("BP1F3372", 10, "Thimphu", 2),
+            ("BP1F3374", 10, "Thimphu", 2),
+            ("BP1F3375", 10, "Thimphu", 6),
+            ("BP1F3376", 10, "Thimphu", 6),
+            ("BP1F3381", 10, "Thimphu", 1),
+            ("BP1F3380", 10, "Phobjikha RMC", 2),
+            ("BP1C9608", 11, "Thimphu", 4),
+            ("BP1F4033", 10, "Haa", 2),
+            ("BP1F4031", 10, "Trashigang", 2),
+            ("BP1F4032", 10, "Thimphu", 2),
+            ("BP1F4034", 10, "Wangdue", 2),
+            ("BP1F4035", 10, "Trashiyangtse", 2),
+            ("BP1F4030", 10, "Tsirang", 2),
+            ("BP1A0045", 2, "-", 4),
+            ("BP1A0064", 2, "-", 4),
+            ("BP1A0182", 2, "-", 4),
+            ("BP1A0183", 2, "-", 4),
+            ("BP1E1497", 12, "Thimphu", 1),
+            ("BP1E3835", 13, "Thimphu", 3),
+            ("BP1A8285", 1, "Thimphu", 4),
+            ("BP1A8289", 1, "Thimphu", 4),
+            ("BP1A8290", 1, "Thimphu", 4),
+            ("BP2A4453", 1, "Thimphu", 4),
+            ("BP2A4008", 1, "Thimphu", 2),
+            ("BP1A7510", 1, "Paro", 4),
+            ("BP1A7520", 1, "Paro", 4),
+            ("BP1A7517", 1, "Punakha RMC", 4),
+            ("BP2A4452", 1, "Punakha RMC", 4),
+            ("BP2A4454", 1, "Trongsa RMC", 4),
+            ("BP1A8394", 1, "Mongar RMC", 4),
+            ("BP1A7519", 1, "Lhuentse RMC", 4),
+            ("BP1A8395", 1, "Trashigang RMC", 4),
+            ("BP1A7516", 1, "Trashiyangtse RMC", 4),
+            ("BP1A7518", 1, "Pemagatshel RMC", 4),
+            ("BP1A8396", 1, "Samtse RMC", 4),
+            ("BP2A4450", 1, "Gelephu RMC", 4),
+            ("BP1A8284", 1, "Samtse RMC", 4),
+            ("BP1A7511", 1, "Samtse RMC", 4),
+            ("BP2A3045", 1, "Thimphu", 3),
+            ("BP1A8786", 1, "Gelephu", 2),
+            ("BP2A4451", 1, "Samtse RMC", 4),
+            ("BP2A4455", 1, "Mongar", 4),
+            ("BP1A7512", 1, "Tsirang", 4),
+            ("BP2A4456", 1, "Tsirang RMC", 4),
+            ("BP1A7513", 1, "Wangdue", 4),
+            ("BP2A4457", 1, "Wangdue RMC", 4)
+        ');
     }
 }
