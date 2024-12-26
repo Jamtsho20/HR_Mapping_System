@@ -22,6 +22,9 @@ class RolesTableSeeder extends Seeder
             ['id' => 5, 'name' => 'Management', 'description' => 'Management', 'created_by' => 1],
             ['id' => 6, 'name' => 'Immediate Head', 'description' => 'Section Head', 'created_by' => 1],
             ['id' => 7, 'name' => 'Department Head', 'description' => 'Department Head', 'created_by' => 1],
+            ['id' => 8, 'name' => 'MD', 'description' => 'Managing Director', 'created_by' => 1],
+            ['id' => 9, 'name' => 'PR', 'description' => 'PR', 'created_by' => 1],
+            ['id' => 10, 'name' => 'RM', 'description' => 'RM', 'created_by' => 1],
         ]);
     }
 }

@@ -157,13 +157,13 @@
                                         class="pull-right">{{ $employee->empJob->section->name ?? config('global.null_value') }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Designation</b> <a class="pull-right">{{ $employee->empJob->designation->name }}</a>
+                                    <b>Designation</b> <a class="pull-right">{{ $employee->empJob->suffix == 1 ? 'Senior ' . $employee->empJob->designation->name : $employee->empJob->designation->name }}</a>
                                 </li>
                                 <li class="list-group-item">
                                     <b>Grade</b> <a class="pull-right">{{ $employee->empJob->grade->name }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Grade Step</b> <a class="pull-right">{{ $employee->empJob->gradeStep->name }}</a>
+                                    <b>Grade Step</b> <a class="pull-right">{{ $employee->empJob->gradeStep->name ?? config('global.null_value') }}</a>
                                 </li>
                                 <li class="list-group-item">
                                     <b>Employment Type</b> <a class="pull-right">{{ $employee->empJob->empType->name }}</a>
@@ -185,11 +185,11 @@
                                 <a class="pull-right">{{ $employee->empJob->office->name }}
                                     ({{ $employee->empJob->office->dzongkhag->dzongkhag }})</a>
                             </li>
-                            <li class="list-group-item">
+                            {{-- <li class="list-group-item">
                                 <b>Address</b> <a class="pull-right">{{ $employee->empJob->office->address }} </a>
-                            </li>
+                            </li> --}}
                             <li class="list-group-item">
-                                <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale }}</a>
+                                <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale ?? config('global.null_value') }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Basic Pay</b> <a class="pull-right">{{ $employee->empJob->basic_pay }}</a>

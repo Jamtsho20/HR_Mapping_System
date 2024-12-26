@@ -21,8 +21,8 @@ class MasGradeSeeder extends Seeder
             (6, "S", 1),
             (7, "P", 1),
             (9, "GSSG", 1),
-            (10, "STC", 1),
-            (11, "CTE", 1)
+            (11, "CTE", 1),
+            (12, "STC", 1),
         ');
     }
 }
