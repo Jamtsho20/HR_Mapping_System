@@ -149,7 +149,7 @@ class User extends Authenticatable
     public function scopeFilter($query, $request)
     {
         if ($request->has('username') && $request->query('username') != '') {
-            $query->where('username', $request->query('username'));
+            $query->where('username', 'LIKE', '%' . $request->query('username') . '%');
         }
 
         if ($request->has('name') && $request->query('name') != '') {
