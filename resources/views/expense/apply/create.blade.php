@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Expense')
 @section('content')
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <div class="card">
         <div class="card-header">
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -95,12 +97,28 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="file">Upload File <span id="attachment_required"
-                                                    class="text-danger" style="display:none;">*</span></label>
-                                            <input type="file" id="attachment" class="form-control" name="file"
-                                                accept="image/*,.pdf,.doc,.docx">
+                                            <div class="file-uploader">
+                                                <label for="file">Upload File <span id="attachment_required"
+                                                        class="text-danger" style="display:none;">*</span></label>
+                                                <div class="file-upload-box">
+                                                    <div class="box-title">
+                                                        <!-- <span class="file-instruction">Drag files here or</span> -->
+                                                        <span class="file-browse-button">Upload Files</span>
+                                                    </div>
+                                                    <input class="file-browse-input" type="file" multiple hidden
+                                                        name="attachments[]" id="attachment" class="form-control"
+                                                        accept="image/*,.pdf,.doc,.docx">
+
+                                                </div>
+                                                <ul class="file-list">
+
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
+
+
+                                    <!-- sd -->
 
                                     <div class="tab-pane" id="vehiclefuelclaimsection">
                                         <div class="card">
@@ -238,7 +256,8 @@
                                                     <option value="" selected disabled>Select your option</option>
                                                     @foreach ($travels as $travel)
                                                         <option value="{{ $travel->id }}">
-                                                            {{ $travel->travel_authorization_no }}</option>
+                                                            {{ $travel->travel_authorization_no }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -263,8 +282,7 @@
                                             <div class="form-group">
                                                 <label for="grand_total_amount">Total Amount </label>
                                                 <input type="number" class="form-control" id="grand_total_amount"
-                                                    name="amount" value="{{ old('amount') }}" required
-                                                    readonly />
+                                                    name="amount" value="{{ old('amount') }}" required readonly />
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -473,7 +491,8 @@
                                                     @foreach ($transferClaimTypes as $transferClaimType)
                                                         <option value="{{ $transferClaimType->id }}"
                                                             {{ old('transfer_claim') == $transferClaimType->id ? 'selected' : '' }}>
-                                                            {{ $transferClaimType->name }}</option>
+                                                            {{ $transferClaimType->name }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -616,7 +635,8 @@
                     const fuelClaimSection = $('#vehiclefuelclaimsection');
 
                     // Show/hide sections based on selectedType
-                    const showVehicle = selectedType === '5' || selectedType === '6'; // fuel || parking fee.
+                    const showVehicle = selectedType === '5' || selectedType ===
+                        '6'; // fuel || parking fee.
                     const showFuelClaim = selectedType === '5';
 
                     section.toggle(showVehicle);

@@ -20,7 +20,7 @@
                 <div class="card-header">
                     <h3 class="card-title">{{ $employee->name }} ({{ $employee->username }})
                         <span
-                            class="badge rounded-pill  bg-{{ $employee->is_active == 1 ? 'primary' : 'danger' }} me-1 mt-1 ">{{ $employee->is_active }}
+                            class="badge rounded-pill  bg-{{ $employee->is_active == 1 ? 'danger' : 'success' }} me-1 mt-1 ">{{ $employee->is_active }}
                     </h3>
                 </div>
                 <div class="card-body">
@@ -200,7 +200,7 @@
                             </li>
                             <li class="list-group-item">
                                 <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }}
-                                    ({{ $employee->empJob->account_number }})</a>
+                                    ({{ $employee->empJob->account_number ?? config('global.null_value')}}) </a>
                             </li>
                             <li class="list-group-item">
                                 <b>PF Number</b> <a class="pull-right">{{ $employee->empJob->pf_number }}</a>

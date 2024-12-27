@@ -47,8 +47,8 @@
              <label title="Relevant documents if any" for="other">Other(s)</label>
              <div class="file-upload-box">
                  <div class="box-title">
-                     <span class="file-instruction">Drag files here or</span>
-                     <span class="file-browse-button">browse</span>
+                     <!-- <span class="file-instruction">Drag files here or</span> -->
+                     <span class="file-browse-button">Upload Files</span>
                  </div>
                  <input class="file-browse-input" type="file" multiple hidden name="documents[other][]" multiple {{ empty($employee->empDoc->other) ? 'required' : '' }} accept="image/*,.pdf,.doc,.docx">
 
@@ -84,3 +84,40 @@
 
      </div>
  </div>
+
+ <script>// On form submission
+document.querySelector("form").addEventListener("submit", function (event) {
+    const form = event.target;
+
+    // Ensure the form contains this file uploader
+    if (!form.querySelector(".file-uploader")) return;
+
+    // Remove all `documents[other][]` fields already present in the form
+    document.querySelectorAll('input[name="documents[other][]"]').forEach((input) => input.remove());
+
+    // Merge existing files (those not removed) into `documents[other][]`
+    form.querySelectorAll('input[name="existing_documents[]"]').forEach((hiddenInput) => {
+        if (!removedFiles.has(hiddenInput.value)) {
+            // Create a new hidden input with the name `documents[other][]`
+            const newInput = document.createElement("input");
+            newInput.type = "hidden";
+            newInput.name = "documents[other][]";
+            newInput.value = hiddenInput.value;
+
+            // Append it to the form
+            form.appendChild(newInput);
+        }
+    });
+
+    // Collect newly uploaded files and append them to `documents[other][]`
+    const uploadedFiles = form.querySelector('input[name="uploaded_files[]"]');
+    if (uploadedFiles && uploadedFiles.files.length > 0) {
+        Array.from(uploadedFiles.files).forEach((file) => {
+            const fileInput = document.createElement("input");
+            fileInput.type = "hidden";
+            fileInput.name = "documents[other][]";
+            fileInput.value = file.name; // You can modify this to send the actual file URL or path
+            form.appendChild(fileInput);
+        });
+    }
+});</script>
