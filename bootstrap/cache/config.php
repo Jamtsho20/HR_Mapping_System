@@ -732,41 +732,64 @@
       array (
         'name' => 'App\\Models\\LeaveApplication',
         'post_to_sap' => false,
+        'email_subject' => 'Leave',
+        'approver_mail_content' => 'has applied {no_of_days} day(s) of {type} from {from_date} to {to_date}.',
+        'initiator_mail_content' => 'Your {no_of_days} day(s) of {type} from {from_date} to {to_date} had been',
       ),
       2 => 
       array (
         'name' => 'App\\Models\\ExpenseApplication',
         'post_to_sap' => true,
+        'email_subject' => 'Expense',
+        'approver_mail_content' => 'has applied {type} for your endorsement.',
+        'initiator_mail_content' => 'Your expense has been',
       ),
       3 => 
       array (
         'name' => 'App\\Models\\AdvanceApplication',
         'post_to_sap' => true,
+        'email_subject' => 'Advance',
+        'approver_mail_content' => 'has applied {type} for your endorsement.',
+        'initiator_mail_content' => 'Your Loan has been',
       ),
       4 => 
       array (
         'name' => 'App\\Models\\LeaveEncashmentApplication',
         'post_to_sap' => true,
+        'email_subject' => 'Leave Encashment',
+        'approver_mail_content' => 'has applied Leave Encashment for your endorsement.',
+        'initiator_mail_content' => 'Your Leave Encashment has been',
       ),
       6 => 
       array (
         'name' => 'App\\Models\\TransferClaimApplication',
         'post_to_sap' => true,
+        'approver_mail_content' => '',
+        'initiator_mail_content' => '',
       ),
       7 => 
       array (
         'name' => 'App\\Models\\TravelAuthorizationApplication',
         'post_to_sap' => false,
+        'email_subject' => 'Travel Authorization',
+        'approver_mail_content' => 'has applied travel authorization of {type} for your endorsement.',
+        'initiator_mail_content' => 'Your Travel Authorization has been',
       ),
       8 => 
       array (
         'name' => 'App\\Models\\SifaRegistration',
         'post_to_sap' => false,
+        'email_subject' => '',
+        'approver_mail_content' => '',
+        'initiator_mail_content' => '',
       ),
       9 => 
       array (
         'name' => 'App\\Models\\DsaClaimApplication',
         'post_to_sap' => true,
+        'email_subject' => '',
+        'approver_mail_content' => '',
+        'initiator_mail_content' => '',
       ),
     ),
   ),
@@ -977,7 +1000,7 @@
   ),
   'queue' => 
   array (
-    'default' => 'sync',
+    'default' => 'database',
     'connections' => 
     array (
       'sync' => 

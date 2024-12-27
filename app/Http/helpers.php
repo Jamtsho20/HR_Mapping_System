@@ -334,10 +334,41 @@ if(!function_exists('prepareLeaveCombination')) {
         return $matchingLeaves ? $matchingLeaves : [];
     }
 }
-// if(!function_exists('') ) {
-//     function empDetails($empId)
-//     {
-//         $empDetails = User::with('empJob')->where('id', $empId)->first();
-//         return $empDetails;
-//     }
-// }
+
+if(!function_exists('prepareMail')) {
+    function prepareMail($applicationModel, $applicationData, $appType, $status) 
+    {
+        $applicationData['type'] = $appType->name;
+        $approverMailContent = $applicationModel['approver_mail_content'];
+        $initiatorMailContent = $applicationModel['initiator_mail_content'];
+        $response = [];
+        if($status == 2){
+            $finalApproverMailContent = prepareMailContent($approverMailContent, $applicationData);
+            $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
+            $response['approver_mail_content'] = $finalApproverMailContent;
+            $response['initiator_mail_content'] = $finalInitiatorMaleContent;
+        }else if($status == 3){
+            $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
+            $response['initiator_mail_content'] = $finalInitiatorMaleContent;
+        }else if($status == -1){
+            $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
+            $response['initiator_mail_content'] = $finalInitiatorMaleContent;
+        }
+        return $response;
+    }
+}
+
+if(!function_exists('prepareMailContent')) {
+    function prepareMailContent($approverMailContent, $applicationData) {
+        $finalContent = preg_replace_callback(
+            '/\{(\w+)\}/', // Match placeholders like {key}
+            function ($matches) use ($applicationData) {
+                $key = $matches[1]; // Extract the key inside {}
+                return $applicationData[$key] ?? $matches[0]; // Replace with value or keep original placeholder
+            },
+            $approverMailContent
+        );
+        return $finalContent;
+    }
+}
+
