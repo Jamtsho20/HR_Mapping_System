@@ -9,14 +9,14 @@
     @endif
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
             </div>
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}"
                     placeholder="Employee Id">
             </div>
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <select class="form-control" name="section">
                     <option value="" disabled selected hidden>Select Sections</option>
                     @foreach ($sections as $section)
@@ -26,7 +26,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <select class="form-control" name="designation">
                     <option value="" disabled selected hidden>Select Desination</option>
                     @foreach ($designations as $desigation)
@@ -73,7 +73,10 @@
                                                                     Section
                                                                 </th>
                                                                 <th>
-                                                                    DOJ
+                                                                    Work Location
+                                                                </th>
+                                                                <th>
+                                                                    DOA
                                                                 </th>
 
                                                                 <th>
@@ -106,6 +109,7 @@
                                                                     <td>{{ $employee->empJob->department->name }}</td>
                                                                     <td>{{ $employee->empJob->section->name ?? config('global.null_value') }}
                                                                     </td>
+                                                                    <td>{{ $employee->empJob->office->name }}</td>
                                                                     <td>{{ $employee->date_of_appointment }}</td>
                                                                     <td>{{ $employee->contact_number }}</td>
                                                                     <td>{{ $employee->email }}</td>

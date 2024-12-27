@@ -64,7 +64,7 @@ class EmployeeController extends Controller
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
 
         // dd(User::get());
-        $employees = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
+        $employees = User::filter($request)->orderBy('id')->paginate(config('global.pagination'))->withQueryString();
         return view('employee/employee-list.index', compact('privileges', 'employees','departments','sections','designations'));
     }
     /**
