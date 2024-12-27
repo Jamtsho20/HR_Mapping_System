@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ApplicationAuditLog;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
@@ -339,7 +340,8 @@ if(!function_exists('prepareLeaveCombination')) {
 if(!function_exists('getApplicationLogs') ) {
     function getApplicationLogs($model, $applicationId)
     {
-        $applicationLogs = ApplicationAuditLog::where('application_type', $model)->where('application_id', $applicationId)->get();
+        $applicationLogs = ApplicationAuditLog::where('application_type',
+        $model)->where('application_id', $applicationId)->get();
         return $applicationLogs;
     }
 }

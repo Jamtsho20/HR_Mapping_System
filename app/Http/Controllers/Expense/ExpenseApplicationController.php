@@ -245,7 +245,10 @@ class ExpenseApplicationController extends Controller
     public function show($id)
     {
         $expense = ExpenseApplication::findOrfail($id);
-        return view('expense.apply.show', compact('expense'));
+        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
+
+
+        return view('expense.apply.show', compact('expense','approvalDetail'));
     }
 
     /**
