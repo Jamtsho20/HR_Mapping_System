@@ -37,6 +37,16 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-md-3 form-group">
+                <select class="form-control" name="office">
+                    <option value="" disabled selected hidden>Select Work location</option>
+                    @foreach ($workLocations as $office)
+                        <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
+                            {{ $office->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         @endcomponent
 
         <div class="row row-sm">
