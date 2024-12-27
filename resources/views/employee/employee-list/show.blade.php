@@ -20,7 +20,7 @@
                 <div class="card-header">
                     <h3 class="card-title">{{ $employee->name }} ({{ $employee->username }})
                         <span
-                            class="badge rounded-pill  bg-{{ $employee->is_active == 1 ? 'primary' : 'danger' }} me-1 mt-1 ">{{ $employee->is_active }}
+                            class="badge rounded-pill  bg-{{ $employee->is_active == 1 ? 'danger' : 'success' }} me-1 mt-1 ">{{ $employee->is_active }}
                     </h3>
                 </div>
                 <div class="card-body">
@@ -157,13 +157,13 @@
                                         class="pull-right">{{ $employee->empJob->section->name ?? config('global.null_value') }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Designation</b> <a class="pull-right">{{ $employee->empJob->designation->name }}</a>
+                                    <b>Designation</b> <a class="pull-right">{{ $employee->empJob->suffix == 1 ? 'Senior ' . $employee->empJob->designation->name : $employee->empJob->designation->name }}</a>
                                 </li>
                                 <li class="list-group-item">
                                     <b>Grade</b> <a class="pull-right">{{ $employee->empJob->grade->name }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Grade Step</b> <a class="pull-right">{{ $employee->empJob->gradeStep->name }}</a>
+                                    <b>Grade Step</b> <a class="pull-right">{{ $employee->empJob->gradeStep->name ?? config('global.null_value') }}</a>
                                 </li>
                                 <li class="list-group-item">
                                     <b>Employment Type</b> <a class="pull-right">{{ $employee->empJob->empType->name }}</a>
@@ -185,11 +185,11 @@
                                 <a class="pull-right">{{ $employee->empJob->office->name }}
                                     ({{ $employee->empJob->office->dzongkhag->dzongkhag }})</a>
                             </li>
-                            <li class="list-group-item">
+                            {{-- <li class="list-group-item">
                                 <b>Address</b> <a class="pull-right">{{ $employee->empJob->office->address }} </a>
-                            </li>
+                            </li> --}}
                             <li class="list-group-item">
-                                <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale }}</a>
+                                <b>Pay Scale</b> <a class="pull-right">{{ $employee->empJob->gradeStep->pay_scale ?? config('global.null_value') }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>Basic Pay</b> <a class="pull-right">{{ $employee->empJob->basic_pay }}</a>
@@ -200,13 +200,16 @@
                             </li>
                             <li class="list-group-item">
                                 <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }}
-                                    ({{ $employee->empJob->account_number }})</a>
+                                    ({{ $employee->empJob->account_number ?? config('global.null_value')}}) </a>
                             </li>
                             <li class="list-group-item">
                                 <b>PF Number</b> <a class="pull-right">{{ $employee->empJob->pf_number }}</a>
                             </li>
                             <li class="list-group-item">
                                 <b>TPN Number</b> <a class="pull-right">{{ $employee->empJob->tpn_number }}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <b>GSLI Number</b> <a class="pull-right">{{ $employee->empJob->gis_policy_number }}</a>
                             </li>
                         </div>
                     </div>

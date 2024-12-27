@@ -89,7 +89,9 @@ class ExpenseApprovalController extends Controller
     {
         $expense = ExpenseApplication::findOrfail($id);
         $empDetails = empDetails($expense->created_by);
-        return view('expense.approval.show', compact('expense', 'empDetails'));
+        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
+
+        return view('expense.approval.show', compact('expense', 'empDetails','approvalDetail'));
     }
 
     /**

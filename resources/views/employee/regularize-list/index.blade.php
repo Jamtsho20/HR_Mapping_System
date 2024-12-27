@@ -138,7 +138,7 @@
                                                         </tr>
                                                         @empty
                                                         <tr>
-                                                            <td colspan="8" class="text-danger text-center">No Employee to be Regularized</td>
+                                                            <td colspan="9" class="text-danger text-center">No Employee to be Regularized</td>
                                                         </tr>
                                                         @endforelse
                                                     </tbody>
@@ -203,7 +203,7 @@
         });
     }
 
-   
+
     // Function to generate the appointment order via AJAX
     function generateAppointmentOrder(url, recordId, isRegularized) {
         $('#loader').show();

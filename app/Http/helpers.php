@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ApplicationAuditLog;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
@@ -70,10 +71,10 @@ if (!function_exists('delete_image')) {
         if ($path) {
             // unlink(public_path($path)); //incase if path not found provide meaningful message to user to avoid confusion
             $decodedString = decoded_string($path);
-       
+
             if($decodedString){
                 foreach($decodedString as $string){//incase if path not found provide meaningful message to user to avoid confusion
-                
+
                     unlink(public_path($string));
                 }
             }else{
@@ -279,7 +280,7 @@ if(!function_exists('approvalHeadConditionField')){
                 $field['value'] = null;
             }
         }
-        
+
         return $conditionFields;
     }
 }
@@ -330,10 +331,21 @@ if(!function_exists('prepareLeaveCombination')) {
         $matchingLeaves = collect();
         if ($latestLeave) $matchingLeaves->push($latestLeave);
         if ($secondLeave) $matchingLeaves->push($secondLeave);
-        
+
         return $matchingLeaves ? $matchingLeaves : [];
     }
+
 }
+
+if(!function_exists('getApplicationLogs') ) {
+    function getApplicationLogs($model, $applicationId)
+    {
+        $applicationLogs = ApplicationAuditLog::where('application_type',
+        $model)->where('application_id', $applicationId)->get();
+        return $applicationLogs;
+    }
+}
+
 
 if(!function_exists('prepareMail')) {
     function prepareMail($applicationModel, $applicationData, $appType, $status) 

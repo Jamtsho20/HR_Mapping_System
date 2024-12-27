@@ -13,9 +13,9 @@ class MasGradeStepsSeeder extends Seeder
      */
     public function run(): void
     {
-     
-        $grades = DB::table('mas_grades')->pluck('id', 'name'); 
-        
+
+        $grades = DB::table('mas_grades')->pluck('id', 'name');
+
         $data = [
             ['name' => 'T2', 'steps' => [
                 ['name' => 'T2 Step 1', 'starting_salary' => 42060, 'increment' => 1050, 'ending_salary' => 52560,  'created_by' => 1],
@@ -118,6 +118,14 @@ class MasGradeStepsSeeder extends Seeder
                 ['name' => 'Tea Lady', 'starting_salary' => 9375, 'increment' => 234, 'ending_salary' => 9375, 'created_by' => 1],
             ]],
 
+            ['name' => 'CTE', 'steps' => [
+                ['name' => 'Consolidate T Employee', 'starting_salary' => 1000, 'increment' => 0, 'ending_salary' => 1000, 'created_by' => 1],
+            ]],
+
+            ['name' => 'STC', 'steps' => [
+                ['name' => 'Short Term Contract', 'starting_salary' => 17192, 'increment' => 0, 'ending_salary' => 17192, 'created_by' => 1],
+            ]],
+
         ];
 
         foreach ($data as $gradeData) {
@@ -131,7 +139,7 @@ class MasGradeStepsSeeder extends Seeder
                         'increment' => $step['increment'],
                         'ending_salary' => $step['ending_salary'],
                         'point' => $step['increment'] !== 0 ? (($step['ending_salary'] - $step['starting_salary']) / $step['increment']) : 0,
-                        'created_by' => 1, 
+                        'created_by' => 1,
                     ]);
                 }
             }

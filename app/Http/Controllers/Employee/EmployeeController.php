@@ -59,9 +59,14 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
+        $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
+        $sections = MasSection::orderBy('name')->get(['id', 'name']);
+        $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
+        $workLocations = MasOffice::orderBy('name')->get(['id', 'name']);
+
         // dd(User::get());
-        $employees = User::filter($request)->orderBy('name')->paginate(config('global.pagination'))->withQueryString();
-        return view('employee/employee-list.index', compact('privileges', 'employees'));
+        $employees = User::filter($request)->orderBy('id')->paginate(config('global.pagination'))->withQueryString();
+        return view('employee/employee-list.index', compact('privileges','employees','departments','sections','designations','workLocations'));
     }
     /**
      * Show the form for creating a new resource.
@@ -154,7 +159,7 @@ class EmployeeController extends Controller
             $increment = $gradeStep->increment;
             $points = range(1, $gradeStep->point);
         }
-        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary) {
+        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary && $increment ) {
             $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
         }
         return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
@@ -634,15 +639,13 @@ class EmployeeController extends Controller
         if (isset($doc['other']) || $request['existing_documents']) {
 
             // Combine existing documents with new ones
-            if (isset($request['existing_documents']) && is_array($request['existing_documents'])) {
-                // Use existing documents and upload new ones
+            if (isset($request['existing_documents']) && is_array($request['existing_documents'])) {                // Use existing documents and upload new ones
 
                 $existingDocuments = $request['existing_documents'];
             } else {
 
                 $existingDocuments = [];
             }
-
             // Upload new files and merge with existing
             $uploadedDocuments = array_map(fn($file) => uploadImageToDirectory($file, $this->filePath), isset($doc['other']) ? $doc['other'] : []);
             $otherDocuments = array_merge($existingDocuments, $uploadedDocuments);
@@ -722,7 +725,7 @@ class EmployeeController extends Controller
 
                     ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
                 ]
-                
+
             ]
         ];
         $this->apiController->postEmployeeToSap($sapData);
@@ -791,12 +794,6 @@ class EmployeeController extends Controller
 
             DB::commit();
 
-            // $record->regularized_on = Carbon::now();
-            // $record->save();
-
-            // if (!$record->regular_appointment_order && $record->is_regularized == 1) {
-            //     $this->RegularappointmentOrder($record);
-            // }
 
             return response()->json(['success' => true, 'message' => 'regularize status updated successfully!']);
         } catch (\Exception $e) {

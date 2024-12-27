@@ -174,7 +174,7 @@
                 if (tabName === 'role') {
                     button.textContent = 'Submit';
                 } else {
-                    button.textContent = 'Save & Progress';
+                    button.textContent = 'Save & Proceed';
                 }
             });
         });
