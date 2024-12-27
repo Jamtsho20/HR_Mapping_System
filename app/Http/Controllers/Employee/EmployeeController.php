@@ -154,7 +154,7 @@ class EmployeeController extends Controller
             $increment = $gradeStep->increment;
             $points = range(1, $gradeStep->point);
         }
-        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary && $increment != 0) {
+        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary && $increment ) {
             $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
         }
         return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
