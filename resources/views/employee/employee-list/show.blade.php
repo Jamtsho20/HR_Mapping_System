@@ -208,6 +208,9 @@
                             <li class="list-group-item">
                                 <b>TPN Number</b> <a class="pull-right">{{ $employee->empJob->tpn_number }}</a>
                             </li>
+                            <li class="list-group-item">
+                                <b>GSLI Number</b> <a class="pull-right">{{ $employee->empJob->gis_policy_number }}</a>
+                            </li>
                         </div>
                     </div>
 
