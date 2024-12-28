@@ -174,7 +174,7 @@ class LeaveApplicationController extends Controller
     {
         $leave = LeaveApplication::findOrfail($id);
         $empDetails = empDetails($leave->created_by);
-        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $leave->id);
+        $approvalDetail = getApplicationLogs(\App\Models\LeaveApplication::class, $leave->id);
 
 
         $rejectionRemarks = $leave->histories()

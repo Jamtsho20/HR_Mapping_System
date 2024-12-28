@@ -72,124 +72,124 @@ class ApprovalController extends Controller
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
         DB::beginTransaction();
         try {
-        $approvalService = new ApprovalService();
+            $approvalService = new ApprovalService();
 
-        foreach ($itemIds as $id) {
-            $application = $model::findOrFail($id);
+            foreach ($itemIds as $id) {
+                $application = $model::findOrFail($id);
 
-            if (!$application) {
-                continue;
-            }
-
-            $costingCode = null;
-            $type = $application->type;
-
-            if ($applicationType == 2) { // Expense
-                $typeId = $type->id;
-
-                if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
-                    $costingCode = $application->vehicle->vehicle_no;
+                if (!$application) {
+                    continue;
                 }
-            }
-            $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
                 $costingCode = null;
                 $type = $application->type;
-            // Update application status
-            $application->update([
-                'status' => $status,
-                'updated_by' => $actionBy,
-            ]);
 
-            // Forward application if approved
-            $updateData = [
-                'status' => $status,
-                'remarks' => $rejectRemarks,
-                'action_performed_by' => $actionBy,
-            ];
+                if ($applicationType == 2) { // Expense
+                    $typeId = $type->id;
 
-            if ($action === 'approve' && $applicationHistory) {
-                $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
-
-                if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
-                    $updateData = array_merge($updateData, [
-                        'next_level_id' => $applicationForwardedTo['next_level']->id,
-                        'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
-                        'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
-                        'level_sequence' => $applicationForwardedTo['next_level']->sequence,
-                    ]);
-                } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
-                    $accountCode = $type->code ?? null;
-                    $memo = $type->name ?? null;
-                    $shortName = $application->employee->username = "E00993";
-                    $amount = $application->amount;
-                    $tax_amount = $application->tax_amount ?? null;
-                    $postToSap = $type->post_to_sap;
-                    $costingCode2 = null;
-
-                    if ($postToSap && ($accountCode && $shortName && $amount)) {
-                        // Post to SAP after final Approval
-
-                        $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
-
-                        Log::debug($postFields);
-
-                        $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
-                        $statusCode = $postJournalEntriesResponse->getStatusCode();
-                        $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
-
-                        if ($statusCode != 201) {
-                            throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
-                        }
+                    if ($typeId == 5 || $typeId == 6) { // Vehicle Fuel Claim or Parking Fee
+                        $costingCode = $application->vehicle->vehicle_no;
                     }
+                }
+                $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
-                    // Finalize approval if it's at the maximum level
-                    $application->update([
-                        'status' => 3, // 3 could represent 'final approved'
-                        // 'updated_by' => $actionBy,
-                    ]);
-                    $updateData['status'] = 3; // Mark the history entry as final approved
-                } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
-                    $application->update([
-                        'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                        // 'updated_by' => $actionBy,
-                    ]);
+                $costingCode = null;
+                $type = $application->type;
+                // Update application status
+                $application->update([
+                    'status' => $status,
+                    'updated_by' => $actionBy,
+                ]);
 
-                    $updateData['status'] = $applicationForwardedTo['application_status'];
+                // Forward application if approved
+                $updateData = [
+                    'status' => $status,
+                    'remarks' => $rejectRemarks,
+                    'action_performed_by' => $actionBy,
+                ];
+
+                if ($action === 'approve' && $applicationHistory) {
+                    $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
+
+                    if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
+                        $updateData = array_merge($updateData, [
+                            'next_level_id' => $applicationForwardedTo['next_level']->id,
+                            'approver_role_id' => $applicationForwardedTo['approver_details']['approver_role_id'],
+                            'approver_emp_id' => $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+                            'level_sequence' => $applicationForwardedTo['next_level']->sequence,
+                        ]);
+                    } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
+                        $accountCode = $type->code ?? null;
+                        $memo = $type->name ?? null;
+                        $shortName = $application->employee->username = "E00993";
+                        $amount = $application->amount;
+                        $tax_amount = $application->tax_amount ?? null;
+                        $postToSap = $type->post_to_sap;
+                        $costingCode2 = null;
+
+                        if ($postToSap && ($accountCode && $shortName && $amount)) {
+                            // Post to SAP after final Approval
+
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+
+                            Log::debug($postFields);
+
+                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                            $statusCode = $postJournalEntriesResponse->getStatusCode();
+                            $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
+
+                            if ($statusCode != 201) {
+                                throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                            }
+                        }
+
+                        // Finalize approval if it's at the maximum level
+                        $application->update([
+                            'status' => 3, // 3 could represent 'final approved'
+                            // 'updated_by' => $actionBy,
+                        ]);
+                        $updateData['status'] = 3; // Mark the history entry as final approved
+                    } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
+                        $application->update([
+                            'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
+                            // 'updated_by' => $actionBy,
+                        ]);
+
+                        $updateData['status'] = $applicationForwardedTo['application_status'];
+                    }
+                }
+
+                $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+
+                // Update application history
+                if ($applicationHistory) {
+                    $applicationHistory->update($updateData);
+                }
+
+                DB::commit();
+
+                $respString = preg_replace(
+                    ['/App\\\\Models\\\\/', '/([a-z])Application/'],
+                    ['', '$1 Application'],
+                    $model
+                );
+                $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+                // Update application history
+                if ($applicationHistory) {
+                    $applicationHistory->update($updateData);
+                }
+                try {
+                    if ($updateData['status'] == 3 || $updateData['status'] == -1) {
+                        $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
+                    }
+                    $this->sendMail($applicationModel, $application, $type, $updateData['status'], $applicationForwardedTo);
+                } catch (\Exception $e) {
+                    \Log::error('Error sending mail for application ID ' . $id . ': ' . $e->getMessage());
+                    continue;
                 }
             }
 
-            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
-
-            // Update application history
-            if ($applicationHistory) {
-                $applicationHistory->update($updateData);
-            }
-
-            DB::commit();
-            
-            $respString = preg_replace(
-                ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                ['', '$1 Application'],
-                $model
-            );
-            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
-            // Update application history
-            if ($applicationHistory) {
-                $applicationHistory->update($updateData);
-            }
-            try{
-                if($updateData['status'] == 3 || $updateData['status'] == -1){
-                    $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
-                }
-                $this->sendMail($applicationModel, $application, $type, $updateData['status'], $applicationForwardedTo);
-            }catch(\Exception $e){
-                \Log::error('Error sending mail for application ID ' . $id . ': ' . $e->getMessage());
-                continue;
-            }
-        }
-
-        return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString)) . ' have been successfully ' . $responseMessage], 200);
+            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString)) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -259,9 +259,10 @@ class ApprovalController extends Controller
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
-        $approverDetails = []; //do later on
+        $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
+        // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail'));
     }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
@@ -269,21 +270,31 @@ class ApprovalController extends Controller
         $initiatorEmail = User::where('id', $applicationData['created_by'])->value('email');
         $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
         $initiatorMailContent = $preparedMail['initiator_mail_content'];
-        if($status == 2){
+        if ($status == 2) {
             $initiatorMailContent .= ' verified and is in progress.';
-            if($applicationForwardedTo && $applicationForwardedTo['approver_details'] && $applicationForwardedTo['approver_details']['user_with_approving_role']){
-                Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail($applicationData['created_by'], $applicationForwardedTo['approver_details']['user_with_approving_role']->id, $applicationModel['email_subject'], $preparedMail['approver_mail_content']));
+            if (
+                $applicationForwardedTo && $applicationForwardedTo['approver_details'] &&
+                $applicationForwardedTo['approver_details']['user_with_approving_role']
+            ) {
+                Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new
+                    ApprovalNotificationMail(
+                        $applicationData['created_by'],
+                        $applicationForwardedTo['approver_details']['user_with_approving_role']->id,
+                        $applicationModel['email_subject'],
+                        $preparedMail['approver_mail_content']
+                    ));
             }
-        }else if($status == 3){
+        } else if ($status == 3) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' approved.';
-        }else if($status == -1){
+        } else if ($status == -1) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' rejected.';
         }
-        Mail::to([$initiatorEmail])->send(new InitiatorNotificationMail($applicationData['created_by'], $applicationModel['email_subject'] . ' Approval', $initiatorMailContent));
+        Mail::to([$initiatorEmail])->send(new InitiatorNotificationMail(
+            $applicationData['created_by'],
+            $applicationModel['email_subject'] . ' Approval',
+            $initiatorMailContent
+        ));
     }
-
 }
-
-
