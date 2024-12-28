@@ -263,9 +263,9 @@ class ApprovalController extends Controller
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
-        $approverDetails = []; //do later on
+        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $data->id);
         $empDetails = empDetails($data->created_by);
-            return view('approval.show', compact('data', 'tab', 'empDetails'));
+            return view('approval.show', compact('data', 'tab', 'empDetails','approvalDetail'));
         }
 
     private function sentMail($emailSubject, $applicationData, $appType, $status, $applicationForwardedTo = null)
@@ -284,10 +284,8 @@ class ApprovalController extends Controller
         //mail to requesting user
     }
 
-    private function prepareEmailContent() 
+    private function prepareEmailContent()
     {
 
     }
 }
-
-

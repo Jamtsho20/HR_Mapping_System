@@ -147,18 +147,21 @@
             <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
                 <div class="row">
                     <div class="col-md-12">
-                        <h6>Status</h6>
+                        <h6>Application Details</h6>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
+                            'applicationStatus' => $expense->status,
                         ])
                     </div>
+
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
