@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\Leave\LeaveEncashmentApprovalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApprovalController;
 use App\Http\Controllers\ApprovalController;
-
+use App\Http\Controllers\Api\HolidayListController;
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
@@ -54,6 +54,7 @@ Route::middleware('api.access.log')->group(function () {
 
     Route::namespace('Api\v1')->middleware('auth:sanctum')->group(function () {
         Route::resource('approval_count', 'GeneralApporvalController');
+
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
@@ -121,6 +122,9 @@ Route::middleware('api.access.log')->group(function () {
         Route::post('save-stores', [ApiController::class, 'saveStore']);
         Route::post('save-items', [ApiController::class, 'saveItem']);
     });
+Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
+    Route::resource('holidays', 'HolidayListController');
+});
     // Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
     //     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);
