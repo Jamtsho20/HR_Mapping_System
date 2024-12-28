@@ -8,7 +8,6 @@ use App\Models\DailyAllowance;
 use App\Models\MasTravelType;
 use App\Models\MasEmployeeJob;
 use App\Services\ApprovalService;
-use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -126,13 +125,12 @@ class TravelAuthorizationApplicationController extends Controller
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($travelAuthorization->histories(), $approverByHierarchy, $request->remarks);
 
-
-
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a travel authorization application and is awaiting your approval for a estimated travel expense of ' . $request->estimated_travel_expenses ;
-                $emailSubject = 'Travel Authorization Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                $travelType = MasTravelType::where('id', $request->trave_type)->value('name');
+                $emailContent = 'has applied travel authorization for ' . $travelType . ' for your endorsement.';
+                $emailSubject = 'Travel Authorization';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
             DB::rollBack();

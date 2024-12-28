@@ -185,35 +185,57 @@ return [
         1 => [
             'name' => App\Models\LeaveApplication::class,
             'post_to_sap' => false,
-            // 'mail_content' => ''
+            'email_subject' => 'Leave',
+            'approver_mail_content' => 'has applied {no_of_days} day(s) of {type} from {from_date} to {to_date}.',
+            'initiator_mail_content' => 'Your {no_of_days} day(s) of {type} from {from_date} to {to_date} had been'
         ],
         2 => [
             'name' => App\Models\ExpenseApplication::class,
-            'post_to_sap' => true
+            'post_to_sap' => true,
+            'email_subject' => 'Expense',
+            'approver_mail_content' => 'has applied {type} for your endorsement.',
+            'initiator_mail_content' => 'Your expense has been'
         ],
         3 => [
             'name' => App\Models\AdvanceApplication::class,
-            'post_to_sap' => true
+            'post_to_sap' => true,
+            'email_subject' => 'Advance',
+            'approver_mail_content' => 'has applied {type} for your endorsement.',
+            'initiator_mail_content' => 'Your Loan has been'
         ],
         4 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
-            'post_to_sap' => true
+            'post_to_sap' => true,
+            'email_subject' => 'Leave Encashment',
+            'approver_mail_content' => 'has applied Leave Encashment for your endorsement.',
+            'initiator_mail_content' => 'Your Leave Encashment has been'
         ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,
-            'post_to_sap' => true
+            'post_to_sap' => true,
+            'approver_mail_content' => '',
+            'initiator_mail_content' => ''
         ],
         7 => [
             'name' => App\Models\TravelAuthorizationApplication::class,
-            'post_to_sap' => false
+            'post_to_sap' => false,
+            'email_subject' => 'Travel Authorization',
+            'approver_mail_content' => 'has applied travel authorization of {type} for your endorsement.',
+            'initiator_mail_content' => 'Your Travel Authorization has been'
         ],
         8 => [
             'name' => App\Models\SifaRegistration::class,
-            'post_to_sap' => false
+            'post_to_sap' => false,
+            'email_subject' => '',
+            'approver_mail_content' => '',
+            'initiator_mail_content' => ''
         ],
         9 => [
             'name' => App\Models\DsaClaimApplication::class,
-            'post_to_sap' => true
+            'post_to_sap' => true,
+            'email_subject' => '',
+            'approver_mail_content' => '',
+            'initiator_mail_content' => ''
         ],
     ]
 ];

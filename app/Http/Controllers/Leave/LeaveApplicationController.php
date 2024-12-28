@@ -12,6 +12,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ApplicationForwardedMail;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
 use Carbon\Carbon;
@@ -49,7 +50,7 @@ class LeaveApplicationController extends Controller
 
         $privileges = $request->instance();
         $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $leaveApplications = LeaveApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+        $leaveApplications = LeaveApplication::filter($request)->orderByDesc('created_at')->paginate(config('global.pagination'))->withQueryString();
         // dd($leaveApplications);
 
         return view('leave.leave.index', compact('privileges', 'leaveTypes', 'leaveApplications'));
@@ -144,10 +145,15 @@ class LeaveApplicationController extends Controller
 
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
-            if (isset($approverByHierarchy['approver_details'])) {
-                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days from ' . $request->from_date . ' to ' . $request->to_date . '.';
-                $emailSubject = 'Leave Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+            if(isset($approverByHierarchy['approver_details'])){
+                $leaveType = MasLeaveType::where('id', $request->leave_type)->value('name');
+                $emailContent = 'has applied ' . $request->no_of_days . ' day(s) of ' .  $leaveType . ' from ' . $request->from_date . ' to ' . $request->to_date . '.';
+                $emailSubject = 'Leave';
+                try{
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                }catch(\Exception $e){
+                    \Log::error('Error sending mail for ' . $request->leave_type . ': ' . $e->getMessage());
+                }
             }
         } catch (\Exception $e) {
             DB::rollBack();
