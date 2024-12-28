@@ -213,8 +213,9 @@ return [
         6 => [
             'name' => App\Models\TransferClaimApplication::class,
             'post_to_sap' => true,
-            'approver_mail_content' => '',
-            'initiator_mail_content' => ''
+            'email_subject' => 'Transfer Claim',
+            'approver_mail_content' => 'has applied Transfer Claim of {type} for your endorsement.',
+            'initiator_mail_content' => 'your Transfer Claim has been'
         ],
         7 => [
             'name' => App\Models\TravelAuthorizationApplication::class,
@@ -226,16 +227,16 @@ return [
         8 => [
             'name' => App\Models\SifaRegistration::class,
             'post_to_sap' => false,
-            'email_subject' => '',
-            'approver_mail_content' => '',
-            'initiator_mail_content' => ''
+            'email_subject' => 'Sifa Registration',
+            'approver_mail_content' => 'has applied Sifa Registration for your endorsement.',
+            'initiator_mail_content' => 'Your Sifa Registration has been'
         ],
         9 => [
             'name' => App\Models\DsaClaimApplication::class,
             'post_to_sap' => true,
-            'email_subject' => '',
-            'approver_mail_content' => '',
-            'initiator_mail_content' => ''
+            'email_subject' => 'DSA Claim',
+            'approver_mail_content' => 'has applied DSA Claim of {type} for your endorsement.',
+            'initiator_mail_content' => 'Your DSA Claim has been'
         ],
     ]
 ];
