@@ -59,7 +59,7 @@ class LeaveApprovalController extends Controller
             ->paginate(config('global.pagination'))
             ->withQueryString();
 
-        return view('leave.approval.index', compact('privileges', 'leaves','leaveTypes'));
+        return view('leave.approval.index', compact('privileges', 'leaves', 'leaveTypes'));
     }
 
     /**
@@ -91,12 +91,12 @@ class LeaveApprovalController extends Controller
         try {
             $leave = LeaveApplication::findOrFail($id);
             $empDetails = empDetails($leave->created_by);
-            
+            $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $leave->id);
         } catch (\Exception $e) {
             return back()->with('err_msg', 'Leave apllication not found!');
         }
 
-        return view('leave.approval.show', compact('leave', 'empDetails'));
+        return view('leave.approval.show', compact('leave', 'empDetails','approvalDetail'));
     }
 
     /**
