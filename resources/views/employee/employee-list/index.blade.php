@@ -37,6 +37,16 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-md-3 form-group">
+                <select class="form-control" name="office">
+                    <option value="" disabled selected hidden>Select Work location</option>
+                    @foreach ($workLocations as $office)
+                        <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
+                            {{ $office->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         @endcomponent
 
         <div class="row row-sm">
@@ -106,10 +116,12 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $employee->username }}</td>
                                                                     <td>{{ $employee->name }}</td>
-                                                                    <td>{{ $employee->empJob->department->name }}</td>
+                                                                    <td>{{ $employee->empJob->department->name ?? config('global.null_value') }}
+                                                                    </td>
                                                                     <td>{{ $employee->empJob->section->name ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $employee->empJob->office->name }}</td>
+                                                                    <td>{{ $employee->empJob->office->name ?? config('global.null_value') }}
+                                                                    </td>
                                                                     <td>{{ $employee->date_of_appointment }}</td>
                                                                     <td>{{ $employee->contact_number }}</td>
                                                                     <td>{{ $employee->email }}</td>

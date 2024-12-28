@@ -21,7 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\ApplicationHistoriesService;
-
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;
@@ -221,9 +222,10 @@ class ExpenseApplicationController extends Controller
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
-                    $emailSubject = 'Expense Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                    $expenseType = MasExpenseType::where('id', $request->expense_type)->value('name');
+                    $emailContent = 'has applied ' . $expenseType . ' for your endorsement.';
+                    $emailSubject = 'Expense';
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }
 
                 return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
@@ -245,7 +247,9 @@ class ExpenseApplicationController extends Controller
     public function show($id)
     {
         $expense = ExpenseApplication::findOrfail($id);
-        return view('expense.apply.show', compact('expense'));
+        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
+
+        return view('expense.apply.show', compact('expense','approvalDetail'));
     }
 
     /**

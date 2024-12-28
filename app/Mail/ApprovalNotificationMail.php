@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,20 +10,27 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ApprovalNotificationMail extends Mailable
+class ApprovalNotificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    protected $approvingEmpName;
-    protected $reqEmpName;
+    protected $approver;
     protected $emailContent;
     protected $emailSubject;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($requestingUserId, $approvingUserId, $emailSubject, $emailContent)
     {
-        //
+        $initiatorDetails = User::with('empJob')->where('id', $requestingUserId)->first();
+        $initiator = $initiatorDetails['title'] . ' ' . $initiatorDetails['name'] . ', ' 
+                    . $initiatorDetails->empJob->designation->name . ', ' 
+                    . $initiatorDetails->empJob->section->name ?? '' 
+                    . $initiatorDetails->empJob->department->name;
+
+        $this->approver = User::where('id', $approvingUserId)->first();
+        $this->emailContent = $initiator . ' ' . $emailContent;
+        $this->emailSubject = $emailSubject;
     }
 
     /**
@@ -31,7 +39,7 @@ class ApprovalNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Approval Notification Mail',
+            subject: $this->emailSubject,
         );
     }
 
@@ -42,6 +50,10 @@ class ApprovalNotificationMail extends Mailable
     {
         return new Content(
             markdown: 'emails.approval-notification',
+            with: [
+                'approver' => $this->approver['title'] . ' ' . $this->approver['name'],
+                'emailContent' => $this->emailContent,
+            ]
         );
     }
 

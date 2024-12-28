@@ -147,32 +147,21 @@
             <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
                 <div class="row">
                     <div class="col-md-12">
-                        <h6>Status</h6>
+                        <h6>Document History</h6>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <table style="width:100%;" class="simple-table">
-                            <tbody>
-                                <tr>
-                                    <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->status == 3 ? $expense->expense_approved_by->name : 'N/A' }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->status == -1 ? $expense->expense_approved_by->name : 'N/A' }} </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @include('layouts.includes.approval-details', [
+                            'approvalDetail' => $approvalDetail,
+                            'applicationStatus' => $expense->status,
+                        ])
                     </div>
+
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
