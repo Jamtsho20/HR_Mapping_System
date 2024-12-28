@@ -405,9 +405,7 @@ class EmployeeController extends Controller
             'job.salary_disbursement_mode' => 'required',
             'job.bank' => 'required_if:job.salary_disbursement_mode,2',
             'job.account_number' => 'requiredif:salary_disbursement_mode,2',
-            'job.pf_number' => 'required',
-            'job.tpn_number' => 'required',
-            'job.gis_policy_number' => '',
+
         ], $messages);
 
         $empJob = MasEmployeeJob::updateOrCreate(

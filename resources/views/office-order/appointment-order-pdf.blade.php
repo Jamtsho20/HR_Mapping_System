@@ -10,7 +10,7 @@
 <style>
     * {
         font-family: 'Courier New', monospace;
-    
+
     }
 
     .container {
@@ -70,8 +70,14 @@
         padding-top: 100px
     }
 
+    .seal p {
+        font-weight: bold;
+    }
+
     .copy {
-        padding-top: 180px
+        padding-top: 200px;
+        font-weight: bold;
+        font-size: 12px
     }
 
     table {
@@ -87,6 +93,7 @@
         padding: 6px 3px;
         /* Adds padding inside table cells for better readability */
         vertical-align: top;
+
         /* Aligns text to the top of cells */
     }
 </style>
@@ -96,7 +103,8 @@
     @include('layouts.includes.letter-head')
     <div class="container">
         <div class="row">
-            <div class="left"><b>REF.No:</b> TIPL/HRAD/01/{{($employee->created_at)->year}}/</div>
+            <div class="left"><b style="text-transform: capitalzse">REF.No:</b>
+                TIPL/HRAD/01/{{ $employee->created_at->year }}/</div>
             <div class="right"><b>Date:</b> {{ $employee->created_at->format('d-m-Y') }}</div>
         </div>
 
@@ -106,43 +114,45 @@
                 <table>
                     <tr>
                         <td> <b>Name</b></td>
-                        <td class="details">{{$employee->name}}</td>
+                        <td class="details">{{ $employee->name }}</td>
                     </tr>
                     <tr>
                         <td> <b>Citizen ID No</b></td>
-                        <td class="details">{{$employee->cid_no}}</td>
+                        <td class="details">{{ $employee->cid_no }}</td>
                     </tr>
                     <tr>
                         <td> <b>Designation</b></td>
-                        <td class="details">{{$employee->empJob->designation->name}}</td>
+                        <td class="details">{{ $employee->empJob->designation->name }}</td>
                     </tr>
                     <tr>
                         <td> <b>Nature of Appointment</b></td>
-                        <td class="details">{{$employee->empJob->empType->name}}</td>
+                        <td class="details">{{ $employee->empJob->empType->name }}</td>
                     </tr>
                     <tr>
                         <td> <b>Department</b></td>
-                        <td class="details">{{$employee->empJob->department->name}}</td>
+                        <td class="details">{{ $employee->empJob->department->name }}</td>
                     </tr>
                     <tr>
-                        <td> <b>Devision/Section</b></td>
-                        <td class="details">{{$employee->empJob->section->name?? '-'}}</td>
+                        <td> <b>Division/Section</b></td>
+                        <td class="details">{{ $employee->empJob->section->name ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td> <b>Grade</b></td>
-                        <td class="details">{{$employee->empJob->gradeStep->name}}</td>
+                        <td class="details">{{ $employee->empJob->gradeStep->name }}</td>
                     </tr>
                     <tr>
                         <td> <b>Place of Posting</b></td>
-                        <td class="details">{{$employee->empJob->office->name}}</td>
+                        <td class="details">{{ $employee->empJob->office->name }}</td>
                     </tr>
                     <tr>
                         <td> <b>Date of Appointment</b></td>
-                        <td class="details">{{$employee->date_of_appointment}}</td>
+                        <td class="details">{{ $employee->date_of_appointment }}</td>
                     </tr>
                     <tr>
                         <td> <b>Pay Scale</b></td>
-                        <td class="details">{{$employee->empJob->gradeStep->starting_salary}} - {{$employee->empJob->gradeStep->increment}} - {{$employee->empJob->gradeStep->ending_salary}}</td>
+                        <td class="details">{{ $employee->empJob->gradeStep->starting_salary }} -
+                            {{ $employee->empJob->gradeStep->increment }} -
+                            {{ $employee->empJob->gradeStep->ending_salary }}</td>
                     </tr>
                 </table>
             </div>
