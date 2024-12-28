@@ -87,7 +87,6 @@ class LeaveApplicationController extends Controller
         try{
 
         $result = $this->handleLeaveApplication($request);
-
         // If $result is a RedirectResponse, return it immediately
         if ($result instanceof \Illuminate\Http\RedirectResponse) {
             return response()->json($result);
@@ -351,7 +350,9 @@ class LeaveApplicationController extends Controller
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
             if($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)){
-                return back()->withInput()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
+                $msg = 'You are not eligible to apply ' . $leaveType . ', for further information please contact system admin.';
+                return response()->json(['status' => 'error', 'message' => $msg]);
+                // return back()->withInput()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
             }
         }
         // Check for max leave days commented for now
@@ -364,7 +365,7 @@ class LeaveApplicationController extends Controller
             $msg = $leaveBalance == 0
                 ? 'You do not have any available leave balance for ' .  $leaveType . '.'
                 : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-            return back()->withInput()->with('msg_error', $msg);
+            return response()->json(['status' => 'error', 'message' => $msg]);
         }
 
         // Handle file upload if required based on defined in leave policy(old code)
