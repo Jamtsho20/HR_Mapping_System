@@ -20,7 +20,7 @@ class MasSectionSeeder extends Seeder
             ['department_short_name' => 'AND', 'sections' => [
                 ['name' => 'ISP Access Section'],
                 ['name' => 'Access Network Section'],
-                ['name' => 'Power & Utilities Section'],
+                ['name' => 'Power & Utility Section'],
             ]],
             ['department_short_name' => 'Marketing', 'sections' => [
                 ['name' => 'Regions'],
@@ -74,5 +74,3 @@ class MasSectionSeeder extends Seeder
         }
     }
 }
-
-
