@@ -51,15 +51,6 @@ const TRAVEL_ALLOWANCE = 1200;
 //leave type constant
 const CASUAL_LEAVE = 1;
 const EARNED_LEAVE = 2;
-
-
-// SAP constants;
-const SAP_BASE_URL = "https://192.168.196.23";
-const SAP_PORT = 50000;
-const SAP_CONPANY_DB = "TIPL_DB_TEST";
-const SAP_USERNAME = "manager";
-const SAP_PASSWORD = "Sap@2024";
-
 const MEDICAL_LEAVE = 3;
 const MATERNITY_LEAVE = 4;
 const PATERNITY_LEAVE = 5;
@@ -68,6 +59,14 @@ const STUDY_LEAVE = 7;
 const BEREAVEMENT_LEAVE = 8;
 const EARNED_LEAVE_CREDIT_AMOUNT = 2.5;
 const CASUAL_LEAVE_CREDIT_AMOUNT = 10;
+
+
+// SAP constants;
+const SAP_BASE_URL = "https://192.168.196.23";
+const SAP_PORT = 50000;
+const SAP_CONPANY_DB = "TIPL_DB_TEST";
+const SAP_USERNAME = "manager";
+const SAP_PASSWORD = "Sap@2024";
 
 // Payslip statuses
 const SIFA_APPROVED = 3;
