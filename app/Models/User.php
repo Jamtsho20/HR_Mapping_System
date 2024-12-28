@@ -173,6 +173,11 @@ class User extends Authenticatable
                 $q->where('id', $request->query('designation'));
             });
         }
+        if ($request->has('office') && $request->query('office') != '') {
+            $query->whereHas('empJob.office', function ($q) use ($request) {
+                $q->where('id', $request->query('office'));
+            });
+        }
     }
 
     public function scopeActive($query)

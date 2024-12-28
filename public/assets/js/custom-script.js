@@ -772,7 +772,7 @@ $(document).ready(function () {
             updateNavigationButtons();
         }
     });
-    
+
     //validate file based on type and size
     function validateImage(fileInput) {
         // Check if any file is selected
@@ -908,12 +908,12 @@ const createFileItemHTML = (file, uniqueIdentifier) => {
                             <div class="file-content-wrapper">
                                 <div class="file-content">
                                 <div class="file-details">
-                                <h5 class="file-name">${name}</h5>
-                                <div class="file-info">
-                                    <small class="file-size">0 MB / ${formattedFileSize}</small>
-                                    <small class="file-divider">•</small>
-                                    <small class="file-status">Done</small>
-                                </div>
+
+                                    <div class="file-info">
+                                        <small class="file-size">0 MB / ${formattedFileSize}</small>
+                                        <small class="file-divider">•</small>
+                                        <small class="file-status">Done • ${name}</small>
+                                    </div>
                                 </div>
                                 <button class="cancel-button">
                                     <i class="bx bx-x"></i>
@@ -967,7 +967,7 @@ const handleSelectedFiles = ([...files]) => {
 
         const xhr = handleFileUploading(file, uniqueIdentifier);
 
-        // Update file status text and change color of it 
+        // Update file status text and change color of it
         const updateFileStatus = (status, color) => {
             currentFileItem.querySelector(".file-status").innerText = status;
             currentFileItem.querySelector(".file-status").style.color = color;
@@ -1008,27 +1008,7 @@ const handleSelectedFiles = ([...files]) => {
     fileCompletedStatus.innerText = `${completedFiles} / ${totalFiles} files completed`;
 }
 
-// Function to handle file drop event
-fileUploadBox.addEventListener("drop", (e) => {
-    e.preventDefault();
-    handleSelectedFiles(e.dataTransfer.files);
-    fileUploadBox.classList.remove("active");
-    fileUploadBox.querySelector(".file-instruction").innerText = "Drag files here or";
-});
 
-// Function to handle file dragover event
-fileUploadBox.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    fileUploadBox.classList.add("active");
-    fileUploadBox.querySelector(".file-instruction").innerText = "Release to upload or";
-});
-
-// Function to handle file dragleave event
-fileUploadBox.addEventListener("dragleave", (e) => {
-    e.preventDefault();
-    fileUploadBox.classList.remove("active");
-    fileUploadBox.querySelector(".file-instruction").innerText = "Drag files here or";
-});
 
 const removedFiles = new Set();
 
@@ -1050,42 +1030,7 @@ document.querySelectorAll(".file-item.existing-file .cancel-button").forEach((bu
     });
 });
 
-// On form submission
-document.querySelector("form").addEventListener("submit", function (event) {
-    const form = event.target;
 
-    // Ensure the form contains this file uploader
-    if (!form.querySelector(".file-uploader")) return;
-
-    // Remove all `documents[other][]` fields already present in the form
-    document.querySelectorAll('input[name="documents[other][]"]').forEach((input) => input.remove());
-
-    // Merge existing files (those not removed) into `documents[other][]`
-    form.querySelectorAll('input[name="existing_documents[]"]').forEach((hiddenInput) => {
-        if (!removedFiles.has(hiddenInput.value)) {
-            // Create a new hidden input with the name `documents[other][]`
-            const newInput = document.createElement("input");
-            newInput.type = "hidden";
-            newInput.name = "documents[other][]";
-            newInput.value = hiddenInput.value;
-
-            // Append it to the form
-            form.appendChild(newInput);
-        }
-    });
-
-    // Collect newly uploaded files and append them to `documents[other][]`
-    const uploadedFiles = form.querySelector('input[name="uploaded_files[]"]');
-    if (uploadedFiles && uploadedFiles.files.length > 0) {
-        Array.from(uploadedFiles.files).forEach((file) => {
-            const fileInput = document.createElement("input");
-            fileInput.type = "hidden";
-            fileInput.name = "documents[other][]";
-            fileInput.value = file.name; // You can modify this to send the actual file URL or path
-            form.appendChild(fileInput);
-        });
-    }
-});
 
 fileBrowseInput.addEventListener("change", (e) => handleSelectedFiles(e.target.files));
 fileBrowseButton.addEventListener("click", () => fileBrowseInput.click());

@@ -162,8 +162,9 @@ class LeaveApplicationController extends Controller
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a leave request and is awaiting your approval for ' . $request->no_of_days . ' days.';
-                $emailSubject = 'Leave Application';
+                $leaveType = MasLeaveType::where('id', $request->leave_type)->value('name');
+                $emailContent = 'has applied ' . $request->no_of_days . ' day(s) of ' .  $leaveType . ' from ' . $request->from_date . ' to ' . $request->to_date . '.';
+                $emailSubject = 'Leave';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {

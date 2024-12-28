@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ApplicationAuditLog;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
@@ -70,10 +71,10 @@ if (!function_exists('delete_image')) {
         if ($path) {
             // unlink(public_path($path)); //incase if path not found provide meaningful message to user to avoid confusion
             $decodedString = decoded_string($path);
-       
+
             if($decodedString){
                 foreach($decodedString as $string){//incase if path not found provide meaningful message to user to avoid confusion
-                
+
                     unlink(public_path($string));
                 }
             }else{
@@ -279,7 +280,7 @@ if(!function_exists('approvalHeadConditionField')){
                 $field['value'] = null;
             }
         }
-        
+
         return $conditionFields;
     }
 }
@@ -330,14 +331,56 @@ if(!function_exists('prepareLeaveCombination')) {
         $matchingLeaves = collect();
         if ($latestLeave) $matchingLeaves->push($latestLeave);
         if ($secondLeave) $matchingLeaves->push($secondLeave);
-        
+
         return $matchingLeaves ? $matchingLeaves : [];
     }
+
 }
-// if(!function_exists('') ) {
-//     function empDetails($empId)
-//     {
-//         $empDetails = User::with('empJob')->where('id', $empId)->first();
-//         return $empDetails;
-//     }
-// }
+
+if(!function_exists('getApplicationLogs') ) {
+    function getApplicationLogs($model, $applicationId)
+    {
+        $applicationLogs = ApplicationAuditLog::where('application_type',
+        $model)->where('application_id', $applicationId)->get();
+        return $applicationLogs;
+    }
+}
+
+
+if(!function_exists('prepareMail')) {
+    function prepareMail($applicationModel, $applicationData, $appType, $status) 
+    {
+        $applicationData['type'] = $appType->name;
+        $approverMailContent = $applicationModel['approver_mail_content'];
+        $initiatorMailContent = $applicationModel['initiator_mail_content'];
+        $response = [];
+        if($status == 2){
+            $finalApproverMailContent = prepareMailContent($approverMailContent, $applicationData);
+            $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
+            $response['approver_mail_content'] = $finalApproverMailContent;
+            $response['initiator_mail_content'] = $finalInitiatorMaleContent;
+        }else if($status == 3){
+            $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
+            $response['initiator_mail_content'] = $finalInitiatorMaleContent;
+        }else if($status == -1){
+            $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
+            $response['initiator_mail_content'] = $finalInitiatorMaleContent;
+        }
+        return $response;
+    }
+}
+
+if(!function_exists('prepareMailContent')) {
+    function prepareMailContent($approverMailContent, $applicationData) {
+        $finalContent = preg_replace_callback(
+            '/\{(\w+)\}/', // Match placeholders like {key}
+            function ($matches) use ($applicationData) {
+                $key = $matches[1]; // Extract the key inside {}
+                return $applicationData[$key] ?? $matches[0]; // Replace with value or keep original placeholder
+            },
+            $approverMailContent
+        );
+        return $finalContent;
+    }
+}
+

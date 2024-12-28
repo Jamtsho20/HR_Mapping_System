@@ -10,28 +10,22 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ApplicationForwardedMail extends Mailable implements ShouldQueue
+class InitiatorNotificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    // protected $requestingUserId;
-    protected $approver;
-    protected $emailContent;
-    protected $emailSubject;
     /**
      * Create a new message instance.
      */
-    public function __construct($requestingUserId, $approvingUserId, $emailContent, $emailSubject)
+    protected $initiator;
+    protected $emailSubject;
+    protected $emailContent;
+    public function __construct($requestingUserId, $emailSubject, $emailContent)
     {
-        $initiatorDetails = User::with('empJob')->where('id', $requestingUserId)->first();
-        $initiator = $initiatorDetails['title'] . ' ' . $initiatorDetails['name'] . ', ' 
-                    . $initiatorDetails->empJob->designation->name . ', ' 
-                    . $initiatorDetails->empJob->section->name ?? '' 
-                    . $initiatorDetails->empJob->department->name;
-
-        $this->approver = User::where('id', $approvingUserId)->first();
-        $this->emailContent = $initiator . ' ' . $emailContent;
+        $initiatorDetail = User::where('id', $requestingUserId)->first(); 
+        $this->initiator = $initiatorDetail['title'] . ' ' . $initiatorDetail['name']; 
         $this->emailSubject = $emailSubject;
+        $this->emailContent = $emailContent;
     }
 
     /**
@@ -41,7 +35,6 @@ class ApplicationForwardedMail extends Mailable implements ShouldQueue
     {
         return new Envelope(
             subject: $this->emailSubject,
-            // subject: 'Application Forwarded Mail',
         );
     }
 
@@ -51,9 +44,9 @@ class ApplicationForwardedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.application-forwarded',
+            markdown: 'emails.initiator-notification',
             with: [
-                'approver' => $this->approver['title'] . ' ' . $this->approver['name'],
+                'initiator' => $this->initiator,
                 'emailContent' => $this->emailContent,
             ]
         );

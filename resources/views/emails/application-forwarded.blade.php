@@ -1,15 +1,15 @@
 <x-mail::message>
 
-Dear {{ $approvingEmpName }}, <br/>
+Dear {{ $approver }}, <br/>
 Greetings for the day!! <br/>
 
-{{ $reqEmpName }} {{ $emailContent }} <br/><br/>
+{{ $emailContent }} <br/><br/>
 
-To review and approve, please click the link below:<br/>
+Kindly Approve/Reject from HRMS, please click the link below:<br/>
 @component('mail::button', ['url' => url('/')])
     Visit The Site
 @endcomponent
-Thanks, <br/>
-TIPL HRMS.
+Sincerely, <br/>
+Tashi InfoComm Private Limited.
 
 </x-mail::message>

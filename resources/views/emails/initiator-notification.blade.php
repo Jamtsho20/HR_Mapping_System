@@ -1,11 +1,10 @@
 <x-mail::message>
 
-Dear {{ $approver }}, <br/>
+Dear {{ $initiator }}, <br/>
 Greetings for the day!! <br/>
 
 {{ $emailContent }} <br/><br/>
 
-Kindly Approve/Reject from HRMS, please click the link below:<br/>
 @component('mail::button', ['url' => url('/')])
     Visit The Site
 @endcomponent

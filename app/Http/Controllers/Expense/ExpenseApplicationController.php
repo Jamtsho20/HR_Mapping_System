@@ -21,6 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\ApplicationHistoriesService;
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;
@@ -154,6 +156,11 @@ class ExpenseApplicationController extends Controller
             return $result;
         }
 
+
+        // Check if files are uploaded (even outside of the if statement)
+
+
+
         $request->validate($this->rules($request));
 
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -171,7 +178,7 @@ class ExpenseApplicationController extends Controller
                     'date' => $request->date,
                     'amount' => $request->amount,
                     'description' => $request->description,
-                    'file' => $result['file'],
+                    'file' => json_encode($result['attachments']),
                     'travel_type' => $request->travel_type,
                     'travel_mode' => $request->mode_of_travel,
                     'travel_from_date' => $request->travel_from_date,
@@ -215,9 +222,10 @@ class ExpenseApplicationController extends Controller
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
-                    $emailSubject = 'Expense Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                    $expenseType = MasExpenseType::where('id', $request->expense_type)->value('name');
+                    $emailContent = 'has applied ' . $expenseType . ' for your endorsement.';
+                    $emailSubject = 'Expense';
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }
 
                 return redirect('expense/apply-expense')->with('msg_success', 'Expense has been applied successfully!');
@@ -225,7 +233,6 @@ class ExpenseApplicationController extends Controller
                 DB::rollBack();
                 return back()->withInput()->with('msg_error', $e->getMessage());
             }
-
         } else {
             return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }
@@ -240,7 +247,10 @@ class ExpenseApplicationController extends Controller
     public function show($id)
     {
         $expense = ExpenseApplication::findOrfail($id);
-        return view('expense.apply.show', compact('expense'));
+        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
+
+
+        return view('expense.apply.show', compact('expense','approvalDetail'));
     }
 
     /**
@@ -332,7 +342,6 @@ class ExpenseApplicationController extends Controller
                         ]
                     );
                 }
-
             }
 
             DB::commit();
@@ -352,8 +361,7 @@ class ExpenseApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        {
+    { {
             try {
                 ExpenseApplication::findOrFail($id)->delete();
 
@@ -366,6 +374,8 @@ class ExpenseApplicationController extends Controller
 
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
     { //common function to handle store and update of expense
+
+
         /// query to fetch employee grade step and region
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         // dd($empJobDetail);
@@ -397,27 +407,40 @@ class ExpenseApplicationController extends Controller
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+
         // if ($attachmentRequired && !$attachment) {
+        // If the attachment is required and not already present
         if ($attachmentRequired && !$attachment) {
-            $this->validate($request,
-                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
-                ['file.required' => 'The file is required. Please upload a file.']
+            // Validate each file in the attachments array
+            $this->validate(
+                $request,
+                ['attachments.*' => 'required|file|mimes:pdf,jpg,jpeg,png,docx|max:2048'], // Validate each file
+                ['attachments.*.required' => 'Each file is required. Please upload a file.']
             );
         }
-        if ($request->hasFile('file')) {
-            $this->validate($request,
-                ['file' => 'required|file|mimes:pdf,jpg,png,docx|max:2048'],
-                ['file.required' => 'The file is required. Please upload a file.']
-            );
-            $file = $request->file('file');
-            if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
-                delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+
+        $files = $request->file('attachments'); // Get array of uploaded files
+
+        $attachments = []; // Initialize an array to store uploaded file names
+
+        if ($files) {
+            foreach ($files as $file) {
+                // If an old attachment exists, delete it
+                if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                    delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+                }
+
+                // Upload the new file and store its name in the array
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+
+                // Add the uploaded file name to the attachments array
+                $attachments[] = $attachment;
             }
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
         }
 
         return [
-            'file' => $attachment,
+            'attachments' => $attachments, // Return all uploaded attachments
         ];
+
     }
 }

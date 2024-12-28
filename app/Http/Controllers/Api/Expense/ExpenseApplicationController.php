@@ -10,20 +10,19 @@ use App\Models\MasExpenseType;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use App\Models\DsaClaimApplication;
-use App\Models\TransferClaimApplication;
 use App\Models\TravelAuthorizationApplication;
 use App\Http\Controllers\AjaxRequestController;
 use App\Models\AdvanceApplication;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
-use Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Models\DailyAllowance;
 use App\Models\MasVehicle;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ExpenseApplicationController extends Controller
@@ -271,9 +270,10 @@ class ExpenseApplicationController extends Controller
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $expenseApplication->amount . ' is awaiting your approval.';
-                    $emailSubject = 'Expense Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                    $expenseType = MasExpenseType::where('id', $request->expense_type)->value('name');
+                    $emailContent = 'has applied ' . $expenseType . ' for your endorsement.';
+                    $emailSubject = 'Expense';
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }
                 return response()->json([
                     'expenseApplication' => $expenseApplication,
