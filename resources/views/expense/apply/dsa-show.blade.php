@@ -30,7 +30,8 @@
                                 <tr>
                                     <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $dsa->dsaadvance->advance_application_id ?? '-' }}</td>
+                                    <td style="padding-left:25px;"> {{ $dsa->dsaadvance->advance_application_id ?? '-' }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Advance Amount <span
@@ -148,7 +149,7 @@
             <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
                 <div class="row">
                     <div class="col-md-12">
-                        <h6>Application Details</h6>
+                        <h6>Document History</h6>
                     </div>
                 </div>
                 <div class="row">
