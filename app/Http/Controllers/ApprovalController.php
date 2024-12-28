@@ -121,7 +121,7 @@ class ApprovalController extends Controller
                     } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         $accountCode = $type->code ?? null;
                         $memo = $type->name ?? null;
-                        $shortName = $application->employee->username = "E00993";
+                        $shortName = $application->employee->username.'.';
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
