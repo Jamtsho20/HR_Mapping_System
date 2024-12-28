@@ -167,7 +167,7 @@ class ApprovalController extends Controller
             }
 
             DB::commit();
-
+            
             $respString = preg_replace(
                 ['/App\\\\Models\\\\/', '/([a-z])Application/'],
                 ['', '$1 Application'],
@@ -259,10 +259,10 @@ class ApprovalController extends Controller
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
-        $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $data->id);
+        $approverDetails = []; //do later on
         $empDetails = empDetails($data->created_by);
-            return view('approval.show', compact('data', 'tab', 'empDetails','approvalDetail'));
-        }
+        return view('approval.show', compact('data', 'tab', 'empDetails'));
+    }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
     {
@@ -275,16 +275,15 @@ class ApprovalController extends Controller
                 Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail($applicationData['created_by'], $applicationForwardedTo['approver_details']['user_with_approving_role']->id, $applicationModel['email_subject'], $preparedMail['approver_mail_content']));
             }
         }else if($status == 3){
-
-        }else{
-
+            $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
+            $initiatorMailContent .= ' approved.';
+        }else if($status == -1){
+            $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
+            $initiatorMailContent .= ' rejected.';
         }
-        // Mail::to([$applicationForwardedTo['approver_details']['user_with_approving_role']->email])->send(new ApprovalNotificationMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
-        //mail to requesting user
+        Mail::to([$initiatorEmail])->send(new InitiatorNotificationMail($applicationData['created_by'], $applicationModel['email_subject'] . ' Approval', $initiatorMailContent));
     }
 
-    private function prepareEmailContent()
-    {
-
-    }
 }
+
+
