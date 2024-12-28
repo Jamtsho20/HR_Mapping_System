@@ -120,7 +120,8 @@
                                                                     </td>
                                                                     <td>{{ $employee->empJob->section->name ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $employee->empJob->office->name }}</td>
+                                                                    <td>{{ $employee->empJob->office->name ?? config('global.null_value') }}
+                                                                    </td>
                                                                     <td>{{ $employee->date_of_appointment }}</td>
                                                                     <td>{{ $employee->contact_number }}</td>
                                                                     <td>{{ $employee->email }}</td>
