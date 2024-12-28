@@ -707,7 +707,7 @@ class EmployeeController extends Controller
         // dd($employee);
         $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
         $sapData = [
-            'CardCode' => $employee->username,
+            'CardCode' => $employee->username . '.',
             'CardName' => trim($employee->first_name . ' ' . ($employee->middle_name ?? '') . ' ' . ($employee->last_name ?? '')),
             'CardType' => 'C',
             'GroupCode' => 108,
