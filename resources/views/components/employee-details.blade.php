@@ -9,11 +9,7 @@
             <div class="col-md-12">
                 <table style="width:100%;">
                     <tbody>
-                        <tr>
-                            <td colspan="2" class="text-center">
-                                <br>
-                            </td>
-                        </tr>
+
                         <tr>
                             <th style="width:35%;">Name <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;
                             </th>
