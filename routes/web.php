@@ -303,6 +303,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('samsung-deduction-report', 'SamsungDeductionReportController')->except('create', 'show', 'edit');
         Route::resource('pay-comparision-report', 'PayComparisionReportController')->except('create', 'show', 'edit');
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
+        Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
