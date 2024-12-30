@@ -528,15 +528,19 @@
                                                 <label for="">Amount Claimed <span
                                                         class="text-danger">*</span></label>
                                                 <input type="number" class="form-control" name="amount"
-                                                    value="{{ old('amount') }}">
+                                                    id="amount_claimed" value="{{ old('amount') }}">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="">Attachment</label>
-                                                <input type="file" class="form-control" name="attachment">
+                                                <span class="text-danger" id="attachment-required"
+                                                    style="display: none;">*</span> <!-- Initially hidden -->
+                                                <input type="file" class="form-control" name="attachment"
+                                                    id="attachment">
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -689,16 +693,56 @@
                 form.find('input, select, textarea').prop('disabled', true); // Disable the input fields
             }
 
+            var selectedValue = $('#transferclaim').val();
+            var distanceField = $('#distanceField');
+            var amountField = $('#amount_claimed');
+            var attachmentField = $('#attachment');
+            var attachmentAsterisk = $('#attachment-required'); // Asterisk span for attachment
+
+            if (selectedValue === '2') {
+                distanceField.show(); // Show the distance field
+                amountField.removeAttr('max'); // Remove the max attribute
+                attachmentAsterisk.show(); // Show the asterisk
+                attachmentField.prop('required', true); // Make attachment field required
+            } else {
+                distanceField.hide(); // Hide the distance field
+                amountField.attr('max', 20000); // Set max value for amount
+                attachmentAsterisk.hide(); // Hide the asterisk
+                attachmentField.prop('required', false); // Make attachment field not required
+            }
+
+            // Change event listener for the dropdown
             $('#transferclaim').on('change', function() {
-                var selectedValue = $(this).val();
-                var distanceField = $('#distanceField');
+                var selectedValue = $(this).val(); // Get the selected value of the dropdown
 
                 if (selectedValue === '2') {
-                    distanceField.show();
+                    distanceField.show(); // Show the distance field
+                    amountField.removeAttr('max'); // Remove the max attribute
+                    attachmentAsterisk.show(); // Show the asterisk
+                    attachmentField.prop('required', true); // Make attachment field required
                 } else {
-                    distanceField.hide();
+                    distanceField.hide(); // Hide the distance field
+                    amountField.attr('max', 20000); // Set max value of 20000
+                    attachmentAsterisk.hide(); // Hide the asterisk
+                    attachmentField.prop('required', false); // Make attachment field not required
                 }
             });
+            $('form').on('submit', function(e) {
+                var attachmentField = $('#attachment');
+                if (attachmentField.prop('required') && attachmentField[0].files.length === 0) {
+                    e.preventDefault(); // Prevent form submission
+                    alert('Please upload an attachment'); // Show an alert message
+                }
+            });
+            $('#amount_claimed').on('input', function() {
+                var amount = parseInt($(this).val(), 10);
+                if (amount > 20000) {
+                    // Display an alert when the user enters a value greater than 20000
+                    alert('Amount cannot exceed 20000.');
+                    $(this).val(20000); // Set the value to 20000
+                }
+            });
+
 
             // Event delegation to handle dynamically added rows
             $(document).on(
