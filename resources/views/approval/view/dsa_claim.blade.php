@@ -14,6 +14,8 @@
                     </div>
                 </div>
                 <div class="row">
+                    @include('components.employee-details', ['empDetails' => $empDetails])
+
                     <div class="col-md-12">
                         <table style="width:100%;" class="simple-table">
                             <tbody>
