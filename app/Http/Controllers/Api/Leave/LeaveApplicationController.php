@@ -264,7 +264,7 @@ class LeaveApplicationController extends Controller
         }
         return $this->successResponse($leaveApplication, 'Leave Application updated successfully');
     }catch(\Exception $e){
-            return $this->errorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage()."ddd ");
         }
     }
 
