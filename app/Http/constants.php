@@ -19,9 +19,9 @@ const CONVEYANCE_EXPENSE = 1;
 const DOMESTIC_TRAVEL_TYPE = 1;
 
 //constant extracted from approving_authoritioes tbl
-const IMMEDIATE_HEAD = 7;
-const DEPARTMENT_HEAD = 8;
-const MANAGING_DIRECTOR = 10;
+const IMMEDIATE_HEAD = 6;
+const DEPARTMENT_HEAD = 7;
+const MANAGING_DIRECTOR = 8;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;

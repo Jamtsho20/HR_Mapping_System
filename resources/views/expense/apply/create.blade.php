@@ -709,6 +709,7 @@
                 amountField.attr('max', 20000); // Set max value for amount
                 attachmentAsterisk.hide(); // Hide the asterisk
                 attachmentField.prop('required', false); // Make attachment field not required
+
             }
 
             // Change event listener for the dropdown
@@ -725,17 +726,20 @@
                     amountField.attr('max', 20000); // Set max value of 20000
                     attachmentAsterisk.hide(); // Hide the asterisk
                     attachmentField.prop('required', false); // Make attachment field not required
+
+
+                    $('#amount_claimed').on('input', function() {
+                        var amount = parseInt($(this).val(), 10);
+                        if (amount > 20000) {
+                            // Display an alert when the user enters a value greater than 20000
+                            alert('Amount cannot exceed 20000.');
+                            $(this).val(20000); // Set the value to 20000
+                        }
+                    });
                 }
             });
 
-            $('#amount_claimed').on('input', function() {
-                var amount = parseInt($(this).val(), 10);
-                if (amount > 20000) {
-                    // Display an alert when the user enters a value greater than 20000
-                    alert('Amount cannot exceed 20000.');
-                    $(this).val(20000); // Set the value to 20000
-                }
-            });
+
 
 
             // Event delegation to handle dynamically added rows
