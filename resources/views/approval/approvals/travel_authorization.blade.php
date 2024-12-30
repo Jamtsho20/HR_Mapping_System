@@ -9,7 +9,8 @@
                             <thead>
                                 <tr role="row" class="thead-light">
                                     <th>
-                                        <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
+                                        <input type="checkbox" id="select_all" class="select_all"
+                                            data-item-class="bulk_checkbox" title="select all">
                                     </th>
                                     <th>APPLIED ON</th>
                                     <th>EMPLOYEE</th>
@@ -21,50 +22,60 @@
                             </thead>
                             <tbody>
                                 @forelse ($results->get(7) as $travelAuthorization)
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" class="bulk_checkbox" value="{{ $travelAuthorization->id }}">
-                                    </td>
-                                    <td>{{ $travelAuthorization->employee->created_at }}</td>
-                                    <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
-                                    <td>{{ $travelAuthorization->travelType->name }}</td>
-                                    <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
-                                    <td>@php
-                                        $statusClasses = [
-                                        -1 => 'badge bg-danger',
-                                        0 => 'badge bg-warning',
-                                        1 => 'badge bg-primary',
-                                        2 => 'badge bg-success',
-                                        3 => 'badge bg-info',
-                                        ];
-                                        $statusText = config("global.application_status.{$travelAuthorization->status}", 'Unknown Status');
-                                        $statusClass = $statusClasses[$travelAuthorization->status] ?? 'badge bg-secondary';
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="bulk_checkbox"
+                                                value="{{ $travelAuthorization->id }}">
+                                        </td>
+                                        <td>{{ $travelAuthorization->employee->created_at }}</td>
+                                        <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
+                                        <td>{{ $travelAuthorization->travelType->name }}</td>
+                                        <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                        <td>@php
+                                            $statusClasses = [
+                                                -1 => 'badge bg-danger',
+                                                0 => 'badge bg-warning',
+                                                1 => 'badge bg-primary',
+                                                2 => 'badge bg-success',
+                                                3 => 'badge bg-info',
+                                            ];
+                                            $statusText = config(
+                                                "global.application_status.{$travelAuthorization->status}",
+                                                'Unknown Status',
+                                            );
+                                            $statusClass =
+                                                $statusClasses[$travelAuthorization->status] ?? 'badge bg-secondary';
                                         @endphp
 
-                                        <span class="{{ $statusClass }}">{{ $statusText }}</span>
-                                    </td>
-                                    <td class="text-center">
+                                            <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                        </td>
+                                        <td class="text-center">
 
-                                        @if ($privileges->view)
-                                        <a href="{{ url('approval/applications/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
-                                            <i class="fa fa-list"></i> Detail
-                                        </a>
-
-                                        @endif
-                                        <!-- @if ($privileges->edit)
-                                        <a href="{{ route('travel-authorization-approval.edit', $travelAuthorization->id) }}" class=" btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                                        @endif
-                                        @if ($privileges->delete)
-                                        <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('travel-authorization/apply-travel-authorization/' . $travelAuthorization->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                                        @endif -->
-                                    </td>
-                                </tr>
+                                            @if ($privileges->view)
+                                                <a href="{{ url('approval/applications/' . $travelAuthorization->id . '?tab=7') }}"
+                                                    class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                            @endif
+                                            {{-- @if ($privileges->edit)
+                                                <a href="{{ route('travel-authorization-approval.edit', $travelAuthorization->id) }}"
+                                                    class=" btn btn-sm btn-rounded btn-outline-success"><i
+                                                        class="fa fa-edit"></i> EDIT</a>
+                                            @endif --}}
+                                            @if ($privileges->delete)
+                                                <a href="#"
+                                                    class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                                    data-url="{{ url('travel-authorization/apply-travel-authorization/' . $travelAuthorization->id) }}"><i
+                                                        class="fa fa-trash"></i> DELETE</a>
+                                            @endif
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-danger">
-                                        No Travel Authorization found
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-danger">
+                                            No Travel Authorization found
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
