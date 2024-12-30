@@ -303,7 +303,9 @@ class LeaveApplicationController extends Controller
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
         if($leavePolicy && $leavePolicy->leavePolicyPlan){
-            if($leavePolicy->leavePolicyPlan->gender != $userDetails->gender || $leavePolicy->leavePolicyPlan->gender != 3){
+
+            if($leavePolicy->leavePolicyPlan->gender != $userDetails->gender && $leavePolicy->leavePolicyPlan->gender != 3){
+
                 return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave based on your gender.');
             }
         }
