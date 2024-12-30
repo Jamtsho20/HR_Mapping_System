@@ -537,7 +537,7 @@
                                                 <span class="text-danger" id="attachment-required"
                                                     style="display: none;">*</span> <!-- Initially hidden -->
                                                 <input type="file" class="form-control" name="attachment"
-                                                    id="attachment">
+                                                    id="transfer-attachment">
                                             </div>
                                         </div>
 
@@ -696,7 +696,7 @@
             var selectedValue = $('#transferclaim').val();
             var distanceField = $('#distanceField');
             var amountField = $('#amount_claimed');
-            var attachmentField = $('#attachment');
+            var attachmentField = $('#transfer-attachment');
             var attachmentAsterisk = $('#attachment-required'); // Asterisk span for attachment
 
             if (selectedValue === '2') {
@@ -727,13 +727,7 @@
                     attachmentField.prop('required', false); // Make attachment field not required
                 }
             });
-            $('form').on('submit', function(e) {
-                var attachmentField = $('#attachment');
-                if (attachmentField.prop('required') && attachmentField[0].files.length === 0) {
-                    e.preventDefault(); // Prevent form submission
-                    alert('Please upload an attachment'); // Show an alert message
-                }
-            });
+
             $('#amount_claimed').on('input', function() {
                 var amount = parseInt($(this).val(), 10);
                 if (amount > 20000) {
