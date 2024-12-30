@@ -12,6 +12,9 @@
             <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
                 <div class="row">
                     <div class="col-md-12">
+                        <h6>DSA Claim & Settlement Details</h6>
+                    </div>
+                    <div class="col-md-12">
                         <table style="width:100%;" class="simple-table">
                             <tbody>
                                 <tr>
