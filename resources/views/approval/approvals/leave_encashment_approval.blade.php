@@ -28,9 +28,9 @@
                                     <th>
                                         STATUS
                                     </th>
-                                    <!-- <th>
+                                    <th>
                                         ACTION
-                                    </th> -->
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
