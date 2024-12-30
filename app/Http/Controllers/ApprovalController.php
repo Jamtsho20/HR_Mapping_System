@@ -49,6 +49,9 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
+           foreach ($headers as $header) {
+           $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+           }
         }
 
         return view('approval.index', compact('privileges', 'headers', 'results'));

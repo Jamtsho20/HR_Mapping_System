@@ -78,12 +78,12 @@
                                                                         class="btn btn-sm btn-outline-secondary"><i
                                                                             class="fa fa-list"></i> Detail</a>
                                                                 @endif
-                                                                <!-- @if ($privileges->edit)
-<a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"
-                                                                            class="btn btn btn-sm btn-rounded btn-outline-success">
-                                                                            <i class="fa fa-edit"></i> EDIT
-                                                                        </a>
-@endif -->
+                                                                {{-- @if ($privileges->edit)
+                                                                    <a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"
+                                                                        class="btn btn btn-sm btn-rounded btn-outline-success">
+                                                                        <i class="fa fa-edit"></i> EDIT
+                                                                    </a>
+                                                                @endif --}}
                                                                 @if ($privileges->delete)
                                                                     <a href="#"
                                                                         class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
