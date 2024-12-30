@@ -161,10 +161,10 @@ class AjaxRequestController extends Controller
                 return $this->errorResponse('During leave combination of EL + CL + EL, middle CL will be converted to EL.', 400, $matchingLeaves[0]);
             }
         }
-        
+
         return;
     }
-    
+
     public function getNoOfDays(Request $request)
     {
         $leaveTypeId = $request->input('leave_type');
