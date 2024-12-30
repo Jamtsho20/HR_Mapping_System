@@ -693,51 +693,44 @@
                 form.find('input, select, textarea').prop('disabled', true); // Disable the input fields
             }
 
-            var selectedValue = $('#transferclaim').val();
             var distanceField = $('#distanceField');
             var amountField = $('#amount_claimed');
             var attachmentField = $('#transfer-attachment');
             var attachmentAsterisk = $('#attachment-required'); // Asterisk span for attachment
 
-            if (selectedValue === '2') {
-                distanceField.show(); // Show the distance field
-                amountField.removeAttr('max'); // Remove the max attribute
-                attachmentAsterisk.show(); // Show the asterisk
-                attachmentField.prop('required', true); // Make attachment field required
-            } else {
-                distanceField.hide(); // Hide the distance field
-                amountField.attr('max', 20000); // Set max value for amount
-                attachmentAsterisk.hide(); // Hide the asterisk
-                attachmentField.prop('required', false); // Make attachment field not required
-
-            }
-
-            // Change event listener for the dropdown
-            $('#transferclaim').on('change', function() {
-                var selectedValue = $(this).val(); // Get the selected value of the dropdown
+            function handleTransferClaimChange() {
+                var selectedValue = $('#transferclaim').val(); // Get the selected value of the dropdown
 
                 if (selectedValue === '2') {
                     distanceField.show(); // Show the distance field
                     amountField.removeAttr('max'); // Remove the max attribute
                     attachmentAsterisk.show(); // Show the asterisk
                     attachmentField.prop('required', true); // Make attachment field required
+
+                    // Remove any input restriction for the amount field
+                    amountField.off('input');
                 } else {
                     distanceField.hide(); // Hide the distance field
                     amountField.attr('max', 20000); // Set max value of 20000
                     attachmentAsterisk.hide(); // Hide the asterisk
                     attachmentField.prop('required', false); // Make attachment field not required
 
-
-                    $('#amount_claimed').on('input', function() {
+                    // Restrict the input value of the amount field
+                    amountField.off('input').on('input', function() {
                         var amount = parseInt($(this).val(), 10);
                         if (amount > 20000) {
-                            // Display an alert when the user enters a value greater than 20000
-                            alert('Amount cannot exceed 20000.');
+                            alert('Amount cannot exceed 20000.'); // Display an alert
                             $(this).val(20000); // Set the value to 20000
                         }
                     });
                 }
-            });
+            }
+
+            // Initial call to handle the current value of the dropdown
+            handleTransferClaimChange();
+
+            // Change event listener for the dropdown
+            $('#transferclaim').on('change', handleTransferClaimChange);
 
 
 
