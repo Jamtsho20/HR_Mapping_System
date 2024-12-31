@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Application Approvals')
 @section('content')
+    @include('layouts.includes.loader')
 
     <div class="block">
         <div class="block-header block-header-default">
@@ -203,6 +204,7 @@
                     });
                 } else {
                     // Proceed with approval if action is approve
+                    $('#loader').show();
                     $.ajax({
                         url: routeUrl,
                         type: 'POST',
@@ -215,8 +217,10 @@
                         success: function(response) {
                             alert(response.msg_success);
                             location.reload();
+                            $('#loader').hide();
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
+                            $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
                                 alert(errorResponse.msg_error ||
