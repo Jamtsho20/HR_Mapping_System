@@ -55,14 +55,15 @@ class PostSalaryToSapJob implements ShouldQueue
         // Prepare the final JSON payload
         $postFields = $this->preparePostFields($journalEntryLines, 'Salary Entries');
 
+        // Skip processing if ERP number already exists
+        if (!is_null($this->paySlip->erp_number)) {
+            Log::info('Payslip with ID ' . $this->paySlip->id . ' already is already posted to SAP. Skipping SAP posting.');
+            return;
+        }
+
         // Post the payload to SAP
-        Log::info($postFields);
-
         $response = $sap->postJournalEntries($postFields);
-        Log::info($response);
-
         $content = json_decode($response->getContent(), true);
-        Log::alert($content);
 
         $statusCode = $response->getStatusCode();
         if ($statusCode == 201) {
@@ -77,7 +78,6 @@ class PostSalaryToSapJob implements ShouldQueue
                 }
             }
         }
-
     }
 
     /**
