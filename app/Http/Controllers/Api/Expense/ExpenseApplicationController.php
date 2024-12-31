@@ -408,6 +408,8 @@ public function update(Request $request, $id)
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
     { //common function to handle store and update of expense
         /// query to fetch employee grade step and region
+
+        /// query to fetch employee grade step and region
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         // dd($empJobDetail);
         $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
@@ -433,28 +435,46 @@ public function update(Request $request, $id)
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
             // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
-            return response()->json(['error' => 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.'], 400);
-        }
+            return response()->json([
+                'error' => 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.'
+            ]);
+          }
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+
         // if ($attachmentRequired && !$attachment) {
+        // If the attachment is required and not already present
         if ($attachmentRequired && !$attachment) {
-            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png,doc|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            // Validate each file in the attachments array
+            $this->validate(
+                $request,
+                ['attachments.*' => 'required|file|mimes:pdf,jpg,jpeg,png,docx|max:2048'], // Validate each file
+                ['attachments.*.required' => 'Each file is required. Please upload a file.']
+            );
         }
-        }
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
-                delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+
+        $files = $request->file('attachments'); // Get array of uploaded files
+
+        $attachments = []; // Initialize an array to store uploaded file names
+
+        if ($files) {
+            foreach ($files as $file) {
+                // If an old attachment exists, delete it
+                if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                    delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+                }
+
+                // Upload the new file and store its name in the array
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+
+                // Add the uploaded file name to the attachments array
+                $attachments[] = $attachment;
             }
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
         }
 
         return [
-            'file' => $attachment,
+            'attachments' => $attachments, // Return all uploaded attachments
         ];
     }
 
