@@ -28,6 +28,8 @@ use App\Models\ExpenseApplication;
 use App\Models\PaySlip;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Route;
+use App\Mail\SendCredentialsMail;
+use Illuminate\Support\Facades\Mail;
 
 
 
@@ -45,6 +47,55 @@ use Illuminate\Support\Facades\Route;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
+
+Route::get('/updateemppas', function () {
+    // Process employees in chunks
+    \DB::table('mas_employees')
+        ->where('id', '<>', 1)
+        ->where('id', '<>', 2)
+        ->where('id', 3)
+        ->orderBy('id')
+        ->chunk(100, function ($employees) {
+            foreach ($employees as $employee) {
+                if ($employee->dob && $employee->employee_id) {
+                    // Generate plain password
+                    $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
+
+                    try{
+                        \DB::table('mas_employees')
+                            ->where('id', $employee->id)
+                            ->update(['password' => $plainPassword]);
+                    }catch(\Exception $e){
+                        \Log::info("Failed to send email to {$employee->username} -> {$employee->email}: {$e->getMessage()}");
+                    }
+                }
+            }
+        });
+
+    return "Passwords updated successfully!";
+});
+
+Route::get('/sentpasemail', function(){
+    \DB::table('mas_employees')
+        ->where('id', '<>', 1)
+        ->where('id', '<>', 2)
+        ->where('username','E00709')
+        ->orderBy('id')
+        ->chunk(100, function ($employees) {
+            foreach ($employees as $employee) {
+                if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
+                    try {
+                        // Queue email for sending
+                        Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
+                    } catch (\Exception $e) {
+                        \Log::info("Failed to send email to {$employee->email}: {$e->getMessage()}");
+                    }
+                }
+            }
+        });
+
+    return "Email sent successfully!";
+});
 
 Route::get('/debug', function () {
     $sap = new ApiController();

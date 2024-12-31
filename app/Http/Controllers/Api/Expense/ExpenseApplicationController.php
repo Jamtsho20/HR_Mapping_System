@@ -140,7 +140,7 @@ class ExpenseApplicationController extends Controller
 
             $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
             $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
-            $vehicles = MasVehicle::all();
+            $vehicles = MasVehicle::with('vehicleType')->get();
             $dsaClaimNo = $this->ajax->getDsaClaimNumber();
             $transferClaimNo = $this->ajax->getTransferClaimNumber();
 
@@ -198,8 +198,8 @@ class ExpenseApplicationController extends Controller
         $result = $this->handleExpenseApplication($request);
 
         // If $result is a RedirectResponse, return it immediately
-        if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return $this->errorResponse('File upload failed.', 400);
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return response()->json($result);
         }
 
 
@@ -218,7 +218,7 @@ class ExpenseApplicationController extends Controller
                     'date' => formatDate($request->date),
                     'amount' => $request->amount,
                     'description' => $request->description,
-                    'file' => $result['file'],
+                    'file' => json_encode($result['attachments']),
                     'travel_type' => $request->travel_type,
                     'travel_mode' => $request->mode_of_travel,
                     'travel_from_date' => formatDate($request->travel_from_date),

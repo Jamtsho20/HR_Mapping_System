@@ -215,7 +215,7 @@ class EmployeeController extends Controller
             $employee = User::where('id', $id)->first();
 
             if ($employee->status == 'Completed' && !$employee->registered_email_sent) {
-                Mail::to($employee->email)->send(new SendCredentialsMail($employee, config('global.default_password')));
+                Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
             }
             $employee->registered_email_sent = true;
             $employee->save();
@@ -321,7 +321,8 @@ class EmployeeController extends Controller
             'name' => trim($personalInfo['first_name'] . ' ' . ($personalInfo['middle_name'] ?? '') . ' ' . ($personalInfo['last_name'] ?? '')),
             'username' => $user->username ?? fixEmployeeId($this->fetchHighestEmpId() + 1),
             'employee_id' => $user->employee_id ?? $this->fetchHighestEmpId() + 1,
-            'password' => bcrypt(config('global.default_password')),
+            // 'password' => bcrypt(config('global.default_password')),
+            'password' => bcrypt(date('Ymd', strtotime($personalInfo['dob'])) . $user->employee_id ?? $this->fetchHighestEmpId() + 1),
             'email' => $personalInfo['email'],
             'cid_no' => $personalInfo['cid_no'],
             'gender' => $personalInfo['gender'],
