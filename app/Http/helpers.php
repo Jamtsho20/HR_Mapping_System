@@ -21,6 +21,7 @@ if (!function_exists('uploadImageToDirectory')) {
      */
     function uploadImageToDirectory($file, $path)
     {
+
         $randomString=str_random(8);
         $fileName = time() . '-' . $randomString . '.' . $file->getClientOriginalExtension();
         $imageDestination = $path.$fileName;
@@ -248,7 +249,8 @@ if(!function_exists('generateTransactionNumber')){
         //include cureent Ymd in while generating transaction number
         $datePart = now()->format('Ymd');
         //if next sequence is not there then by default it will be 0001 else incremental basis
-        return $code . '|' . $datePart . '|' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+        // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+        return $code . '/' . $datePart . '/' . $nextSequence + 1;
     }
 }
 
@@ -348,7 +350,7 @@ if(!function_exists('getApplicationLogs') ) {
 
 
 if(!function_exists('prepareMail')) {
-    function prepareMail($applicationModel, $applicationData, $appType, $status) 
+    function prepareMail($applicationModel, $applicationData, $appType, $status)
     {
         $applicationData['type'] = $appType->name;
         $approverMailContent = $applicationModel['approver_mail_content'];
@@ -383,4 +385,3 @@ if(!function_exists('prepareMailContent')) {
         return $finalContent;
     }
 }
-

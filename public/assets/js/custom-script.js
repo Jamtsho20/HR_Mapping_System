@@ -204,46 +204,65 @@ var hrms = function () {
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
                 var formId = $("#apply_leave");
-                if (leaveType !== '') {
-                    // ajax call
-                    $.ajax({
-                        url: "/getleavebalancebyleavetype/" + leaveType,
-                        dataType: "JSON",
-                        type: "GET",
-                        success: function (response) {
-                            if (response.data.balance != 0) {
-                                $("#leave_balance").val(response.data.balance);
-                                formId.find("input, select, textarea").prop("disabled", false); // Disable fields in formId only
-                                // $("#leave_type").prop("disabled", false);
-                            }
-
-                            //handle half day by enabling and disabling in form
-                            if (!response.data.is_half_day) {
-                                disableHalfDayOptions();
-                            } else {
-                                enableAllDayOptions();
-                            }
-
-                            // Handle attachment required based on policy
-                            if (response.data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
-                                $("#attachment").attr("required", "required");
-                                $("#attachment_required").show();
-                            } else {
-                                $("#attachment").removeAttr("required");
-                                $("#attachment_required").hide();
-                            }
-                        },
-                        error: function (error) {
-                            alert(error.responseJSON.message);
-                            formId.find("input, select, textarea").prop("disabled", true); // Disable fields in case of error
-                            $("#leave_type").prop("disabled", false);
-                        }
-                    });
-                } else {
-                    $("#leave_balance").val('');
+                var submitButton = $("button[type='submit']");
+        
+                // Function to check for errors and disable the submit button if errors are found
+                function checkForErrors(errorMsg) {
+                    if (errorMsg) {
+                        submitButton.prop("disabled", true); // Disable submit button if error is found
+                    } else {
+                        submitButton.prop("disabled", false); // Enable submit button if no errors
+                    }
                 }
+        
+                // Reset the leave balance and errors when leaveType is empty
+                if (leaveType === '') {
+                    $("#leave_balance").val('');
+                    checkForErrors();
+                    return; // Exit the function if leaveType is empty
+                }
+        
+                // AJAX call to fetch leave balance based on leaveType
+                $.ajax({
+                    url: "/getleavebalancebyleavetype/" + leaveType,
+                    dataType: "JSON",
+                    type: "GET",
+                    success: function (response) {
+                        if (response.data.balance !== 0) {
+                            $("#leave_balance").val(response.data.balance);
+                            formId.find("input, select, textarea").prop("disabled", false); // Enable form fields if balance exists
+                        }
+        
+                        // Handle half day by enabling/disabling options in the form
+                        if (!response.data.is_half_day) {
+                            disableHalfDayOptions();
+                        } else {
+                            enableAllDayOptions();
+                        }
+        
+                        // Handle attachment required based on policy
+                        if (response.data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
+                            $("#attachment").attr("required", "required");
+                            $("#attachment_required").show();
+                        } else {
+                            $("#attachment").removeAttr("required");
+                            $("#attachment_required").hide();
+                        }
+        
+                        // After all processing, check for errors and disable/enable the submit button
+                        checkForErrors(error.responseJSON.message);
+                    },
+                    error: function (error) {
+                        // Handle error response
+                        alert(error.responseJSON.message);
+                        formId.find("input, select, textarea").prop("disabled", true); // Disable form fields in case of error
+                        $("#leave_type").prop("disabled", false);
+                        checkForErrors(error.responseJSON.message); // Check for errors after AJAX failure
+                    }
+                });
             }
-
+        
+            // Function to disable half day options in the day selectors
             function disableHalfDayOptions() {
                 ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
                     var select = document.getElementById(id);
@@ -254,7 +273,8 @@ var hrms = function () {
                     });
                 });
             }
-
+        
+            // Function to enable all day options in the day selectors
             function enableAllDayOptions() {
                 ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
                     var select = document.getElementById(id);
@@ -263,12 +283,14 @@ var hrms = function () {
                     });
                 });
             }
-
+        
             // Trigger on change of leave type
             $(document).on("change", "#leave_type", function () {
                 populateLeaveBalance();
             });
+        
         });
+        
 
         //show employee field for hierarchy level based on selection of approving authority
         // employee_select
