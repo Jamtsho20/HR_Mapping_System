@@ -64,7 +64,8 @@ Route::get('/updateemppas', function () {
     \DB::table('mas_employees')
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
-        ->where('id', 3)
+        // ->where('id', 3)
+        ->where('username','E00709')
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
