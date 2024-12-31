@@ -73,6 +73,7 @@ if (!empty($proxy_schema)) {
 }
 
 Route::get('/updateemppas', function () {
+    ini_set('max_execution_time',600);
     \DB::table('mas_employees')
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
