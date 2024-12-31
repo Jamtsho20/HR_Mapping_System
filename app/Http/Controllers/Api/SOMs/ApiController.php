@@ -7,8 +7,9 @@ use App\Http\Controllers\Controller;
 class ApiController extends Controller
 {
     protected $basePath = 'https://soms-test-backend.tashicell.com/';
-    protected $userName = 'E00883';
-    protected $password = 'password';
+    protected $userName = 'E00000';
+    protected $password = 'p@ssword';
+
 
     public function startSession()
     {
@@ -117,7 +118,7 @@ class ApiController extends Controller
         if (empty($accessToken)) {
             return response()->json(['msg_error' => 'Failed to retrieve access token'], 500);
         }
-        
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => $this->basePath . 'Api/HRMS/employeeMaster',
