@@ -2,6 +2,8 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         table.bordered {
             border-collapse: collapse;
@@ -38,6 +40,7 @@
             border-bottom: none;
             border-left: 1px solid #000;
         }
+
         div.borderonlyright {
             border-left: none;
             border-top: none;
@@ -51,9 +54,9 @@
         }
 
         body {
-            padding-top: 100px !important;
-            padding-left: 20px;
-            padding-right: 20px;
+            padding-top: 20px !important;
+            padding-left: 30px !important;
+            padding-right: 30px !important;
             line-height: 23px !important;
             font-size: 15.5px;
         }
@@ -179,23 +182,10 @@
         }
     </style>
 </head>
-@php
-    $opciones_ssl = [
-        'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-        ],
-    ];
 
-    $img_pathBG = 'images/letterhead - small.jpg';
-    $extencionBG = pathinfo($img_pathBG, PATHINFO_EXTENSION);
-    $dataBG = file_get_contents($img_pathBG, false, stream_context_create($opciones_ssl));
-    $img_base_64BG = base64_encode($dataBG);
-    $path_imgBG = 'data:image/' . $extencionBG . ';base64,' . $img_base_64BG;
-@endphp
-
-<body style="background-image: url('{{ $path_imgBG }}'); background-repeat: no-repeat;background-position: 51% 0%; ">
-    <main style="padding-left:13px;padding-right:13px;padding-top:10px;">
+<body>
+    @include('layouts.includes.letter-head')
+    <main>
         <div>
             <div class="font-1_3 mt-5 mb-6" style="border-top: 1px solid #000; padding-top: 7px;">
                 <center><strong>PAY SLIP</strong></center>
