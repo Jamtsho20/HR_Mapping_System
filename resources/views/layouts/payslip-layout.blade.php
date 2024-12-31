@@ -200,7 +200,7 @@
             <tr>
                 <td colspan="2" style="border:none;text-align:center;color:#C04424;font-weight:bold;">Address: P.O
                     Box
-                    # 1502, Norzin Lam, Thimphu: Bhutan</td>
+                    # 1502, Samten Lam, Thimphu: Bhutan</td>
             </tr>
             <tr>
                 <td colspan="2" style="border:none;text-align:center;">Phone: +975 77889977 Website: <a
