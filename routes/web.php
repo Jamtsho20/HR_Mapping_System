@@ -51,6 +51,14 @@ use App\Jobs\SendEmployeeCredentialsJob;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
+$proxy_url = 'http://hrms.tashicell.com';
+$proxy_schema = 'https';
+if (!empty($proxy_url)) {
+    URL::forceRootUrl($proxy_url);
+}
+if (!empty($proxy_schema)) {
+    URL::forceScheme($proxy_schema);
+}
 
 
 Route::get('/updateemppas', function () {
@@ -80,7 +88,7 @@ Route::get('/sentpasemail', function () {
         if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
             try {
                 // Queue email for sending
-                Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd',strtotime($employee->dob)) . $employee->employee_id));
+                Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
 
                 // Mark as email sent
                 $employee->registered_email_sent = 1;
