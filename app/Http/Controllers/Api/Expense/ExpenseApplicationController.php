@@ -218,7 +218,7 @@ class ExpenseApplicationController extends Controller
                     'date' => formatDate($request->date),
                     'amount' => $request->amount,
                     'description' => $request->description,
-                    'file' => json_encode($result['attachments']),
+                    'file' => $result['file'],
                     'travel_type' => $request->travel_type,
                     'travel_mode' => $request->mode_of_travel,
                     'travel_from_date' => formatDate($request->travel_from_date),

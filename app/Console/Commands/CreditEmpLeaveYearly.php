@@ -51,6 +51,7 @@ class CreditEmpLeaveYearly extends Command
                         // Calculate leave balances based on leave type
                         $openingBalance = $record->closing_balance ?? 0;
                         $entitlement = $leaveTypes[$record->mas_leave_type_id] ?? 0;
+                        $closingBalance = $openingBalance + $entitlement;
 
                         if ($record->mas_leave_type_id == EARNED_LEAVE) {
                             // Special handling for earned leave: include previous casual leave balance
@@ -59,10 +60,12 @@ class CreditEmpLeaveYearly extends Command
                                 ->whereYear('created_at', $previousYear)
                                 ->value('closing_balance') ?? 0;
 
-                            $openingBalance += $previousCasualLeave;
+                            $calculatedOpeningBalance = $openingBalance + $previousCasualLeave;
+                            $openingBalance = min($calculatedOpeningBalance, 90.00);
+                            $closingBalance = min($closingBalance, 90.00);
                         }
 
-                        $closingBalance = $openingBalance + $entitlement;
+                        // $closingBalance = $openingBalance + $entitlement;
 
                         // Create the leave record for the current year
                         EmployeeLeave::create([
