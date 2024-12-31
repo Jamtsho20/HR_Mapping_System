@@ -211,18 +211,17 @@ class ExpenseApplicationController extends Controller
                 DB::beginTransaction();
 
                 $expenseApplication = ExpenseApplication::create([
-                    // 'mas_employee_id' => loggedInUser(),
                     'expense_no' => $request->expense_no,
                     'type_id' => $request->expense_type,
                     'mas_vehicle_id' => $request->mas_vehicle_id ?? null,
-                    'date' => formatDate($request->date),
+                    'date' => $request->date,
                     'amount' => $request->amount,
                     'description' => $request->description,
-                    'file' => $result['file'],
+                    'file' => json_encode($result['attachments']),
                     'travel_type' => $request->travel_type,
                     'travel_mode' => $request->mode_of_travel,
-                    'travel_from_date' => formatDate($request->travel_from_date),
-                    'travel_to_date' => formatDate($request->travel_to_date),
+                    'travel_from_date' => $request->travel_from_date,
+                    'travel_to_date' => $request->travel_to_date,
                     'travel_from' => $request->travel_from,
                     'travel_to' => $request->travel_to,
                     'status' => $request->status ?? 1,
@@ -232,14 +231,17 @@ class ExpenseApplicationController extends Controller
                     if ($request->has('fuel_claim_details')) { // for fuel claim
                         foreach ($request->input('fuel_claim_details') as $key => $detail) {
                             // Access each detail
-                            $date = formatDate($detail['date']);
+                            $date = $detail['date'];
                             $initialReading = $detail['initial_reading'] ?? 1000;
                             $finalReading = $detail['final_reading'] ?? 1234;
                             $quantity = $detail['quantity'] ?? 24;
                             $mileage = $detail['mileage'] ?? 8;
                             $rate = $detail['rate'] ?? 8;
                             $amount = $detail['amount'] ?? 3535;
-                            $expenseApplication->details()->create([
+
+                            // Save to database or perform logic
+                            ExpenseFuelClaimDetail::create([
+                                'expense_id' => $expenseApplication->id,
                                 'date' => $date,
                                 'initial_reading' => $initialReading,
                                 'final_reading' => $finalReading,
@@ -248,20 +250,10 @@ class ExpenseApplicationController extends Controller
                                 'rate' => $rate,
                                 'amount' => $amount,
                             ]);
-                            // Save to database or perform logic
-                            // ExpenseFuelClaimDetail::create([
-                            //     'expense_id' => $expenseApplication->id,
-                            //     'date' => $date,
-                            //     'initial_reading' => $initialReading,
-                            //     'final_reading' => $finalReading,
-                            //     'quantity' => $quantity,
-                            //     'mileage' => $mileage,
-                            //     'rate' => $rate,
-                            //     'amount' => $amount,
-                            // ]);
                         }
                     }
                 }
+                
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
                 $historyService->saveHistory($expenseApplication->histories(), $approverByHierarchy, $request->remarks);
@@ -408,9 +400,10 @@ public function update(Request $request, $id)
         }
     }
 
-
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
     { //common function to handle store and update of expense
+
+
         /// query to fetch employee grade step and region
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         // dd($empJobDetail);
@@ -437,29 +430,49 @@ public function update(Request $request, $id)
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
             // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
-            return response()->json(['error' => 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.'], 400);
-        }
+            return response()->json([
+                'error' => 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.',
+            ]);
+      }
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
+
         // if ($attachmentRequired && !$attachment) {
+        // If the attachment is required and not already present
         if ($attachmentRequired && !$attachment) {
-            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png,doc|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            // Validate each file in the attachments array
+            $this->validate(
+                $request,
+                ['attachments.*' => 'required|file|mimes:pdf,jpg,jpeg,png,docx|max:2048'], // Validate each file
+                ['attachments.*.required' => 'Each file is required. Please upload a file.']
+            );
         }
-        }
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
-                delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+
+        $files = $request->file('attachments'); // Get array of uploaded files
+
+        $attachments = []; // Initialize an array to store uploaded file names
+
+        if ($files) {
+            foreach ($files as $file) {
+                // If an old attachment exists, delete it
+                if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                    delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+                }
+
+                // Upload the new file and store its name in the array
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+
+                // Add the uploaded file name to the attachments array
+                $attachments[] = $attachment;
             }
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
         }
 
         return [
-            'file' => $attachment,
+            'attachments' => $attachments, // Return all uploaded attachments
         ];
+
     }
+
 
 }

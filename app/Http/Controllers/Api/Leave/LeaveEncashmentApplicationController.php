@@ -72,7 +72,7 @@ class LeaveEncashmentApplicationController extends Controller
             $earnedLeaveEncahsment = $leavePolicy->yearEnd->min_encashment_per_year;
             $message="";
             if($earnedLeaveBalance < $requiredBalance ){
-                $message="Insufficient Balance";
+                $message="You do not have enough earned leave balance to encash.";
             }
             $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
         ->whereYear('created_at', Carbon::now()->year)

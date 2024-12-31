@@ -81,53 +81,6 @@ ELSE
 THEN (0)
 ENDIF"));
 
-    $application = ExpenseApplication::findOrFail(1);
-
-    dd($application);
-
-    $response = $sap->startSession();
-
-    // Check if the response is a valid JSON string
-    if (json_last_error() === JSON_ERROR_NONE) {
-        $session = json_decode($response->getContent(), true);
-
-    } else {
-        // Output the error if JSON decoding fails
-    }
-    // $sessionId = $session['sessionId'] ?? '';
-
-    $postFields = '{
-        "ReferenceDate":"2024-11-11",
-        "Memo": "Travel Allowance",
-        "JournalEntryLines": [
-            {
-                "ShortName": "E00993",
-                "CostingCode": null,
-                "Credit": 111,
-                "Debit": 0
-            },
-            {
-                "AccountCode": "52136",
-                "CostingCode": null,
-                "Credit": 0,
-                "Debit": 111
-            }
-        ]
-    }';
-
-    // Call postJournalEntries method
-    $response = $sap->postJournalEntries($postFields);
-
-    $statusCode = $response->getStatusCode();
-
-    $responseData = json_decode($response->getContent(), true);
-
-    if ($statusCode != 201) {
-        return response()->json(['msg_error' => $responseData['msg_error'] ?? 'Unknown error'], $statusCode);
-    }
-
-    return $responseData;
-
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');

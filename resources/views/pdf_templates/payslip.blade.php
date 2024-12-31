@@ -52,7 +52,7 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half" style="text-align: right; padding-left: 50px;">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 60px;">{{ number_format($paySlip->$column, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
