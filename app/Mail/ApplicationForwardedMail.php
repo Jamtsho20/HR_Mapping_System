@@ -24,9 +24,9 @@ class ApplicationForwardedMail extends Mailable implements ShouldQueue
     public function __construct($requestingUserId, $approvingUserId, $emailContent, $emailSubject)
     {
         $initiatorDetails = User::with('empJob')->where('id', $requestingUserId)->first();
-        $initiator = $initiatorDetails['title'] . ' ' . $initiatorDetails['name'] . ', ' 
-                    . $initiatorDetails->empJob->designation->name . ', ' 
-                    . $initiatorDetails->empJob->section->name ?? '' 
+        $initiator = $initiatorDetails['title'] . ' ' . $initiatorDetails['name'] . ', '
+                    . $initiatorDetails->empJob->designation->name . ', '
+                    . $initiatorDetails->empJob->section?->name ?? ''
                     . $initiatorDetails->empJob->department->name;
 
         $this->approver = User::where('id', $approvingUserId)->first();

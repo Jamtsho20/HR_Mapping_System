@@ -198,10 +198,9 @@ class ExpenseApplicationController extends Controller
         $result = $this->handleExpenseApplication($request);
 
         // If $result is a RedirectResponse, return it immediately
-        if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return $this->errorResponse('File upload failed.', 400);
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return response()->json($result);
         }
-
 
 
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -219,7 +218,7 @@ class ExpenseApplicationController extends Controller
                     'date' => formatDate($request->date),
                     'amount' => $request->amount,
                     'description' => $request->description,
-                    'file' => $result['file'],
+                    'file' => json_encode($result['attachments']),
                     'travel_type' => $request->travel_type,
                     'travel_mode' => $request->mode_of_travel,
                     'travel_from_date' => formatDate($request->travel_from_date),
@@ -429,6 +428,7 @@ public function update(Request $request, $id)
             ->first();
         //check weather attachment is required while applying expense from expense policy
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
+
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
 
         //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
@@ -442,7 +442,6 @@ public function update(Request $request, $id)
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
-
         // if ($attachmentRequired && !$attachment) {
         // If the attachment is required and not already present
         if ($attachmentRequired && !$attachment) {
@@ -464,10 +463,12 @@ public function update(Request $request, $id)
                 if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
                     delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
                 }
-
+                try{
                 // Upload the new file and store its name in the array
                 $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-
+            }catch(\Exception $e){
+                return $this->errorResponse($e->getMessage(), 500);
+            }
                 // Add the uploaded file name to the attachments array
                 $attachments[] = $attachment;
             }
