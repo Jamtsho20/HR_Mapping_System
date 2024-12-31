@@ -12,7 +12,7 @@
             <h2>Human Resource Management System
            <br><br> Login</h2>
             </div>
-         
+
         </div>
     </div>
     <div class="container-login100">
@@ -61,4 +61,4 @@
     <!-- CONTAINER CLOSED -->
 </div>
 <!-- End PAGE -->
-@endsection
+@endsectioncd
