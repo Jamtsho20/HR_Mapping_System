@@ -65,7 +65,7 @@ Route::get('/updateemppas', function () {
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
         // ->where('id', 3)
-        ->where('username','E00709')
+        ->where('username','E00886')
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
@@ -91,7 +91,7 @@ Route::get('/sentpasemail', function(){
     \DB::table('mas_employees')
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
-        ->where('username','E00709')
+        ->where('username','E00886')
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
