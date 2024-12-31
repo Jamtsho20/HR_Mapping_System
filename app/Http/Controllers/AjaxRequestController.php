@@ -50,6 +50,7 @@ use App\Models\GoodCommissionApplication;
 use App\Models\MasCommissionTypes;
 use App\Models\GoodReceiptApplicationDetail;
 use App\Models\LeaveApplication;
+use DateTime;
 
 class AjaxRequestController extends Controller
 {
@@ -116,20 +117,34 @@ class AjaxRequestController extends Controller
         try {
             $empGender = auth()->user()->gender;
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('type_id', $id)->whereStatus(1)->first();
+            
+            $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
+            $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
+            $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+            if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
+                return $this->errorResponse('You are not eligible to apply ' . $leaveType . ', based on your employment type.');
+            }
             if (!$leavePolicy || !$leavePolicy->status || $leavePolicy->is_information_only) {
                 return $this->errorResponse('You cannot apply leave as leave policy for this leave type has not been enforced or is for information purpose only, please contact system admin.');
             }
 
-            $balance = EmployeeLeave::where('mas_leave_type_id', $id)->where('mas_employee_id', auth()->user()->id)->value('closing_balance');
-            if ($balance == 0) {
-                return $this->errorResponse('You are not eligible for this leave type since there is no leave balance.');
-            }
-
-            $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) : [];
-            $isHalfDay = in_array(4, $leaveLimits);
-            $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
             $leavePolicyGender = $leavePolicy->leavePolicyPlan->gender ?? null;
-            if ($leavePolicyGender === 3 || $leavePolicyGender == $empGender) {
+            
+            if ($leavePolicyGender === 3 || $leavePolicyGender === $empGender) {
+                $balance = EmployeeLeave::where('mas_leave_type_id', $id)
+                            ->where('mas_employee_id', auth()->user()->id)
+                            ->value('closing_balance');
+    
+                // Check if the leave balance is 0
+                if ($balance == 0) {
+                    return $this->errorResponse('You are not eligible for this leave type since there is no leave balance.');
+                }
+
+                // If the gender and balance are valid, check leave limits and attachment requirements
+                $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) : [];
+                $isHalfDay = in_array(4, $leaveLimits); // Check if half day leave is allowed
+                $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
+
                 return $this->successResponse([
                     'balance' => $balance,
                     'leavePolicy' => $leavePolicy,
@@ -140,7 +155,7 @@ class AjaxRequestController extends Controller
 
             return $this->errorResponse('You are not eligible for this leave type based on your gender.');
         } catch (\Exception $e) {
-            return $this->errorResponse('An error occurred while fetching the leave balance data. Please try again.');
+            return $this->errorResponse('An error occurred while fetching the leave balance, please try again.');
         }
     }
 

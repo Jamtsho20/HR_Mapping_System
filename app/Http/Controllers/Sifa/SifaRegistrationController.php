@@ -75,11 +75,11 @@ class SifaRegistrationController extends Controller
 
     public function store(Request $request)
     {
-      
+
         // Conditionally apply validation rules
         $sifaTypeId = MasSifaType::first()->id;
         $rules = $this->rules;
-        
+
         $conditionFields = approvalHeadConditionFields(SIFA_REGISTRATION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($sifaTypeId, \App\Models\MasSifaType::class, $conditionFields ?? []);
@@ -121,14 +121,14 @@ class SifaRegistrationController extends Controller
                     $nominationModel->cid_number = $nomination['cid_number'] ?? null;
                     $nominationModel->percentage_of_share = $nomination['percentage_of_share'] ?? null;
                     $nominationModel->save();
-                    
+
                 }
             } else {
                 // If "Yes", set is_registered to 1 (default behavior)
-               
+
                 $sifaRegistration->sifa_type_id = $sifaTypeId;
                 $sifaRegistration->is_registered = 1;
-                
+
             }
 
             $sifaRegistration->save(); // Save the SifaRegistration record
@@ -144,7 +144,7 @@ class SifaRegistrationController extends Controller
                     $sifaNomination->cid_number = $nominationData['cid_number'];
                     $sifaNomination->percentage_of_share = $nominationData['percentage_of_share'];
                     $sifaNomination->save(); // Save nomination data
-                  
+
                 }
 
                 // Store SIFA Dependents Data
@@ -155,12 +155,12 @@ class SifaRegistrationController extends Controller
                     $sifaDependent->relation_with_employee = $dependentData['relation_with_employee'];
                     $sifaDependent->cid_number = $dependentData['cid_number'];
                     $sifaDependent->save();
-                    
+
                 }
 
                 // Store SIFA Documents Data
                 $data = ['sifa_registration_id' => $sifaRegistration->id];
-                
+
 
                 // Loop through fields with single file uploads
                 foreach (['family_tree', 'cid_of_dep_nom', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid', 'birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
@@ -182,13 +182,13 @@ class SifaRegistrationController extends Controller
                     }
                 }
                 SifaDocument::create($data); // Store document data
-                
+
             }
 
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($sifaRegistration->histories(), $approverByHierarchy, $request->remarks);
-          
-            
+
+
             // Commit the transaction
             DB::commit();
 

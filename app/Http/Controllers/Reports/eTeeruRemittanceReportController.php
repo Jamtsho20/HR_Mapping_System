@@ -27,7 +27,7 @@ class eTeeruRemittanceReportController extends Controller
                 'mas_employee_jobs.mas_grade_id'
             )
             ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
-            ->join('final_pay_slips', 'mas_employee_jobs.mas_employee_id', '=', 'final_pay_slips.id')
+            ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
             // Select the required fields
                 ->select('mas_employees.name', 'mas_employees.contact_number', 'mas_pay_group_details.amount',
                 'final_pay_slips.for_month') // Select the required fields
@@ -35,6 +35,8 @@ class eTeeruRemittanceReportController extends Controller
             ->filter($request)
             ->paginate(config('global.pagination'))
             ->withQueryString();
+
+
 
         $employee = employeeList();
 

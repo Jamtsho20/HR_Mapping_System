@@ -28,6 +28,8 @@ use App\Models\ExpenseApplication;
 use App\Models\PaySlip;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Route;
+use App\Mail\SendCredentialsMail;
+use Illuminate\Support\Facades\Mail;
 
 
 
@@ -45,6 +47,54 @@ use Illuminate\Support\Facades\Route;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
+
+Route::get('/updateemppas', function () {
+    // Process employees in chunks
+    \DB::table('mas_employees')
+        ->where('id', '<>', 1)
+        ->where('id', '<>', 2)
+        ->where('id', 3)
+        ->orderBy('id')
+        ->chunk(100, function ($employees) {
+            foreach ($employees as $employee) {
+                if ($employee->dob && $employee->employee_id) {
+                    // Generate plain password
+                    $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
+                    
+                    try{
+                        \DB::table('mas_employees')
+                            ->where('id', $employee->id)
+                            ->update(['password' => $plainPassword]);
+                    }catch(\Exception $e){
+                        \Log::info("Failed to send email to {$employee->username} -> {$employee->email}: {$e->getMessage()}");
+                    }
+                }
+            }
+        });
+
+    return "Passwords updated successfully!";
+});
+
+Route::get('/sentpasemail', function(){
+    \DB::table('mas_employees')
+        ->where('id', '<>', 1)
+        ->where('id', '<>', 2)
+        ->orderBy('id')
+        ->chunk(100, function ($employees) {
+            foreach ($employees as $employee) {
+                if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
+                    try {
+                        // Queue email for sending
+                        Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
+                    } catch (\Exception $e) {
+                        \Log::info("Failed to send email to {$employee->email}: {$e->getMessage()}");
+                    }
+                }
+            }
+        });
+
+    return "Email sent successfully!";
+});
 
 Route::get('/debug', function () {
     $sap = new ApiController();
@@ -80,53 +130,6 @@ ENDIF
 ELSE
 THEN (0)
 ENDIF"));
-
-    $application = ExpenseApplication::findOrFail(1);
-
-    dd($application);
-
-    $response = $sap->startSession();
-
-    // Check if the response is a valid JSON string
-    if (json_last_error() === JSON_ERROR_NONE) {
-        $session = json_decode($response->getContent(), true);
-
-    } else {
-        // Output the error if JSON decoding fails
-    }
-    // $sessionId = $session['sessionId'] ?? '';
-
-    $postFields = '{
-        "ReferenceDate":"2024-11-11",
-        "Memo": "Travel Allowance",
-        "JournalEntryLines": [
-            {
-                "ShortName": "E00993",
-                "CostingCode": null,
-                "Credit": 111,
-                "Debit": 0
-            },
-            {
-                "AccountCode": "52136",
-                "CostingCode": null,
-                "Credit": 0,
-                "Debit": 111
-            }
-        ]
-    }';
-
-    // Call postJournalEntries method
-    $response = $sap->postJournalEntries($postFields);
-
-    $statusCode = $response->getStatusCode();
-
-    $responseData = json_decode($response->getContent(), true);
-
-    if ($statusCode != 201) {
-        return response()->json(['msg_error' => $responseData['msg_error'] ?? 'Unknown error'], $statusCode);
-    }
-
-    return $responseData;
 
 });
 

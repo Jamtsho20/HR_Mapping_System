@@ -20,6 +20,7 @@ use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Models\DailyAllowance;
 use App\Models\MasVehicle;
+use App\Models\ExpenseFuelClaimDetail;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
@@ -197,10 +198,9 @@ class ExpenseApplicationController extends Controller
         $result = $this->handleExpenseApplication($request);
 
         // If $result is a RedirectResponse, return it immediately
-        if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return $this->errorResponse('File upload failed.', 400);
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return response()->json($result);
         }
-
 
 
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -218,7 +218,7 @@ class ExpenseApplicationController extends Controller
                     'date' => formatDate($request->date),
                     'amount' => $request->amount,
                     'description' => $request->description,
-                    'file' => $result['file'],
+                    'file' => json_encode($result['attachments']),
                     'travel_type' => $request->travel_type,
                     'travel_mode' => $request->mode_of_travel,
                     'travel_from_date' => formatDate($request->travel_from_date),
@@ -232,14 +232,17 @@ class ExpenseApplicationController extends Controller
                     if ($request->has('fuel_claim_details')) { // for fuel claim
                         foreach ($request->input('fuel_claim_details') as $key => $detail) {
                             // Access each detail
-                            $date = formatDate($detail['date']);
+                            $date = $detail['date'];
                             $initialReading = $detail['initial_reading'] ?? 1000;
                             $finalReading = $detail['final_reading'] ?? 1234;
                             $quantity = $detail['quantity'] ?? 24;
                             $mileage = $detail['mileage'] ?? 8;
                             $rate = $detail['rate'] ?? 8;
                             $amount = $detail['amount'] ?? 3535;
-                            $expenseApplication->details()->create([
+
+                            // Save to database or perform logic
+                            ExpenseFuelClaimDetail::create([
+                                'expense_id' => $expenseApplication->id,
                                 'date' => $date,
                                 'initial_reading' => $initialReading,
                                 'final_reading' => $finalReading,
@@ -248,17 +251,6 @@ class ExpenseApplicationController extends Controller
                                 'rate' => $rate,
                                 'amount' => $amount,
                             ]);
-                            // Save to database or perform logic
-                            // ExpenseFuelClaimDetail::create([
-                            //     'expense_id' => $expenseApplication->id,
-                            //     'date' => $date,
-                            //     'initial_reading' => $initialReading,
-                            //     'final_reading' => $finalReading,
-                            //     'quantity' => $quantity,
-                            //     'mileage' => $mileage,
-                            //     'rate' => $rate,
-                            //     'amount' => $amount,
-                            // ]);
                         }
                     }
                 }
@@ -269,11 +261,14 @@ class ExpenseApplicationController extends Controller
 
                 // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
                 DB::commit();
+                try{
                 if (isset($approverByHierarchy['approver_details'])) {
                     $expenseType = MasExpenseType::where('id', $request->expense_type)->value('name');
                     $emailContent = 'has applied ' . $expenseType . ' for your endorsement.';
                     $emailSubject = 'Expense';
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                }}catch (\Exception $e) {
+                    \Log::error('Error sending mail ' . $e->getMessage());
                 }
                 return response()->json([
                     'expenseApplication' => $expenseApplication,
@@ -412,6 +407,8 @@ public function update(Request $request, $id)
     private function handleExpenseApplication(Request $request, $expenseApplication = null)
     { //common function to handle store and update of expense
         /// query to fetch employee grade step and region
+
+        /// query to fetch employee grade step and region
         $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
         // dd($empJobDetail);
         $loggedInUserRegion = loggedInUserRegion(); //defined in helpers.php to get loggedInUser region id and name for common use
@@ -431,34 +428,54 @@ public function update(Request $request, $id)
             ->first();
         //check weather attachment is required while applying expense from expense policy
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
+
         $expenseType = $expensePolicy && $expensePolicy->expenseType ? $expensePolicy->expenseType->name : '';
 
         //validation based on expense policy rate(at once how much amount user can apply based on region and grade steps)
         if ($expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount < $request->amount) {
             $limitAmount = $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount;
             // $region = DB::table('mas_regions')->where('id', $expensePolicy->rateDefinition->expenseRateLimits[0]->mas_region_id)->first();
-            return response()->json(['error' => 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.'], 400);
-        }
+            return response()->json([
+                'error' => 'You cannot apply more than Nu. ' . $limitAmount . ' for expense type ' . $expenseType . ' from ' . $loggedInUserRegion[0]->region_name . ' region.'
+            ]);
+          }
 
         // Handle file upload if required based on defined in leave policy
         $attachment = $expenseApplication ? $expenseApplication->attachment : '';
         // if ($attachmentRequired && !$attachment) {
+        // If the attachment is required and not already present
         if ($attachmentRequired && !$attachment) {
-            $validator = \Validator::make($request->all(),  ['file' => 'required|file|mimes:pdf,jpg,png,doc|max:2048'], ['file.required' => 'The file is required. Please upload a file.']);
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            // Validate each file in the attachments array
+            $this->validate(
+                $request,
+                ['attachments.*' => 'required|file|mimes:pdf,jpg,jpeg,png,docx|max:2048'], // Validate each file
+                ['attachments.*.required' => 'Each file is required. Please upload a file.']
+            );
         }
-        }
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
-                delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+
+        $files = $request->file('attachments'); // Get array of uploaded files
+
+        $attachments = []; // Initialize an array to store uploaded file names
+
+        if ($files) {
+            foreach ($files as $file) {
+                // If an old attachment exists, delete it
+                if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                    delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+                }
+                try{
+                // Upload the new file and store its name in the array
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+            }catch(\Exception $e){
+                return $this->errorResponse($e->getMessage(), 500);
             }
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+                // Add the uploaded file name to the attachments array
+                $attachments[] = $attachment;
+            }
         }
 
         return [
-            'file' => $attachment,
+            'attachments' => $attachments, // Return all uploaded attachments
         ];
     }
 

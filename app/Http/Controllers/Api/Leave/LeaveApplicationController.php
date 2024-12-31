@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use App\Traits\JsonResponseTrait;
 use App\Services\ApplicationHistoriesService;
+use DateTime;
 
 class LeaveApplicationController extends Controller
 {
@@ -348,15 +349,31 @@ class LeaveApplicationController extends Controller
             ->whereStatus(1)
             ->first();
 
+        // validate based on employment type
+        $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
+    
+        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+        if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
+            // Deny leave application
+            return response()->json(['status' => 'error', 'message' => 'You are not eligible to apply ' . $leaveType . ', based on your employment type.']);
+        }
+
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
-        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+        // $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
         if($leavePolicy && $leavePolicy->leavePolicyPlan){
             if($leavePolicy->leavePolicyPlan->gender != $userDetails->gender && $leavePolicy->leavePolicyPlan->gender != 3){
+                $count = LeaveApplication::where('created_by', loggedInUser())
+                                            ->where('type_id', $request->leave_type)
+                                            ->value('count');
+                if (($userDetails->gender == 1 && $request->leave_type == PATERNITY_LEAVE && $count >= 3) ||
+                    ($userDetails->gender == 2 && $request->leave_type == MATERNITY_LEAVE && $count >= 3)) {
+                        return response()->json(['status' => 'error', 'message' => 'You are not eligible to apply for this leave since you have availed for 3 times.']);
+                }
                 return response()->json(['status' => 'error', 'message' => 'You are not eligible to apply for this leave based on your gender.']);
-
             }
         }
+        
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
             $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
