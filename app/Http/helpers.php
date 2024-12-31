@@ -21,6 +21,7 @@ if (!function_exists('uploadImageToDirectory')) {
      */
     function uploadImageToDirectory($file, $path)
     {
+
         $randomString=str_random(8);
         $fileName = time() . '-' . $randomString . '.' . $file->getClientOriginalExtension();
         $imageDestination = $path.$fileName;
@@ -348,7 +349,7 @@ if(!function_exists('getApplicationLogs') ) {
 
 
 if(!function_exists('prepareMail')) {
-    function prepareMail($applicationModel, $applicationData, $appType, $status) 
+    function prepareMail($applicationModel, $applicationData, $appType, $status)
     {
         $applicationData['type'] = $appType->name;
         $approverMailContent = $applicationModel['approver_mail_content'];
@@ -383,4 +384,3 @@ if(!function_exists('prepareMailContent')) {
         return $finalContent;
     }
 }
-
