@@ -92,7 +92,6 @@ Route::get('/updateemppas', function () {
 Route::get('/sentpasemail', function () {
     User::where('id', '<>', 1)
         ->where('id', '<>', 2)
-        ->where('username','E00886')
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
