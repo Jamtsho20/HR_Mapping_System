@@ -60,7 +60,7 @@ Route::get('/updateemppas', function () {
                 if ($employee->dob && $employee->employee_id) {
                     // Generate plain password
                     $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
-                    
+
                     try{
                         \DB::table('mas_employees')
                             ->where('id', $employee->id)
@@ -79,6 +79,7 @@ Route::get('/sentpasemail', function(){
     \DB::table('mas_employees')
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
+        ->where('username','E00709')
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {

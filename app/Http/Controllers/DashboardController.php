@@ -20,7 +20,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth()->user(); 
+        $user = auth()->user();
         $currentYear = Carbon::now()->year;
         $employmentTypeId = $user->empJob->mas_employment_type_id ?? null;
 
@@ -43,7 +43,7 @@ class DashboardController extends Controller
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
         if ($leaveEncashmentMessage) {
             $notifications[] = [
-                'id' => null, 
+                'id' => null,
                 'title' => 'Leave Encashment',
                 'message' => $leaveEncashmentMessage,
             ];
@@ -51,7 +51,7 @@ class DashboardController extends Controller
 
         // Fetch leave status counts
         [$leaveData, $statusCounts] = $this->getLeaveData($currentYear);
-        $showEarnedLeave = $employmentTypeId !== 3; 
+        $showEarnedLeave = $employmentTypeId !== 3;
 
         // Fetch earned leave data if applicable
         [$earnedLeaveData, $earnedLeaveCounts] = $showEarnedLeave
@@ -85,27 +85,27 @@ class DashboardController extends Controller
 
             if ($closingBalance >= 37 && !$hasEncashed) {
                 $user = User::find($employeeId);
-            
+
                 if ($user && $user->email && !$user->encashment_email_sent) {
                     try {
                         // Send email notification
                         Mail::to($user->email)->send(new LeaveEncashmentMail($user));
-            
+
                         // Update the flag to indicate the email has been sent
                         $user->encashment_email_sent = true;
                         $user->save();
-            
+
                         return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
                     } catch (\Exception $e) {
                         // Log the exception
                         Log::error('Failed to send leave encashment email: ' . $e->getMessage());
-                        return 'You are eligible for leave encashment, but there was an error sending the email.';
+                        return 'You are eligible for leave encashment.';
                     }
                 }
-            
-                return 'You are eligible for leave encashment, but the email has already been sent.';
+
+                return 'You are eligible for leave encashment.';
             }
-            
+
 
         return '';
     }
