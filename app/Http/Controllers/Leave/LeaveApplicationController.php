@@ -3,21 +3,22 @@
 namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ApplicationForwardedMail;
+use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
+use App\Models\MasEmployeeJob;
+use App\Models\MasEmploymentType;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
-use App\Models\EmployeeLeave;
-use App\Models\MasEmployeeJob;
-use App\Services\ApprovalService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Mail\ApplicationForwardedMail;
-use App\Models\MasEmploymentType;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Services\ApprovalService;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class LeaveApplicationController extends Controller
 {
@@ -286,6 +287,7 @@ class LeaveApplicationController extends Controller
                return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave based on your year of service to the company, requires 2 years of service to the company.');
            }
         }
+
         $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
             ->where('mas_employee_id', loggedInUser())
             ->value('closing_balance');
@@ -315,8 +317,14 @@ class LeaveApplicationController extends Controller
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         if($leavePolicy && $leavePolicy->leavePolicyPlan){
-
             if($leavePolicy->leavePolicyPlan->gender != $userDetails->gender && $leavePolicy->leavePolicyPlan->gender != 3){
+                $count = LeaveApplication::where('created_by', loggedInUser())
+                                            ->where('type_id', $request->leave_type)
+                                            ->value('count');
+                if (($userDetails->gender == 1 && $request->leave_type == PATERNITY_LEAVE && $count >= 3) ||
+                    ($userDetails->gender == 2 && $request->leave_type == MATERNITY_LEAVE && $count >= 3)) {
+                    return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave since you have availed for 3 times.');
+                }
                 return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave based on your gender.');
             }
         }

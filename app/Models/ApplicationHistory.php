@@ -20,11 +20,13 @@ class ApplicationHistory extends Model
         'status',
         'remarks',
         'action_performed_by',
-        'sap_response',
         'application_type',  // Polymorphic type
         'application_id',  //new
         'status',            //new
         'remarks', //new
+        'sap_response',
+        'is_posted_to_sap'
+
     ];
 
     public function application()

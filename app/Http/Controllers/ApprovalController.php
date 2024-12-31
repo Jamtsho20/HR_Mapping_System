@@ -130,7 +130,7 @@ class ApprovalController extends Controller
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = null;
 
-                        if ($postToSap && ($accountCode && $shortName && $amount)) {
+                        if ($postToSap) {
                             if ($applicationHistory && $applicationHistory->is_posted_to_sap === 1) {
                                 Log::info('Application ID ' . $id . ' already posted to SAP. Skipping.');
                                 continue;
@@ -148,12 +148,10 @@ class ApprovalController extends Controller
                             }
 
                             // Update history to mark as posted to SAP
-                            if ($applicationHistory) {
-                                $applicationHistory->update([
-                                    'is_posted_to_sap' => true,
-                                    'sap_response' => json_encode($postJournalEntriesResponse ?? []),
-                                ]);
-                            }
+                            $applicationHistory->update([
+                                'is_posted_to_sap' => 1,
+                                'sap_response' => json_encode($postJournalEntriesResponse ?? []),
+                            ]);
                         }
 
                         // Finalize approval if it's at the maximum level
