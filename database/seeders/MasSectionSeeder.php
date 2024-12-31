@@ -13,65 +13,51 @@ class MasSectionSeeder extends Seeder
      */
     public function run(): void
     {
-      
-        $departments = DB::table('mas_departments')->pluck('id', 'short_name'); 
-        
+
+        $departments = DB::table('mas_departments')->pluck('id', 'short_name');
+
         $data = [
             ['department_short_name' => 'AND', 'sections' => [
-                ['name' => 'Access Network Department'],
-                ['name' => 'ISP Access'],
-                ['name' => 'Access Network'],
-                ['name' => 'Power & Utilities'],
+                ['name' => 'ISP Access Section'],
+                ['name' => 'Access Network Section'],
+                ['name' => 'Power & Utility Section'],
             ]],
             ['department_short_name' => 'Marketing', 'sections' => [
-                ['name' => 'Marketing'],
-                ['name' => 'Business Development'],
-                ['name' => 'Business Operation'],
-                ['name' => 'Advertisement and Promotion'],
-                ['name' => 'Sales & Operation'],
-                ['name' => 'Marketing Department'],
-                
+                ['name' => 'Regions'],
+                ['name' => 'Business Development Section'],
+                ['name' => 'Business Operation Section'],
+                ['name' => 'Advertisement and Promotion Section'],
+
             ]],
             ['department_short_name' => 'CNCS', 'sections' => [
-                ['name' => 'ISP Core'],
-                ['name' => 'International Services'],
-                ['name' => 'Mobile Core'],
-                ['name' => 'Core Network and Carrier Services Department'],
-                ['name' => 'PS Core'],
-                ['name' => 'RAN Core'],
+                ['name' => 'ISP Core Section'],
+                ['name' => 'International Services Section'],
+                ['name' => 'Mobile Core Section'],
+                ['name' => 'RAN Section'],
             ]],
             ['department_short_name' => 'FD', 'sections' => [
-                ['name' => 'Payment'],
-                ['name' => 'Procurement and Inventory'],
-                ['name' => 'Revenue and Follow Up'],
-                ['name' => 'Finance Department'],
+                ['name' => 'Payment Section'],
+                ['name' => 'Procurement and Inventory Section'],
+                ['name' => 'Revenue and Follow Up Section'],
             ]],
             ['department_short_name' => 'HRAD', 'sections' => [
                 ['name' => 'Administration'],
                 ['name' => 'Human Resources'],
-                ['name' => 'Human Resource & Administration Department'],
             ]],
             ['department_short_name' => 'MIS', 'sections' => [
-                ['name' => 'ERP'],
                 ['name' => 'VAS'],
                 ['name' => 'Billing'],
-                ['name' => 'SAAS'],
-                ['name' => 'Management Information System Department'],
+                ['name' => 'SAS'],
             ]],
             ['department_short_name' => 'SPPD', 'sections' => [
-                ['name' => 'B2B Projects'],
-                ['name' => 'Civil Works'],
-                ['name' => 'Network Infra Projects'],
-                ['name' => 'Strategy Planning'],
-                ['name' => 'Application & Software Projects'],
-                ['name' => 'Strategic Planning'],
-                ['name' => 'Strategic Planning and Projects Department'],
+                ['name' => 'Civil Works Section'],
+                ['name' => 'Network Infra Projects Section'],
+                ['name' => 'Strategic Planning Section'],
             ]],
             ['department_short_name' => 'IAU', 'sections' => [
-                ['name' => 'Internal Audit'],
                 ['name' => 'Internal Audit Unit'],
             ]],
-            
+
         ];
 
         foreach ($data as $departmentData) {

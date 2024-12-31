@@ -19,9 +19,9 @@ const CONVEYANCE_EXPENSE = 1;
 const DOMESTIC_TRAVEL_TYPE = 1;
 
 //constant extracted from approving_authoritioes tbl
-const IMMEDIATE_HEAD = 7;
-const DEPARTMENT_HEAD = 8;
-const MANAGING_DIRECTOR = 10;
+const IMMEDIATE_HEAD = 6;
+const DEPARTMENT_HEAD = 7;
+const MANAGING_DIRECTOR = 8;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;
@@ -51,15 +51,6 @@ const TRAVEL_ALLOWANCE = 1200;
 //leave type constant
 const CASUAL_LEAVE = 1;
 const EARNED_LEAVE = 2;
-
-
-// SAP constants;
-const SAP_BASE_URL = "https://192.168.196.23";
-const SAP_PORT = 50000;
-const SAP_CONPANY_DB = "TIPL_DB_TEST";
-const SAP_USERNAME = "manager";
-const SAP_PASSWORD = "Sap@2024";
-
 const MEDICAL_LEAVE = 3;
 const MATERNITY_LEAVE = 4;
 const PATERNITY_LEAVE = 5;
@@ -68,6 +59,14 @@ const STUDY_LEAVE = 7;
 const BEREAVEMENT_LEAVE = 8;
 const EARNED_LEAVE_CREDIT_AMOUNT = 2.5;
 const CASUAL_LEAVE_CREDIT_AMOUNT = 10;
+
+
+// SAP constants;
+const SAP_BASE_URL = "https://192.168.196.23";
+const SAP_PORT = 50000;
+const SAP_CONPANY_DB = "TIPL_DB_TEST";
+const SAP_USERNAME = "manager";
+const SAP_PASSWORD = "Sap@2024";
 
 // Payslip statuses
 const SIFA_APPROVED = 3;

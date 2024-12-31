@@ -149,7 +149,7 @@ class User extends Authenticatable
     public function scopeFilter($query, $request)
     {
         if ($request->has('username') && $request->query('username') != '') {
-            $query->where('username', $request->query('username'));
+            $query->where('username', 'LIKE', '%' . $request->query('username') . '%');
         }
 
         if ($request->has('name') && $request->query('name') != '') {
@@ -171,6 +171,11 @@ class User extends Authenticatable
         if ($request->has('designation') && $request->query('designation') != '') {
             $query->whereHas('empJob.designation', function ($q) use ($request) {
                 $q->where('id', $request->query('designation'));
+            });
+        }
+        if ($request->has('office') && $request->query('office') != '') {
+            $query->whereHas('empJob.office', function ($q) use ($request) {
+                $q->where('id', $request->query('office'));
             });
         }
     }

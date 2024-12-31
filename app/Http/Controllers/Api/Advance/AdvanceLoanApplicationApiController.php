@@ -13,12 +13,10 @@ use App\Models\MasDzongkhag;
 use App\Services\ApprovalService;
 use App\Models\TravelAuthorizationApplication;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceDetail;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
-use App\Models\User;
 
 class AdvanceLoanApplicationApiController extends Controller
 {
@@ -74,98 +72,97 @@ class AdvanceLoanApplicationApiController extends Controller
 
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Failed to retrieve applications'.$e->getMessage(), 500);
+            return $this->errorResponse('Failed to retrieve applications' . $e->getMessage(), 500);
         }
     }
 
     public function create()
-    {   try {
-        $advanceTypes = MasAdvanceTypes::whereStatus(1)->get();
-        $budgetCodes = BudgetCode::get();
-        $dzongkhags = MasDzongkhag::get();
-        $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
-        $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
-                                    ->where('status', 3)
-                                    ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
-                                        $query->whereNotIn('id', $excludedTravelAuthorizationIds);
-                                    })
-                                    ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
-        return response()->json(['advanceTypes' => $advanceTypes, 'dzongkhags' => $dzongkhags, 'budgetCodes' => $budgetCodes, 'excludedTravelAuthorizationIds' => $excludedTravelAuthorizationIds, 'travelAuthorizations' => $travelAuthorizations]);
-
-    }catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 500);
+    {
+        try {
+            $advanceTypes = MasAdvanceTypes::whereStatus(1)->get();
+            $budgetCodes = BudgetCode::get();
+            $dzongkhags = MasDzongkhag::get();
+            $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
+            $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
+                ->where('status', 3)
+                ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
+                    $query->whereNotIn('id', $excludedTravelAuthorizationIds);
+                })
+                ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
+            return response()->json(['advanceTypes' => $advanceTypes, 'dzongkhags' => $dzongkhags, 'budgetCodes' => $budgetCodes, 'excludedTravelAuthorizationIds' => $excludedTravelAuthorizationIds, 'travelAuthorizations' => $travelAuthorizations]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
- }
 
     public function store(Request $request)
-    {   try{
-
-        //define validation rules when advance to staff is applied for detail section
-        $advanceApplication = new AdvanceApplication();
-        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
-        }
-        $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-        $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
-        $date= formatDate(request('date'));
-        $attachment = "";
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-        }
+    {
         try {
-            DB::beginTransaction();
-            $advanceApplication->advance_no = $request->advance_no;
-            $advanceApplication->date = $date;
-            $advanceApplication->date = $date;
-            $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
-            $advanceApplication->type_id = $request->advance_type;
-            $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
-            $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
-
-            $advanceApplication->amount = $request->amount ?? null;
-            $advanceApplication->attachment = $attachment ?? null; // Store attachment path
-            $advanceApplication->total_amount = $request->total_amount ?? null;
-            $advanceApplication->no_of_emi = $request->advance_type === DSA_ADVANCE ? 1 : $request->no_of_emi ?? null;
-            $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
-            $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
-            $advanceApplication->item_type = $request->item_type ?? null;
-            $advanceApplication->remark = $request->remark ?? null;
-            $advanceApplication->interest_rate = $request->interest_rate ?? null;
-            $advanceApplication->status = $approverByHierarchy['application_status'];
-
-            $advanceApplication->save();
-
-            if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
-                $this->saveAdvanceDetails($request->details, $advanceApplication->id);
-
-
+            //define validation rules when advance to staff is applied for detail section
+            $advanceApplication = new AdvanceApplication();
+            $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
             }
-
-            // Create a corresponding history record for advance
-            // Create a history record
-            $historyService = new ApplicationHistoriesService();
-            $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
-
-
-            DB::commit();
-
-            if (isset($approverByHierarchy['approver_details'])) {
-                $emailContent = 'has submitted a advance request and is awaiting your approval for advance no ' . $request->advance_no . 'amounting to Nu.' . $request->amount . '/-.';
-                $emailSubject = 'Advance Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+            $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+            $approvalService = new ApprovalService();
+            $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
+            $date = formatDate(request('date'));
+            $attachment = "";
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
             }
+            try {
+                DB::beginTransaction();
+                $advanceApplication->advance_no = $request->advance_no;
+                $advanceApplication->date = $date;
+                $advanceApplication->date = $date;
+                $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
+                $advanceApplication->type_id = $request->advance_type;
+                $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
+                $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
+
+                $advanceApplication->amount = $request->amount ?? null;
+                $advanceApplication->attachment = $attachment ?? null; // Store attachment path
+                $advanceApplication->total_amount = $request->total_amount ?? null;
+                $advanceApplication->no_of_emi = $request->advance_type === DSA_ADVANCE ? 1 : $request->no_of_emi ?? null;
+                $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
+                $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
+                $advanceApplication->item_type = $request->item_type ?? null;
+                $advanceApplication->remark = $request->remark ?? null;
+                $advanceApplication->interest_rate = $request->interest_rate ?? null;
+                $advanceApplication->status = $approverByHierarchy['application_status'];
+
+                $advanceApplication->save();
+
+                if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
+                    $this->saveAdvanceDetails($request->details, $advanceApplication->id);
+                }
+
+                // Create a corresponding history record for advance
+                // Create a history record
+                $historyService = new ApplicationHistoriesService();
+                $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
+
+
+                DB::commit();
+
+                if (isset($approverByHierarchy['approver_details'])) {
+                    $advanceType = MasAdvanceTypes::where('id', $request->advance_type)->value('name');
+                    $emailContent = 'has applied ' . $advanceType . ' for your endorsement.';
+                    $emailSubject = 'Advance';
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return $this->errorResponse($e->getMessage(), 500);
+                // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+            }
+            return $this->successResponse($advanceApplication, 'Advance application created successfully');
         } catch (\Exception $e) {
-            DB::rollBack();
-           return $this->errorResponse($e->getMessage(), 500);
-            // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
+            return $this->errorResponse($e->getMessage(), 500);
         }
-        return $this->successResponse($advanceApplication, 'Advance application created successfully');
-    }catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 500);
-    }
     }
 
 
@@ -174,9 +171,9 @@ class AdvanceLoanApplicationApiController extends Controller
     public function show($id)
     {
         try {
-        $advance = AdvanceApplication::with('advanceType')->findOrFail($id);
-        return $this->successResponse($advance, 'Advance application retrieved successfully');
-        }catch (\Exception $e) {
+            $advance = AdvanceApplication::with('advanceType')->findOrFail($id);
+            return $this->successResponse($advance, 'Advance application retrieved successfully');
+        } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 500);
         }
     }
@@ -203,82 +200,80 @@ class AdvanceLoanApplicationApiController extends Controller
 
     public function update(Request $request, $id)
     {
-        try{
-        $advanceApplication = AdvanceApplication::findOrFail($id);
-
-        // Initialize the $validatedData array
-        $validatedData = [];
-
-        if ($request->hasFile('attachment')) {
-            // Check if there is an existing file and delete it
-            if ($advanceApplication->attachment) {
-                $existingFilePath = public_path($advanceApplication->attachment);
-                if (file_exists($existingFilePath) && is_file($existingFilePath)) {
-                    unlink($existingFilePath); // Delete the existing file
-                }
-            }
-
-            // Upload the new file and save the path
-            $file = $request->file('attachment');
-            $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
-            $validatedData['attachment'] = $path; // Save the relative path
-        } else {
-            // If no new file is uploaded, keep the existing attachment path
-            $validatedData['attachment'] = $advanceApplication->attachment; // Maintain the existing path
-        }
-
         try {
-            // Start a database transaction to ensure atomicity
-            DB::beginTransaction();
-            $advanceApplication->advance_no = $request->advance_no;
-            $advanceApplication->date = formatDate($request->date);
-            // $advanceApplication->date = $request->date;
-            $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
-            $advanceApplication->type_id = $request->advance_type;
-            $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
-            $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
+            $advanceApplication = AdvanceApplication::findOrFail($id);
 
-            $advanceApplication->amount = $request->amount ?? null;
-            $advanceApplication->attachment = $attachment ?? null; // Store attachment path
-            $advanceApplication->total_amount = $request->total_amount ?? null;
-            $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
-            $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
-            $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
-            $advanceApplication->item_type = $request->item_type ?? null;
-            $advanceApplication->remark = $request->remark ?? null;
-            $advanceApplication->interest_rate = $request->interest_rate ?? null;
-            $advanceApplication->status = $advanceApplication->status;
+            // Initialize the $validatedData array
+            $validatedData = [];
 
-            $advanceApplication->save();
-            if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
-                $this->saveAdvanceDetails($request->details, $advanceApplication->id);
+            if ($request->hasFile('attachment')) {
+                // Check if there is an existing file and delete it
+                if ($advanceApplication->attachment) {
+                    $existingFilePath = public_path($advanceApplication->attachment);
+                    if (file_exists($existingFilePath) && is_file($existingFilePath)) {
+                        unlink($existingFilePath); // Delete the existing file
+                    }
+                }
+
+                // Upload the new file and save the path
+                $file = $request->file('attachment');
+                $path = uploadImageToDirectory($file, $this->attachmentPath); // Ensure this function generates a relative path
+                $validatedData['attachment'] = $path; // Save the relative path
+            } else {
+                // If no new file is uploaded, keep the existing attachment path
+                $validatedData['attachment'] = $advanceApplication->attachment; // Maintain the existing path
             }
 
-            // Optionally create a history record for the advance application
-            // $advanceApplication->histories()->create([
-            //     'level' => 'Test Level', // This could be dynamic, depending on the use case
-            //     'status' => $advanceApplication->status,
-            //     'remarks' => $request->remark ?? $advanceApplication->remark,
-            //     'created_by' => loggedInUser(),  // Assuming loggedInUser() fetches the current user's ID
-            //     'updated_by' => loggedInUser(),
-            // ]);
+            try {
+                // Start a database transaction to ensure atomicity
+                DB::beginTransaction();
+                $advanceApplication->advance_no = $request->advance_no;
+                $advanceApplication->date = formatDate($request->date);
+                // $advanceApplication->date = $request->date;
+                $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
+                $advanceApplication->type_id = $request->advance_type;
+                $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
+                $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
 
-            // Commit the transaction
-            DB::commit();
+                $advanceApplication->amount = $request->amount ?? null;
+                $advanceApplication->attachment = $attachment ?? null; // Store attachment path
+                $advanceApplication->total_amount = $request->total_amount ?? null;
+                $advanceApplication->no_of_emi = $request->no_of_emi ?? null;
+                $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
+                $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
+                $advanceApplication->item_type = $request->item_type ?? null;
+                $advanceApplication->remark = $request->remark ?? null;
+                $advanceApplication->interest_rate = $request->interest_rate ?? null;
+                $advanceApplication->status = $advanceApplication->status;
+
+                $advanceApplication->save();
+                if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
+                    $this->saveAdvanceDetails($request->details, $advanceApplication->id);
+                }
+
+                // Optionally create a history record for the advance application
+                // $advanceApplication->histories()->create([
+                //     'level' => 'Test Level', // This could be dynamic, depending on the use case
+                //     'status' => $advanceApplication->status,
+                //     'remarks' => $request->remark ?? $advanceApplication->remark,
+                //     'created_by' => loggedInUser(),  // Assuming loggedInUser() fetches the current user's ID
+                //     'updated_by' => loggedInUser(),
+                // ]);
+
+                // Commit the transaction
+                DB::commit();
+            } catch (\Exception $e) {
+                // Rollback the transaction in case of any error
+                DB::rollBack();
+
+                // Handle the error by returning back with error message
+                return $this->errorResponse($e->getMessage(), 500);
+            }
+
+            return $this->successResponse($advanceApplication, 'Advance application updated successfully');
         } catch (\Exception $e) {
-            // Rollback the transaction in case of any error
-            DB::rollBack();
-
-            // Handle the error by returning back with error message
-            return $this ->errorResponse($e->getMessage(), 500);
+            return $this->errorResponse($e->getMessage(), 500);
         }
-
-     return $this->successResponse($advanceApplication, 'Advance application updated successfully');
-    }catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 500);
-    }
-
-
     }
 
 

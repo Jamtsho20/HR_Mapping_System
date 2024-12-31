@@ -10,8 +10,19 @@ class ApplicationHistory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'approval_option', 'hierarchy_id', 'max_level_id', 'next_level_id', 'approver_role_id', 'approver_emp_id', 'level_sequence', 'status', 'remarks', 'action_performed_by', 'sap_response', 'application_type',  // Polymorphic type
-        'application_id',  //new  
+        'approval_option',
+        'hierarchy_id',
+        'max_level_id',
+        'next_level_id',
+        'approver_role_id',
+        'approver_emp_id',
+        'level_sequence',
+        'status',
+        'remarks',
+        'action_performed_by',
+        'sap_response',
+        'application_type',  // Polymorphic type
+        'application_id',  //new
         'status',            //new
         'remarks', //new
     ];
@@ -19,5 +30,38 @@ class ApplicationHistory extends Model
     public function application()
     {
         return $this->morphTo();
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($application) {
+            // \Log::info($application);
+            ApplicationAuditLog::create([
+                'application_type' => $application->application_type,
+                'application_id' => $application->application_id,
+                'approval_option' => $application->approval_option,
+                'hierarchy_id' => $application->hierarchy_id,
+                'status' => $application->status,
+                'remarks' => $application->remarks,
+                'action_performed_by' => $application->action_performed_by,
+                'edited_by' => null,
+                'sap_response' => $application->sap_response,
+            ]);
+        });
+
+        static::updated(function ($application) {
+            ApplicationAuditLog::create([
+                'application_type' => $application->application_type,
+                'application_id' => $application->application_id,
+                'approval_option' => $application->approval_option,
+                'hierarchy_id' => $application->hierarchy_id,
+                'status' => $application->status,
+                'remarks' => $application->remarks,
+                'action_performed_by' => $application->action_performed_by,
+                'edited_by' => null,
+
+                'sap_response' => $application->sap_response,
+            ]);
+        });
     }
 }

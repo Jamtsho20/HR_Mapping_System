@@ -172,7 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-apply', 'LeaveApplicationController');
         Route::resource('cancellation', 'CancellationController')->except('create', 'show', 'edit');
         Route::resource('leave-history', 'LeaveHistoryListController')->except('create', 'show', 'edit');
-        Route::resource('approval', 'LeaveApprovalController');
+        // Route::resource('approval', 'LeaveApprovalController');
         Route::resource('encashment-approval', 'EncashmentApprovalController')->except('create', 'show', 'edit');
         Route::resource('leave-encashment', 'LeaveEncashmentApplicationController')->except('show', 'edit')
             ->names([
@@ -183,8 +183,8 @@ Route::middleware('auth')->group(function () {
         Route::get('leave-balance', 'LeaveApplicationController@leaveBalance')->name('leave.leave-balance');
         Route::get('encashment-history', 'LeaveEncashmentApplicationController@index')->name('leave.encashment-history');
         // Custom route for bulk approval/rejection
-        Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
-        Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
+        // Route::post('approval/bulk', 'LeaveApprovalController@bulkApprovalRejection')->name('leave.bulk-approval-rejection');
+        // Route::post('encashment-approval/bulk', 'EncashmentApprovalController@bulkApprovalRejection')->name('encashment.bulk-approval-rejection');
 
         Route::get('/send-encashment-notifications', [DashboardController::class, 'sendEncashmentNotification']);
     });
@@ -197,15 +197,15 @@ Route::middleware('auth')->group(function () {
         Route::resource('dsa-delegation-approval', 'DSADelegationApprovalController')->except('create', 'show', 'edit');
         Route::resource('transfer-delegation-approval', 'TransferDelegationApprovalController')->except('create', 'show', 'edit');
         Route::resource('adv-loan-delegation', 'AdvLoanDelegationController')->except('create', 'show', 'edit');
-        Route::resource('approval', 'ApprovalController')->except('create', 'show', 'edit');
+        // Route::resource('approval', 'ApprovalController')->except('create', 'show', 'edit');
     });
 
     // ADVANCE/LOAN
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
-        Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
-        Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
+        // Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
+        // Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
 
     // TRAVEL_AUTHORIZATION
@@ -256,6 +256,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('samsung-deduction-report', 'SamsungDeductionReportController')->except('create', 'show', 'edit');
         Route::resource('pay-comparision-report', 'PayComparisionReportController')->except('create', 'show', 'edit');
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
+        Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -321,7 +322,7 @@ Route::middleware('auth')->group(function () {
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
-        // Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
+        Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');

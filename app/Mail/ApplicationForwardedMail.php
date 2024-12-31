@@ -10,13 +10,12 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ApplicationForwardedMail extends Mailable
+class ApplicationForwardedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     // protected $requestingUserId;
-    protected $approvingEmpName;
-    protected $reqEmpName;
+    protected $approver;
     protected $emailContent;
     protected $emailSubject;
     /**
@@ -24,9 +23,14 @@ class ApplicationForwardedMail extends Mailable
      */
     public function __construct($requestingUserId, $approvingUserId, $emailContent, $emailSubject)
     {
-        $this->reqEmpName = User::where('id', $requestingUserId)->value('name');
-        $this->approvingEmpName = User::where('id', $approvingUserId)->value('name');;
-        $this->emailContent = $emailContent;
+        $initiatorDetails = User::with('empJob')->where('id', $requestingUserId)->first();
+        $initiator = $initiatorDetails['title'] . ' ' . $initiatorDetails['name'] . ', ' 
+                    . $initiatorDetails->empJob->designation->name . ', ' 
+                    . $initiatorDetails->empJob->section->name ?? '' 
+                    . $initiatorDetails->empJob->department->name;
+
+        $this->approver = User::where('id', $approvingUserId)->first();
+        $this->emailContent = $initiator . ' ' . $emailContent;
         $this->emailSubject = $emailSubject;
     }
 
@@ -49,8 +53,7 @@ class ApplicationForwardedMail extends Mailable
         return new Content(
             markdown: 'emails.application-forwarded',
             with: [
-                'reqEmpName'=> $this->reqEmpName,
-                'approvingEmpName' => $this->approvingEmpName,
+                'approver' => $this->approver['title'] . ' ' . $this->approver['name'],
                 'emailContent' => $this->emailContent,
             ]
         );

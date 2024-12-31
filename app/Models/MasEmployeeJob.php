@@ -53,4 +53,8 @@ class MasEmployeeJob extends Model
         $disbursementMapping = config('global.salary_disbursement_mode');
         return $disbursementMapping[$this->salary_disbursement_mode] ?? config('global.null_value');
     }
+
+    // public function getDesignationAttribute() {
+    //     return $this->suffix == 1 ? 'Senior ' : '' . $this->designation->name;
+    // }
 }

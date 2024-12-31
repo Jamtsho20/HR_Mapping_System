@@ -16,7 +16,7 @@ class MasSifaTypesSeeder extends Seeder
         $sifaTypes = [
             [
                 'name' => 'Sifa',
-                'code' => 'Sifa',
+                'code' => 'SIFA',
                 'remarks' => 'Staff Initiative FOr Financial Assistance ',
                 'created_by' => 1, 
                 'updated_by' => null,

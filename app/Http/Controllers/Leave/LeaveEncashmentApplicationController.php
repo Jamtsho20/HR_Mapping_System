@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeLeave;
-use App\Models\PaySlipDetailView;
 use App\Models\LeaveEncashmentApplication;
 use App\Models\LeaveEncashmentType;
 use Carbon\Carbon;
@@ -16,6 +15,8 @@ use App\Models\MasPaySlabDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\ApplicationForwardedMail;
+use Illuminate\Support\Facades\Mail;
 
 class LeaveEncashmentApplicationController extends Controller
 {
@@ -69,7 +70,7 @@ class LeaveEncashmentApplicationController extends Controller
         $earnedLeaveEncahsment = $leavePolicy->yearEnd->min_encashment_per_year;
         $message="";
         if($earnedLeaveBalance < $requiredBalance ){
-            $message="Insufficient Balance";
+            $message="You do not have enough earned leave balance to encash.";
         }
         $applicationExists = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)
     ->whereYear('created_at', Carbon::now()->year)
@@ -116,9 +117,12 @@ class LeaveEncashmentApplicationController extends Controller
            $historyService = new ApplicationHistoriesService();
            $historyService->saveHistory($leaveEncashment->histories(), $approverByHierarchy, $request->remarks);
 
-
-
             DB::commit();
+            if(isset($approverByHierarchy['approver_details'])){
+                $emailContent = 'has applied Leave Encashment for your endorsement.';
+                $emailSubject = 'Leave Encashment';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());

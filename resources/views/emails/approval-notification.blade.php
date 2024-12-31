@@ -1,12 +1,15 @@
 <x-mail::message>
-# Introduction
 
-The body of your message.
+Dear {{ $approver }}, <br/>
+Greetings for the day!! <br/>
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+{{ $emailContent }} <br/><br/>
 
-Thanks,<br>
-{{ config('app.name') }}
+Kindly Approve/Reject from HRMS, please click the link below:<br/>
+@component('mail::button', ['url' => url('/')])
+    Visit The Site
+@endcomponent
+Sincerely, <br/>
+Tashi InfoComm Private Limited.
+
 </x-mail::message>

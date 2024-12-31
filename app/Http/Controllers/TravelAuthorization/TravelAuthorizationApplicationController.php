@@ -8,7 +8,6 @@ use App\Models\DailyAllowance;
 use App\Models\MasTravelType;
 use App\Models\MasEmployeeJob;
 use App\Services\ApprovalService;
-use App\Models\MasAdvanceTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -75,7 +74,7 @@ class TravelAuthorizationApplicationController extends Controller
         $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
         $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
         $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
-        $travelTypes = MasTravelType::all();
+        $travelTypes = MasTravelType::whereStatus(1)->get();
         // $defaultTravelTypeId = 1;
 
         $defaultTravelTypeId = request()->get('travel_type', 1);
@@ -126,20 +125,19 @@ class TravelAuthorizationApplicationController extends Controller
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($travelAuthorization->histories(), $approverByHierarchy, $request->remarks);
 
-
-
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a travel authorization application and is awaiting your approval for a estimated travel expense of ' . $request->estimated_travel_expenses ;
-                $emailSubject = 'Travel Authorization Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                $travelType = MasTravelType::where('id', $request->trave_type)->value('name');
+                $emailContent = 'has applied travel authorization for ' . $travelType . ' for your endorsement.';
+                $emailSubject = 'Travel Authorization';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
-        
+
         return redirect()->route('apply-travel-authorization.index')->with('msg_success', 'Travel Authorization application created successfully!');
     }
 

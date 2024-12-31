@@ -150,8 +150,9 @@ class AdvanceLoanApplicationController extends Controller
             DB::commit();
 
             if (isset($approverByHierarchy['approver_details'])) {
-                $emailContent = 'has submitted a advance request and is awaiting your approval for advance no ' . $request->advance_no . 'amounting to Nu.' . $request->amount . '/-.';
-                $emailSubject = 'Advance Application';
+                $advanceType = MasAdvanceTypes::where('id', $request->advance_type)->value('name');
+                $emailContent = 'has applied ' . $advanceType . ' for your endorsement.';
+                $emailSubject = 'Advance';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {

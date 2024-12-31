@@ -33,7 +33,7 @@ class MasOfficesSeeder extends Seeder
             ['id' => 15, 'name' => 'NetOps Building, Gelephu', 'mas_dzongkhag_id' => 13, 'created_by' => 1],
 
             ['id' => 16, 'name' => 'Customer Care Center, Mongar', 'mas_dzongkhag_id' => 7, 'created_by' => 1],
-            ['id' => 17, 'name' => 'Extension Counter, Dagapela', 'mas_dzongkhag_id' => 7, 'created_by' => 1],
+            ['id' => 17, 'name' => 'Extension Counter, Lhuentse', 'mas_dzongkhag_id' => 7, 'created_by' => 1],
 
             ['id' => 18, 'name' => 'Customer Care Center, Paro', 'mas_dzongkhag_id' => 8, 'created_by' => 1],
             ['id' => 19, 'name' => 'Extension Counter, Paro Airport', 'mas_dzongkhag_id' => 8, 'created_by' => 1],
@@ -44,7 +44,7 @@ class MasOfficesSeeder extends Seeder
             ['id' => 23, 'name' => 'Extension Counter, Daifam', 'mas_dzongkhag_id' => 11, 'created_by' => 1],
             ['id' => 24, 'name' => 'Extension Counter, Pemagatshel', 'mas_dzongkhag_id' => 11, 'created_by' => 1],
             ['id' => 25, 'name' => 'Nanglam Extension Office', 'mas_dzongkhag_id' => 11, 'created_by' => 1],
-           
+
             ['id' => 26, 'name' => 'Customer Care Center, Thimphu', 'mas_dzongkhag_id' => 14, 'created_by' => 1],
             ['id' => 27, 'name' => 'NetOps Building, Thimphu', 'mas_dzongkhag_id' => 14, 'created_by' => 1],
 
@@ -57,6 +57,8 @@ class MasOfficesSeeder extends Seeder
             ['id' => 32, 'name' => 'Customer Care Center, Wangdue Phodrang', 'mas_dzongkhag_id' => 19, 'created_by' => 1],
             ['id' => 33, 'name' => 'Extension Counter, Gangtey', 'mas_dzongkhag_id' => 19, 'created_by' => 1],
             ['id' => 34, 'name' => 'Extension Counter, Punakha', 'mas_dzongkhag_id' => 19, 'created_by' => 1],
+
+            ['id' => 35, 'name' => 'Dagana', 'mas_dzongkhag_id' => 3, 'created_by' => 1],
         ]);
     }
 }
