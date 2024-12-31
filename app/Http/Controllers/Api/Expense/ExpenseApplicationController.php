@@ -140,7 +140,7 @@ class ExpenseApplicationController extends Controller
 
             $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
             $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
-            $vehicles = MasVehicle::all();
+            $vehicles = MasVehicle::with('vehicleType')->get();
             $dsaClaimNo = $this->ajax->getDsaClaimNumber();
             $transferClaimNo = $this->ajax->getTransferClaimNumber();
 
