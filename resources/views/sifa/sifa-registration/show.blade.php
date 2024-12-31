@@ -51,11 +51,11 @@
         <ul class="list-group list-group-unbordered">
             <li class="list-group-item">
                 <strong>Approved By</strong>
-                <span class="pull-right">{{ $sifaRegistration->status == 3 ? $sifaRegistration->sifa_approved_by->name : 'N/A' }}</span>
+                <span class="pull-right">{{ $sifaRegistration->status == 3 ? $sifaRegistration->sifa_approved_by?->name : config('global.null_value') }}</span>
             </li>
             <li class="list-group-item">
                 <strong>Rejected By</strong>
-                <span class="pull-right">{{ $sifaRegistration->status == -1 ? $sifaRegistration->sifa_approved_by->name : 'N/A' }}</span>
+                <span class="pull-right">{{ $sifaRegistration->status == -1 ? $sifaRegistration->sifa_approved_by?->name : config('global.null_value') }}</span>
             </li>
         </ul>
     </div>
