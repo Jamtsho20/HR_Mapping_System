@@ -205,7 +205,7 @@ var hrms = function () {
                 var leaveType = $("#leave_type").val();
                 var formId = $("#apply_leave");
                 var submitButton = $("button[type='submit']");
-        
+
                 // Function to check for errors and disable the submit button if errors are found
                 function checkForErrors(errorMsg) {
                     if (errorMsg) {
@@ -214,14 +214,14 @@ var hrms = function () {
                         submitButton.prop("disabled", false); // Enable submit button if no errors
                     }
                 }
-        
+
                 // Reset the leave balance and errors when leaveType is empty
                 if (leaveType === '') {
                     $("#leave_balance").val('');
                     checkForErrors();
                     return; // Exit the function if leaveType is empty
                 }
-        
+
                 // AJAX call to fetch leave balance based on leaveType
                 $.ajax({
                     url: "/getleavebalancebyleavetype/" + leaveType,
@@ -232,14 +232,14 @@ var hrms = function () {
                             $("#leave_balance").val(response.data.balance);
                             formId.find("input, select, textarea").prop("disabled", false); // Enable form fields if balance exists
                         }
-        
+
                         // Handle half day by enabling/disabling options in the form
                         if (!response.data.is_half_day) {
                             disableHalfDayOptions();
                         } else {
                             enableAllDayOptions();
                         }
-        
+
                         // Handle attachment required based on policy
                         if (response.data.attachment_required && !$("#attachment").attr('data-has-attachment')) {
                             $("#attachment").attr("required", "required");
@@ -248,7 +248,7 @@ var hrms = function () {
                             $("#attachment").removeAttr("required");
                             $("#attachment_required").hide();
                         }
-        
+
                         // After all processing, check for errors and disable/enable the submit button
                         checkForErrors(error.responseJSON.message);
                     },
@@ -261,36 +261,36 @@ var hrms = function () {
                     }
                 });
             }
-        
+
             // Function to disable half day options in the day selectors
             function disableHalfDayOptions() {
-                ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
+                ['ddl_from_day', 'ddl_to_day'].forEach(function (id) {
                     var select = document.getElementById(id);
-                    Array.from(select.options).forEach(function(option) {
+                    Array.from(select.options).forEach(function (option) {
                         if (option.value === '2' || option.value === '3') {
                             option.disabled = true;
                         }
                     });
                 });
             }
-        
+
             // Function to enable all day options in the day selectors
             function enableAllDayOptions() {
-                ['ddl_from_day', 'ddl_to_day'].forEach(function(id) {
+                ['ddl_from_day', 'ddl_to_day'].forEach(function (id) {
                     var select = document.getElementById(id);
-                    Array.from(select.options).forEach(function(option) {
+                    Array.from(select.options).forEach(function (option) {
                         option.disabled = false;
                     });
                 });
             }
-        
+
             // Trigger on change of leave type
             $(document).on("change", "#leave_type", function () {
                 populateLeaveBalance();
             });
-        
+
         });
-        
+
 
         //show employee field for hierarchy level based on selection of approving authority
         // employee_select
@@ -380,66 +380,66 @@ var hrms = function () {
                         allowClear: true, // Allow clearing the selection
                         minimumInputLength: 3, // Trigger search only after typing 3 characters
                         ajax: {
-                                transport: function (params, success, failure) {
-                                    // Debounce API requests
-                                    clearTimeout(typingTimer); // Clear previous timer
-                                    typingTimer = setTimeout(function () {
-                                        // Make the AJAX call after the delay
-                                        $.ajax({
-                                            url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
-                                            type: 'GET',
-                                            dataType: 'json',
-                                            success: success,
-                                            error: failure
-                                        });
-                                    }, debounceDelay);
-                                },
-                        processResults: function (data) {
-                                    // Map the API response to Select2 format
-                                    return {
-                                        results: data.map(item => ({
-                                            id: item.item, // Unique value
-                                            text: item.description // Displayed text
-                                        }))
-                                    };
-                                    },
-                                    error: function () {
-                                        alert('Unable to fetch item types. Please try again later.');
-                                    }
-                                }
-                                });
-
-                            // Add an event listener to capture the selection from Select2
-                                $('#item_type').on('select2:select', function (e) {
-                                    var selectedItemId = e.params.data.id; // The selected item ID (item.item)
-
-                                    // Make the second API call (Pricing API) using the selected item ID
+                            transport: function (params, success, failure) {
+                                // Debounce API requests
+                                clearTimeout(typingTimer); // Clear previous timer
+                                typingTimer = setTimeout(function () {
+                                    // Make the AJAX call after the delay
                                     $.ajax({
-                                        url: `https://soms-test-backend.tashicell.com/Api/HRMS/Gadget/Pricing?type=${encodeURIComponent(selectedItemId)}`, // Using selected item item
+                                        url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         type: 'GET',
                                         dataType: 'json',
-                                        success: function (pricingResponse) {
+                                        success: success,
+                                        error: failure
+                                    });
+                                }, debounceDelay);
+                            },
+                            processResults: function (data) {
+                                // Map the API response to Select2 format
+                                return {
+                                    results: data.map(item => ({
+                                        id: item.item, // Unique value
+                                        text: item.description // Displayed text
+                                    }))
+                                };
+                            },
+                            error: function () {
+                                alert('Unable to fetch item types. Please try again later.');
+                            }
+                        }
+                    });
+
+                    // Add an event listener to capture the selection from Select2
+                    $('#item_type').on('select2:select', function (e) {
+                        var selectedItemId = e.params.data.id; // The selected item ID (item.item)
+
+                        // Make the second API call (Pricing API) using the selected item ID
+                        $.ajax({
+                            url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/Pricing?type=${encodeURIComponent(selectedItemId)}`, // Using selected item item
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (pricingResponse) {
 
 
-                                            // Set the value of the #item_type dropdown with the selected item
-                                            $('#item_type').val(selectedItemId).trigger('change');  // Trigger change to refresh the select2 UI
+                                // Set the value of the #item_type dropdown with the selected item
+                                $('#item_type').val(selectedItemId).trigger('change');  // Trigger change to refresh the select2 UI
 
-                                            // Set the price in the #amount field
-                                            $('#gadget_amount').val(pricingResponse.mrp).trigger('change');
-                                            $('#interest_rate_gadget').trigger('change');
+                                // Set the price in the #amount field
+                                $('#gadget_amount').val(pricingResponse.mrp).trigger('change');
+                                $('#interest_rate_gadget').trigger('change');
 
-                                                                    },
-                                                                    error: function (pricingResponse) {
+                            },
+                            error: function (pricingResponse) {
 
-                                                                        alert('Something went wrong with the Pricing API, please contact system admin for further information!');
-                                                                    }
-                                                                });
-                                                            });
-
-                                                    }
-
-                                                    }
+                                alert('Something went wrong with the Pricing API, please contact system admin for further information!');
+                            }
                         });
+                    });
+
+                }
+
+            }
+        });
 
         //generating advance no based on advance types
         $(document).on('change', '#expense_type', function () {
