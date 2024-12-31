@@ -3,14 +3,14 @@
     Dear {{ $employee->name }}, <br />
     Greetings for the day!! <br />
 
-    You have been provided access to the HRMS.
-    You can use the credentials given below to log into the system. Please consider changing your password after logging in. 
+        You have been granted access to the HRMS. Please use the credentials provided below to log into the system.
+         Once logged in, we strongly recommend changing your password immediately for security purposes.
+
+    URL:https://hrms.tashicell.com
+    Username: {{ $employee->username  }}
+    Password: {{ $password }}
 
 
-    Username: {{ $employee->username  }} 
-    Password: {{ $password }}         
-
-   
     Thanks,
     TIPL HRMS.
 
