@@ -238,5 +238,10 @@ return [
             'approver_mail_content' => 'has applied DSA Claim of {type} for your endorsement.',
             'initiator_mail_content' => 'Your DSA Claim has been'
         ],
-    ]
+    ],
+
+    
+    
 ];
+
+

@@ -33,11 +33,13 @@ class CreditEmpEarnedLeaveMonthly extends Command
                 DB::transaction(function () use ($leaves) {
                     foreach ($leaves as $leave) {
                         // Credit leave based on type
+                        $calculatedCurrentEntitlement = $leave->current_entitlement + EARNED_LEAVE_CREDIT_AMOUNT;
                         $leave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT; // Add 2.5 days per month
-                        $leave->closing_balance = $leave->opening_balance 
-                            + $leave->current_entitlement 
-                            - $leave->leaves_availed;
-
+                        $calculatedClosingBalance = $leave->opening_balance 
+                                                    + $leave->current_entitlement 
+                                                    - $leave->leaves_availed;
+                        $leave->closing_balance = min($calculatedClosingBalance, 90.00);
+                        // $leave->current_entitlement = min($calculatedCurrentEntitlement, 90.00);
                         // Save updated leave
                         $leave->save();
                     }

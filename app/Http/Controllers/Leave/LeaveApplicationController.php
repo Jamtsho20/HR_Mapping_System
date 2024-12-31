@@ -12,6 +12,7 @@ use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Mail\ApplicationForwardedMail;
+use App\Models\MasEmploymentType;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
@@ -299,9 +300,20 @@ class LeaveApplicationController extends Controller
             ->whereStatus(1)
             ->first();
 
+        // validate based on employment type
+        $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
+    
+        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+        if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
+            // Deny leave application
+            return back()->withInput()->with(
+                'msg_error', 
+                'You are not eligible to apply ' . $leaveType . ', based on your employment type.'
+            );
+        }
+        
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
-        $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
         if($leavePolicy && $leavePolicy->leavePolicyPlan){
 
             if($leavePolicy->leavePolicyPlan->gender != $userDetails->gender && $leavePolicy->leavePolicyPlan->gender != 3){
@@ -320,11 +332,11 @@ class LeaveApplicationController extends Controller
             return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' for ' . $leaveType . '.');
         }
         //validation based on employment type
-        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
-            if ($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)) {
-                return back()->withInput()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
-            }
-        }
+        // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
+        //     if ($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)) {
+        //         return back()->withInput()->with('msg_error', 'You are not eligible to apply '  . $leaveType . ', for further information please contact system admin.');
+        //     }
+        // }
         // Check for max leave days commented for now
         // if ($maxLeaveDays && (int) $request->no_of_days > $maxLeaveDays) {
         //     return back()->with('msg_error', 'No of days cannot exceed more than ' . $maxLeaveDays . ' days for ' . $leaveType . '.');
