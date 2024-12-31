@@ -31,6 +31,9 @@ use Illuminate\Support\Facades\Route;
 use App\Mail\SendCredentialsMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use App\Jobs\UpdateEmployeePasswordJob;
+use App\Jobs\SendEmployeeCredentialsJob;
+
 
 
 
@@ -49,36 +52,59 @@ require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
 
+// Route::get('/updateemppas', function () {
+//     // Process employees in chunks
+//     \DB::table('mas_employees')
+//         ->where('id', '<>', 1)
+//         ->where('id', '<>', 2)
+//         // ->where('id', 3)
+
+
+//         ->orderBy('id')
+//         ->chunk(100, function ($employees) {
+//             foreach ($employees as $employee) {
+//                 if ($employee->dob && $employee->employee_id) {
+//                     // Generate plain password
+//                     $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
+
+//                     try {
+//                         \DB::table('mas_employees')
+//                             ->where('id', $employee->id)
+//                             ->update(['password' => $plainPassword]);
+//                     } catch (\Exception $e) {
+//                         \Log::info("Failed to send email to {$employee->username} -> {$employee->email}: {$e->getMessage()}");
+//                     }
+//                 }
+//             }
+//         });
+
+//     return "Passwords updated successfully!";
+// });
 Route::get('/updateemppas', function () {
-    // Process employees in chunks
     \DB::table('mas_employees')
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
-        // ->where('id', 3)
-
-
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
                 if ($employee->dob && $employee->employee_id) {
-                    // Generate plain password
-                    $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
-
-                    try {
-                        \DB::table('mas_employees')
-                            ->where('id', $employee->id)
-                            ->update(['password' => $plainPassword]);
-                    } catch (\Exception $e) {
-                        \Log::info("Failed to send email to {$employee->username} -> {$employee->email}: {$e->getMessage()}");
-                    }
+                    // Dispatch the job to the queue
+                    UpdateEmployeePasswordJob::dispatch($employee);
                 }
             }
         });
 
-    return "Passwords updated successfully!";
+    return "Password update jobs dispatched successfully!";
 });
 
 Route::get('/sentpasemail', function () {
+
+$employees= User::where('id', '<>', 1)
+    ->where('id', '<>', 2)
+        ->orderBy('id')->get();
+
+        dd($employees);
+    ini_set('max_execution_time',600);
     User::where('id', '<>', 1)
         ->where('id', '<>', 2)
         ->orderBy('id')
@@ -102,7 +128,22 @@ Route::get('/sentpasemail', function () {
 
     return "Email sent successfully!";
 });
+// Route::get('/sentpasemail', function () {
+//     // ini_set('max_execution_time',600);
+//     User::where('id', '<>', 1)
+//         ->where('id', '<>', 2)
+//         ->orderBy('id')
+//         ->chunk(100, function ($employees) {
+//             foreach ($employees as $employee) {
+//                 if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
+//                     // Dispatch the job to the queue
+//                     SendEmployeeCredentialsJob::dispatch($employee);
+//                 }
+//             }
+//         });
 
+//     return "Email jobs dispatched successfully!";
+// });
 Route::get('/debug', function () {
     $sap = new ApiController();
     $pay = new PayrollService();
