@@ -2,7 +2,7 @@
 
     Dear {{ $employee->name }}, <br />
 
-    Greetings for the day!! <br />
+    Greetings for the day!!
 
     You have been granted access to the HRMS. Please use the credentials provided below to log into the system.
     Once logged in, we strongly recommend changing your password immediately for security purposes.
