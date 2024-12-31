@@ -25,7 +25,8 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->foreignId('action_performed_by')->index()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->json('sap_response')->nullable();
-            
+            $table->boolean('is_posted_to_sap')->default(0);
+
             $table->timestamps();
         });
     }

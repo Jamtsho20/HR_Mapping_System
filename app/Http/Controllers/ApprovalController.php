@@ -131,11 +131,13 @@ class ApprovalController extends Controller
                         $costingCode2 = null;
 
                         if ($postToSap && ($accountCode && $shortName && $amount)) {
+                            if ($applicationHistory && $applicationHistory->is_posted_to_sap === 1) {
+                                Log::info('Application ID ' . $id . ' already posted to SAP. Skipping.');
+                                continue;
+                            }
+
                             // Post to SAP after final Approval
-
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
-
-                            Log::debug($postFields);
 
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -144,12 +146,19 @@ class ApprovalController extends Controller
                             if ($statusCode != 201) {
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                             }
+
+                            // Update history to mark as posted to SAP
+                            if ($applicationHistory) {
+                                $applicationHistory->update([
+                                    'is_posted_to_sap' => true,
+                                    'sap_response' => json_encode($postJournalEntriesResponse ?? []),
+                                ]);
+                            }
                         }
 
                         // Finalize approval if it's at the maximum level
                         $application->update([
                             'status' => 3, // 3 could represent 'final approved'
-                            // 'updated_by' => $actionBy,
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
                     } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
@@ -161,8 +170,6 @@ class ApprovalController extends Controller
                         $updateData['status'] = $applicationForwardedTo['application_status'];
                     }
                 }
-
-                $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
 
                 // Update application history
                 if ($applicationHistory) {
