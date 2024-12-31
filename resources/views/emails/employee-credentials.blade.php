@@ -1,22 +1,20 @@
 <x-mail::message>
 
-    Dear {{ $employee->name }}, <br />
+    Dear { { $employee->name }},
 
     Greetings for the day!!
 
-
-    <p>
-        You have been granted access to the HRMS. Please use the credentials provided below to login to the system.
-        Once logged in, we strongly recommend changing your password immediately for security purposes.
-    </p>
+    You have been granted access to the HRMS. Please use the credentials provided below to login to the system.
+    Once logged in, we strongly recommend changing your password immediately for security purposes.
 
 
-    <p> URL: https://hrms.tashicell.com</p>
-    <p> Username: {{ $employee->username }}</p>
-    <p> Password: {{ $password }}</p>
+    - **URL**: [https://hrms.tashicell.com](https://hrms.tashicell.com)
+    - **Username**: {{ $employee->username }}
+    - **Password**: {{ $password }}
 
 
     Thanks,
     TIPL HRMS.
+
 
 </x-mail::message>
