@@ -29,6 +29,7 @@ use App\Models\PaySlip;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Route;
 use App\Mail\SendCredentialsMail;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -54,7 +55,8 @@ Route::get('/updateemppas', function () {
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
         // ->where('id', 3)
-        ->where('username','E00886')
+
+
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
@@ -62,11 +64,11 @@ Route::get('/updateemppas', function () {
                     // Generate plain password
                     $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
 
-                    try{
+                    try {
                         \DB::table('mas_employees')
                             ->where('id', $employee->id)
                             ->update(['password' => $plainPassword]);
-                    }catch(\Exception $e){
+                    } catch (\Exception $e) {
                         \Log::info("Failed to send email to {$employee->username} -> {$employee->email}: {$e->getMessage()}");
                     }
                 }
@@ -76,9 +78,8 @@ Route::get('/updateemppas', function () {
     return "Passwords updated successfully!";
 });
 
-Route::get('/sentpasemail', function(){
-    \DB::table('mas_employees')
-        ->where('id', '<>', 1)
+Route::get('/sentpasemail', function () {
+    User::where('id', '<>', 1)
         ->where('id', '<>', 2)
         ->where('username','E00886')
         ->orderBy('id')
@@ -87,7 +88,12 @@ Route::get('/sentpasemail', function(){
                 if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
                     try {
                         // Queue email for sending
-                        Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) . $employee->employee_id));
+                        Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) .
+                            $employee->employee_id));
+
+                        // Mark as email sent
+                        $employee->registered_email_sent = 1;
+                        $employee->save(); // Now this will work because $employee is an Eloquent model.
                     } catch (\Exception $e) {
                         \Log::info("Failed to send email to {$employee->email}: {$e->getMessage()}");
                     }
@@ -107,7 +113,7 @@ Route::get('/debug', function () {
     return $pay->generateAndMailPaySlip($payslip, 2);
 
     dd($pay->checkFormulaValidity(
-"IF ([SIFA_MEMBER] == 1)
+        "IF ([SIFA_MEMBER] == 1)
 IF ([GRADE] == 'E0')
 THEN (400)
 ENDIF
@@ -131,8 +137,8 @@ THEN (225)
 ENDIF
 ELSE
 THEN (0)
-ENDIF"));
-
+ENDIF"
+    ));
 });
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
@@ -282,7 +288,6 @@ Route::middleware('auth')->group(function () {
         Route::get('regularize-employee', [EmployeeController::class, 'showRegularizeDetails'])->name('employee.regularize');
         Route::patch('regularize-toggle-status', 'EmployeeController@toggleStatus')->name('employee-regularize.toggles-status');
         Route::patch('generate-regular-ao', 'EmployeeController@generateRegularAO')->name('employee.generate-regular-ao');
-
     });
 
     //reports
@@ -382,9 +387,9 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('goods-issue', 'GoodsIssueController');
         Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
-        Route::resource('goods-receipt', 'GoodsReceiptController')->except( 'show', 'edit');
+        Route::resource('goods-receipt', 'GoodsReceiptController')->except('show', 'edit');
         Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
-        Route::resource('commission', 'CommissionController')->except( 'show', 'edit');
+        Route::resource('commission', 'CommissionController')->except('show', 'edit');
         Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
         Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
         Route::resource('asset-transfer', 'AssetTransferController')->except('create', 'show', 'edit');
