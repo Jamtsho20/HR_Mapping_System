@@ -33,11 +33,13 @@ class DSAClaimApplicationController extends Controller
     protected $rules = [
         'dsa_claim_no' => 'required|string',
         'amount' => 'required',
+
     ];
 
     protected $messages = [
 
     ];
+    private $attachmentPath = 'images/dsa/';
 
     public function index(Request $request)
     {
@@ -106,14 +108,16 @@ class DSAClaimApplicationController extends Controller
                     DB::beginTransaction();
 
                     if ($request->hasFile('attachment')) {
-                        // Upload file and get the file path
-                        $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+                        // Upload file and get the file path\\
+
+                        $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                         // Store it as a JSON array
                         $attachment = json_encode([$attachmentPath]);
                     } else {
                         $attachment = json_encode([]);
                     }
+
 
                     $dsaClaimApplication = DsaClaimApplication::create([
                         'dsa_claim_no' => $request->dsa_claim_no,

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\WorkHolidayList;
 use App\Models\MasRegion;
 use App\Traits\JsonResponseTrait;
+use App\Models\SystemNotification;
 
 use Illuminate\Support\Facades\DB;
 
@@ -29,4 +30,17 @@ class HolidayListController extends Controller
 
     }
 
+public function notification(Request $request){
+    try{
+    $notifications = SystemNotification::get();
+    return response()->json(
+           $notifications
+        );
+    }
+
+    catch(\Exception $e){
+        return $this->errorResponse($e->getMessage());
+    }
+
+}
 }

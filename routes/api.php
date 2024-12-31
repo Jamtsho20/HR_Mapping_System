@@ -124,6 +124,8 @@ Route::middleware('api.access.log')->group(function () {
     });
 Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
     Route::resource('holidays', 'HolidayListController');
+    Route::get('notifications', [HolidayListController::class, 'notification']);
+
 });
     // Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
