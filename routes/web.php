@@ -31,6 +31,9 @@ use Illuminate\Support\Facades\Route;
 use App\Mail\SendCredentialsMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use App\Jobs\UpdateEmployeePasswordJob;
+use App\Jobs\SendEmployeeCredentialsJob;
+
 
 
 
@@ -49,6 +52,7 @@ require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
 
+
 $proxy_url    = 'http://hrms.tashicell.com';
 $proxy_schema = 'https';
 
@@ -61,55 +65,43 @@ if (!empty($proxy_schema)) {
 }
 
 Route::get('/updateemppas', function () {
-    // Process employees in chunks
     \DB::table('mas_employees')
         ->where('id', '<>', 1)
         ->where('id', '<>', 2)
-        // ->where('id', 3)
-
-
         ->orderBy('id')
         ->chunk(100, function ($employees) {
             foreach ($employees as $employee) {
                 if ($employee->dob && $employee->employee_id) {
-                    // Generate plain password
-                    $plainPassword = bcrypt(date('Ymd', strtotime($employee->dob)) . $employee->employee_id);
-
-                    try {
-                        \DB::table('mas_employees')
-                            ->where('id', $employee->id)
-                            ->update(['password' => $plainPassword]);
-                    } catch (\Exception $e) {
-                        \Log::info("Failed to send email to {$employee->username} -> {$employee->email}: {$e->getMessage()}");
-                    }
+                    // Dispatch the job to the queue
+                    UpdateEmployeePasswordJob::dispatch($employee);
                 }
             }
         });
 
-    return "Passwords updated successfully!";
+    return "Password update jobs dispatched successfully!";
 });
 
 Route::get('/sentpasemail', function () {
-    User::where('id', '<>', 1)
-        ->where('id', '<>', 2)
-        ->orderBy('id')
-        ->chunk(100, function ($employees) {
-            foreach ($employees as $employee) {
-                if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
-                    try {
-                        // Queue email for sending
-                        Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd', strtotime($employee->dob)) .
-                            $employee->employee_id));
 
-                        // Mark as email sent
-                        $employee->registered_email_sent = 1;
-                        $employee->save(); // Now this will work because $employee is an Eloquent model.
-                    } catch (\Exception $e) {
-                        \Log::info("Failed to send email to {$employee->email}: {$e->getMessage()}");
-                    }
-                }
+    $employees = User::where('id', '<>', 1)
+        ->where('id', '<>', 2)
+        ->orderBy('id')->get();
+
+    foreach ($employees as $employee) {
+        if ($employee->dob && $employee->employee_id && !$employee->registered_email_sent) {
+            try {
+                // Queue email for sending
+                Mail::to($employee->email)->send(new SendCredentialsMail($employee, date('Ymd',strtotime($employee->dob)) . $employee->employee_id));
+
+                // Mark as email sent
+                $employee->registered_email_sent = 1;
+                $employee->save(); // Now this will work because $employee is an Eloquent model.
+            } catch (\Exception $e) {
+                \Log::info("Failed to send email to {$employee->email}: {$e->getMessage()}");
             }
-        });
+        }
+    }
+
 
     return "Email sent successfully!";
 });

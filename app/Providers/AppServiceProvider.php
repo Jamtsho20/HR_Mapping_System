@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\Paginator;
 use App\Observers\UserObserver;
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
-        // User::observe(UserObserver::class);
+	// User::observe(UserObserver::class);
+//	if (env('APP_ENV') === 'production') {
+  //          URL::forceRootUrl("https://hrms.tashicell.com");
+    //    }
     }
 }
