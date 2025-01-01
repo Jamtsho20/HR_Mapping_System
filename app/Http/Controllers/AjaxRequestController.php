@@ -336,7 +336,7 @@ class AjaxRequestController extends Controller
                         ->whereStatus(1);
                 }]);
         }])
-            ->whereMasExpenseTypeId($id)
+            ->whereTypeId($id)
             ->whereStatus(1)
             ->first();
 

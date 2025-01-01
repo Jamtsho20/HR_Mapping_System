@@ -271,7 +271,7 @@ class LeaveApplicationController extends Controller
 
     public function leaveBalance(Request $request)
     {
-        $leaveTypes = MasLeaveType::get(['id', 'name']);
+        $leaveTypes = MasLeaveType::where('id', CASUAL_LEAVE)->where('id', EARNED_LEAVE)->get(['id', 'name']);
         $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(config('global.pagination'));
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
@@ -351,12 +351,12 @@ class LeaveApplicationController extends Controller
         // }
 
         // Check leave balance
-        if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
-            $msg = $leaveBalance == 0
-                ? 'You do not have any available leave balance for ' .  $leaveType . '.'
-                : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-            return back()->withInput()->with('msg_error', $msg);
-        }
+        // if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
+        //     $msg = $leaveBalance == 0
+        //         ? 'You do not have any available leave balance for ' .  $leaveType . '.'
+        //         : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
+        //     return back()->withInput()->with('msg_error', $msg);
+        // }
 
         // Handle file upload if required based on defined in leave policy(old code)
         $attachment = $leaveApplication ? $leaveApplication->attachment : '';

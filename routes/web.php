@@ -91,7 +91,7 @@ Route::get('/updateemppas', function () {
 });
 
 Route::get('/sentpasemail', function () {
-
+   ini_set('max_execution_time',600);
     $employees = User::where('id', '<>', 1)
         ->where('id', '<>', 2)
         ->orderBy('id')->get();

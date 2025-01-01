@@ -197,7 +197,7 @@ class ApprovalController extends Controller
                 }
             }
 
-            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString)) . ' have been successfully ' . $responseMessage], 200);
+            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
