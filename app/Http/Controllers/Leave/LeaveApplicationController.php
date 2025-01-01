@@ -271,8 +271,11 @@ class LeaveApplicationController extends Controller
 
     public function leaveBalance(Request $request)
     {
-        $leaveTypes = MasLeaveType::where('id', CASUAL_LEAVE)->where('id', EARNED_LEAVE)->get(['id', 'name']);
-        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(config('global.pagination'));
+        $leaveTypes = MasLeaveType::whereIn('id',[CASUAL_LEAVE, EARNED_LEAVE])->get(['id', 'name']);
+
+        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id',
+                                    auth()->user()->id)->whereIn('mas_leave_type_id', [CASUAL_LEAVE, EARNED_LEAVE])->paginate(config('global.pagination'));
+
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
 
@@ -304,16 +307,16 @@ class LeaveApplicationController extends Controller
 
         // validate based on employment type
         $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
-    
+
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
         if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
             // Deny leave application
             return back()->withInput()->with(
-                'msg_error', 
+                'msg_error',
                 'You are not eligible to apply ' . $leaveType . ', based on your employment type.'
             );
         }
-        
+
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         if($leavePolicy && $leavePolicy->leavePolicyPlan){

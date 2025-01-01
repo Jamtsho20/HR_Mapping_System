@@ -185,7 +185,22 @@ class ApprovalController extends Controller
                 //     ['/App\\\\Models\\\\/', '/([a-z])Application/'],
                 //     ['', '$1 Application'],
                 //     $model
-                // );
+		// );
+
+		$respString = preg_replace(
+    			[
+        			'/App\\\\Models\\\\/',
+        			'/([a-z])([A-Z])/',
+        			'/([A-Z])([A-Z][a-z])/'
+    			],
+    			[
+        			'',
+        			'$1 $2',
+        			'$1 $2'
+   		 	],
+    				$model
+		);
+
                 $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
                 // Update application history
                 if ($applicationHistory) {
