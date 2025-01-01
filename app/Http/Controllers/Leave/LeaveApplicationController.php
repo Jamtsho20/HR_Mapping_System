@@ -354,12 +354,12 @@ class LeaveApplicationController extends Controller
         // }
 
         // Check leave balance
-        // if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
-        //     $msg = $leaveBalance == 0
-        //         ? 'You do not have any available leave balance for ' .  $leaveType . '.'
-        //         : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-        //     return back()->withInput()->with('msg_error', $msg);
-        // }
+        if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
+            $msg = $leaveBalance == 0
+                ? 'You do not have any available leave balance for ' .  $leaveType . '.'
+                : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
+            return back()->withInput()->with('msg_error', $msg);
+        }
 
         // Handle file upload if required based on defined in leave policy(old code)
         $attachment = $leaveApplication ? $leaveApplication->attachment : '';
