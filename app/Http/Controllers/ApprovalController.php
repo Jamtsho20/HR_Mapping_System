@@ -101,7 +101,7 @@ class ApprovalController extends Controller
                 // Update application status
                 $application->update([
                     'status' => $status,
-                    'updated_by' => $actionBy,
+                    // 'updated_by' => $actionBy,
                 ]);
 
                 // Forward application if approved
