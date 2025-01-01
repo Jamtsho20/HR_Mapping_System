@@ -57,6 +57,7 @@ class DashboardController extends Controller
         [$earnedLeaveData, $earnedLeaveCounts] = $showEarnedLeave
             ? $this->getLeaveData($currentYear, 2)
             : [[], []];
+            // dd($earnedLeaveData, $earnedLeaveCounts);
 
         return view('dashboard', compact(
             'user',
@@ -83,28 +84,28 @@ class DashboardController extends Controller
             ->whereYear('created_at', $currentYear)
             ->exists();
 
-            if ($closingBalance >= 37 && !$hasEncashed) {
-                $user = User::find($employeeId);
+        if ($closingBalance >= 37 && !$hasEncashed) {
+            $user = User::find($employeeId);
 
-                if ($user && $user->email && !$user->encashment_email_sent) {
-                    try {
-                        // Send email notification
-                        Mail::to($user->email)->send(new LeaveEncashmentMail($user));
+            if ($user && $user->email && !$user->encashment_email_sent) {
+                try {
+                    // Send email notification
+                    Mail::to($user->email)->send(new LeaveEncashmentMail($user));
 
-                        // Update the flag to indicate the email has been sent
-                        $user->encashment_email_sent = true;
-                        $user->save();
+                    // Update the flag to indicate the email has been sent
+                    $user->encashment_email_sent = true;
+                    $user->save();
 
-                        return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
-                    } catch (\Exception $e) {
-                        // Log the exception
-                        Log::error('Failed to send leave encashment email: ' . $e->getMessage());
-                        return 'You are eligible for leave encashment.';
-                    }
+                    return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
+                } catch (\Exception $e) {
+                    // Log the exception
+                    Log::error('Failed to send leave encashment email: ' . $e->getMessage());
+                    return 'You are eligible for leave encashment, but there was an error sending the email.';
                 }
-
-                return 'You are eligible for leave encashment.';
             }
+
+            return 'You are eligible for leave encashment, but the email has already been sent.';
+        }
 
 
         return '';
@@ -118,19 +119,22 @@ class DashboardController extends Controller
         $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
             ->createdBy()
             ->whereYear('created_at', $currentYear)
-            ->when($leaveTypeId, fn ($query) => $query->where('type_id', $leaveTypeId))
+            ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId))
             ->groupBy('status')
             ->pluck('total', 'status');
-
         $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
-            ->when($leaveTypeId, fn ($query) => $query->where('mas_leave_type_id', $leaveTypeId))
+            ->when($leaveTypeId, fn($query) => $query->where('mas_leave_type_id', $leaveTypeId))
             ->value('closing_balance') ?? 0;
 
         return [
-            ['Approved', 'Balance', 'In-Progress'],
+            [
+                'Approved (' . ($statusCounts[3] ?? 0) . ')',
+                'Balance (' . $balance . ')',
+                'In-Progress (' . (($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0)) . ')',
+            ],
             [
                 $statusCounts[3] ?? 0,  // Approved
-                $balance,             // Balance
+                $balance,              // Balance
                 ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0),  // In-Progress
             ]
         ];
