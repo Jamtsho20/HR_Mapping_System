@@ -351,7 +351,7 @@ class LeaveApplicationController extends Controller
 
         // validate based on employment type
         $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
-    
+
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
         if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
             // Deny leave application
@@ -373,18 +373,18 @@ class LeaveApplicationController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'You are not eligible to apply for this leave based on your gender.']);
             }
         }
-        
+
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
-        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
-            $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
-            $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
-            $unit = match($uom) {
-                3 => 'years',
-                2 => 'months',
-                default => 'days',
-            };
-            return response()->json(['status' => 'error', 'message' => 'You cannot apply more than ' . $duration . ' ' . $unit . ' for ' . $leaveType . '.']);
-        }
+        // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
+        //     $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
+        //     $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
+        //     $unit = match($uom) {
+        //         3 => 'years',
+        //         2 => 'months',
+        //         default => 'days',
+        //     };
+        //     return response()->json(['status' => 'error', 'message' => 'You cannot apply more than ' . $duration . ' ' . $unit . ' for ' . $leaveType . '.']);
+        // }
         //validation based on employment type
         if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
             if ($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)) {

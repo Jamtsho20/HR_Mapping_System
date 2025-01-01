@@ -100,11 +100,11 @@ class DashboardController extends Controller
                 } catch (\Exception $e) {
                     // Log the exception
                     Log::error('Failed to send leave encashment email: ' . $e->getMessage());
-                    return 'You are eligible for leave encashment, but there was an error sending the email.';
+                    return 'You are eligible for leave encashment';
                 }
             }
 
-            return 'You are eligible for leave encashment, but the email has already been sent.';
+            return 'You are eligible for leave encashment';
         }
 
 
