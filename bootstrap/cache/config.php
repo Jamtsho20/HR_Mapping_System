@@ -1,7 +1,7 @@
 <?php return array (
   'app' => 
   array (
-    'name' => 'Laravel',
+    'name' => 'TIPL HRMS',
     'env' => 'local',
     'debug' => true,
     'url' => 'http://localhost',
@@ -10,7 +10,7 @@
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:Ht2r4veykfUkW9Jp32WAlWOkIdDX0hEs5FKbxcFwA+8=',
+    'key' => 'base64:zt2cJCIB5qAjBAk+E1ltBoZhOKwcwQ3hre74eMhusUs=',
     'cipher' => 'AES-256-CBC',
     'maintenance' => 
     array (
@@ -203,7 +203,7 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\framework/cache/data',
+        'path' => 'C:\\laragon\\www\\tipl-hrms\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -247,7 +247,7 @@
         'driver' => 'octane',
       ),
     ),
-    'prefix' => 'laravel_cache_',
+    'prefix' => 'tipl_hrms_cache_',
   ),
   'cors' => 
   array (
@@ -286,7 +286,7 @@
       array (
         'driver' => 'sqlite',
         'url' => NULL,
-        'database' => 'ticl_hrms',
+        'database' => 'tashi_group_hrms',
         'prefix' => '',
         'foreign_key_constraints' => true,
       ),
@@ -296,9 +296,9 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'ticl_hrms',
+        'database' => 'tashi_group_hrms',
         'username' => 'root',
-        'password' => 'root',
+        'password' => '',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -316,9 +316,9 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'ticl_hrms',
+        'database' => 'tashi_group_hrms',
         'username' => 'root',
-        'password' => 'root',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -331,9 +331,9 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'ticl_hrms',
+        'database' => 'tashi_group_hrms',
         'username' => 'root',
-        'password' => 'root',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -346,7 +346,7 @@
       'options' => 
       array (
         'cluster' => 'redis',
-        'prefix' => 'laravel_database_',
+        'prefix' => 'tipl_hrms_database_',
       ),
       'default' => 
       array (
@@ -481,7 +481,7 @@
     ),
     'temporary_files' => 
     array (
-      'local_path' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\framework/cache/laravel-excel',
+      'local_path' => 'C:\\laragon\\www\\tipl-hrms\\storage\\framework/cache/laravel-excel',
       'local_permissions' => 
       array (
       ),
@@ -498,13 +498,13 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\app',
+        'root' => 'C:\\laragon\\www\\tipl-hrms\\storage\\app',
         'throw' => false,
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\app/public',
+        'root' => 'C:\\laragon\\www\\tipl-hrms\\storage\\app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -524,7 +524,7 @@
     ),
     'links' => 
     array (
-      'C:\\WinNMP\\WWW\\tipl-hrms\\public\\storage' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\app/public',
+      'C:\\laragon\\www\\tipl-hrms\\public\\storage' => 'C:\\laragon\\www\\tipl-hrms\\storage\\app/public',
     ),
   ),
   'global' => 
@@ -830,14 +830,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\logs/laravel.log',
+        'path' => 'C:\\laragon\\www\\tipl-hrms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\logs/laravel.log',
+        'path' => 'C:\\laragon\\www\\tipl-hrms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -902,7 +902,7 @@
       ),
       'emergency' => 
       array (
-        'path' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\logs/laravel.log',
+        'path' => 'C:\\laragon\\www\\tipl-hrms\\storage\\logs/laravel.log',
       ),
     ),
   ),
@@ -917,9 +917,9 @@
         'url' => NULL,
         'host' => 'sandbox.smtp.mailtrap.io',
         'port' => '2525',
-        'encryption' => 'tls',
-        'username' => '5efcae883b343d',
-        'password' => '********de5b',
+        'encryption' => NULL,
+        'username' => '6daedc2acdbbd9',
+        'password' => '90523e0ff57bcc',
         'timeout' => NULL,
         'local_domain' => 'localhost',
       ),
@@ -961,15 +961,15 @@
     ),
     'from' => 
     array (
-      'address' => 'hrms@tashicell.com',
-      'name' => 'HRMS',
+      'address' => 'tipl.hrms@example.com',
+      'name' => 'TIPL HRMS',
     ),
     'markdown' => 
     array (
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\WinNMP\\WWW\\tipl-hrms\\resources\\views/vendor/mail',
+        0 => 'C:\\laragon\\www\\tipl-hrms\\resources\\views/vendor/mail',
       ),
     ),
   ),
@@ -980,7 +980,7 @@
     array (
       'printnode' => 
       array (
-        'key' => '0bguCyaC9SFxQevx5sNzNskzmDpcJz1miar6XWpIzso',
+        'key' => NULL,
       ),
       'cups' => 
       array (
@@ -1001,7 +1001,7 @@
   ),
   'queue' => 
   array (
-    'default' => 'sync',
+    'default' => 'database',
     'connections' => 
     array (
       'sync' => 
@@ -1107,7 +1107,7 @@
     'lifetime' => '120',
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\framework/sessions',
+    'files' => 'C:\\laragon\\www\\tipl-hrms\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1116,7 +1116,7 @@
       0 => 2,
       1 => 100,
     ),
-    'cookie' => 'laravel_session',
+    'cookie' => 'tipl_hrms_session',
     'path' => '/',
     'domain' => NULL,
     'secure' => NULL,
@@ -1127,9 +1127,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\WinNMP\\WWW\\tipl-hrms\\resources\\views',
+      0 => 'C:\\laragon\\www\\tipl-hrms\\resources\\views',
     ),
-    'compiled' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\framework\\views',
+    'compiled' => 'C:\\laragon\\www\\tipl-hrms\\storage\\framework\\views',
   ),
   'debugbar' => 
   array (
@@ -1145,7 +1145,7 @@
       'enabled' => true,
       'open' => NULL,
       'driver' => 'file',
-      'path' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\debugbar',
+      'path' => 'C:\\laragon\\www\\tipl-hrms\\storage\\debugbar',
       'connection' => NULL,
       'provider' => '',
       'hostname' => '127.0.0.1',
@@ -1293,10 +1293,10 @@
     'convert_entities' => true,
     'options' => 
     array (
-      'font_dir' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\fonts',
-      'font_cache' => 'C:\\WinNMP\\WWW\\tipl-hrms\\storage\\fonts',
-      'temp_dir' => 'C:\\Users\\kinga\\AppData\\Local\\Temp',
-      'chroot' => 'C:\\WinNMP\\WWW\\tipl-hrms',
+      'font_dir' => 'C:\\laragon\\www\\tipl-hrms\\storage\\fonts',
+      'font_cache' => 'C:\\laragon\\www\\tipl-hrms\\storage\\fonts',
+      'temp_dir' => 'C:\\Users\\SDU\\AppData\\Local\\Temp',
+      'chroot' => 'C:\\laragon\\www\\tipl-hrms',
       'allowed_protocols' => 
       array (
         'file://' => 
@@ -1331,7 +1331,7 @@
       'enable_javascript' => true,
       'enable_remote' => false,
       'allowed_remote_hosts' => NULL,
-      'font_height_ratio' => 1.100000000000000088817841970012523233890533447265625,
+      'font_height_ratio' => 1.1,
       'enable_html5_parser' => true,
     ),
   ),
@@ -1419,7 +1419,7 @@
     array (
     ),
     'enable_runnable_solutions' => NULL,
-    'remote_sites_path' => 'C:\\WinNMP\\WWW\\tipl-hrms',
+    'remote_sites_path' => 'C:\\laragon\\www\\tipl-hrms',
     'local_sites_path' => '',
     'housekeeping_endpoint_prefix' => '_ignition',
     'settings_file_path' => '',
