@@ -271,8 +271,11 @@ class LeaveApplicationController extends Controller
 
     public function leaveBalance(Request $request)
     {
-        $leaveTypes = MasLeaveType::where('id', CASUAL_LEAVE)->where('id', EARNED_LEAVE)->get(['id', 'name']);
-        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id', auth()->user()->id)->paginate(config('global.pagination'));
+        $leaveTypes = MasLeaveType::whereIn('id',[CASUAL_LEAVE, EARNED_LEAVE])->get(['id', 'name']);
+
+        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id',
+                                    auth()->user()->id)->whereIn('mas_leave_type_id', [CASUAL_LEAVE, EARNED_LEAVE])->paginate(config('global.pagination'));
+
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
 
@@ -304,16 +307,16 @@ class LeaveApplicationController extends Controller
 
         // validate based on employment type
         $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
-    
+
         $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
         if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
             // Deny leave application
             return back()->withInput()->with(
-                'msg_error', 
+                'msg_error',
                 'You are not eligible to apply ' . $leaveType . ', based on your employment type.'
             );
         }
-        
+
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
         if($leavePolicy && $leavePolicy->leavePolicyPlan){
@@ -329,16 +332,16 @@ class LeaveApplicationController extends Controller
             }
         }
         //validation based on leave policy rule(at once how many days/months/years based on uom emp can apply)
-        if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
-            $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
-            $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
-            $unit = match($uom) {
-                3 => 'years',
-                2 => 'months',
-                default => 'days',
-            };
-            return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' for ' . $leaveType . '.');
-        }
+        // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration < $request->no_of_days) {
+        //     $duration = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->duration;
+        //     $uom = $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->uom;
+        //     $unit = match($uom) {
+        //         3 => 'years',
+        //         2 => 'months',
+        //         default => 'days',
+        //     };
+        //     return back()->withInput()->with('msg_error', 'You cannot apply more than ' . $duration . ' ' . $unit . ' for ' . $leaveType . '.');
+        // }
         //validation based on employment type
         // if ($leavePolicy && $leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== 1) {
         //     if ($leavePolicy && ($leavePolicy->leavePolicyPlan->leavePolicyRule[0]->mas_employment_type_id !== $empJobDetail->mas_employment_type_id)) {
@@ -351,12 +354,12 @@ class LeaveApplicationController extends Controller
         // }
 
         // Check leave balance
-        // if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
-        //     $msg = $leaveBalance == 0
-        //         ? 'You do not have any available leave balance for ' .  $leaveType . '.'
-        //         : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
-        //     return back()->withInput()->with('msg_error', $msg);
-        // }
+        if ($leaveBalance == 0 || (int) $request->no_of_days > $leaveBalance) {
+            $msg = $leaveBalance == 0
+                ? 'You do not have any available leave balance for ' .  $leaveType . '.'
+                : 'The number of days exceeds your leave balance for ' . $leaveType . '.';
+            return back()->withInput()->with('msg_error', $msg);
+        }
 
         // Handle file upload if required based on defined in leave policy(old code)
         $attachment = $leaveApplication ? $leaveApplication->attachment : '';

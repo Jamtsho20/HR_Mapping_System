@@ -178,7 +178,7 @@
                                                                 </td>
 
                                                                 <td class="text-center">
-                                                                    <input type="number" min="0"
+                                                                    <input type="number" min="0" step="0.01"
                                                                         name="fuel_claim_details[AAAAA][rate]"
                                                                         class="form-control form-control-sm resetKeyForNew"
                                                                         required />

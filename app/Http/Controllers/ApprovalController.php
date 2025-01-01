@@ -124,7 +124,7 @@ class ApprovalController extends Controller
                     } elseif ($applicationForwardedTo && isset($applicationForwardedTo['application_status']) && $applicationForwardedTo['application_status'] === 'max_level_reached') {
                         $accountCode = $type->code ?? null;
                         $memo = $type->name ?? null;
-                        $shortName = $application->employee->username.'.';
+                        $shortName = $application->employee->username;
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
@@ -138,7 +138,6 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
-
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
@@ -177,10 +176,16 @@ class ApprovalController extends Controller
                 DB::commit();
 
                 $respString = preg_replace(
-                    ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                    ['', '$1 Application'],
+                    ['/App\\\\Models\\\\/', '/([a-z])([A-Z])/'],
+                    ['', '$1 $2'],
                     $model
                 );
+                
+                // $respString = preg_replace(
+                //     ['/App\\\\Models\\\\/', '/([a-z])Application/'],
+                //     ['', '$1 Application'],
+                //     $model
+                // );
                 $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
                 // Update application history
                 if ($applicationHistory) {
