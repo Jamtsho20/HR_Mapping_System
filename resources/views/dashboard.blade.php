@@ -115,7 +115,7 @@
 
         // Earned Leave Chart Initialization
         var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
-        createDoughnutChart(ctxEarned, @json($leaveData), @json($earnedLeaveCounts), 'Earned Leave Statuses');
+        createDoughnutChart(ctxEarned, @json($earnedLeaveData), @json($earnedLeaveCounts), 'Earned Leave Statuses');
     });
 </script>
 
