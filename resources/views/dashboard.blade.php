@@ -60,7 +60,7 @@
     // Function to initialize a doughnut chart
     function createDoughnutChart(ctx, labels, data, chartLabel) {
         return new Chart(ctx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
                 labels: labels,
                 datasets: [{

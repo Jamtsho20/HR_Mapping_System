@@ -57,7 +57,7 @@ class DashboardController extends Controller
         [$earnedLeaveData, $earnedLeaveCounts] = $showEarnedLeave
             ? $this->getLeaveData($currentYear, 2)
             : [[], []];
-            // dd($earnedLeaveData, $earnedLeaveCounts);
+        // dd($earnedLeaveData, $earnedLeaveCounts);
 
         return view('dashboard', compact(
             'user',
