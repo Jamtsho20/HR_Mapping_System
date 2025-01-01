@@ -43,7 +43,7 @@
                                     <tr>
                                         <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}">
                                         </td>
-                                        <td>{{ $leave->employee->created_at }}</td>
+                                        <td>{{ $leave->created_at }}</td>
                                         <td>{{ $leave->employee->emp_id_name }}</td>
                                         <td>{{ $leave->leaveType->name }}</td>
                                         <td>{{ $leave->from_date }}</td>
