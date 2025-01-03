@@ -27,7 +27,13 @@ class AnnualIncrementController extends Controller
         $privileges = $request->instance();
         $year = date("Y");
         $month = date("m");
-        $employees = User::whereRaw("MONTH(date_of_appointment) = ?", [$month])->select(['id', 'name'])->get();
+        $employees = User::whereRaw("MONTH(date_of_appointment) = ?", [$month])
+            ->whereHas('empJob', function ($query) {
+                $query->where('mas_employment_type_id', '<>', 8);
+            })
+            ->with(['empJob'])
+            ->get();
+
         $increments = AnnualIncrement::all();
         $annualIncrement = AnnualIncrement::whereForMonth("$year-$month-01")->first();
         if (!$annualIncrement) {
@@ -39,13 +45,16 @@ class AnnualIncrementController extends Controller
 
         foreach ($employees as $employee) {
             $employeeHasRecord = AnnualIncrementDetail::whereAnnualIncrementId($annualIncrement->id)->whereMasEmployeeId($employee->id)->count();
+            $executive = $employee->empJob->grade?->id == 1;
+            $executiveBasic = $employee->empJob->basic_pay * (5/100);
+
             if (!$employeeHasRecord) {
                 $empJob = $employee->empJob;
                 if ($empJob) {
                     AnnualIncrementDetail::create([
                         'annual_increment_id' => $annualIncrement->id,
                         'mas_employee_id' => $employee->id,
-                        'amount' => $employee->empJob->gradeStep->increment,
+                        'amount' => $executive == 1 ? $executiveBasic : $employee->empJob->gradeStep->increment,
                         'status' => 0,
                     ]);
                 }
