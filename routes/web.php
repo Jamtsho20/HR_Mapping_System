@@ -51,26 +51,18 @@ use App\Jobs\SendEmployeeCredentialsJob;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
-// $proxy_url = 'http://hrms.tashicell.com';
-// $proxy_schema = 'https';
-// if (!empty($proxy_url)) {
-//     URL::forceRootUrl($proxy_url);
-// }
-// if (!empty($proxy_schema)) {
-//     URL::forceScheme($proxy_schema);
-// }
-
-
-$proxy_url    = 'http://hrms.tashicell.com';
-$proxy_schema = 'https';
-
-if (!empty($proxy_url)) {
-    URL::forceRootUrl($proxy_url);
+if (App::environment('production')) {
+    $proxy_url = 'https://hrms.tashicell.com';
+    $proxy_schema = 'https';
+    
+    if (!empty($proxy_url)) {
+        URL::forceRootUrl($proxy_url);
+    }
+    if (!empty($proxy_schema)) {
+        URL::forceScheme($proxy_schema);
+    }
 }
 
-if (!empty($proxy_schema)) {
-    URL::forceScheme($proxy_schema);
-}
 
 Route::get('/updateemppas', function () {
     ini_set('max_execution_time', 600);

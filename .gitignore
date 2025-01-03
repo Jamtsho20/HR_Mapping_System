@@ -5,19 +5,7 @@
 /public/hot
 /public/storage
 /public/images
-/app/Http/constant.php
-<<<<<<< HEAD
-=======
-# /bootstrap/cache
->>>>>>> 6d1b146d6e260f325290fa64cee28501e383916e
-# /bootstrap/cache/services.php
-# /public/images/advance
-# /public/images/employee
-# /public/images/expenses
-# /public/images/files
-# /public/images/leaves
-# /public/images/sifa
-# /public/images/users
+/app/Http/constants.php
 /storage/*.key
 /storage/payslips
 /vendor

@@ -146,11 +146,10 @@ class ApprovalController extends Controller
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                             }
 
-                            // Update history to mark as posted to SAP
-                            $applicationHistory->update([
-                                'is_posted_to_sap' => 1,
-                                'sap_response' => json_encode($postJournalEntriesResponse ?? []),
-                            ]);
+                        
+                            //update the updateData array and update ApplicationHistory once it is done
+                            $updateData['is_posted_to_sap'] = 1;
+                            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
                         }
 
                         // Finalize approval if it's at the maximum level
@@ -168,7 +167,7 @@ class ApprovalController extends Controller
                     }
                 }
 
-                // Update application history
+                // Update application history once everything is done accurately
                 if ($applicationHistory) {
                     $applicationHistory->update($updateData);
                 }
@@ -176,36 +175,19 @@ class ApprovalController extends Controller
                 DB::commit();
 
                 $respString = preg_replace(
-                    ['/App\\\\Models\\\\/', '/([a-z])([A-Z])/'],
-                    ['', '$1 $2'],
-                    $model
+                        [
+                            '/App\\\\Models\\\\/',
+                            '/([a-z])([A-Z])/',
+                            '/([A-Z])([A-Z][a-z])/'
+                        ],
+                        [
+                            '',
+                            '$1 $2',
+                            '$1 $2'
+                    ],
+                            $model
                 );
 
-                // $respString = preg_replace(
-                //     ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                //     ['', '$1 Application'],
-                //     $model
-		// );
-
-		$respString = preg_replace(
-    			[
-        			'/App\\\\Models\\\\/',
-        			'/([a-z])([A-Z])/',
-        			'/([A-Z])([A-Z][a-z])/'
-    			],
-    			[
-        			'',
-        			'$1 $2',
-        			'$1 $2'
-   		 	],
-    				$model
-		);
-
-                $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
-                // Update application history
-                if ($applicationHistory) {
-                    $applicationHistory->update($updateData);
-                }
                 try {
                     if ($updateData['status'] == 3 || $updateData['status'] == -1) {
                         $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
