@@ -86,7 +86,7 @@ class AnnualIncrementController extends Controller
     public function show(string $id)
     {
         $annualIncrement = AnnualIncrement::whereId($id)->first();
-        $details = $annualIncrement->incrementDetails()->paginate(config('global.pagination'))->withQueryString()->setPath(url('payroll/annual-increment/*'));;
+        $details = $annualIncrement->incrementDetails()->paginate(config('global.pagination'))->withQueryString()->setPath(url('payroll/annual-increment'));;
 
         return view('payroll.annual-increments.show', compact('annualIncrement', 'details'));
     }
