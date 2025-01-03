@@ -15,7 +15,7 @@
     @component('layouts.includes.filter')
     <div class="col-3 form-group">
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-    </div>    
+    </div>
     <div class="col-md-2">
         <select class="form-control" name="department">
             <option value="" disabled="" selected="" hidden="">Select Department</option>
@@ -112,6 +112,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="card-footer">
+                    {{ $leaveEncashments->links() }}
                 </div>
             </div>
         </div>
