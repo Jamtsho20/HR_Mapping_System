@@ -15,10 +15,10 @@ class LoanEMIDeductionController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:payroll/other-pay-changes,view')->only('index');
-        $this->middleware('permission:payroll/other-pay-changes,create')->only('store');
-        $this->middleware('permission:payroll/other-pay-changes,edit')->only('update');
-        $this->middleware('permission:payroll/other-pay-changes,delete')->only('destroy');
+        $this->middleware('permission:payroll/loan-emi-deductions,view')->only('index');
+        $this->middleware('permission:payroll/loan-emi-deductions,create')->only('store');
+        $this->middleware('permission:payroll/loan-emi-deductions,edit')->only('update');
+        $this->middleware('permission:payroll/loan-emi-deductions,delete')->only('destroy');
     }
 
     /**
