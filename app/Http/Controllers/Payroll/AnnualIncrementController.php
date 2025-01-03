@@ -196,20 +196,18 @@ class AnnualIncrementController extends Controller
 
     private function finalizeDetail($detail)
     {
-        if ($detail->status === 1) {
-            $employee = $detail->employee;
-            if (!$employee) {
-                return redirect()->route('annual-increment.index')->with('msg_error', 'Employee not found');
-            }
-
-            $empJob = $employee->empJob;
-
-            if (!$empJob) {
-                return redirect()->route('annual-increment.index')->with('msg_error', 'Job details for ' . $employee->name . ' not found.');
-            }
-
-            $empJob->basic_pay = $empJob->basic_pay + $empJob->gradeStep->increment;
-            $empJob->save();
+        if ($detail->status !== 1) {
+            return false;
         }
+
+        $employee = $detail->employee;
+        if (!$employee || !$employee->empJob) {
+            return false;
+        }
+
+        $empJob = $employee->empJob;
+
+        $empJob->increment('basic_pay', $detail->amount);
+        return true;
     }
 }
