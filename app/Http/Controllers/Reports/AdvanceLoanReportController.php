@@ -30,7 +30,7 @@ class AdvanceLoanReportController extends Controller
 
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
-        $advanceReports = AdvanceApplication::filter($request, false)->paginate(config('global.pagination'))->withQueryString();
+        $advanceReports = AdvanceApplication::filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
 
 
         return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'sections', 'advanceReports'));
@@ -87,7 +87,7 @@ class AdvanceLoanReportController extends Controller
     public function exportAdvanceLoan(Request $request)
     {
 
-        
+
         $advanceReports = AdvanceApplication::filter($request,false)->get();
 
 
