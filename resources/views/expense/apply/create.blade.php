@@ -316,7 +316,8 @@
                                 </div>
                                 <div class="tab-pane">
                                     <div class="card">
-                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from the selected dates, as 0.5 is subtracted for each half day.</p>
+                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from
+                                            the selected dates, as 0.5 is subtracted for each half day.</p>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
                                                 <table id="travelstable"
@@ -582,18 +583,18 @@
             }
             const dateFields = document.querySelectorAll('input[name^="fuel_claim_details"][name$="[date]"]');
 
-    // Iterate through each field and set the min attribute
-    dateFields.forEach(field => {
-        field.setAttribute('min', '2025-01-01');
-    });
+            // Iterate through each field and set the min attribute
+            // dateFields.forEach(field => {
+            //     field.setAttribute('min', '2025-01-01');
+            // });
 
-    const dsaFields = document.querySelectorAll('input[name^="dsa_claim_detail"][name$="[from_date]"]');
+            // const dsaFields = document.querySelectorAll('input[name^="dsa_claim_detail"][name$="[from_date]"]');
 
-// Iterate through each field and set the min attribute
-dsaFields.forEach(field => {
-    field.setAttribute('min', '2025-01-01');
-});
-    
+            // // Iterate through each field and set the min attribute
+            // dsaFields.forEach(field => {
+            //     field.setAttribute('min', '2025-01-01');
+            // });
+
 
             function calculateNetPayable() {
                 // Retrieve input values
