@@ -211,6 +211,7 @@ html {
     -ms-text-size-adjust: 100%;
     -ms-overflow-style: scrollbar;
     -webkit-tap-highlight-color: transparent;
+    zoom: 80%;
 }
 
 @-ms-viewport {
