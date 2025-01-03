@@ -81,7 +81,7 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'expense_approved_by:id,name', 'vehicle:id,vehicle_no', 'details'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'expense_approved_by:id,name', 'vehicle:id,vehicle_no'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,
@@ -98,7 +98,7 @@ class ExpenseApplicationController extends Controller
     {
 
         try {
-            $expense = ExpenseApplication::findOrFail($id);
+            $expense = ExpenseApplication::with('details')->findOrFail($id);
             return $this->successResponse($expense, 'Expense application retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 404);
