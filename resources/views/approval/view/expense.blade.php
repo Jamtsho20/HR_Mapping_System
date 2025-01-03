@@ -60,11 +60,22 @@
                                     <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        @if ($expense->attachment)
-                                            <a href="{{ asset($expense->attachment) }}"
-                                                class="btn btn-sm btn-primary pull-right" target="_blank">
-                                                <i class="fas fa-file-alt"></i> View Attachment
-                                            </a>
+                                        @if ($expense->file)
+                                            @php
+                                                $files = json_decode($expense->file, true); // Decode JSON string to an array
+                                                $file = $files[0] ?? null; // Get the first file if it exists
+                                            @endphp
+
+                                            @if ($file)
+                                                <a href="{{ asset($file) }}" class="btn btn-sm btn-primary"
+                                                    target="_blank">
+                                                    <i class="fas fa-file-alt"></i> View Attachment
+                                                </a>
+                                            @else
+                                                <p>No attachment available.</p>
+                                            @endif
+
+                                          
                                         @else
                                             <span class="text-danger">No attachment available.</span>
                                         @endif

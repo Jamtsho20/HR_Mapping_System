@@ -27,7 +27,7 @@
                                             <input type="checkbox" class="bulk_checkbox"
                                                 value="{{ $travelAuthorization->id }}">
                                         </td>
-                                        <td>{{ $travelAuthorization->employee->created_at }}</td>
+                                        <td>{{ $travelAuthorization->created_at->format('y-m-d') }}</td>
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
