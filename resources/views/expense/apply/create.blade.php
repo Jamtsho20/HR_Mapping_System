@@ -316,6 +316,7 @@
                                 </div>
                                 <div class="tab-pane">
                                     <div class="card">
+                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from the selected dates, as 0.5 is subtracted for each half day.</p>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
                                                 <table id="travelstable"

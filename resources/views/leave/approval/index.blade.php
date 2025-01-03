@@ -21,7 +21,7 @@
 
     <div class="block-content">
         <div class="block-options">
-            
+
             @if ($privileges->edit)
             <div class="col-sm-6">
                 <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
@@ -97,7 +97,7 @@
                                                     class="btn btn-sm btn-rounded btn-outline-success">
                                                     <i class="fa fa-edit"></i> EDIT
                                                 </a>
-                                                
+
                                                 @endif
                                                 @if ($privileges->delete)
                                                 <a href="#"
