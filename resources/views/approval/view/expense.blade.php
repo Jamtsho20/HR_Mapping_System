@@ -77,6 +77,97 @@
                 </div>
             </div>
         </div>
+        @if ($expense->type_id == 5)
+            <div class="tab-pane" id="vehiclefuelclaimsection">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="vehiclefuelclaimtable"
+                                class="table table-condensed table-bordered table-striped table-sm basic-datatable">
+                                <thead>
+                                    <tr role="row">
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Initial (KM) Reading</th>
+                                        <th>Final (KM) Reading</th>
+                                        <th>Qty.(Ltrs.)</th>
+                                        <th>Mileage</th>
+                                        <th>Rate</th>
+                                        <th>Amount (NU.)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @forelse (($expense->details) as $detail)
+                                        <tr>
+                                            <td class="text-center">
+                                                {{ $loop->iteration }}
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="hidden"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][id]"
+                                                    class="form-control form-control-sm resetKeyForNew"
+                                                    value="{{ $detail->id }}" />
+
+                                                <input type="date"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][date]"
+                                                    class="form-control form-control-sm resetKeyForNew"
+                                                    value="{{ $detail->date }}" readonly />
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][initial_reading]"
+                                                    class="form-control form-control-sm resetKeyForNew"
+                                                    value="{{ $detail->initial_reading }}" readonly />
+                                            </td>
+
+                                            <td class="text-center">
+                                                <input type="number"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][final_reading]"
+                                                    class="form-control form-control-sm resetKeyForNew"
+                                                    value="{{ $detail->final_reading }}" readonly />
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="text"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][quantity]"
+                                                    class="form-control form-control-sm resetKeyForNew"
+                                                    value="{{ $detail->quantity }}" readonly />
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][mileage]"
+                                                    class="form-control form-control-sm resetKeyForNew"
+                                                    value="{{ $detail->mileage }}" readonly />
+                                            </td>
+
+                                            <td class="text-center">
+                                                <input type="number" min="0"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][rate]"
+                                                    class="form-control form-control-sm resetKeyForNew notclearfornew"
+                                                    value="{{ $detail->rate }}" readonly />
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="number" min="0"
+                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][amount]"
+                                                    value="{{ $detail->amount }}"
+                                                    class="form-control form-control-sm resetKeyForNew" readonly />
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr class="notremovefornew">
+                                            <td colspan="7"></td>
+                                            <td class="text-right">
+                                                No Data Found
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         @if ($expense->mas_expense_type_id == 1)
             <div class="col-lg-12">
                 <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
@@ -114,7 +205,8 @@
                                         <td style="padding-left:25px;"> {{ $expense->travel_from }}</td>
                                     </tr>
                                     <tr>
-                                        <th style="width:35%;">Travel To<span class="pull-right d-none d-sm-block">:</span>
+                                        <th style="width:35%;">Travel To<span
+                                                class="pull-right d-none d-sm-block">:</span>
                                             &nbsp;&nbsp;</th>
                                         <td style="padding-left:25px;"> {{ $expense->travel_to }}</td>
                                     </tr>

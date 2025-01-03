@@ -91,7 +91,7 @@
                                     <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <input type="date" id="from_date" name="details[0][from_date]" class="from_date form-control form-control-sm" required>
+                                    <input type="date" id="from_date" min="2025-01-01" name="details[0][from_date]" class="from_date form-control form-control-sm"  required>
                                 </td>
                                 <td>
                                     <input type="date" id="to_date" name="details[0][to_date]" class="to_date form-control form-control-sm" disabled>
@@ -171,7 +171,7 @@
 
                 // For the first row
                 if (rowIndex === 0) {
-                    fromDateField.removeAttribute('min'); // No restrictions for the first row's from_date
+                    // fromDateField.removeAttribute('min'); // No restrictions for the first row's from_date
                 } else {
                     // For subsequent rows, set min for from_date based on the previous row's to_date
                     const previousRow = tableRows[rowIndex - 1];
@@ -187,10 +187,10 @@
                             fromDateField.setAttribute('min', minDate);
 
                         }
-                        console.log(minDate);
+                     
 
                     } else {
-                        fromDateField.removeAttribute('min');
+                        // fromDateField.removeAttribute('min'); (remove to set the fromdate)
                     }
                 }
 
@@ -262,7 +262,7 @@
                 <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
             </td>
             <td>
-                <input type="date" id="from_date" name="details[${rowCount}][from_date]" class="form-control form-control-sm from_date" required>
+                <input type="date" id="from_date" name="details[${rowCount}][from_date]" class="form-control form-control-sm from_date" min="2025-01-01" required>
             </td>
             <td>
                 <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm to_date" disabled>
