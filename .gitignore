@@ -5,7 +5,7 @@
 /public/storage
 /public/images
 /app/Http/constant.php
-/bootstrap/cache
+# /bootstrap/cache
 # /bootstrap/cache/services.php
 # /public/images/advance
 # /public/images/employee
