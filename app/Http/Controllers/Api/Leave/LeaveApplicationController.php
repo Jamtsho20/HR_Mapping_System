@@ -301,8 +301,10 @@ class LeaveApplicationController extends Controller
         // Get all leave types for the current user with their names
         $leaveTypes = EmployeeLeave::with('leaveType:id,name')
             ->where('mas_employee_id', auth()->id())
+            ->whereIn('mas_leave_type_id', [1, 2])
             ->whereYear('created_at', $currentYear)
             ->get();
+
 
         $response = $leaveTypes->map(function ($leaveType) use ($currentYear) {
             $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))

@@ -10,16 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\ApplicationHistoriesService;
+use App\Http\Controllers\AjaxRequestController;
 
 class TransferClaimApplicationController extends Controller
 {
+    protected $ajax;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
         $this->middleware('permission:expense/apply-expense,view')->only('index');
         $this->middleware('permission:expense/apply-expense,create')->only('store');
         $this->middleware('permission:expense/apply-expense,edit')->only('update');
@@ -28,7 +31,7 @@ class TransferClaimApplicationController extends Controller
     private $filePath = 'images/files/';
 
     protected $rules = [
-        'transfer_claim_no' => 'required|string',
+
         'transfer_claim' => 'required',
         'current_location' => 'required',
         'new_location' => 'required',
@@ -74,6 +77,16 @@ class TransferClaimApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
+
+        $transferClaimNo = $this->ajax->getTransferClaimNumber($request->transfer_claim);
+
+        // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+        if (TransferClaimApplication::where('transfer_claim_no', $transferClaimNo)->exists()) {
+            // If the travel number already exists, throw an exception or return an error
+            return back()->withInput()->with('msg_error', 'Transfer Claim Application Number already exists. Please try again.');
+        }
+
         if ($approverByHierarchy) {
 
             try {
@@ -90,7 +103,7 @@ class TransferClaimApplicationController extends Controller
                 }
 
                 $transferClaimApplication = TransferClaimApplication::create([
-                    'transfer_claim_no' => $request->transfer_claim_no,
+                    'transfer_claim_no' => $transferClaimNo,
                     'type_id' => $request->transfer_claim,
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,

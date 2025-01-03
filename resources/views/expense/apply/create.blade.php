@@ -40,9 +40,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="expense_no">Expense No <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="expense_no"
-                                                value="{{ old('expense_no') }}" id="expense_no"
-                                                value="{{ old('expense_no') }}" placeholder="Generating..." readonly>
+                                            <input type="text" class="form-control" name="expense_no" id="expense_no" placeholder="Generating..." readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -241,10 +239,7 @@
                                             <div class="form-group">
                                                 <label for="dsa_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="dsa_claim_no"
-                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}" id="dsa_claim_no"
-                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}"
-                                                    placeholder="Generating..." readonly>
+                                                <input type="text" class="form-control" name="dsa_claim_no" id="dsa_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -476,9 +471,9 @@
                                                 <label for="transfer_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" name="transfer_claim_no"
-                                                    value="{{ old('transfer_claim_no', $transferClaimNo) }}"
+
                                                     id="transfer_claim_no"
-                                                    value="{{ old('transfer_claim_no', $transferClaimNo) }}"
+                                                 
                                                     placeholder="Generating..." readonly>
                                             </div>
                                         </div>
@@ -593,7 +588,7 @@
 dsaFields.forEach(field => {
     field.setAttribute('min', '2025-01-01');
 });
-    
+
 
             function calculateNetPayable() {
                 // Retrieve input values

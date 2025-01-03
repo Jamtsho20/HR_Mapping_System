@@ -10,6 +10,7 @@ use App\Models\DsaClaimDetail;
 use App\Models\TravelAuthorizationApplication;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
+use App\Http\Controllers\AjaxRequestController;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,13 +18,16 @@ use Illuminate\Support\Facades\DB;
 
 class DSAClaimApplicationController extends Controller
 {
+    protected $ajax;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
+
         $this->middleware('permission:expense/apply-expense,view')->only('index');
         $this->middleware('permission:expense/apply-expense,create')->only('store');
         $this->middleware('permission:expense/apply-expense,edit')->only('update');
@@ -31,7 +35,7 @@ class DSAClaimApplicationController extends Controller
     }
 
     protected $rules = [
-        'dsa_claim_no' => 'required|string',
+
         'amount' => 'required',
     ];
 
@@ -87,6 +91,17 @@ class DSAClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
 
+
+        $dsaClaimNo = $this->ajax->getDsaClaimNumber($request->dsa_claim_type_id);
+
+        // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+        if (DsaClaimApplication::where('dsa_claim_no', $dsaClaimNo)->exists()) {
+            // If the travel number already exists, throw an exception or return an error
+            return back()->withInput()->with('msg_error', 'DSA Claim Application Number already exists. Please try again.');
+        }
+
+
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();
@@ -102,7 +117,7 @@ class DSAClaimApplicationController extends Controller
                 }
 
                 $dsaClaimApplication = DsaClaimApplication::create([
-                    'dsa_claim_no' => $request->dsa_claim_no,
+                    'dsa_claim_no' => $dsaClaimNo,
                     'type_id' => $request->dsa_claim_type_id,
                     'travel_authorization_id' => $request->travel_authorization_id,
                     'advance_application_id' => $request->advance_no ?? null,
@@ -140,7 +155,7 @@ class DSAClaimApplicationController extends Controller
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
                 $historyService->saveHistory($dsaClaimApplication->histories(), $approverByHierarchy, $request->remarks);
-                 
+
                 DB::commit();
                 if (isset($approverByHierarchy['approver_details'])) {
                     $emailContent = 'has submitted a expense request of amount ' . $dsaClaimApplication->amount . ' is awaiting your approval.';
@@ -226,7 +241,7 @@ class DSAClaimApplicationController extends Controller
             if ($dsaClaimApplication) {
 
                 $requestIds = collect($request->input('dsa_claim_detail'))
-                    ->pluck('id') 
+                    ->pluck('id')
                     ->filter()
                     ->toArray();
 
