@@ -180,7 +180,7 @@ class ApprovalController extends Controller
                     ['', '$1 $2'],
                     $model
                 );
-                
+
                 // $respString = preg_replace(
                 //     ['/App\\\\Models\\\\/', '/([a-z])Application/'],
                 //     ['', '$1 Application'],
