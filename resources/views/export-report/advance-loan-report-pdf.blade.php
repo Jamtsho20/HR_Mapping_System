@@ -58,7 +58,6 @@
     <hr>
 
     <h1 class="title">Advance Loan Report</h1>
-
     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
 
         <thead class="thead-light">
@@ -85,20 +84,21 @@
                     ADVANCE LOAN TYPE
                 </th>
                 <th>
+                    Item type
+                </th>
+                <th>
                     DATE OF CLAIM
                 </th>
                 <th>
                     AMOUNT
                 </th>
                 <th>
-                    EMI START DATE
+                    Deduction Period From
                 </th>
                 <th>
                     NO OF EMI
                 </th>
-                <th>
-                    EMI END DATE
-                </th>
+
                 <th>
                     APPROVED BY
                 </th>
@@ -109,27 +109,31 @@
             </tr>
         </thead>
         <tbody>
-            @forelse( $advanceReports as $reports)
-            <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{$reports->employee->username}}</td>
-                <td>{{$reports->employee->name}}</td>
-                <td>{{$reports->employee->empJob->designation->name}}</td>
-                <td>{{$reports->employee->empJob->department->name}}</td>
-                <td>{{$reports->employee->empJob->office->name}}</td>
-                <td>{{$reports->advanceType->name}}</td>
-                <td>{{$reports->date}}</td>
-                <td>{{$reports->amount}}</td>
-                <td>{{$reports->from_date}}</td>
-                <td>{{$reports->no_of_emi}}</td>
-                <td>{{$reports->to_date}}</td>
-                <td>{{$reports->advance_approved_by->name}}</td>
-                <td>{{$reports->updated_at->format('d-m-Y')}}</td>
-            </tr>
+            @forelse($advanceReports as $reports)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $reports->employee->username }}</td>
+                    <td>{{ $reports->employee->name }}</td>
+                    <td>{{ $reports->employee->empJob->designation->name }}
+                    </td>
+                    <td>{{ $reports->employee->empJob->department->name }}
+                    </td>
+                    <td>{{ $reports->employee->empJob->office->name }}</td>
+                    <td>{{ $reports->type->name }}</td>
+                    <td>{{ $reports->item_type }}</td>
+                    <td>{{ $reports->date }}</td>
+                    <td>{{ $reports->amount }}</td>
+                    <td>{{ $reports->deduction_from_period }}</td>
+                    <td>{{ $reports->no_of_emi }}</td>
+                    <td>{{ $reports->advance_approved_by->name ?? '-' }}
+                    </td>
+                    <td>{{ $reports->updated_at->format('d-m-Y') }}</td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="14" class="text-center text-danger">No Advance Loan report found</td>
-            </tr>
+                <tr>
+                    <td colspan="14" class="text-center text-danger">No
+                        Advance Loan report found</td>
+                </tr>
             @endforelse
         </tbody>
     </table>
