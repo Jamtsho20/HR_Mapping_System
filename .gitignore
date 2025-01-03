@@ -4,14 +4,14 @@
 /public/build
 /public/hot
 /public/storage
-# /public/images
-/public/images/advance
-/public/images/employee
-/public/images/expenses
-/public/images/files
-/public/images/leaves
-/public/images/sifa
-/public/images/users
+/public/images
+# /public/images/advance
+# /public/images/employee
+# /public/images/expenses
+# /public/images/files
+# /public/images/leaves
+# /public/images/sifa
+# /public/images/users
 /storage/*.key
 /storage/payslips
 /vendor
@@ -28,3 +28,4 @@ yarn-error.log
 /.idea
 /.vscode
 /.test
+
