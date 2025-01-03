@@ -81,7 +81,7 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'expense_approved_by:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'expense_approved_by:id,name', 'vehicle:id,vehicle_no'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,
@@ -98,7 +98,7 @@ class ExpenseApplicationController extends Controller
     {
 
         try {
-            $expense = ExpenseApplication::findOrFail($id);
+            $expense = ExpenseApplication::with('details')->findOrFail($id);
             return $this->successResponse($expense, 'Expense application retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 404);
@@ -206,13 +206,23 @@ class ExpenseApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
+        $expenseApplicationNo = $this->ajax->getExpenseNumber($request->expense_type)->getData()->expense_no;
+
+        // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+
+        if (ExpenseApplication::where('expense_no', $expenseApplicationNo)->exists()) {
+            // If the travel number already exists, throw an exception or return an error
+            return $this->errorResponse('Expense Application Number already exists. Please try again.', 500);
+        }
+
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();
 
                 $expenseApplication = ExpenseApplication::create([
                     // 'mas_employee_id' => loggedInUser(),
-                    'expense_no' => $request->expense_no,
+                    'expense_no' => $expenseApplicationNo,
                     'type_id' => $request->expense_type,
                     'mas_vehicle_id' => $request->mas_vehicle_id ?? null,
                     'date' => formatDate($request->date),

@@ -131,9 +131,19 @@ class TravelAuthorizationApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
             $date = formatDate(request('date'));
+            $travelAuthorizationNo = $this->ajax->getTravelAuthorizationNumber($request->travel_type);
+            // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+        // dd($travelAuthorizationNo);
+            if (TravelAuthorizationApplication::where('travel_authorization_no', $travelAuthorizationNo)->exists()) {
+                // If the travel number already exists, throw an exception or return an error
+                return $this->errorResponse('Travel Authorization Number already exists. Please try again.', 500);
+            }
             try {
                 DB::beginTransaction();
-                $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
+
+
+                $travelAuthorization->travel_authorization_no = $travelAuthorizationNo;
                 $travelAuthorization->date = $date;
                 $travelAuthorization->advance_amount = $request->advance_required;
                 $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TravelAuthorizationApplication;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
+use App\Http\Controllers\AjaxRequestController;
 
 use App\Services\ApplicationHistoriesService;
 
@@ -25,8 +26,9 @@ class DSAClaimApplicationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
         $this->middleware('auth:api');
     }
 
@@ -103,13 +105,22 @@ class DSAClaimApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
 
+            $dsaClaimNo = $this->ajax->getDsaClaimNumber($request->dsa_claim_type_id);
+
+            // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+            if (DsaClaimApplication::where('dsa_claim_no', $dsaClaimNo)->exists()) {
+                // If the travel number already exists, throw an exception or return an error
+                $this->errorResponse('DSA Claim Application Number already exists. Please try again.', 500);
+                  }
+
+
             if ($approverByHierarchy) {
                 try {
                     DB::beginTransaction();
 
                     if ($request->hasFile('attachment')) {
-                        // Upload file and get the file path\\
-
+                        // Upload file and get the file path
                         $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                         // Store it as a JSON array
@@ -118,9 +129,8 @@ class DSAClaimApplicationController extends Controller
                         $attachment = json_encode([]);
                     }
 
-
                     $dsaClaimApplication = DsaClaimApplication::create([
-                        'dsa_claim_no' => $request->dsa_claim_no,
+                        'dsa_claim_no' => $dsaClaimNo,
                         'type_id' => $request->type_id,
                         'travel_authorization_id' => $request->travel_authorization_id,
                         'advance_application_id' => $request->advance_no ?? null,
