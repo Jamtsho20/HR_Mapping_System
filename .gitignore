@@ -6,6 +6,7 @@
 /public/storage
 /public/images
 /app/Http/constant.php
+# /bootstrap/cache/services.php
 # /public/images/advance
 # /public/images/employee
 # /public/images/expenses
