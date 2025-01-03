@@ -51,14 +51,14 @@ use App\Jobs\SendEmployeeCredentialsJob;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
-// $proxy_url = 'http://hrms.tashicell.com';
-// $proxy_schema = 'https';
-// if (!empty($proxy_url)) {
-//     URL::forceRootUrl($proxy_url);
-// }
-// if (!empty($proxy_schema)) {
-//     URL::forceScheme($proxy_schema);
-// }
+$proxy_url = 'http://hrms.tashicell.com';
+$proxy_schema = 'https';
+if (!empty($proxy_url)) {
+    URL::forceRootUrl($proxy_url);
+}
+if (!empty($proxy_schema)) {
+    URL::forceScheme($proxy_schema);
+}
 
 
 Route::get('/updateemppas', function () {
@@ -288,6 +288,11 @@ Route::middleware('auth')->group(function () {
         Route::get('regularize-employee', [EmployeeController::class, 'showRegularizeDetails'])->name('employee.regularize');
         Route::patch('regularize-toggle-status', 'EmployeeController@toggleStatus')->name('employee-regularize.toggles-status');
         Route::patch('generate-regular-ao', 'EmployeeController@generateRegularAO')->name('employee.generate-regular-ao');
+    });
+
+    //team
+    Route::namespace('Team')->prefix('team')->group(function () {
+        Route::resource('my-team', 'TeamController');
     });
 
     //reports
