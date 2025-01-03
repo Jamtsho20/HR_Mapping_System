@@ -65,7 +65,7 @@
                                         <div class="form-group">
                                             <label for="date">Date <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control" id="date" name="date"
-                                                value="{{ old('date', now()->format('Y-m-d')) }}" required>
+                                                value="{{ old('date', now()->format('Y-m-d')) }}" required readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="display: none;" id="vehicle">
@@ -579,6 +579,20 @@
                 // Update the grand total input field
                 $('#grand_total_amount').val(grandTotal);
             }
+            const dateFields = document.querySelectorAll('input[name^="fuel_claim_details"][name$="[date]"]');
+
+    // Iterate through each field and set the min attribute
+    dateFields.forEach(field => {
+        field.setAttribute('min', '2025-01-01');
+    });
+
+    const dsaFields = document.querySelectorAll('input[name^="dsa_claim_detail"][name$="[from_date]"]');
+
+// Iterate through each field and set the min attribute
+dsaFields.forEach(field => {
+    field.setAttribute('min', '2025-01-01');
+});
+    
 
             function calculateNetPayable() {
                 // Retrieve input values
