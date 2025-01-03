@@ -73,13 +73,12 @@ class TravelAuthorizationApplicationController extends Controller
         $userId = $user->id;
         $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
         $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
-        $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
         $travelTypes = MasTravelType::whereStatus(1)->get();
         // $defaultTravelTypeId = 1;
 
         $defaultTravelTypeId = request()->get('travel_type', 1);
 
-        return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance', 'travelAuthorizationNumber', 'defaultTravelTypeId'));
+        return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance',  'defaultTravelTypeId'));
     }
 
 
@@ -93,9 +92,10 @@ class TravelAuthorizationApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
         // dd($request->travel_type);
 
+
         try {
             DB::beginTransaction();
-            $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
+            $travelAuthorization->travel_authorization_no = $this->getTravelAuthorizationNumber();
             $travelAuthorization->date = $request->date;
             $travelAuthorization->advance_amount = $request->advance_required;
             $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;

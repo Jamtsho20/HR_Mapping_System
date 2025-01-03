@@ -35,7 +35,7 @@ class AdvanceLoanApplicationController extends Controller
     private $attachmentPath = 'images/advance/';
 
     protected $rules = [
-        'advance_no' => 'required',
+        'advance_no' => 'required|unique:advance_applications,advance_no',
         'date' => 'required|date',
         'advance_type' => 'required',
         'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
@@ -51,6 +51,7 @@ class AdvanceLoanApplicationController extends Controller
     ];
 
     protected $messages = [
+        'advance_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
         'travel_authorization_no.required_if' => 'Travel authorization no is required for the selected advance type.',
         'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',

@@ -10,7 +10,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
-                        <input type="text" class="form-control" name="travel_authorization_no" value="{{ $travelAuthorizationNumber }}" id="travel_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
+                        <input type="text" class="form-control" name="travel_authorization_no"  id="travel_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
 
@@ -187,7 +187,7 @@
                             fromDateField.setAttribute('min', minDate);
 
                         }
-                     
+
 
                     } else {
                         // fromDateField.removeAttribute('min'); (remove to set the fromdate)
@@ -226,7 +226,7 @@
                     }
                 }
             });
-            console.log(manualEdit);
+
             if (manualEdit) {
             const manualValue = parseFloat(daysDifferenceInput.value) || 0;
 
