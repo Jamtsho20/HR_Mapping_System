@@ -71,7 +71,7 @@
             <br>
 
             <div class="card-body  p-0">
-                <p class="text-danger small">* For half days, subtract 0.5 from the number of days</p>
+                <p class="text-danger ">* For half days, subtract 0.5 from the number of days</p>
                 <div class="table-responsive">
                     <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
                         <thead>

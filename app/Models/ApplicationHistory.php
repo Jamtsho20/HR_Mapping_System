@@ -52,6 +52,8 @@ class ApplicationHistory extends Model
         });
 
         static::updated(function ($application) {
+            // $changes = $application->getChanges();
+            // \Log::info('Creating audit log for updated application history with changes', ['changes' => $application]);
             ApplicationAuditLog::create([
                 'application_type' => $application->application_type,
                 'application_id' => $application->application_id,

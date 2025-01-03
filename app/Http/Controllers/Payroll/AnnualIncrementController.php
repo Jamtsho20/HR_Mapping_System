@@ -27,7 +27,13 @@ class AnnualIncrementController extends Controller
         $privileges = $request->instance();
         $year = date("Y");
         $month = date("m");
-        $employees = User::whereRaw("MONTH(date_of_appointment) = ?", [$month])->select(['id', 'name'])->get();
+        $employees = User::whereRaw("MONTH(date_of_appointment) = ?", [$month])
+            ->whereHas('empJob', function ($query) {
+                $query->where('mas_employment_type_id', '<>', 8);
+            })
+            ->with(['empJob'])
+            ->get();
+
         $increments = AnnualIncrement::all();
         $annualIncrement = AnnualIncrement::whereForMonth("$year-$month-01")->first();
         if (!$annualIncrement) {
@@ -39,13 +45,16 @@ class AnnualIncrementController extends Controller
 
         foreach ($employees as $employee) {
             $employeeHasRecord = AnnualIncrementDetail::whereAnnualIncrementId($annualIncrement->id)->whereMasEmployeeId($employee->id)->count();
+            $executive = $employee->empJob->grade?->id == 1;
+            $executiveBasic = $employee->empJob->basic_pay * (5/100);
+
             if (!$employeeHasRecord) {
                 $empJob = $employee->empJob;
                 if ($empJob) {
                     AnnualIncrementDetail::create([
                         'annual_increment_id' => $annualIncrement->id,
                         'mas_employee_id' => $employee->id,
-                        'amount' => $employee->empJob->gradeStep->increment,
+                        'amount' => $executive == 1 ? $executiveBasic : $employee->empJob->gradeStep->increment,
                         'status' => 0,
                     ]);
                 }
@@ -77,7 +86,7 @@ class AnnualIncrementController extends Controller
     public function show(string $id)
     {
         $annualIncrement = AnnualIncrement::whereId($id)->first();
-        $details = $annualIncrement->incrementDetails()->paginate(config('global.pagination'))->withQueryString();
+        $details = $annualIncrement->incrementDetails()->paginate(90)->withQueryString()->setPath(url('payroll/annual-increment'));;
 
         return view('payroll.annual-increments.show', compact('annualIncrement', 'details'));
     }
@@ -187,20 +196,18 @@ class AnnualIncrementController extends Controller
 
     private function finalizeDetail($detail)
     {
-        if ($detail->status === 1) {
-            $employee = $detail->employee;
-            if (!$employee) {
-                return redirect()->route('annual-increment.index')->with('msg_error', 'Employee not found');
-            }
-
-            $empJob = $employee->empJob;
-
-            if (!$empJob) {
-                return redirect()->route('annual-increment.index')->with('msg_error', 'Job details for ' . $employee->name . ' not found.');
-            }
-
-            $empJob->basic_pay = $empJob->basic_pay + $empJob->gradeStep->increment;
-            $empJob->save();
+        if ($detail->status !== 1) {
+            return false;
         }
+
+        $employee = $detail->employee;
+        if (!$employee || !$employee->empJob) {
+            return false;
+        }
+
+        $empJob = $employee->empJob;
+
+        $empJob->increment('basic_pay', $detail->amount);
+        return true;
     }
 }

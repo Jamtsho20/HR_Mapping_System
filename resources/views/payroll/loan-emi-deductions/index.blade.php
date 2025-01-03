@@ -118,7 +118,7 @@
                                                     </tr>
                                                     @empty
                                                     <tr>
-                                                        <td colspan="12" class="text-center text-danger">No
+                                                        <td colspan="13" class="text-center text-danger">No
                                                             Loan / Device EMIs found</td>
                                                     </tr>
                                                     @endforelse
