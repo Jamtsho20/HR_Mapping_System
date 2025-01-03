@@ -301,6 +301,11 @@ Route::middleware('auth')->group(function () {
         Route::patch('generate-regular-ao', 'EmployeeController@generateRegularAO')->name('employee.generate-regular-ao');
     });
 
+    //team
+    Route::namespace('Team')->prefix('team')->group(function () {
+        Route::resource('my-team', 'TeamController');
+    });
+
     //reports
     Route::namespace('Reports')->prefix('report')->group(function () {
         Route::resource('ltc-report', 'LTCController')->except('create', 'show', 'edit');

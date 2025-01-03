@@ -48,7 +48,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="days_difference">Number of Days<span class="text-danger"></span></label>
-                        <input type="number" step="any" class="form-control" name="days_difference" id="days_difference" required>
+                        <input type="number" step="0.5" class="form-control" name="days_difference" id="days_difference" required>
                     </div>
                 </div>
 
@@ -71,6 +71,7 @@
             <br>
 
             <div class="card-body  p-0">
+                <p class="text-danger small">* For half days, subtract 0.5 from the number of days</p>
                 <div class="table-responsive">
                     <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
                         <thead>
@@ -152,6 +153,12 @@
         let rowCount = document.querySelectorAll('#travel_details tbody tr').length - 1;
 
 
+        daysDifferenceInput.addEventListener('input', function() {
+            manualEdit = true;
+            calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
+            manualEdit = false;
+        });
+
         // Function to update the date constraints dynamically
         function updateDateConstraints() {
             const tableRows = document.querySelectorAll('#travel_details tr');
@@ -191,7 +198,7 @@
                 const fromDateValue = fromDateField.value;
                 if (fromDateValue) {
                     toDateField.setAttribute('min', fromDateValue);
-                  
+
                     toDateField.disabled = false;
                 } else {
                     toDateField.disabled = true;
@@ -219,8 +226,18 @@
                     }
                 }
             });
+            console.log(manualEdit);
+            if (manualEdit) {
+            const manualValue = parseFloat(daysDifferenceInput.value) || 0;
 
-            if (!manualEdit) {
+            if (manualValue > totalDays) {
+                alert('Number of days cannot be greater than the number of days selected in the table. Please check the dates and try again.');
+                daysDifferenceInput.value = totalDays; // Revert to calculated value
+
+            } else {
+                return manualValue;
+            }
+        }else{
                 daysDifferenceInput.value = totalDays;
             }
 
@@ -229,9 +246,10 @@
 
         function calculateEstimatedTravelExpenses() {
             const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
-            const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
+            const totalDays = calculateDaysDifference();
             const estimatedAmount = (totalDays * dailyAllowance);
             estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
+
         }
 
         // Event listener for adding rows
