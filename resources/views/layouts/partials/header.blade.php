@@ -17,7 +17,6 @@
     <!-- TITLE -->
     <title>@yield('name')</title>
     <!-- BOOTSTRAP CSS -->
-    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
 
     <link id="style" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- STYLE CSS -->
@@ -30,9 +29,9 @@
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet">
 
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script> --}}
+        crossorigin="anonymous"></script>
 
     @stack('page_styles')
 </head>
