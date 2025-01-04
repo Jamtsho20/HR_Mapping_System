@@ -248,14 +248,14 @@ class ApprovalController extends Controller
                             "JournalEntryLines": [
                                 {
                                     "ShortName": "' . $shortName . '",
-                                    "CostingCode": "' . $costingCode . '", 
+                                    "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
                                     "Credit": "' . $amount . '",
                                     "Debit": 0
                                 },
                                 {
                                     "AccountCode": "' . $accountCode . '",
-                                    "CostingCode": "' . $costingCode . '", 
+                                    "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
                                     "Credit": 0,
                                     "Debit": "' . $amount . '"
