@@ -112,6 +112,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
             $attachment = "";
+            $date = formatDate(request('date'));
 
             $advanceNo = $this->ajax->getAdvanceNumber($request->advance_type)->getData()->advance_no;
 
@@ -127,7 +128,6 @@ class AdvanceLoanApplicationApiController extends Controller
             try {
                 DB::beginTransaction();
                 $advanceApplication->advance_no = $advanceNo;
-                $advanceApplication->date = $date;
                 $advanceApplication->date = $date;
                 $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
                 $advanceApplication->type_id = $request->advance_type;

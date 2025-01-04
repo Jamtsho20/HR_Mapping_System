@@ -131,7 +131,7 @@ class TravelAuthorizationApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
             $date = formatDate(request('date'));
-            $travelAuthorizationNo = $this->ajax->getTravelAuthorizationNumber($request->travel_type);
+            $travelAuthorizationNo = $this->ajax->getTravelNumber($request->travel_type);
             // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
         // dd($travelAuthorizationNo);
