@@ -16,7 +16,7 @@
 <!-- BACK-TO-TOP -->
 <a href="#top" id="back-to-top" style="display: inline;"><i class="fa fa-angle-up"></i></a>
 <!-- JQUERY JS -->
-<script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+{{-- <script src="{{ asset('assets/js/jquery.min.js') }}"></script> --}}
 <!-- BOOTSTRAP JS -->
 
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  -->
