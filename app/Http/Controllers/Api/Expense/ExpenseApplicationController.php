@@ -141,8 +141,8 @@ class ExpenseApplicationController extends Controller
             $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
             $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
             $vehicles = MasVehicle::with('vehicleType')->get();
-            $dsaClaimNo = $this->ajax->getDsaClaimNumber();
-            $transferClaimNo = $this->ajax->getTransferClaimNumber();
+            // $dsaClaimNo = $this->ajax->getDsaClaimNumber();
+            //$transferClaimNo = $this->ajax->getTransferClaimNumber();
 
             ///
 
@@ -160,9 +160,8 @@ class ExpenseApplicationController extends Controller
                     'dailyAllowance' => $dailyAllowance,
                     'vehicles' => $vehicles,
                     'itemType' => $itemType,
-                    'travels' => $travels,
-                    'dsaClaimNo' => $dsaClaimNo,
-                    'transferClaimNo' => $transferClaimNo,
+                    'travels' => $travels
+
                 ]
             ]);
         } catch (\Exception $e) {
