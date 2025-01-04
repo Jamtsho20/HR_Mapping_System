@@ -18,7 +18,6 @@
     <title>@yield('name')</title>
     <!-- BOOTSTRAP CSS -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <link id="style" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- STYLE CSS -->
     <link href="{{ asset('assets/css/style.css') }}" type="text/css" rel="stylesheet">
