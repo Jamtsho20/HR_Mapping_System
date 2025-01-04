@@ -128,7 +128,7 @@ class ApprovalController extends Controller
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
-                        $costingCode2 = null;
+                        $costingCode2 = $application->employee?->empJob?->department?->code; // department code
 
                         if ($postToSap) {
                             if ($applicationHistory && $applicationHistory->is_posted_to_sap === 1) {
@@ -138,6 +138,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+                            Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
@@ -146,7 +147,7 @@ class ApprovalController extends Controller
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                             }
 
-                        
+
                             //update the updateData array and update ApplicationHistory once it is done
                             $updateData['is_posted_to_sap'] = 1;
                             $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
@@ -218,21 +219,21 @@ class ApprovalController extends Controller
                 "JournalEntryLines": [
                     {
                         "AccountCode": "' . $accountCode . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": 0,
                         "Debit": "' . $amount . '"
                     },
                     {
                         "ShortName": "' . $shortName . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $amount - $tax_amount . '",
                         "Debit": 0
                     },
                     {
                         "AccountCode": "' . TAX_GL_CODE . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $tax_amount . '",
                         "Debit": 0
