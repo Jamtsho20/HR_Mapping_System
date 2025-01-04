@@ -128,7 +128,7 @@ class ApprovalController extends Controller
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
-                        $costingCode2 = null;
+                        $costingCode2 = $application->employee?->empJob?->department?->code; // department code
 
                         if ($postToSap) {
                             if ($applicationHistory && $applicationHistory->is_posted_to_sap === 1) {
@@ -219,21 +219,21 @@ class ApprovalController extends Controller
                 "JournalEntryLines": [
                     {
                         "AccountCode": "' . $accountCode . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": 0,
                         "Debit": "' . $amount . '"
                     },
                     {
                         "ShortName": "' . $shortName . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $amount - $tax_amount . '",
                         "Debit": 0
                     },
                     {
                         "AccountCode": "' . TAX_GL_CODE . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $tax_amount . '",
                         "Debit": 0
