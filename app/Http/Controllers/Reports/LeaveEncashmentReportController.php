@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\LeaveEncashmentExport;
 use App\Http\Controllers\Controller;
 use App\Models\LeaveEncashmentApplication;
 use App\Models\MasDepartment;
 use App\Models\MasSection;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LeaveEncashmentReportController extends Controller
 {
@@ -25,9 +28,12 @@ class LeaveEncashmentReportController extends Controller
         $privileges = $request->instance();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
-        $leaveEncashments = LeaveEncashmentApplication::where('status', '=', 3)
-            ->join('employee_leaves', 'leave_encashment_applications.type_id', '=', 'employee_leaves.mas_leave_type_id')
+        $leaveEncashments = LeaveEncashmentApplication::filter($request, false)
+            ->where('status', 3)
+            ->with('employeeLeave') // Eager load leave details
             ->paginate(config('global.pagination'));
+
+
 
 
         return view('report.leave-encashment-report.index', compact('privileges', 'departments', 'sections', 'leaveEncashments'));
@@ -80,5 +86,42 @@ class LeaveEncashmentReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    public function exportEncashment(Request $request)
+    {
+
+
+        $leaveEncashments = LeaveEncashmentApplication::filter($request, false)
+            ->where('status', 3)
+            ->with('employeeLeave')->get();
+
+
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.leave-encashment-pdf', compact('leaveEncashments'))->setPaper('a4', 'landscape');;
+
+        // Return the PDF download
+        return $pdf->download('Leave-encashment-Report.pdf');
+    }
+
+    public function exportEncashmentExcel(Request $request)
+    {
+        return Excel::download(new LeaveEncashmentExport($request), 'leave-encashment.xlsx');
+    }
+    public function printLeaveEncashment(Request $request)
+    {
+        $leaveEncashments = LeaveEncashmentApplication::filter($request, false)
+            ->where('status', 3)
+            ->with('employeeLeave')->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.leave-encashment-pdf', compact('leaveEncashments'))->setPaper('a4', 'landscape');;
+
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('leave-encashment.pdf');
     }
 }

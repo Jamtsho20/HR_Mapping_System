@@ -20,7 +20,7 @@
 
     <link id="style" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- STYLE CSS -->
-    <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/style.css') }}" type="text/css" rel="stylesheet">
     <link href="{{ asset('assets/css/plugins.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/jquery-confirm.min.css') }}" rel="stylesheet">
     <!-- Animate css -->

@@ -4,12 +4,12 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('ltc.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('encashment.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('ltc-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('encashment-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('ltc-print', Request::query()) }}" target="_blank" onclick="openPrintPreview(event)"><span><i
-                        class="fa fa-print fa-lg"></i></span></a>
+            <a href="{{ route('leave-encashment-report-print', Request::query()) }}" target="_blank"
+                onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
         </div>
     </div>
 
@@ -102,7 +102,7 @@
                                                             <td>{{ $leave->employee->empJob->department->name }}</td>
                                                             <td>{{ $leave->employee->empJob->office->name }}</td>
                                                             <td>{{ $leave->leave_applied_for_encashment }}</td>
-                                                            <td>{{ $leave->closing_balance }}</td>
+                                                            <td>{{ $leave->employeeLeave->closing_balance }}</td>
                                                             <td>{{ $leave->amount }}</td>
                                                         </tr>
                                                     @empty
