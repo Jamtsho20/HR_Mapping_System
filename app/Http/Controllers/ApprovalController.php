@@ -138,6 +138,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+                            Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
@@ -146,7 +147,7 @@ class ApprovalController extends Controller
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                             }
 
-                        
+
                             //update the updateData array and update ApplicationHistory once it is done
                             $updateData['is_posted_to_sap'] = 1;
                             $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
