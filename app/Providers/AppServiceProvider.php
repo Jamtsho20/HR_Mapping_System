@@ -30,9 +30,9 @@ class AppServiceProvider extends ServiceProvider
 //	if (env('APP_ENV') === 'production') {
   //          URL::forceRootUrl("https://hrms.tashicell.com");
     //    }
-        if ($_SERVER['HTTP_HOST'] === 'hrms-mainfile.tashicell.com') {
-            header('Location: https://hrms.tashicell.com'.$_SERVER['REQUEST_URI'], true, 301);
-            exit;
-        }
+        // if ($_SERVER['HTTP_HOST'] === 'hrms-mainfile.tashicell.com') {
+        //     header('Location: https://hrms.tashicell.com'.$_SERVER['REQUEST_URI'], true, 301);
+        //     exit;
+        // }
     }
 }
