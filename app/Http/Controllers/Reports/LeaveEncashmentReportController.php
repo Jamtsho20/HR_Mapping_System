@@ -25,7 +25,10 @@ class LeaveEncashmentReportController extends Controller
         $privileges = $request->instance();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
-        $leaveEncashments = LeaveEncashmentApplication::where('status', '=', 3)->paginate(config('global.pagination'));
+        $leaveEncashments = LeaveEncashmentApplication::where('status', '=', 3)
+            ->join('employee_leaves', 'leave_encashment_applications.type_id', '=', 'employee_leaves.mas_leave_type_id')
+            ->paginate(config('global.pagination'));
+
 
         return view('report.leave-encashment-report.index', compact('privileges', 'departments', 'sections', 'leaveEncashments'));
     }
