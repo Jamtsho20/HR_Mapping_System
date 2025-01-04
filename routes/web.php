@@ -52,17 +52,17 @@ use App\Jobs\SendEmployeeCredentialsJob;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
-if (App::environment('production')) {
-    $proxy_url = 'https://hrms.tashicell.com';
-    $proxy_schema = 'https';
+// if (App::environment('production')) {
+//     $proxy_url = 'https://hrms.tashicell.com';
+//     $proxy_schema = 'https';
 
-    if (!empty($proxy_url)) {
-        URL::forceRootUrl($proxy_url);
-    }
-    if (!empty($proxy_schema)) {
-        URL::forceScheme($proxy_schema);
-    }
-}
+//     if (!empty($proxy_url)) {
+//         URL::forceRootUrl($proxy_url);
+//     }
+//     if (!empty($proxy_schema)) {
+//         URL::forceScheme($proxy_schema);
+//     }
+// }
 
 
 Route::get('/updateemppas', function () {
