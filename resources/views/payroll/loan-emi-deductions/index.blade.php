@@ -33,11 +33,8 @@
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row">
-                                                            <th>
-                                                                Pay Head
-                                                            </th>
+                                                            <th> Pay Head </th>
                                                             <th> Employee </th>
-
                                                             <th> Amount </th>
                                                             <th> Start Date </th>
                                                             <th>

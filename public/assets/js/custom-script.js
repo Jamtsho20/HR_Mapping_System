@@ -480,7 +480,7 @@ var hrms = function () {
                         if (currentAmount > data.limit_amount) {
                             $("#expense_type").prop("disabled", false);
                             $("#amount").prop('disabled', false);
-                            alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
+                            alert(`Expense amount must not exceed Nu. ${data.limit_amount}!`);
                             $("#amount").val('');
                         }
                         else {

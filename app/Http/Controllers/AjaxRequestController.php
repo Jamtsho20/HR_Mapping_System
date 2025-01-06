@@ -132,8 +132,8 @@ class AjaxRequestController extends Controller
 
             if ($leavePolicyGender === 3 || $leavePolicyGender === $empGender) {
                 $balance = EmployeeLeave::where('mas_leave_type_id', $id)
-                            ->where('mas_employee_id', auth()->user()->id)
-                            ->value('closing_balance');
+                    ->where('mas_employee_id', auth()->user()->id)
+                    ->value('closing_balance');
 
                 // Check if the leave balance is 0
                 if ($balance == 0) {
@@ -171,7 +171,7 @@ class AjaxRequestController extends Controller
             }
         }
 
-        if($leaveType == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2){
+        if ($leaveType == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
             if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
                 return $this->errorResponse('During leave combination of EL + CL + EL, middle CL will be converted to EL.', 400, $matchingLeaves[0]);
             }
@@ -294,16 +294,16 @@ class AjaxRequestController extends Controller
             ->latest('id') // Orders by id in descending order
             ->first();
 
-            if ($latestTransaction) {
-                // Extract the sequence part (last part after the last slash)
-                preg_match('/(\d+)$/', $latestTransaction->advance_no, $matches);
-                $lastSequence = $matches ? (int) $matches[0] : 0;
-                // dd($lastSequence);
-                $currentSequence = $lastSequence;
-                // dd($nextSequence);
-            } else {
-                $currentSequence = 1;
-            }
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->advance_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
 
         // Generate the new advance number with the incremented sequence
         $advanceNo = generateTransactionNumber($advanceCode, $currentSequence);
@@ -341,7 +341,7 @@ class AjaxRequestController extends Controller
             $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
                 ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
                     $q->whereMasGradeStepId($empJobDetail->mas_grade_step_id)
-                        ->whereMasRegionId($loggedInUserRegion[0]->region_id)
+                        // ->whereMasRegionId($loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
                 }]);
         }])
@@ -352,7 +352,8 @@ class AjaxRequestController extends Controller
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
 
-        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        // return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount]);
     }
 
     public function getApprovalHeadTypes($id)
