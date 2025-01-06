@@ -163,22 +163,21 @@
             </aside>
         </div>
         <!--/APP-SIDEBAR-->
-        {{-- <script>
-    document.querySelector('.navbar-toggler').addEventListener('click', function () {
-    const collapseElement = document.querySelector('#navbarSupportedContent-4');
-    collapseElement.classList.toggle('show');
-});
+        <script>
+            document.querySelector('.navbar-toggler').addEventListener('click', function() {
+                const collapseElement = document.querySelector('#navbarSupportedContent-4');
+                collapseElement.classList.toggle('show');
+            });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const navbarToggler = document.querySelector('.navbar-toggler');
-    const navbarCollapse = document.querySelector('#navbarSupportedContent-4');
+            document.addEventListener('DOMContentLoaded', function() {
+                const navbarToggler = document.querySelector('.navbar-toggler');
+                const navbarCollapse = document.querySelector('#navbarSupportedContent-4');
 
-    // Close navbar when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
-            navbarCollapse.classList.remove('show');
-        }
-    });
-});
-
-</script> --}}
+                // Close navbar when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
+                        navbarCollapse.classList.remove('show');
+                    }
+                });
+            });
+        </script>
