@@ -355,7 +355,7 @@ class AjaxRequestController extends Controller
             $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
                 ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
                     $q->whereMasGradeStepId($empJobDetail->mas_grade_step_id)
-                        ->whereMasRegionId($loggedInUserRegion[0]->region_id)
+                        // ->whereMasRegionId($loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
                 }]);
         }])
@@ -366,7 +366,9 @@ class AjaxRequestController extends Controller
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
 
-        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        //return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount ]);
+    
     }
 
     public function getApprovalHeadTypes($id)
