@@ -84,7 +84,7 @@
                         aria-controls="collapseExample">
                         Button with data-bs-target
                     </button> --}}
-                    <button class="navbar-toggler navresponsive-toggler d-lg-none ms-auto active" type="button"
+                    <button class="navbar-toggler navresponsive-toggler d-lg-none ms-auto" type="button"
                         data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent-4"
                         aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon fe fe-more-vertical text-dark"></span> </button>
@@ -163,3 +163,22 @@
             </aside>
         </div>
         <!--/APP-SIDEBAR-->
+<script>
+    document.querySelector('.navbar-toggler').addEventListener('click', function () {
+    const collapseElement = document.querySelector('#navbarSupportedContent-4');
+    collapseElement.classList.toggle('show');
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.querySelector('#navbarSupportedContent-4');
+
+    // Close navbar when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
+            navbarCollapse.classList.remove('show');
+        }
+    });
+});
+
+</script>
