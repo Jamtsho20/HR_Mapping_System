@@ -163,7 +163,7 @@
             </aside>
         </div>
         <!--/APP-SIDEBAR-->
-<script>
+        {{-- <script>
     document.querySelector('.navbar-toggler').addEventListener('click', function () {
     const collapseElement = document.querySelector('#navbarSupportedContent-4');
     collapseElement.classList.toggle('show');
@@ -181,4 +181,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-</script>
+</script> --}}
