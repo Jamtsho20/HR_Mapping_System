@@ -36,15 +36,10 @@
                                                             <th>
                                                                 Pay Head
                                                             </th>
-                                                            <th>
-                                                                Employee
-                                                            </th>
+                                                            <th> Employee </th>
 
-                                                            <th>
-                                                                Amount
-                                                            </th>
-                                                            <th>
-                                                                Start Date </th>
+                                                            <th> Amount </th>
+                                                            <th> Start Date </th>
                                                             <th>
                                                                 End Date
                                                             </th>
