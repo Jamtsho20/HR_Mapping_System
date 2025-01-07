@@ -299,7 +299,7 @@ if (!function_exists('formatDate')) {
     function formatDate($date)
     {
         $carbonDate = Carbon::parse($date);
-        $formatedDate = $carbonDate->format('Y-m-d');
+        $formatedDate = $carbonDate->format('d-m-Y');
         return $formatedDate;
     }
 }

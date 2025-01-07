@@ -43,7 +43,7 @@ return [
     'application_status' => [
         -1 => 'Rejected',
         0 => 'Cancelled',
-        1 => 'Submitted',
+        1 => 'Submitted for Approval',
         2 => 'In-Progress',
         3 => 'Approved'
     ],
