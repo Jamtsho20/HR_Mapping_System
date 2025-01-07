@@ -40,6 +40,16 @@
                                     <td style="padding-left:25px;"> {{ $travelAuthorization->travelType->name }}</td>
                                 </tr>
                                 <tr>
+                                    <th style="width:35%;">Estimated Expense Amount <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;"> {{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:35%;">No of Day(s) <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;"> {{ $no_of_days }} day(s)</td>
+                                </tr>
+                                <tr>
                                     <td colspan="2">
                                         <div class="table-responsive" style="margin-top: 20px; ">
                                             <table id="travel_details"

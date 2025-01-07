@@ -11,7 +11,7 @@ use App\Services\ApprovalService;
 use Illuminate\Support\Facades\Auth;
 class TravelAuthorizationApprovalController extends Controller
 {
-         
+
     /**
      * Display a listing of the resource.
      *
@@ -34,9 +34,9 @@ class TravelAuthorizationApprovalController extends Controller
         'details.*.to_date' => 'required|date|after_or_equal:details.*.from_date',
         'advance_amount' => 'nullable|numeric',
         'details.*.purpose' => 'nullable|string|max:500',
-        'travel_type' => 'required|exists:mas_travel_types,id', 
+        'travel_type' => 'required|exists:mas_travel_types,id',
     ];
-    
+
     protected $messages = [
         'date.required' => 'The main travel date is required.',
         'details.*.mode_of_travel.required' => 'Mode of travel is required for each travel detail.',
@@ -48,7 +48,7 @@ class TravelAuthorizationApprovalController extends Controller
         'advance_amount.numeric' => 'Advance amount should be a numeric value.',
         'details.*.purpose.max' => 'Purpose should not exceed 500 characters for each travel detail.',
         'travel_type.required' => 'The travel type is required.',
-        'travel_type.exists' => 'The selected travel type is invalid.', 
+        'travel_type.exists' => 'The selected travel type is invalid.',
     ];
     public function index(Request $request)
     {
@@ -68,9 +68,9 @@ class TravelAuthorizationApprovalController extends Controller
             ->orderBy('created_at')
             ->paginate(config('global.pagination'))
             ->withQueryString();
-    
+
         return view('travel-authorizations.approval.index', compact( 'privileges', 'travelAuthorizations'));
-    } 
+    }
 
 
     /**
@@ -104,7 +104,7 @@ class TravelAuthorizationApprovalController extends Controller
     {
         $instance = $request->instance();
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
-        $context = 'approval';         
+        $context = 'approval';
         return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context'));
     }
 
@@ -135,7 +135,7 @@ class TravelAuthorizationApprovalController extends Controller
         $this->validate($request, $this->rules, $this->messages);
 
         try {
-        
+
             DB::beginTransaction();
 
             $travelAuthorization->update([
@@ -149,11 +149,11 @@ class TravelAuthorizationApprovalController extends Controller
                 'type_id' => $request->travel_type,
             ]);
 
-            
+
             if ($request->has('details')) {
                 // Collect IDs of updated or existing details from the request
                 $updatedDetailIds = [];
-            
+
                 foreach ($request->details as $index => $detail) {
                     if (isset($detail['id'])) {
                         $travelDetail = $travelAuthorization->details()->find($detail['id']);
@@ -181,14 +181,14 @@ class TravelAuthorizationApprovalController extends Controller
                         $updatedDetailIds[] = $newDetail->id;
                     }
                 }
-            
+
                 // Delete details that weren't included in the request
                 $travelAuthorization->details()->whereNotIn('id', $updatedDetailIds)->delete();
             }
-    
+
             DB::commit();
             // if ($request->has('details')) {
-        
+
             //     $travelAuthorization->details()->forceDelete();
             //     foreach ($request->details as $detail) {
             //         $travelAuthorization->details()->create([
@@ -202,7 +202,7 @@ class TravelAuthorizationApprovalController extends Controller
             //     }
             // }
 
-           
+
             // $travelAuthorization->histories()->create([
             //     'level' => 'Test Level', // Adjust this according to your requirements
             //     'status' => 1, // Adjust as needed
@@ -210,12 +210,12 @@ class TravelAuthorizationApprovalController extends Controller
             //     'created_by' => loggedInUser(),
             // ]);
 
-           
+
             // DB::commit();
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
         return redirect()->route('travel-authorization-approval.index')->with('msg_success', 'Travel Authorization updated successfully!');
@@ -233,7 +233,7 @@ class TravelAuthorizationApprovalController extends Controller
     }
 
     public function bulkApprovalRejection(Request $request)
-    {   
+    {
         $action = $request->action;
         $itemIds = $request->item_ids;
         $status = ($action === 'approve') ? 2 : -1;
@@ -263,7 +263,7 @@ class TravelAuthorizationApprovalController extends Controller
                     'remarks' => $rejectRemarks,
                     'action_performed_by' => $userId,
                 ];
-                
+
                 if ($action === 'approve' && $applicationHistory) {
                     $applicationForwardedTo = $approvalService->applicationForwardedTo($id, TravelAuthorizationApplication::class);
                     // \Log::info('Application forwarded to:', ['data' => $applicationForwardedTo['next_level']->id]);

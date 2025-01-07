@@ -80,7 +80,7 @@
 
                                         @php
                                         $routeName = Route::currentRouteName(); // Get the current route name
-                                       
+
                                         @endphp
 
                                         @if ($routeName == 'approval.index')
@@ -88,7 +88,7 @@
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @elseif ($routeName == 'approval.approved')
-                                        <a href="{{ url('approved-applications/details/applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                        <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @else

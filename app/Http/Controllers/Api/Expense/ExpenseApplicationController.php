@@ -81,7 +81,7 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'expense_approved_by:id,name', 'vehicle:id,vehicle_no'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'histories:id,application_id,action_performed_by,application_type',  'histories.actionPerformer:id,name,username', 'vehicle:id,vehicle_no'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,

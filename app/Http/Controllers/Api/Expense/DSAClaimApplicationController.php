@@ -56,7 +56,7 @@ class DSAClaimApplicationController extends Controller
 
 
     protected $messages = [
-       
+
         'type_id.required' => 'The claim type is required.',
         'type_id.exists' => 'The selected claim type is invalid.',
         'travel_authorization_id.required' => 'Travel authorization is required.',
@@ -106,7 +106,7 @@ class DSAClaimApplicationController extends Controller
     {
         try{
             $user = loggedInUser();
-            $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name')->orderBy('created_at', 'desc')->get();
+            $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
             return $this->successResponse($dsaClaimApplications, 'DSA claim applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);

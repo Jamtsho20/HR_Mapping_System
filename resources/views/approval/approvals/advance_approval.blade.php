@@ -67,12 +67,17 @@
                                         <td class="text-center">
                                             @if ($privileges->view)
 
-                                            @if ($controllerName == 'FirstController')
+                                            @php
+                                            $routeName = Route::currentRouteName(); // Get the current route name
+
+                                            @endphp
+
+                                            @if ($routeName == 'approval.index')
                                             <a href="{{ url('approval/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fa fa-list"></i> Detail
                                             </a>
-                                            @elseif ($controllerName == 'SecondController')
-                                            <a href="{{ url('approved-applications/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                            @elseif ($routeName == 'approval.approved')
+                                            <a href="{{ url('approval/approved-applications/details/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fa fa-list"></i> Detail
                                             </a>
                                             @else

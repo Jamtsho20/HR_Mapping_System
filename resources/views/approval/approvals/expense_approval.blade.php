@@ -21,7 +21,7 @@
                                                 data-item-class="bulk_checkbox"
                                                 title="select all">
                                         </th>
-                                        @endif   
+                                        @endif
                                         <th>
                                             EMPLOYEE
                                         </th>
@@ -81,10 +81,24 @@
                                         </td>
                                         <td class="text-center">
                                             @if ($privileges->view)
-                                            <a href="{{ url('approval/applications/' . $application->id) . '?tab=2'}}"
-                                                class="btn btn-sm btn-outline-secondary"><i
-                                                    class="fa fa-list"></i>
-                                                Detail</a>
+                                            @php
+                                            $routeName = Route::currentRouteName(); // Get the current route name
+
+                                            @endphp
+
+                                            @if ($routeName == 'approval.index')
+                                            <a href="{{ url('approval/applications/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @elseif ($routeName == 'approval.approved')
+                                            <a href="{{ url('approval/approved-applications/details/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @else
+                                            <a href="{{ url('default-route/applications/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @endif
                                             @endif
                                         </td>
                                     </tr>

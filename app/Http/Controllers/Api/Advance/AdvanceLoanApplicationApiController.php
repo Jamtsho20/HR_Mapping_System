@@ -71,7 +71,7 @@ class AdvanceLoanApplicationApiController extends Controller
     {
 
         try {
-            $applications = AdvanceApplication::with('advanceType', 'advance_approved_by:id,name')->createdBy()->orderBy('created_at', 'desc')->get();
+            $applications = AdvanceApplication::with('advanceType', 'histories:id,application_id,action_performed_by,application_type',  'histories.actionPerformer:id,name,username')->createdBy()->orderBy('created_at', 'desc')->get();
 
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {

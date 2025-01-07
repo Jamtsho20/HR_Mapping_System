@@ -22,6 +22,7 @@ class ApprovalController extends Controller
     public function __construct(ApiController $sap)
     {
         $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
+       // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -97,8 +98,7 @@ class ApprovalController extends Controller
                 }
                 $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
-                $costingCode = null;
-                $type = $application->type;
+
                 // Update application status
                 $application->update([
                     'status' => $status,
@@ -267,13 +267,18 @@ class ApprovalController extends Controller
 
     public function show(Request $request, $id)
     {
+
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
+        $no_of_days=1;
+        if($request->query('tab')==7){
+            $no_of_days = $data->estimated_travel_expenses / $data->daily_allowance;
+        }
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days'));
     }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
@@ -322,9 +327,9 @@ class ApprovalController extends Controller
         $applyQuery = function ($modelClass, $user, $request) {
             return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass) {
                 $query->where('application_type', $modelClass)
-                    ->when(!$user->roles->where('name', 'MD')->isNotEmpty(), function ($query) use ($user) {
-                        $query->where('action_performed_by', $user->id);
-                    });
+
+                        ->where('action_performed_by', $user->id);
+
             })
                 ->whereNotIn('status', [0, 1]) // Status 2 for approved applications
                 ->filter($request, false)

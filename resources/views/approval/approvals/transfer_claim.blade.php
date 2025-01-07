@@ -96,10 +96,24 @@
                                             </td>
                                             <td class="text-center">
                                                 @if ($privileges->view)
-                                                <a href="{{ url('approval/applications/' . $transferclaim->id) . '?tab=6' }}"
-                                                    class="btn btn-sm btn-outline-secondary"><i
-                                                        class="fa fa-list"></i>
-                                                    Detail</a>
+                                                @php
+                                                $routeName = Route::currentRouteName(); // Get the current route name
+
+                                                @endphp
+
+                                                @if ($routeName == 'approval.index')
+                                                <a href="{{ url('approval/applications/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @elseif ($routeName == 'approval.approved')
+                                                <a href="{{ url('approval/approved-applications/details/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @else
+                                                <a href="{{ url('default-route/applications/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @endif
                                                 @endif
 
                                             </td>

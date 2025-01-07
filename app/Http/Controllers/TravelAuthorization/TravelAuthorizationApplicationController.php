@@ -155,7 +155,8 @@ class TravelAuthorizationApplicationController extends Controller
         $instance = $request->instance();
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
         $context = 'application';
-        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context'));
+        $no_of_days = $travelAuthorization->estimated_travel_expenses / $travelAuthorization->daily_allowance;
+        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context', 'no_of_days'));
     }
 
 
