@@ -78,9 +78,7 @@
                     </div>
                    <div class="ms-auto"><h1 class="page-title">@yield('page-title')</h1></div>
 
-                    <div class="ms-auto">
-                        <h1 class="page-title">@yield('page-title')</h1>
-                    </div>
+                 
                     {{-- <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent-4" aria-expanded="false"
                         aria-controls="collapseExample">
