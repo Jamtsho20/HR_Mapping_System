@@ -97,7 +97,7 @@ class LeaveEncashmentApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $encashmentType = LeaveEncashmentType::first()?->id;
-        $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->value('amount');
+        $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->where('mas_pay_slab_id', 1)->value('amount');
         if (!$tax_amount ) {
             return redirect()->back()->with('alert', 'Tax amount has not been intialized, contact admin!');
         }

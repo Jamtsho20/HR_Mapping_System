@@ -1,15 +1,12 @@
 <div class="card-body">
     <div class="table-responsive">
-        <div id="basic-datatable_wrapper"
-            class="dataTables_wrapper dt-bootstrap5 no-footer">
+        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
             <div class="row">
                 <div class="dataTables_scroll">
                     <div class="dataTables_scrollHead"
                         style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                        <div class="dataTables_scrollHeadInner"
-                            style="box-sizing: content-box; padding-right: 0px;">
-                            <table
-                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                        <div class="dataTables_scrollHeadInner" style="box-sizing: content-box; padding-right: 0px;">
+                            <table class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                 id="basic-datatable table-responsive">
                                 <thead>
                                     <tr role="row" class="thead-light">
@@ -30,6 +27,9 @@
                                         </th>
                                         <th>
                                             EXPENSE TYPE
+                                        </th>
+                                        <th>
+                                            Vehicle Number
                                         </th>
                                         <th>
                                             EXPENSE AMOUNT
@@ -103,12 +103,11 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    <tr>
-                                        <td colspan="8"
-                                            class="text-center text-danger">
-                                            No
-                                            records found</td>
-                                    </tr>
+                                        <tr>
+                                            <td colspan="8" class="text-center text-danger">
+                                                No
+                                                records found</td>
+                                        </tr>
                                     @endforelse
                                 </tbody>
                             </table>

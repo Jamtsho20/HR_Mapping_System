@@ -13,6 +13,7 @@ use App\Http\Controllers\Reports\ExpenseAndAdvanceReportController;
 use App\Http\Controllers\Reports\GISReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
 use App\Http\Controllers\Reports\LeaveBalanceReportController;
+use App\Http\Controllers\Reports\LeaveEncashmentReportController;
 use App\Http\Controllers\Reports\LoanReportController;
 use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\PayComparisionReportController;
@@ -51,17 +52,17 @@ use App\Jobs\SendEmployeeCredentialsJob;
 require __DIR__ . '/auth.php';
 require __DIR__ . '/payroll.php';
 Route::redirect('/', '/login', 301);
-if (App::environment('production')) {
-    $proxy_url = 'https://hrms.tashicell.com';
-    $proxy_schema = 'https';
-    
-    if (!empty($proxy_url)) {
-        URL::forceRootUrl($proxy_url);
-    }
-    if (!empty($proxy_schema)) {
-        URL::forceScheme($proxy_schema);
-    }
-}
+// if (App::environment('production')) {
+//     $proxy_url = 'https://hrms.tashicell.com';
+//     $proxy_schema = 'https';
+
+//     if (!empty($proxy_url)) {
+//         URL::forceRootUrl($proxy_url);
+//     }
+//     if (!empty($proxy_schema)) {
+//         URL::forceScheme($proxy_schema);
+//     }
+// }
 
 
 Route::get('/updateemppas', function () {
@@ -362,6 +363,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/tax-schedule-report', [TaxScheduleReportController::class, 'exportTaxSchedule'])->name('tax-schedule-report-pdf.export');
     Route::get('/tax-schedule-excel-report', [TaxScheduleReportController::class, 'exportTaxScheduleExcel'])->name('tax-schedule-report-excel.export');
 
+    Route::get('/export-encashment-report', [LeaveEncashmentReportController::class, 'exportEncashment'])->name('encashment-pdf.export');
+    Route::get('/export-encashment-excel-report', [LeaveEncashmentReportController::class, 'exportEncashmentExcel'])->name('encashment.export');
+
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
@@ -381,6 +385,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-dsa-settlement-report', [DSASettlementReportController::class, 'printDSASettlement'])->name('dsa-settlement-print');
     Route::get('/print-tax-schedle-report', [TaxScheduleReportController::class, 'printTaxSchedule'])->name('tax-schedule-report-print');
     Route::get('/print-pay-comparision-report', [PayComparisionReportController::class, 'printPayComparision'])->name('pay-comparision-report-print');
+    Route::get('/print-leave-encashment-report', [LeaveEncashmentReportController::class, 'printLeaveEncashment'])->name('leave-encashment-report-print');
 
 
 
@@ -471,4 +476,12 @@ Route::middleware('auth')->group(function () {
     Route::get('getcommissionnobycommissiontype/{id}', 'AjaxRequestController@getCommissionNumber');
     Route::get('getdetailsbyreceipt/{receipt_no}', 'AjaxRequestController@getDetailsByReceipt')->name('get.details.by.receipt');
     Route::get('getvehicledetailtypebyid/{id}', 'AjaxRequestController@getVehicleDetailTypeById');
+});
+
+
+Route::get('artisan-clear',function () {
+    \Artisan::call("cache:clear");
+    \Artisan::call("config:clear");
+
+    echo "Artisan clear complete!";
 });

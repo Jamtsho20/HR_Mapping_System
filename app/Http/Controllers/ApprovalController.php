@@ -102,7 +102,7 @@ class ApprovalController extends Controller
                 // Update application status
                 $application->update([
                     'status' => $status,
-                    // 'updated_by' => $actionBy,
+                    'updated_by' => $actionBy,
                 ]);
 
                 // Forward application if approved
@@ -129,7 +129,7 @@ class ApprovalController extends Controller
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
-                        $costingCode2 = null;
+                        $costingCode2 = $application->employee?->empJob?->department?->code; // department code
 
                         if ($postToSap) {
                             if ($applicationHistory && $applicationHistory->is_posted_to_sap === 1) {
@@ -139,6 +139,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+                            Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
@@ -156,12 +157,13 @@ class ApprovalController extends Controller
                         // Finalize approval if it's at the maximum level
                         $application->update([
                             'status' => 3, // 3 could represent 'final approved'
+                            'updated_by' => $actionBy
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
                     } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
                         $application->update([
                             'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                            // 'updated_by' => $actionBy,
+                            'updated_by' => $actionBy,
                         ]);
 
                         $updateData['status'] = $applicationForwardedTo['application_status'];
@@ -219,21 +221,21 @@ class ApprovalController extends Controller
                 "JournalEntryLines": [
                     {
                         "AccountCode": "' . $accountCode . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": 0,
                         "Debit": "' . $amount . '"
                     },
                     {
                         "ShortName": "' . $shortName . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $amount - $tax_amount . '",
                         "Debit": 0
                     },
                     {
                         "AccountCode": "' . TAX_GL_CODE . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $tax_amount . '",
                         "Debit": 0
@@ -248,14 +250,14 @@ class ApprovalController extends Controller
                             "JournalEntryLines": [
                                 {
                                     "ShortName": "' . $shortName . '",
-                                    "CostingCode": "' . $costingCode . '", // department
+                                    "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
                                     "Credit": "' . $amount . '",
                                     "Debit": 0
                                 },
                                 {
                                     "AccountCode": "' . $accountCode . '",
-                                    "CostingCode": "' . $costingCode . '", // department
+                                    "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
                                     "Credit": 0,
                                     "Debit": "' . $amount . '"
