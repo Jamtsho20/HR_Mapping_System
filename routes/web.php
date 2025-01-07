@@ -477,3 +477,11 @@ Route::middleware('auth')->group(function () {
     Route::get('getdetailsbyreceipt/{receipt_no}', 'AjaxRequestController@getDetailsByReceipt')->name('get.details.by.receipt');
     Route::get('getvehicledetailtypebyid/{id}', 'AjaxRequestController@getVehicleDetailTypeById');
 });
+
+
+Route::get('artisan-clear',function () {
+    \Artisan::call("cache:clear");
+    \Artisan::call("config:clear");
+
+    echo "Artisan clear complete!";
+});

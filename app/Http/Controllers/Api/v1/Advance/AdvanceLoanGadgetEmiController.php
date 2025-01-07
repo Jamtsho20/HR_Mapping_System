@@ -19,13 +19,13 @@ class AdvanceLoanGadgetEmiController extends Controller
 
        $formattedUsername = 'E' . sprintf('%05d', $username);
        $id = User::where('username', $formattedUsername)->value('id');
-
+    
         try {
 
         $expenseApplications = AdvanceApplication::where('created_by', $id)->where('type_id', GADGET_EMI)->get(['advance_no']);
 
 
-            return $this->successResponse($expenseApplications, 'Gadjet EMI applications retrieved successfully');
+            return $this->successResponse($expenseApplications, 'Gadget EMI applications retrieved successfully');
 
             } catch (\Exception $e) {
                 return $this->errorResponse($e->getMessage(), 500);
