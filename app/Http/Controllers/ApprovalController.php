@@ -49,9 +49,9 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
-           foreach ($headers as $header) {
-           $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
-           }
+            foreach ($headers as $header) {
+                $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+            }
         }
 
         return view('approval.index', compact('privileges', 'headers', 'results'));
@@ -96,8 +96,7 @@ class ApprovalController extends Controller
                 }
                 $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
-                $costingCode = null;
-                $type = $application->type;
+
                 // Update application status
                 $application->update([
                     'status' => $status,
@@ -176,17 +175,17 @@ class ApprovalController extends Controller
                 DB::commit();
 
                 $respString = preg_replace(
-                        [
-                            '/App\\\\Models\\\\/',
-                            '/([a-z])([A-Z])/',
-                            '/([A-Z])([A-Z][a-z])/'
-                        ],
-                        [
-                            '',
-                            '$1 $2',
-                            '$1 $2'
+                    [
+                        '/App\\\\Models\\\\/',
+                        '/([a-z])([A-Z])/',
+                        '/([A-Z])([A-Z][a-z])/'
                     ],
-                            $model
+                    [
+                        '',
+                        '$1 $2',
+                        '$1 $2'
+                    ],
+                    $model
                 );
 
                 try {
