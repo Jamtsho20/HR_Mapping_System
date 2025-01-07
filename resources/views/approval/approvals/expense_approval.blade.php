@@ -13,6 +13,7 @@
                                 id="basic-datatable table-responsive">
                                 <thead>
                                     <tr role="row" class="thead-light">
+                                    @if ($privileges->edit)
                                         <th>
                                             <input type="checkbox"
                                                 id="select_all"
@@ -20,6 +21,7 @@
                                                 data-item-class="bulk_checkbox"
                                                 title="select all">
                                         </th>
+                                        @endif   
                                         <th>
                                             EMPLOYEE
                                         </th>
@@ -46,11 +48,13 @@
                                 <tbody>
                                     @forelse ($results->get(2) as $application)
                                     <tr>
+                                    @if ($privileges->edit)
                                         <td>
                                             <input type="checkbox"
                                                 class="bulk_checkbox"
                                                 value="{{ $application->id }}">
                                         </td>
+                                        @endif
                                         <td>{{ $application->employee->name }}
                                         </td>
                                         <td>{{ $application->date }}</td>

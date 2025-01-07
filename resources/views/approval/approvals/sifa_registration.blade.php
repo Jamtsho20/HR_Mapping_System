@@ -16,10 +16,12 @@
                                                 id="basic-datatable table-responsive">
                                                 <thead>
                                                     <tr role="row" class="thead-light">
+                                                    @if ($privileges->edit)
                                                         <th>
                                                             <input type="checkbox" id="select_all" class="select_all"
                                                                 data-item-class="bulk_checkbox" title="select all">
                                                         </th>
+                                                        @endif
                                                         <th>
                                                             EMPLOYEE NAME
                                                         </th>
@@ -46,8 +48,10 @@
                                                 <tbody>
                                                     @forelse ($results->get(8) as $sifa)
                                                         <tr>
+                                                        @if ($privileges->edit)
                                                             <td><input type="checkbox" class="bulk_checkbox"
                                                                     value="{{ $sifa->id }}"></td>
+                                                            @endif
                                                             <td>{{ $sifa->employee->emp_id_name }}</td>
                                                             <td>{{ $sifa->employee->empJob->designation->name ?? 'N/A' }}
                                                             </td>

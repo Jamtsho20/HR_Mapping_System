@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Mail\ApprovalNotificationMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class ApprovalController extends Controller
@@ -49,9 +50,9 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
-           foreach ($headers as $header) {
-           $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
-           }
+            foreach ($headers as $header) {
+                $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+            }
         }
 
         return view('approval.index', compact('privileges', 'headers', 'results'));
@@ -146,7 +147,7 @@ class ApprovalController extends Controller
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                             }
 
-                        
+
                             //update the updateData array and update ApplicationHistory once it is done
                             $updateData['is_posted_to_sap'] = 1;
                             $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
@@ -175,17 +176,17 @@ class ApprovalController extends Controller
                 DB::commit();
 
                 $respString = preg_replace(
-                        [
-                            '/App\\\\Models\\\\/',
-                            '/([a-z])([A-Z])/',
-                            '/([A-Z])([A-Z][a-z])/'
-                        ],
-                        [
-                            '',
-                            '$1 $2',
-                            '$1 $2'
+                    [
+                        '/App\\\\Models\\\\/',
+                        '/([a-z])([A-Z])/',
+                        '/([A-Z])([A-Z][a-z])/'
                     ],
-                            $model
+                    [
+                        '',
+                        '$1 $2',
+                        '$1 $2'
+                    ],
+                    $model
                 );
 
                 try {
@@ -306,5 +307,39 @@ class ApprovalController extends Controller
             $applicationModel['email_subject'] . ' Approval',
             $initiatorMailContent
         ));
+    }
+    public function approvedApplications(Request $request)
+    {
+        $privileges = $request->instance();
+        $privileges['view'] = 1;
+        $headers = MasApprovalHead::all();
+        $user = auth()->user();
+
+        $applicationModels = config('global.applications');
+        $results = collect();
+
+        // Helper method to apply common query logic
+        $applyQuery = function ($modelClass, $user, $request) {
+            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass) {
+                $query->where('application_type', $modelClass)
+                    ->when(!$user->roles->where('name', 'MD')->isNotEmpty(), function ($query) use ($user) {
+                        $query->where('action_performed_by', $user->id);
+                    });
+            })
+                ->whereNotIn('status', [0, 1]) // Status 2 for approved applications
+                ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->orderBy('created_at')
+                ->paginate(config('global.pagination'))
+                ->withQueryString();
+        };
+
+        foreach ($applicationModels as $key => $model) {
+            $modelClass = $model['name'];
+            $data = $applyQuery($modelClass, $user, $request);
+            $results->put($key, $data);
+        }
+
+        return view('approval.index', compact('privileges', 'headers', 'results'));
     }
 }

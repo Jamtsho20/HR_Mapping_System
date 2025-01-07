@@ -13,9 +13,11 @@
                                 id="basic-datatable table-responsive">
                                 <thead>
                                     <tr role="row" class="thead-light">
+                                        @if ($privileges->edit)
                                         <th>
                                             <input type="checkbox" id="select_all" class="select_all" data-item-class="bulk_checkbox" title="select all">
                                         </th>
+                                        @endif
                                         <th>
                                             EMPLOYEE
                                         </th>
@@ -39,7 +41,8 @@
                                 <tbody>
                                     @forelse ($results->get(3) as $advance)
                                     <tr>
-                                        <td><input type="checkbox" class="bulk_checkbox" value="{{ $advance->id }}"></td>
+                                        @if ($privileges->edit)
+                                        <td><input type="checkbox" class="bulk_checkbox" value="{{ $advance->id }}"></td>@endif
                                         <td>{{ $advance->employee->emp_id_name }}</td>
                                         <td>{{ $advance->date }}</td>
                                         <td>{{ $advance->advanceType->name }}</td>
@@ -64,9 +67,19 @@
                                         <td class="text-center">
                                             @if ($privileges->view)
 
+                                            @if ($controllerName == 'FirstController')
                                             <a href="{{ url('approval/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fa fa-list"></i> Detail
                                             </a>
+                                            @elseif ($controllerName == 'SecondController')
+                                            <a href="{{ url('approved-applications/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @else
+                                            <a href="{{ url('default-route/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @endif
 
                                             @endif
                                         </td>

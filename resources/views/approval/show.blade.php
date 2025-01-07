@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('page-title', 'View Application details')
+
 @section('buttons')
 <a href="{{ url('approval/applications') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
 @endsection

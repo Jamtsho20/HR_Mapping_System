@@ -8,10 +8,12 @@
                             id="basic-datatable table-responsive">
                             <thead>
                                 <tr role="row" class="thead-light">
+                                @if ($privileges->edit)
                                     <th>
                                         <input type="checkbox" id="select_all" class="select_all"
                                             data-item-class="bulk_checkbox" title="select all">
                                     </th>
+                                    @endif
                                     <th>
                                         EMPLOYEE ID
                                     </th>
@@ -36,8 +38,10 @@
                             <tbody>
                                 @forelse ($results->get(4) as $leave)
                                     <tr>
+                                    @if ($privileges->edit)
                                         <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}">
                                         </td>
+                                        @endif
                                         <td>{{ $leave->employee->username }}</td>
                                         <td>{{ $leave->employee->name }}</td>
                                         <td>{{ $leave->created_at }}</td>

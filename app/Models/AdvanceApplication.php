@@ -40,6 +40,10 @@ class AdvanceApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
 
     public function employee()
     {
