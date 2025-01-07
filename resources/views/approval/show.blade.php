@@ -12,7 +12,7 @@
         }
     @endphp
 
-    <a href="{{ $backUrl }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Aefewfpproval List</a>
+    <a href="{{ $backUrl }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
 @endsection
 
 
