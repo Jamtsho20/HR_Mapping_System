@@ -1,8 +1,21 @@
 @extends('layouts.app')
 @section('page-title', 'View Application details')
+
 @section('buttons')
-<a href="{{ url('approval/applications') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
+    @php
+        $backUrl = url('approval/applications'); // Default URL
+
+        if (request()->is('approval/approved-applications/*')) {
+            $backUrl = url('approval/approved-applications');
+        } elseif (request()->is('approval/applications/*')) {
+            $backUrl = url('approval/applications');
+        }
+    @endphp
+
+    <a href="{{ $backUrl }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
 @endsection
+
+
 @section('content')
 
 @if ($tab == 1)
@@ -17,8 +30,11 @@
 @elseif ($tab == 6)
 @include('approval.view.transfer_claim', ['transfer' => $data, 'empDetails' => $empDetails])
 
+@php
+$no_of_days=3;
+@endphp
 @elseif ($tab == 7)
-@include('approval.view.travel_authorization', ['travelAuthorization' => $data, 'empDetails' => $empDetails])
+@include('approval.view.travel_authorization', ['travelAuthorization' => $data, 'empDetails' => $empDetails, 'no_of_days' => $no_of_days])
 
 @elseif ($tab == 8)
 @php

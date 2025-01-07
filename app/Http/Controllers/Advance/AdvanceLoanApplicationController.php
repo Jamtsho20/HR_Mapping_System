@@ -134,7 +134,6 @@ class AdvanceLoanApplicationController extends Controller
             DB::beginTransaction();
             $advanceApplication->advance_no = $advanceNo;
             $advanceApplication->date = $request->date;
-            $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
             $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone

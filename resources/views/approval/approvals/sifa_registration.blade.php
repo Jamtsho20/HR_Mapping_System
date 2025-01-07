@@ -16,10 +16,12 @@
                                                 id="basic-datatable table-responsive">
                                                 <thead>
                                                     <tr role="row" class="thead-light">
+                                                    @if ($privileges->edit)
                                                         <th>
                                                             <input type="checkbox" id="select_all" class="select_all"
                                                                 data-item-class="bulk_checkbox" title="select all">
                                                         </th>
+                                                        @endif
                                                         <th>
                                                             EMPLOYEE NAME
                                                         </th>
@@ -46,8 +48,10 @@
                                                 <tbody>
                                                     @forelse ($results->get(8) as $sifa)
                                                         <tr>
+                                                        @if ($privileges->edit)
                                                             <td><input type="checkbox" class="bulk_checkbox"
                                                                     value="{{ $sifa->id }}"></td>
+                                                            @endif
                                                             <td>{{ $sifa->employee->emp_id_name }}</td>
                                                             <td>{{ $sifa->employee->empJob->designation->name ?? 'N/A' }}
                                                             </td>
@@ -74,9 +78,24 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
-                                                                    <a href="{{ url('approval/applications/' . $sifa->id) . '?tab=8' }}"
-                                                                        class="btn btn-sm btn-outline-secondary"><i
-                                                                            class="fa fa-list"></i> Detail</a>
+                                                                @php
+                                                                $routeName = Route::currentRouteName(); // Get the current route name
+
+                                                                @endphp
+
+                                                                @if ($routeName == 'approval.index')
+                                                                <a href="{{ url('approval/applications/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @elseif ($routeName == 'approval.approved')
+                                                                <a href="{{ url('approval/approved-applications/details/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @else
+                                                                <a href="{{ url('default-route/applications/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @endif
                                                                 @endif
                                                                 {{-- @if ($privileges->edit)
                                                                     <a href="{{ url('sifa/sifa-approval/' . $sifa->id . '/edit') }}"

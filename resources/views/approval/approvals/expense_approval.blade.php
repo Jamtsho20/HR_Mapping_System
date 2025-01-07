@@ -10,10 +10,15 @@
                                 id="basic-datatable table-responsive">
                                 <thead>
                                     <tr role="row" class="thead-light">
+                                    @if ($privileges->edit)
                                         <th>
-                                            <input type="checkbox" id="select_all" class="select_all"
-                                                data-item-class="bulk_checkbox" title="select all">
+                                            <input type="checkbox"
+                                                id="select_all"
+                                                class="select_all"
+                                                data-item-class="bulk_checkbox"
+                                                title="select all">
                                         </th>
+                                        @endif
                                         <th>
                                             EMPLOYEE
                                         </th>
@@ -42,50 +47,61 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($results->get(2) as $application)
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" class="bulk_checkbox"
-                                                    value="{{ $application->id }}">
-                                            </td>
-                                            <td>{{ $application->employee->name }}
-                                            </td>
-                                            <td>{{ $application->date }}</td>
-                                            <td>{{ $application->type->name }}
-                                            </td>
-                                            <td>{{ $application->vehicle->vehicle_no }}
-                                            </td>
-                                            <td>{{ $application->amount }}
-                                            </td>
-                                            <td>{{ $application->description }}
-                                            </td>
-                                            <td class="text-center">
-                                                @php
-                                                    $statusClasses = [
-                                                        -1 => 'badge bg-danger',
-                                                        0 => 'badge bg-warning',
-                                                        1 => 'badge bg-primary',
-                                                        2 => 'badge bg-success',
-                                                        3 => 'badge bg-info',
-                                                    ];
-                                                    $statusText = config(
-                                                        "global.application_status.{$application->status}",
-                                                        'Unknown Status',
-                                                    );
-                                                    $statusClass =
-                                                        $statusClasses[$application->status] ?? 'badge bg-secondary';
-                                                @endphp
+                                    <tr>
+                                    @if ($privileges->edit)
+                                        <td>
+                                            <input type="checkbox"
+                                                class="bulk_checkbox"
+                                                value="{{ $application->id }}">
+                                        </td>
+                                        @endif
+                                        <td>{{ $application->employee->name }}
+                                        </td>
+                                        <td>{{ $application->date }}</td>
+                                        <td>{{ $application->type->name }}
+                                        </td>
+                                        <td>{{ $application->amount }}
+                                        </td>
+                                        <td>{{ $application->description }}
+                                        </td>
+                                        <td class="text-center">
+                                            @php
+                                            $statusClasses = [
+                                            -1 => 'badge bg-danger',
+                                            0 => 'badge bg-warning',
+                                            1 => 'badge bg-primary',
+                                            2 => 'badge bg-success',
+                                            3 => 'badge bg-info',
+                                            ];
+                                            $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
+                                            $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
+                                            @endphp
 
-                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                @if ($privileges->view)
-                                                    <a href="{{ url('approval/applications/' . $application->id) . '?tab=2' }}"
-                                                        class="btn btn-sm btn-outline-secondary"><i
-                                                            class="fa fa-list"></i>
-                                                        Detail</a>
-                                                @endif
-                                            </td>
-                                        </tr>
+                                            <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($privileges->view)
+                                            @php
+                                            $routeName = Route::currentRouteName(); // Get the current route name
+
+                                            @endphp
+
+                                            @if ($routeName == 'approval.index')
+                                            <a href="{{ url('approval/applications/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @elseif ($routeName == 'approval.approved')
+                                            <a href="{{ url('approval/approved-applications/details/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @else
+                                            <a href="{{ url('default-route/applications/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @endif
+                                            @endif
+                                        </td>
+                                    </tr>
                                     @empty
                                         <tr>
                                             <td colspan="8" class="text-center text-danger">

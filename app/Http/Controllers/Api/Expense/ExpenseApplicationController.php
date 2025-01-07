@@ -81,7 +81,7 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'expense_approved_by:id,name', 'vehicle:id,vehicle_no'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'histories:id,application_id,action_performed_by,application_type',  'histories.actionPerformer:id,name,username', 'vehicle:id,vehicle_no'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'expenseApplications' => $expenseApplications,
@@ -141,8 +141,8 @@ class ExpenseApplicationController extends Controller
             $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
             $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
             $vehicles = MasVehicle::with('vehicleType')->get();
-            $dsaClaimNo = $this->ajax->getDsaClaimNumber();
-            $transferClaimNo = $this->ajax->getTransferClaimNumber();
+            // $dsaClaimNo = $this->ajax->getDsaClaimNumber();
+            //$transferClaimNo = $this->ajax->getTransferClaimNumber();
 
             ///
 
@@ -160,9 +160,8 @@ class ExpenseApplicationController extends Controller
                     'dailyAllowance' => $dailyAllowance,
                     'vehicles' => $vehicles,
                     'itemType' => $itemType,
-                    'travels' => $travels,
-                    'dsaClaimNo' => $dsaClaimNo,
-                    'transferClaimNo' => $transferClaimNo,
+                    'travels' => $travels
+
                 ]
             ]);
         } catch (\Exception $e) {

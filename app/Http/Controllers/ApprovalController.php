@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Mail\ApprovalNotificationMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class ApprovalController extends Controller
@@ -21,6 +22,7 @@ class ApprovalController extends Controller
     public function __construct(ApiController $sap)
     {
         $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
+       // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -49,9 +51,9 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
-           foreach ($headers as $header) {
-           $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
-           }
+            foreach ($headers as $header) {
+                $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+            }
         }
 
         return view('approval.index', compact('privileges', 'headers', 'results'));
@@ -96,8 +98,7 @@ class ApprovalController extends Controller
                 }
                 $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
-                $costingCode = null;
-                $type = $application->type;
+
                 // Update application status
                 $application->update([
                     'status' => $status,
@@ -177,17 +178,17 @@ class ApprovalController extends Controller
                 DB::commit();
 
                 $respString = preg_replace(
-                        [
-                            '/App\\\\Models\\\\/',
-                            '/([a-z])([A-Z])/',
-                            '/([A-Z])([A-Z][a-z])/'
-                        ],
-                        [
-                            '',
-                            '$1 $2',
-                            '$1 $2'
+                    [
+                        '/App\\\\Models\\\\/',
+                        '/([a-z])([A-Z])/',
+                        '/([A-Z])([A-Z][a-z])/'
                     ],
-                            $model
+                    [
+                        '',
+                        '$1 $2',
+                        '$1 $2'
+                    ],
+                    $model
                 );
 
                 try {
@@ -268,13 +269,18 @@ class ApprovalController extends Controller
 
     public function show(Request $request, $id)
     {
+
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
+        $no_of_days=1;
+        if($request->query('tab')==7){
+            $no_of_days = $data->estimated_travel_expenses / $data->daily_allowance;
+        }
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days'));
     }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
@@ -308,5 +314,39 @@ class ApprovalController extends Controller
             $applicationModel['email_subject'] . ' Approval',
             $initiatorMailContent
         ));
+    }
+    public function approvedApplications(Request $request)
+    {
+        $privileges = $request->instance();
+        $privileges['view'] = 1;
+        $headers = MasApprovalHead::all();
+        $user = auth()->user();
+
+        $applicationModels = config('global.applications');
+        $results = collect();
+
+        // Helper method to apply common query logic
+        $applyQuery = function ($modelClass, $user, $request) {
+            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass) {
+                $query->where('application_type', $modelClass)
+
+                        ->where('action_performed_by', $user->id);
+
+            })
+                ->whereNotIn('status', [0, 1]) // Status 2 for approved applications
+                ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->orderBy('created_at')
+                ->paginate(config('global.pagination'))
+                ->withQueryString();
+        };
+
+        foreach ($applicationModels as $key => $model) {
+            $modelClass = $model['name'];
+            $data = $applyQuery($modelClass, $user, $request);
+            $results->put($key, $data);
+        }
+
+        return view('approval.index', compact('privileges', 'headers', 'results'));
     }
 }

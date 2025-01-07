@@ -43,8 +43,8 @@ return [
     'application_status' => [
         -1 => 'Rejected',
         0 => 'Cancelled',
-        1 => 'Submitted',
-        2 => 'In-Progress',
+        1 => 'Approval Pending',
+        2 => 'Approval Pending',
         3 => 'Approved'
     ],
 
@@ -240,8 +240,8 @@ return [
         ],
     ],
 
-    
-    
+
+
 ];
 
 

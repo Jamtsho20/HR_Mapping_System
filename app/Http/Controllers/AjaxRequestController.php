@@ -324,9 +324,21 @@ class AjaxRequestController extends Controller
         $travelAuthPrefix = MasTravelType::where('id', $id)->value('code');
         $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
 
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+        // Check if the latest transaction exists
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->travel_authorization_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
 
-        $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
+        // Generate the travel authorization number
+        $authorizationNo = generateTransactionNumber($code, $currentSequence);
+
 
         return response()->json([
             'travel_no' => $authorizationNo,

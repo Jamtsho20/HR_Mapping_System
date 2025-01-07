@@ -76,9 +76,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="ms-auto">
-                        <h1 class="page-title">@yield('page-title')</h1>
-                    </div>
+                   <div class="ms-auto"><h1 class="page-title">@yield('page-title')</h1></div>
+
+                 
                     {{-- <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent-4" aria-expanded="false"
                         aria-controls="collapseExample">
@@ -146,6 +146,20 @@
                                 </ul>
                             </li>
                         @endforeach
+
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a class="side-menu__item"
+                                    href="{{ route('logout') }}"
+                                    onclick="event.preventDefault();
+                                    this.closest('form').submit();">
+                                    <i class="side-menu__icon fa fa-sign-out"></i>
+                                    <span class="side-menu__label">Logout</span>
+                                </a>
+                            </form>
+
+                        </li>
                     </ul>
                     <div class="slide-right" id="slide-right">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
@@ -163,6 +177,7 @@
             </aside>
         </div>
         <!--/APP-SIDEBAR-->
+
         <script>
             document.querySelector('.navbar-toggler').addEventListener('click', function() {
                 const collapseElement = document.querySelector('#navbarSupportedContent-4');

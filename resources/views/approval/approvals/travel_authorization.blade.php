@@ -8,10 +8,12 @@
                             id="basic-datatable table-responsive">
                             <thead>
                                 <tr role="row" class="thead-light">
+                                @if ($privileges->edit)
                                     <th>
                                         <input type="checkbox" id="select_all" class="select_all"
                                             data-item-class="bulk_checkbox" title="select all">
                                     </th>
+                                    @endif
                                     <th>APPLIED ON</th>
                                     <th>EMPLOYEE</th>
                                     <th>TRAVEL TYPES</th>
@@ -23,10 +25,12 @@
                             <tbody>
                                 @forelse ($results->get(7) as $travelAuthorization)
                                     <tr>
+                                    @if ($privileges->edit)
                                         <td>
                                             <input type="checkbox" class="bulk_checkbox"
                                                 value="{{ $travelAuthorization->id }}">
                                         </td>
+                                        @endif
                                         <td>{{ $travelAuthorization->created_at->format('y-m-d') }}</td>
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
@@ -51,23 +55,25 @@
                                         </td>
                                         <td class="text-center">
 
-                                            @if ($privileges->view)
-                                                <a href="{{ url('approval/applications/' . $travelAuthorization->id . '?tab=7') }}"
-                                                    class="btn btn-sm btn-outline-secondary">
-                                                    <i class="fa fa-list"></i> Detail
-                                                </a>
+                                            @php
+                                            $routeName = Route::currentRouteName(); // Get the current route name
+
+                                            @endphp
+
+                                            @if ($routeName == 'approval.index')
+                                            <a href="{{ url('approval/applications/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @elseif ($routeName == 'approval.approved')
+                                            <a href="{{ url('approval/approved-applications/details/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @else
+                                            <a href="{{ url('default-route/applications/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
                                             @endif
-                                            {{-- @if ($privileges->edit)
-                                                <a href="{{ route('travel-authorization-approval.edit', $travelAuthorization->id) }}"
-                                                    class=" btn btn-sm btn-rounded btn-outline-success"><i
-                                                        class="fa fa-edit"></i> EDIT</a>
-                                            @endif --}}
-                                            @if ($privileges->delete)
-                                                <a href="#"
-                                                    class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                    data-url="{{ url('travel-authorization/apply-travel-authorization/' . $travelAuthorization->id) }}"><i
-                                                        class="fa fa-trash"></i> DELETE</a>
-                                            @endif
+
                                         </td>
                                     </tr>
                                 @empty
