@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Application Approvals')
+@section('page-title', 'Pending Applications')
 @section('content')
     @include('layouts.includes.loader')
 
