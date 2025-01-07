@@ -105,7 +105,7 @@ class LeaveEncashmentApplicationController extends Controller
 
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
-        
+
         //if encashment amount / basic pay (monthly income) > 167400 calculate tax amount seperately
         if((int)$request->encashment_amount > 167400){
             $tax_amount = (((int)$request->encashment_amount - 125000) * 0.3) + 20208;
