@@ -101,7 +101,7 @@ class ApprovalController extends Controller
                 // Update application status
                 $application->update([
                     'status' => $status,
-                    // 'updated_by' => $actionBy,
+                    'updated_by' => $actionBy,
                 ]);
 
                 // Forward application if approved
@@ -156,12 +156,13 @@ class ApprovalController extends Controller
                         // Finalize approval if it's at the maximum level
                         $application->update([
                             'status' => 3, // 3 could represent 'final approved'
+                            'updated_by' => $actionBy
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
                     } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
                         $application->update([
                             'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                            // 'updated_by' => $actionBy,
+                            'updated_by' => $actionBy,
                         ]);
 
                         $updateData['status'] = $applicationForwardedTo['application_status'];
