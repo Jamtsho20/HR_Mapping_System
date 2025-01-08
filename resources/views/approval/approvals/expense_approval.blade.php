@@ -26,7 +26,13 @@
                                             EXPENSE TYPE
                                         </th>
                                         <th>
+                                            Vehicle Name
+                                        </th>
+                                        <th>
                                             Vehicle Number
+                                        </th>
+                                        <th>
+                                            Location
                                         </th>
                                         <th>
                                             EXPENSE AMOUNT
@@ -56,7 +62,12 @@
                                             <td>{{ $application->date }}</td>
                                             <td>{{ $application->type->name }}
                                             </td>
-                                            <td>{{ $application->vehicle->vehicle_no }}
+                                            <td>{{ $application->vehicle->vehicleType->name ?? config('global.null_value') }}
+                                            </td>
+                                            <td>{{ $application->vehicle->vehicle_no ?? config('global.null_value') }}
+                                            </td>
+
+                                            <td>{{ $application->vehicle->location ?? config('global.null_value') }}
                                             </td>
                                             <td>{{ $application->amount }}
                                             </td>
