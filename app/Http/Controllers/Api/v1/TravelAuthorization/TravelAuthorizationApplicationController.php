@@ -67,7 +67,7 @@ class TravelAuthorizationApplicationController extends Controller
     {
         try {
             $privileges = $request->instance();
-            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name',  'histories:id,application_id,action_performed_by,application_type',  'histories.actionPerformer:id,name,username')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
+            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name',  'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
             return response()->json([
                 'message' => 'Travel authorization applications retrieved successfully',
                 'travelAuthorizations' => $travelAuthorizations
@@ -187,7 +187,7 @@ class TravelAuthorizationApplicationController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
 
-                return $this->errorResponse('Failed to store application', 500);
+                return $this->errorResponse('Failed to store application'.$e, 500);
             }
 
             return $this->successResponse($travelAuthorization, 'Travel Authorization application has been successfully created.', 201);
