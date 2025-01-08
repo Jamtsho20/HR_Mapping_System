@@ -44,6 +44,9 @@
 <script src="{{ asset('assets/js/themeColors.js') }}"></script>
 <!-- swither styles js -->
 <script src="{{ asset('assets/js/swither-styles.js') }}"></script>
+<!-- sweet alert js -->
+{{-- <script src="{{ asset('assets/js/sweet-alert.js') }}"></script> --}}
+
 <!-- select2 -->
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
