@@ -16,11 +16,12 @@
                                                 id="basic-datatable table-responsive">
                                                 <thead>
                                                     <tr role="row" class="thead-light">
-                                                    @if ($privileges->edit)
-                                                        <th>
-                                                            <input type="checkbox" id="select_all" class="select_all"
-                                                                data-item-class="bulk_checkbox" title="select all">
-                                                        </th>
+                                                        @if ($privileges->edit)
+                                                            <th>
+                                                                <input type="checkbox" id="select_all"
+                                                                    class="select_all" data-item-class="bulk_checkbox"
+                                                                    title="select all">
+                                                            </th>
                                                         @endif
                                                         <th>
                                                             EMPLOYEE NAME
@@ -48,9 +49,9 @@
                                                 <tbody>
                                                     @forelse ($results->get(8) as $sifa)
                                                         <tr>
-                                                        @if ($privileges->edit)
-                                                            <td><input type="checkbox" class="bulk_checkbox"
-                                                                    value="{{ $sifa->id }}"></td>
+                                                            @if ($privileges->edit)
+                                                                <td><input type="checkbox" class="bulk_checkbox"
+                                                                        value="{{ $sifa->id }}"></td>
                                                             @endif
                                                             <td>{{ $sifa->employee->emp_id_name }}</td>
                                                             <td>{{ $sifa->employee->empJob->designation->name ?? 'N/A' }}
@@ -59,7 +60,7 @@
                                                             </td>
                                                             <td>{{ $sifa->employee->empJob->department->name ?? 'N/A' }}
                                                             </td>
-                                                            <td>{{ $sifa->employee->created_at }}</td>
+                                                            <td>{{ $sifa->employee->created_at->format('d-m-y') }}</td>
                                                             <td class="text-center">
                                                                 @if ($sifa->status == 1)
                                                                     <span class="badge bg-primary">Submitted</span>
@@ -78,10 +79,10 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
-                                                                @php
-                                                                $routeName = Route::currentRouteName(); // Get the current route name
+                                                                    @php
+                                                                        $routeName = Route::currentRouteName(); // Get the current route name
 
-                                                                @endphp
+                                                                    @endphp
 
                                                                 @if ($routeName == 'approval.index')
                                                                 <a href="{{ url('approval/applications/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
@@ -89,6 +90,10 @@
                                                                 </a>
                                                                 @elseif ($routeName == 'approval.approved')
                                                                 <a href="{{ url('approval/approved-applications/details/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @elseif ($routeName == 'approval.rejected')
+                                                                <a href="{{ url('approval/rejected-applications/details/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
                                                                     <i class="fa fa-list"></i> Detail
                                                                 </a>
                                                                 @else

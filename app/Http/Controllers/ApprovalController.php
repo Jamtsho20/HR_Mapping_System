@@ -22,7 +22,7 @@ class ApprovalController extends Controller
     public function __construct(ApiController $sap)
     {
         $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
-       // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
+        // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -269,18 +269,18 @@ class ApprovalController extends Controller
 
     public function show(Request $request, $id)
     {
-
+        $privileges = $request->instance();
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
-        $no_of_days=1;
-        if($request->query('tab')==7){
+        $no_of_days = 1;
+        if ($request->query('tab') == 7) {
             $no_of_days = $data->estimated_travel_expenses / $data->daily_allowance;
         }
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
     }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
@@ -324,16 +324,22 @@ class ApprovalController extends Controller
 
         $applicationModels = config('global.applications');
         $results = collect();
+        $specificCondition = false;
+        if ($request->is('approval/approved-applications*')) {
+            // Set condition based on the path
+            $statuses = [2,3];
+        } elseif ($request->is('approval/rejected-applications*')) {
+            $statuses = [-1];
+        }
 
         // Helper method to apply common query logic
-        $applyQuery = function ($modelClass, $user, $request) {
-            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass) {
+        $applyQuery = function ($modelClass, $user, $request) use ($statuses) {
+            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass, $statuses) {
                 $query->where('application_type', $modelClass)
 
-                        ->where('action_performed_by', $user->id);
-
+                    ->where('action_performed_by', $user->id);
             })
-                ->whereNotIn('status', [0, 1]) // Status 2 for approved applications
+                ->whereIn('status', $statuses)
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
@@ -344,6 +350,15 @@ class ApprovalController extends Controller
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
             $data = $applyQuery($modelClass, $user, $request);
+
+            if ($request->is('approval/approved-applications*')) {
+                // Set condition based on the path
+
+            $data->getCollection()->transform(function ($item) {
+                $item->status = 3; // Change status to 3
+                return $item;
+            });
+        }
             $results->put($key, $data);
         }
 

@@ -41,7 +41,7 @@ class LeaveEncashmentApplicationController extends Controller
 
     public function index(Request $request){
         try{$privileges = $request->instance();
-        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->with( 'histories:id,application_id,action_performed_by,application_type',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
+        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->with( 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveEncashment, 'Leave encashment applications retrieved successfully');
     }catch (\Exception $e) {
           return $this->errorResponse($e->getMessage());
