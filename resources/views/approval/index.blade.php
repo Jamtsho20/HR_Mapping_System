@@ -111,6 +111,42 @@ if (request()->is('approval/approved-applications')) {
 @endsection
 @push('page_scripts')
     <script>
+        function showSuccessMessage(message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: message,
+                // timer: 3000, // Auto-dismiss after 3 seconds
+                timer: false,
+                // showConfirmButton: false,
+                // showCloseButton: true, // Display the close button
+                confirmButtonText: 'OK', // Set the text of the button
+                showCloseButton: false, // Hide the default close (X) button
+                willClose: () => {
+                    // Reload the page when the alert is closed
+                    location.reload();
+                }
+            });
+        }
+
+        function showErrorMessage(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+                // timer: 3000, // Auto-dismiss after 3 seconds
+                timer: false,
+                // showConfirmButton: false,
+                // showCloseButton: true, // Display the close button
+                confirmButtonText: 'OK', // Set the text of the button
+                showCloseButton: false,
+                // willClose: () => {
+                //     // Reload the page when the alert is closed
+                //     location.reload();
+                // }
+            });
+        }
+
         $(document).ready(function() {
             // Select/Deselect all checkboxes
             $('.select_all').click(function() {
@@ -167,7 +203,8 @@ if (request()->is('approval/approved-applications')) {
 
                 // Check if any items are selected
                 if (selectedItems.length === 0) {
-                    alert(`Please select at least one ${itemName}`);
+                    // alert(`Please select at least one ${itemName}`);
+                    showErrorMessage(`Please select at least one ${itemName}`);
                     return;
                 }
 
@@ -181,7 +218,8 @@ if (request()->is('approval/approved-applications')) {
                         var rejectRemarks = $('#rejectRemarks').val();
 
                         if (rejectRemarks.trim() === '') {
-                            alert('Please provide reject remarks.');
+                            // alert('Please provide reject remarks.');
+                            showErrorMessage('Please provide reject remarks.');
                             return;
                         }
 
@@ -197,16 +235,19 @@ if (request()->is('approval/approved-applications')) {
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                alert(response.msg_success);
-                                location.reload();
+                                // alert(response.msg_success);
+                                // location.reload();
+                                showSuccessMessage(response.msg_success);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 try {
                                     var errorResponse = JSON.parse(jqXHR.responseText);
-                                    alert(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
+                                    // alert(errorResponse.msg_error ||
+                                    //     'An unexpected error occurred.');
+                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
                                 } catch (e) {
-                                    alert('An error occurred: ' + errorThrown);
+                                    // alert('An error occurred: ' + errorThrown);
+                                    showErrorMessage('An error occurred: ' + errorThrown);
                                 }
                             }
                         });
@@ -227,18 +268,21 @@ if (request()->is('approval/approved-applications')) {
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            alert(response.msg_success);
-                            location.reload();
+                            // alert(response.msg_success);
+                            // location.reload();
                             $('#loader').hide();
+                            showSuccessMessage(response.msg_success);
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
-                                alert(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
+                                // alert(errorResponse.msg_error ||
+                                //     'An unexpected error occurred.');
+                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
                             } catch (e) {
-                                alert('An error occurred: ' + errorThrown);
+                                // alert('An error occurred: ' + errorThrown);
+                                showErrorMessage('An error occurred: ' + errorThrown);
                             }
                         }
                     });

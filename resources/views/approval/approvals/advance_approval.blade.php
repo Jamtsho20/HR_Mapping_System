@@ -44,7 +44,7 @@
                                                         value="{{ $advance->id }}"></td>
                                             @endif
                                             <td>{{ $advance->employee->emp_id_name }}</td>
-                                            <td>{{ $advance->date }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($advance)->date->format('d-m-y') }}</td>
                                             <td>{{ $advance->advanceType->name }}</td>
                                             <td>{{ $advance->amount }}</td>
                                             <td class="text-center">
