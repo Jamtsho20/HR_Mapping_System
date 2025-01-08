@@ -98,6 +98,10 @@
                                                             class="btn btn-sm btn-outline-secondary">
                                                             <i class="fa fa-list"></i> Detail
                                                         </a>
+                                                    @elseif ($routeName == 'approval.rejected')
+                                                    <a href="{{ url('approval/rejected-applications/details/' . $application->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-list"></i> Detail
+                                                    </a>
                                                     @else
                                                         <a href="{{ url('default-route/applications/' . $application->id . '?tab=2') }}"
                                                             class="btn btn-sm btn-outline-secondary">

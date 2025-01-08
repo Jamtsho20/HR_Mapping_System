@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'View Application details')
 
+
 @section('buttons')
     @php
         $backUrl = url('approval/applications'); // Default URL
@@ -9,14 +10,18 @@
             $backUrl = url('approval/approved-applications');
         } elseif (request()->is('approval/applications/*')) {
             $backUrl = url('approval/applications');
+        }elseif (request()->is('approval/rejected-applications/*')) {
+            $backUrl = url('approval/rejected-applications');
         }
     @endphp
 
     <a href="{{ $backUrl }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
+
+
 @endsection
 
-
 @section('content')
+
 
 @if ($tab == 1)
 @include('approval.view.leave', ['leave' => $data, 'empDetails' => $empDetails])

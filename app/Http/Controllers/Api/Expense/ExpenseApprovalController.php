@@ -30,7 +30,7 @@ class ExpenseApprovalController extends Controller
             $empIdName = LoggedInUserEmpIdName();
             $user = auth()->user();
 
-            $data = ExpenseApplication::with('type:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
+            $data = ExpenseApplication::with('type:id,name')->with('employee:id,name,username', 'vehicle:id,vehicle_no')->whereHas('histories', function ($query) use ($user) {
                 $query->where('approver_emp_id', $user->id)
                     ->where('application_type', \App\Models\ExpenseApplication::class);
             })

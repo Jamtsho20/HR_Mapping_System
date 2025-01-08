@@ -6,6 +6,7 @@
 @section('content')
 
     <div class="row">
+        @include('components.appoval-buttons')
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -122,5 +123,101 @@
     </div>
 
 @endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('.buttonsubmit').click(function() {
+
+                const itemType = 3;
+                var action = $(this).data('value');
+                var selectedItems = [{{$advance->id}}];
+                var routeUrl = $(this).data('route');
+                var itemClass = $(this).data('item-class');
+
+                // Modal close manually
+                $('.close').click(function() {
+                    $('#rejectModal').modal('hide');
+                });
+
+
+                // Check if reject action is clicked
+                if (action === 'reject') {
+                    // Show reject remarks modal
+                    $('#rejectModal').modal('show');
+
+                    // Handle reject confirmation
+                    $('#confirmReject').click(function() {
+                        var rejectRemarks = $('#rejectRemarks').val();
+
+                        if (rejectRemarks.trim() === '') {
+                            alert('Please provide reject remarks.');
+                            return;
+                        }
+
+                        // Send AJAX request to reject
+                        $('#loader').show();
+                        $.ajax({
+                            url: routeUrl,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                item_ids: selectedItems,
+                                action: action,
+                                reject_remarks: rejectRemarks,
+                                item_type_id: itemType
+                            },
+                            success: function(response) {
+                                alert(response.msg_success);
+
+                                window.location.href = document.referrer;
+
+                                $('#loader').hide();
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                $('#loader').hide();
+                                try {
+                                    var errorResponse = JSON.parse(jqXHR.responseText);
+                                    alert(errorResponse.msg_error ||
+                                        'An unexpected error occurred.');
+                                } catch (e) {
+                                    alert('An error occurred: ' + errorThrown);
+                                }
+                            }
+                        });
+
+                        // Close the modal
+                        $('#rejectModal').modal('hide');
+                    });
+                } else {
+                    // Proceed with approval if action is approve
+                    $('#loader').show();
+                    $.ajax({
+                        url: routeUrl,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            item_ids: selectedItems,
+                            action: action,
+                            item_type_id: itemType
+                        },
+                        success: function(response) {
+                            alert(response.msg_success);
+                            window.location.href = document.referrer;
+                            $('#loader').hide();
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            $('#loader').hide();
+                            try {
+                                var errorResponse = JSON.parse(jqXHR.responseText);
+                                alert(errorResponse.msg_error ||
+                                    'An unexpected error occurred.');
+                            } catch (e) {
+                                alert('An error occurred: ' + errorThrown);
+                            }
+                        }
+                    });
+                }
+            });
+    })
+</script>
 @push('page_scripts')
 @endpush
