@@ -6,7 +6,7 @@
 @endsection
 
 @section('content')
-@include('components.appoval-buttons')
+@include('components.approval-buttons')
     <div class="card">
         <div class="card-body">
             @if ($sifaRegistration && $sifaRegistration->is_registered == 1)

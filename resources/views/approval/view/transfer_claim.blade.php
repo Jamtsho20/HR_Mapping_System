@@ -8,7 +8,7 @@
 
 
     <div class="row">
-        @include('components.appoval-buttons')
+        @include('components.approval-buttons')
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
