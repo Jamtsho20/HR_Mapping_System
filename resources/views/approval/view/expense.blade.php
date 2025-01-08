@@ -28,7 +28,26 @@
                                 <tr>
                                     <th style="width:35%;">Expense Type <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $expense->type->name ?? '-' }}</td>
+                                    <td style="padding-left:25px;">
+                                        {{ $expense->type->name ?? config('global.null_value') }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:35%;">Vehicle Name <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        {{ $expense->vehicle->vehicleType->name ?? config('global.null_value') }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:35%;">Vehicle No <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        {{ $expense->vehicle->vehicle_no ?? config('global.null_value') }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:35%;">Location <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        {{ $expense->vehicle->location ?? config('global.null_value') }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
@@ -74,8 +93,6 @@
                                             @else
                                                 <p>No attachment available.</p>
                                             @endif
-
-                                          
                                         @else
                                             <span class="text-danger">No attachment available.</span>
                                         @endif
