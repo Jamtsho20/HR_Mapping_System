@@ -14,6 +14,8 @@ class WorkHolidayList extends Model
 
     protected $casts = [
         'region_id' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     //accessors & mutators
