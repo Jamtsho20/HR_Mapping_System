@@ -59,7 +59,7 @@
                                             @endif
                                             <td>{{ $application->employee->name }}
                                             </td>
-                                            <td>{{ $application->date->format('d-m-y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($application->date)->format('d-m-y') }}</td>
                                             <td>{{ $application->type->name }}
                                             </td>
                                             <td>{{ $application->vehicle->vehicleType->name ?? config('global.null_value') }}
