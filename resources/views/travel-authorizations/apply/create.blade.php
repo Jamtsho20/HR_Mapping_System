@@ -10,7 +10,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
-                        <input type="text" class="form-control" name="travel_authorization_no" value="{{ $travelAuthorizationNumber }}" id="travel_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
+                        <input type="text" class="form-control" name="travel_authorization_no"  id="travel_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
 
@@ -48,7 +48,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="days_difference">Number of Days<span class="text-danger"></span></label>
-                        <input type="number" step="any" class="form-control" name="days_difference" id="days_difference" required>
+                        <input type="number" step="0.5" class="form-control" name="days_difference" id="days_difference" required>
                     </div>
                 </div>
 
@@ -71,6 +71,7 @@
             <br>
 
             <div class="card-body  p-0">
+                <p class="text-danger ">* For half days, subtract 0.5 from the number of days</p>
                 <div class="table-responsive">
                     <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
                         <thead>
@@ -90,7 +91,7 @@
                                     <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <input type="date" id="from_date" name="details[0][from_date]" class="from_date form-control form-control-sm" required>
+                                    <input type="date" id="from_date" min="2025-01-01" name="details[0][from_date]" class="from_date form-control form-control-sm"  required>
                                 </td>
                                 <td>
                                     <input type="date" id="to_date" name="details[0][to_date]" class="to_date form-control form-control-sm" disabled>
@@ -152,6 +153,12 @@
         let rowCount = document.querySelectorAll('#travel_details tbody tr').length - 1;
 
 
+        daysDifferenceInput.addEventListener('input', function() {
+            manualEdit = true;
+            calculateEstimatedTravelExpenses(); // Recalculate expenses based on the manual number of days
+            manualEdit = false;
+        });
+
         // Function to update the date constraints dynamically
         function updateDateConstraints() {
             const tableRows = document.querySelectorAll('#travel_details tr');
@@ -164,7 +171,7 @@
 
                 // For the first row
                 if (rowIndex === 0) {
-                    fromDateField.removeAttribute('min'); // No restrictions for the first row's from_date
+                    // fromDateField.removeAttribute('min'); // No restrictions for the first row's from_date
                 } else {
                     // For subsequent rows, set min for from_date based on the previous row's to_date
                     const previousRow = tableRows[rowIndex - 1];
@@ -180,10 +187,10 @@
                             fromDateField.setAttribute('min', minDate);
 
                         }
-                        console.log(minDate);
+
 
                     } else {
-                        fromDateField.removeAttribute('min');
+                        // fromDateField.removeAttribute('min'); (remove to set the fromdate)
                     }
                 }
 
@@ -191,7 +198,7 @@
                 const fromDateValue = fromDateField.value;
                 if (fromDateValue) {
                     toDateField.setAttribute('min', fromDateValue);
-                  
+
                     toDateField.disabled = false;
                 } else {
                     toDateField.disabled = true;
@@ -220,7 +227,17 @@
                 }
             });
 
-            if (!manualEdit) {
+            if (manualEdit) {
+            const manualValue = parseFloat(daysDifferenceInput.value) || 0;
+
+            if (manualValue > totalDays) {
+                alert('Number of days cannot be greater than the number of days selected in the table. Please check the dates and try again.');
+                daysDifferenceInput.value = totalDays; // Revert to calculated value
+
+            } else {
+                return manualValue;
+            }
+        }else{
                 daysDifferenceInput.value = totalDays;
             }
 
@@ -229,9 +246,10 @@
 
         function calculateEstimatedTravelExpenses() {
             const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
-            const totalDays = manualEdit ? parseFloat(daysDifferenceInput.value) || 0 : calculateDaysDifference();
+            const totalDays = calculateDaysDifference();
             const estimatedAmount = (totalDays * dailyAllowance);
             estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
+
         }
 
         // Event listener for adding rows
@@ -244,7 +262,7 @@
                 <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
             </td>
             <td>
-                <input type="date" id="from_date" name="details[${rowCount}][from_date]" class="form-control form-control-sm from_date" required>
+                <input type="date" id="from_date" name="details[${rowCount}][from_date]" class="form-control form-control-sm from_date" min="2025-01-01" required>
             </td>
             <td>
                 <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm to_date" disabled>

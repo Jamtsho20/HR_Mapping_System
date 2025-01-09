@@ -355,21 +355,21 @@ var hrms = function () {
             var advanceTypeId = $(this).val();
 
             if (advanceTypeId !== '') {
-                $.ajax({
-                    url: "/getadvancenobyadvancetype/" + advanceTypeId,
-                    dataType: "JSON",
-                    type: "GET",
+                // $.ajax({
+                //     url: "/getadvancenobyadvancetype/" + advanceTypeId,
+                //     dataType: "JSON",
+                //     type: "GET",
 
-                    success: function (response) {
-                        $('#advance_no').val(response.advance_no)
-                        if (response.sifa_interest_rate != 0) {
-                            $('#interest_rate_sifa').val(response.sifa_interest_rate);
-                        }
-                    },
-                    error: function (response) {
-                        alert('Something went wrong, please contact system admin for further information!');
-                    }
-                });
+                //     success: function (response) {
+                //         //$('#advance_no').val(response.advance_no)
+                //         if (response.sifa_interest_rate != 0) {
+                //             $('#interest_rate_sifa').val(response.sifa_interest_rate);
+                //         }
+                //     },
+                //     error: function (response) {
+                //         alert('Something went wrong, please contact system admin for further information!');
+                //     }
+                // });
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
 
                     let typingTimer; // Timer for debounce
@@ -442,23 +442,23 @@ var hrms = function () {
         });
 
         //generating advance no based on advance types
-        $(document).on('change', '#expense_type', function () {
-            var expenseTypeId = $(this).val();
-            if (expenseTypeId !== '') {
-                $.ajax({
-                    url: "/getexpensenobyexpensetype/" + expenseTypeId,
-                    dataType: "JSON",
-                    type: "GET",
+        // $(document).on('change', '#expense_type', function () {
+        //     var expenseTypeId = $(this).val();
+        //     if (expenseTypeId !== '') {
+        //         $.ajax({
+        //             url: "/getexpensenobyexpensetype/" + expenseTypeId,
+        //             dataType: "JSON",
+        //             type: "GET",
 
-                    success: function (response) {
-                        $('#expense_no').val(response.expense_no)
-                    },
-                    error: function (response) {
-                        alert('Something went wrong, please contact system admin for further information!');
-                    }
-                });
-            }
-        })
+        //             success: function (response) {
+        //                 $('#expense_no').val(response.expense_no)
+        //             },
+        //             error: function (response) {
+        //                 alert('Something went wrong, please contact system admin for further information!');
+        //             }
+        //         });
+        //     }
+        // })
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
@@ -480,7 +480,7 @@ var hrms = function () {
                         if (currentAmount > data.limit_amount) {
                             $("#expense_type").prop("disabled", false);
                             $("#amount").prop('disabled', false);
-                            alert(`Expense amount must not exceed Nu. ${data.limit_amount} for region ${data.region_name}!`);
+                            alert(`Expense amount must not exceed Nu. ${data.limit_amount}!`);
                             $("#amount").val('');
                         }
                         else {

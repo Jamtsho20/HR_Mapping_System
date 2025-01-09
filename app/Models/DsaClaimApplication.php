@@ -26,6 +26,10 @@ class DsaClaimApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
 
     public function dsaClaimDetails() {
         return $this->hasMany(DsaClaimDetail::class, 'dsa_claim_id');

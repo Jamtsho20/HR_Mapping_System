@@ -27,8 +27,8 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
 	// User::observe(UserObserver::class);
-//	if (env('APP_ENV') === 'production') {
-  //          URL::forceRootUrl("https://hrms.tashicell.com");
-    //    }
+	if (env('APP_ENV') === 'production') {
+           URL::forceRootUrl("https://hrms.tashicell.com");
+       }
     }
 }

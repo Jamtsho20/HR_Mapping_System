@@ -41,7 +41,7 @@ class LeaveEncashmentApplicationController extends Controller
 
     public function index(Request $request){
         try{$privileges = $request->instance();
-        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->with('updated_by:id,name')->orderBy('created_at', 'desc')->get();
+        $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->with( 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveEncashment, 'Leave encashment applications retrieved successfully');
     }catch (\Exception $e) {
           return $this->errorResponse($e->getMessage());
@@ -105,8 +105,14 @@ class LeaveEncashmentApplicationController extends Controller
 
         $conditionFields = approvalHeadConditionFields(LEAVE_ENCASHMENT_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
-        $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->value('amount');
-        $tax_amount = null;
+
+        //if encashment amount / basic pay (monthly income) > 167400 calculate tax amount seperately
+        if((int)$request->encashment_amount > 167400){
+            $tax_amount = (((int)$request->encashment_amount - 125000) * 0.3) + 20208;
+        }else{
+            $tax_amount = MasPaySlabDetails::whereRaw('? BETWEEN pay_from AND pay_to', [$request->encashment_amount])->where('mas_pay_slab_id', 1)->value('amount');
+        }
+
         if (!$tax_amount ) {
              return response()->json(['message' => 'Tax amount has not been intialized, contact admin!']);
         }

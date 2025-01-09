@@ -1,0 +1,78 @@
+@extends('layouts.app')
+@section('page-title', 'View Leave Encashment Details')
+@section('buttons')
+    <a href="{{ url('approval/applications') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Approval List</a>
+@endsection
+@section('content')
+
+    <div class="row">
+        @include('components.employee-details', ['empDetails' => $empDetails])
+
+        <div class="col-lg-12">
+            <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6>Leave Encashment Details</h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table style="width:100%;" class="simple-table">
+                            <tbody>
+                                <tr>
+                                    <th style="width:35%;">Encashment Amount <span
+                                            class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;"> {{ $leaveEncashment->amount }}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:35%;">Earned Leave Balance<span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        @foreach ($empDetails->empLeave as $earned)
+                                            @if ($earned->mas_leave_type_id === 2)
+                                                {{ $earned->closing_balance }}
+                                            @endif
+                                        @endforeach
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="width:35%;">Created At<span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        {{ $leaveEncashment->created_at->format('d-m-y') }}
+                                    </td>
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6>Document History</h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        @include('layouts.includes.approval-details', [
+                            'approvalDetail' => $approvalDetail,
+                            'applicationStatus' => $leaveEncashment->status,
+                            // 'rejectionRemarks' => $rejectionRemarks,
+                        ])
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+@endsection
+@push('page_scripts')
+@endpush

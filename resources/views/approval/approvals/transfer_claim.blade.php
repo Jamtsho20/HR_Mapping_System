@@ -14,6 +14,7 @@
                                     id="basic-datatable table-responsive">
                                     <thead>
                                         <tr role="row" class="thead-light">
+                                        @if ($privileges->edit)
                                             <th>
                                                 <input type="checkbox"
                                                     id="select_all"
@@ -21,6 +22,7 @@
                                                     data-item-class="bulk_checkbox"
                                                     title="select all">
                                             </th>
+                                            @endif
                                             <th>
                                                 EMPLOYEE
                                             </th>
@@ -49,11 +51,13 @@
                                     <tbody>
                                         @forelse ($results->get(6) as $transferclaim)
                                         <tr>
+                                        @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox"
                                                     class="bulk_checkbox"
                                                     value="{{ $transferclaim->id }}">
                                             </td>
+                                            @endif
                                             <td>{{ $transferclaim->employee->name }}
                                             </td>
                                             <td>{{ $transferclaim->created_at->format('d-m-Y') }}
@@ -92,10 +96,28 @@
                                             </td>
                                             <td class="text-center">
                                                 @if ($privileges->view)
-                                                <a href="{{ url('approval/applications/' . $transferclaim->id) . '?tab=6' }}"
-                                                    class="btn btn-sm btn-outline-secondary"><i
-                                                        class="fa fa-list"></i>
-                                                    Detail</a>
+                                                @php
+                                                $routeName = Route::currentRouteName(); // Get the current route name
+
+                                                @endphp
+
+                                                @if ($routeName == 'approval.index')
+                                                <a href="{{ url('approval/applications/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @elseif ($routeName == 'approval.approved')
+                                                <a href="{{ url('approval/approved-applications/details/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @elseif ($routeName == 'approval.rejected')
+                                                <a href="{{ url('approval/rejected-applications/details/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @else
+                                                <a href="{{ url('default-route/applications/' . $transferclaim->id . '?tab=6') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
+                                                @endif
                                                 @endif
 
                                             </td>

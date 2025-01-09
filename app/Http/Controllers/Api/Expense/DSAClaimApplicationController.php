@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TravelAuthorizationApplication;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
+use App\Http\Controllers\AjaxRequestController;
 
 use App\Services\ApplicationHistoriesService;
 
@@ -25,27 +26,87 @@ class DSAClaimApplicationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
         $this->middleware('auth:api');
     }
 
     protected $rules = [
-        'dsa_claim_no' => 'required|string',
-        'amount' => 'required',
 
+        'type_id' => 'required|exists:dsa_claim_types,id',
+        'travel_authorization_id' => 'required|exists:travel_authorization_applications,id',
+        'advance_no' => 'nullable|exists:advance_applications,id',
+        'amount' => 'required|numeric|min:0',
+        'net_payable_amount' => 'nullable|numeric|min:0',
+        'balance_amount' => 'nullable|numeric|min:0',
+        'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'remarks' => 'nullable|string|max:500',
+        'dsa_claim_detail' => 'required|array|min:1',
+        'dsa_claim_detail.*.from_date' => 'required|date',
+        'dsa_claim_detail.*.to_date' => 'required|date|after_or_equal:dsa_claim_detail.*.from_date',
+        'dsa_claim_detail.*.from_location' => 'required|string|max:255',
+        'dsa_claim_detail.*.to_location' => 'required|string|max:255',
+        'dsa_claim_detail.*.total_days' => 'nullable|integer|min:0',
+        'dsa_claim_detail.*.daily_allowance' => 'nullable|numeric|min:0',
+        'dsa_claim_detail.*.travel_allowance' => 'nullable|numeric|min:0',
+        'dsa_claim_detail.*.total_amount' => 'nullable|numeric|min:0',
+        'dsa_claim_detail.*.remark' => 'nullable|string|max:500',
     ];
+
 
     protected $messages = [
 
+        'type_id.required' => 'The claim type is required.',
+        'type_id.exists' => 'The selected claim type is invalid.',
+        'travel_authorization_id.required' => 'Travel authorization is required.',
+        'travel_authorization_id.exists' => 'The selected travel authorization is invalid.',
+        'advance_no.exists' => 'The selected advance application is invalid.',
+        'amount.required' => 'The amount is required.',
+        'amount.numeric' => 'The amount must be a number.',
+        'amount.min' => 'The amount must be at least 0.',
+        'net_payable_amount.numeric' => 'The net payable amount must be a number.',
+        'net_payable_amount.min' => 'The net payable amount must be at least 0.',
+        'balance_amount.numeric' => 'The balance amount must be a number.',
+        'balance_amount.min' => 'The balance amount must be at least 0.',
+        'attachment.file' => 'The attachment must be a valid file.',
+        'attachment.mimes' => 'The attachment must be a file of type: jpg, jpeg, png, pdf.',
+        'attachment.max' => 'The attachment must not exceed 2MB.',
+        'remarks.string' => 'Remarks must be a string.',
+        'remarks.max' => 'Remarks may not be greater than 500 characters.',
+        'dsa_claim_detail.required' => 'At least one claim detail is required.',
+        'dsa_claim_detail.array' => 'The claim detail must be an array.',
+        'dsa_claim_detail.min' => 'You must provide at least one claim detail.',
+        'dsa_claim_detail.*.from_date.required' => 'The start date is required.',
+        'dsa_claim_detail.*.from_date.date' => 'The start date must be a valid date.',
+        'dsa_claim_detail.*.to_date.required' => 'The end date is required.',
+        'dsa_claim_detail.*.to_date.date' => 'The end date must be a valid date.',
+        'dsa_claim_detail.*.to_date.after_or_equal' => 'The end date must be after or equal to the start date.',
+        'dsa_claim_detail.*.from_location.required' => 'The from location is required.',
+        'dsa_claim_detail.*.from_location.string' => 'The from location must be a string.',
+        'dsa_claim_detail.*.from_location.max' => 'The from location may not be greater than 255 characters.',
+        'dsa_claim_detail.*.to_location.required' => 'The to location is required.',
+        'dsa_claim_detail.*.to_location.string' => 'The to location must be a string.',
+        'dsa_claim_detail.*.to_location.max' => 'The to location may not be greater than 255 characters.',
+        'dsa_claim_detail.*.total_days.integer' => 'The total days must be an integer.',
+        'dsa_claim_detail.*.total_days.min' => 'The total days must be at least 0.',
+        'dsa_claim_detail.*.daily_allowance.numeric' => 'The daily allowance must be a number.',
+        'dsa_claim_detail.*.daily_allowance.min' => 'The daily allowance must be at least 0.',
+        'dsa_claim_detail.*.travel_allowance.numeric' => 'The travel allowance must be a number.',
+        'dsa_claim_detail.*.travel_allowance.min' => 'The travel allowance must be at least 0.',
+        'dsa_claim_detail.*.total_amount.numeric' => 'The total amount must be a number.',
+        'dsa_claim_detail.*.total_amount.min' => 'The total amount must be at least 0.',
+        'dsa_claim_detail.*.remark.string' => 'The remark must be a string.',
+        'dsa_claim_detail.*.remark.max' => 'The remark may not be greater than 500 characters.',
     ];
+
     private $attachmentPath = 'images/dsa/';
 
     public function index(Request $request)
     {
         try{
             $user = loggedInUser();
-            $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name')->orderBy('created_at', 'desc')->get();
+            $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
             return $this->successResponse($dsaClaimApplications, 'DSA claim applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
@@ -103,13 +164,22 @@ class DSAClaimApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
 
+            $dsaClaimNo = $this->ajax->getDsaClaimNumber($request->dsa_claim_type_id);
+
+            // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+            if (DsaClaimApplication::where('dsa_claim_no', $dsaClaimNo)->exists()) {
+                // If the travel number already exists, throw an exception or return an error
+                $this->errorResponse('DSA Claim Application Number already exists. Please try again.', 500);
+                  }
+
+
             if ($approverByHierarchy) {
                 try {
                     DB::beginTransaction();
 
                     if ($request->hasFile('attachment')) {
-                        // Upload file and get the file path\\
-
+                        // Upload file and get the file path
                         $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                         // Store it as a JSON array
@@ -118,9 +188,8 @@ class DSAClaimApplicationController extends Controller
                         $attachment = json_encode([]);
                     }
 
-
                     $dsaClaimApplication = DsaClaimApplication::create([
-                        'dsa_claim_no' => $request->dsa_claim_no,
+                        'dsa_claim_no' => $dsaClaimNo,
                         'type_id' => $request->type_id,
                         'travel_authorization_id' => $request->travel_authorization_id,
                         'advance_application_id' => $request->advance_no ?? null,

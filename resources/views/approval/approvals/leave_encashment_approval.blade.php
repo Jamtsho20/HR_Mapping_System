@@ -8,10 +8,12 @@
                             id="basic-datatable table-responsive">
                             <thead>
                                 <tr role="row" class="thead-light">
-                                    <th>
-                                        <input type="checkbox" id="select_all" class="select_all"
-                                            data-item-class="bulk_checkbox" title="select all">
-                                    </th>
+                                    @if ($privileges->edit)
+                                        <th>
+                                            <input type="checkbox" id="select_all" class="select_all"
+                                                data-item-class="bulk_checkbox" title="select all">
+                                        </th>
+                                    @endif
                                     <th>
                                         EMPLOYEE ID
                                     </th>
@@ -34,13 +36,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+
                                 @forelse ($results->get(4) as $leave)
                                     <tr>
-                                        <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}">
-                                        </td>
+                                        @if ($privileges->edit)
+                                            <td><input type="checkbox" class="bulk_checkbox"
+                                                    value="{{ $leave->id }}">
+                                            </td>
+                                        @endif
                                         <td>{{ $leave->employee->username }}</td>
                                         <td>{{ $leave->employee->name }}</td>
-                                        <td>{{ $leave->created_at }}</td>
+                                        <td>{{ $leave->created_at->format('d-m-y') }}</td>
                                         <td>{{ $leave->amount }}</td>
                                         <td class="text-center">
 
@@ -71,6 +77,30 @@
                                                     class="edit-btn btn btn-sm btn-rounded btn-outline-success"><i
                                                         class="fa fa-edit"></i> EDIT</a>
                                             @endif --}}
+                                            @if ($privileges->view)
+                                                @php
+                                                    $routeName = Route::currentRouteName(); // Get the current route name
+
+                                                @endphp
+
+                                                @if ($routeName == 'approval.index')
+                                                    <a href="{{ url('approval/applications/' . $leave->id . '?tab=4') }}"
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-list"></i> Detail
+                                                    </a>
+                                                @elseif ($routeName == 'approval.approved')
+                                                    <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=4') }}"
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-list"></i> Detail
+                                                    </a>
+                                                @else
+                                                    <a href="{{ url('default-route/applications/' . $leave->id . '?tab=4') }}"
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-list"></i> Detail
+                                                    </a>
+                                                @endif
+                                            @endif
+
                                             @if ($privileges->delete)
                                                 <a href="#"
                                                     class="delete-btn btn btn-sm btn-rounded btn-outline-danger"

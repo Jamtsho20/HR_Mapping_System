@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\Api\SAP\ApiController;
+use App\Models\MasDepartment;
 use App\Models\PaySlipSummary;
 use App\Services\PayrollService;
 use Illuminate\Bus\Queueable;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use DB;
 
 class PostSalaryToSapJob implements ShouldQueue
 {
@@ -35,26 +37,26 @@ class PostSalaryToSapJob implements ShouldQueue
     {
         $forMonth = $this->paySlip->for_month;
 
-        // Fetch allowances (Credits)
-        $allowances = PaySlipSummary::where('for_month', $forMonth)
-            ->where('payhead_type', ALLOWANCE)
-            ->get();
+        $departments = MasDepartment::pluck('code', 'id');
 
-        // Fetch deductions (Debits)
-        $deductions = PaySlipSummary::where('for_month', $forMonth)
-            ->where('payhead_type', DEDUCTION)
-            ->get();
-
-        // Process all journal lines: Credits first, then Debits
         $journalEntryLines = [];
-        $journalEntryLines = array_merge(
-            $this->prepareJournalLines($allowances, true), // Credits
-            $this->prepareJournalLines($deductions, false) // Debits
-        );
+        foreach ($departments as $key => $value) {
+            // Retrieve entries for the current department
+            $entries = PaySlipSummary::where('for_month', $forMonth)
+                ->where('mas_department_id', $key)
+                ->orderby('payhead_id')
+                ->get();
 
-        // Prepare the final JSON payload
+            // Prepare and merge journal lines for the current department
+            $departmentJournalLines = $this->prepareJournalLines($entries); // Credits
+            $journalEntryLines = array_merge($journalEntryLines, $departmentJournalLines);
+        }
+
+        // Prepare the final JSON payload for all departments combined
         $postFields = $this->preparePostFields($journalEntryLines, 'Salary Entries');
+        Log::info($postFields);
 
+        // return json_decode($postFields);
         // Skip processing if ERP number already exists
         if (!is_null($this->paySlip->erp_number)) {
             Log::info('Payslip with ID ' . $this->paySlip->id . ' already is already posted to SAP. Skipping SAP posting.');
@@ -63,6 +65,8 @@ class PostSalaryToSapJob implements ShouldQueue
 
         // Post the payload to SAP
         $response = $sap->postJournalEntries($postFields);
+        Log::info($response);
+
         $content = json_decode($response->getContent(), true);
 
         $statusCode = $response->getStatusCode();
@@ -87,26 +91,25 @@ class PostSalaryToSapJob implements ShouldQueue
      * @param bool $isCredit
      * @return array
      */
-    private function prepareJournalLines($entries, $isCredit)
+    private function prepareJournalLines($entries)
     {
         $journalLines = [];
 
+        $totalCredit = $entries->where('payhead_type', 1)->sum('amount');
+        $totalDebit = $entries->where('payhead_type', 2)->sum('amount');
+        $unpaidSalary = $totalDebit - $totalCredit;
+
+        // dd($totalCredit, $totalDebit, $unpaidSalary );
         foreach ($entries as $data) {
             $amount = $data->amount;
             $costingCode2 = $data->department_code;
             $accountCode = $data->general_ledger_code;
             $accountCode2 = UNPAID_SALARY_STAFF;
             $lineMemo = $data->pay_type ?? "Salary Entry";
+            $isCredit = $data->payhead_type === 1;
 
             if ($isCredit) {
                 // For Allowances (Credit → Debit)
-                $journalLines[] = [
-                    "AccountCode" => $accountCode2,
-                    "CostingCode2" => $costingCode2,
-                    "Credit" => $amount,
-                    "Debit" => 0,
-                    "LineMemo" => "Un-Paid Salary (Staff)"
-                ];
                 $journalLines[] = [
                     "AccountCode" => $accountCode,
                     "CostingCode2" => $costingCode2,
@@ -115,23 +118,36 @@ class PostSalaryToSapJob implements ShouldQueue
                     "LineMemo" => $lineMemo
                 ];
             } else {
-                // For Deductions (Debit → Credit)
-                $journalLines[] = [
-                    "AccountCode" => $accountCode,
-                    "CostingCode2" => $costingCode2,
-                    "Credit" => 0,
-                    "Debit" => $amount,
-                    "LineMemo" => $lineMemo
-                ];
-                $journalLines[] = [
-                    "AccountCode" => $accountCode2,
-                    "CostingCode2" => $costingCode2,
-                    "Credit" => $amount,
-                    "Debit" => 0,
-                    "LineMemo" => "Un-Paid Salary (Staff)"
-                ];
+                if ($data->payhead_id === "16") {
+                    $user = DB::select('SELECT username FROM mas_employees WHERE id = ?', [$data->employee_id]);
+
+                    $journalLines[] = [
+                        "ShortName" => $user[0]->username,
+                        "CostingCode2" => $costingCode2,
+                        "Credit" => $amount,
+                        "Debit" => 0,
+                        "LineMemo" => $lineMemo
+                    ];
+                } else {
+                    // For Deductions (Debit → Credit)
+                    $journalLines[] = [
+                        "AccountCode" => $accountCode,
+                        "CostingCode2" => $costingCode2,
+                        "Credit" => $amount,
+                        "Debit" => 0,
+                        "LineMemo" => $lineMemo
+                    ];
+                }
             }
         }
+
+        $journalLines[] = [
+            "AccountCode" => $accountCode2,
+            "CostingCode2" => $costingCode2,
+            "Credit" => abs($unpaidSalary),
+            "Debit" => 0,
+            "LineMemo" => "Un-Paid Salary (Staff)"
+        ];
 
         return $journalLines;
     }

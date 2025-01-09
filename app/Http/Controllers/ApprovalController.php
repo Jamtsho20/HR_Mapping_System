@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Mail\ApprovalNotificationMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class ApprovalController extends Controller
@@ -21,6 +22,7 @@ class ApprovalController extends Controller
     public function __construct(ApiController $sap)
     {
         $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
+        // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -49,9 +51,9 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
-           foreach ($headers as $header) {
-           $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
-           }
+            foreach ($headers as $header) {
+                $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+            }
         }
 
         return view('approval.index', compact('privileges', 'headers', 'results'));
@@ -96,8 +98,7 @@ class ApprovalController extends Controller
                 }
                 $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
-                $costingCode = null;
-                $type = $application->type;
+
                 // Update application status
                 $application->update([
                     'status' => $status,
@@ -128,7 +129,7 @@ class ApprovalController extends Controller
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
-                        $costingCode2 = null;
+                        $costingCode2 = $application->employee?->empJob?->department?->code; // department code
 
                         if ($postToSap) {
                             if ($applicationHistory && $applicationHistory->is_posted_to_sap === 1) {
@@ -138,6 +139,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+                            Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
@@ -146,29 +148,29 @@ class ApprovalController extends Controller
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
                             }
 
-                            // Update history to mark as posted to SAP
-                            $applicationHistory->update([
-                                'is_posted_to_sap' => 1,
-                                'sap_response' => json_encode($postJournalEntriesResponse ?? []),
-                            ]);
+
+                            //update the updateData array and update ApplicationHistory once it is done
+                            $updateData['is_posted_to_sap'] = 1;
+                            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
                         }
 
                         // Finalize approval if it's at the maximum level
                         $application->update([
                             'status' => 3, // 3 could represent 'final approved'
+                            'updated_by' => $actionBy
                         ]);
                         $updateData['status'] = 3; // Mark the history entry as final approved
                     } elseif ($applicationForwardedTo && $applicationForwardedTo['application_status'] === 3) {
                         $application->update([
                             'status' => $applicationForwardedTo['application_status'], // 3 could represent 'final approved'
-                            // 'updated_by' => $actionBy,
+                            'updated_by' => $actionBy,
                         ]);
 
                         $updateData['status'] = $applicationForwardedTo['application_status'];
                     }
                 }
 
-                // Update application history
+                // Update application history once everything is done accurately
                 if ($applicationHistory) {
                     $applicationHistory->update($updateData);
                 }
@@ -176,36 +178,19 @@ class ApprovalController extends Controller
                 DB::commit();
 
                 $respString = preg_replace(
-                    ['/App\\\\Models\\\\/', '/([a-z])([A-Z])/'],
-                    ['', '$1 $2'],
+                    [
+                        '/App\\\\Models\\\\/',
+                        '/([a-z])([A-Z])/',
+                        '/([A-Z])([A-Z][a-z])/'
+                    ],
+                    [
+                        '',
+                        '$1 $2',
+                        '$1 $2'
+                    ],
                     $model
                 );
-                
-                // $respString = preg_replace(
-                //     ['/App\\\\Models\\\\/', '/([a-z])Application/'],
-                //     ['', '$1 Application'],
-                //     $model
-		// );
 
-		$respString = preg_replace(
-    			[
-        			'/App\\\\Models\\\\/',
-        			'/([a-z])([A-Z])/',
-        			'/([A-Z])([A-Z][a-z])/'
-    			],
-    			[
-        			'',
-        			'$1 $2',
-        			'$1 $2'
-   		 	],
-    				$model
-		);
-
-                $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
-                // Update application history
-                if ($applicationHistory) {
-                    $applicationHistory->update($updateData);
-                }
                 try {
                     if ($updateData['status'] == 3 || $updateData['status'] == -1) {
                         $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
@@ -236,21 +221,21 @@ class ApprovalController extends Controller
                 "JournalEntryLines": [
                     {
                         "AccountCode": "' . $accountCode . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": 0,
                         "Debit": "' . $amount . '"
                     },
                     {
                         "ShortName": "' . $shortName . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $amount - $tax_amount . '",
                         "Debit": 0
                     },
                     {
                         "AccountCode": "' . TAX_GL_CODE . '",
-                        "CostingCode": "' . $costingCode . '", // department
+                        "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
                         "Credit": "' . $tax_amount . '",
                         "Debit": 0
@@ -265,14 +250,14 @@ class ApprovalController extends Controller
                             "JournalEntryLines": [
                                 {
                                     "ShortName": "' . $shortName . '",
-                                    "CostingCode": "' . $costingCode . '", // department
+                                    "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
                                     "Credit": "' . $amount . '",
                                     "Debit": 0
                                 },
                                 {
                                     "AccountCode": "' . $accountCode . '",
-                                    "CostingCode": "' . $costingCode . '", // department
+                                    "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
                                     "Credit": 0,
                                     "Debit": "' . $amount . '"
@@ -284,13 +269,18 @@ class ApprovalController extends Controller
 
     public function show(Request $request, $id)
     {
+        $privileges = $request->instance();
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
+        $no_of_days = 1;
+        if ($request->query('tab') == 7) {
+            $no_of_days = $data->estimated_travel_expenses / $data->daily_allowance;
+        }
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
     }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
@@ -324,5 +314,54 @@ class ApprovalController extends Controller
             $applicationModel['email_subject'] . ' Approval',
             $initiatorMailContent
         ));
+    }
+    public function approvedApplications(Request $request)
+    {
+        $privileges = $request->instance();
+        $privileges['view'] = 1;
+        $headers = MasApprovalHead::all();
+        $user = auth()->user();
+
+        $applicationModels = config('global.applications');
+        $results = collect();
+        $specificCondition = false;
+        if ($request->is('approval/approved-applications*')) {
+            // Set condition based on the path
+            $statuses = [2,3];
+        } elseif ($request->is('approval/rejected-applications*')) {
+            $statuses = [-1];
+        }
+
+        // Helper method to apply common query logic
+        $applyQuery = function ($modelClass, $user, $request) use ($statuses) {
+            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass, $statuses) {
+                $query->where('application_type', $modelClass)
+
+                    ->where('action_performed_by', $user->id);
+            })
+                ->whereIn('status', $statuses)
+                ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->orderBy('created_at')
+                ->paginate(config('global.pagination'))
+                ->withQueryString();
+        };
+
+        foreach ($applicationModels as $key => $model) {
+            $modelClass = $model['name'];
+            $data = $applyQuery($modelClass, $user, $request);
+
+            if ($request->is('approval/approved-applications*')) {
+                // Set condition based on the path
+
+            $data->getCollection()->transform(function ($item) {
+                $item->status = 3; // Change status to 3
+                return $item;
+            });
+        }
+            $results->put($key, $data);
+        }
+
+        return view('approval.index', compact('privileges', 'headers', 'results'));
     }
 }

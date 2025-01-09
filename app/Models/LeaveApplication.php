@@ -23,9 +23,18 @@ class LeaveApplication extends Model
         'status'
     ];
 
+    protected $cast = [
+        'from_date' => 'date',
+        'to_date' => 'date'
+    ];
+
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
+    }
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
     public function employee()

@@ -1,25 +1,25 @@
 <?php return array (
   'barryvdh/laravel-debugbar' => 
   array (
-    'aliases' => 
-    array (
-      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
-    ),
     'providers' => 
     array (
       0 => 'Barryvdh\\Debugbar\\ServiceProvider',
     ),
+    'aliases' => 
+    array (
+      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
+    ),
   ),
   'barryvdh/laravel-dompdf' => 
   array (
-    'aliases' => 
-    array (
-      'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-      'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-    ),
     'providers' => 
     array (
       0 => 'Barryvdh\\DomPDF\\ServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
+      'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
     ),
   ),
   'laravel/breeze' => 
@@ -52,13 +52,13 @@
   ),
   'maatwebsite/excel' => 
   array (
-    'aliases' => 
-    array (
-      'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
-    ),
     'providers' => 
     array (
       0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
     ),
   ),
   'nesbot/carbon' => 
@@ -91,10 +91,6 @@
   ),
   'rawilk/laravel-printing' => 
   array (
-    'aliases' => 
-    array (
-      'Printing' => 'Rawilk\\Printing\\Facades\\Printing',
-    ),
     'providers' => 
     array (
       0 => 'Rawilk\\Printing\\PrintingServiceProvider',
@@ -104,11 +100,18 @@
   array (
     'aliases' => 
     array (
-      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
+      'Printing' => 'Rawilk\\Printing\\Facades\\Printing',
     ),
+  ),
+  'spatie/laravel-ignition' => 
+  array (
     'providers' => 
     array (
       0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
     ),
   ),
 );

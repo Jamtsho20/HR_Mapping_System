@@ -117,7 +117,7 @@ class AjaxRequestController extends Controller
         try {
             $empGender = auth()->user()->gender;
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('type_id', $id)->whereStatus(1)->first();
-            
+
             $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
             $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
             $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
@@ -129,12 +129,12 @@ class AjaxRequestController extends Controller
             }
 
             $leavePolicyGender = $leavePolicy->leavePolicyPlan->gender ?? null;
-            
+
             if ($leavePolicyGender === 3 || $leavePolicyGender === $empGender) {
                 $balance = EmployeeLeave::where('mas_leave_type_id', $id)
-                            ->where('mas_employee_id', auth()->user()->id)
-                            ->value('closing_balance');
-    
+                    ->where('mas_employee_id', auth()->user()->id)
+                    ->value('closing_balance');
+
                 // Check if the leave balance is 0
                 if ($balance == 0) {
                     return $this->errorResponse('You are not eligible for this leave type since there is no leave balance.');
@@ -171,7 +171,7 @@ class AjaxRequestController extends Controller
             }
         }
 
-        if($leaveType == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2){
+        if ($leaveType == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
             if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
                 return $this->errorResponse('During leave combination of EL + CL + EL, middle CL will be converted to EL.', 400, $matchingLeaves[0]);
             }
@@ -294,11 +294,19 @@ class AjaxRequestController extends Controller
             ->latest('id') // Orders by id in descending order
             ->first();
 
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->advance_no, -4) + 1 : 1;
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->advance_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
 
         // Generate the new advance number with the incremented sequence
-        $advanceNo = generateTransactionNumber($advanceCode, $nextSequence);
+        $advanceNo = generateTransactionNumber($advanceCode, $currentSequence);
 
         // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
         if ($id == SIFA_LOAN) {
@@ -313,11 +321,24 @@ class AjaxRequestController extends Controller
 
     public function getTravelNumber($id)
     {
-        $travelAuthPrefix = MasTravelType::where('id', $id)->value('code');
+        $code = MasTravelType::where('id', $id)->value('code');
         $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
 
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
-        $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
+        // Check if the latest transaction exists
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->travel_authorization_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
+
+        // Generate the travel authorization number
+        $authorizationNo = generateTransactionNumber($code, $currentSequence);
+
 
         return response()->json([
             'travel_no' => $authorizationNo,
@@ -332,7 +353,7 @@ class AjaxRequestController extends Controller
             $query->where('travel_type', DOMESTIC_TRAVEL_TYPE)
                 ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
                     $q->whereMasGradeStepId($empJobDetail->mas_grade_step_id)
-                        ->whereMasRegionId($loggedInUserRegion[0]->region_id)
+                        // ->whereMasRegionId($loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
                 }]);
         }])
@@ -343,7 +364,8 @@ class AjaxRequestController extends Controller
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
 
-        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        // return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
+        return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount]);
     }
 
     public function getApprovalHeadTypes($id)
@@ -410,11 +432,22 @@ class AjaxRequestController extends Controller
             ->latest('id') // Orders by id in descending order
             ->first();
 
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->expense_no, -4) + 1 : 1;
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->expense_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
 
-        // Generate the new advance number with the incremented sequence
-        $expenseNo = generateTransactionNumber($expenseCode, $nextSequence);
+        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
+        // $nextSequence = $latestTransaction ? (int) substr($latestTransaction->expense_no, -4) + 1 : 1;
+
+        // // Generate the new advance number with the incremented sequence
+        $expenseNo = generateTransactionNumber($expenseCode, $currentSequence);
 
         return response()->json([
             'expense_no' => $expenseNo,
@@ -427,26 +460,42 @@ class AjaxRequestController extends Controller
 
         $latestTransaction = DsaClaimApplication::latest('id')->first();
 
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->claim_no, -4) + 1 : 1;
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->dsa_claim_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
 
         // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $nextSequence);
+        $claimNo = generateTransactionNumber($claimCode, $currentSequence);
 
         return $claimNo;
     }
 
-    public function getTransferClaimNumber()
+    public function getTransferClaimNumber($id)
     {
-        $claimCode = MasExpenseType::where('id', 4)->pluck('code')[0];
+        $claimCode = MasTransferClaim::where('id', $id)->pluck('code')[0];
 
         $latestTransaction = TransferClaimApplication::latest('id')->first();
 
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->transfer_claim_no, -4) + 1 : 1;
 
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->transfer_claim_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
         // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $nextSequence);
+        $claimNo = generateTransactionNumber($claimCode, $currentSequence);
 
         return $claimNo;
     }

@@ -97,6 +97,14 @@
 
 @push('page_scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const fromDateField = document.getElementById('from_date');
+        if (fromDateField) {
+            fromDateField.min = '2025-01-01'; // Setting the minimum date
+        }
+    });
+
+
     const calculateLeaveDays = () => {
         const leaveType = $('#leave_type').val();
         const fromDate = $('#from_date').val();
@@ -108,7 +116,13 @@
             $.ajax({
                 url: '/getnoofdaysbydate',
                 method: 'GET',
-                data: { leave_type: leaveType, from_date: fromDate, to_date: toDate, from_day: fromDay, to_day: toDay },
+                data: {
+                    leave_type: leaveType,
+                    from_date: fromDate,
+                    to_date: toDate,
+                    from_day: fromDay,
+                    to_day: toDay
+                },
                 success: function(response) {
                     $('#no_of_days_leave').val(response.data.total_days);
                 },
@@ -170,21 +184,24 @@
             $.ajax({
                 url: '/validateleavecombination',
                 method: 'GET',
-                data: { leave_type: leaveType, from_date: fromDate },
+                data: {
+                    leave_type: leaveType,
+                    from_date: fromDate
+                },
                 success: function(response) {
                     // $('#no_of_days_leave').val(response.data.total_days);
                     return;
                 },
                 error: function(error) {
                     alert(error.responseJSON.message);
-                    if(leaveType == 2 && error.responseJSON.data){
+                    if (leaveType == 2 && error.responseJSON.data) {
                         const container = document.querySelector('.show-leave');
                         container.style.display = 'block';
                         container.innerHTML = `
                             <b>#</b> <span style="color: #28a745; font-weight: bold;">Please note, previous CL for <u>${error.responseJSON.data.no_of_days} day(s) from ${error.responseJSON.data.from_date} to ${error.responseJSON.data.to_date}</u> will be converted to EL since cannot have combination of EL + CL + EL in a row.</span>
                         `;
                     }
-                    if(leaveType == 1){
+                    if (leaveType == 1) {
                         $("#from_date").val('');
                         $("#to_date").val('');
                     }
@@ -199,16 +216,16 @@
         const fromDateField = document.getElementById('from_date');
         const toDateField = document.getElementById('to_date');
         const fromDateValue = fromDateField.value;
-                if (fromDateValue) {
-                    toDateField.setAttribute('min', fromDateValue);
-                    toDateField.value = '';
-                    toDateField.readOnly = false;
+        if (fromDateValue) {
+            toDateField.setAttribute('min', fromDateValue);
+            toDateField.value = '';
+            toDateField.readOnly = false;
 
-                } else {
-                    toDateField.readOnly = true;
-                    toDateField.value = ''; // Clear to_date if from_date is not set
+        } else {
+            toDateField.readOnly = true;
+            toDateField.value = ''; // Clear to_date if from_date is not set
 
-                }
+        }
         validateLeaveCombination();
     });
 </script>

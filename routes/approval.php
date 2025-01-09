@@ -15,6 +15,11 @@ use App\Http\Controllers\ApprovalController;
 
 Route::prefix('approval')->group(function () {
     Route::get('applications', [ApprovalController::class, 'index'])->name('approval.index');
+    Route::get('approved-applications', [ApprovalController::class, 'approvedApplications'])->name('approval.approved');
+    Route::get('approved-applications/details/{id}', [ApprovalController::class, 'show'])->name('approved-applications.detail');
     Route::post('approverejectbulk', [ApprovalController::class, 'approveReject'])->name('approverejectbulk');
     Route::get('applications/{id}', [ApprovalController::class, 'show'])->name('approval.detail');
+    Route::get('rejected-applications', [ApprovalController::class, 'approvedApplications'])->name('approval.rejected');
+    Route::get('rejected-applications/details/{id}', [ApprovalController::class, 'show'])->name('rejected-applications.detail');
+
 });

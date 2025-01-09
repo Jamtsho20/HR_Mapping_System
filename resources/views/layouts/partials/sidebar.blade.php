@@ -7,20 +7,26 @@
 
                 <div class="d-flex align-items-center">
 
-                    <a aria-label="Hide Sidebar" class="app-sidebar__toggle" data-bs-toggle="sidebar" href="javascript:void(0);"></a>
+                    <a aria-label="Hide Sidebar" class="app-sidebar__toggle" data-bs-toggle="sidebar"
+                        href="javascript:void(0);"></a>
                     <div class="responsive-logo">
                         <a href="/" class="header-logo">
-                            <img src="{{ asset('assets/images/brand/logo3.png') }}" class="mobile-logo logo-1" alt="logo">
-                            <img src="{{ asset('assets/images/brand/logo3.png') }}" class="mobile-logo dark-logo-1" alt="logo">
+                            <img src="{{ asset('assets/images/brand/logo3.png') }}" class="mobile-logo logo-1"
+                                alt="logo">
+                            <img src="{{ asset('assets/images/brand/logo3.png') }}" class="mobile-logo dark-logo-1"
+                                alt="logo">
                         </a>
                     </div>
                     <!-- sidebar-toggle-->
                     <a class="logo-horizontal" href="/">
-                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img desktop-logo" alt="logo">
-                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1" alt="logo">
+                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img desktop-logo"
+                            alt="logo">
+                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1"
+                            alt="logo">
                     </a>
                     <!-- LOGO -->
                     <div class="d-flex order-lg-2 ms-auto header-right-icons">
+
                         <div class="navbar navbar-collapse responsive-navbar p-0">
                             <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
                                 <div class="d-flex order-lg-2">
@@ -33,9 +39,11 @@
                                         </a>
                                     </div>
                                     <div class="dropdown d-md-flex profile-1">
-                                        <a href="javascript:void(0);" data-bs-toggle="dropdown" class="nav-link leading-none d-flex px-1">
+                                        <a href="javascript:void(0);" data-bs-toggle="dropdown"
+                                            class="nav-link leading-none d-flex px-1">
                                             <span>
-                                                <img src="{{ auth()->user()->profile_picture }}" alt="profile-user" class="avatar profile-user brround cover-image">
+                                                <img src="{{ auth()->user()->profile_picture }}" alt="profile-user"
+                                                    class="avatar profile-user brround cover-image">
                                             </span>
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
@@ -46,12 +54,14 @@
                                                 </div>
                                             </div>
                                             <div class="dropdown-divider m-0"></div>
-                                            <a class="dropdown-item" href="{{ route('user-profile.show', Auth::id()) }}"><i class="dropdown-icon fe fe-user"></i> Profile </a>
-                                            <a class="dropdown-item" href="{{ route('change-password') }}"><i class="dropdown-icon fe fe-lock"></i> Change Password </a>
+                                            <a class="dropdown-item"
+                                                href="{{ route('user-profile.show', Auth::id()) }}"><i
+                                                    class="dropdown-icon fe fe-user"></i> Profile </a>
+                                            <a class="dropdown-item" href="{{ route('change-password') }}"><i
+                                                    class="dropdown-icon fe fe-lock"></i> Change Password </a>
                                             <form method="POST" action="{{ route('logout') }}">
                                                 @csrf
-                                                <a class="dropdown-item"
-                                                    href="{{ route('logout') }}"
+                                                <a class="dropdown-item" href="{{ route('logout') }}"
                                                     onclick="event.preventDefault();
                                                     this.closest('form').submit();">
                                                     <i class="dropdown-icon fe fe-alert-circle"></i>
@@ -66,8 +76,18 @@
                             </div>
                         </div>
                     </div>
-                   <div class="ms-auto"><h1 class="page-title">@yield('page-title')</h1></div> 
+                   <div class="ms-auto"><h1 class="page-title">@yield('page-title')</h1></div>
 
+                 
+                    {{-- <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent-4" aria-expanded="false"
+                        aria-controls="collapseExample">
+                        Button with data-bs-target
+                    </button> --}}
+                    <button class="navbar-toggler navresponsive-toggler d-lg-none ms-auto" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent-4"
+                        aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon fe fe-more-vertical text-dark"></span> </button>
                 </div>
 
             </div>
@@ -79,16 +99,21 @@
             <aside class="app-sidebar ps ps--active-y sidemenu-scroll">
                 <div class="side-header">
                     <a class="header-brand1" href="/">
-                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img desktop-logo" alt="logo" />
-                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img toggle-logo" alt="logo" />
-                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img light-logo" alt="logo" />
-                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1" alt="logo" style="width:90px; height:50px" />
+                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img desktop-logo"
+                            alt="logo" />
+                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img toggle-logo"
+                            alt="logo" />
+                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img light-logo"
+                            alt="logo" />
+                        <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1"
+                            alt="logo" style="width:90px; height:50px" />
                     </a>
                     <!-- LOGO -->
                 </div>
                 <div class="main-sidemenu is-expanded">
                     <div class="slide-left disabled active" id="slide-left">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
+                            viewBox="0 0 24 24">
                             <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path>
                         </svg>
                     </div>
@@ -105,24 +130,40 @@
                             </a>
                         </li>
                         @foreach ($menus as $menuKey => $menu)
-                        <li class="slide">
-                            <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0);">
-                                <i class="side-menu__icon fa {{ $menu->icon }}"></i>
-                                <span class="side-menu__label">{{ $menu->name }}</span>
-                                <i class="angle fa fa-angle-right"></i>
-                            </a>
-                            <ul class="slide-menu">
-                                @foreach ($menu->systemSubMenus as $systemSubMenu)
-                                <li>
-                                    <a href="{{ url($systemSubMenu->route) }}" class="slide-item">{{ $systemSubMenu->name }}</a>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </li>
+                            <li class="slide">
+                                <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0);">
+                                    <i class="side-menu__icon fa {{ $menu->icon }}"></i>
+                                    <span class="side-menu__label">{{ $menu->name }}</span>
+                                    <i class="angle fa fa-angle-right"></i>
+                                </a>
+                                <ul class="slide-menu">
+                                    @foreach ($menu->systemSubMenus as $systemSubMenu)
+                                        <li>
+                                            <a href="{{ url($systemSubMenu->route) }}"
+                                                class="slide-item">{{ $systemSubMenu->name }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
                         @endforeach
+
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a class="side-menu__item"
+                                    href="{{ route('logout') }}"
+                                    onclick="event.preventDefault();
+                                    this.closest('form').submit();">
+                                    <i class="side-menu__icon fa fa-sign-out"></i>
+                                    <span class="side-menu__label">Logout</span>
+                                </a>
+                            </form>
+
+                        </li>
                     </ul>
                     <div class="slide-right" id="slide-right">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24"
+                            viewBox="0 0 24 24">
                             <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z"></path>
                         </svg>
                     </div>
@@ -136,3 +177,22 @@
             </aside>
         </div>
         <!--/APP-SIDEBAR-->
+
+        <script>
+            document.querySelector('.navbar-toggler').addEventListener('click', function() {
+                const collapseElement = document.querySelector('#navbarSupportedContent-4');
+                collapseElement.classList.toggle('show');
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const navbarToggler = document.querySelector('.navbar-toggler');
+                const navbarCollapse = document.querySelector('#navbarSupportedContent-4');
+
+                // Close navbar when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
+                        navbarCollapse.classList.remove('show');
+                    }
+                });
+            });
+        </script>

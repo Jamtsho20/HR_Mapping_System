@@ -34,6 +34,11 @@ class ApplicationHistory extends Model
         return $this->morphTo();
     }
 
+    public function actionPerformer()
+    {
+        return $this->belongsTo(User::class, 'action_performed_by');
+    }
+
     protected static function booted()
     {
         static::created(function ($application) {
@@ -52,6 +57,8 @@ class ApplicationHistory extends Model
         });
 
         static::updated(function ($application) {
+            // $changes = $application->getChanges();
+            // \Log::info('Creating audit log for updated application history with changes', ['changes' => $application]);
             ApplicationAuditLog::create([
                 'application_type' => $application->application_type,
                 'application_id' => $application->application_id,

@@ -21,15 +21,17 @@ use App\Services\ApplicationHistoriesService;
 class AdvanceLoanApplicationApiController extends Controller
 {
     use JsonResponseTrait;
-    public function __construct()
+    protected $ajax;
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
         $this->middleware('auth:api');
     }
 
     private $attachmentPath = 'images/advance/';
 
     protected $rules = [
-        'advance_no' => 'required',
+
         'date' => 'required|date',
         'advance_type' => 'required',
         'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
@@ -45,6 +47,7 @@ class AdvanceLoanApplicationApiController extends Controller
     ];
 
     protected $messages = [
+        'advance_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
         'travel_authorization_no.required_if' => 'Travel authorization no is required for the selected advance type.',
         'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
@@ -68,7 +71,7 @@ class AdvanceLoanApplicationApiController extends Controller
     {
 
         try {
-            $applications = AdvanceApplication::with('advanceType', 'advance_approved_by:id,name')->createdBy()->orderBy('created_at', 'desc')->get();
+            $applications = AdvanceApplication::with('advanceType', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->createdBy()->orderBy('created_at', 'desc')->get();
 
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
@@ -104,19 +107,27 @@ class AdvanceLoanApplicationApiController extends Controller
             if ($validator->fails()) {
                 return $this->validationErrorResponse($validator->errors());
             }
+
             $conditionFields = approvalHeadConditionFields(ADVANCE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
-            $date = formatDate(request('date'));
             $attachment = "";
+            $date = formatDate(request('date'));
+
+            $advanceNo = $this->ajax->getAdvanceNumber($request->advance_type)->getData()->advance_no;
+
+            if (AdvanceApplication::where('advance_no', $advanceNo)->exists()) {
+                // If the travel number already exists, throw an exception or return an error
+                return $this->errorResponse('Advance Loan Application Number already exists. Please try again.', 500);
+                }
+
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
                 $attachment = uploadImageToDirectory($file, $this->attachmentPath);
             }
             try {
                 DB::beginTransaction();
-                $advanceApplication->advance_no = $request->advance_no;
-                $advanceApplication->date = $date;
+                $advanceApplication->advance_no = $advanceNo;
                 $advanceApplication->date = $date;
                 $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
                 $advanceApplication->type_id = $request->advance_type;

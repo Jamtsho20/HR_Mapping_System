@@ -143,8 +143,8 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $holiday->holiday_name }}</td>
-                                <td>{{ $holiday->start_date }}</td>
-                                <td>{{ $holiday->end_date }}</td>
+                                <td>{{ $holiday->start_date->format('d-m-y') }}</td>
+                                <td>{{ $holiday->end_date->format('d-m-y') }}</td>
 
                             </tr>
                             @empty

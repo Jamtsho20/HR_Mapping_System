@@ -263,7 +263,7 @@ class EmployeeController extends Controller
 
     private function savePersonalInfo($personalInfo, $request, $employeeId = null)
     {
-        $user = $employeeId ? User::findOrFail($employeeId) : "";
+        $user = $employeeId ? User::findOrFail($employeeId) : null;
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
@@ -319,10 +319,11 @@ class EmployeeController extends Controller
             'last_name' => $personalInfo['last_name'] ?? null,
             'title' => $personalInfo['title'] ?? null,
             'name' => trim($personalInfo['first_name'] . ' ' . ($personalInfo['middle_name'] ?? '') . ' ' . ($personalInfo['last_name'] ?? '')),
-            'username' => $user->username ?? fixEmployeeId($this->fetchHighestEmpId() + 1),
-            'employee_id' => $user->employee_id ?? $this->fetchHighestEmpId() + 1,
+            'username' => $user ? $user->username : fixEmployeeId($this->fetchHighestEmpId() + 1),
+            'employee_id' => $user ? $user->employee_id : $this->fetchHighestEmpId() + 1,
             // 'password' => bcrypt(config('global.default_password')),
-            'password' => bcrypt(date('Ymd', strtotime($personalInfo['dob'])) . $user->employee_id ?? $this->fetchHighestEmpId() + 1),
+            'password' => bcrypt(date('Ymd', strtotime($personalInfo['dob'])) . ($user ? $user->employee_id : $this->fetchHighestEmpId() + 1)),
+
             'email' => $personalInfo['email'],
             'cid_no' => $personalInfo['cid_no'],
             'gender' => $personalInfo['gender'],
@@ -338,6 +339,7 @@ class EmployeeController extends Controller
             'cid_copy' => $empCidCopy,
             'status' => $request->status ?? ($user->status == 'Completed' ? 1 : 0),
         ];
+    
         // Update or create the user
         $user = User::updateOrCreate(
             ['id' => $employeeId], // Conditions to find the user

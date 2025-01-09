@@ -40,9 +40,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="expense_no">Expense No <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="expense_no"
-                                                value="{{ old('expense_no') }}" id="expense_no"
-                                                value="{{ old('expense_no') }}" placeholder="Generating..." readonly>
+                                            <input type="text" class="form-control" name="expense_no" id="expense_no" placeholder="Generating..." readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -65,7 +63,7 @@
                                         <div class="form-group">
                                             <label for="date">Date <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control" id="date" name="date"
-                                                value="{{ old('date', now()->format('Y-m-d')) }}" required>
+                                                value="{{ old('date', now()->format('Y-m-d')) }}" required readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="display: none;" id="vehicle">
@@ -241,10 +239,7 @@
                                             <div class="form-group">
                                                 <label for="dsa_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="dsa_claim_no"
-                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}" id="dsa_claim_no"
-                                                    value="{{ old('dsa_claim_no', $dsaClaimNo) }}"
-                                                    placeholder="Generating..." readonly>
+                                                <input type="text" class="form-control" name="dsa_claim_no" id="dsa_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -316,6 +311,8 @@
                                 </div>
                                 <div class="tab-pane">
                                     <div class="card">
+                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from
+                                            the selected dates, as 0.5 is subtracted for each half day.</p>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
                                                 <table id="travelstable"
@@ -475,9 +472,9 @@
                                                 <label for="transfer_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" name="transfer_claim_no"
-                                                    value="{{ old('transfer_claim_no', $transferClaimNo) }}"
+
                                                     id="transfer_claim_no"
-                                                    value="{{ old('transfer_claim_no', $transferClaimNo) }}"
+
                                                     placeholder="Generating..." readonly>
                                             </div>
                                         </div>
@@ -579,6 +576,20 @@
                 // Update the grand total input field
                 $('#grand_total_amount').val(grandTotal);
             }
+            const dateFields = document.querySelectorAll('input[name^="fuel_claim_details"][name$="[date]"]');
+
+            // Iterate through each field and set the min attribute
+            // dateFields.forEach(field => {
+            //     field.setAttribute('min', '2025-01-01');
+            // });
+
+            const dsaFields = document.querySelectorAll('input[name^="dsa_claim_detail"][name$="[from_date]"]');
+
+            // // Iterate through each field and set the min attribute
+            dsaFields.forEach(field => {
+                field.setAttribute('min', '2025-01-01');
+            });
+
 
             function calculateNetPayable() {
                 // Retrieve input values

@@ -8,10 +8,12 @@
                             id="basic-datatable table-responsive">
                             <thead>
                                 <tr role="row" class="thead-light">
-                                    <th>
-                                        <input type="checkbox" id="select_all" class="select_all"
-                                            data-item-class="bulk_checkbox" title="select all">
-                                    </th>
+                                    @if ($privileges->edit)
+                                        <th>
+                                            <input type="checkbox" id="select_all" class="select_all"
+                                                data-item-class="bulk_checkbox" title="select all">
+                                        </th>
+                                    @endif
                                     <th>
                                         APPLIED ON
                                     </th>
@@ -41,13 +43,16 @@
                             <tbody>
                                 @forelse ($results->get(1) as $leave)
                                     <tr>
-                                        <td><input type="checkbox" class="bulk_checkbox" value="{{ $leave->id }}">
-                                        </td>
-                                        <td>{{ $leave->created_at }}</td>
+                                        @if ($privileges->edit)
+                                            <td><input type="checkbox" class="bulk_checkbox"
+                                                    value="{{ $leave->id }}">
+                                            </td>
+                                        @endif
+                                        <td>{{ $leave->created_at->format('d-m-y') }}</td>
                                         <td>{{ $leave->employee->emp_id_name }}</td>
                                         <td>{{ $leave->leaveType->name }}</td>
-                                        <td>{{ $leave->from_date }}</td>
-                                        <td>{{ $leave->to_date }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-m-y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->to_date)->format('d-m-y') }}</td>
                                         <td class="text-right">{{ $leave->no_of_days }}</td>
                                         <td class="text-center">
 
@@ -74,14 +79,33 @@
                                         </td>
                                         <td class="text-center">
                                             @if ($privileges->view)
-                                                <a href="{{ url('approval/applications/' . $leave->id) . '?tab=1' }}"
-                                                    class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i>
-                                                    Detail</a>
-                                            @endif
-                                            {{-- @if ($privileges->edit)
+                                                @php
+                                                    $routeName = Route::currentRouteName(); // Get the current route name
+
+                                                @endphp
+
+                                        @if ($routeName == 'approval.index')
+                                        <a href="{{ url('approval/applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @elseif ($routeName == 'approval.approved')
+                                        <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @elseif ($routeName == 'approval.rejected')
+                                        <a href="{{ url('approval/rejected-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @else
+                                        <a href="{{ url('default-route/applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @endif
+                                        @endif
+                                        {{-- @if ($privileges->edit)
                                         <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
-                                            class="btn btn-sm btn-rounded btn-outline-success">
-                                            <i class="fa fa-edit"></i> EDIT
+                                        class="btn btn-sm btn-rounded btn-outline-success">
+                                        <i class="fa fa-edit"></i> EDIT
                                         </a>
 
                                         @endif --}}

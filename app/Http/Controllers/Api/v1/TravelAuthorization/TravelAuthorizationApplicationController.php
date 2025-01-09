@@ -67,7 +67,7 @@ class TravelAuthorizationApplicationController extends Controller
     {
         try {
             $privileges = $request->instance();
-            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name', 'travel_approved_by:id,name')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
+            $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name',  'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
             return response()->json([
                 'message' => 'Travel authorization applications retrieved successfully',
                 'travelAuthorizations' => $travelAuthorizations
@@ -131,9 +131,20 @@ class TravelAuthorizationApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
             $date = formatDate(request('date'));
+            $travelAuthorizationNo = $this->ajax->getTravelNumber($request->travel_type)->getData()->travel_no;
+
+            // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+        // dd($travelAuthorizationNo);
+            if (TravelAuthorizationApplication::where('travel_authorization_no', $travelAuthorizationNo)->exists()) {
+                // If the travel number already exists, throw an exception or return an error
+                return $this->errorResponse('Travel Authorization Number already exists. Please try again.', 500);
+            }
             try {
                 DB::beginTransaction();
-                $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
+
+
+                $travelAuthorization->travel_authorization_no = $travelAuthorizationNo;
                 $travelAuthorization->date = $date;
                 $travelAuthorization->advance_amount = $request->advance_required;
                 $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
@@ -176,7 +187,7 @@ class TravelAuthorizationApplicationController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
 
-                return $this->errorResponse('Failed to store application', 500);
+                return $this->errorResponse('Failed to store application'.$e, 500);
             }
 
             return $this->successResponse($travelAuthorization, 'Travel Authorization application has been successfully created.', 201);

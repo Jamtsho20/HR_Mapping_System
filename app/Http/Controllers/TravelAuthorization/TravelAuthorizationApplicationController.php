@@ -73,13 +73,12 @@ class TravelAuthorizationApplicationController extends Controller
         $userId = $user->id;
         $gradeId = MasEmployeeJob::where('mas_employee_id', $userId)->value('mas_grade_id');
         $dailyAllowance = DailyAllowance::where('mas_grade_id', $gradeId)->value('da_in_country');
-        $travelAuthorizationNumber = $this->getTravelAuthorizationNumber();
         $travelTypes = MasTravelType::whereStatus(1)->get();
         // $defaultTravelTypeId = 1;
 
         $defaultTravelTypeId = request()->get('travel_type', 1);
 
-        return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance', 'travelAuthorizationNumber', 'defaultTravelTypeId'));
+        return view('travel-authorizations.apply.create', compact('travelTypes', 'dailyAllowance',  'defaultTravelTypeId'));
     }
 
 
@@ -93,9 +92,19 @@ class TravelAuthorizationApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
         // dd($request->travel_type);
 
+        $travelAuthorizationNo = $this->getTravelAuthorizationNumber();
+        // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+    // dd($travelAuthorizationNo);
+        if (TravelAuthorizationApplication::where('travel_authorization_no', $travelAuthorizationNo)->exists()) {
+            // If the travel number already exists, throw an exception or return an error
+            return back()->withInput()->with('msg_error', 'Travel Authorization Number already exists. Please try again.');
+        }
         try {
             DB::beginTransaction();
-            $travelAuthorization->travel_authorization_no = $request->travel_authorization_no;
+
+
+            $travelAuthorization->travel_authorization_no = $travelAuthorizationNo;
             $travelAuthorization->date = $request->date;
             $travelAuthorization->advance_amount = $request->advance_required;
             $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
@@ -146,7 +155,8 @@ class TravelAuthorizationApplicationController extends Controller
         $instance = $request->instance();
         $travelAuthorization =  TravelAuthorizationApplication::findOrFail($id);
         $context = 'application';
-        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context'));
+        $no_of_days = $travelAuthorization->estimated_travel_expenses / $travelAuthorization->daily_allowance;
+        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context', 'no_of_days'));
     }
 
 
@@ -265,19 +275,46 @@ class TravelAuthorizationApplicationController extends Controller
         }
     }
 
+    // public function getTravelAuthorizationNumber()
+    // {
+    //     $travelAuthPrefix = MasTravelType::where('id', 1)->get('code')->first()->code;
+
+    //     $latestTransaction =  TravelAuthorizationApplication::latest('id')->first();
+
+    //     $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+    //     dd($nextSequence);
+
+
+    //     $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
+
+    //     // Return the generated Travel Authorization number
+    //     return $authorizationNo;
+    // }
     public function getTravelAuthorizationNumber()
     {
-        $travelAuthPrefix = MasTravelType::where('id', 1)->get('code')->first()->code;
+        // Get the prefix for the travel authorization number
+        $code = MasTravelType::where('id', 1)->get('code')->first()->code;
 
-        $latestTransaction =  TravelAuthorizationApplication::latest('id')->first();
+        // Fetch the latest travel authorization number
+        $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
 
-        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+        // Check if the latest transaction exists
+        if ($latestTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $latestTransaction->travel_authorization_no, $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            // dd($lastSequence);
+            $currentSequence = $lastSequence;
+            // dd($nextSequence);
+        } else {
+            $currentSequence = 1;
+        }
 
+        // Generate the travel authorization number
+        $authorizationNo = generateTransactionNumber($code, $currentSequence);
 
-
-        $authorizationNo = generateTransactionNumber($travelAuthPrefix, $nextSequence);
-
-        // Return the generated Travel Authorization number
+        // Return the generated travel authorization number
         return $authorizationNo;
     }
+
 }

@@ -248,7 +248,6 @@ if(!function_exists('generateTransactionNumber')){
     function generateTransactionNumber($code, $nextSequence){
         //include cureent Ymd in while generating transaction number
         $datePart = now()->format('Ymd');
-        //if next sequence is not there then by default it will be 0001 else incremental basis
         // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
         return $code . '/' . $datePart . '/' . $nextSequence + 1;
     }

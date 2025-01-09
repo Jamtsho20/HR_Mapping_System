@@ -16,16 +16,19 @@ use App\Models\MasAdvanceTypes;
 use App\Models\MasDzongkhag;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Http\Controllers\AjaxRequestController;
 
 class AdvanceLoanApplicationController extends Controller
 {
+    protected $ajax;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
+    public function __construct(AjaxRequestController $ajax)
     {
+        $this->ajax = $ajax;
         $this->middleware('permission:advance-loan/apply,view')->only('index', 'show');
         $this->middleware('permission:advance-loan/apply,create')->only('store');
         $this->middleware('permission:advance-loan/apply,edit')->only('update');
@@ -35,7 +38,7 @@ class AdvanceLoanApplicationController extends Controller
     private $attachmentPath = 'images/advance/';
 
     protected $rules = [
-        'advance_no' => 'required',
+
         'date' => 'required|date',
         'advance_type' => 'required',
         'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
@@ -51,6 +54,7 @@ class AdvanceLoanApplicationController extends Controller
     ];
 
     protected $messages = [
+        'advance_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
         'travel_authorization_no.required_if' => 'Travel authorization no is required for the selected advance type.',
         'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
@@ -112,14 +116,23 @@ class AdvanceLoanApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
         $attachment = "";
+
+        $advanceNo = $this->ajax->getAdvanceNumber($request->advance_type)->getData()->advance_no;
+
+        // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
+
+        if (AdvanceApplication::where('advance_no', $advanceNo)->exists()) {
+            // If the travel number already exists, throw an exception or return an error
+            return back()->withInput()->with('msg_error', 'Advance Loan Application Number already exists. Please try again.');
+        }
+
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
             $attachment = uploadImageToDirectory($file, $this->attachmentPath);
         }
         try {
             DB::beginTransaction();
-            $advanceApplication->advance_no = $request->advance_no;
-            $advanceApplication->date = $request->date;
+            $advanceApplication->advance_no = $advanceNo;
             $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
             $advanceApplication->type_id = $request->advance_type;

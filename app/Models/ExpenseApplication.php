@@ -27,6 +27,10 @@ class ExpenseApplication extends Model
         'travel_to',
         'status'
     ];
+    protected $cast = [
+        'date' => 'date'
+    ];
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -35,6 +39,10 @@ class ExpenseApplication extends Model
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
+    }
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
     public function type()

@@ -53,7 +53,7 @@ class LeaveApplicationController extends Controller
     {
 
         try{$privileges = $request->instance();
-        $leaveApplications = LeaveApplication::with('leaveType:id,name','leave_approved_by:id,name', 'histories:application_id,remarks')->filter($request)->orderBy('created_at', 'desc')->get();
+        $leaveApplications = LeaveApplication::with('leaveType:id,name','leave_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->filter($request)->orderBy('created_at', 'desc')->get();
         return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());
@@ -301,8 +301,10 @@ class LeaveApplicationController extends Controller
         // Get all leave types for the current user with their names
         $leaveTypes = EmployeeLeave::with('leaveType:id,name')
             ->where('mas_employee_id', auth()->id())
+            ->whereIn('mas_leave_type_id', [1, 2])
             ->whereYear('created_at', $currentYear)
             ->get();
+
 
         $response = $leaveTypes->map(function ($leaveType) use ($currentYear) {
             $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
