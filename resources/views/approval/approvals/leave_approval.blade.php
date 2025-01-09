@@ -48,11 +48,11 @@
                                                     value="{{ $leave->id }}">
                                             </td>
                                         @endif
-                                        <td>{{ $leave->created_at->format('d-m-y') }}</td>
+                                        <td>{{ $leave->created_at->format('d-m-Y') }}</td>
                                         <td>{{ $leave->employee->emp_id_name }}</td>
                                         <td>{{ $leave->leaveType->name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-m-y') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($leave->to_date)->format('d-m-y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-m-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->to_date)->format('d-m-Y') }}</td>
                                         <td class="text-right">{{ $leave->no_of_days }}</td>
                                         <td class="text-center">
 

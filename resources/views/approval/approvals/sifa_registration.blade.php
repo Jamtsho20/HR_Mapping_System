@@ -60,7 +60,7 @@
                                                             </td>
                                                             <td>{{ $sifa->employee->empJob->department->name ?? 'N/A' }}
                                                             </td>
-                                                            <td>{{ $sifa->employee->created_at->format('d-m-y') }}</td>
+                                                            <td>{{ $sifa->employee->created_at->format('d-m-Y') }}</td>
                                                             <td class="text-center">
                                                                 @if ($sifa->status == 1)
                                                                     <span class="badge bg-primary">Submitted</span>
