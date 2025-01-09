@@ -58,7 +58,7 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $travelAuthorization->travel_authorization_no }}</td>
                                                 <td>{{ $travelAuthorization->travelType->name }}</td>
-                                                <td>{{ $travelAuthorization->date }} </td>
+                                                <td>{{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-m-Y') }}</td>
 
                                                 <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
                                                 <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>

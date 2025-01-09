@@ -4,7 +4,7 @@
  </tr>
  <tr>
      <th style="width:35%;">Travel Authorization Date<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-     <td style="padding-left:25px;"> {{ $advance->travelAuthorization->date }}</td>
+     <td style="padding-left:25px;">{{ \Carbon\Carbon::parse($advance->travelAuthorization->date)->format('d-m-Y') }}</td>
  </tr>
  <tr>
      <th style="width:35%;">Estimated Travel Expenses<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>

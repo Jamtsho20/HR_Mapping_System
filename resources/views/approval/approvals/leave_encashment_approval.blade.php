@@ -46,7 +46,7 @@
                                         @endif
                                         <td>{{ $leave->employee->username }}</td>
                                         <td>{{ $leave->employee->name }}</td>
-                                        <td>{{ $leave->created_at->format('d-m-y') }}</td>
+                                        <td>{{ $leave->created_at->format('d-m-Y') }}</td>
                                         <td>{{ $leave->amount }}</td>
                                         <td class="text-center">
 
