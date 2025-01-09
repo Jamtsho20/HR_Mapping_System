@@ -84,24 +84,25 @@
 
                                                 @endphp
 
-                                                @if ($routeName == 'approval.index')
-                                                    <a href="{{ url('approval/applications/' . $leave->id . '?tab=1') }}"
-                                                        class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fa fa-list"></i> Detail
-                                                    </a>
-                                                @elseif ($routeName == 'approval.approved')
-                                                    <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=1') }}"
-                                                        class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fa fa-list"></i> Detail
-                                                    </a>
-                                                @else
-                                                    <a href="{{ url('default-route/applications/' . $leave->id . '?tab=1') }}"
-                                                        class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fa fa-list"></i> Detail
-                                                    </a>
-                                                @endif
-                                            @endif
-                                            {{-- @if ($privileges->edit)
+                                        @if ($routeName == 'approval.index')
+                                        <a href="{{ url('approval/applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @elseif ($routeName == 'approval.approved')
+                                        <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @elseif ($routeName == 'approval.rejected')
+                                        <a href="{{ url('approval/rejected-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @else
+                                        <a href="{{ url('default-route/applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa fa-list"></i> Detail
+                                        </a>
+                                        @endif
+                                        @endif
+                                        {{-- @if ($privileges->edit)
                                         <a href="{{ url('leave/approval/' . $leave->id . '/edit') }}"
                                         class="btn btn-sm btn-rounded btn-outline-success">
                                         <i class="fa fa-edit"></i> EDIT

@@ -1,5 +1,17 @@
 @extends('layouts.app')
-@section('page-title', 'Approval Pending')
+@php
+$title = 'Approval Pending';
+
+if (request()->is('approval/approved-applications')) {
+    $title = 'Approved Applications';
+} elseif (request()->is('approval/applications')) {
+    $title = 'Pending Applications';
+}elseif (request()->is('approval/rejected-applications')) {
+    $title = 'Rejected Applications';
+}
+
+@endphp
+@section('page-title', $title)
 @section('content')
     @include('layouts.includes.loader')
 

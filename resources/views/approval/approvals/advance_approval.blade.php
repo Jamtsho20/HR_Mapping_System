@@ -77,24 +77,26 @@
 
                                                     @endphp
 
-                                                    @if ($routeName == 'approval.index')
-                                                        <a href="{{ url('approval/applications/' . $advance->id . '?tab=3') }}"
-                                                            class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fa fa-list"></i> Detail
-                                                        </a>
-                                                    @elseif ($routeName == 'approval.approved')
-                                                        <a href="{{ url('approval/approved-applications/details/' . $advance->id . '?tab=3') }}"
-                                                            class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fa fa-list"></i> Detail
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ url('default-route/applications/' . $advance->id . '?tab=3') }}"
-                                                            class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fa fa-list"></i> Detail
-                                                        </a>
-                                                    @endif
-                                                @endif
-                                            </td>
+                                            @if ($routeName == 'approval.index')
+                                            <a href="{{ url('approval/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @elseif ($routeName == 'approval.approved')
+                                            <a href="{{ url('approval/approved-applications/details/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @elseif ($routeName == 'approval.rejected')
+                                            <a href="{{ url('approval/rejected-applications/details/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @else
+                                            <a href="{{ url('default-route/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-list"></i> Detail
+                                            </a>
+                                            @endif
+
+                                            @endif
+                                        </td>
 
                                         </tr>
                                     @empty
