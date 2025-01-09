@@ -18,24 +18,65 @@ class TravelAuthorizationApprovalController extends Controller
     public function index(Request $request)
     {
         try {
-            $privileges = $request->instance();
             $user = auth()->user();
-            // $historyData = ApplicationHistory::whereHas('application', function ($query) {
-            //     $query->where('application_type', 'App\Models\TravelAuthorizationApplication'); // Assuming you store this class in 'application_type' column
-            // })->where('approver_emp_id', $user->id)
-            //   ->get();
-            $travelAuthorizations = TravelAuthorizationApplication::with('employee:id,name,username', 'travelType:id,name')->whereHas('histories', function ($query) use ($user) {
-                $query
-                    ->where('application_type', \App\Models\TravelAuthorizationApplication::class)
-                    ->where('approver_emp_id', $user->id);
+            $statuses = [];
+            $applicationType = \App\Models\TravelAuthorizationApplication::class; // Default application type
+            $tab = null;
+
+            // Define conditions for filtering based on status
+            switch ($request->input('status')) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $travelAuthorizations = TravelAuthorizationApplication::with([
+                'employee:id,name,username',
+                'employee.empjob' => function ($query) {
+                    $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
+                },
+                'employee.empjob.department:id,name',
+                'employee.empjob.section:id,name',
+                'histories:id,application_id,action_performed_by',  // Load necessary fields from the approval history
+                'travelType:id,name',  // Include travel type
+            ])
+            ->when($tab === 'history', function ($query) use ($user, $applicationType) {
+                $query->whereHas('histories', function ($query) use ($user, $applicationType) {
+                    $query->where('approver_emp_id', $user->id)
+                          ->where('application_type', $applicationType);
+                });
             })
-                ->whereNotIn('status', [-1, 3])
-                ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
-                ->orderBy('created_at')
-                ->get();
-            return $this->successResponse($travelAuthorizations);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse('Failed to retrieve applications', 500);
+            ->when($tab === 'audit_logs', function ($query) use ($user, $applicationType, $statuses) {
+                $query->whereHas('audit_logs', function ($query) use ($user, $applicationType, $statuses) {
+                    $query->where('application_type', $applicationType)
+                          ->where('action_performed_by', $user->id);
+                });
+            })
+            ->whereIn('status', $statuses)   // Filter by the statuses
+            // Filter according to the request, without limiting to authenticated user
+            ->orderBy('created_at')  // Order by created date
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Travel authorization applications fetched successfully',
+                'data' => $travelAuthorizations,
+            ]);
+        }
+        catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
 
     }

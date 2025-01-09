@@ -31,20 +31,65 @@ class AdvanceLoanApprovalController extends Controller
     public function index(Request $request)
     {
         try {
-        $user = auth()->user();
-        $employeeLists = employeeList();
-        // Fetch advance loan applications with histories where the approver matches the current user
-        $advances = AdvanceApplication::with('advanceType:id,name')->with('employee:id,name,username')->with('advance_approved_by:id,name')->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', 'App\Models\AdvanceApplication');
-        })->whereNotIn('status', [-1, 3]) // Exclude rejected and canceled applications
-            ->filter($request, false)
-            ->orderBy('created_at')
-            ->get();
-        return response()->json(['advances' => $advances], 200);
-    } catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 404);
-    }
+            $user = auth()->user();
+            $employeeLists = employeeList();
+
+            $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
+            $statuses = [];
+            $applicationType = 'App\Models\AdvanceApplication'; // Default application type
+            $tab = null;
+
+            // Define conditions based on the status parameter
+            switch ($statusParam) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $advances = AdvanceApplication::with('advanceType:id,name')
+                ->with([
+                    'employee:id,name,username',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
+                    },
+                    'employee.empjob.department:id,name',
+                    'employee.empjob.section:id,name',
+                    'histories:id,application_id,action_performed_by',
+                ])
+                ->when($tab === 'history', function ($query) use ($user, $applicationType) {
+                    $query->whereHas('histories', function ($query) use ($user, $applicationType) {
+                        $query->where('approver_emp_id', $user->id)
+                              ->where('application_type', $applicationType);
+                    });
+                })
+                ->when($tab === 'audit_logs', function ($query) use ($user, $applicationType, $statuses) {
+                    $query->whereHas('audit_logs', function ($query) use ($user, $applicationType, $statuses) {
+                        $query->where('application_type', $applicationType)
+                              ->where('action_performed_by', $user->id);
+                    });
+                })
+                ->whereIn('status', $statuses) // Exclude rejected and canceled applications
+                ->filter($request, false)
+                ->orderBy('created_at')
+                ->get();
+
+            return response()->json(['advances' => $advances], 200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 404);
+        }
+
 
 
     }

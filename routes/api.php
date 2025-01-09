@@ -77,6 +77,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('expense_transfer_claim', [ExpenseApprovalController::class, 'indexTransfer']);
         Route::get('expense_transfer_claim/{id}', [ExpenseApprovalController::class, 'showTransferClaim']);
         Route::post('approval/bulk', [ApprovalController::class, 'approveReject']);
+        Route::get('approval/{aaa}', [GeneralApporvalController::class, 'approvedApplications']);
         // Route::resource('approval', 'ExpenseApprovalController')->except('create', 'show', 'edit');
     });
 
