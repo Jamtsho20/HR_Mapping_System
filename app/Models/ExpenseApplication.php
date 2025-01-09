@@ -27,6 +27,10 @@ class ExpenseApplication extends Model
         'travel_to',
         'status'
     ];
+    protected $cast = [
+        'date' => 'date'
+    ];
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');

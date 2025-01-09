@@ -36,6 +36,10 @@ class AdvanceApplication extends Model
         'status',
 
     ];
+    protected $cast = [
+        'date' => 'date'
+    ];
+
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');

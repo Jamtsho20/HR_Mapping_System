@@ -78,7 +78,7 @@
                                                                                 0 => 'badge bg-warning',
                                                                                 1 => 'badge bg-primary',
                                                                                 2 => 'badge bg-success',
-                                                                                3 => 'badge bg-info',
+                                                                                3 => 'badge bg-success',
                                                                             ];
                                                                             $statusText = config(
                                                                                 "global.application_status.{$sifaRegistration->status}",

@@ -104,7 +104,7 @@
                                         <input type="text" name="dsa_claim_detail[AAAAA][to_location]" class="form-control form-control-sm resetKeyForNew" />
                                     </td>
                                     <td class="text-center">
-                                        <input type="number" name="dsa_claim_detail[AAAAA][total_days]" class="form-control form-control-sm resetKeyForNew mycal hasDatepicker" />
+                                        <input type="number" name="dsa_claim_detail[AAAAA][total_days]" class="form-control form-control-sm resetKeyForNew mycal hasDatepicker"   step="0.5"/>
                                     </td>
 
                                     <td class="text-center">
