@@ -300,18 +300,40 @@
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
-                                                    name="file">
+                                                    name="attachments">
                                             </div>
                                             <!-- Display area for uploaded file -->
                                             <div id="uploaded-file" style="margin-top: 10px;">
                                                 <!-- Placeholder for uploaded file -->
                                             </div>
                                         </div>
+                                        {{-- <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="file-uploader">
+                                                    <label for="file">Upload File <span id="attachment_required"
+                                                            class="text-danger" style="display:none;">*</span></label>
+                                                    <div class="file-upload-box">
+                                                        <div class="box-title">
+                                                            <!-- <span class="file-instruction">Drag files here or</span> -->
+                                                            <span class="file-browse-button">Upload Files</span>
+                                                        </div>
+                                                        <input class="file-browse-input form-control" type="file" multiple hidden
+                                                            name="attachments[]" id="dsa_attachment"
+                                                            accept="image/*,.pdf,.doc,.docx">
+    
+                                                    </div>
+                                                    <ul class="file-list">
+    
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div> --}}
+
                                     </div>
                                 </div>
                                 <div class="tab-pane">
                                     <div class="card">
-                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from
+                                        <p class="text-danger medium px-3 py-2">* The total number of days may differ from
                                             the selected dates, as 0.5 is subtracted for each half day.</p>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">

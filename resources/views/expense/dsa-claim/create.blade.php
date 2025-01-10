@@ -55,7 +55,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="file">Attachment (s)</label>
-                        <input type="file" id="attachment" class="form-control" name="file">
+                        <input type="file" id="attachment" class="form-control" name="attachment">
                     </div>
                     <!-- Display area for uploaded file -->
                     <div id="uploaded-file" style="margin-top: 10px;">
@@ -67,7 +67,7 @@
         <div class="tab-pane">
             <div class="card">
                 <div class="card-body p-0">
-                    <p class="text-danger small">*The total number of days may differ from the selected dates, as 0.5 is subtracted for each half day.</p>
+                    <p class="text-danger large">*The total number of days may differ from the selected dates, as 0.5 is subtracted for each half day.</p>
                     <div class="table-responsive">
                         <table id="qualifications" class="table table-condensed table-bordered table-striped table-sm">
                             <thead>

@@ -7,6 +7,7 @@ use App\Models\ApplicationHistory;
 use App\Models\TravelAuthorizationApplication;
 use Illuminate\Http\Request;
 use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
 
 class TravelAuthorizationApprovalController extends Controller
 {
@@ -65,6 +66,7 @@ class TravelAuthorizationApprovalController extends Controller
                 });
             })
             ->whereIn('status', $statuses)   // Filter by the statuses
+            ->whereYear('created_at', Carbon::now()->year)
             // Filter according to the request, without limiting to authenticated user
             ->orderBy('created_at')  // Order by created date
             ->get();
