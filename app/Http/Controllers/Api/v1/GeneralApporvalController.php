@@ -62,7 +62,7 @@ class GeneralApporvalController extends Controller
     $user = auth()->user();
 
     $applicationModels = config('global.applications');
-    dd($applicationModels);
+  
     $results = collect();
 
     // Fetch statuses from the query parameter

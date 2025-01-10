@@ -10,6 +10,7 @@ use App\Services\ApprovalService;
 use App\Traits\JsonResponseTrait;
 use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
+use Carbon\Carbon;
 
 class ExpenseApprovalController extends Controller
 {
@@ -63,8 +64,8 @@ class ExpenseApprovalController extends Controller
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
                     'histories:id,application_id,action_performed_by',
-                ])
-                ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                ])->with('vehicle:id,vehicle_no')
+                ->when($tab === 'history', function ($query) use ($currentUser, $applicationType, $statuses) {
                     $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
                         $query->where('approver_emp_id', $currentUser->id)
                               ->where('application_type', $applicationType);
@@ -76,9 +77,10 @@ class ExpenseApprovalController extends Controller
                               ->where('action_performed_by', $currentUser->id);
                     });
                 })
-               
+
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 
@@ -147,6 +149,7 @@ class ExpenseApprovalController extends Controller
                 })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 
@@ -223,6 +226,7 @@ class ExpenseApprovalController extends Controller
                 })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 

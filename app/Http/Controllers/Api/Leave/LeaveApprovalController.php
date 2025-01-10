@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
 
 class LeaveApprovalController extends Controller
 {
@@ -92,6 +93,7 @@ class LeaveApprovalController extends Controller
 
             ->whereIn('status', $statuses) // Filter by the statuses
             ->filter($request, false) // Filter according to the request, without limiting to authenticated user
+            ->whereYear('created_at', Carbon::now()->year)
             ->orderBy('created_at')
             ->get();
 

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
 
 class AdvanceLoanApprovalController extends Controller
 {
@@ -82,6 +83,7 @@ class AdvanceLoanApprovalController extends Controller
                 })
                 ->whereIn('status', $statuses) // Exclude rejected and canceled applications
                 ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 
