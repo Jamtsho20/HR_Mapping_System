@@ -89,11 +89,11 @@
                                                                     <i class="fa fa-list"></i> Detail
                                                                 </a>
                                                                 @elseif ($routeName == 'approval.approved')
-                                                                <a href="{{ url('approval/approved-applications/details/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
+                                                                <a href="{{ url('approval/approved-applications/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
                                                                     <i class="fa fa-list"></i> Detail
                                                                 </a>
                                                                 @elseif ($routeName == 'approval.rejected')
-                                                                <a href="{{ url('approval/rejected-applications/details/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
+                                                                <a href="{{ url('approval/rejected-applications/' . $sifa->id . '?tab=8') }}" class="btn btn-sm btn-outline-secondary">
                                                                     <i class="fa fa-list"></i> Detail
                                                                 </a>
                                                                 @else

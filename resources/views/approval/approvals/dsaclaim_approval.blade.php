@@ -103,12 +103,12 @@
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.approved')
-                                                <a href="{{ url('approval/approved-applications/details/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/approved-applications/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
 
                                                 @elseif ($routeName == 'approval.rejected')
-                                                <a href="{{ url('approval/rejected-applications/details/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/rejected-applications/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @else

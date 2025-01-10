@@ -89,7 +89,12 @@
                                                         <i class="fa fa-list"></i> Detail
                                                     </a>
                                                 @elseif ($routeName == 'approval.approved')
-                                                    <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=4') }}"
+                                                    <a href="{{ url('approval/approved-applications/' . $leave->id . '?tab=4') }}"
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-list"></i> Detail
+                                                    </a>
+                                                @elseif ($routeName == 'approval.rejected')
+                                                    <a href="{{ url('approval/rejected-applications/' . $leave->id . '?tab=4') }}"
                                                         class="btn btn-sm btn-outline-secondary">
                                                         <i class="fa fa-list"></i> Detail
                                                     </a>

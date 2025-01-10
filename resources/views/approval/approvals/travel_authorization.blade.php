@@ -66,15 +66,12 @@
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                             @elseif ($routeName == 'approval.approved')
-                                                <a href="{{ url('approval/approved-applications/details/' . $travelAuthorization->id . '?tab=7') }}"
+                                                <a href="{{ url('approval/approved-applications/' . $travelAuthorization->id . '?tab=7') }}"
                                                     class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
-                                            <a href="{{ url('approval/approved-applications/details/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
-                                                <i class="fa fa-list"></i> Detail
-                                            </a>
                                             @elseif ($routeName == 'approval.rejected')
-                                            <a href="{{ url('approval/rejected-applications/details/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
+                                            <a href="{{ url('approval/rejected-applications/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
                                                 <i class="fa fa-list"></i> Detail
                                             </a>
                                             @else
