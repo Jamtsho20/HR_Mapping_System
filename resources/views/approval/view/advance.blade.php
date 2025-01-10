@@ -123,6 +123,7 @@
     </div>
 
 @endsection
+@push('page_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         $('.buttonsubmit').click(function() {
@@ -219,5 +220,5 @@
             });
     })
 </script>
-@push('page_scripts')
+
 @endpush
