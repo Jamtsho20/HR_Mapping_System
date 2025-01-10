@@ -68,19 +68,17 @@ class ExpenseApprovalController extends Controller
                 ->when($tab === 'history', function ($query) use ($currentUser, $applicationType, $statuses) {
                     $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
                         $query->where('approver_emp_id', $currentUser->id)
-                              ->where('application_type', $applicationType)
-                              ->where('status', $statuses);
+                              ->where('application_type', $applicationType);
                     });
                 })
                 ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                     $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                         $query->where('application_type', $applicationType)
-                              ->where('action_performed_by', $currentUser->id)
-                              ->where('status', $statuses);
+                              ->where('action_performed_by', $currentUser->id);
                     });
                 })
 
-                //->whereIn('status', $statuses) // Filter based on statuses
+                ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
