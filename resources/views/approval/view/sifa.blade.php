@@ -6,7 +6,7 @@
 @endsection
 
 @section('content')
-@include('components.approval-buttons')
+    @include('components.approval-buttons')
     <div class="card">
         <div class="card-body">
             @if ($sifaRegistration && $sifaRegistration->is_registered == 1)
@@ -61,13 +61,13 @@
 @endsection
 
 @push('page_scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 8;
                 var action = $(this).data('value');
-                var selectedItems = [{{$sifaRegistration->id}}];
+                var selectedItems = [{{ $sifaRegistration->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -155,6 +155,6 @@
                     });
                 }
             });
-    })
-</script>
+        })
+    </script>
 @endpush

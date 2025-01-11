@@ -7,7 +7,6 @@
 @section('content')
 
     <div class="row">
-        @include('components.approval-buttons')
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -94,8 +93,6 @@
                                             @else
                                                 <p>No attachment available.</p>
                                             @endif
-
-
                                         @else
                                             <span class="text-danger">No attachment available.</span>
                                         @endif
@@ -223,7 +220,8 @@
                                     <tr>
                                         <th style="width:35%;">Travel From Date<span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $expense->travel_from_date }} {{ \Carbon\Carbon::parse($travel->date)->format('d-m-Y') }}</td>
+                                        <td style="padding-left:25px;"> {{ $expense->travel_from_date }}
+                                            {{ \Carbon\Carbon::parse($travel->date)->format('d-m-Y') }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Travel To Date<span
@@ -276,19 +274,22 @@
                 </div>
             </div>
         </div>
+
+        @include('components.approval-buttons')
+
     </div>
 
 
 
 @endsection
 @push('page_scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 2;
                 var action = $(this).data('value');
-                var selectedItems = [{{$expense->id}}];
+                var selectedItems = [{{ $expense->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -376,6 +377,6 @@
                     });
                 }
             });
-    })
-</script>
+        })
+    </script>
 @endpush

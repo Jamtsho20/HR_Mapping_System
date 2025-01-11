@@ -6,7 +6,7 @@
 @section('content')
 
     <div class="row">
-        @include('components.approval-buttons')
+
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -119,18 +119,19 @@
                 </div>
             </div>
         </div>
+        @include('components.approval-buttons')
 
     </div>
 
 @endsection
 @push('page_scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 3;
                 var action = $(this).data('value');
-                var selectedItems = [{{$advance->id}}];
+                var selectedItems = [{{ $advance->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -218,7 +219,6 @@
                     });
                 }
             });
-    })
-</script>
-
+        })
+    </script>
 @endpush

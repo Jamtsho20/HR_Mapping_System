@@ -8,7 +8,6 @@
 
 
     <div class="row">
-        @include('components.approval-buttons')
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -37,7 +36,8 @@
                                 <tr>
                                     <th style="width:35%;">To Date <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($leave->to_date)->format('d-m-Y') }}</td>
+                                    <td style="padding-left:25px;">
+                                        {{ \Carbon\Carbon::parse($leave->to_date)->format('d-m-Y') }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">No. of Days<span class="pull-right d-none d-sm-block">:</span>
@@ -89,19 +89,20 @@
                 </div>
             </div>
         </div>
+        @include('components.approval-buttons')
 
     </div>
     @include('layouts.includes.reject-modal')
 @endsection
 
 @push('page_scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 1;
                 var action = $(this).data('value');
-                var selectedItems = [{{$leave->id}}];
+                var selectedItems = [{{ $leave->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -189,7 +190,6 @@
                     });
                 }
             });
-    })
-</script>
+        })
+    </script>
 @endpush
-
