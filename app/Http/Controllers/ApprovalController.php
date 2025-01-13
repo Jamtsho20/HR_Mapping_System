@@ -274,6 +274,9 @@ class ApprovalController extends Controller
     public function show(Request $request, $id)
     {
         $privileges = $request->instance();
+        if (!(Str::startsWith($request->path(), 'approval/applications/')) ){
+        $privileges['edit']=0;
+    };
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
