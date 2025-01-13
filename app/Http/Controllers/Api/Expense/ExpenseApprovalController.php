@@ -57,10 +57,11 @@ class ExpenseApprovalController extends Controller
             // Build the query dynamically
             $expenseApplications = ExpenseApplication::with('type:id,name')
                 ->with([
-                    'employee:id,name,username',
+                   'employee:id,name,username,contact_number',
                     'employee.empjob' => function ($query) {
-                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
                     },
+                    'employee.empjob.designation:id,name',
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
                     'histories:id,application_id,action_performed_by',
@@ -126,10 +127,11 @@ class ExpenseApprovalController extends Controller
 
             // Build the query dynamically
             $dsaclaims = DSAClaimApplication::with([
-                    'employee:id,name,username',
+                    'employee:id,name,username,contact_number',
                     'employee.empjob' => function ($query) {
-                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
                     },
+                    'employee.empjob.designation:id,name',
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
                     'travel:id,travel_authorization_no',
@@ -205,10 +207,11 @@ class ExpenseApprovalController extends Controller
             // Build the query dynamically
             $transferClaims = TransferClaimApplication::with('type:id,name')
                 ->with([
-                    'employee:id,name,username',
+                    'employee:id,name,username,contact_number',
                     'employee.empjob' => function ($query) {
-                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
                     },
+                    'employee.empjob.designation:id,name',
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
                     'histories:id,application_id,action_performed_by',
