@@ -41,7 +41,7 @@
                                     <th style="width:35%;">Created At<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $leaveEncashment->created_at->format('d-m-y') }}
+                                        {{ $leaveEncashment->created_at->format('d-M-Y') }}
                                     </td>
                                 </tr>
 

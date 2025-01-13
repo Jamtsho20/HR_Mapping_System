@@ -27,7 +27,7 @@
                                     <th style="width:35%;">Applied On<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $advance->date }}
+                                        {{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
                                     </td>
                                 </tr>
                                 <tr>

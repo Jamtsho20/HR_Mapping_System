@@ -36,7 +36,6 @@ class OfficeController extends Controller
         // Validate the request data
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
             'dzongkhag' => 'required|exists:mas_dzongkhags,id',
             'status.is_active' => 'boolean',
         ]);
@@ -44,7 +43,6 @@ class OfficeController extends Controller
         // Create a new Office instance and fill it with the validated data
         $office = new MasOffice();
         $office->name = $validatedData['name'];
-        $office->address = $validatedData['address'];
         $office->mas_dzongkhag_id = $validatedData['dzongkhag'];
         $office->status = $request->input('status.is_active', 0);
 
@@ -66,7 +64,6 @@ class OfficeController extends Controller
         // Validate the incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
             'dzongkhag_id' => 'required|exists:mas_dzongkhags,id', // Ensure the dzongkhag exists in the database
             'status.is_active' => 'sometimes|boolean', // Validate the status checkbox
         ]);
@@ -76,7 +73,6 @@ class OfficeController extends Controller
     
         // Update the office details
         $office->name = $request->input('name');
-        $office->address = $request->input('address');
         $office->mas_dzongkhag_id = $request->input('dzongkhag_id');
     
         // Handle the status field (default to 0 if not set)

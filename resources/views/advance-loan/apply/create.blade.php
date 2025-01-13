@@ -30,10 +30,16 @@
                         </select>
                     </div>
                 </div>
+              
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" name="date" value="{{ old('date', date('Y-m-d')) }}" id="date" readonly required>
+                        <label for="date">Date <span class="text-danger"></span></label>
+
+                        <!-- Display formatted date for the user (e.g., 10-Jan-2025) -->
+                        <input type="text" class="form-control" id="formatted-dates" value="{{ \Carbon\Carbon::now()->format('d-M-Y') }}" readonly>
+
+                        <!-- Hidden input field to store date in YYYY-MM-DD format (for database) -->
+                        <input type="hidden" name="date" id="hidden-date" value="{{ old('date', date('Y-m-d')) }}" required>
                     </div>
                 </div>
 

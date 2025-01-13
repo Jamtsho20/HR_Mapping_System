@@ -1052,6 +1052,18 @@ document.querySelectorAll(".file-item.existing-file .cancel-button").forEach((bu
     });
 });
 
+//script for select2
+function initializeSelect2(selector, placeholder = "Select your option") {
+    $(selector).select2({
+        allowClear: true, // Add clear button
+        width: '100%' // Ensure full width
+    });
+}
+
+// Automatically apply Select2 to all .select2 elements
+$(document).ready(function () {
+    initializeSelect2('.select2'); // Targets all elements with the .select2 class
+});
 
 
 fileBrowseInput.addEventListener("change", (e) => handleSelectedFiles(e.target.files));

@@ -143,8 +143,8 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $holiday->holiday_name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-m-Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-m-Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
 
                             </tr>
                             @empty

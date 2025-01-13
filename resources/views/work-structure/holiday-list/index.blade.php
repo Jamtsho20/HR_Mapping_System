@@ -57,8 +57,8 @@
                                                         <td>{{ $holiday->holiday_name }}</td>
                                                         <td>{{ $holiday->holiday_type }}</td>
                                                         <td>{{ implode(', ', $holiday->region_name) }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-m-Y') }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-m-Y') }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
                                                         <td class="text-center">
                                                             @if ($privileges->edit)
                                                             <a href="{{ url('work-structure/holiday-lists/' . $holiday->id) }}"

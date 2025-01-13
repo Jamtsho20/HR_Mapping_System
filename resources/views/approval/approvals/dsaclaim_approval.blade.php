@@ -60,7 +60,7 @@
 
                                             <td>{{ $dsaclaim->employee->employee_id }}
                                                 ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
-                                            <td>{{ $dsaclaim->created_at->format('d-m-Y') }}
+                                            <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
                                             <td>{{ $dsaclaim->net_payable_amount }}
                                             </td>
                                             <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
