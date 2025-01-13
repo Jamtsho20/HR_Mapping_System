@@ -6,7 +6,6 @@
 @section('content')
 
     <div class="row">
-        @include('components.approval-buttons')
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -38,9 +37,11 @@
                                     <td style="padding-left:25px;"> {{ $travelAuthorization->travelType->name }}</td>
                                 </tr>
                                 <tr>
-                                    <th style="width:35%;">Estimated Expense Amount <span class="pull-right d-none d-sm-block">:</span>
+                                    <th style="width:35%;">Estimated Expense Amount <span
+                                            class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                    <td style="padding-left:25px;"> {{ $travelAuthorization->estimated_travel_expenses }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">No of Day(s) <span class="pull-right d-none d-sm-block">:</span>
@@ -108,18 +109,19 @@
                 </div>
             </div>
         </div>
+        @include('components.approval-buttons')
+
     </div>
 
 @endsection
 @push('page_scripts')
-<script>
-
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 7;
                 var action = $(this).data('value');
-                var selectedItems = [{{$travelAuthorization->id}}];
+                var selectedItems = [{{ $travelAuthorization->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -207,6 +209,6 @@
                     });
                 }
             });
-    })
-</script>
+        })
+    </script>
 @endpush
