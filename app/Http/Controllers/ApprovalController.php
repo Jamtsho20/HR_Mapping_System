@@ -126,6 +126,7 @@ class ApprovalController extends Controller
                         $accountCode = $type->code ?? null;
                         $memo = $type->name ?? null;
                         $shortName = $application->employee->username;
+                        $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
@@ -139,7 +140,8 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $tax_amount);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
+                            dd($postFields);
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -213,7 +215,7 @@ class ApprovalController extends Controller
         }
     }
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $tax_amount = null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null)
     {
         if ($tax_amount) {
             return $postFields = '{
@@ -256,6 +258,7 @@ class ApprovalController extends Controller
                                     "ShortName": "' . $shortName . '",
                                     "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
+                                    "U_P_NUMBER": "'. $contactNo .'",
                                     "Credit": "' . $amount . '",
                                     "Debit": 0
                                 },

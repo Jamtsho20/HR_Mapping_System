@@ -88,12 +88,11 @@ class LeaveApprovalController extends Controller
                 $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                     $query->where('application_type', $applicationType)
                           ->where('action_performed_by', $currentUser->id);
-                });
+                })
+                ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
             })
-
-            ->whereIn('status', $statuses) // Filter by the statuses
-            ->filter($request, false) // Filter according to the request, without limiting to authenticated user
-            ->whereYear('created_at', Carbon::now()->year)
+            ->whereIn('status', $statuses) // Filter based on statuses
+            ->filter($request, false)
             ->orderBy('created_at')
             ->get();
 

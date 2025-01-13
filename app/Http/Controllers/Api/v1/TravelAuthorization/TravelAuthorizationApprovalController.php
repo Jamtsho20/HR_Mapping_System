@@ -63,11 +63,11 @@ class TravelAuthorizationApprovalController extends Controller
                 $query->whereHas('audit_logs', function ($query) use ($user, $applicationType, $statuses) {
                     $query->where('application_type', $applicationType)
                           ->where('action_performed_by', $user->id);
-                });
+                })
+                ->whereYear('created_at', Carbon::now()->year); // Apply the condition inside the callback
             })
+
             ->whereIn('status', $statuses)   // Filter by the statuses
-            ->whereYear('created_at', Carbon::now()->year)
-            // Filter according to the request, without limiting to authenticated user
             ->orderBy('created_at')  // Order by created date
             ->get();
 

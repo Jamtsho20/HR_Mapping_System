@@ -64,7 +64,7 @@ class ExpenseApprovalController extends Controller
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
                     'histories:id,application_id,action_performed_by',
-                ])->with('vehicle:id,vehicle_no')
+                ])->with('vehicle.vehicleType:id,name')
                 ->when($tab === 'history', function ($query) use ($currentUser, $applicationType, $statuses) {
                     $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
                         $query->where('approver_emp_id', $currentUser->id)
@@ -75,12 +75,11 @@ class ExpenseApprovalController extends Controller
                     $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                         $query->where('application_type', $applicationType)
                               ->where('action_performed_by', $currentUser->id);
-                    });
+                    })
+                    ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
-
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
-                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 
@@ -133,8 +132,10 @@ class ExpenseApprovalController extends Controller
                     },
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
+                    'travel:id,travel_authorization_no',
+                    'dsaadvance:id,advance_no',
                     'histories:id,application_id,action_performed_by',
-                ])
+            ])
                 ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
                     $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
                         $query->where('approver_emp_id', $currentUser->id)
@@ -145,11 +146,11 @@ class ExpenseApprovalController extends Controller
                     $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                         $query->where('application_type', $applicationType)
                               ->where('action_performed_by', $currentUser->id);
-                    });
+                    })
+                    ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
-                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 
@@ -222,11 +223,11 @@ class ExpenseApprovalController extends Controller
                     $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                         $query->where('application_type', $applicationType)
                               ->where('action_performed_by', $currentUser->id);
-                    });
+                    })
+                    ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
-                ->whereYear('created_at', Carbon::now()->year)
                 ->orderBy('created_at')
                 ->get();
 
