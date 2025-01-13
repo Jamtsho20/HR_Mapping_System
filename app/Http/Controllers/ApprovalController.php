@@ -141,7 +141,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-                            dd($postFields);
+                    
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
