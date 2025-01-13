@@ -18,7 +18,6 @@
     <div class="block">
         <div class="block-header block-header-default">
 
-
         </div>
         <div class="block-content">
             <div class="block-options">
