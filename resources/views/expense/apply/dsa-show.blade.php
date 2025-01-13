@@ -105,10 +105,10 @@
                                                         {{ $detail->id }}
                                                     </td>
                                                     <td>
-                                                        {{ $detail->from_date }}
+                                                        {{ \Carbon\Carbon::parse($detail->from_date)->format('d-M-Y') }}
                                                     </td>
                                                     <td>
-                                                        {{ $detail->to_date }}
+                                                        {{ \Carbon\Carbon::parse($detail->to_date)->format('d-M-Y') }}
                                                     </td>
                                                     <td>
                                                         {{ $detail->from_location }}

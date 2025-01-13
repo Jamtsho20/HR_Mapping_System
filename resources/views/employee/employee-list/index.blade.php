@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     @if ($privileges->create)
         @section('buttons')
             <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New
@@ -17,7 +20,7 @@
                     placeholder="Employee Id">
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control" name="section">
+                <select class="form-control select2" name="section">
                     <option value="" disabled selected hidden>Select Sections</option>
                     @foreach ($sections as $section)
                         <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
@@ -27,8 +30,18 @@
                 </select>
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control" name="designation">
-                    <option value="" disabled selected hidden>Select Desination</option>
+                <select class="form-control select2" name="section">
+                    <option value="" disabled selected hidden>Select Departments</option>
+                    @foreach ($departments as $department)
+                        <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                            {{ $department->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3 form-group">
+                <select class="form-control select2" name="designation">
+                    <option value="" disabled selected hidden>Select Designation</option>
                     @foreach ($designations as $desigation)
                         <option value="{{ $desigation->id }}"
                             {{ request()->get('designation') == $desigation->id ? 'selected' : '' }}>
@@ -38,7 +51,7 @@
                 </select>
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control" name="office">
+                <select class="form-control select2" name="office">
                     <option value="" disabled selected hidden>Select Work location</option>
                     @foreach ($workLocations as $office)
                         <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
@@ -88,6 +101,9 @@
                                                                 <th>
                                                                     DOA
                                                                 </th>
+                                                                <th>
+                                                                    Grade
+                                                                </th>
 
                                                                 <th>
                                                                     Contact No
@@ -123,6 +139,7 @@
                                                                     <td>{{ $employee->empJob->office->name ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $employee->date_of_appointment }}</td>
+                                                                    <td>{{ $employee->empJob->gradeStep->name }}</td>
                                                                     <td>{{ $employee->contact_number }}</td>
                                                                     <td>{{ $employee->email }}</td>
                                                                     <td class="text-center">

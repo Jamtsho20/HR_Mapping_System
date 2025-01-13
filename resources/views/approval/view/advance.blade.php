@@ -6,7 +6,7 @@
 @section('content')
 
     <div class="row">
-        @include('components.approval-buttons')
+
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -29,7 +29,7 @@
                                     <th style="width:35%;">Applied On<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ \Carbon\Carbon::parse($advance->date)->format('d-m-Y') }}
+                                        {{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -119,6 +119,7 @@
                 </div>
             </div>
         </div>
+        @include('components.approval-buttons')
 
     </div>
 
@@ -131,7 +132,7 @@
 
                 const itemType = 3;
                 var action = $(this).data('value');
-                var selectedItems = [{{$advance->id}}];
+                var selectedItems = [{{ $advance->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 

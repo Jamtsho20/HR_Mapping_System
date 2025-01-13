@@ -267,7 +267,7 @@ class EmployeeController extends Controller
         $rules = [
             'personal.first_name' => 'required',
             'personal.title' => 'required',
-            'personal.cid_no' => 'required|digits:11',
+            'personal.cid_no' => 'required',
             'personal.gender' => 'required',
             'personal.dob' => 'required|date',
             'personal.birth_place' => '',

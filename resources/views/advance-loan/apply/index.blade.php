@@ -56,7 +56,7 @@
                                                     <td>{{ $advances->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $advance->advance_no }}</td>
                                                     <td>{{ $advance->advanceType->name }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($advance->date)->format('Y-m-d') }}
+                                                    <td>{{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
                                                     </td>
                                                     <td>{{ number_format($advance->amount, 2) }}</td>
                                                     <td class="text-center">

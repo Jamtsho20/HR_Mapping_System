@@ -1,6 +1,10 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Expense')
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+@include('layouts.includes.loader')
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <div class="card">
@@ -68,7 +72,7 @@
                                     </div>
                                     <div class="col-md-4" style="display: none;" id="vehicle">
                                         <label for="mas_vehicle_id">Vehicle No <span class="text-danger">*</span></label>
-                                        <select class="form-control" id="mas_vehicle_id" name="mas_vehicle_id">
+                                        <select class="form-control select2" id="mas_vehicle_id" name="mas_vehicle_id">
                                             <option value="" disabled selected hidden>Select your option
                                             </option>
                                             @foreach ($vehicles as $vehicle)
@@ -221,7 +225,7 @@
                         </form>
                     @elseif ($id == 3)
                         <form action="{{ route('dsa-claim-settlement.store') }}" method="post"
-                            enctype="multipart/form-data" id="apply_dsa_claim">
+                            enctype="multipart/form-data" id="apply_expense">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -422,7 +426,7 @@
                             </div>
                         </form>
                     @elseif ($id == 4)
-                        <form action="{{ route('transfer-claim.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_expense" enctype="multipart/form-data">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -562,6 +566,15 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+
+            const form = document.getElementById('apply_expense');
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
             window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
 
             function calculateGrandTotal() {

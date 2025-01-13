@@ -1052,6 +1052,18 @@ document.querySelectorAll(".file-item.existing-file .cancel-button").forEach((bu
     });
 });
 
+//script for select2
+function initializeSelect2(selector) {
+    $(selector).select2({
+        allowClear: false, // Add clear button
+        width: '100%' // Ensure full width
+    });
+}
+
+// Automatically apply Select2 to all .select2 elements
+$(document).ready(function () {
+    initializeSelect2('.select2'); // Targets all elements with the .select2 class
+});
     // Common success message function
     function showSuccessMessage(message, reload = true, documentReferrer = null) {
 

@@ -1,14 +1,14 @@
 @extends('layouts.app')
 @php
-$title = 'Approval Pending';
+    $title = 'Approval Pending';
 
-if (request()->is('approval/approved-applications')) {
-    $title = 'Approved Applications';
-} elseif (request()->is('approval/applications')) {
-    $title = 'Pending Applications';
-}elseif (request()->is('approval/rejected-applications')) {
-    $title = 'Rejected Applications';
-}
+    if (request()->is('approval/approved-applications')) {
+        $title = 'Approved Applications';
+    } elseif (request()->is('approval/applications')) {
+        $title = 'Pending Applications';
+    } elseif (request()->is('approval/rejected-applications')) {
+        $title = 'Rejected Applications';
+    }
 
 @endphp
 @section('page-title', $title)
@@ -17,12 +17,6 @@ if (request()->is('approval/approved-applications')) {
 
     <div class="block">
         <div class="block-header block-header-default">
-            @component('layouts.includes.filter')
-                <div class="col-12 form-group">
-                    <input type="text" name="expense" class="form-control" value="{{ request()->get('expense') }}"
-                        placeholder="Search">
-                </div>
-            @endcomponent
 
         </div>
         <div class="block-content">
@@ -296,7 +290,8 @@ if (request()->is('approval/approved-applications')) {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
                                 // alert(errorResponse.msg_error ||
                                 //     'An unexpected error occurred.');
-                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+                                showErrorMessage(errorResponse.msg_error ||
+                                    'An unexpected error occurred.');
                             } catch (e) {
                                 // alert('An error occurred: ' + errorThrown);
                                 showErrorMessage('An error occurred: ' + errorThrown);

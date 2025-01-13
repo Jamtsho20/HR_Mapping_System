@@ -6,7 +6,7 @@
 @section('content')
 
     <div class="row">
-    @include('components.approval-buttons')
+
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -27,7 +27,8 @@
                                     <td style="padding-left:25px;"> {{ $leaveEncashment->amount }}</td>
                                 </tr>
                                 <tr>
-                                    <th style="width:35%;">Earned Leave Balance<span class="pull-right d-none d-sm-block">:</span>
+                                    <th style="width:35%;">Earned Leave Balance<span
+                                            class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
                                         @foreach ($empDetails->empLeave as $earned)
@@ -41,7 +42,7 @@
                                     <th style="width:35%;">Created At<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $leaveEncashment->created_at->format('d-m-y') }}
+                                        {{ $leaveEncashment->created_at->format('d-M-Y') }}
                                     </td>
                                 </tr>
 
@@ -72,17 +73,19 @@
             </div>
         </div>
 
+
+        @include('components.approval-buttons')
     </div>
 
 @endsection
 @push('page_scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 4;
                 var action = $(this).data('value');
-                var selectedItems = [{{$leaveEncashment->id}}];
+                var selectedItems = [{{ $leaveEncashment->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -183,6 +186,6 @@
                     });
                 }
             });
-    })
-</script>
+        })
+    </script>
 @endpush

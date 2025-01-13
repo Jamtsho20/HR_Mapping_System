@@ -44,9 +44,6 @@
                                                         Name
                                                     </th>
                                                     <th>
-                                                        Address
-                                                    </th>
-                                                    <th>
                                                         Dzongkhag
                                                     </th>
                                                     <th>
@@ -62,7 +59,6 @@
                                             @forelse($offices as $office)
                                             <tr>
                                                 <td>{{ $office->name }}</td>
-                                                <td>{{ $office->address }}</td>
                                                 <td>{{ $office->dzongkhag->dzongkhag }}</td>
                                                 <td>{{ $office->status ? 'Active' : 'Inactive' }}</td>
                                                 <td class="text-center">
