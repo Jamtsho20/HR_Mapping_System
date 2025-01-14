@@ -20,7 +20,8 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
             <div class="col-md-2 form-group">
-                <select class="form-control" name="department">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
+                    name="department">
                     <option value="" disabled="" selected="" hidden="">Select Department</option>
                     @foreach ($departments as $department)
                         <option value="{{ $department->id }}"
@@ -32,7 +33,7 @@
             </div>
 
             <div class="col-md-2 form-group">
-                <select class="form-control" name="section">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Section" name="section">
                     <option value="" disabled selected hidden>Select Sections</option>
                     @foreach ($sections as $section)
                         <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
@@ -42,7 +43,8 @@
                 </select>
             </div>
             <div class="col-md-2 form-group">
-                <select class="form-control" name="designation">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Designation"
+                    name="designation">
                     <option value="" disabled selected hidden>Select Designation</option>
                     @foreach ($designations as $desigation)
                         <option value="{{ $desigation->id }}"
