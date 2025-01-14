@@ -26,7 +26,9 @@ class TravelAuthorizationApplication extends Model
         'advance_amount',
         'daily_allowance',
     ];
-
+    protected $cast = [
+        'date' => 'date',
+    ];
 
     public function employee(){
         return $this->belongsTo(User::class, 'created_by');

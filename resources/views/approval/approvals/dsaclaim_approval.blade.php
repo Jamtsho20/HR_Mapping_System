@@ -60,7 +60,7 @@
 
                                             <td>{{ $dsaclaim->employee->employee_id }}
                                                 ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
-                                            <td>{{ $dsaclaim->created_at->format('d-m-Y') }}
+                                            <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
                                             <td>{{ $dsaclaim->net_payable_amount }}
                                             </td>
                                             <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
@@ -103,12 +103,12 @@
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.approved')
-                                                <a href="{{ url('approval/approved-applications/details/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/approved-applications/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
 
                                                 @elseif ($routeName == 'approval.rejected')
-                                                <a href="{{ url('approval/rejected-applications/details/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/rejected-applications/' . $dsaclaim->id . '?tab=9') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @else

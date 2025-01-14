@@ -1,6 +1,10 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Expense')
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+@include('layouts.includes.loader')
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <div class="card">
@@ -68,7 +72,7 @@
                                     </div>
                                     <div class="col-md-4" style="display: none;" id="vehicle">
                                         <label for="mas_vehicle_id">Vehicle No <span class="text-danger">*</span></label>
-                                        <select class="form-control" id="mas_vehicle_id" name="mas_vehicle_id">
+                                        <select class="form-control select2" id="mas_vehicle_id" name="mas_vehicle_id">
                                             <option value="" disabled selected hidden>Select your option
                                             </option>
                                             @foreach ($vehicles as $vehicle)
@@ -221,7 +225,7 @@
                         </form>
                     @elseif ($id == 3)
                         <form action="{{ route('dsa-claim-settlement.store') }}" method="post"
-                            enctype="multipart/form-data" id="apply_dsa_claim">
+                            enctype="multipart/form-data" id="apply_expense">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -300,40 +304,18 @@
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
-                                                    name="attachments">
+                                                    name="file">
                                             </div>
                                             <!-- Display area for uploaded file -->
                                             <div id="uploaded-file" style="margin-top: 10px;">
                                                 <!-- Placeholder for uploaded file -->
                                             </div>
                                         </div>
-                                        {{-- <div class="col-md-4">
-                                            <div class="form-group">
-                                                <div class="file-uploader">
-                                                    <label for="file">Upload File <span id="attachment_required"
-                                                            class="text-danger" style="display:none;">*</span></label>
-                                                    <div class="file-upload-box">
-                                                        <div class="box-title">
-                                                            <!-- <span class="file-instruction">Drag files here or</span> -->
-                                                            <span class="file-browse-button">Upload Files</span>
-                                                        </div>
-                                                        <input class="file-browse-input form-control" type="file" multiple hidden
-                                                            name="attachments[]" id="dsa_attachment"
-                                                            accept="image/*,.pdf,.doc,.docx">
-    
-                                                    </div>
-                                                    <ul class="file-list">
-    
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div> --}}
-
                                     </div>
                                 </div>
                                 <div class="tab-pane">
                                     <div class="card">
-                                        <p class="text-danger medium px-3 py-2">* The total number of days may differ from
+                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from
                                             the selected dates, as 0.5 is subtracted for each half day.</p>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
@@ -444,7 +426,7 @@
                             </div>
                         </form>
                     @elseif ($id == 4)
-                        <form action="{{ route('transfer-claim.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_expense" enctype="multipart/form-data">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -584,6 +566,15 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+
+            const form = document.getElementById('apply_expense');
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
             window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
 
             function calculateGrandTotal() {

@@ -1,3 +1,4 @@
+
 @include('layouts.partials.header')
 @include('layouts.partials.sidebar')
     <!--app-content open-->
@@ -17,7 +18,7 @@
                 <!-- PAGE-HEADER END -->
 
                 @include('layouts.includes.messages')
-                
+
 
                 <!-- Row -->
                 <div class="row">

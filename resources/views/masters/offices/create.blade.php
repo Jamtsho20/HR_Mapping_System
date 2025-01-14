@@ -15,12 +15,6 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="address">Address <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="address" value="{{ old('address') }}" required>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
                         <label for="dzongkhag">Dzongkhag <span class="text-danger">*</span></label>
                         <select class="form-control" name="dzongkhag" id="dzongkhag" required>
                             <option value="">Select Dzongkhag</option>

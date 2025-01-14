@@ -97,7 +97,7 @@
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $empIdName }} </td>
-                                                                    <td>{{ $expense->date }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}</td>
                                                                     <td>{{ $expense->type->name }}
                                                                     </td>
                                                                     <td>{{ $expense->amount }}</td>
@@ -204,7 +204,7 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $empIdName }}
 
-                                                                    <td>{{ $dsaClaim->created_at->format('d-m-Y') }}
+                                                                    <td>{{ $dsaClaim->created_at->format('d-M-Y') }}
                                                                     <td>{{ $dsaClaim->net_payable_amount }}
                                                                     </td>
                                                                     <td>{{ $dsaClaim->dsaexpense?->amount ?? '0.00' }}
@@ -315,7 +315,7 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $empIdName}}
 
-                                                                    <td>{{ $transfer->created_at->format('d-m-Y') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($transfer->created_at)->format('d-M-Y') }}</td>
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}
                                                                     </td>

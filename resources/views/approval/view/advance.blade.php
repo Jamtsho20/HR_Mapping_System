@@ -6,7 +6,7 @@
 @section('content')
 
     <div class="row">
-        @include('components.approval-buttons')
+
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -29,7 +29,7 @@
                                     <th style="width:35%;">Applied On<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ \Carbon\Carbon::parse($advance->date)->format('d-m-Y') }}
+                                        {{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -119,17 +119,20 @@
                 </div>
             </div>
         </div>
+        @include('components.approval-buttons')
 
     </div>
 
 @endsection
+
+@push('page_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         $('.buttonsubmit').click(function() {
 
                 const itemType = 3;
                 var action = $(this).data('value');
-                var selectedItems = [{{$advance->id}}];
+                var selectedItems = [{{ $advance->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -153,8 +156,8 @@
                             return;
                         }
 
-                        // Send AJAX request to reject
-                        $('#loader').show();
+                       // Send AJAX request to reject
+                       $('#loader').show();
                         $.ajax({
                             url: routeUrl,
                             type: 'POST',
@@ -166,22 +169,28 @@
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                alert(response.msg_success);
-
-                                window.location.href = document.referrer;
-
+                                // alert(response.msg_success);
+                                // location.reload();
                                 $('#loader').hide();
+                                showSuccessMessage(response.msg_success, true, document.referrer);
+
+
+
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
-                                $('#loader').hide();
                                 try {
                                     var errorResponse = JSON.parse(jqXHR.responseText);
-                                    alert(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
+                                    // alert(errorResponse.msg_error ||
+                                    //     'An unexpected error occurred.');
+                                    $('#loader').hide();
+                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                                 } catch (e) {
-                                    alert('An error occurred: ' + errorThrown);
-                                }
-                            }
+                                    // alert('An error occurred: ' + errorThrown);
+                                    $('#loader').hide();
+                                    showErrorMessage('An error occurred: ' + errorThrown);
+
+                                }}
                         });
 
                         // Close the modal
@@ -200,18 +209,25 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            alert(response.msg_success);
-                            window.location.href = document.referrer;
+                            // alert(response.msg_success);
+                            // location.reload();
                             $('#loader').hide();
+                            showSuccessMessage(response.msg_success, true,document.referrer);
+
+
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
-                                alert(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
+                                // alert(errorResponse.msg_error ||
+                                //     'An unexpected error occurred.');
+                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                             } catch (e) {
-                                alert('An error occurred: ' + errorThrown);
+                                // alert('An error occurred: ' + errorThrown);
+                                showErrorMessage('An error occurred: ' + errorThrown);
+
                             }
                         }
                     });
@@ -219,5 +235,4 @@
             });
     })
 </script>
-@push('page_scripts')
 @endpush

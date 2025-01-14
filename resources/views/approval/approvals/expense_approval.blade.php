@@ -59,7 +59,7 @@
                                             @endif
                                             <td>{{ $application->employee->name }}
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($application->date)->format('d-m-Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($application->date)->format('d-M-Y') }}</td>
                                             <td>{{ $application->type->name }}
                                             </td>
                                             <td>{{ $application->vehicle->vehicleType->name ?? config('global.null_value') }}
@@ -105,12 +105,12 @@
                                                             <i class="fa fa-list"></i> Detail
                                                         </a>
                                                     @elseif ($routeName == 'approval.approved')
-                                                        <a href="{{ url('approval/approved-applications/details/' . $application->id . '?tab=2') }}"
+                                                        <a href="{{ url('approval/approved-applications/' . $application->id . '?tab=2') }}"
                                                             class="btn btn-sm btn-outline-secondary">
                                                             <i class="fa fa-list"></i> Detail
                                                         </a>
                                                     @elseif ($routeName == 'approval.rejected')
-                                                    <a href="{{ url('approval/rejected-applications/details/' . $application->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <a href="{{ url('approval/rejected-applications/' . $application->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
                                                         <i class="fa fa-list"></i> Detail
                                                     </a>
                                                     @else

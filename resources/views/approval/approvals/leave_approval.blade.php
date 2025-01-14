@@ -48,11 +48,11 @@
                                                     value="{{ $leave->id }}">
                                             </td>
                                         @endif
-                                        <td>{{ $leave->created_at->format('d-m-Y') }}</td>
+                                        <td>{{ $leave->created_at->format('d-M-Y') }}</td>
                                         <td>{{ $leave->employee->emp_id_name }}</td>
                                         <td>{{ $leave->leaveType->name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-m-Y') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($leave->to_date)->format('d-m-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-M-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->to_date)->format('d-M-Y') }}</td>
                                         <td class="text-right">{{ $leave->no_of_days }}</td>
                                         <td class="text-center">
 
@@ -89,11 +89,11 @@
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @elseif ($routeName == 'approval.approved')
-                                        <a href="{{ url('approval/approved-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                        <a href="{{ url('approval/approved-applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @elseif ($routeName == 'approval.rejected')
-                                        <a href="{{ url('approval/rejected-applications/details/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                        <a href="{{ url('approval/rejected-applications/' . $leave->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
                                             <i class="fa fa-list"></i> Detail
                                         </a>
                                         @else

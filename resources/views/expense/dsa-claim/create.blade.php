@@ -4,7 +4,7 @@
 
 
 
-<form action="{{ route('dsa-claim-settlement.store') }}" method="post" enctype="multipart/form-data">
+<form action="{{ route('dsa-claim-settlement.store') }}" method="post" enctype="multipart/form-data" id="apply_dsa">
     @csrf
     <div class="card">
         <div class="card-body">
