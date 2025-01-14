@@ -128,7 +128,7 @@ function createDoughnutChart(ctx, labels, data, chartLabel) {
                     const text = chart.options.plugins.centerText.text || '';
 
                     ctx.save();
-                    ctx.font = 'bold 14px sans-serif';
+                    ctx.font = '13px sans-serif';
                     ctx.fillStyle = '#333'; // Set text color
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
@@ -141,9 +141,9 @@ function createDoughnutChart(ctx, labels, data, chartLabel) {
                     ctx.fillText(text, centerX, centerY); // Draw the text
 
                     // Draw the color box next to the text (just slightly to the right)
-                    const colorBoxSize = 18; // Size of the color box
-                    const colorBoxX = centerX - 75; // X position to the right of the center
-                    const colorBoxY = centerY - 10; // Y position aligned with the text
+                    const colorBoxSize = 14; // Size of the color box
+                    const colorBoxX = centerX - 60; // X position to the right of the center
+                    const colorBoxY = centerY - 8; // Y position aligned with the text
                     if (chart.options.plugins.centerText.color) {
                         ctx.fillStyle = chart.options.plugins.centerText.color;
                         ctx.fillRect(colorBoxX, colorBoxY, colorBoxSize, colorBoxSize); // Draw color box
