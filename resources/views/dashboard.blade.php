@@ -53,70 +53,138 @@
         </div>
     </div>
 </div>
+<div id="colorBoxContainer" style="margin-top: 20px; text-align: center;"></div> <!-- Container for color box -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
 <script>
     // Function to initialize a doughnut chart
-    function createDoughnutChart(ctx, labels, data, chartLabel) {
-        return new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: chartLabel,
-                    data: data,
-                    backgroundColor: [
-                        'rgb(50, 205, 50)', // Green for Approved
-                        'rgb(11, 98, 164)', // Dark Blue for Balance
-                        'rgb(255, 152, 0)', // Orange for In-Progress
-                    ],
-                    borderColor: [
-                        'rgb(50, 205, 50)', // Darker Green for Approved
-                        'rgb(11, 98, 164)', // Dark Blue for Balance
-                        'rgb(255, 152, 0)', // Darker orange border for In-Progress
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                cutout: '60%',
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'start',
-                        labels: {
-                            // boxWidth: 10,
-                            // padding: 5
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw;
-                            }
-                        }
-                    },
-                    layout: {
-                        padding: {
-                            top: 20
+function createDoughnutChart(ctx, labels, data, chartLabel) {
+    const defaultText = `${labels[1]}`; //default label will be Balance
+    const defaultColor = 'rgb(11, 98, 164)'; //default color for balnce is set from here it self
+    const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: chartLabel,
+                data: data,
+                backgroundColor: [
+                    'rgb(50, 205, 50)', // Green for Approved
+                    'rgb(11, 98, 164)', // Dark Blue for Balance
+                    'rgb(255, 152, 0)', // Orange for In-Progress
+                ],
+                borderColor: [
+                    'rgb(50, 205, 50)', 
+                    'rgb(11, 98, 164)', 
+                    'rgb(255, 152, 0)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%', // Creates the inner circle
+            plugins: {
+                legend: {
+                    position: 'top',
+                    align: 'start',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label;
                         }
                     }
+                },
+                centerText: {
+                    text: defaultText, // Set default text to "Balance"
+                    color: defaultColor,
+                }
+            },
+            onClick: function(event, elements) {
+                if (elements.length > 0) {
+                    const chartIndex = elements[0].index; // Index of the clicked segment
+                    const clickedLabel = labels[chartIndex]; // Get the label of the clicked segment
+                    const clickedValue = data[chartIndex]; // Get the value of the clicked segment
+
+                    // Update the center text
+                    chart.options.plugins.centerText.text = `${clickedLabel}`;
+                    chart.update();
+
+                    // Get the color of the clicked segment
+                    const clickedColor = chart.data.datasets[0].backgroundColor[chartIndex];
+                    // Call function to display the color in a square box inside the donut chart
+                    displayColorBoxInChart(chart, clickedColor);
                 }
             }
-        });
-    }
+        },
+        plugins: [
+            {
+                id: 'centerText',
+                beforeDraw(chart) {
+                    const {width, height, ctx} = chart;
+                    const text = chart.options.plugins.centerText.text || '';
 
-    // Casual Leave Chart Initialization
-    document.addEventListener('DOMContentLoaded', function() {
-        var ctxCasual = document.getElementById('casualLeaveChart').getContext('2d');
-        createDoughnutChart(ctxCasual, @json($leaveData), @json($statusCounts), 'Leave Application Statuses');
+                    ctx.save();
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillStyle = '#333'; // Set text color
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
 
-        // Earned Leave Chart Initialization
-        var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
-        createDoughnutChart(ctxEarned, @json($earnedLeaveData), @json($earnedLeaveCounts), 'Earned Leave Statuses');
+                    // Calculate the exact center of the canvas
+                    const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+                    const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+
+
+                    ctx.fillText(text, centerX, centerY); // Draw the text
+
+                    // Draw the color box next to the text (just slightly to the right)
+                    const colorBoxSize = 18; // Size of the color box
+                    const colorBoxX = centerX - 75; // X position to the right of the center
+                    const colorBoxY = centerY - 10; // Y position aligned with the text
+                    if (chart.options.plugins.centerText.color) {
+                        ctx.fillStyle = chart.options.plugins.centerText.color;
+                        ctx.fillRect(colorBoxX, colorBoxY, colorBoxSize, colorBoxSize); // Draw color box
+                    }
+
+                    ctx.restore();
+                }
+            }
+        ]
     });
+
+    return chart;
+}
+
+// Function to display the color box inside the chart
+function displayColorBoxInChart(chart, color) {
+    // Update color in the chart options for centerText plugin
+    chart.options.plugins.centerText.color = color;
+    chart.update(); // Re-render the chart to show the updated color box
+}
+
+// Casual Leave Chart Initialization
+document.addEventListener('DOMContentLoaded', function() {
+    var ctxCasual = document.getElementById('casualLeaveChart').getContext('2d');
+    createDoughnutChart(
+        ctxCasual, 
+        @json($leaveData), 
+        @json($statusCounts), 
+        'Leave Application Statuses'
+    );
+
+    // Earned Leave Chart Initialization
+    var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
+    createDoughnutChart(
+        ctxEarned, 
+        @json($earnedLeaveData), 
+        @json($earnedLeaveCounts), 
+        'Earned Leave Statuses'
+    );
+});
+
 </script>
 
 <div class="row">
