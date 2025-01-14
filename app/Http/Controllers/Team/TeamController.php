@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Team;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasEmployeeJob;
+use App\Models\MasSection;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,12 @@ class TeamController extends Controller
     {
         $privileges = $request->instance();
         $roles = auth()->user()->roles; // Eager-loaded roles collection
+
         $roleSelect = $roles->whereIn('id', [DEPARTMENT_HEAD, IMMEDIATE_HEAD])->first();
+
+
+
+        $sections = MasSection::orderBy('name')->where('mas_department_id', auth()->user()->empJob->department->id)->get(['id', 'name']);
 
         $userJob = auth()->user()->empJob;
         if (!$userJob) {
@@ -45,7 +51,7 @@ class TeamController extends Controller
 
 
 
-        return view('teams.index', compact('teams', 'privileges'));
+        return view('teams.index', compact('teams', 'privileges', 'sections'));
     }
 
     /**
