@@ -8,9 +8,13 @@
             <div class="block">
                 <div class="card-block-header block-header-default ">
                     @component('layouts.includes.filter')
-                        <div class="col-8 form-group">
-                            <input type="text" name="department" class="form-control" value="{{ request()->get('department') }}"
-                                placeholder="Department">
+                        <div class="col-md-3 form-group">
+                            <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}"
+                                placeholder="Name">
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}"
+                                placeholder="Employee Id">
                         </div>
                     @endcomponent
 

@@ -40,7 +40,7 @@ class TeamController extends Controller
                 $query->where($filterColumn, $filterValue);
             })
             ->where('id', '!=', auth()->id()) // Exclude the logged-in user
-
+            ->filter($request)
             ->paginate(config('global.pagination'));
 
 
