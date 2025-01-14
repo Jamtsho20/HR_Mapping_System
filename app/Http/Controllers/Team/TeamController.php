@@ -25,20 +25,23 @@ class TeamController extends Controller
     {
         $privileges = $request->instance();
         $roles = auth()->user()->roles; // Eager-loaded roles collection
+        $roleSelect = $roles->whereIn('id', [DEPARTMENT_HEAD, IMMEDIATE_HEAD])->first();
 
-        // Check if the roles collection contains the desired role and fetch its details
-        $roleSelect = $roles->firstWhere('id', DEPARTMENT_HEAD);
-
-        if ($roleSelect) {
-            // $teams = MasEmployeeJob::where('mas_department_id', auth()->user()->empJob->mas_department_id)->get();
-            $teams = User::with('empJob')
-                ->whereHas('empJob', function ($query) {
-                    $query->where('mas_department_id', auth()->user()->empJob->mas_department_id);
-                })
-                ->get();
-
-            // dd($teams);
+        $userJob = auth()->user()->empJob;
+        if (!$userJob) {
+            abort(403, 'User job information is missing.');
         }
+
+        $filterColumn = $roleSelect && $roleSelect->id == 7 ? 'mas_department_id' : 'mas_section_id';
+        $filterValue = $filterColumn === 'mas_department_id' ? $userJob->mas_department_id : $userJob->mas_section_id;
+
+        $teams = User::with('empJob')
+            ->whereHas('empJob', function ($query) use ($filterColumn, $filterValue) {
+                $query->where($filterColumn, $filterValue);
+            })
+            ->where('id', '!=', auth()->id()) // Exclude the logged-in user
+
+            ->paginate(config('global.pagination'));
 
 
 
