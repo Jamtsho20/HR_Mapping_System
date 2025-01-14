@@ -1116,7 +1116,7 @@ $(document).ready(function () {
                 if (reload) location.reload(); // Optionally reload the page
             }
         }).then((result) => {
-            if(result.confirmed) {
+            if(result.isConfirmed) {
                 if (documentReferrer) {
                     window.location.href = documentReferrer;
                 }

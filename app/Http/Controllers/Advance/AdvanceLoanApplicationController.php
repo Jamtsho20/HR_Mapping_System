@@ -38,7 +38,6 @@ class AdvanceLoanApplicationController extends Controller
     private $attachmentPath = 'images/advance/';
 
     protected $rules = [
-
         'date' => 'required|date',
         'advance_type' => 'required',
         'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
