@@ -32,6 +32,8 @@
                                                 <th>Name</th>
                                                 <th>Employee ID</th>
                                                 <th>Section</th>
+                                                <th>Contact No</th>
+                                                <th>Email Address</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -41,6 +43,8 @@
                                                     <td>{{ $team->name }}</td>
                                                     <td>{{ $team->username }}</td>
                                                     <td>{{ $team->empJob->section->name ?? '-' }}</td>
+                                                    <td>{{ $team->contact_number ?? '-' }}</td>
+                                                    <td>{{ $team->email ?? '-' }}</td>
                                                 </tr>
                                             @empty
                                                 <tr>
