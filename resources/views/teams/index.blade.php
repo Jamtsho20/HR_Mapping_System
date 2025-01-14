@@ -8,9 +8,13 @@
             <div class="block">
                 <div class="card-block-header block-header-default ">
                     @component('layouts.includes.filter')
-                        <div class="col-8 form-group">
-                            <input type="text" name="department" class="form-control" value="{{ request()->get('department') }}"
-                                placeholder="Department">
+                        <div class="col-md-3 form-group">
+                            <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}"
+                                placeholder="Name">
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}"
+                                placeholder="Employee Id">
                         </div>
                     @endcomponent
 
@@ -25,43 +29,22 @@
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>#</th>
-                                                <th>Short Name</th>
                                                 <th>Name</th>
-                                                <th>Code</th>
-                                                <th>Department Head</th>
-                                                <th class="text-center">Action</th>
+                                                <th>Employee ID</th>
+                                                <th>Section</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse($teams as $department)
+                                            @forelse($teams as $team)
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $department->short_name }}</td>
-                                                    <td>{{ $department->name }}</td>
-                                                    <td>{{ $department->code }}</td>
-                                                    <td>{{ $department->employee->emp_id_name ?? config('global.null_value') }}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        @if ($privileges->edit)
-                                                            <a href="{{ url('master/departments/' . $department->id . '/edit') }}"
-                                                                data-short_name="{{ $department->short_name }}"
-                                                                data-name="{{ $department->name }}"
-                                                                class=" btn btn-sm btn-rounded btn-outline-success"><i
-                                                                    class="fa fa-edit"></i>
-                                                                EDIT</a>
-                                                        @endif
-                                                        @if ($privileges->delete)
-                                                            <a href="#"
-                                                                class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                data-url="{{ url('master/departments/' . $department->id) }}"><i
-                                                                    class="fa fa-trash"></i>
-                                                                DELETE</a>
-                                                        @endif
-                                                    </td>
+                                                    <td>{{ $team->name }}</td>
+                                                    <td>{{ $team->username }}</td>
+                                                    <td>{{ $team->empJob->section->name ?? '-' }}</td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="4" class="text-center text-danger">No Departments found
+                                                    <td colspan="4" class="text-center text-danger">No Team found
                                                     </td>
                                                 </tr>
                                             @endforelse
@@ -69,11 +52,11 @@
                                     </table>
                                 </div>
                             </div>
-                            {{-- @if ($teams->hasPages())
+                            @if ($teams->hasPages())
                                 <div class="card-footer">
                                     {{ $teams->links() }}
                                 </div>
-                            @endif --}}
+                            @endif
                         </div>
                     </div>
                 </div>
