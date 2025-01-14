@@ -266,7 +266,7 @@
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $expense->status,
-                            // 'rejectionRemarks' => $rejectionRemarks,
+                            'rejectionRemarks' => $expense->reject_remarks,
                         ])
 
                     </div>

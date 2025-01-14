@@ -52,7 +52,7 @@
             @include('layouts.includes.approval-details', [
                 'approvalDetail' => $approvalDetail,
                 'applicationStatus' => $sifaRegistration->status,
-                // 'rejectionRemarks' => $rejectionRemarks,
+                'rejectionRemarks' => $sifaRegistration->reject_remarks,
             ])
 
         </div>

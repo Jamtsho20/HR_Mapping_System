@@ -225,7 +225,7 @@
                         </form>
                     @elseif ($id == 3)
                         <form action="{{ route('dsa-claim-settlement.store') }}" method="post"
-                            enctype="multipart/form-data" id="apply_expense">
+                            enctype="multipart/form-data" id="apply_dsa">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -426,7 +426,7 @@
                             </div>
                         </form>
                     @elseif ($id == 4)
-                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_expense" enctype="multipart/form-data">
+                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_transfer" enctype="multipart/form-data">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -568,9 +568,19 @@
         $(document).ready(function() {
 
             const form = document.getElementById('apply_expense');
+            const dsaForm = document.getElementById('apply_dsa');
+            const transferForm = document.getElementById('apply_transfer');
             const loader = document.getElementById('loader');
             const submitBtn = document.getElementById('submitBtn');
 
+            transferForm.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
+            dsaForm.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
             form.addEventListener('submit', function(e) {
                 // Show loader
                 loader.style.display = 'flex';
