@@ -65,7 +65,7 @@
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $leaveEncashment->status,
-                            // 'rejectionRemarks' => $rejectionRemarks,
+                            'rejectionRemarks' => $leaveEncashment->reject_remarks,
                         ])
 
                     </div>
