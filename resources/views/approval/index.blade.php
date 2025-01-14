@@ -105,41 +105,54 @@
 @endsection
 @push('page_scripts')
     <script>
-        function showSuccessMessage(message) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: message,
-                // timer: 3000, // Auto-dismiss after 3 seconds
-                timer: false,
-                // showConfirmButton: false,
-                // showCloseButton: true, // Display the close button
-                confirmButtonText: 'OK', // Set the text of the button
-                showCloseButton: false, // Hide the default close (X) button
-                willClose: () => {
-                    // Reload the page when the alert is closed
-                    location.reload();
-                }
-            });
-        }
+        // function showSuccessMessage(message) {
+        //     Swal.fire({
+        //         icon: 'success',
+        //         title: 'Success',
+        //         text: message,
 
-        function showErrorMessage(message) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: message,
-                // timer: 3000, // Auto-dismiss after 3 seconds
-                timer: false,
-                // showConfirmButton: false,
-                // showCloseButton: true, // Display the close button
-                confirmButtonText: 'OK', // Set the text of the button
-                showCloseButton: false,
-                // willClose: () => {
-                //     // Reload the page when the alert is closed
-                //     location.reload();
-                // }
-            });
-        }
+        //         width: '400px', // Set a smaller width for the popup
+        //         customClass: {
+        //             popup: 'p-3 border-success', // Add padding and Bootstrap border class
+        //             title: 'text-success fw-bold', // Green and bold title
+        //             confirmButton: 'btn btn-success btn-sm' // Small Bootstrap success button
+        //         },
+        //         // timer: 3000, // Auto-dismiss after 3 seconds
+        //         timer: false,
+        //         // showConfirmButton: false,
+        //         // showCloseButton: true, // Display the close button
+        //         confirmButtonText: 'OK', // Set the text of the button
+        //         showCloseButton: false, // Hide the default close (X) button
+        //         willClose: () => {
+        //             // Reload the page when the alert is closed
+        //             location.reload();
+        //         }
+        //     });
+        // }
+
+        // function showErrorMessage(message) {
+        //     Swal.fire({
+        //         icon: 'error',
+        //         title: 'Error',
+        //         text: message,
+        //         // timer: 3000, // Auto-dismiss after 3 seconds
+        //         timer: false,
+        //         width: '400px', // Small popup
+        //         customClass: {
+        //             popup: 'p-3 border-danger', // Add padding and Bootstrap border class
+        //             title: 'text-danger fw-bold', // Red and bold title
+        //             confirmButton: 'btn btn-danger btn-sm' // Small Bootstrap error button
+        //         },
+        //         // showConfirmButton: false,
+        //         // showCloseButton: true, // Display the close button
+        //         confirmButtonText: 'OK', // Set the text of the button
+        //         showCloseButton: false,
+        //         // willClose: () => {
+        //         //     // Reload the page when the alert is closed
+        //         //     location.reload();
+        //         // }
+        //     });
+        // }
 
         $(document).ready(function() {
             // Select/Deselect all checkboxes
@@ -218,6 +231,7 @@
                         }
 
                         // Send AJAX request to reject
+                        $('#loader').show();
                         $.ajax({
                             url: routeUrl,
                             type: 'POST',
@@ -231,6 +245,7 @@
                             success: function(response) {
                                 // alert(response.msg_success);
                                 // location.reload();
+                                $('#loader').hide();
                                 showSuccessMessage(response.msg_success);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
@@ -238,12 +253,12 @@
                                     var errorResponse = JSON.parse(jqXHR.responseText);
                                     // alert(errorResponse.msg_error ||
                                     //     'An unexpected error occurred.');
-                                    showErrorMessage(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
+                                    $('#loader').hide();
+                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
                                 } catch (e) {
                                     // alert('An error occurred: ' + errorThrown);
-                                    showErrorMessage('An error occurred: ' +
-                                        errorThrown);
+                                    $('#loader').hide();
+                                    showErrorMessage('An error occurred: ' + errorThrown);
                                 }
                             }
                         });

@@ -89,6 +89,7 @@
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.querySelector('.btn-text').textContent = 'SUBMITTING...';
+                    showSuccessMessage(response.msg_success);
                 }
 
                 // Form will submit normally

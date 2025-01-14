@@ -60,7 +60,7 @@
                                             @endif
                                             <td>{{ $transferclaim->employee->name }}
                                             </td>
-                                            <td>{{ $transferclaim->created_at->format('d-m-Y') }}
+                                            <td>{{ $transferclaim->created_at->format('d-M-Y') }}
                                             </td>
                                             <td>{{ $transferclaim->type->name}}
                                             </td>

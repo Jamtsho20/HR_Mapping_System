@@ -6,8 +6,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-
-<form action="{{ route('apply.store') }}" method="POST" enctype="multipart/form-data">
+@include('layouts.includes.loader')
+<form action="{{ route('apply.store') }}" id="apply_advance" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-body">
@@ -30,10 +30,16 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" name="date" value="{{ old('date', date('Y-m-d')) }}" id="date" readonly required>
+                        <label for="date">Date <span class="text-danger"></span></label>
+
+                        <!-- Display formatted date for the user (e.g., 10-Jan-2025) -->
+                        <input type="text" class="form-control" id="formatted-dates" value="{{ \Carbon\Carbon::now()->format('d-M-Y') }}" readonly>
+
+                        <!-- Hidden input field to store date in YYYY-MM-DD format (for database) -->
+                        <input type="hidden" name="date" id="hidden-date" value="{{ old('date', date('Y-m-d')) }}" required>
                     </div>
                 </div>
 
@@ -55,7 +61,7 @@
 
             <!-- Gadget Emi Form -->
             @include('advance-loan.apply.types.gadget_emi')
-        
+
             <!--DSA Advance Form-->
             @include('advance-loan.apply.types.dsa_advance')
 
@@ -63,7 +69,7 @@
 
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
+            <button type="submit" id="submitBtn" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
             <a href="{{ url('advance-loan/apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>
@@ -75,6 +81,15 @@
 @push('page_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('apply_advance');
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
+
         var advanceTypeSelect = document.getElementById('advance_type');
         var formSections = document.querySelectorAll('.dynamic-form');
 

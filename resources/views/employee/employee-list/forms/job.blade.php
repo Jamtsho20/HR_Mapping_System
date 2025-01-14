@@ -1,3 +1,7 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 <div class="tab-pane">
     <div class="row border">
         <div class="form-group col-md-4">
@@ -27,8 +31,7 @@
 
             </select>
         </div>
-        <div class="form-group col-md-4">
-
+        <div class="form-group col-md-4 ">
             <label for="">Designation <span class="text-danger">*</span></label>
             <div class="d-flex" style="gap:4px">
                 <select id="suffix" name="job[suffix]" class="form-control form-control-sm" style="width:15%">
@@ -39,7 +42,7 @@
                         {{ old('job.suffix', isset($employee->empJob->suffix) && $employee->empJob->suffix == 1 ? 1 : '') == '1' ? 'selected' : '' }}>
                         Sr</option>
                 </select>
-                <select name="job[mas_designation_id]" class="form-control form-control-sm" required>
+                <select name="job[mas_designation_id]" class="form-control form-control-sm select2" required>
                     <option value="" disabled selected hidden>Select your option</option>
                     <!-- for edit form  -->
 
@@ -130,7 +133,7 @@
         </div>
         <div class="form-group col-md-4">
             <label for="">Job Location <span class="text-danger">*</span></label>
-            <select name="job[mas_office_id]" class="form-control form-control-sm" required>
+            <select name="job[mas_office_id]" class="form-control form-control-sm select2" required>
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach ($offices as $office)
                     <option value="{{ $office->id }}"
@@ -160,7 +163,7 @@
         </div>
         <div class="form-group col-md-4">
             <label for="immediate_supervisor">Immediate Supervisor</label>
-            <select name="job[immediate_supervisor]" class="form-control form-control-sm">
+            <select name="job[immediate_supervisor]" class="form-control form-control-sm select2">
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach (employeeList() as $empList)
                     <option value="{{ $empList->id }}"

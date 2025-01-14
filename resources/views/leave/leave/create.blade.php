@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Leave')
 @section('content')
+@include('layouts.includes.loader')
 <form id="apply_leave" action="{{ url('leave/leave-apply') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="card">
@@ -87,7 +88,7 @@
             <div class="show-leave"></div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
+            <button id="submitBtn" type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> SUBMIT</button>
             <a href="{{ url('leave/leave-apply') }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>
@@ -101,8 +102,17 @@
         const fromDateField = document.getElementById('from_date');
         if (fromDateField) {
             fromDateField.min = '2025-01-01'; // Setting the minimum date
-        }
-    });
+        };
+            const form = document.getElementById('apply_leave');
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
+        });
+
 
 
     const calculateLeaveDays = () => {

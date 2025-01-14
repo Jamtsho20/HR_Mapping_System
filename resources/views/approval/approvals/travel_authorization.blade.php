@@ -31,7 +31,7 @@
                                                     value="{{ $travelAuthorization->id }}">
                                             </td>
                                         @endif
-                                        <td>{{ $travelAuthorization->created_at->format('d-m-Y') }}</td>
+                                        <td>{{ $travelAuthorization->created_at->format('d-M-Y') }}</td>
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>

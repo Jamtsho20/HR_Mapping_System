@@ -105,10 +105,10 @@
                                                         {{ $detail->id }}
                                                     </td>
                                                     <td>
-                                                        {{ \Carbon\Carbon::parse($detail->from_date)->format('d-m-Y') }}
+                                                        {{ \Carbon\Carbon::parse($detail->from_date)->format('d-M-Y') }}
                                                     </td>
                                                     <td>
-                                                        {{ \Carbon\Carbon::parse($detail->to_date)->format('d-m-Y') }}
+                                                       {{ \Carbon\Carbon::parse($detail->to_date)->format('d-M-Y') }}
                                                     </td>
                                                     <td>
                                                         {{ $detail->from_location }}
@@ -216,22 +216,28 @@
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                alert(response.msg_success);
-
-                                window.location.href = document.referrer;
-
+                                // alert(response.msg_success);
+                                // location.reload();
                                 $('#loader').hide();
+                                showSuccessMessage(response.msg_success, true, document.referrer);
+
+
+
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
-                                $('#loader').hide();
                                 try {
                                     var errorResponse = JSON.parse(jqXHR.responseText);
-                                    alert(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
+                                    // alert(errorResponse.msg_error ||
+                                    //     'An unexpected error occurred.');
+                                    $('#loader').hide();
+                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                                 } catch (e) {
-                                    alert('An error occurred: ' + errorThrown);
-                                }
-                            }
+                                    // alert('An error occurred: ' + errorThrown);
+                                    $('#loader').hide();
+                                    showErrorMessage('An error occurred: ' + errorThrown);
+
+                                }}
                         });
 
                         // Close the modal
@@ -250,18 +256,25 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            alert(response.msg_success);
-                            window.location.href = document.referrer;
+                            // alert(response.msg_success);
+                            // location.reload();
                             $('#loader').hide();
+                            showSuccessMessage(response.msg_success, true,document.referrer);
+
+
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
-                                alert(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
+                                // alert(errorResponse.msg_error ||
+                                //     'An unexpected error occurred.');
+                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                             } catch (e) {
-                                alert('An error occurred: ' + errorThrown);
+                                // alert('An error occurred: ' + errorThrown);
+                                showErrorMessage('An error occurred: ' + errorThrown);
+
                             }
                         }
                     });

@@ -69,10 +69,11 @@ class LeaveApprovalController extends Controller
 
             // Build the query dynamically
             $leaveApplications = LeaveApplication::with([
-                'employee:id,name,username',
-                'employee.empjob' => function ($query) {
-                    $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
-                },
+               'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
                 'employee.empjob.department:id,name',
                 'employee.empjob.section:id,name',
                 'histories:id,application_id,action_performed_by',
@@ -88,12 +89,11 @@ class LeaveApprovalController extends Controller
                 $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
                     $query->where('application_type', $applicationType)
                           ->where('action_performed_by', $currentUser->id);
-                });
+                })
+                ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
             })
-
-            ->whereIn('status', $statuses) // Filter by the statuses
-            ->filter($request, false) // Filter according to the request, without limiting to authenticated user
-            ->whereYear('created_at', Carbon::now()->year)
+            ->whereIn('status', $statuses) // Filter based on statuses
+            ->filter($request, false)
             ->orderBy('created_at')
             ->get();
 

@@ -42,7 +42,7 @@
                                     <th style="width:35%;">Created At<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $leaveEncashment->created_at->format('d-m-y') }}
+                                        {{ $leaveEncashment->created_at->format('d-M-Y') }}
                                     </td>
                                 </tr>
 
@@ -122,22 +122,28 @@
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                alert(response.msg_success);
-
-                                window.location.href = document.referrer;
-
+                                // alert(response.msg_success);
+                                // location.reload();
                                 $('#loader').hide();
+                                showSuccessMessage(response.msg_success, true, document.referrer);
+
+
+
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
-                                $('#loader').hide();
                                 try {
                                     var errorResponse = JSON.parse(jqXHR.responseText);
-                                    alert(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
+                                    // alert(errorResponse.msg_error ||
+                                    //     'An unexpected error occurred.');
+                                    $('#loader').hide();
+                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                                 } catch (e) {
-                                    alert('An error occurred: ' + errorThrown);
-                                }
-                            }
+                                    // alert('An error occurred: ' + errorThrown);
+                                    $('#loader').hide();
+                                    showErrorMessage('An error occurred: ' + errorThrown);
+
+                                }}
                         });
 
                         // Close the modal
@@ -156,18 +162,25 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            alert(response.msg_success);
-                            window.location.href = document.referrer;
+                            // alert(response.msg_success);
+                            // location.reload();
                             $('#loader').hide();
+                            showSuccessMessage(response.msg_success, true,document.referrer);
+
+
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
-                                alert(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
+                                // alert(errorResponse.msg_error ||
+                                //     'An unexpected error occurred.');
+                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                             } catch (e) {
-                                alert('An error occurred: ' + errorThrown);
+                                // alert('An error occurred: ' + errorThrown);
+                                showErrorMessage('An error occurred: ' + errorThrown);
+
                             }
                         }
                     });

@@ -53,10 +53,11 @@ class LeaveEncashmentApprovalController extends Controller
 
             // Build the query dynamically
             $earnedLeave = LeaveEncashmentApplication::with([
-                'employee:id,name,username',
-                'employee.empjob' => function ($query) {
-                    $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id');
-                },
+               'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
                 'employee.empjob.department:id,name',
                 'employee.empjob.section:id,name',
                 'leave_approved_by:id,name,username',  // Load the approved by details
@@ -72,11 +73,12 @@ class LeaveEncashmentApprovalController extends Controller
                 $query->whereHas('audit_logs', function ($query) use ($user, $applicationType, $statuses) {
                     $query->where('application_type', $applicationType)
                           ->where('action_performed_by', $user->id);
-                });
+                })
+                ->whereYear('created_at', Carbon::now()->year); // Apply the condition inside the callback
             })
-            ->whereIn('status', $statuses)  // Filter by the statuses
-            ->whereYear('created_at', Carbon::now()->year)  // Filter by the current year
-            ->orderBy('created_at')  // Order by created date
+            ->whereIn('status', $statuses) // Filter based on statuses
+            ->filter($request, false)
+            ->orderBy('created_at')
             ->get();
 
             return response()->json([
