@@ -51,7 +51,8 @@
                                         <tbody>
                                             @forelse($teams as $team)
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ ($teams->currentPage() - 1) * $teams->perPage() + $loop->iteration }}
+                                                    </td>
                                                     <td>{{ $team->employee_name }}</td>
                                                     <td>{{ $team->username }}</td>
                                                     <td>{{ $team->name ?? '-' }}</td>
