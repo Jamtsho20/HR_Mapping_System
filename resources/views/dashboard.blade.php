@@ -128,7 +128,7 @@ function createDoughnutChart(ctx, labels, data, chartLabel) {
                     const text = chart.options.plugins.centerText.text || '';
 
                     ctx.save();
-                    ctx.font = 'bold 16px sans-serif';
+                    ctx.font = 'bold 14px sans-serif';
                     ctx.fillStyle = '#333'; // Set text color
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
