@@ -10,6 +10,7 @@ use App\Services\ApprovalService;
 use App\Traits\JsonResponseTrait;
 use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
+use Carbon\Carbon;
 
 class ExpenseApprovalController extends Controller
 {
@@ -27,67 +28,144 @@ class ExpenseApprovalController extends Controller
     {
 
         try {
-            $empIdName = LoggedInUserEmpIdName();
-            $user = auth()->user();
+            $currentUser = auth()->user();
+            $employeeDetails = LoggedInUserEmpIdName();
 
-            $data = ExpenseApplication::with('type:id,name')->with('employee:id,name,username', 'vehicle:id,vehicle_no')->whereHas('histories', function ($query) use ($user) {
-                $query->where('approver_emp_id', $user->id)
-                    ->where('application_type', \App\Models\ExpenseApplication::class);
-            })
-                ->whereNotIn('status', [-1, 3])
+            $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
+            $statuses = [];
+            $applicationType = \App\Models\ExpenseApplication::class; // Default application type
+            $tab = null;
+
+            // Define conditions based on the status parameter
+            switch ($statusParam) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $expenseApplications = ExpenseApplication::with('type:id,name')
+                ->with([
+                   'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
+                    'employee.empjob.department:id,name',
+                    'employee.empjob.section:id,name',
+                    'histories:id,application_id,action_performed_by',
+                ])->with('vehicle.vehicleType:id,name')
+                ->when($tab === 'history', function ($query) use ($currentUser, $applicationType, $statuses) {
+                    $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                        $query->where('approver_emp_id', $currentUser->id)
+                              ->where('application_type', $applicationType);
+                    });
+                })
+                ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                    $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                        $query->where('application_type', $applicationType)
+                              ->where('action_performed_by', $currentUser->id);
+                    })
+                    ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+                })
+                ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Expense applications retrieved successfully!',
+                'data' => $expenseApplications,
+            ]);
 
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 404);
+        }
 
-
-            $expenses = $data;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Expense applications retrieved successfully!',
-            'data' =>  $expenses
-
-        ]);
-
-        // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
-    } catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 404);
-    }
     }
 
     public function indexDsa(Request $request)
     {
         try {
-            $empIdName = LoggedInUserEmpIdName();
-            $user = auth()->user();
+            $currentUser = auth()->user();
+            $employeeDetails = LoggedInUserEmpIdName();
 
-            $data = DSAClaimApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
-                $query->where('approver_emp_id', $user->id)
-                    ->where('application_type', \App\Models\DSAClaimApplication::class);
-            })
-                ->whereNotIn('status', [-1, 3])
+            $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
+            $statuses = [];
+            $applicationType = \App\Models\DSAClaimApplication::class; // Default application type
+            $tab = null;
+
+            // Define conditions based on the status parameter
+            switch ($statusParam) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $dsaclaims = DSAClaimApplication::with([
+                    'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
+                    'employee.empjob.department:id,name',
+                    'employee.empjob.section:id,name',
+                    'travel:id,travel_authorization_no',
+                    'dsaadvance:id,advance_no',
+                    'histories:id,application_id,action_performed_by',
+            ])
+                ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                    $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                        $query->where('approver_emp_id', $currentUser->id)
+                              ->where('application_type', $applicationType);
+                    });
+                })
+                ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                    $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                        $query->where('application_type', $applicationType)
+                              ->where('action_performed_by', $currentUser->id);
+                    })
+                    ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+                })
+                ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
 
+            return response()->json([
+                'success' => true,
+                'message' => 'DSA claim applications retrieved successfully!',
+                'data' => $dsaclaims,
+            ]);
 
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 404);
+        }
 
-
-            $expenses = $data;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'DSA claim applications retrieved successfully!',
-            'data' =>  $expenses
-
-        ]);
-
-        // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
-    } catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 404);
-    }
 }
 
 
@@ -100,34 +178,71 @@ class ExpenseApprovalController extends Controller
      public function indexTransfer(Request $request)
     {
         try {
-            $empIdName = LoggedInUserEmpIdName();
-            $user = auth()->user();
+            $currentUser = auth()->user();
+            $employeeDetails = LoggedInUserEmpIdName();
 
-            $data = TransferClaimApplication::with('type:id,name')->with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
-                $query->where('approver_emp_id', $user->id)
-                    ->where('application_type', \App\Models\TransferClaimApplication::class);
-            })
-                ->whereNotIn('status', [-1, 3])
+            $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
+            $statuses = [];
+            $applicationType = 'App\Models\TransferClaimApplication'; // Default application type
+            $tab = null;
+
+            // Define conditions based on the status parameter
+            switch ($statusParam) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $transferClaims = TransferClaimApplication::with('type:id,name')
+                ->with([
+                    'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
+                    'employee.empjob.department:id,name',
+                    'employee.empjob.section:id,name',
+                    'histories:id,application_id,action_performed_by',
+                ])
+                ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                    $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                        $query->where('approver_emp_id', $currentUser->id)
+                              ->where('application_type', $applicationType);
+                    });
+                })
+                ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                    $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                        $query->where('application_type', $applicationType)
+                              ->where('action_performed_by', $currentUser->id);
+                    })
+                    ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+                })
+                ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Transfer claim applications retrieved successfully!',
+                'data' => $transferClaims,
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 404);
+        }
 
-
-
-            $expenses = $data;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'DSA claim applications retrieved successfully!',
-            'data' =>  $expenses
-
-        ]);
-
-        // return $this->successResponse([$privileges, $headers, $expenses, $dsaclaims, $transferclaims], 'Expense applications retrieved successfully');
-    } catch (\Exception $e) {
-        return $this->errorResponse($e->getMessage(), 404);
-    }
 }
     public function create()
     {

@@ -31,7 +31,7 @@
                                     <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $expense->date }}
+                                       {{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}
                                     </td>
                                 </tr>
                                 <tr>

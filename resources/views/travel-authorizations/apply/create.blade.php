@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Create Travel Authorization')
 @section('content')
-
-<form action="{{ route('apply-travel-authorization.store') }}" method="POST" enctype="multipart/form-data">
+@include('layouts.includes.loader')
+<form action="{{ route('apply-travel-authorization.store') }}" method="POST" id="apply_travel" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-body">
@@ -10,16 +10,22 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
-                        <input type="text" class="form-control" name="travel_authorization_no"  id="travel_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
+                        <input type="text" class="form-control" name="travel_authorization_no" id="travel_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="date">Date <span class="text-danger"></span></label>
-                        <input type="date" class="form-control" name="date" value="{{ old('date', date('Y-m-d')) }}" id="date" readonly required>
+
+                        <!-- Display formatted date for the user (e.g., 10-Jan-2025) -->
+                        <input type="text" class="form-control" id="formatted-date" value="{{ \Carbon\Carbon::now()->format('d-M-Y') }}" readonly>
+
+                        <!-- Hidden input field to store date in YYYY-MM-DD format (for database) -->
+                        <input type="hidden" name="date" id="hidden-date" value="{{ old('date', date('Y-m-d')) }}" required>
                     </div>
                 </div>
+
 
                 <div class="col-md-4">
                     <div class="form-group">
@@ -59,7 +65,7 @@
                     </div>
                 </div>
             </div>
-<!--
+            <!--
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -91,7 +97,7 @@
                                     <a href="#" class="delete-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <input type="date" id="from_date" min="2025-01-01" name="details[0][from_date]" class="from_date form-control form-control-sm"  required>
+                                    <input type="date" id="from_date" min="2025-01-01" name="details[0][from_date]" class="from_date form-control form-control-sm" required>
                                 </td>
                                 <td>
                                     <input type="date" id="to_date" name="details[0][to_date]" class="to_date form-control form-control-sm" disabled>
@@ -131,7 +137,7 @@
 
 
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Submit</button>
+            <button type="submit" id="submitBtn" class="btn btn-primary"><i class="fa fa-upload"></i> Submit</button>
             <a href="{{ route('apply-travel-authorization.index')  }}" class="btn btn-danger"><i class="fa fa-undo"></i> CANCEL</a>
         </div>
     </div>
@@ -143,6 +149,16 @@
 @push('page_scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        const form = document.getElementById('apply_travel');
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
+
         const dailyAllowanceInput = document.getElementById('daily_allowance');
         const estimatedTravelExpensesInput = document.getElementById('esitmated_travel_expenses');
         const daysDifferenceInput = document.getElementById('days_difference');
@@ -228,16 +244,16 @@
             });
 
             if (manualEdit) {
-            const manualValue = parseFloat(daysDifferenceInput.value) || 0;
+                const manualValue = parseFloat(daysDifferenceInput.value) || 0;
 
-            if (manualValue > totalDays) {
-                alert('Number of days cannot be greater than the number of days selected in the table. Please check the dates and try again.');
-                daysDifferenceInput.value = totalDays; // Revert to calculated value
+                if (manualValue > totalDays) {
+                    alert('Number of days cannot be greater than the number of days selected in the table. Please check the dates and try again.');
+                    daysDifferenceInput.value = totalDays; // Revert to calculated value
 
+                } else {
+                    return manualValue;
+                }
             } else {
-                return manualValue;
-            }
-        }else{
                 daysDifferenceInput.value = totalDays;
             }
 

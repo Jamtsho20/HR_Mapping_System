@@ -27,19 +27,70 @@ class LeaveEncashmentApprovalController extends Controller
     public function index(Request $request)
     {
 
-        try{
-        $user = auth()->user();
-        $earnedLeave = LeaveEncashmentApplication::with('employee:id,name,username')->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\LeaveEncashmentApplication::class);
-        })
-        ->whereYear('created_at', Carbon::now()->year)->whereNotIn('status', [-1, 3])
-           ->orderBy('created_at')
+        try {
+            $user = auth()->user();
+            $statuses = [];
+            $applicationType = \App\Models\LeaveEncashmentApplication::class; // Default application type
+            $tab = null;
+
+            // Define conditions for filtering based on status
+            switch (request()->input('status')) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $earnedLeave = LeaveEncashmentApplication::with([
+               'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
+                'employee.empjob.department:id,name',
+                'employee.empjob.section:id,name',
+                'leave_approved_by:id,name,username',  // Load the approved by details
+                'histories:id,application_id,action_performed_by',  // Load necessary fields from the approval history
+            ])
+            ->when($tab === 'history', function ($query) use ($user, $applicationType) {
+                $query->whereHas('histories', function ($query) use ($user, $applicationType) {
+                    $query->where('approver_emp_id', $user->id)
+                          ->where('application_type', $applicationType);
+                });
+            })
+            ->when($tab === 'audit_logs', function ($query) use ($user, $applicationType, $statuses) {
+                $query->whereHas('audit_logs', function ($query) use ($user, $applicationType, $statuses) {
+                    $query->where('application_type', $applicationType)
+                          ->where('action_performed_by', $user->id);
+                })
+                ->whereYear('created_at', Carbon::now()->year); // Apply the condition inside the callback
+            })
+            ->whereIn('status', $statuses) // Filter based on statuses
+            ->filter($request, false)
+            ->orderBy('created_at')
             ->get();
-        return $this->successResponse($earnedLeave, "Approval list of Leave Encashment");
-    }catch(\Exception $e){
-        return $this->errorResponse($e->getMessage());
-    }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Leave encashment applications fetched successfully',
+                'data' => $earnedLeave,
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
     }
 
     /**

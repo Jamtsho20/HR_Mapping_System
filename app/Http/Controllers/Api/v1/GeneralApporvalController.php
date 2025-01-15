@@ -13,7 +13,7 @@ use App\Models\TravelAuthorizationApplication;
 use App\Models\ExpenseApplication;
 use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
-
+use App\Models\MasApprovalHead;
 class GeneralApporvalController extends Controller
 {    use JsonResponseTrait;
 
@@ -53,5 +53,69 @@ class GeneralApporvalController extends Controller
             return $this->errorResponse($e->getMessage(), 500);
         }
     }
+
+    public function approvedApplications(Request $request, $model)
+{
+    $privileges = $request->instance();
+    $privileges['view'] = 1;
+    $headers = MasApprovalHead::all();
+    $user = auth()->user();
+
+    $applicationModels = config('global.applications');
+  
+    $results = collect();
+
+    // Fetch statuses from the query parameter
+    $statusParam = $request->input('status'); // E.g., 'approved', 'rejected'
+    $statuses = [];
+
+    // Define status conditions based on the parameter
+    switch ($statusParam) {
+        case 'approved':
+            $statuses = [2, 3]; // Approved statuses
+            break;
+        case 'rejected':
+            $statuses = [-1]; // Rejected status
+            break;
+        default:
+            return response()->json(['error' => 'Invalid status parameter'], 400);
+    }
+
+    // Helper method to apply common query logic
+    $applyQuery = function ($modelClass, $user, $request) use ($statuses) {
+        return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass, $statuses) {
+            $query->where('application_type', $modelClass)
+                  ->where('action_performed_by', $user->id);
+        })
+        ->whereIn('status', $statuses)
+        ->filter($request, false)
+        ->whereYear('created_at', Carbon::now()->year)
+        ->orderBy('created_at')
+        ->get()
+       ;
+    };
+
+    foreach ($applicationModels as $key => $model) {
+        $modelClass = $model['name'];
+        $friendlyName = class_basename($modelClass);
+        $data = $applyQuery($modelClass, $user, $request);
+
+        if ($statusParam === 'approved') {
+            // Transform the items in the collection directly
+            $data->transform(function ($item) {
+                $item->status = 3; // Set status to 3 for approved
+                return $item;
+            });
+        }
+
+        $results->put($friendlyName, $data);
+    }
+
+    return response()->json(
+
+        $results
+    );
+}
+
 }
 

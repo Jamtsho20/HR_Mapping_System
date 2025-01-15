@@ -258,6 +258,7 @@ class ExpenseApplicationController extends Controller
     public function show($id)
     {
         $expense = ExpenseApplication::findOrfail($id);
+        // dd($expense);
         $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
 
         return view('expense.apply.show', compact('expense','approvalDetail'));
@@ -272,6 +273,7 @@ class ExpenseApplicationController extends Controller
     public function edit($id)
     {
         $expenses = MasExpenseType::all();
+        
         $expenseApplication = ExpenseApplication::findOrfail($id);
         $vehicles = MasVehicle::all();
 

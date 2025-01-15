@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
 
 class LeaveApprovalController extends Controller
 {
@@ -41,25 +42,71 @@ class LeaveApprovalController extends Controller
 
     public function index(Request $request)
     {
-        try{
-        $user = auth()->user();
-        // $historyData = ApplicationHistory::whereHas('application', function ($query) {
-        //     $query->where('application_type', 'App\Models\LeaveApplication'); // Assuming you store this class in 'application_type' column
-        // })->where('approver_emp_id', $user->id)
-        //   ->get();
-        $leaveTypes = MasLeaveType::get(['id', 'name']);
-        $leaves = LeaveApplication::with('employee:id,name,username', 'leaveType:id,name')->whereHas('histories', function ($query) use ($user) {
-            $query->where('approver_emp_id', $user->id)
-                ->where('application_type', \App\Models\LeaveApplication::class);
-        })
-            ->whereNotIn('status', [-1, 3])
-            ->filter($request, false) //sent onesOenRecord parameter as flase as it need to fetch all despites of authenticated user
+        try {
+            $currentUser = auth()->user();
+            $leaveTypes = MasLeaveType::get(['id', 'name']);
+            $statuses = [];
+            $applicationType = \App\Models\LeaveApplication::class; // Default application type
+            $tab = null;
+
+            // Define conditions for filtering based on status
+            switch ($request->input('status')) {
+                case 'pending':
+                    $statuses = [1, 2]; // Pending statuses
+                    $tab = 'history';
+                    break;
+                case 'approved':
+                    $statuses = [2, 3]; // Approved statuses
+                    $tab = 'audit_logs';
+                    break;
+                case 'rejected':
+                    $statuses = [-1]; // Rejected status
+                    $tab = 'audit_logs'; // Adjust tab if needed
+                    break;
+                default:
+                    return response()->json(['error' => 'Invalid status parameter'], 400);
+            }
+
+            // Build the query dynamically
+            $leaveApplications = LeaveApplication::with([
+               'employee:id,name,username,contact_number',
+                    'employee.empjob' => function ($query) {
+                        $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                    },
+                    'employee.empjob.designation:id,name',
+                'employee.empjob.department:id,name',
+                'employee.empjob.section:id,name',
+                'histories:id,application_id,action_performed_by',
+                'leaveType:id,name', // Include leave type
+            ])
+            ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                    $query->where('approver_emp_id', $currentUser->id)
+                          ->where('application_type', $applicationType);
+                });
+            })
+            ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                    $query->where('application_type', $applicationType)
+                          ->where('action_performed_by', $currentUser->id);
+                })
+                ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+            })
+            ->whereIn('status', $statuses) // Filter based on statuses
+            ->filter($request, false)
             ->orderBy('created_at')
             ->get();
-            return $this->successResponse($leaves, 'Leave approvals application fetched successfully');
-        }catch(\Exception $e){
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Leave approval applications fetched successfully',
+                'data' => $leaveApplications,
+            ]);
+
+        } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
+
 
     }
 

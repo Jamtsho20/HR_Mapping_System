@@ -167,7 +167,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 18, 'name' => 'Applications', 'route' => 'approval/applications', 'display_order' => 1],
 
             //submenu for my team
-            ['system_menu_id' => 19, 'name' => 'Team', 'route' => 'team/my-team', 'display_order' => 1],
+            ['system_menu_id' => 19, 'name' => 'My Team', 'route' => 'team/my-team', 'display_order' => 1],
         ]);
     }
 }

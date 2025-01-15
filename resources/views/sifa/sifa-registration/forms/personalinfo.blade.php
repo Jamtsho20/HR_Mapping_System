@@ -10,7 +10,7 @@
             <tr>
                 <td><strong>Full Name: </strong>{{ $user->username }} ({{ $user->title }} {{($user->name) }})</td>
                 <td><strong>Gender: </strong> {{ $user->gender_name }} </td>
-                <td> <strong>D.O.B: </strong> {{ $user->dob}} </td>
+                <td> <strong>D.O.B: </strong> {{ \Carbon\Carbon::parse($user->dob)->format('d-M-Y') }}</td>
             </tr>
             <tr>
                 <td> <strong>CID: </strong>{{ $user->cid_no}}</td>

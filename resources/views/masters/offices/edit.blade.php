@@ -12,10 +12,6 @@
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="name" value="{{ old('name', $office->name) }}" required>
                     </div>
-                    <div class="form-group">
-                        <label for="address">Address <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="address" value="{{ old('address', $office->address) }}" required>
-                    </div>
                 </div>
 
                 <div class="col-md-6">

@@ -14,6 +14,7 @@ use App\Mail\InitiatorNotificationMail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ApplicationHistory;
 
 class ApprovalController extends Controller
 {
@@ -126,6 +127,7 @@ class ApprovalController extends Controller
                         $accountCode = $type->code ?? null;
                         $memo = $type->name ?? null;
                         $shortName = $application->employee->username;
+                        $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
@@ -138,7 +140,9 @@ class ApprovalController extends Controller
                             }
 
                             // Post to SAP after final Approval
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount);
+                            $officeLocation = $application->employee->empJob->office->code ?? null;
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
+
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -212,7 +216,7 @@ class ApprovalController extends Controller
         }
     }
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $tax_amount = null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null)
     {
         if ($tax_amount) {
             return $postFields = '{
@@ -223,22 +227,25 @@ class ApprovalController extends Controller
                         "AccountCode": "' . $accountCode . '",
                         "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
+                        "CostingCode3": "' . $officeLocation . '",
                         "Credit": 0,
-                        "Debit": "' . $amount . '"
+                        "Debit": "' . $amount . '",
                     },
                     {
                         "ShortName": "' . $shortName . '",
                         "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
+                        "CostingCode3": "' . $officeLocation . '",
                         "Credit": "' . $amount - $tax_amount . '",
-                        "Debit": 0
+                        "Debit": 0,
                     },
                     {
                         "AccountCode": "' . TAX_GL_CODE . '",
                         "CostingCode": "' . $costingCode . '",
                         "CostingCode2": "' . $costingCode2 . '",
+                        "CostingCode3": "' . $officeLocation . '",
                         "Credit": "' . $tax_amount . '",
-                        "Debit": 0
+                        "Debit": 0,
                     }
 
                 ]
@@ -252,6 +259,7 @@ class ApprovalController extends Controller
                                     "ShortName": "' . $shortName . '",
                                     "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
+                                    "U_P_NUMBER": "'. $contactNo .'",
                                     "Credit": "' . $amount . '",
                                     "Debit": 0
                                 },
@@ -270,6 +278,9 @@ class ApprovalController extends Controller
     public function show(Request $request, $id)
     {
         $privileges = $request->instance();
+        if (!(Str::startsWith($request->path(), 'approval/applications/')) ){
+        $privileges['edit']=0;
+    };
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
@@ -280,8 +291,13 @@ class ApprovalController extends Controller
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
-    }
+        $rejectRemarks = ApplicationHistory::where('application_type', $mappedModel['name'])
+        ->where('application_id', $id)
+        ->value('remarks'); // Assuming `reject_remarks` is the column name
+        $data->reject_remarks = $rejectRemarks;
+    // Pass the reject remarks to the view
+    return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
+}
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
     {
@@ -327,7 +343,7 @@ class ApprovalController extends Controller
         $specificCondition = false;
         if ($request->is('approval/approved-applications*')) {
             // Set condition based on the path
-            $statuses = [2,3];
+            $statuses = [2, 3];
         } elseif ($request->is('approval/rejected-applications*')) {
             $statuses = [-1];
         }
@@ -354,13 +370,25 @@ class ApprovalController extends Controller
             if ($request->is('approval/approved-applications*')) {
                 // Set condition based on the path
 
-            $data->getCollection()->transform(function ($item) {
-                $item->status = 3; // Change status to 3
-                return $item;
-            });
-        }
+                $data->getCollection()->transform(function ($item) {
+                    $item->status = 3; // Change status to 3
+                    return $item;
+                });
+            }
+
+            elseif ($request->is('approval/rejected-applications*')) {
+                $data->getCollection()->transform(function ($item) use ($modelClass) {
+                    $item->reject_remarks = ApplicationHistory::where('application_type', $modelClass)
+                        ->where('application_id', $item->id)
+                        ->value('remarks'); // Fetch the reject_remarks
+                    return $item;
+                });
+            }
+
             $results->put($key, $data);
+
         }
+
 
         return view('approval.index', compact('privileges', 'headers', 'results'));
     }

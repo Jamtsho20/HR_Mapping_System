@@ -31,7 +31,7 @@
                                     <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $travelAuthorization->date }}
+                                       {{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-M-Y') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -67,8 +67,8 @@
                                                 <tbody>
                                                     @foreach ($travelAuthorization->details as $index => $detail)
                                                         <tr>
-                                                            <td>{{ $detail->from_date }}</td>
-                                                            <td>{{ $detail->to_date }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($detail->from_date)->format('d-M-Y') }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($detail->to_date)->format('d-M-Y') }}</td>
                                                             <td>{{ $detail->from_location }}</td>
                                                             <td>{{ $detail->to_location }}</td>
                                                             <td>

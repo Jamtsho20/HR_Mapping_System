@@ -8,7 +8,6 @@
 
 
     <div class="row">
-        @include('components.approval-buttons')
         @include('components.employee-details', ['empDetails' => $empDetails])
 
         <div class="col-lg-12">
@@ -97,26 +96,27 @@
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $transfer->status,
-                            // 'rejectionRemarks' => $rejectionRemarks,
+                            'rejectionRemarks' => $transfer->reject_remarks,
                         ])
 
                     </div>
                 </div>
             </div>
         </div>
+        @include('components.approval-buttons')
+
     </div>
 
 @endsection
 
 @push('page_scripts')
-<script>
-
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.buttonsubmit').click(function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.buttonsubmit').click(function() {
 
                 const itemType = 6;
                 var action = $(this).data('value');
-                var selectedItems = [{{$transfer->id}}];
+                var selectedItems = [{{ $transfer->id }}];
                 var routeUrl = $(this).data('route');
                 var itemClass = $(this).data('item-class');
 
@@ -153,22 +153,28 @@
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                alert(response.msg_success);
-
-                                window.location.href = document.referrer;
-
+                                // alert(response.msg_success);
+                                // location.reload();
                                 $('#loader').hide();
+                                showSuccessMessage(response.msg_success, true, document.referrer);
+
+
+
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
-                                $('#loader').hide();
                                 try {
                                     var errorResponse = JSON.parse(jqXHR.responseText);
-                                    alert(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
+                                    // alert(errorResponse.msg_error ||
+                                    //     'An unexpected error occurred.');
+                                    $('#loader').hide();
+                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                                 } catch (e) {
-                                    alert('An error occurred: ' + errorThrown);
-                                }
-                            }
+                                    // alert('An error occurred: ' + errorThrown);
+                                    $('#loader').hide();
+                                    showErrorMessage('An error occurred: ' + errorThrown);
+
+                                }}
                         });
 
                         // Close the modal
@@ -187,23 +193,30 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            alert(response.msg_success);
-                            window.location.href = document.referrer;
+                            // alert(response.msg_success);
+                            // location.reload();
                             $('#loader').hide();
+                            showSuccessMessage(response.msg_success, true,document.referrer);
+
+
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
-                                alert(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
+                                // alert(errorResponse.msg_error ||
+                                //     'An unexpected error occurred.');
+                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
                             } catch (e) {
-                                alert('An error occurred: ' + errorThrown);
+                                // alert('An error occurred: ' + errorThrown);
+                                showErrorMessage('An error occurred: ' + errorThrown);
+
                             }
                         }
                     });
                 }
             });
-    })
-</script>
+        })
+    </script>
 @endpush

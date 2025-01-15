@@ -27,8 +27,7 @@
 
             </select>
         </div>
-        <div class="form-group col-md-4">
-
+        <div class="form-group col-md-4 ">
             <label for="">Designation <span class="text-danger">*</span></label>
             <div class="d-flex" style="gap:4px">
                 <select id="suffix" name="job[suffix]" class="form-control form-control-sm" style="width:15%">
@@ -39,7 +38,8 @@
                         {{ old('job.suffix', isset($employee->empJob->suffix) && $employee->empJob->suffix == 1 ? 1 : '') == '1' ? 'selected' : '' }}>
                         Sr</option>
                 </select>
-                <select name="job[mas_designation_id]" class="form-control form-control-sm" required>
+                <select name="job[mas_designation_id]" class="form-control select2 select2-hidden-accessible"
+                    data-placeholder="Select your option" required>
                     <option value="" disabled selected hidden>Select your option</option>
                     <!-- for edit form  -->
 
@@ -130,7 +130,8 @@
         </div>
         <div class="form-group col-md-4">
             <label for="">Job Location <span class="text-danger">*</span></label>
-            <select name="job[mas_office_id]" class="form-control form-control-sm" required>
+            <select name="job[mas_office_id]" class="form-control select2 select2-hidden-accessible"
+                data-placeholder="Select your option" tabindex="-1" required>
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach ($offices as $office)
                     <option value="{{ $office->id }}"
@@ -160,7 +161,8 @@
         </div>
         <div class="form-group col-md-4">
             <label for="immediate_supervisor">Immediate Supervisor</label>
-            <select name="job[immediate_supervisor]" class="form-control form-control-sm">
+            <select name="job[immediate_supervisor]" class="form-control select2 select2-hidden-accessible"
+                data-placeholder="Select your option" tabindex="-1">
                 <option value="" disabled selected hidden>Select your option</option>
                 @foreach (employeeList() as $empList)
                     <option value="{{ $empList->id }}"
