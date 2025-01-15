@@ -10,6 +10,8 @@ class MasEmployeeGroupMap extends Model
 {
     use HasFactory, CreatedByTrait;
 
+    protected $fillable = ['mas_employee_id', 'mas_employee_group_id'];
+
     public function employee(){
         return $this->belongsTo(User::class,'mas_employee_id');
     }

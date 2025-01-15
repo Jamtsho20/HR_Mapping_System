@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 use App\Services\PayrollService;
 use App\Models\MasAccAccountHead;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Schema;
 
 class PayHeadsController extends Controller
 {
@@ -119,6 +120,19 @@ class PayHeadsController extends Controller
             $formulaCheckResult = $this->payrollService->checkFormulaValidity($request->formula);
             if (!$formulaCheckResult['success']) {
                 return redirect()->back()->with('msg_error', 'Formula error. Please check and correct the formula.');
+            }
+        }
+
+         // Get all columns from the table
+        $tableColumns = Schema::getColumnListing('mas_pay_heads');
+
+        // Prepare data to update: set columns not in the request to null or default
+        $dataToUpdate = [];
+        foreach ($tableColumns as $column) {
+            if ($request->has($column)) {
+                $dataToUpdate[$column] = $request->input($column);
+            } else {
+                $dataToUpdate[$column] = null; // You can customize the default behavior here
             }
         }
 

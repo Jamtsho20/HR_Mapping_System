@@ -50,7 +50,8 @@ use App\Jobs\SendEmployeeCredentialsJob;
  */
 
 require __DIR__ . '/auth.php';
-require __DIR__ . '/payroll.php';
+require __DIR__ . '/test.php';
+
 Route::redirect('/', '/login', 301);
 // if (App::environment('production')) {
 //     $proxy_url = 'https://hrms.tashicell.com';
@@ -108,42 +109,6 @@ Route::get('/sentpasemail', function () {
     return "Email sent successfully!";
 });
 
-Route::get('/debug', function () {
-    $sap = new ApiController();
-    $pay = new PayrollService();
-
-
-    $payslip = PaySlip::first();
-    return $pay->generateAndMailPaySlip($payslip, 2);
-
-    dd($pay->checkFormulaValidity(
-        "IF ([SIFA_MEMBER] == 1)
-IF ([GRADE] == 'E0')
-THEN (400)
-ENDIF
-IF ([GRADE] == 'P')
-THEN (325)
-ENDIF
-IF ([GRADE] == 'S')
-THEN (125)
-ENDIF
-IF ([GRADE] == 'T1')
-THEN (225)
-ENDIF
-IF ([GRADE] == 'T2')
-THEN (225)
-ENDIF
-IF ([GRADE] == 'GSSG')
-THEN (125)
-ENDIF
-IF ([GRADE] == 'T')
-THEN (225)
-ENDIF
-ELSE
-THEN (0)
-ENDIF"
-    ));
-});
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
 
@@ -217,7 +182,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Expense')->prefix('expense')->group(function () {
         Route::resource('apply-expense', 'ExpenseApplicationController');
         Route::resource('expense-policy', 'ExpensePolicyController');
-        Route::resource('approval', 'ExpenseApprovalController')->except('create', 'edit');
+        Route::resource('approval', 'ExpenseApprovalController')->except('index', 'create', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
         Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'edit');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');

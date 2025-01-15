@@ -7,15 +7,18 @@ use App\Mail\PaySlipMail;
 use App\Models\MasPayHead;
 use App\Models\FinalPaySlip;
 use App\Models\PaySlipDetail;
+use App\Models\MasEmployeeJob;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EmployeeOvertime;
 use App\Models\LoanEMIDeduction;
-use App\Models\MasEmployeeJob;
-use App\Models\PaySlipDetailView;
 use App\Models\SifaRegistration;
+use App\Models\PaySlipDetailView;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\EmployeeSalarySaving;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ExecutiveFixedAllowance;
 
 class PayrollService
 {
@@ -115,26 +118,37 @@ class PayrollService
             $allowanceAmount = false;
             $amountToCalculateOn = 0; // Default to 0 to ensure it is always defined.
 
-            // Determine the amount to calculate on based on `calculated_on`.
-            switch ($calculated_on) {
-                case 1: // Basic Pay
-                    $amountToCalculateOn = $basicPay;
-                    break;
-                case 2: // Gross Pay
-                    $amountToCalculateOn = $grossPay;
-                    break;
-                case 6: // Pay Scale Base Pay
-                    $amountToCalculateOn = $payScaleBasePay;
-                    break;
-                case 5: // Lumpsum (if Actual method)
-                    if ($calculation_method === 1) {
-                        $allowanceAmount = $allowance->amount;
-                    }
-                    break;
+            // Check if the employee's grade ID is 1 and allowance ID is 1 or 5.
+            if ($employeeGradeId == 1 && in_array($allowance->id, [1, 5])) {
+                // Fetch static value from executive_fixed_allowances table.
+                $fixedAllowance = ExecutiveFixedAllowance::where('employee_id', $employee->id)->where('pay_head_id', $allowance->id)->first();
+
+                if ($fixedAllowance) {
+                    $allowanceAmount = $fixedAllowance->amount;
+                }
             }
 
-            // Calculate the allowance amount if not already set.
+             // Process the `switch` logic only if `allowanceAmount` is still not set.
             if ($allowanceAmount === false) {
+                switch ($calculated_on) {
+                    case 1: // Basic Pay
+                        $amountToCalculateOn = $basicPay;
+                        break;
+                    case 2: // Gross Pay
+                        $amountToCalculateOn = $grossPay;
+                        break;
+                    case 6: // Pay Scale Base Pay
+                        $amountToCalculateOn = $payScaleBasePay;
+                        break;
+                    case 5: // Lumpsum (if Actual method)
+                        if ($calculation_method === 1) {
+                            $allowanceAmount = $allowance->amount;
+                        }
+                        break;
+                }
+
+                // // Calculate the allowance amount if not already set.
+                // if ($allowanceAmount === false) {
                 if (in_array($calculated_on, [2, 3, 4])) { // GROSS PAY or NET PAY or PIT NET PAY
                     $payHeadsAfterGross[] = ['type' => 1, 'mas_pay_head_id' => $allowance->id, 'calculated_on' => $calculated_on, 'calculation_method' => $calculation_method];
                 } else {
@@ -260,8 +274,20 @@ class PayrollService
             return round(($amountToCalculateOn / $amount), 0);
         }
         if ($calculation_method === 7) {
-            $employeeDeduction = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->value('amount');
-            return $employeeDeduction ?? 0;
+            // $employeeDeduction = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->value('amount');
+            // return $employeeDeduction ?? 0;
+
+            // Loan Deduction
+            $loanDeduction = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->value('amount');
+
+            if ($loanDeduction !== null) {
+                return $loanDeduction; // Return Loan Deduction if present
+            }
+
+            // Salary Saving Deduction
+            $salarySavingDeduction = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->value('amount');
+            
+            return $salarySavingDeduction ?? 0; // Return Salary Saving Deduction if present, or 0
         }
         if ($calculation_method === 3) {
             $slabId = $payHead->paySlab->id;
