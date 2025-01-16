@@ -16,7 +16,6 @@
     Route::resource('loan-emi-deductions', 'LoanEMIDeductionController');
     Route::resource('annual-increment', 'AnnualIncrementController');
     Route::resource('pay-slips', 'PaySlipController');
-    Route::resource('ltc', 'LTCController');
     Route::resource('attendance', 'AttendanceController');
 
     Route::get('send-pay-slip/{payslipId}/{employeeId}', 'PaySlipController@sendPayslip')->name('pay-slips.send');
@@ -41,7 +40,7 @@
     Route::post('attendance-upload/{id}', 'AttendanceController@upload')->name('attendance.upload');
     Route::patch('attendance-update-attendance', 'AttendanceController@updateAttendance')->name('attendance.updateattendance');
 
-    Route::any('ltc-finalize/{id}', [LTCController::class, 'finalizeLtc'])->name('ltc.finalize');
-    Route::patch('ltc-toggles-status', [LTCController::class, 'toggleStatus'])->name('ltc.toggles-status');
-    Route::patch('ltc-update-remarks', [LTCController::class, 'updateRemarks'])->name('ltc.update-remarks');
+    Route::any('ltc-finalize/{id}', 'LTCController@finalizeLtc')->name('ltc.finalize');
+    Route::patch('ltc-toggles-status', 'LTCController@toggleStatus')->name('ltc.toggles-status');
+    Route::patch('ltc-update-remarks', 'LTCController@updateRemarks')->name('ltc.update-remarks');
 });
