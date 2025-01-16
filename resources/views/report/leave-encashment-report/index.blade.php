@@ -19,8 +19,9 @@
             <div class="col-3 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
-            <div class="col-md-2">
-                <select class="form-control" name="department">
+            <div class="col-md-3">
+                <select name="department" class="form-control select2 select2-hidden-accessible"
+                    data-placeholder="Select Department">
                     <option value="" disabled="" selected="" hidden="">Select Department</option>
                     @foreach ($departments as $department)
                         <option value="{{ $department->id }}"
@@ -32,8 +33,8 @@
 
             </div>
 
-            <div class="col-md-4">
-                <select class="form-control" name="section">
+            <div class="col-md-2">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Section" name="section">
                     <option value="" disabled selected hidden>Select Sections</option>
                     @foreach ($sections as $section)
                         <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
