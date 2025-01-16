@@ -80,86 +80,94 @@
 
 @push('page_scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('apply_advance');
-            const loader = document.getElementById('loader');
-            const submitBtn = document.getElementById('submitBtn');
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('apply_advance');
+    const loader = document.getElementById('loader');
+    const submitBtn = document.getElementById('submitBtn');
 
-            form.addEventListener('submit', function(e) {
-                // Show loader
-                loader.style.display = 'flex';
-            });
+    // Pass the user's employment type ID dynamically
+    var employmentTypeId = {{ auth()->user()->empJob && auth()->user()->empJob->empType ? auth()->user()->empJob->empType->id : 'null' }};
 
-        var advanceTypeSelect = document.getElementById('advance_type');
-        var formSections = document.querySelectorAll('.dynamic-form');
+    form.addEventListener('submit', function (e) {
+        loader.style.display = 'flex'; // Show loader
+    });
 
-        advanceTypeSelect.addEventListener('change', function() {
-            var selectedType = advanceTypeSelect.value;
+    var advanceTypeSelect = document.getElementById('advance_type');
+    var formSections = document.querySelectorAll('.dynamic-form');
 
-            // Hide all dynamic form sections and disable their inputs
-            formSections.forEach(function(section) {
-                section.style.display = 'none';
-                disableFormFields(section);
-            });
+    advanceTypeSelect.addEventListener('change', function () {
+        var selectedType = advanceTypeSelect.value;
 
-            // Show and enable the corresponding form section based on the selected type
-            if (selectedType === '1') {
-                var section = document.getElementById('advance-to-staff-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            } else if (selectedType === '2') {
-                var section = document.getElementById('dsa-advance-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            } else if (selectedType === '3') {
-                var section = document.getElementById('electricity-imprest-advance-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            } else if (selectedType === '4') {
-                var section = document.getElementById('gadget-emi-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            } else if (selectedType === '5') {
-                var section = document.getElementById('general-imprest-advance-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            } else if (selectedType === '6') {
-                var section = document.getElementById('salary-advance-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            } else if (selectedType === '7') {
-                var section = document.getElementById('sifa-loan-form');
-                section.style.display = 'block';
-                enableFormFields(section);
-            }
-        });
-
-        // Initially hide all dynamic form sections
-        formSections.forEach(function(section) {
+        // Hide all dynamic form sections and disable their inputs
+        formSections.forEach(function (section) {
             section.style.display = 'none';
             disableFormFields(section);
         });
 
-        // Show the correct form section based on the old input value
-        var oldAdvanceType = '{{ old("advance_type") }}';
-        if (oldAdvanceType) {
-            advanceTypeSelect.value = oldAdvanceType;
-            advanceTypeSelect.dispatchEvent(new Event('change')); // Trigger the change event to show the relevant section
-        }
-
-        // Function to enable form fields in the visible section
-        function enableFormFields(form) {
-            form.querySelectorAll('input, select, textarea').forEach(function(input) {
-                input.disabled = false; // Enable the input fields
-            });
-        }
-
-        // Function to disable form fields in hidden sections
-        function disableFormFields(form) {
-            form.querySelectorAll('input, select, textarea').forEach(function(input) {
-                input.disabled = true; // Disable the input fields
-            });
+        // Show and enable the corresponding form section based on the selected type
+        if (selectedType === '4') {
+            if (employmentTypeId === 3) {
+                var msg = 'You are not allowed to apply based on your employment type';
+                showErrorMessage(msg);
+            } else {
+                var section = document.getElementById('gadget-emi-form');
+                section.style.display = 'block';
+                enableFormFields(section);
+            }
+        } else if (selectedType === '1') {
+            var section = document.getElementById('advance-to-staff-form');
+            section.style.display = 'block';
+            enableFormFields(section);
+        } else if (selectedType === '2') {
+            var section = document.getElementById('dsa-advance-form');
+            section.style.display = 'block';
+            enableFormFields(section);
+        } else if (selectedType === '3') {
+            var section = document.getElementById('electricity-imprest-advance-form');
+            section.style.display = 'block';
+            enableFormFields(section);
+        } else if (selectedType === '5') {
+            var section = document.getElementById('general-imprest-advance-form');
+            section.style.display = 'block';
+            enableFormFields(section);
+        } else if (selectedType === '6') {
+            var section = document.getElementById('salary-advance-form');
+            section.style.display = 'block';
+            enableFormFields(section);
+        } else if (selectedType === '7') {
+            var section = document.getElementById('sifa-loan-form');
+            section.style.display = 'block';
+            enableFormFields(section);
         }
     });
+
+    // Initially hide all dynamic form sections
+    formSections.forEach(function (section) {
+        section.style.display = 'none';
+        disableFormFields(section);
+    });
+
+    // Show the correct form section based on the old input value
+    var oldAdvanceType = '{{ old("advance_type") }}';
+    if (oldAdvanceType) {
+        advanceTypeSelect.value = oldAdvanceType;
+        advanceTypeSelect.dispatchEvent(new Event('change')); // Trigger the change event to show the relevant section
+    }
+
+    // Function to enable form fields in the visible section
+    function enableFormFields(form) {
+        form.querySelectorAll('input, select, textarea').forEach(function (input) {
+            input.disabled = false; // Enable the input fields
+        });
+    }
+
+    // Function to disable form fields in hidden sections
+    function disableFormFields(form) {
+        form.querySelectorAll('input, select, textarea').forEach(function (input) {
+            input.disabled = true; // Disable the input fields
+        });
+    }
+});
+
 </script>
 @endpush

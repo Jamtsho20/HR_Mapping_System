@@ -70,6 +70,8 @@
 </div>
 
 @push('page_scripts')
+
+
 <script>
     $(document).ready(function() {
         // Calculate Monthly EMI when No of EMI changes
