@@ -1,9 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Employee List')
 @section('content')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
     @if ($privileges->create)
         @section('buttons')
             <a href="{{ route('employee-lists.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New
@@ -20,7 +18,8 @@
                     placeholder="Employee Id">
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control select2" name="section">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Section" tabindex="-1"
+                    name="section">
                     <option value="" disabled selected hidden>Select Sections</option>
                     @foreach ($sections as $section)
                         <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
@@ -30,17 +29,20 @@
                 </select>
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control select2" name="section">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
+                    tabindex="-1" name="department">
                     <option value="" disabled selected hidden>Select Departments</option>
                     @foreach ($departments as $department)
-                        <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                        <option value="{{ $department->id }}"
+                            {{ request()->get('department') == $department->id ? 'selected' : '' }}>
                             {{ $department->name }}
                         </option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control select2" name="designation">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Designation"
+                    tabindex="-1" name="designation">
                     <option value="" disabled selected hidden>Select Designation</option>
                     @foreach ($designations as $desigation)
                         <option value="{{ $desigation->id }}"
@@ -51,7 +53,8 @@
                 </select>
             </div>
             <div class="col-md-3 form-group">
-                <select class="form-control select2" name="office">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Work Location"
+                    tabindex="-1" name="office">
                     <option value="" disabled selected hidden>Select Work location</option>
                     @foreach ($workLocations as $office)
                         <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>

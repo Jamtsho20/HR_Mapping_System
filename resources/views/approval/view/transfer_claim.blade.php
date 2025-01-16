@@ -96,7 +96,7 @@
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $transfer->status,
-                            // 'rejectionRemarks' => $rejectionRemarks,
+                            'rejectionRemarks' => $transfer->reject_remarks,
                         ])
 
                     </div>

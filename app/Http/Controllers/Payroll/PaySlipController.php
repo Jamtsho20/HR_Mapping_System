@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Jobs\ProcessPaySlipJob;
 
 class PaySlipController extends Controller
 {
@@ -164,23 +165,15 @@ class PaySlipController extends Controller
     {
         try {
             $status = $request->query('status');
-            $paySlip = PaySlip::where('status', NEWLY_CREATED)->find($id);
+            $payslip = PaySlip::where('status', NEWLY_CREATED)->find($id);
 
-            if (!$paySlip) {
+            if (!$payslip) {
                 return redirect()->back()->with('msg_error', 'Payslip not found.');
             }
 
-            $result = $this->payrollService->processPaySlip($paySlip);
-            if (!$result) {
-                Log::error('Error processing payslip: ' . $result);
+            ProcessPaySlipJob::dispatch($payslip, $status);
 
-                return redirect()->back()->with('msg_error', 'An error occurred while processing the payslip.');
-            }
-
-            $this->payrollService->updateStatus($paySlip, $status);
-
-            $month = Carbon::parse($paySlip->for_month)->format('F Y');
-
+            $month = Carbon::parse($payslip->for_month)->format('F Y');
             return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
         } catch (\Exception $e) {
             Log::error('Error processing payslip: ' . $e->getMessage());

@@ -102,7 +102,7 @@
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $travelAuthorization->status,
-                            // 'rejectionRemarks' => $rejectionRemarks,
+                            'rejectionRemarks' => $travelAuthorization->reject_remarks ,
                         ])
 
                     </div>

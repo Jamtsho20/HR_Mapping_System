@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\LeaveEncashmentMail;
+use App\Models\ApplicationHistory;
 use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashment;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
@@ -31,14 +33,42 @@ class DashboardController extends Controller
             ->paginate(30)
             ->withQueryString();
 
+        //alert for approver
+        $alerts = ApplicationHistory::select('application_type', DB::raw('COUNT(*) as total'))
+            ->where('approver_emp_id', auth()->user()->id)
+            ->whereIn('status', [1, 2])
+            ->groupBy('application_type')
+            ->get();
+
+        foreach ($alerts as $alert) {
+            $text = $alert->application_type; // Get application_type
+            $alert->lastPart = Str::afterLast($text, '\\'); // Add last part to the alert object
+            $formattedText = Str::of($alert->lastPart)->replaceMatches('/([a-z])([A-Z])/', '$1 $2')->__toString();
+
+            // Remove the last word
+            $formattedTextWithoutLastWord = preg_replace('/\s\w+$/', '', $formattedText);
+
+            $alert->lastPart = $formattedTextWithoutLastWord; // Add formatted string to the alert object
+            $alert->count = $alert->total;
+        }
+
         // Get all system notifications
         $notifications = SystemNotification::all()->map(function ($notification) {
             return [
-                'id' => $notification->id,
+                'type' => 'notification', // Mark as notification type
                 'title' => $notification->title,
                 'message' => $notification->message,
             ];
         });
+
+        // Merge alerts and notifications into a single array
+        $combinedItems = $alerts->map(function ($alert) {
+            return [
+                'type' => 'alert', // Mark as alert type
+                'application_type' => $alert->lastPart,
+                'count' => $alert->count,
+            ];
+        })->merge($notifications);
 
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
@@ -61,6 +91,8 @@ class DashboardController extends Controller
             : [[], []];
         // dd($earnedLeaveData, $earnedLeaveCounts);
 
+
+        // dd($alerts);
         return view('dashboard', compact(
             'user',
             'holidays',
@@ -69,7 +101,9 @@ class DashboardController extends Controller
             'statusCounts',
             'earnedLeaveData',
             'earnedLeaveCounts',
-            'showEarnedLeave'
+            'showEarnedLeave',
+            'alerts',
+            'combinedItems'
         ));
     }
 
