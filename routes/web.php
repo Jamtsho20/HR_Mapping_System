@@ -387,6 +387,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-slabs', 'PaySlabsController');
         Route::resource('pay-slab-details', 'PaySlabsDetailsController');
         Route::resource('pay-group-details', 'PayGroupDetailsController');
+        Route::resource('executive-fixed-allowances', 'ExecutiveFixedAllowanceController');
+
     });
 
     //Payroll

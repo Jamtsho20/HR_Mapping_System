@@ -213,7 +213,7 @@ class PayrollService
 
             // Deduct the calculated deduction amount from the net pay and create the pay slip detail.
             if ($deductionAmount !== false) {
-                if ($deduction->code === "PF") {
+                if ($deduction->code === "PF Contr") {
                     $pf = $deductionAmount; // PROVIDENT FUND AMOUNT
                 }
                 $netPay -= $deductionAmount;
