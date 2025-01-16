@@ -39,10 +39,7 @@
                                                                 #
                                                             </th>
                                                             <th>
-                                                                Employee ID
-                                                            </th>
-                                                            <th>
-                                                                Employee Name
+                                                                Employee
                                                             </th>
                                                             <th>
                                                                 Allowance
@@ -59,8 +56,7 @@
                                                         @forelse($records as $allowance)
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $allowance->employee?->username }}</td>
-                                                            <td>{{ $allowance->employee?->name }} </td>
+                                                            <td>{{ $allowance->employee?->emp_id_name }} </td>
                                                             <td>{{ $allowance->payHead->name }}</td>
                                                             <td>{{ $allowance->amount }}</td>
                                                             <td class="text-center">
