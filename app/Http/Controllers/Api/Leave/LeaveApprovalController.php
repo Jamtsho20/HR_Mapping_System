@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
 use Carbon\Carbon;
-
+use App\Models\ApplicationHistory;
 class LeaveApprovalController extends Controller
 {
     use JsonResponseTrait;
@@ -96,6 +96,14 @@ class LeaveApprovalController extends Controller
             ->filter($request, false)
             ->orderBy('created_at')
             ->get();
+
+            $mappedModel = LeaveApplication::class;
+            $leaveApplications = $leaveApplications->map(function ($leave) use ($mappedModel) {
+                $leave->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $leave->id)
+                    ->value('remarks');
+                return $leave;
+            });
 
             return response()->json([
                 'success' => true,

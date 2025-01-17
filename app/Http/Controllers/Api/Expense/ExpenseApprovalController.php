@@ -11,6 +11,7 @@ use App\Traits\JsonResponseTrait;
 use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
 use Carbon\Carbon;
+use App\Models\ApplicationHistory;
 
 class ExpenseApprovalController extends Controller
 {
@@ -84,6 +85,14 @@ class ExpenseApprovalController extends Controller
                 ->orderBy('created_at')
                 ->get();
 
+
+                $mappedModel = ExpenseApplication::class;
+            $expenseApplications = $expenseApplications->map(function ($expense) use ($mappedModel) {
+                $expense->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $expense->id)
+                    ->value('remarks');
+                return $expense;
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Expense applications retrieved successfully!',
@@ -156,6 +165,14 @@ class ExpenseApprovalController extends Controller
                 ->orderBy('created_at')
                 ->get();
 
+
+                $mappedModel = DSAClaimApplication::class;
+                $dsaclaims = $dsaclaims->map(function ($dsaclaim) use ($mappedModel) {
+                    $dsaclaim->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                        ->where('application_id', $dsaclaim->id)
+                        ->value('remarks');
+                    return $dsaclaim;
+                });
             return response()->json([
                 'success' => true,
                 'message' => 'DSA claim applications retrieved successfully!',
@@ -233,6 +250,15 @@ class ExpenseApprovalController extends Controller
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
+
+
+                $mappedModel = TransferClaimApplication::class;
+                $transferClaims = $transferClaims->map(function ($transferClaim) use ($mappedModel) {
+                    $transferClaim->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                        ->where('application_id', $transferClaim->id)
+                        ->value('remarks');
+                    return $transferClaim;
+                });
 
             return response()->json([
                 'success' => true,

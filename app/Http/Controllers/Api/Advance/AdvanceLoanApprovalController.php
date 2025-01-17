@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
 use Carbon\Carbon;
-
+use App\Models\ApplicationHistory;
 class AdvanceLoanApprovalController extends Controller
 {
     use JsonResponseTrait;
@@ -88,6 +88,13 @@ class AdvanceLoanApprovalController extends Controller
                 ->orderBy('created_at')
                 ->get();
 
+                $mappedModel = AdvanceApplication::class;
+                $advances = $advances->map(function ($advance) use ($mappedModel) {
+                    $advance->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                        ->where('application_id', $advance->id)
+                        ->value('remarks');
+                    return $advance;
+                });
             return response()->json(['advances' => $advances], 200);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 404);

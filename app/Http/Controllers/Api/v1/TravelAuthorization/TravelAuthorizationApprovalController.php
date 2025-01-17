@@ -72,6 +72,13 @@ class TravelAuthorizationApprovalController extends Controller
             ->orderBy('created_at')  // Order by created date
             ->get();
 
+            $mappedModel = TravelAuthorizationApplication::class;
+            $travelAuthorizations = $travelAuthorizations->map(function ($travelAuthorization) use ($mappedModel) {
+                $travelAuthorization->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $travelAuthorization->id)
+                    ->value('remarks');
+                return $travelAuthorization;
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Travel authorization applications fetched successfully',
