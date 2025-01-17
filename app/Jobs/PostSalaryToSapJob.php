@@ -95,11 +95,10 @@ class PostSalaryToSapJob implements ShouldQueue
     {
         $journalLines = [];
 
-        $totalCredit = $entries->where('payhead_type', 1)->sum('amount');
-        $totalDebit = $entries->where('payhead_type', 2)->sum('amount');
+        $totalDebit = $entries->where('payhead_type', 1)->sum('amount');
+        $totalCredit = $entries->where('payhead_type', 2)->sum('amount');
         $unpaidSalary = $totalDebit - $totalCredit;
 
-        // dd($totalCredit, $totalDebit, $unpaidSalary );
         foreach ($entries as $data) {
             $amount = $data->amount;
             $costingCode2 = $data->department_code;
@@ -122,7 +121,7 @@ class PostSalaryToSapJob implements ShouldQueue
                     $user = DB::select('SELECT username FROM mas_employees WHERE id = ?', [$data->employee_id]);
 
                     $journalLines[] = [
-                        "ShortName" => $user[0]->username,
+                        "ShortName" => $user[0]->username .'.',
                         "CostingCode2" => $costingCode2,
                         "Credit" => $amount,
                         "Debit" => 0,

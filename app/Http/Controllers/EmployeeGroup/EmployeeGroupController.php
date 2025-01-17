@@ -133,19 +133,41 @@ class EmployeeGroupController extends Controller
             'status' => 'required|boolean',
         ]);
 
-        // Find the existing sub-store by ID
-        $employeeGroup = MasEmployeeGroup::findOrFail($id);
+        DB::beginTransaction();
 
-        $employeeGroup->name = $request->name;
-        $employeeGroup->description = $request->description;
-        $employeeGroup->status = $request->status;
-        // Track who edited the record
+        try {
+            // Find the existing sub-store by ID
+            $employeeGroup = MasEmployeeGroup::findOrFail($id);
 
-        // Save the updated model instance to the database
-        $employeeGroup->save();
+            $employeeGroup->name = $request->name;
+            $employeeGroup->description = $request->description;
+            $employeeGroup->status = $request->status;
+            // Track who edited the record
 
+            // Save the updated model instance to the database
+            $employeeGroup->save();
 
-        return redirect('employee-group/employee-create')->with('msg_success', 'Employee Group updated successfully');
+            foreach ($request->employees as $employeeId) {
+                MasEmployeeGroupMap::updateOrCreate(
+                    [
+                        'mas_employee_id' => $employeeId,
+                        'mas_employee_group_id' => $employeeGroup->id
+                    ],
+                    [] 
+                );
+            }
+    
+            // Remove employees not in the current request
+            MasEmployeeGroupMap::where('mas_employee_group_id', $employeeGroup->id)->whereNotIn('mas_employee_id', $request->employees)->delete();
+
+            DB::commit();
+
+            return redirect('employee-group/employee-create')->with('msg_success', 'Employee Group updated successfully');
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return redirect('employee-group/employee-create')->with('msg_error', 'An error occurred while updating the Employee Group. Please try again.');
+        }
+        
     }
     public function destroy(string $id)
     {
