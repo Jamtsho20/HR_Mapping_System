@@ -47,7 +47,7 @@ class TeamApiController extends Controller
                 )
                 ->where('mas_employee_jobs.' . $filterColumn, $filterValue)
                 ->where('mas_employees.id', '!=', auth()->id()) // Exclude the logged-in user
-                ->when(!empty($filters['mas_section_id']), function ($query) use ($filters) {
+                ->when(!empty($filters['section_id']), function ($query) use ($filters) {
                     $query->where('mas_employee_jobs.mas_section_id', $filters['section_id']);
                 })
                 ->when(!empty($filters['name']), function ($query) use ($filters) {
