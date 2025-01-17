@@ -161,8 +161,9 @@
 
                 // Find the checkboxes only within the current active tab
                 $('.tab-pane.active .bulk_checkbox').each(function() {
-                    $(this).prop('checked',
-                        checkedStatus);
+                    if (!$(this).prop('disabled')) { // Check if the checkbox is not disabled
+                    $(this).prop('checked', checkedStatus);
+                }
                 });
             });
 
@@ -170,6 +171,7 @@
             if (activeTabContent.length) {
                 const activeType = activeTabContent.data('item-type');
                 const activeName = activeTabContent.data('item-name');
+
                 $('.buttonsubmit').each(function() {
                     $(this).attr('data-item-type', activeType);
                     $(this).attr('data-item-name', activeName);
@@ -191,7 +193,6 @@
             // Bulk approval/rejection
             $('.buttonsubmit').click(function() {
                 const activeTab = $('.tab-pane.active');
-
                 const itemName = activeTab.data('item-name');
                 const itemType = activeTab.data('item-type');
                 var action = $(this).data('value');
