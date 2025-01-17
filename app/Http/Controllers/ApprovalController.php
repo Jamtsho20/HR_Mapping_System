@@ -72,6 +72,7 @@ class ApprovalController extends Controller
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
         $action = $request->action;
         $itemIds = $request->item_ids;
+        
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
