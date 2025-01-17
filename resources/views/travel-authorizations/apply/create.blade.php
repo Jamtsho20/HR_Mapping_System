@@ -153,6 +153,8 @@
         const form = document.getElementById('apply_travel');
             const loader = document.getElementById('loader');
             const submitBtn = document.getElementById('submitBtn');
+            const gracePeriod = 3;
+            const today = new Date();
 
             form.addEventListener('submit', function(e) {
                 // Show loader
@@ -178,6 +180,8 @@
         // Function to update the date constraints dynamically
         function updateDateConstraints() {
             const tableRows = document.querySelectorAll('#travel_details tr');
+            const todayISO = today.toISOString().split('T')[0];
+           
 
             tableRows.forEach((row, rowIndex) => {
                 const fromDateField = row.querySelector('.from_date');
@@ -186,8 +190,21 @@
                 if (!fromDateField || !toDateField) return;
 
                 // For the first row
-                if (rowIndex === 0) {
-                    // fromDateField.removeAttribute('min'); // No restrictions for the first row's from_date
+                if (rowIndex === 1) {
+                    // Set the min attribute to today
+                    fromDateField.setAttribute('min', todayISO);
+                    // Set the max attribute to three days from today
+
+                    const timeDifference = new Date(fromDateField.value) - today;
+                    const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24)); // Convert to days
+
+                    const gracePeriod = 3;
+
+                    if ( daysDifference >= gracePeriod) {
+                        showErrorMessage('The selected date is not within the ' + gracePeriod + ' days grace period.');
+                        fromDateField.value='';
+                    }
+
                 } else {
                     // For subsequent rows, set min for from_date based on the previous row's to_date
                     const previousRow = tableRows[rowIndex - 1];
