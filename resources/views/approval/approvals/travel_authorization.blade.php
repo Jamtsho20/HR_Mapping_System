@@ -29,7 +29,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($results->get(7) as $travelAuthorization)
-                                    <tr>
+                                    <tr  data-created-at="{{ $travelAuthorization->created_at->timestamp }}">
                                         @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox" class="bulk_checkbox"
@@ -114,9 +114,14 @@
         const row = timer.closest('tr');
         const checkbox = row.querySelector('.bulk_checkbox');
         const detailButton = row.querySelector('.btn-outline-secondary');
-        const appliedDateText = row.querySelector('td:nth-child(2)').innerText; // Get "APPLIED ON" column text
-        const appliedDate = new Date(appliedDateText + ' 00:00:00'); // Set time to midnight
-        const deadline = new Date(appliedDate.getTime() + 3 * 24 * 60 * 60 * 1000); // Add 3 days
+        const createdAtTimestamp = row.getAttribute('data-created-at'); // Get the timestamp from the data attribute
+
+    // Convert the timestamp to a JavaScript Date object
+    const createdAt = new Date(createdAtTimestamp * 1000);
+
+        // Calculate the deadline (add 3 days to created_at)
+        const deadline = new Date(createdAt.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from createdAt
+
 
         function updateCountdown() {
             const now = new Date();
