@@ -15,7 +15,7 @@
 # /public/images/users
 /storage/*.key
 /storage/payslips
-/app/Http/constant.php
+# /app/Http/constant.php
 /vendor
 .env
 .env.backup
