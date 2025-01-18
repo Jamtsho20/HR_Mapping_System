@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use App\Traits\JsonResponseTrait;
 use App\Services\ApplicationHistoriesService;
 use DateTime;
+use App\Models\ApplicationHistory;
 
 class LeaveApplicationController extends Controller
 {
@@ -54,6 +55,13 @@ class LeaveApplicationController extends Controller
 
         try{$privileges = $request->instance();
         $leaveApplications = LeaveApplication::with('leaveType:id,name','leave_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->filter($request)->orderBy('created_at', 'desc')->get();
+        $mappedModel = LeaveApplication::class;
+        $leaveApplications = $leaveApplications->map(function ($leaveApplication) use ($mappedModel) {
+            $leaveApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                ->where('application_id', $leaveApplication->id)
+                ->value('remarks');
+            return $leaveApplication;
+        });
         return $this->successResponse($leaveApplications, 'Leave applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());

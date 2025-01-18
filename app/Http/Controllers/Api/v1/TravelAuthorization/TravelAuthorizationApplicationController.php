@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationForwardedMail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\ApplicationHistory;
 
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\AjaxRequestController;
@@ -68,6 +69,13 @@ class TravelAuthorizationApplicationController extends Controller
         try {
             $privileges = $request->instance();
             $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name',  'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
+            $mappedModel = TravelAuthorizationApplication::class;
+            $travelAuthorizations = $travelAuthorizations->map(function ($travelAuthorization) use ($mappedModel) {
+                $travelAuthorization->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $travelAuthorization->id)
+                    ->value('remarks');
+                return $travelAuthorization;
+            });
             return response()->json([
                 'message' => 'Travel authorization applications retrieved successfully',
                 'travelAuthorizations' => $travelAuthorizations
