@@ -14,6 +14,7 @@ use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
 use App\Services\ApplicationHistoriesService;
 use App\Http\Controllers\AjaxRequestController;
+use App\Models\ApplicationHistory;
 
 class TransferClaimApplicationController extends Controller
 {
@@ -50,8 +51,14 @@ class TransferClaimApplicationController extends Controller
             $user = loggedInUser();
 
             $transferClaims = TransferClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
-
-            return $this->successResponse($transferClaims, 'Expense applications retrieved successfully');
+            $mappedModel = TransferClaimApplication::class;
+            $transferClaims = $transferClaims->map(function ($transferClaim) use ($mappedModel) {
+                $transferClaim->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $transferClaim->id)
+                    ->value('remarks');
+                return $transferClaim;
+            });
+            return $this->successResponse($transferClaims, 'Transfer claims retrieved successfully');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('Failed to retrieve applications', 500);

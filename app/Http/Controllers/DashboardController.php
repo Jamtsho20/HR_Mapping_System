@@ -82,7 +82,7 @@ class DashboardController extends Controller
         //collect all record related to login user to show in notification from application histories to show in notification tbl
 
         // Fetch leave status counts
-        [$leaveData, $statusCounts] = $this->getLeaveData($currentYear);
+        [$leaveData, $statusCounts] = $this->getLeaveData($currentYear, 1);
         $showEarnedLeave = $employmentTypeId !== 3;
 
         // Fetch earned leave data if applicable
