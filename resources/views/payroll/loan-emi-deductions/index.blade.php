@@ -34,10 +34,11 @@
                                                     <thead>
                                                         <tr role="row">
                                                             <th> # </th>
-                                                            <th> Pay Head </th>
                                                             <th> Employee </th>
-                                                            <th> Amount </th>
+                                                            <th> Pay Head </th>
                                                             <th> Loan Type </th>
+                                                            <th> Amount </th>
+                                                            <th> Loan No. </th>
                                                             <th> Start Date </th>
                                                             <th>
                                                                 End Date
@@ -69,10 +70,11 @@
                                                         @forelse($loanEMIDeductions as $record)
                                                             <tr>
                                                                 <td>{{ $loop->iteration }}</td>
-                                                                <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->employee->emp_id_name }} </td>
-                                                                <td>{{ $record->amount }} </td>
+                                                                <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->loanType?->name }} </td>
+                                                                <td>{{ $record->amount }} </td>
+                                                                <td>{{ $record->loan_number }} </td>
                                                                 <td> {{ $record->start_date ? \Carbon\Carbon::parse($record->start_date)->format('M d, Y') : '-' }}
                                                                 </td>
                                                                 <td> {{ $record->end_date ? \Carbon\Carbon::parse($record->end_date)->format('M d, Y') : '-' }}
