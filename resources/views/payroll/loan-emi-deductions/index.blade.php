@@ -33,6 +33,7 @@
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row">
+                                                            <th> # </th>
                                                             <th> Pay Head </th>
                                                             <th> Employee </th>
                                                             <th> Amount </th>
@@ -66,8 +67,9 @@
                                                     <tbody>
                                                         @forelse($loanEMIDeductions as $record)
                                                             <tr>
+                                                                <td>{{ $loop->iteration }}</td>
                                                                 <td>{{ $record->payHead->name }}</td>
-                                                                <td>{{ $record->employee->name }} </td>
+                                                                <td>{{ $record->employee->emp_id_name }} </td>
                                                                 <td>{{ $record->amount }} </td>
                                                                 <td> {{ $record->start_date ? \Carbon\Carbon::parse($record->start_date)->format('M d, Y') : '-' }}
                                                                 </td>
