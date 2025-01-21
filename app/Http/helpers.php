@@ -207,7 +207,7 @@ if (!function_exists('invoiceNoGenerator')) {
 
 if(!function_exists('employeeList')){
     function employeeList(){
-        return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.title, ' ', t1.name) as name")->get();
+        return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.title, ' ', t1.name) as name")->whereNotIn('t1.id', [1, 2])->get();
     }
 }
 

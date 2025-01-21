@@ -101,6 +101,12 @@ class DsaClaimApplication extends Model
             });
         }
 
+        if ($request->has('name') && $request->get('name') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('name') . '%');
+            });
+        }
+
 
         if($onesOwnRecord){
             $query->where('created_by', auth()->user()->id);

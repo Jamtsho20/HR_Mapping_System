@@ -105,6 +105,12 @@ class LeaveEncashmentApplication extends Model
             });
         }
 
+        if ($request->has('name') && $request->get('name') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('name') . '%');
+            });
+        }
+
         // Add more filters here if needed
         return $query;
     }

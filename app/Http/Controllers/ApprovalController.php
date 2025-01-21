@@ -38,6 +38,7 @@ class ApprovalController extends Controller
 
         $results = collect();
 
+
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
 
@@ -72,7 +73,7 @@ class ApprovalController extends Controller
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
         $action = $request->action;
         $itemIds = $request->item_ids;
-        
+
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
@@ -338,7 +339,7 @@ class ApprovalController extends Controller
         $privileges['view'] = 1;
         $headers = MasApprovalHead::all();
         $user = auth()->user();
-
+        $users = User::select('id', 'username', 'name') ->whereNotIn('id', [1, 2]) ->get();
         $applicationModels = config('global.applications');
         $results = collect();
         $specificCondition = false;
@@ -391,6 +392,6 @@ class ApprovalController extends Controller
         }
 
 
-        return view('approval.index', compact('privileges', 'headers', 'results'));
+        return view('approval.index', compact('privileges', 'headers', 'results' ,'users'));
     }
 }
