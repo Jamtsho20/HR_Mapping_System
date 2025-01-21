@@ -11,6 +11,7 @@ use App\Traits\JsonResponseTrait;
 use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
 use Carbon\Carbon;
+use App\Models\ApplicationHistory;
 
 class ExpenseApprovalController extends Controller
 {
@@ -30,7 +31,7 @@ class ExpenseApprovalController extends Controller
         try {
             $currentUser = auth()->user();
             $employeeDetails = LoggedInUserEmpIdName();
-
+            $name = $request->input('name');
             $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
             $statuses = [];
             $applicationType = \App\Models\ExpenseApplication::class; // Default application type
@@ -79,11 +80,24 @@ class ExpenseApprovalController extends Controller
                     })
                     ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
+                ->when($name, function ($query) use ($name) {
+                    $query->whereHas('employee', function ($query) use ($name) {
+                        $query->where('name', 'like', "%{$name}%"); // Filter by name
+                    });
+                })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
 
+
+                $mappedModel = ExpenseApplication::class;
+            $expenseApplications = $expenseApplications->map(function ($expense) use ($mappedModel) {
+                $expense->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $expense->id)
+                    ->value('remarks');
+                return $expense;
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Expense applications retrieved successfully!',
@@ -101,7 +115,7 @@ class ExpenseApprovalController extends Controller
         try {
             $currentUser = auth()->user();
             $employeeDetails = LoggedInUserEmpIdName();
-
+            $name = $request->input('name');
             $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
             $statuses = [];
             $applicationType = \App\Models\DSAClaimApplication::class; // Default application type
@@ -151,11 +165,24 @@ class ExpenseApprovalController extends Controller
                     })
                     ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
+                ->when($name, function ($query) use ($name) {
+                    $query->whereHas('employee', function ($query) use ($name) {
+                        $query->where('name', 'like', "%{$name}%"); // Filter by name
+                    });
+                })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
 
+
+                $mappedModel = DSAClaimApplication::class;
+                $dsaclaims = $dsaclaims->map(function ($dsaclaim) use ($mappedModel) {
+                    $dsaclaim->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                        ->where('application_id', $dsaclaim->id)
+                        ->value('remarks');
+                    return $dsaclaim;
+                });
             return response()->json([
                 'success' => true,
                 'message' => 'DSA claim applications retrieved successfully!',
@@ -180,7 +207,7 @@ class ExpenseApprovalController extends Controller
         try {
             $currentUser = auth()->user();
             $employeeDetails = LoggedInUserEmpIdName();
-
+            $name = $request->input('name');
             $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
             $statuses = [];
             $applicationType = 'App\Models\TransferClaimApplication'; // Default application type
@@ -229,10 +256,24 @@ class ExpenseApprovalController extends Controller
                     })
                     ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
+                ->when($name, function ($query) use ($name) {
+                    $query->whereHas('employee', function ($query) use ($name) {
+                        $query->where('name', 'like', "%{$name}%"); // Filter by name
+                    });
+                })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
+
+
+                $mappedModel = TransferClaimApplication::class;
+                $transferClaims = $transferClaims->map(function ($transferClaim) use ($mappedModel) {
+                    $transferClaim->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                        ->where('application_id', $transferClaim->id)
+                        ->value('remarks');
+                    return $transferClaim;
+                });
 
             return response()->json([
                 'success' => true,

@@ -2,6 +2,13 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
+                @if (request()->is('approval/applications'))
+                    <p class="text-danger large" style="text-indent: -0.8em; padding-left: 1.5em;">
+                        * The approval option will be disabled if the grace period of 3 days from the applied date expires,
+                        and you will no longer be able to approve the travel authorization.
+                    </p>
+                @endif
+
                 <div class="table-responsive">
                     <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                         <table class="table table-bordered text-nowrap border-bottom dataTable no-footer"
@@ -18,13 +25,16 @@
                                     <th>EMPLOYEE</th>
                                     <th>TRAVEL TYPES</th>
                                     <th>ESTIMATED EXPENSES</th>
+                                    @if (request()->is('approval/applications'))
+                                    <th>TIME LEFT FOR APPROVAL</th>
+                                    @endif
                                     <th>STATUS</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($results->get(7) as $travelAuthorization)
-                                    <tr>
+                                    <tr  data-created-at="{{ $travelAuthorization->created_at->timestamp }}">
                                         @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox" class="bulk_checkbox"
@@ -35,6 +45,9 @@
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                        @if (request()->is('approval/applications'))
+                                        <td id="timeLeftForApproval-{{ $travelAuthorization->id }}" class=" text-danger"></td>
+                                        @endif
                                         <td>@php
                                             $statusClasses = [
                                                 -1 => 'badge bg-danger',
@@ -98,3 +111,56 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const timers = document.querySelectorAll('[id^="timeLeftForApproval-"]');
+
+    timers.forEach(timer => {
+        const travelAuthorizationId = timer.id.split('-')[1];
+        const row = timer.closest('tr');
+        const checkbox = row.querySelector('.bulk_checkbox');
+        const detailButton = row.querySelector('.btn-outline-secondary');
+        const createdAtTimestamp = row.getAttribute('data-created-at'); // Get the timestamp from the data attribute
+
+    // Convert the timestamp to a JavaScript Date object
+    const createdAt = new Date(createdAtTimestamp * 1000);
+
+        // Calculate the deadline (add 3 days to created_at)
+        const deadline = new Date(createdAt.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from createdAt
+
+
+        function updateCountdown() {
+            const now = new Date();
+            const timeLeft = deadline - now;
+
+            if (timeLeft <= 0) {
+                timer.innerText = 'Expired';
+                timer.style.color = 'red';
+                if (checkbox) checkbox.disabled = true; // Disable checkbox
+                const isApprovalApplications = @json(request()->is('approval/applications'));
+                if (isApprovalApplications) {
+                    if (detailButton) {
+                        detailButton.classList.add('disabled'); // Add a CSS class to style as disabled
+                        detailButton.style.pointerEvents = 'none'; // Disable click action
+                        detailButton.style.opacity = '0.5'; // Optional: Reduce opacity to indicate disabled state
+                    }
+                }
+            } else {
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                timer.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        // Update the timer every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    });
+});
+
+</script>
+

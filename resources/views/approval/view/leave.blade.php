@@ -31,12 +31,15 @@
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
                                         {{ \Carbon\Carbon::parse($leave->from_date)->format('d-M-Y') }}
+                                        ({{ config('global.leave_days')[$leave->from_day] ?? 'N/A' }})
                                     </td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">To Date <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($leave->to_date)->format('d-M-Y') }}</td>
+                                    <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($leave->to_date)->format('d-M-Y') }}
+                                    ({{ config('global.leave_days')[$leave->to_day] ?? 'N/A' }})
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">No. of Days<span class="pull-right d-none d-sm-block">:</span>

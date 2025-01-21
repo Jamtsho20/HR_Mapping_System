@@ -21,6 +21,7 @@ class TravelAuthorizationApprovalController extends Controller
         try {
             $user = auth()->user();
             $statuses = [];
+            $name = $request->input('name');
             $applicationType = \App\Models\TravelAuthorizationApplication::class; // Default application type
             $tab = null;
 
@@ -67,11 +68,22 @@ class TravelAuthorizationApprovalController extends Controller
                 })
                 ->whereYear('created_at', Carbon::now()->year); // Apply the condition inside the callback
             })
-
+            ->when($name, function ($query) use ($name) {
+                $query->whereHas('employee', function ($query) use ($name) {
+                    $query->where('name', 'like', "%{$name}%"); // Filter by name
+                });
+            })
             ->whereIn('status', $statuses)   // Filter by the statuses
             ->orderBy('created_at')  // Order by created date
             ->get();
 
+            $mappedModel = TravelAuthorizationApplication::class;
+            $travelAuthorizations = $travelAuthorizations->map(function ($travelAuthorization) use ($mappedModel) {
+                $travelAuthorization->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $travelAuthorization->id)
+                    ->value('remarks');
+                return $travelAuthorization;
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Travel authorization applications fetched successfully',

@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\HolidayListController;
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
+use App\Http\Controllers\Api\v1\TeamApiController;
 
 
 /*
@@ -54,6 +55,7 @@ Route::middleware('api.access.log')->group(function () {
 
     Route::namespace('Api\v1')->middleware('auth:sanctum')->group(function () {
         Route::resource('approval_count', 'GeneralApporvalController');
+        Route::resource('my_team', 'TeamApiController');
 
     });
 

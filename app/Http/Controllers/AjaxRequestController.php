@@ -201,8 +201,14 @@ class AjaxRequestController extends Controller
 
             // Calculate initial days with adjustments
             $dayDifference = $toDate->diff($fromDate)->days;
-            $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
-            $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
+            //added new due to issue on date 1/20/25
+            if ($leaveTypeId == 2) {
+                $fromDayAdjustment = 1;
+                $toDayAdjustment = 1;
+            } else {
+                $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
+                $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
+            }
             $totalDays = ($dayDifference === 0)
                 ? $fromDayAdjustment + $toDayAdjustment - 1
                 : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;

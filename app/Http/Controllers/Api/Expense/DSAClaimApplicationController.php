@@ -16,6 +16,7 @@ use App\Models\TravelAuthorizationApplication;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
 use App\Http\Controllers\AjaxRequestController;
+use App\Models\ApplicationHistory;
 
 use App\Services\ApplicationHistoriesService;
 
@@ -107,6 +108,13 @@ class DSAClaimApplicationController extends Controller
         try{
             $user = loggedInUser();
             $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
+            $mappedModel = DSAClaimApplication::class;
+            $dsaClaimApplications = $dsaClaimApplications->map(function ($dsaClaimApplication) use ($mappedModel) {
+                $dsaClaimApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $dsaClaimApplication->id)
+                    ->value('remarks');
+                return $dsaClaimApplication;
+            });
             return $this->successResponse($dsaClaimApplications, 'DSA claim applications retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
