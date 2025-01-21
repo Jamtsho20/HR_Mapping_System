@@ -52,7 +52,7 @@ class TravelAuthorizationApplication extends Model
     {
         return $this->belongsTo(MasTravelType::class, 'type_id');
     }
-    
+
     public function type()
     {
         return $this->belongsTo(MasTravelType::class, 'type_id');
@@ -87,7 +87,7 @@ class TravelAuthorizationApplication extends Model
         if ($request->has('status') && $request->query('status') !== '') {
             $query->where('status', '=', $request->query('status'));
         }
-        
+
 
         // if ($request->filled('from_date') && $request->filled('to_date')) {
         //     $query->whereBetween('date', [$request->from_date, $request->to_date]);
@@ -115,12 +115,18 @@ class TravelAuthorizationApplication extends Model
             ->whereMonth('date', $month);
         }
     // elseif ($request->filled('to_date')) {
-    //     $query->where('date', '<=', $request->to_date); 
+    //     $query->where('date', '<=', $request->to_date);
     // }
 
     if ($request->filled('travel_type')) {
         $query->whereHas('travelType', function ($subQuery) use ($request) {
             $subQuery->where('name', 'like', '%' . $request->travel_type . '%');
+        });
+    }
+
+    if ($request->has('name') && $request->get('name') != '') {
+        $query->whereHas('employee', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->get('name') . '%');
         });
     }
     }
