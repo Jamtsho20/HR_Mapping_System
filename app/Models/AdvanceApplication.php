@@ -124,6 +124,12 @@ class AdvanceApplication extends Model
             });
         }
 
+        if ($request->has('name') && $request->get('name') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('name') . '%');
+            });
+        }
+
 
     }
 
