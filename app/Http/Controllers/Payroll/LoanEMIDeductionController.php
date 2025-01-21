@@ -81,7 +81,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->mas_employee_id = $validated['mas_employee_id'];
             $loanEMIDeduction->start_date = $validated['start_date'];
             $loanEMIDeduction->end_date = $validated['end_date'];
-            $loanEMIDeduction->loan_type = $validated['loan_type_id'];
+            $loanEMIDeduction->loan_type_id = $validated['loan_type_id'];
             $loanEMIDeduction->loan_number = $validated['loan_number'];
             $loanEMIDeduction->amount = $validated['amount'];
             $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
