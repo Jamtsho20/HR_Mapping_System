@@ -25,7 +25,7 @@
                     <select name="mas_employee_id" id="mas_employee_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($employees as $employee)
-                        <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->employee_id }})
+                        <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}
                         </option>
                         @endforeach
                     </select>
