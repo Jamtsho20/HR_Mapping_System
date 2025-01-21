@@ -39,7 +39,7 @@ class LoanEMIDeductionController extends Controller
     {
         $loanTypes = MasLoanType::all();
         $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->whereIn('id', [17,18,19,20,21,22,23,24])->get(); // only loans
-        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username'])->get();
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
         return view('payroll.loan-emi-deductions.create', compact('payHeads', 'employees','loanTypes'));
     }
