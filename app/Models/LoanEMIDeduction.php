@@ -22,6 +22,10 @@ class LoanEMIDeduction extends Model
         return $this->belongsTo(MasPayHead::class, 'mas_pay_head_id');
     }
 
+    public function loanType() {
+        return $this->belongsTo(MasLoanType::class, 'loan_type_id', 'id');
+    }
+
     //filters
     public function scopeFilter($query, $request)
     {
