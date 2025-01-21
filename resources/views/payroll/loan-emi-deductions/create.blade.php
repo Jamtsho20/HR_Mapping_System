@@ -36,11 +36,11 @@
                         required="required">
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="loan_type">Loan Type <span class="text-danger">*</span></label>
-                    <select name="loan_type" id="loan_type" class="form-control select2" required="required">
+                    <label for="loan_type_id">Loan Type <span class="text-danger">*</span></label>
+                    <select name="loan_type_id" id="loan_type_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($loanTypes as $loanType)
-                        <option value="{{ $loanType->id }}" {{ old('loan_type', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
+                        <option value="{{ $loanType->id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
                             {{ $loanType->name }} 
                         </option>
                         @endforeach
