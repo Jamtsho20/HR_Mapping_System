@@ -112,6 +112,9 @@
                                                         @endforelse
                                                     </tbody>
                                                 </table>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    {{ $loanEMIDeductions->links() }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
