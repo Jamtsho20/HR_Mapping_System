@@ -39,7 +39,7 @@ class LoanEMIDeductionController extends Controller
     {
         $loanTypes = MasLoanType::all();
         $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->whereIn('id', [17,18,19,20,21,22,23,24])->get(); // only loans
-        $employees = User::filter($request)->select(['id', 'name', 'employee_id'])->get();
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
         return view('payroll.loan-emi-deductions.create', compact('payHeads', 'employees','loanTypes'));
     }
@@ -56,7 +56,7 @@ class LoanEMIDeductionController extends Controller
                     'mas_employee_id' => 'required',
                     'start_date' => 'required|date',
                     'amount' => 'required',
-                    'loan_type' => 'required',
+                    'loan_type_id' => 'required',
                     'loan_number' => 'required',
                     'recurring_months' => ['required_if:recurring,true', 'integer', 'min:1'],
                 ],
@@ -81,7 +81,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->mas_employee_id = $validated['mas_employee_id'];
             $loanEMIDeduction->start_date = $validated['start_date'];
             $loanEMIDeduction->end_date = $validated['end_date'];
-            $loanEMIDeduction->loan_type = $validated['loan_type'];
+            $loanEMIDeduction->loan_type_id = $validated['loan_type_id'];
             $loanEMIDeduction->loan_number = $validated['loan_number'];
             $loanEMIDeduction->amount = $validated['amount'];
             $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
@@ -90,7 +90,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->is_paid_off = $request->is_paid_off ?? false;
             $loanEMIDeduction->save();
 
-            return redirect()->route('loan-emi-deductions.index')->with('success', 'Loan EMI Deduction created successfully.');
+            return redirect()->route('loan-emi-deductions.index')->with('msg_success', 'Loan EMI Deduction created successfully.');
         } catch (\Exception $e) {
             Log::error('Error creating Loan EMI Deduction: ' . $e->getMessage());
 
