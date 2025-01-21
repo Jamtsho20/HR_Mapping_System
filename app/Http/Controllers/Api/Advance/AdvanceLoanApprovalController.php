@@ -36,6 +36,7 @@ class AdvanceLoanApprovalController extends Controller
             $employeeLists = employeeList();
             $currentUser = auth()->user();
             $statusParam = $request->input('status'); // E.g., 'pending', 'approved', 'rejected'
+            $name = $request->input('name'); // Get the name parameter from the request
             $statuses = [];
             $applicationType = 'App\Models\AdvanceApplication'; // Default application type
             $tab = null;
@@ -83,26 +84,30 @@ class AdvanceLoanApprovalController extends Controller
                     })
                     ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
                 })
+                ->when($name, function ($query) use ($name) {
+                    $query->whereHas('employee', function ($query) use ($name) {
+                        $query->where('name', 'like', "%{$name}%"); // Filter by name
+                    });
+                })
                 ->whereIn('status', $statuses) // Filter based on statuses
                 ->filter($request, false)
                 ->orderBy('created_at')
                 ->get();
 
-                $mappedModel = AdvanceApplication::class;
-                $advances = $advances->map(function ($advance) use ($mappedModel) {
-                    $advance->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                        ->where('application_id', $advance->id)
-                        ->value('remarks');
-                    return $advance;
-                });
+            $mappedModel = AdvanceApplication::class;
+            $advances = $advances->map(function ($advance) use ($mappedModel) {
+                $advance->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $advance->id)
+                    ->value('remarks');
+                return $advance;
+            });
+
             return response()->json(['advances' => $advances], 200);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 404);
         }
-
-
-
     }
+
 
 
     /**
