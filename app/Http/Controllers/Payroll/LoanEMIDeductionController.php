@@ -90,7 +90,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->is_paid_off = $request->is_paid_off ?? false;
             $loanEMIDeduction->save();
 
-            return redirect()->route('loan-emi-deductions.index')->with('success', 'Loan EMI Deduction created successfully.');
+            return redirect()->route('loan-emi-deductions.index')->with('msg_success', 'Loan EMI Deduction created successfully.');
         } catch (\Exception $e) {
             Log::error('Error creating Loan EMI Deduction: ' . $e->getMessage());
 
