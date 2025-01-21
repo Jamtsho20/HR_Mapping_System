@@ -77,7 +77,6 @@
                                                                         <i class="fa fa-times-circle text-danger"></i>
                                                                     @endif
                                                                 </td>
-                                                                <td>{{ $record->remarks }} </td>
                                                                 <td>{{ $record->created_at ? $record->created_at->format('Y-m-d H:i:s') : '-' }}
                                                                 </td>
                                                                 <td>{{ $record->updated_at ? $record->updated_at->format('Y-m-d H:i:s') : '-' }}
