@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->references('id')->constrained('mas_employees');
             $table->foreignId('pay_head_id')->references('id')->constrained('mas_pay_heads');
+            $table->string('policy_number');
             $table->float('amount');
 
             $table->timestamps();
