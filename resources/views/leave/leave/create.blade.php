@@ -103,17 +103,33 @@
         if (fromDateField) {
             fromDateField.min = '2025-01-01'; // Setting the minimum date
         };
-            const form = document.getElementById('apply_leave');
-            const loader = document.getElementById('loader');
-            const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('apply_leave');
+        const loader = document.getElementById('loader');
+        const submitBtn = document.getElementById('submitBtn');
 
-            form.addEventListener('submit', function(e) {
-                // Show loader
-                loader.style.display = 'flex';
-            });
+        form.addEventListener('submit', function(e) {
+            // Show loader
+            loader.style.display = 'flex';
         });
+    });
 
 
+    const leaveTypeSelect = document.getElementById('leave_type');
+    const leaveBalanceField = document.getElementById('leave_balance').closest('.col-md-4'); // Hide the entire column
+
+    const toggleLeaveBalance = () => {
+        if (leaveTypeSelect.value == '3') {
+            leaveBalanceField.style.display = 'none';
+        } else {
+            leaveBalanceField.style.display = 'block';
+        }
+    };
+
+    // Initial check when page loads (if old value exists)
+    toggleLeaveBalance();
+
+    // Listen for change in leave type dropdown
+    leaveTypeSelect.addEventListener('change', toggleLeaveBalance);
 
     const calculateLeaveDays = () => {
         const leaveType = $('#leave_type').val();

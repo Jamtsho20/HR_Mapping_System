@@ -37,6 +37,7 @@
                                                             <th> Pay Head </th>
                                                             <th> Employee </th>
                                                             <th> Amount </th>
+                                                            <th> Loan Type </th>
                                                             <th> Start Date </th>
                                                             <th>
                                                                 End Date
@@ -71,6 +72,7 @@
                                                                 <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->employee->emp_id_name }} </td>
                                                                 <td>{{ $record->amount }} </td>
+                                                                <td>{{ $record->loanType?->name }} </td>
                                                                 <td> {{ $record->start_date ? \Carbon\Carbon::parse($record->start_date)->format('M d, Y') : '-' }}
                                                                 </td>
                                                                 <td> {{ $record->end_date ? \Carbon\Carbon::parse($record->end_date)->format('M d, Y') : '-' }}
