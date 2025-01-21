@@ -2,9 +2,12 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-                <p class="text-danger large" style="text-indent: -0.8em; padding-left: 1.5em;">
-                    * The approval option will be disabled if the grace period of 3 days from the applied date expires, and you will no longer be able to approve the travel authorization.
-                </p>
+                @if (request()->is('approval/applications'))
+                    <p class="text-danger large" style="text-indent: -0.8em; padding-left: 1.5em;">
+                        * The approval option will be disabled if the grace period of 3 days from the applied date expires,
+                        and you will no longer be able to approve the travel authorization.
+                    </p>
+                @endif
 
                 <div class="table-responsive">
                     <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -22,7 +25,9 @@
                                     <th>EMPLOYEE</th>
                                     <th>TRAVEL TYPES</th>
                                     <th>ESTIMATED EXPENSES</th>
+                                    @if (request()->is('approval/applications'))
                                     <th>TIME LEFT FOR APPROVAL</th>
+                                    @endif
                                     <th>STATUS</th>
                                     <th>ACTION</th>
                                 </tr>
@@ -40,7 +45,9 @@
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                        @if (request()->is('approval/applications'))
                                         <td id="timeLeftForApproval-{{ $travelAuthorization->id }}" class=" text-danger"></td>
+                                        @endif
                                         <td>@php
                                             $statusClasses = [
                                                 -1 => 'badge bg-danger',
@@ -131,10 +138,13 @@
                 timer.innerText = 'Expired';
                 timer.style.color = 'red';
                 if (checkbox) checkbox.disabled = true; // Disable checkbox
-                if (detailButton) {
-                    detailButton.classList.add('disabled'); // Add a CSS class to style as disabled
-                    detailButton.style.pointerEvents = 'none'; // Disable click action
-                    detailButton.style.opacity = '0.5'; // Optional: Reduce opacity to indicate disabled state
+                const isApprovalApplications = @json(request()->is('approval/applications'));
+                if (isApprovalApplications) {
+                    if (detailButton) {
+                        detailButton.classList.add('disabled'); // Add a CSS class to style as disabled
+                        detailButton.style.pointerEvents = 'none'; // Disable click action
+                        detailButton.style.opacity = '0.5'; // Optional: Reduce opacity to indicate disabled state
+                    }
                 }
             } else {
                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));

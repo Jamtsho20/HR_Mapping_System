@@ -13,7 +13,7 @@
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="for_month">Deduction <span class="text-danger">*</span></label>
-                    <select name="mas_pay_head_id" id="mas_pay_head_id" class="form-control" required="required">
+                    <select name="mas_pay_head_id" id="mas_pay_head_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($payHeads as $payHead)
                         <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
@@ -22,7 +22,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="mas_employee_id">Employee <span class="text-danger">*</span></label>
-                    <select name="mas_employee_id" id="mas_employee_id" class="form-control" required="required">
+                    <select name="mas_employee_id" id="mas_employee_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($employees as $employee)
                         <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->employee_id }})
@@ -37,7 +37,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="loan_type">Loan Type <span class="text-danger">*</span></label>
-                    <select name="loan_type" id="loan_type" class="form-control" required="required">
+                    <select name="loan_type" id="loan_type" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($loanTypes as $loanType)
                         <option value="{{ $loanType->id }}" {{ old('loan_type', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>

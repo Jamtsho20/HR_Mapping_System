@@ -30,6 +30,7 @@ class LeaveEncashmentApprovalController extends Controller
         try {
             $user = auth()->user();
             $statuses = [];
+            $name = $request->input('name');
             $applicationType = \App\Models\LeaveEncashmentApplication::class; // Default application type
             $tab = null;
 
@@ -79,6 +80,11 @@ class LeaveEncashmentApprovalController extends Controller
                           ->where('action_performed_by', $user->id);
                 })
                 ->whereYear('created_at', Carbon::now()->year); // Apply the condition inside the callback
+            })
+            ->when($name, function ($query) use ($name) {
+                $query->whereHas('employee', function ($query) use ($name) {
+                    $query->where('name', 'like', "%{$name}%"); // Filter by name
+                });
             })
             ->whereIn('status', $statuses) // Filter based on statuses
             ->filter($request, false)
