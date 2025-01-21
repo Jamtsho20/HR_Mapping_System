@@ -40,30 +40,13 @@
                                                             <th> Amount </th>
                                                             <th> Loan No. </th>
                                                             <th> Start Date </th>
-                                                            <th>
-                                                                End Date
-                                                            </th>
-                                                            <th>
-                                                                Recurring
-                                                            </th>
-                                                            <th>
-                                                                Recurring Months
-                                                            </th>
-                                                            <th>
-                                                                Paid off early
-                                                            </th>
-                                                            <th>
-                                                                Remarks
-                                                            </th>
-                                                            <th>
-                                                                Created At
-                                                            </th>
-                                                            <th>
-                                                                Updated At
-                                                            </th>
-                                                            <th>
-                                                                Action
-                                                            </th>
+                                                            <th> End Date </th>
+                                                            <th> Recurring </th>
+                                                            <th> Recurring Months </th>
+                                                            <th> Paid off early </th>
+                                                            <th> Created At </th>
+                                                            <th> Updated At </th>
+                                                            <th> Action </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
