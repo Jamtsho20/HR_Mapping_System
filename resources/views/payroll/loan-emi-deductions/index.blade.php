@@ -10,12 +10,31 @@
 
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-8 form-group">
-                <input type="text" name="for_month" class="form-control" value="{{ request()->get('for_month') }}"
-                    placeholder="Search">
+            <div class="col-3 form-group">
+                <select name="payhead" class="form-control select2">
+                    <option value="">-- Select Payhead --</option>
+                    @foreach($payHeads as $id => $name)
+                        <option value="{{ $id }}" {{ old('payhead', request()->get('payhead')) == $id ? 'selected' : '' }} >{{ $name }}</option>
+                    @endforeach
+                </select>
             </div>
-        @endcomponent
-
+            <div class="col-3 form-group">
+                <select name="employee" class="form-control select2">
+                    <option value="">-- Select Employee --</option>
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}" {{ old('employee', request()->get('employee')) == $employee->id ? 'selected' : '' }} >{{ $employee->emp_id_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-3 form-group">
+                <select name="loantype" class="form-control select2">
+                    <option value="">-- Select Loan Type --</option>
+                    @foreach($loanTypes as $id => $name)
+                        <option value="{{ $id }}" {{ old('loantype', request()->get('loantype')) == $id ? 'selected' : '' }} >{{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>         
+    @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
                 <div class="card">

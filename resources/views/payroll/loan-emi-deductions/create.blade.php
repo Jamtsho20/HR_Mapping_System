@@ -16,7 +16,7 @@
                     <select name="mas_pay_head_id" id="mas_pay_head_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($payHeads as $payHead)
-                        <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
+                            <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -25,7 +25,7 @@
                     <select name="mas_employee_id" id="mas_employee_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($employees as $employee)
-                        <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}
+                            <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}
                         </option>
                         @endforeach
                     </select>
@@ -40,7 +40,7 @@
                     <select name="loan_type_id" id="loan_type_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($loanTypes as $loanType)
-                        <option value="{{ $loanType->id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
+                            <option value="{{ $loanType->id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
                             {{ $loanType->name }} 
                         </option>
                         @endforeach
