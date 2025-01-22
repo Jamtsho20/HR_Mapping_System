@@ -29,12 +29,16 @@ class LoanEMIDeduction extends Model
     //filters
     public function scopeFilter($query, $request)
     {
-        if ($request->has('pay_head') && $request->query('pay_head') != '') {
-            $query->where('pay_head', $request->query('pay_head'));
+        if ($request->has('payhead') && $request->query('payhead') != '') {
+            $query->where('mas_pay_head_id', $request->query('payhead'));
         }
 
         if ($request->has('employee') && $request->query('employee') != '') {
-            $query->where('employee', 'LIKE', '%' . $request->query('employee') . '%');
+            $query->where('mas_employee_id', $request->query('employee'));
+        }
+
+        if ($request->has('loantype') && $request->query('loantype') != '') {
+            $query->where('loan_type_id', $request->query('loantype'));
         }
     }
 }

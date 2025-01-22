@@ -21,7 +21,7 @@
                 <div class="form-group col-md-6">
                     <label for="mas_employee_id">Employee <span class="text-danger">*</span></label>
                     <select name="mas_employee_id" id="mas_employee_id" class="form-control" required="required">
-                        <option value="{{ $loanEMIDeduction->employee->id }}">{{ $loanEMIDeduction->employee->name }}
+                        <option value="{{ $loanEMIDeduction->employee->id }}">{{ $loanEMIDeduction->employee->emp_id_name }}
                             ({{ $loanEMIDeduction->employee->employee_id }})</option>
                     </select>
                 </div>
@@ -32,7 +32,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="loan_type_id">Loan Type <span class="text-danger">*</span></label>
-                    <select name="loan_type_id" id="loan_type_id" class="form-control" required="required">
+                    <select name="loan_type_id" id="loan_type_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($loanTypes as $id => $name)
                             <option value="{{ $id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id) == $id ? 'selected' : '' }}>{{ $name }}</option>
