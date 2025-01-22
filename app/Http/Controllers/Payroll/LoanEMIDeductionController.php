@@ -87,7 +87,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
             $loanEMIDeduction->recurring_months = $validated['recurring_months'];
             $loanEMIDeduction->remarks = $request->remarks;
-            $loanEMIDeduction->is_paid_off = $request->is_paid_off ?? false;
+            $loanEMIDeduction->is_paid_off = $request->paid_off_early ?? false;
             $loanEMIDeduction->save();
 
             return redirect()->route('loan-emi-deductions.index')->with('msg_success', 'Loan EMI Deduction created successfully.');
@@ -112,8 +112,9 @@ class LoanEMIDeductionController extends Controller
     public function edit(string $id)
     {
         $loanEMIDeduction = LoanEMIDeduction::findOrFail($id);
+        $loanTypes = MasLoanType::pluck('name', 'id');
 
-        return view('payroll.loan-emi-deductions.edit', compact('loanEMIDeduction'));
+        return view('payroll.loan-emi-deductions.edit', compact('loanEMIDeduction', 'loanTypes'));
     }
 
     /**
@@ -121,7 +122,55 @@ class LoanEMIDeductionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            // Validate the incoming request
+            $validated = $request->validate(
+                [
+                    'mas_pay_head_id' => 'required',
+                    'mas_employee_id' => 'required',
+                    'start_date' => 'required|date',
+                    'amount' => 'required|numeric',
+                    'loan_type_id' => 'required',
+                    'loan_number' => 'required',
+                    'recurring_months' => ['required_if:recurring,true', 'integer', 'min:1'],
+                ],
+                [
+                    'mas_pay_head_id.required' => 'Pay Head field is required',
+                    'mas_employee_id.required' => 'Employee field is required',
+                ]
+            );
+    
+            $loanEMIDeduction = LoanEMIDeduction::findOrFail($id);
+    
+            $startDate = Carbon::parse($validated['start_date'])->startOfMonth();
+            $validated['start_date'] = $startDate->format('Y-m-d');
+    
+            if ($request->has('recurring')) {
+                $recurringMonths = $validated['recurring_months'] ?? 0;
+                $validated['end_date'] = $startDate->copy()->addMonths($recurringMonths)->format('Y-m-d');
+            } else {
+                $validated['end_date'] = $startDate->format('Y-m-d');
+            }
+    
+            $loanEMIDeduction->mas_pay_head_id = $validated['mas_pay_head_id'];
+            $loanEMIDeduction->mas_employee_id = $validated['mas_employee_id'];
+            $loanEMIDeduction->start_date = $validated['start_date'];
+            $loanEMIDeduction->end_date = $validated['end_date'];
+            $loanEMIDeduction->loan_type_id = $validated['loan_type_id'];
+            $loanEMIDeduction->loan_number = $validated['loan_number'];
+            $loanEMIDeduction->amount = $validated['amount'];
+            $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
+            $loanEMIDeduction->recurring_months = $validated['recurring_months'];
+            $loanEMIDeduction->remarks = $request->remarks;
+            $loanEMIDeduction->is_paid_off = $request->paid_off_early ?? $loanEMIDeduction->is_paid_off;
+            $loanEMIDeduction->save();
+    
+            return redirect()->route('loan-emi-deductions.index')->with('msg_success', 'Loan EMI Deduction updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating Loan EMI Deduction: ' . $e->getMessage());
+    
+            return redirect()->back()->withErrors('An error occurred while updating the Loan EMI Deduction.');
+        }
     }
 
     /**
