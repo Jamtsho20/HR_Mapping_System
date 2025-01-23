@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Other Pay Change')
+@section('buttons')
+    <a href="{{ route('other-pay-changes.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
+@endsection
 @section('content')
     <form action="{{ route('other-pay-changes.store') }}" method="POST">
         @csrf

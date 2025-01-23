@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Loan / Device Emi')
 @section('buttons')
-<a href="{{ route('loan-emi-deductions.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Payslip
-    List</a>
+<a href="{{ route('loan-emi-deductions.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
 
@@ -12,7 +11,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="form-group col-md-6">
-                    <label for="for_month">Deduction <span class="text-danger">*</span></label>
+                    <label for="mas_pay_head_id">Deduction <span class="text-danger">*</span></label>
                     <select name="mas_pay_head_id" id="mas_pay_head_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($payHeads as $payHead)
