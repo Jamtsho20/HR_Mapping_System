@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\ApprovalService;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
-
+use App\Models\ApplicationHistory;
 class LeaveEncashmentApprovalController extends Controller
 {
     use JsonResponseTrait;
@@ -30,6 +30,7 @@ class LeaveEncashmentApprovalController extends Controller
         try {
             $user = auth()->user();
             $statuses = [];
+            $name = $request->input('name');
             $applicationType = \App\Models\LeaveEncashmentApplication::class; // Default application type
             $tab = null;
 
@@ -60,9 +61,13 @@ class LeaveEncashmentApprovalController extends Controller
                     'employee.empjob.designation:id,name',
                 'employee.empjob.department:id,name',
                 'employee.empjob.section:id,name',
+                'employee.empleave' => function ($query) {
+                    $query->where('mas_leave_type_id', 2);  // Apply the filter directly while eager loading
+                },
                 'leave_approved_by:id,name,username',  // Load the approved by details
                 'histories:id,application_id,action_performed_by',  // Load necessary fields from the approval history
             ])
+
             ->when($tab === 'history', function ($query) use ($user, $applicationType) {
                 $query->whereHas('histories', function ($query) use ($user, $applicationType) {
                     $query->where('approver_emp_id', $user->id)
@@ -76,11 +81,23 @@ class LeaveEncashmentApprovalController extends Controller
                 })
                 ->whereYear('created_at', Carbon::now()->year); // Apply the condition inside the callback
             })
+            ->when($name, function ($query) use ($name) {
+                $query->whereHas('employee', function ($query) use ($name) {
+                    $query->where('name', 'like', "%{$name}%"); // Filter by name
+                });
+            })
             ->whereIn('status', $statuses) // Filter based on statuses
             ->filter($request, false)
             ->orderBy('created_at')
             ->get();
 
+            $mappedModel = LeaveEncashmentApplication::class;
+            $earnedLeave = $earnedLeave->map(function ($leave) use ($mappedModel) {
+                $leave->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $leave->id)
+                    ->value('remarks');
+                return $leave;
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Leave encashment applications fetched successfully',

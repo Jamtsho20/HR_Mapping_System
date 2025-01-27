@@ -34,7 +34,6 @@
                 value="{{ request()->get('search') }}"placeholder="Search by employee name or id. eg. tashi or 1050">
         </div>
     @endcomponent
-    <div class="col-lg-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Pay slip Overview</h3>
@@ -104,9 +103,7 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-lg-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Pay slip Detail</h3>
@@ -191,7 +188,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Add Pay Slip Detail Modal -->
     <div class="modal fade" id="add-pay-slip-detail-modal" tabindex="-1" aria-labelledby="add-pay-slip-detail-modal"

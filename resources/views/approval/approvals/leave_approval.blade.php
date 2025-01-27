@@ -40,6 +40,7 @@
                                     </th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 @forelse ($results->get(1) as $leave)
                                     <tr>

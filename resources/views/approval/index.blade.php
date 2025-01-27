@@ -31,6 +31,21 @@
                             data-item-type="" value="Reject">
                     </div>
                 @endif
+                @if (!request()->is('approval/applications'))
+                @component('layouts.includes.filter')
+
+                <div class="col-md-12 form-group">
+                    <select name="name" class="form-control select2" style="width: 100%" id="name-select">
+                        <option value="">Select Name</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->name }}" {{ request()->get('name') == $user->name ? 'selected' : '' }}>
+                                {{ $user->username }} - {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endcomponent
+                @endif
             </div>
             <br>
             <div class="row row-sm">
@@ -64,6 +79,7 @@
 
                         </div>
                         <div class="tab-content" id="pills-tabContent">
+
                             @foreach ($headers as $header)
                                 @php
                                     $sanitizedName = preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower($header->name));
@@ -105,6 +121,10 @@
 @endsection
 @push('page_scripts')
     <script>
+        $(document).ready(function() {
+    // Initialize Select2 on the select element
+    $('#name-select').select2();
+});
         // function showSuccessMessage(message) {
         //     Swal.fire({
         //         icon: 'success',
@@ -161,8 +181,9 @@
 
                 // Find the checkboxes only within the current active tab
                 $('.tab-pane.active .bulk_checkbox').each(function() {
-                    $(this).prop('checked',
-                        checkedStatus);
+                    if (!$(this).prop('disabled')) { // Check if the checkbox is not disabled
+                    $(this).prop('checked', checkedStatus);
+                }
                 });
             });
 
@@ -170,6 +191,7 @@
             if (activeTabContent.length) {
                 const activeType = activeTabContent.data('item-type');
                 const activeName = activeTabContent.data('item-name');
+
                 $('.buttonsubmit').each(function() {
                     $(this).attr('data-item-type', activeType);
                     $(this).attr('data-item-name', activeName);
@@ -191,7 +213,6 @@
             // Bulk approval/rejection
             $('.buttonsubmit').click(function() {
                 const activeTab = $('.tab-pane.active');
-
                 const itemName = activeTab.data('item-name');
                 const itemType = activeTab.data('item-type');
                 var action = $(this).data('value');

@@ -1064,65 +1064,65 @@ function initializeSelect2(selector) {
 $(document).ready(function () {
     initializeSelect2('.select2'); // Targets all elements with the .select2 class
 });
-    // Common success message function
-    function showSuccessMessage(message, reload = true, documentReferrer = null) {
+// Common success message function
+function showSuccessMessage(message, reload = true, documentReferrer = null) {
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: message,
-            width: '400px', // Set a smaller width for the popup
-            customClass: {
-                popup: 'p-3 border-success', // Add padding and Bootstrap border class
-                title: 'text-success fw-bold', // Green and bold title
-                confirmButton: 'btn btn-success btn-sm' // Small Bootstrap success button
-            },
-            timer: false,
-            confirmButtonText: 'OK', // Set the text of the button
-            showCloseButton: false,
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: message,
+        width: '400px', // Set a smaller width for the popup
+        customClass: {
+            popup: 'p-3 border-success', // Add padding and Bootstrap border class
+            title: 'text-success fw-bold', // Green and bold title
+            confirmButton: 'btn btn-success btn-sm' // Small Bootstrap success button
+        },
+        timer: false,
+        confirmButtonText: 'OK', // Set the text of the button
+        showCloseButton: false,
 
-            willClose: () => {
-                if (reload) location.reload(); // Optionally reload the page
+        willClose: () => {
+            if (reload) location.reload(); // Optionally reload the page
 
+        }
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            if (documentReferrer) {
+                window.location.href = documentReferrer; // Redirect to the referrer
+            } else if (reload) {
+                location.reload(); // Reload the page if no referrer is provided
             }
-        }).then((result) => {
+        }
+    });
+}
 
-            if (result.isConfirmed) {
-                if (documentReferrer) {
-                    window.location.href = documentReferrer; // Redirect to the referrer
-                } else if (reload) {
-                    location.reload(); // Reload the page if no referrer is provided
-                }
+// Common error message function
+function showErrorMessage(message, reload = false, documentReferrer = null) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        width: '400px', // Small popup
+        customClass: {
+            popup: 'p-3 border-danger', // Add padding and Bootstrap border class
+            title: 'text-danger fw-bold', // Red and bold title
+            confirmButton: 'btn btn-danger btn-sm' // Small Bootstrap error button
+        },
+        timer: false,
+        confirmButtonText: 'OK', // Set the text of the button
+        showCloseButton: false,
+        willClose: () => {
+            if (reload) location.reload(); // Optionally reload the page
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (documentReferrer) {
+                window.location.href = documentReferrer;
             }
-        });
-    }
-
-    // Common error message function
-    function showErrorMessage(message, reload = false, documentReferrer = null) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: message,
-            width: '400px', // Small popup
-            customClass: {
-                popup: 'p-3 border-danger', // Add padding and Bootstrap border class
-                title: 'text-danger fw-bold', // Red and bold title
-                confirmButton: 'btn btn-danger btn-sm' // Small Bootstrap error button
-            },
-            timer: false,
-            confirmButtonText: 'OK', // Set the text of the button
-            showCloseButton: false,
-            willClose: () => {
-                if (reload) location.reload(); // Optionally reload the page
-            }
-        }).then((result) => {
-            if(result.isConfirmed) {
-                if (documentReferrer) {
-                    window.location.href = documentReferrer;
-                }
-            }
-        });
-    }
+        }
+    });
+}
 
 
 fileBrowseInput.addEventListener("change", (e) => handleSelectedFiles(e.target.files));

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\JsonResponseTrait;
 use Carbon\Carbon;
-
+use App\Models\ApplicationHistory;
 class LeaveApprovalController extends Controller
 {
     use JsonResponseTrait;
@@ -44,6 +44,7 @@ class LeaveApprovalController extends Controller
     {
         try {
             $currentUser = auth()->user();
+            $name = $request->input('name');
             $leaveTypes = MasLeaveType::get(['id', 'name']);
             $statuses = [];
             $applicationType = \App\Models\LeaveApplication::class; // Default application type
@@ -92,10 +93,23 @@ class LeaveApprovalController extends Controller
                 })
                 ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
             })
+            ->when($name, function ($query) use ($name) {
+                $query->whereHas('employee', function ($query) use ($name) {
+                    $query->where('name', 'like', "%{$name}%"); // Filter by name
+                });
+            })
             ->whereIn('status', $statuses) // Filter based on statuses
             ->filter($request, false)
             ->orderBy('created_at')
             ->get();
+
+            $mappedModel = LeaveApplication::class;
+            $leaveApplications = $leaveApplications->map(function ($leave) use ($mappedModel) {
+                $leave->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+                    ->where('application_id', $leave->id)
+                    ->value('remarks');
+                return $leave;
+            });
 
             return response()->json([
                 'success' => true,

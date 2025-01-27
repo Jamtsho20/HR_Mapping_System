@@ -14,6 +14,7 @@ use App\Mail\InitiatorNotificationMail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ApplicationHistory;
 
 class ApprovalController extends Controller
 {
@@ -36,6 +37,7 @@ class ApprovalController extends Controller
         $applicationModels = config('global.applications');
 
         $results = collect();
+
 
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
@@ -71,6 +73,7 @@ class ApprovalController extends Controller
         $applicationType = $request->item_type_id; // Leave / Expense / Advance / Dsa Claim / Transfer Carriage / Transfer Grant
         $action = $request->action;
         $itemIds = $request->item_ids;
+
         $status = ($action === 'approve') ? 2 : -1;
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
@@ -141,7 +144,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-                    
+
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -290,8 +293,13 @@ class ApprovalController extends Controller
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
-    }
+        $rejectRemarks = ApplicationHistory::where('application_type', $mappedModel['name'])
+        ->where('application_id', $id)
+        ->value('remarks'); // Assuming `reject_remarks` is the column name
+        $data->reject_remarks = $rejectRemarks;
+    // Pass the reject remarks to the view
+    return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
+}
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
     {
@@ -331,7 +339,7 @@ class ApprovalController extends Controller
         $privileges['view'] = 1;
         $headers = MasApprovalHead::all();
         $user = auth()->user();
-
+        $users = User::select('id', 'username', 'name') ->whereNotIn('id', [1, 2]) ->get();
         $applicationModels = config('global.applications');
         $results = collect();
         $specificCondition = false;
@@ -369,9 +377,21 @@ class ApprovalController extends Controller
                     return $item;
                 });
             }
+
+            elseif ($request->is('approval/rejected-applications*')) {
+                $data->getCollection()->transform(function ($item) use ($modelClass) {
+                    $item->reject_remarks = ApplicationHistory::where('application_type', $modelClass)
+                        ->where('application_id', $item->id)
+                        ->value('remarks'); // Fetch the reject_remarks
+                    return $item;
+                });
+            }
+
             $results->put($key, $data);
+
         }
 
-        return view('approval.index', compact('privileges', 'headers', 'results'));
+
+        return view('approval.index', compact('privileges', 'headers', 'results' ,'users'));
     }
 }

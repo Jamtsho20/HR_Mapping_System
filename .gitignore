@@ -5,16 +5,17 @@
 /public/hot
 /public/storage
 /public/images
-/bootstrap/cache/*
+/bootstrap/cache/services.php
 # /public/images/advance
 # /public/images/employee
 # /public/images/expenses
 # /public/images/files
 # /public/images/leaves
-# /public/images/sifa
+# /public/images/sifas
 # /public/images/users
 /storage/*.key
 /storage/payslips
+/app/Http/constant.php
 /vendor
 .env
 .env.backup

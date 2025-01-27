@@ -184,14 +184,17 @@
 </head>
 
 <body>
-    @include('layouts.includes.letter-head')
     <main>
-        <div>
-            <div class="font-1_3 mt-5 mb-6" style="border-top: 1px solid #000; padding-top: 7px;">
-                <center><strong>PAY SLIP</strong></center>
-            </div>
-            @yield('content')
+        <div style="text-align: center;">
+            <img 
+                style="width:690px; display: block; margin: 0 auto; border-bottom: 1px solid #000;" 
+                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/letterhead.png'))) }}" 
+                alt="Letter Head">
         </div>
+        <div class="font-1_3 mt-5 mb-6" style="padding-top: 7px;">
+            <center><strong>PAY SLIP</strong></center>
+        </div>
+        @yield('content')
     </main>
     <footer>
         <br>

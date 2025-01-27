@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Loan / Device Emi')
 @section('buttons')
-<a href="{{ route('loan-emi-deductions.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Payslip
-    List</a>
+<a href="{{ route('loan-emi-deductions.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
 
@@ -13,7 +12,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="form-group col-md-6">
-                    <label for="for_month">Deduction <span class="text-danger">*</span></label>
+                    <label for="mas_pay_head_id">Deduction <span class="text-danger">*</span></label>
                     <select name="mas_pay_head_id" id="mas_pay_head_id" class="form-control" required="required">
                         <option value="{{ $loanEMIDeduction->payHead->id }}">{{ $loanEMIDeduction->payHead->name }}</option>
                     </select>
@@ -21,7 +20,7 @@
                 <div class="form-group col-md-6">
                     <label for="mas_employee_id">Employee <span class="text-danger">*</span></label>
                     <select name="mas_employee_id" id="mas_employee_id" class="form-control" required="required">
-                        <option value="{{ $loanEMIDeduction->employee->id }}">{{ $loanEMIDeduction->employee->name }}
+                        <option value="{{ $loanEMIDeduction->employee->id }}">{{ $loanEMIDeduction->employee->emp_id_name }}
                             ({{ $loanEMIDeduction->employee->employee_id }})</option>
                     </select>
                 </div>
@@ -31,11 +30,11 @@
                         required="required">
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="loan_type">Loan Type <span class="text-danger">*</span></label>
-                    <select name="loan_type" id="loan_type" class="form-control" required="required">
+                    <label for="loan_type_id">Loan Type <span class="text-danger">*</span></label>
+                    <select name="loan_type_id" id="loan_type_id" class="form-control select2" required="required">
                         <option value="">Select</option>
-                        @foreach (config('global.loan_type') as $type)
-                        <option value="{{ $type}}" {{ old('loan_type', $loanEMIDeduction->loan_type) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                        @foreach ($loanTypes as $id => $name)
+                            <option value="{{ $id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id) == $id ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -57,7 +56,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label class="custom-switch">
-                        <input type="checkbox" name="paid_off_early" class="custom-switch-input" value="1" {{ old('paid_off_early', $loanEMIDeduction->paid_off_early) ? 'checked' : '' }}>
+                        <input type="checkbox" name="paid_off_early" class="custom-switch-input" value="1" {{ old('paid_off_early', $loanEMIDeduction->is_paid_off) ? 'checked' : '' }}>
                         <span class="custom-switch-indicator"></span> &nbsp;<span>Paid off early</span>
                     </label>
                 </div>

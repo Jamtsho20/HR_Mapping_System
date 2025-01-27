@@ -71,51 +71,63 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'mas_employee_roles', 'mas_employee_id', 'role_id');
     }
 
-    public function region(){
+    public function region()
+    {
         return $this->hasMany(MasRegion::class, 'mas_employee_id');
     }
 
-    public function empGroups(){
+    public function empGroups()
+    {
         return $this->belongsToMany(MasEmployeeGroup::class, 'mas_employee_group_maps', 'mas_employee_id', 'mas_employee_group_id');
     }
 
-    public function empJob(){
+    public function empJob()
+    {
         return $this->hasOne(MasEmployeeJob::class, 'mas_employee_id');
     }
 
-    public function empDoc(){
+    public function empDoc()
+    {
         return $this->hasOne(MasEmployeeDocument::class, 'mas_employee_id');
     }
 
-    public function empQualifications(){
+    public function empQualifications()
+    {
         return $this->hasMany(MasEmployeeQualification::class, 'mas_employee_id');
     }
 
-    public function empPermenantAddress(){
+    public function empPermenantAddress()
+    {
         return $this->hasOne(MasEmployeePermenantAddress::class, 'mas_employee_id');
     }
 
-    public function empPresentAddress(){
+    public function empPresentAddress()
+    {
         return $this->hasOne(MasEmployeePresentAddress::class, 'mas_employee_id');
     }
 
-    public function empTrainings(){
+    public function empTrainings()
+    {
         return $this->hasMany(MasEmployeeTraining::class, 'mas_employee_id');
     }
 
-    public function empExperiences(){
+    public function empExperiences()
+    {
         return $this->hasMany(MasEmployeeExperience::class, 'mas_employee_id');
     }
 
-    public function employeeGroupMap(){
+    public function employeeGroupMap()
+    {
         return $this->hasMany(MasEmployeeGroupMap::class, 'mas_employee_id');
     }
 
-    public function empLeave(){
+    public function empLeave()
+    {
         return $this->hasMany(EmployeeLeave::class, 'mas_employee_id');
     }
 
-    public function hierachyLevel(){
+    public function hierachyLevel()
+    {
         return $this->hasOne(SystemHierarchyLevel::class, 'mas_employee_id');
     }
 
@@ -124,25 +136,26 @@ class User extends Authenticatable
         return $this->is_active == 1;
     }
 
-    public function durationOfService() {
-        $sixMonthsLater = date_add(date_create($this->date_of_appointment),date_interval_create_from_date_string("6 months"));
+    public function durationOfService()
+    {
+        $sixMonthsLater = date_add(date_create($this->date_of_appointment), date_interval_create_from_date_string("6 months"));
         $startFrom = ($this->no_probation === 1) ? date_create($this->date_of_appointment) : $sixMonthsLater;
-        $duration = date_diff($startFrom,date_create(date("Y-m-d")))->format("%y_%m");
-        $durationArray = explode("_",$duration);
+        $duration = date_diff($startFrom, date_create(date("Y-m-d")))->format("%y_%m");
+        $durationArray = explode("_", $duration);
         $years = (int)$durationArray[0];
         $months = (int)$durationArray[1];
-        if($years >= 1){
-            $months += $years*12;
+        if ($years >= 1) {
+            $months += $years * 12;
         }
 
-        $durationOfService = date_diff(date_create($this->date_of_appointment),date_create(date("Y-m-d")))->format("%y_%m");
-        $durationOfServiceArray = explode("_",$durationOfService);
+        $durationOfService = date_diff(date_create($this->date_of_appointment), date_create(date("Y-m-d")))->format("%y_%m");
+        $durationOfServiceArray = explode("_", $durationOfService);
         $yearsOfService = (int)$durationOfServiceArray[0];
         $monthsOfService = (int)$durationOfServiceArray[1];
-        if($years >= 1){
-            $monthsOfService += $yearsOfService*12;
+        if ($years >= 1) {
+            $monthsOfService += $yearsOfService * 12;
         }
-        return compact('years','months','yearsOfService','monthsOfService');
+        return compact('years', 'months', 'yearsOfService', 'monthsOfService');
     }
 
     //scopes
@@ -153,10 +166,10 @@ class User extends Authenticatable
         }
 
         if ($request->has('name') && $request->query('name') != '') {
-            $query->where('name', 'LIKE', '%' .$request->query('name') . '%');
+            $query->where('mas_employees.name', 'LIKE', '%' . $request->query('name') . '%');
         }
 
-        $query->where('username', '<>', 'E00000')->where('username','<>', 'SAP000');
+        $query->where('username', '<>', 'E00000')->where('username', '<>', 'SAP000');
 
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('empJob.department', function ($q) use ($request) {
@@ -192,24 +205,29 @@ class User extends Authenticatable
     }
 
     //accessors & mutators refeer this
-    public function getIsActiveAttribute($value) {
-        return ucwords($value == 1 ? 'active':'inactive');
+    public function getIsActiveAttribute($value)
+    {
+        return ucwords($value == 1 ? 'active' : 'inactive');
     }
 
-    public function getStatusAttribute($value) {
+    public function getStatusAttribute($value)
+    {
         return ucwords($value == 1 ? 'Completed' : 'Draft');
     }
 
-    public function getEmpIdNameAttribute(){
+    public function getEmpIdNameAttribute()
+    {
         return $this->username . ' - ' . $this->title . ' ' . $this->name;
     }
 
-    public function getMaritalStatusNameAttribute() {
+    public function getMaritalStatusNameAttribute()
+    {
         $maritalStatusMapping = config('global.marital_status');
         return $maritalStatusMapping[$this->marital_status];
     }
 
-    public function getGenderNameAttribute() {
+    public function getGenderNameAttribute()
+    {
         $genderMapping = config('global.gender');
         return $genderMapping[$this->gender];
     }
@@ -221,16 +239,16 @@ class User extends Authenticatable
                 return url($this->profile_pic);
             else
                 return url('assets/images/no-image.png');
-
         } else {
             return url('assets/images/no-image.png');
         }
     }
 
-    public function title() {
-        if($this->gender == 1) {
+    public function title()
+    {
+        if ($this->gender == 1) {
             $title = "Mr.";
-        } elseif($this->gender == 2) {
+        } elseif ($this->gender == 2) {
             $title = "Ms.";
         }
     }

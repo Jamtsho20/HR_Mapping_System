@@ -2,19 +2,22 @@
 
 namespace App\Services;
 
-use App\Mail\PaySlipMail;
-use App\Models\EmployeeOvertime;
-use App\Models\FinalPaySlip;
-use App\Models\LoanEMIDeduction;
-use App\Models\MasEmployeeJob;
-use App\Models\MasPayHead;
-use App\Models\PaySlipDetail;
-use App\Models\PaySlipDetailView;
 use App\Models\User;
+use App\Mail\PaySlipMail;
+use App\Models\MasPayHead;
+use App\Models\FinalPaySlip;
+use App\Models\PaySlipDetail;
+use App\Models\MasEmployeeJob;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Auth;
+use App\Models\EmployeeOvertime;
+use App\Models\LoanEMIDeduction;
+use App\Models\SifaRegistration;
+use App\Models\PaySlipDetailView;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Models\ExecutiveFixedAllowance;
 
 class PayrollService
 {
@@ -28,6 +31,7 @@ class PayrollService
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
             $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
+            $sifaMember = SifaRegistration::whereMasEmployeeId($employee->id)->whereIsRegistered(1)->whereStatus(SIFA_APPROVED)->first();
 
             $employeeVariableValues = [];
             $employeeVariableValues['grade'] = $employee->empJob->grade->name;
@@ -37,6 +41,7 @@ class PayrollService
             $employeeVariableValues['yearsSinceRegularization'] = $durationOfService['years'];
             $employeeVariableValues['monthsSinceRegularization'] = $durationOfService['months'];
             $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
+            $employeeVariableValues['sifaMember'] = $sifaMember ? 1 : 0;
 
             $basicPay = $employeeVariableValues['basicPay'] = $employee->empJob->basic_pay;
             $forMonthObject = date_create($payslip->for_month);
@@ -112,26 +117,37 @@ class PayrollService
             $allowanceAmount = false;
             $amountToCalculateOn = 0; // Default to 0 to ensure it is always defined.
 
-            // Determine the amount to calculate on based on `calculated_on`.
-            switch ($calculated_on) {
-                case 1: // Basic Pay
-                    $amountToCalculateOn = $basicPay;
-                    break;
-                case 2: // Gross Pay
-                    $amountToCalculateOn = $grossPay;
-                    break;
-                case 6: // Pay Scale Base Pay
-                    $amountToCalculateOn = $payScaleBasePay;
-                    break;
-                case 5: // Lumpsum (if Actual method)
-                    if ($calculation_method === 1) {
-                        $allowanceAmount = $allowance->amount;
-                    }
-                    break;
+            // Check if the employee's grade ID is 1 and allowance ID is 1 or 5.
+            if ($employeeGradeId == 1 && in_array($allowance->id, [1, 5])) {
+                // Fetch static value from executive_fixed_allowances table.
+                $fixedAllowance = ExecutiveFixedAllowance::where('employee_id', $employee->id)->where('pay_head_id', $allowance->id)->first();
+
+                if ($fixedAllowance) {
+                    $allowanceAmount = $fixedAllowance->amount;
+                }
             }
 
-            // Calculate the allowance amount if not already set.
+             // Process the `switch` logic only if `allowanceAmount` is still not set.
             if ($allowanceAmount === false) {
+                switch ($calculated_on) {
+                    case 1: // Basic Pay
+                        $amountToCalculateOn = $basicPay;
+                        break;
+                    case 2: // Gross Pay
+                        $amountToCalculateOn = $grossPay;
+                        break;
+                    case 6: // Pay Scale Base Pay
+                        $amountToCalculateOn = $payScaleBasePay;
+                        break;
+                    case 5: // Lumpsum (if Actual method)
+                        if ($calculation_method === 1) {
+                            $allowanceAmount = $allowance->amount;
+                        }
+                        break;
+                }
+
+                // // Calculate the allowance amount if not already set.
+                // if ($allowanceAmount === false) {
                 if (in_array($calculated_on, [2, 3, 4])) { // GROSS PAY or NET PAY or PIT NET PAY
                     $payHeadsAfterGross[] = ['type' => 1, 'mas_pay_head_id' => $allowance->id, 'calculated_on' => $calculated_on, 'calculation_method' => $calculation_method];
                 } else {
@@ -228,6 +244,7 @@ class PayrollService
             "GRADE",
             "GRADE_STEP",
             "EMPLOYMENT_TYPE",
+            "SIFA_MEMBER",
         ];
         $variableValueMap = [
             "BASIC_PAY" => $employeeVariableValues['basicPay'],
@@ -244,6 +261,7 @@ class PayrollService
             "GRADE" => $employeeVariableValues['grade'],
             "GRADE_STEP" => $employeeVariableValues['gradeStep'],
             "EMPLOYMENT_TYPE" => $employeeVariableValues['employmentType'],
+            "SIFA_MEMBER" => $employeeVariableValues['sifaMember'],
         ];
 
         $calculation_method = (int) $calculation_method;
@@ -342,6 +360,7 @@ class PayrollService
             "GRADE",
             "GRADE_STEP",
             "EMPLOYMENT_TYPE",
+            "SIFA_MEMBER",
         ];
         $z = 1;
         $value = 0;
@@ -528,7 +547,7 @@ class PayrollService
         $payslip->status = $status;
         $payslip->update();
 
-        if ($status == 4) { // Getting posted to SAP
+        if ($status == 4) {  // Getting posted to SAP
             $individualPayRecords = DB::table("pay_slip_detail_views")->whereForMonth($payslip->for_month)->get();
 
             foreach ($individualPayRecords as $individualPayRecord) {
@@ -602,11 +621,11 @@ class PayrollService
     {
         $paySlip = PaySlipDetailView::find($paySlipDetailId);
         $employee = $paySlip->employee;
-        $allowances = MasPayHead::orderBy("Name")->wherePayheadType(1)->get();
-        $deductions = MasPayHead::orderBy("Name")->wherePayheadType(2)->get();
+        $allowances = MasPayHead::orderBy("id")->wherePayheadType(1)->get();
+        $deductions = MasPayHead::orderBy("id")->wherePayheadType(2)->get();
 
         $totalDeductions = count($deductions);
-        $firstHalf = floor($totalDeductions / 2);
+        $firstHalf = ceil($totalDeductions / 2);
 
         $deductions1 = $deductions->splice($firstHalf);
 
@@ -614,7 +633,7 @@ class PayrollService
         $employeeName = str_replace("  ", " ", $employeeName);
 
         $data = compact('paySlip', 'employee', 'allowances', 'deductions', 'deductions1');
-        $pdf = PDF::loadView('pdf_templates.payslip', $data)->setPaper('a4', 'portrait');
+        $pdf = PDF::loadView('pdf_templates.payslip', $data)->setPaper('letter', 'portrait');
         $paySlipMonth = date_format(date_create($paySlip->for_month), "Y_m");
         $friendlyMonth = date_format(date_create($paySlip->for_month), "F, Y");
 

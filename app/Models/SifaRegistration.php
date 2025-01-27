@@ -58,7 +58,11 @@ class SifaRegistration extends Model
     }
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-
+        if ($request->has('name') && $request->get('name') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('name') . '%');
+            });
+        }
     }
 
 }

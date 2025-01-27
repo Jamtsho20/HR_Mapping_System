@@ -3,19 +3,37 @@
 @section('content')
     @if ($privileges->create)
         @section('buttons')
-            <a href="{{ route('loan-emi-deductions.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Loan
-                / Device EMI</a>
+            <a href="{{ route('loan-emi-deductions.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New </a>
         @endsection
     @endif
 
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-8 form-group">
-                <input type="text" name="for_month" class="form-control" value="{{ request()->get('for_month') }}"
-                    placeholder="Search">
+            <div class="col-3 form-group">
+                <select name="payhead" class="form-control select2">
+                    <option value="">-- Select Payhead --</option>
+                    @foreach($payHeads as $id => $name)
+                        <option value="{{ $id }}" {{ old('payhead', request()->get('payhead')) == $id ? 'selected' : '' }} >{{ $name }}</option>
+                    @endforeach
+                </select>
             </div>
-        @endcomponent
-
+            <div class="col-3 form-group">
+                <select name="employee" class="form-control select2">
+                    <option value="">-- Select Employee --</option>
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}" {{ old('employee', request()->get('employee')) == $employee->id ? 'selected' : '' }} >{{ $employee->emp_id_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-3 form-group">
+                <select name="loantype" class="form-control select2">
+                    <option value="">-- Select Loan Type --</option>
+                    @foreach($loanTypes as $id => $name)
+                        <option value="{{ $id }}" {{ old('loantype', request()->get('loantype')) == $id ? 'selected' : '' }} >{{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>         
+    @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
                 <div class="card">
@@ -33,42 +51,31 @@
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row">
-                                                            <th> Pay Head </th>
+                                                            <th> # </th>
                                                             <th> Employee </th>
+                                                            <th> Pay Head </th>
+                                                            <th> Loan Type </th>
                                                             <th> Amount </th>
+                                                            <th> Loan No. </th>
                                                             <th> Start Date </th>
-                                                            <th>
-                                                                End Date
-                                                            </th>
-                                                            <th>
-                                                                Recurring
-                                                            </th>
-                                                            <th>
-                                                                Recurring Months
-                                                            </th>
-                                                            <th>
-                                                                Paid off early
-                                                            </th>
-                                                            <th>
-                                                                Remarks
-                                                            </th>
-                                                            <th>
-                                                                Created At
-                                                            </th>
-                                                            <th>
-                                                                Updated At
-                                                            </th>
-                                                            <th>
-                                                                Action
-                                                            </th>
+                                                            <th> End Date </th>
+                                                            <th> Recurring </th>
+                                                            <th> Recurring Months </th>
+                                                            <th> Paid off early </th>
+                                                            <th> Created At </th>
+                                                            <th> Updated At </th>
+                                                            <th> Action </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @forelse($loanEMIDeductions as $record)
                                                             <tr>
+                                                                <td>{{ $loop->iteration }}</td>
+                                                                <td>{{ $record->employee->emp_id_name }} </td>
                                                                 <td>{{ $record->payHead->name }}</td>
-                                                                <td>{{ $record->employee->name }} </td>
+                                                                <td>{{ $record->loanType?->name }} </td>
                                                                 <td>{{ $record->amount }} </td>
+                                                                <td>{{ $record->loan_number }} </td>
                                                                 <td> {{ $record->start_date ? \Carbon\Carbon::parse($record->start_date)->format('M d, Y') : '-' }}
                                                                 </td>
                                                                 <td> {{ $record->end_date ? \Carbon\Carbon::parse($record->end_date)->format('M d, Y') : '-' }}
@@ -88,7 +95,6 @@
                                                                         <i class="fa fa-times-circle text-danger"></i>
                                                                     @endif
                                                                 </td>
-                                                                <td>{{ $record->remarks }} </td>
                                                                 <td>{{ $record->created_at ? $record->created_at->format('Y-m-d H:i:s') : '-' }}
                                                                 </td>
                                                                 <td>{{ $record->updated_at ? $record->updated_at->format('Y-m-d H:i:s') : '-' }}
@@ -106,12 +112,14 @@
                                                             </tr>
                                                         @empty
                                                             <tr>
-                                                                <td colspan="13" class="text-center text-danger">No
-                                                                    Loan / Device EMIs found</td>
+                                                                <td colspan="13" class="text-center text-danger"> No Matching Records Found </td>
                                                             </tr>
                                                         @endforelse
                                                     </tbody>
                                                 </table>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    {{ $loanEMIDeductions->links() }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

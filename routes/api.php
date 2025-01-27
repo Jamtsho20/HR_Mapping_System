@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\HolidayListController;
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
+use App\Http\Controllers\Api\v1\TeamApiController;
+use App\Http\Controllers\Api\v1\UserController;
 
 
 /*
@@ -54,6 +56,8 @@ Route::middleware('api.access.log')->group(function () {
 
     Route::namespace('Api\v1')->middleware('auth:sanctum')->group(function () {
         Route::resource('approval_count', 'GeneralApporvalController');
+        Route::resource('my_team', 'TeamApiController');
+        Route::post('/profile-pic', [UserController::class, 'updateProfilePic']);
 
     });
 
@@ -92,7 +96,8 @@ Route::middleware('api.access.log')->group(function () {
     Route::namespace('Api\v1\Advance')->prefix('advance-loan')->group(function () {
         Route::get('gadget-emi/employees/', [AdvanceLoanGadgetEmiController::class, 'getEmployees']);
         Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
-        Route::get('gadget-emi/details/{id}', [AdvanceLoanGadgetEmiController::class, 'getDetailsByAdvance']);
+        Route::get('gadget-emi/details/{id}', [AdvanceLoanGadgetEmiController::class, 'getDetailsByAdvance'])
+    ->where('id', '.*'); 
 
     });
 

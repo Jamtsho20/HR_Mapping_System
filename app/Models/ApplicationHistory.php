@@ -34,6 +34,7 @@ class ApplicationHistory extends Model
         return $this->morphTo();
     }
 
+
     public function actionPerformer()
     {
         return $this->belongsTo(User::class, 'action_performed_by');

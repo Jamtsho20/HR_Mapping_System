@@ -76,7 +76,7 @@ class LeaveEncashmentApplication extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-    
+
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($request->get('year')) {
@@ -102,6 +102,12 @@ class LeaveEncashmentApplication extends Model
         if ($request->has('section') && $request->query('section') != '') {
             $query->whereHas('employee.empJob.section', function ($q) use ($request) {
                 $q->where('id', $request->query('section'));
+            });
+        }
+
+        if ($request->has('name') && $request->get('name') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('name') . '%');
             });
         }
 
