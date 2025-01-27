@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\LeaveEncashmentMail;
+use App\Models\ApplicationHistory;
 use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentApplication;
@@ -48,8 +49,7 @@ class DashboardController extends Controller
                 'message' => $leaveEncashmentMessage,
             ];
         }
-        //collect all record related to login user to show in notification from application histories to show in notification tbl
-
+        
         // Fetch leave status counts
         [$leaveData, $statusCounts] = $this->getLeaveData($currentYear);
         $showEarnedLeave = $employmentTypeId !== 3;
