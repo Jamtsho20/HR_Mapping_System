@@ -179,66 +179,52 @@
 
         // Function to update the date constraints dynamically
         function updateDateConstraints() {
-            const tableRows = document.querySelectorAll('#travel_details tr');
-            const todayISO = today.toISOString().split('T')[0];
-           
+    const tableRows = document.querySelectorAll('#travel_details tr');
+    const today = new Date(); // Get today's date
+    const todayISO = today.toISOString().split('T')[0]; // Format today's date in YYYY-MM-DD
+    const threeDaysEarlier = new Date(today); // Clone today's date
+    threeDaysEarlier.setDate(today.getDate() - 3); // Subtract 3 days
+    const threeDaysEarlierISO = threeDaysEarlier.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
 
-            tableRows.forEach((row, rowIndex) => {
-                const fromDateField = row.querySelector('.from_date');
-                const toDateField = row.querySelector('.to_date');
+    tableRows.forEach((row, rowIndex) => {
+        const fromDateField = row.querySelector('.from_date');
+        const toDateField = row.querySelector('.to_date');
 
-                if (!fromDateField || !toDateField) return;
+        if (!fromDateField || !toDateField) return;
 
-                // For the first row
-                if (rowIndex === 1) {
-                    // Set the min attribute to today
-                    fromDateField.setAttribute('min', todayISO);
-                    // Set the max attribute to three days from today
+        // For the first row
+        if (rowIndex === 1) {
+            // Set the min attribute to today's date
+            fromDateField.setAttribute('min', threeDaysEarlierISO);
 
-                    const timeDifference = new Date(fromDateField.value) - today;
-                    const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24)); // Convert to days
+            } else {
+                // For subsequent rows, set the min for from_date based on the previous row's to_date
+                const previousRow = tableRows[rowIndex - 1];
+                const previousToDateField = previousRow.querySelector('.to_date');
+                const previousToDate = previousToDateField?.value;
 
-                    const gracePeriod = 3;
-
-                    if ( daysDifference >= gracePeriod) {
-                        showErrorMessage('The selected date is not within the ' + gracePeriod + ' days grace period.');
-                        fromDateField.value='';
-                    }
-
-                } else {
-                    // For subsequent rows, set min for from_date based on the previous row's to_date
-                    const previousRow = tableRows[rowIndex - 1];
-                    const previousToDateField = previousRow.querySelector('.to_date');
-                    const previousToDate = previousToDateField?.value;
-
-                    if (previousToDate) {
-                        const date = new Date(previousToDate);
-                        if (!isNaN(date)) { // Check if the date is valid
-                            date.setDate(date.getDate() + 1); // Add one day
-                            minDate = date.toISOString().split('T')[0];
-                            event.target.setAttribute('min', minDate);
-                            fromDateField.setAttribute('min', minDate);
-
-                        }
-
-
-                    } else {
-                        // fromDateField.removeAttribute('min'); (remove to set the fromdate)
+                if (previousToDate) {
+                    const date = new Date(previousToDate);
+                    if (!isNaN(date)) { // Check if the date is valid
+                        date.setDate(date.getDate() + 1); // Add one day to the previous to_date
+                        const minDate = date.toISOString().split('T')[0]; // Set min for the current from_date
+                        fromDateField.setAttribute('min', minDate);
                     }
                 }
+            }
 
-                // For the current row, set min for to_date based on its from_date
-                const fromDateValue = fromDateField.value;
-                if (fromDateValue) {
-                    toDateField.setAttribute('min', fromDateValue);
+            // For the current row, set min for to_date based on its from_date
+            const fromDateValue = fromDateField.value;
+            if (fromDateValue) {
+                toDateField.setAttribute('min', fromDateValue);
+                toDateField.disabled = false; // Enable to_date field
+            } else {
+                toDateField.disabled = true; // Disable to_date field if from_date is not set
+                toDateField.value = ''; // Clear to_date if from_date is not set
+            }
+        });
+    }
 
-                    toDateField.disabled = false;
-                } else {
-                    toDateField.disabled = true;
-                    toDateField.value = ''; // Clear to_date if from_date is not set
-                }
-            });
-        }
 
         // Function to calculate days difference and estimated travel expenses
         function calculateDaysDifference() {
