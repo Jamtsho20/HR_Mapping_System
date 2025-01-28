@@ -134,7 +134,8 @@
                                                         <tbody>
                                                             @forelse($advanceReports as $reports)
                                                                 <tr>
-                                                                    <td>{{ $loop->iteration }}</td>
+                                                                    <td>{{ ($advanceReports->currentPage() - 1) * $advanceReports->perPage() + $loop->iteration }}
+                                                                    </td>
                                                                     <td>{{ $reports->employee->username }}</td>
                                                                     <td>{{ $reports->employee->name }}</td>
                                                                     <td>{{ $reports->employee->empJob->designation->name }}

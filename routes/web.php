@@ -271,7 +271,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
         Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
-        Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
+        Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
         Route::resource('loan-report', 'LoanReportController')->except('create', 'show', 'edit');
@@ -388,7 +388,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-slab-details', 'PaySlabsDetailsController');
         Route::resource('pay-group-details', 'PayGroupDetailsController');
         Route::resource('executive-fixed-allowances', 'ExecutiveFixedAllowanceController');
-
     });
 
     //Payroll
@@ -446,7 +445,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('artisan-clear',function () {
+Route::get('artisan-clear', function () {
     \Artisan::call("cache:clear");
     \Artisan::call("config:clear");
 

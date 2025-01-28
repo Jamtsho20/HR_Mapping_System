@@ -65,9 +65,10 @@ class ExpenseAndAdvanceReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $expense = ExpenseApplication::findOrfail($id);
+        return view('report.expense-and-advance-report.show', compact('expense'));
     }
 
     /**
