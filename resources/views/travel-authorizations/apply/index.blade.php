@@ -16,7 +16,7 @@
     <div class="col-6 form-group">
         <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
     </div>
-   
+
     <div class="col-6 form-group">
         <select class="form-control" id="status" name="status" onchange="displaySelectedValue()">
             <option value="" disabled selected hidden>Select Application Status</option>
@@ -100,7 +100,7 @@
 
                                     @if ($travelAuthorizations->hasPages())
                                     <div class="card-footer">
-                                        {{ $travelAuthorization->links() }}
+                                        {{ $travelAuthorizations->links() }}
                                     </div>
                                     @endif
                                 </div>
