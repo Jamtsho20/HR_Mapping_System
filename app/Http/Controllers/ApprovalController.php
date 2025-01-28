@@ -261,7 +261,7 @@ class ApprovalController extends Controller
                                     "ShortName": "' . $shortName . '",
                                     "CostingCode": "' . $costingCode . '",
                                     "CostingCode2": "' . $costingCode2 . '",
-                                    "U_P_NUMBER": "'. $contactNo .'",
+                                    "U_P_NUMBER": "' . $contactNo . '",
                                     "Credit": "' . $amount . '",
                                     "Debit": 0
                                 },
@@ -280,9 +280,9 @@ class ApprovalController extends Controller
     public function show(Request $request, $id)
     {
         $privileges = $request->instance();
-        if (!(Str::startsWith($request->path(), 'approval/applications/')) ){
-        $privileges['edit']=0;
-    };
+        if (!(Str::startsWith($request->path(), 'approval/applications/'))) {
+            $privileges['edit'] = 0;
+        };
         $tab = $request->query('tab');
         $mappedModel = config('global.applications')[$request->query('tab')];
         $data = $mappedModel['name']::findOrFail($id);
@@ -294,12 +294,12 @@ class ApprovalController extends Controller
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
         $rejectRemarks = ApplicationHistory::where('application_type', $mappedModel['name'])
-        ->where('application_id', $id)
-        ->value('remarks'); // Assuming `reject_remarks` is the column name
+            ->where('application_id', $id)
+            ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
-    // Pass the reject remarks to the view
-    return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
-}
+        // Pass the reject remarks to the view
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
+    }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
     {
@@ -339,7 +339,7 @@ class ApprovalController extends Controller
         $privileges['view'] = 1;
         $headers = MasApprovalHead::all();
         $user = auth()->user();
-        $users = User::select('id', 'username', 'name') ->whereNotIn('id', [1, 2]) ->get();
+        $users = User::select('id', 'username', 'name')->whereNotIn('id', [1, 2])->get();
         $applicationModels = config('global.applications');
         $results = collect();
         $specificCondition = false;
@@ -376,9 +376,7 @@ class ApprovalController extends Controller
                     $item->status = 3; // Change status to 3
                     return $item;
                 });
-            }
-
-            elseif ($request->is('approval/rejected-applications*')) {
+            } elseif ($request->is('approval/rejected-applications*')) {
                 $data->getCollection()->transform(function ($item) use ($modelClass) {
                     $item->reject_remarks = ApplicationHistory::where('application_type', $modelClass)
                         ->where('application_id', $item->id)
@@ -388,10 +386,9 @@ class ApprovalController extends Controller
             }
 
             $results->put($key, $data);
-
         }
 
 
-        return view('approval.index', compact('privileges', 'headers', 'results' ,'users'));
+        return view('approval.index', compact('privileges', 'headers', 'results', 'users'));
     }
 }
