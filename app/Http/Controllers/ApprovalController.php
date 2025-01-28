@@ -329,7 +329,7 @@ class ApprovalController extends Controller
         }
         Mail::to([$initiatorEmail])->send(new InitiatorNotificationMail(
             $applicationData['created_by'],
-            $applicationModel['email_subject'] . ' Approval',
+            $applicationModel['email_subject'] . ' Notification',
             $initiatorMailContent
         ));
     }
