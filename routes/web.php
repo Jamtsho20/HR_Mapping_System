@@ -357,7 +357,7 @@ Route::middleware('auth')->group(function () {
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
-        Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
+        // Route::resource('requisition', 'RequisitionApplicationController')->except('create', 'show', 'edit');
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');

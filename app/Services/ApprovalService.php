@@ -58,17 +58,18 @@ class ApprovalService
 								continue; // Skip if hierarchy not found
 							}
 
-							// Determine levels up to max_level_id
+							// Determine levels up to max_level_id (level that has been set as max level in approver rules)
 							$maxLevel = $systemHierarchy->hierarchyLevels->firstWhere('id', $appvlCondition->max_level_id);
 							// Collect only the approvingAuthority data and compare with desiredRoles if there is any approver role id that is present in desiredRoles then approve using roles
 							$approvingAuthorities = $systemHierarchy->hierarchyLevels->pluck('approvingAuthority');
 							$matchingApprovingAuthority = $approvingAuthorities->first(function ($authority) use ($desiredRoles) {
 								return in_array($authority->role_id, $desiredRoles);
 							});
-
+							
 							// incase if it matches return data from here it self because hierarchy process will be customized as applying user will either be Immediate Head or Department Head
 							//which exists within the hierarchy level
 							if ($matchingApprovingAuthority) {
+								// max level despite of max level that has been set in approver rules
 								$originalLevel = $systemHierarchy->hierarchyLevels;
 								return $this->approverUsingRole($matchingApprovingAuthority, $originalLevel, $maxLevel, $systemHierarchy);
 							}
@@ -78,7 +79,6 @@ class ApprovalService
 								->sortBy('sequence')
 								->values();
 							$nextLevel = $levelsUpToMax->first();
-
 							$approverDetail = $this->getApproverDetail($nextLevel);
 
 							return [
@@ -156,8 +156,8 @@ class ApprovalService
 				$query->whereStatus(1)->orderBy('sequence');
 			}])
 				->where('id', $applicationHistory->hierarchy_id)->first();
-
 			if ($systemHierarchy) {
+
 				$currentLevel = $applicationHistory->next_level_id;
 				$currentLevelSequence = $systemHierarchy->hierarchyLevels
 					->where('id', $currentLevel)
@@ -189,9 +189,22 @@ class ApprovalService
 	private function approverUsingRole($matchingApprovingAuthority, $originalLevel, $evaluatedMaxLevel, $systemHierarchy)
 	{
 		$originalMaxLevel = $originalLevel->sortByDesc('sequence')->first();
-		$useEvaluatedLevel = $matchingApprovingAuthority->role_id === IMMEDIATE_HEAD && $originalMaxLevel->sequence !== $evaluatedMaxLevel->sequence;
+		//old block of code
+		// $useEvaluatedLevel = $matchingApprovingAuthority->role_id === IMMEDIATE_HEAD && $originalMaxLevel->sequence !== $evaluatedMaxLevel->sequence;
+		// $nextLevel = $useEvaluatedLevel ? $evaluatedMaxLevel : $originalMaxLevel;
 
-		$nextLevel = $useEvaluatedLevel ? $evaluatedMaxLevel : $originalMaxLevel;
+		// Determine the next level based on the role and available levels
+		if ($matchingApprovingAuthority->role_id === IMMEDIATE_HEAD) {
+			// IMMEDIATE_HEAD progresses to DEPARTMENT_HEAD by going to the next available level
+			$nextLevel = $originalLevel->firstWhere('sequence', $originalMaxLevel->sequence - 1) ?? $originalMaxLevel;
+		} elseif ($matchingApprovingAuthority->role_id === DEPARTMENT_HEAD) {
+			// DEPARTMENT_HEAD takes the max level
+			$nextLevel = $originalMaxLevel;
+		} else {
+			// Fallback: Use the evaluated max level
+			$nextLevel = $evaluatedMaxLevel;
+		}
+		// dd($nextLevel);
 		$approverDetail = $this->getApproverDetail($nextLevel);
 
 		return [
@@ -219,7 +232,7 @@ class ApprovalService
 				'approver_role_id' => $approvingAuthorityRoleId,
 			];
 		}
-		//incase if there is no mas_employee_id in $next level, need to find the associated employee usingdepartment and section
+		//incase if there is no mas_employee_id in $next level, need to find the associated employee using department and section
 		if (!$nextLevel->mas_employee_id) {
 			$loggedInUserDeptIdAndSecId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->get(['mas_department_id', 'mas_section_id'])[0];
 			$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
