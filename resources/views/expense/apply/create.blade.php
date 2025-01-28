@@ -890,7 +890,7 @@
                                     min="0"
                                     step="0.5"
                                     name="dsa_claim_detail[${detail.id}][total_days]"
-                                    value="${detail.total_days}"
+                                    value="${detail.no_of_days}"
                                     class="form-control form-control-sm resetKeyForNew" />
                             </td>
                             <td class="text-center">

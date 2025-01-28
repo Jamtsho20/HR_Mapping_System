@@ -517,7 +517,16 @@ class AjaxRequestController extends Controller
             $travelAuthorizationDetails->details->each(function ($detail) {
 
                 $detail->mode_of_travel = $detail->travel_name;
-                $detail->no_of_days = $detail->total_days ?? 0;
+
+                if ($detail->total_days) {
+                    $detail->no_of_days = $detail->total_days;
+                }else{ if ($detail->from_date && $detail->to_date) {
+                    $fromDate = new \DateTime($detail->from_date);
+                    $toDate = new \DateTime($detail->to_date);
+                    $interval = $fromDate->diff($toDate);
+                    $detail->no_of_days = $interval->days + 1;
+                }}
+
 
             });
         }
