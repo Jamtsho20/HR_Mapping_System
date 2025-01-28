@@ -178,10 +178,12 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    @php $serialNumber = 1; @endphp
+
                                                     @foreach ($dsaClaim as $claim)
                                                         @forelse($claim->dsaClaimDetails as $dsa)
                                                             <tr>
-                                                                <td>{{ $loop->iteration }}</td>
+                                                                <td>{{ $serialNumber++ }}</td>
                                                                 <td>{{ $claim->employee->name }}</td>
                                                                 <td>{{ $claim->employee->empJob->designation->name }}</td>
                                                                 <td>{{ $claim->employee->empJob->department->name }}</td>
@@ -193,7 +195,8 @@
                                                                 <td>{{ $dsa->daily_allowance }}</td>
                                                                 <td>{{ $dsa->travel_allowance }}</td>
                                                                 <td>{{ $dsa->total_amount }}</td>
-                                                                <td>{{ $claim->travel->travel_authorization_no ?? '-' }}</td>
+                                                                <td>{{ $claim->travel->travel_authorization_no ?? '-' }}
+                                                                </td>
                                                                 <td>{{ $claim->dsaadvance->advance_no ?? '-' }}</td>
                                                                 <td>{{ $claim->dsaadvance->amount ?? '-' }}</td>
                                                                 <td>{{ $claim->net_payable_amount }}</td>

@@ -185,6 +185,9 @@
                                                                 <th>
                                                                     Approved By
                                                                 </th>
+                                                                <th>
+                                                                    Action
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -239,6 +242,13 @@
                                                                         {{ $statusText }}
                                                                     </td>
                                                                     <td>{{ $application->expense_approved_by->name ?? '-' }}
+                                                                    </td>
+                                                                    <td>
+                                                                        @if ($privileges->view)
+                                                                            <a href="{{ url('report/expense-and-advance-report/' . $application->id) }}"
+                                                                                class="btn btn-sm btn-outline-secondary"><i
+                                                                                    class="fa fa-list"></i> Detail</a>
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @empty

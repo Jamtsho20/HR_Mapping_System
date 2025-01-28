@@ -36,6 +36,9 @@ class ApprovalController extends Controller
 
         $applicationModels = config('global.applications');
 
+
+
+
         $results = collect();
 
 
@@ -57,8 +60,13 @@ class ApprovalController extends Controller
                 $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
             }
         }
-
-        return view('approval.index', compact('privileges', 'headers', 'results'));
+        $holidays;
+        if ($results->get(7)) {
+            $holidays = DB::table('work_holiday_lists')
+                ->select('start_date', 'end_date')
+                ->get();
+        }
+        return view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
     }
 
     /**
@@ -329,7 +337,7 @@ class ApprovalController extends Controller
         }
         Mail::to([$initiatorEmail])->send(new InitiatorNotificationMail(
             $applicationData['created_by'],
-            $applicationModel['email_subject'] . ' Approval',
+            $applicationModel['email_subject'] . ' Notification',
             $initiatorMailContent
         ));
     }

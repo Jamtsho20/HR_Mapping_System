@@ -271,6 +271,14 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
+                                                <label for="total_number_of_days">Total Number of Days</label>
+                                                <input type="number" class="form-control" id="total_number_of_days"
+                                                    name="total_number_of_days" value="{{ old('total_number_of_days', 0) }}"
+                                                    readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
                                                 <label for="advance_amount">Advance Amount </label>
                                                 <input type="number" class="form-control" id="advance_amount"
                                                     name="advance_amount" value="{{ old('advance_amount', 0) }}"
@@ -315,8 +323,6 @@
                                 </div>
                                 <div class="tab-pane">
                                     <div class="card">
-                                        <p class="text-danger small px-3 py-2">* The total number of days may differ from
-                                            the selected dates, as 0.5 is subtracted for each half day.</p>
                                         <div class="card-body p-0">
                                             <div class="table-responsive">
                                                 <table id="travelstable"
@@ -326,7 +332,7 @@
                                                             <th class="text-center" rowspan="2">#</th>
                                                             <th class="text-center" colspan="2">From</th>
                                                             <th class="text-center" colspan="2">To</th>
-                                                            <th class="text-center" rowspan="2">Total Days</th>
+                                                            <th class="text-center" rowspan="2">Number of Days</th>
                                                             <th class="text-center" rowspan="2">Daily Allowance</th>
                                                             <th class="text-center" rowspan="2">Travel Allowance</th>
                                                             <th class="text-center" rowspan="2">Total Amount</th>
@@ -833,6 +839,9 @@
                         dataType: 'JSON',
                         type: 'GET',
                         success: function(data) {
+                            const totalNumberOfDays = data.number_of_days;
+                            const totalNumDays = document.getElementById('total_number_of_days');
+                            totalNumDays.value = totalNumberOfDays;
                             const tbody = $("#travelstable tbody");
                             tbody.empty(); // Clear the existing rows
 
