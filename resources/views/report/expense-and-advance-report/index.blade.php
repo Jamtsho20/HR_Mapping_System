@@ -46,6 +46,7 @@
                 </select>
 
             </div>
+
             <div class="col-md-3 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
                     name="department">
@@ -82,7 +83,8 @@
                 </select>
             </div>
             <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Location" name="office">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Location"
+                    name="office">
                     <option value="" disabled selected hidden>Select Location</option>
                     @foreach ($offices as $office)
                         <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
@@ -128,6 +130,9 @@
                                                                     #
                                                                 </th>
 
+                                                                <th>
+                                                                    Employee ID
+                                                                </th>
                                                                 <th>
                                                                     Employee Name
                                                                 </th>
@@ -180,29 +185,42 @@
                                                                 <th>
                                                                     Approved By
                                                                 </th>
+                                                                <th>
+                                                                    Action
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             @forelse($expenseApplications as $application)
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
+                                                                    <td>{{ $application->employee->username }}</td>
                                                                     <td>{{ $application->employee->name }}</td>
                                                                     <td>{{ $application->employee->empJob->designation->name }}
                                                                     </td>
                                                                     <td>{{ $application->employee->empJob->department->name }}
                                                                     </td>
                                                                     <td>{{ $application->type->name }}</td>
-                                                                    <td>{{ $application->vehicle->vehicle_no ?? '-' }}</td>
+                                                                    <td>{{ $application->vehicle->vehicle_no ?? config('global.null_value') }}
+                                                                    </td>
                                                                     <td>{{ $application->expense_no }}</td>
                                                                     <td>{{ $application->amount }}</td>
-                                                                    <td>{{ $application->travel_type }}</td>
-                                                                    <td>{{ $application->travel_mode }}</td>
-                                                                    <td>{{ $application->travel_from_date }}</td>
-                                                                    <td>{{ $application->travel_to_date }}</td>
-                                                                    <td>{{ $application->travel_from }}</td>
-                                                                    <td>{{ $application->travel_to }}</td>
-                                                                    <td>{{ $application->travel_disatnce }}</td>
-                                                                    <td>{{ $application->description }}</td>
+                                                                    <td>{{ $application->travel_type ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->travel_mode ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->travel_from_date ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->travel_to_date ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->travel_from ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->travel_to ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->travel_disatnce ?? config('global.null_value') }}
+                                                                    </td>
+                                                                    <td>{{ $application->description ?? config('global.null_value') }}
+                                                                    </td>
                                                                     @php
                                                                         $statusClasses = [
                                                                             -1 => 'Rejected',
@@ -224,6 +242,13 @@
                                                                         {{ $statusText }}
                                                                     </td>
                                                                     <td>{{ $application->expense_approved_by->name ?? '-' }}
+                                                                    </td>
+                                                                    <td>
+                                                                        @if ($privileges->view)
+                                                                            <a href="{{ url('report/expense-and-advance-report/' . $application->id) }}"
+                                                                                class="btn btn-sm btn-outline-secondary"><i
+                                                                                    class="fa fa-list"></i> Detail</a>
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @empty

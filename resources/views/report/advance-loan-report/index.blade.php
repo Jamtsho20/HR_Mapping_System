@@ -118,6 +118,9 @@
                                                                 <th>
                                                                     NO OF EMI
                                                                 </th>
+                                                                <th>
+                                                                    EMI Amount
+                                                                </th>
 
                                                                 <th>
                                                                     APPROVED BY
@@ -131,7 +134,8 @@
                                                         <tbody>
                                                             @forelse($advanceReports as $reports)
                                                                 <tr>
-                                                                    <td>{{ $loop->iteration }}</td>
+                                                                    <td>{{ ($advanceReports->currentPage() - 1) * $advanceReports->perPage() + $loop->iteration }}
+                                                                    </td>
                                                                     <td>{{ $reports->employee->username }}</td>
                                                                     <td>{{ $reports->employee->name }}</td>
                                                                     <td>{{ $reports->employee->empJob->designation->name }}
@@ -141,13 +145,17 @@
                                                                     <td>{{ $reports->employee->empJob->office->name }}</td>
                                                                     <td>{{ $reports->type->name }}</td>
                                                                     <td>{{ $reports->item_type }}</td>
-                                                                    <td>{{ $reports->date }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($reports->date)->format('d-M-Y') }}
+                                                                    </td>
                                                                     <td>{{ $reports->amount }}</td>
-                                                                    <td>{{ $reports->deduction_from_period }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}
+                                                                    </td>
                                                                     <td>{{ $reports->no_of_emi }}</td>
+                                                                    <td>{{ $reports->monthly_emi_amount }}</td>
                                                                     <td>{{ $reports->advance_approved_by->name ?? '-' }}
                                                                     </td>
-                                                                    <td>{{ $reports->updated_at->format('d-m-Y') }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}
+                                                                    </td>
                                                                 </tr>
                                                             @empty
                                                                 <tr>

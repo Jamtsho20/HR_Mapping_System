@@ -37,6 +37,7 @@ class ExpenseExport implements FromCollection, WithHeadings
         return ExpenseApplication::filter($this->request, false)->get()->map(function ($expense) use (&$serialNo, $statusClasses) {
             return [
                 $serialNo++,
+                $expense->employee->username,
                 $expense->employee->name,
                 $expense->employee->empJob->designation->name,
                 $expense->employee->empJob->department->name,
@@ -63,6 +64,7 @@ class ExpenseExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
+            'Employee ID',
             'Employee Name',
             'Designation',
             'Department',
