@@ -157,6 +157,7 @@ class TravelAuthorizationApplicationController extends Controller
                 $travelAuthorization->advance_amount = $request->advance_required;
                 $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
                 $travelAuthorization->status = 1;
+                $travelAuthorization->total_days = $request->total_days;
                 $travelAuthorization->daily_allowance = $request->daily_allowance;
                 $travelAuthorization->created_by = Auth::id();
                 $travelAuthorization->type_id = $request->travel_type;
@@ -170,6 +171,7 @@ class TravelAuthorizationApplicationController extends Controller
                         $travelAuthorization->details()->create([
                             'mode_of_travel' => $detail['mode_of_travel'],
                             'from_location' => $detail['from_location'],
+                            'number_of_days' => $detail['number_of_days'],
                             'to_location' => $detail['to_location'],
                             'from_date' => formatDate($detail['from_date']),
                             'to_date' => formatDate($detail['to_date']),
