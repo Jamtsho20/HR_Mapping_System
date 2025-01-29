@@ -84,7 +84,7 @@
                 <br>
 
                 <div class="card-body  p-0">
-                    <p class="text-danger ">*For half-day entries, subtract 0.5 from the total number of days for each row after all the dates have been finalized.</p>
+                    <p class="text-danger ">*For half-day entries, subtract 0.5 from the total number of days for each row.</p>
                     <div class="table-responsive">
                         <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
                             <thead>
@@ -115,7 +115,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="number" name="details[0][total_days]"
+                                        <input type="number" name="details[0][number_of_days]"
                                             class="form-control form-control-sm days-difference" step="0.5" required>
                                     </td>
                                     <td>
@@ -251,41 +251,34 @@
 
 
             // Function to calculate days difference and estimated travel expenses
-            function calculateDaysDifference() {
-                document.querySelectorAll('tr').forEach(function(row) {
-                    // Find the input fields within the current row
-                    const startDateInput = row.querySelector('input[name$="[from_date]"]');
-                    const endDateInput = row.querySelector('input[name$="[to_date]"]');
-                    const daysDifferenceInput = row.querySelector(
-                    '.days-difference'); // Example: An input to show or edit the result
+            function calculateDaysDifference(row) {
+                // Find the input fields within the current row
+                const startDateInput = row.querySelector('input[name$="[from_date]"]');
+                const endDateInput = row.querySelector('input[name$="[to_date]"]');
+                const daysDifferenceInput = row.querySelector('.days-difference');
 
+                if (startDateInput && endDateInput && daysDifferenceInput) {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
 
-                    if (startDateInput && endDateInput && daysDifferenceInput) {
-                        const startDate = new Date(startDateInput.value);
-                        const endDate = new Date(endDateInput.value);
+                    if (startDate && endDate && endDate >= startDate) {
+                        const timeDifference = endDate - startDate;
+                        const maxDaysDifference = timeDifference / (1000 * 3600 * 24) + 1; // Add 1 to include both start and end days
 
-                        if (startDate && endDate && endDate >= startDate) {
-                            const timeDifference = endDate - startDate;
-                            const maxDaysDifference = timeDifference / (1000 * 3600 * 24) +
-                            1; // Add 1 to include both start and end days
+                        // Validate manual input
+                        const manualValue = parseFloat(daysDifferenceInput.value);
 
-                            // Validate manual input
-                            const manualValue = parseFloat(daysDifferenceInput.value);
-
-                            if (manualEdit && !isNaN(manualValue) && manualValue <= maxDaysDifference) {
-                                // Manual value is valid, leave it as-is
-                                daysDifferenceInput.value = manualValue;
-
-                            } else {
-                                // Either no manual input or manual input exceeds calculated value, set to calculated value
-
-                                daysDifferenceInput.value = maxDaysDifference;
-                            }
+                        if (manualEdit && !isNaN(manualValue) && manualValue <= maxDaysDifference) {
+                            // Manual value is valid, leave it as-is
+                            daysDifferenceInput.value = manualValue;
                         } else {
-                            daysDifferenceInput.value = ''; // Clear if invalid dates
+                            // Either no manual input or manual input exceeds calculated value, set to calculated value
+                            daysDifferenceInput.value = maxDaysDifference;
                         }
+                    } else {
+                        daysDifferenceInput.value = ''; // Clear if invalid dates
                     }
-                });
+                }
             }
 
 
@@ -349,8 +342,8 @@
             }
 
             function calculateEstimatedTravelExpenses() {
+
                 const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
-                calculateDaysDifference();
                 addDaysDifferenceEventListeners();
                 const totalDaysValue = totalDays() || 0;
                 const estimatedAmount = (totalDaysValue * dailyAllowance);
@@ -374,7 +367,7 @@
                 <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm to_date" disabled>
             </td>
             <td>
-                  <input type="number" name="details[${rowCount}][total_days]" class="form-control form-control-sm days-difference" step='0.5' required>
+                  <input type="number" name="details[${rowCount}][number_of_days]" class="form-control form-control-sm days-difference" step='0.5' required>
             </td>
             <td>
                 <input type="text" name="details[${rowCount}][from_location]" class="form-control form-control-sm" required>
@@ -415,12 +408,17 @@
             });
 
             // Update constraints on page load and when date inputs change
-            document.querySelector('#travel_details').addEventListener('change', function(event) {
-                if (event.target.matches('.from_date') || event.target.matches('.to_date')) {
-                    updateDateConstraints();
-                    calculateEstimatedTravelExpenses();
-                }
-            });
+           document.querySelector('#travel_details').addEventListener('change', function(event) {
+                    if (event.target.matches('.from_date') || event.target.matches('.to_date')) {
+                        const row = event.target.closest('tr');
+                        updateDateConstraints();
+                        const thisRow = event.target.closest('tr');
+                        if (thisRow) {
+                            calculateDaysDifference(thisRow); // Pass the specific row to the function
+                        }
+                        calculateEstimatedTravelExpenses();
+                    }
+                });
 
             // Initialize constraints on page load
             updateDateConstraints();
