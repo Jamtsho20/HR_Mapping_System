@@ -395,8 +395,13 @@ class ApprovalController extends Controller
 
             $results->put($key, $data);
         }
+        $holidays;
+        if ($results->get(7)) {
+            $holidays = DB::table('work_holiday_lists')
+                ->select('start_date', 'end_date')
+                ->get();
+        }
 
-
-        return view('approval.index', compact('privileges', 'headers', 'results', 'users'));
+        return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }
 }
