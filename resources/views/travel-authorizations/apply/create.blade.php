@@ -115,7 +115,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="number" name="details[0][total_days]"
+                                        <input type="number" name="details[0][number_of_days]"
                                             class="form-control form-control-sm days-difference" step="0.5" required>
                                     </td>
                                     <td>
@@ -367,7 +367,7 @@
                 <input type="date" id="to_date" name="details[${rowCount}][to_date]" class="form-control form-control-sm to_date" disabled>
             </td>
             <td>
-                  <input type="number" name="details[${rowCount}][total_days]" class="form-control form-control-sm days-difference" step='0.5' required>
+                  <input type="number" name="details[${rowCount}][number_of_days]" class="form-control form-control-sm days-difference" step='0.5' required>
             </td>
             <td>
                 <input type="text" name="details[${rowCount}][from_location]" class="form-control form-control-sm" required>
