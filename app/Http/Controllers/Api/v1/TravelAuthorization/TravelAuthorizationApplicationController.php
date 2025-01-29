@@ -40,6 +40,8 @@ class TravelAuthorizationApplicationController extends Controller
 
     protected $rules = [
         'date' => 'required|date',
+        'total_days' => 'required|numeric',
+        'details.*.number_of_days' => 'required|numeric',
         'details.*.mode_of_travel' => 'required|string',
         'details.*.from_location' => 'required|string',
         'details.*.to_location' => 'required|string',
@@ -52,6 +54,8 @@ class TravelAuthorizationApplicationController extends Controller
 
     protected $messages = [
         'date.required' => 'The main travel date is required.',
+        'total_days.required' => 'The total number of days is required.',
+        'details.*.number_of_days.required' => 'Number of days is required for each travel detail.',
         'details.*.mode_of_travel.required' => 'Mode of travel is required for each travel detail.',
         'details.*.from_location.required' => 'From location is required for each travel detail.',
         'details.*.to_location.required' => 'To location is required for each travel detail.',
@@ -157,7 +161,6 @@ class TravelAuthorizationApplicationController extends Controller
                 $travelAuthorization->advance_amount = $request->advance_required;
                 $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
                 $travelAuthorization->status = 1;
-                $travelAuthorization->total_days = $request->total_days;
                 $travelAuthorization->daily_allowance = $request->daily_allowance;
                 $travelAuthorization->created_by = Auth::id();
                 $travelAuthorization->type_id = $request->travel_type;
@@ -171,7 +174,6 @@ class TravelAuthorizationApplicationController extends Controller
                         $travelAuthorization->details()->create([
                             'mode_of_travel' => $detail['mode_of_travel'],
                             'from_location' => $detail['from_location'],
-                            'number_of_days' => $detail['number_of_days'],
                             'to_location' => $detail['to_location'],
                             'from_date' => formatDate($detail['from_date']),
                             'to_date' => formatDate($detail['to_date']),
