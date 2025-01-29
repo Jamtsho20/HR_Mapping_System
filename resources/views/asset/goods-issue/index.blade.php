@@ -5,18 +5,18 @@
 @if ($privileges->create)
 @section('buttons')
 <a href="{{ route('goods-issue.create') }}" class="btn btn-sm btn-primary">
-    <i class="fa fa-plus"></i> Apply Requisition
+    <i class="fa fa-plus"></i> Apply Goods Issue
 </a>
 @endsection
 @endif
 
 <div class="block-header block-header-default">
-    {{-- @component('layouts.includes.filter')
-    <div class="col-8 form-group">
+    @component('layouts.includes.filter')
+    <div class="col-12 form-group">
         <input type="text" name="advance_type" class="form-control" value="{{ request()->get('advance_type') }}"
-            placeholder="Advance Type">
+            placeholder="Goods Issue">
     </div>
-    @endcomponent --}}
+    @endcomponent 
 
     <div class="row row-sm">
         <div class="col-lg-12">

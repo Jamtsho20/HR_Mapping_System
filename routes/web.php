@@ -370,10 +370,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('commission', 'CommissionController')->except('show', 'edit');
         Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
         Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
-        Route::resource('asset-transfer', 'AssetTransferController')->except('create', 'show', 'edit');
+        Route::resource('asset-transfer', 'AssetTransferController');
         Route::resource('transfer-history', 'TransferHistoryController')->except('create', 'show', 'edit');
         Route::resource('transfer-approval', 'TransferApprovalController')->except('create', 'show', 'edit');
-        Route::resource('fixed-asset-return', 'FixedAssetReturnController')->except('create', 'show', 'edit');
+        Route::resource('fixed-asset-return', 'FixedAssetReturnController');
         Route::resource('fixed-asset-return-history', 'FixedAssetReturnHistoryController')->except('create', 'show', 'edit');
         Route::resource('fixed-asset-return-approval', 'FixedAssetReturnApprovalController')->except('create', 'show', 'edit');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
