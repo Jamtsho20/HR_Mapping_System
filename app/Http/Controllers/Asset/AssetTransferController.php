@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AssetTransferController extends Controller
@@ -28,7 +29,8 @@ class AssetTransferController extends Controller
      */
     public function create()
     {
-        //
+        $employees = User::all();
+        return view('asset.asset-transfer.create',compact('employees'));
     }
 
     /**

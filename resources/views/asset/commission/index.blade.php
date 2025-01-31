@@ -5,7 +5,7 @@
     @if ($privileges->create)
         @section('buttons')
             <a href="{{ route('commission.create') }}" class="btn btn-sm btn-primary">
-                <i class="fa fa-plus"></i> Good Commission
+                <i class="fa fa-plus"></i> Apply Commission
             </a>
         @endsection
     @endif

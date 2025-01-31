@@ -58,7 +58,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('approval_count', 'GeneralApporvalController');
         Route::resource('my_team', 'TeamApiController');
         Route::post('/profile-pic', [UserController::class, 'updateProfilePic']);
-
+            
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {

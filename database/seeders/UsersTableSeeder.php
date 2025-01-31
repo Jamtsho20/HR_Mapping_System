@@ -20,7 +20,7 @@ class UsersTableSeeder extends Seeder
         'name' => 'Super User',
         'username' => 'E00000',
         'email' => 'admin@admin.com',
-        'password' => bcrypt('password'),
+        'password' => bcrypt('Tipl@2025'),
         'first_name' => 'Admin',
         'title' => 'Mr.',
         'cid_no' => '11211000920',

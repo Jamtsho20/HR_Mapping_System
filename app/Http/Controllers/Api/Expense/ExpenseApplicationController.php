@@ -435,7 +435,7 @@ public function update(Request $request, $id)
                 ->with(['expenseRateLimits' => function ($q) use ($empJobDetail, $loggedInUserRegion) {
                     // Filter expenseRateLimits by grade step and region
                     $q->where('mas_grade_step_id', $empJobDetail->mas_grade_step_id)
-                        ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
+                        // ->where('mas_region_id', $loggedInUserRegion[0]->region_id)
                         ->whereStatus(1);
                 }]);
         }, 'policyEnforcement'])

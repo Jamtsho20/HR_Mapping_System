@@ -28,7 +28,7 @@ class FixedAssetReturnController extends Controller
      */
     public function create()
     {
-        //
+        return view('asset.fixed-asset-return.create');
     }
 
     /**
