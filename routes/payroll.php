@@ -17,6 +17,7 @@
     Route::resource('annual-increment', 'AnnualIncrementController');
     Route::resource('pay-slips', 'PaySlipController');
     Route::resource('attendance', 'AttendanceController');
+    Route::resource('salary-saving-schemes', 'SSSController');
 
     Route::get('send-pay-slip/{payslipId}/{employeeId}', 'PaySlipController@sendPayslip')->name('pay-slips.send');
     Route::get('process-pay-slips/{id}', 'PaySlipController@processPaySlip')->name('pay-slips.process');

@@ -35,9 +35,26 @@ class UserController extends Controller
             $profilePic = uploadImageToDirectory($request->profile_pic, 'images/users/');
             $user->profile_pic = $profilePic;
             $user->save();
+
+            $userDetail = User::with([
+                'empJob.department:id,name,mas_employee_id',      // Only load the department name
+                'empJob.department.departmentHead:id,name',
+                'empJob.section:id,name',         // Only load the section name
+                'empJob.designation:id,name',     // Only load the designation name
+                'empJob.grade:id,name',           // Only load the grade name
+                'empJob.gradeStep:id,name',       // Only load the grade step name
+                'empJob.empType:id,name',         // Only load the employment type name
+                'empJob.supervisor:id,name,username', // Only load the supervisor's name
+                'empJob.office:id,name',           // Only load the office name
+                'roles:id,name'
+            ])->where('email', $user->username)
+                ->orWhere('username', $user->username)
+                ->first();
+
             return response()->json([
                 'message' => 'Profile picture updated successfully.',
-                'profile_pic_url' => $user->profile_pic,
+                'user' => $userDetail,
+                
             ], 200);
         }
 

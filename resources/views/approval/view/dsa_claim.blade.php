@@ -90,7 +90,7 @@
                                                 <th>To Date</th>
                                                 <th>From Location</th>
                                                 <th>To Location</th>
-                                                <th>Total Days</th>
+                                                <th>Number of Days</th>
                                                 <th>Daily Allowance</th>
                                                 <th>Travel Allowance</th>
                                                 <th>Total Amount</th>

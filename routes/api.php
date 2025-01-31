@@ -96,7 +96,8 @@ Route::middleware('api.access.log')->group(function () {
     Route::namespace('Api\v1\Advance')->prefix('advance-loan')->group(function () {
         Route::get('gadget-emi/employees/', [AdvanceLoanGadgetEmiController::class, 'getEmployees']);
         Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
-        Route::get('gadget-emi/details/{id}', [AdvanceLoanGadgetEmiController::class, 'getDetailsByAdvance']);
+        Route::get('gadget-emi/details/{id}', [AdvanceLoanGadgetEmiController::class, 'getDetailsByAdvance'])
+    ->where('id', '.*'); 
 
     });
 

@@ -4,7 +4,9 @@
             <div class="card-body">
                 @if (request()->is('approval/applications'))
                     <p class="text-danger large" style="text-indent: -0.8em; padding-left: 1.5em;">
-                        * The approval option will be disabled if the grace period of 3 days from the applied date expires,
+                        * The approval option will be disabled if the grace period of 3 working days from the applied
+                        date
+                        expires,
                         and you will no longer be able to approve the travel authorization.
                     </p>
                 @endif
@@ -26,7 +28,7 @@
                                     <th>TRAVEL TYPES</th>
                                     <th>ESTIMATED EXPENSES</th>
                                     @if (request()->is('approval/applications'))
-                                    <th>TIME LEFT FOR APPROVAL</th>
+                                        <th>TIME LEFT FOR APPROVAL</th>
                                     @endif
                                     <th>STATUS</th>
                                     <th>ACTION</th>
@@ -34,7 +36,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($results->get(7) as $travelAuthorization)
-                                    <tr  data-created-at="{{ $travelAuthorization->created_at->timestamp }}">
+                                    <tr data-created-at="{{ $travelAuthorization->created_at->timestamp }}">
                                         @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox" class="bulk_checkbox"
@@ -46,7 +48,8 @@
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
                                         @if (request()->is('approval/applications'))
-                                        <td id="timeLeftForApproval-{{ $travelAuthorization->id }}" class=" text-danger"></td>
+                                            <td id="timeLeftForApproval-{{ $travelAuthorization->id }}"
+                                                class=" text-danger"></td>
                                         @endif
                                         <td>@php
                                             $statusClasses = [
@@ -84,9 +87,10 @@
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                             @elseif ($routeName == 'approval.rejected')
-                                            <a href="{{ url('approval/rejected-applications/' . $travelAuthorization->id . '?tab=7') }}" class="btn btn-sm btn-outline-secondary">
-                                                <i class="fa fa-list"></i> Detail
-                                            </a>
+                                                <a href="{{ url('approval/rejected-applications/' . $travelAuthorization->id . '?tab=7') }}"
+                                                    class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-list"></i> Detail
+                                                </a>
                                             @else
                                                 <a href="{{ url('default-route/applications/' . $travelAuthorization->id . '?tab=7') }}"
                                                     class="btn btn-sm btn-outline-secondary">
@@ -113,54 +117,112 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const timers = document.querySelectorAll('[id^="timeLeftForApproval-"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const timers = document.querySelectorAll('[id^="timeLeftForApproval-"]');
 
-    timers.forEach(timer => {
-        const travelAuthorizationId = timer.id.split('-')[1];
-        const row = timer.closest('tr');
-        const checkbox = row.querySelector('.bulk_checkbox');
-        const detailButton = row.querySelector('.btn-outline-secondary');
-        const createdAtTimestamp = row.getAttribute('data-created-at'); // Get the timestamp from the data attribute
+        timers.forEach(timer => {
+            const travelAuthorizationId = timer.id.split('-')[1];
+            const row = timer.closest('tr');
+            const checkbox = row.querySelector('.bulk_checkbox');
+            const detailButton = row.querySelector('.btn-outline-secondary');
+            const createdAtTimestamp = row.getAttribute(
+                'data-created-at'); // Get the timestamp from the data attribute
 
-    // Convert the timestamp to a JavaScript Date object
-    const createdAt = new Date(createdAtTimestamp * 1000);
+            // Convert the timestamp to a JavaScript Date object
+            const createdAt = new Date(createdAtTimestamp * 1000);
 
-        // Calculate the deadline (add 3 days to created_at)
-        const deadline = new Date(createdAt.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from createdAt
+            // Calculate the deadline (add 3 days to created_at)
+            //const deadline = new Date(createdAt.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from createdAt
+            const holidays = @json($holidays);
+            const holidayDates = holidays.flatMap(holiday => {
+                const startDate = new Date(holiday.start_date);
+                const endDate = new Date(holiday.end_date);
+                const dates = [];
+
+                // Clone the startDate to avoid mutating the original object
+                let currentDate = new Date(startDate);
+
+                while (currentDate <= endDate) {
+                    dates.push(currentDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+                    currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+                }
+
+                return dates;
+            });
 
 
-        function updateCountdown() {
-            const now = new Date();
-            const timeLeft = deadline - now;
+            function calculateDeadline(startDate) {
+                let workingDays = 0; // Counter for working days
+                let currentDate = new Date(startDate);
+                currentDate.setDate(currentDate.getDate() + 1);
+                // while (currentDate.getDay() === 0 || currentDate.getDay() === 6) { // Skip Sunday (0) and Saturday (6)
+                //     currentDate.setDate(currentDate.getDate() + 1);
+                // }
 
-            if (timeLeft <= 0) {
-                timer.innerText = 'Expired';
-                timer.style.color = 'red';
-                if (checkbox) checkbox.disabled = true; // Disable checkbox
-                const isApprovalApplications = @json(request()->is('approval/applications'));
-                if (isApprovalApplications) {
-                    if (detailButton) {
-                        detailButton.classList.add('disabled'); // Add a CSS class to style as disabled
-                        detailButton.style.pointerEvents = 'none'; // Disable click action
-                        detailButton.style.opacity = '0.5'; // Optional: Reduce opacity to indicate disabled state
+                while (workingDays < 3) { // Loop until we count 4 working days
+                    const day = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+                    const formattedDate = currentDate.toISOString().split('T')[
+                    0]; // Format as YYYY-MM-DD
+
+                    // Check if the current date is a holiday or a weekend (Saturday or Sunday)
+                    if (!holidayDates.includes(formattedDate) && day !== 0 && day !== 6) {
+                        workingDays++; // Increment the working days counter if it's a valid working day
+
+                    }
+
+
+                    if (workingDays < 3) {
+                        currentDate.setDate(currentDate.getDate() + 1); // Increment day by 1
+
                     }
                 }
-            } else {
-                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-                timer.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                return currentDate;
             }
-        }
 
-        // Update the timer every second
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+
+
+
+
+
+            // Calculate the deadline
+            const deadline = calculateDeadline(createdAt);
+
+            function updateCountdown() {
+                const now = new Date().getTime(); // Get current time in milliseconds (UTC)
+                const deadlineTime = new Date(deadline)
+                    .getTime(); // Convert deadline to milliseconds (UTC)
+
+                const timeLeft = deadlineTime - now; // Calculate the remaining time
+
+                if (timeLeft <= 0) {
+                    timer.innerText = 'Expired';
+                    timer.style.color = 'red';
+                    if (checkbox) checkbox.disabled = true; // Disable checkbox
+                    const isApprovalApplications = @json(request()->is('approval/applications'));
+                    if (isApprovalApplications) {
+                        if (detailButton) {
+                            detailButton.classList.add(
+                                'disabled'); // Add a CSS class to style as disabled
+                            detailButton.style.pointerEvents = 'none'; // Disable click action
+                            detailButton.style.opacity =
+                                '0.5'; // Optional: Reduce opacity to indicate disabled state
+                        }
+                    }
+                } else {
+                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    timer.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                }
+            }
+
+            // Update the timer every second
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
     });
-});
-
 </script>
-

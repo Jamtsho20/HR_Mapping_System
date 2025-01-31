@@ -509,25 +509,28 @@ class AjaxRequestController extends Controller
     public function getTravelAuthorizationDetails($id)
     {
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
+        $total_days = $travelAuthorizationDetails->total_days;
         if (!$travelAuthorizationDetails) {
             return response()->json(['message' => 'Travel authorization not found'], 404);
         }
         if ($travelAuthorizationDetails->details) {
             $travelAuthorizationDetails->details->each(function ($detail) {
-                // Use the accessor to get the travel name
-                $detail->mode_of_travel = $detail->travel_name; // This calls the accessor
 
-                if ($detail->from_date && $detail->to_date) {
+                $detail->mode_of_travel = $detail->travel_name;
+
+                if ($detail->number_of_days) {
+                    $detail->no_of_days = $detail->number_of_days;
+                }else{ if ($detail->from_date && $detail->to_date) {
                     $fromDate = new \DateTime($detail->from_date);
                     $toDate = new \DateTime($detail->to_date);
                     $interval = $fromDate->diff($toDate);
                     $detail->no_of_days = $interval->days + 1;
-                } else {
-                    $detail->no_of_days = 0;
-                }
+                }}
+
+
             });
         }
-        return response()->json(['travel_authorization_details' => $travelAuthorizationDetails]);
+        return response()->json(['travel_authorization_details' => $travelAuthorizationDetails, 'total_days' => $total_days]);
     }
 
     public function getEmployeeById($id)

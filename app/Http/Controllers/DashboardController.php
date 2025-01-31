@@ -79,8 +79,7 @@ class DashboardController extends Controller
                 'message' => $leaveEncashmentMessage,
             ];
         }
-        //collect all record related to login user to show in notification from application histories to show in notification tbl
-
+        
         // Fetch leave status counts
         [$leaveData, $statusCounts] = $this->getLeaveData($currentYear, 1);
         $showEarnedLeave = $employmentTypeId !== 3;

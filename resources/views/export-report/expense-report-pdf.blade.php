@@ -69,6 +69,9 @@
                 </th>
 
                 <th>
+                    Employee ID
+                </th>
+                <th>
                     Employee NAME
                 </th>
                 <th>
@@ -124,44 +127,45 @@
         </thead>
         <tbody>
             @forelse($expenses as $application)
-            <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{$application->employee->name}}</td>
-                <td>{{$application->employee->empJob->designation->name}}</td>
-                <td>{{$application->employee->empJob->department->name}}</td>
-                <td>{{$application->type->name}}</td>
-                <td>{{$application->vehicle->vehicle_no ?? '-'}}</td>
-                <td>{{$application->expense_no}}</td>
-                <td>{{$application->amount}}</td>
-                <td>{{$application->travel_type}}</td>
-                <td>{{$application->travel_mode}}</td>
-                <td>{{$application->travel_from_date}}</td>
-                <td>{{$application->travel_to_date}}</td>
-                <td>{{$application->travel_from}}</td>
-                <td>{{$application->travel_to}}</td>
-                <td>{{$application->travel_disatnce}}</td>
-                <td>{{$application->description}}</td>
-                @php
-                $statusClasses = [
-                -1 => 'Rejected',
-                0 => 'Cancelled',
-                1 => 'Submitted',
-                2 => 'Verified',
-                3 => 'Approved',
-                ];
-                $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
-                $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
-                @endphp
-                <td>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $application->employee->username }}</td>
+                    <td>{{ $application->employee->name }}</td>
+                    <td>{{ $application->employee->empJob->designation->name }}</td>
+                    <td>{{ $application->employee->empJob->department->name }}</td>
+                    <td>{{ $application->type->name }}</td>
+                    <td>{{ $application->vehicle->vehicle_no ?? '-' }}</td>
+                    <td>{{ $application->expense_no }}</td>
+                    <td>{{ $application->amount }}</td>
+                    <td>{{ $application->travel_type }}</td>
+                    <td>{{ $application->travel_mode }}</td>
+                    <td>{{ $application->travel_from_date }}</td>
+                    <td>{{ $application->travel_to_date }}</td>
+                    <td>{{ $application->travel_from }}</td>
+                    <td>{{ $application->travel_to }}</td>
+                    <td>{{ $application->travel_disatnce }}</td>
+                    <td>{{ $application->description }}</td>
+                    @php
+                        $statusClasses = [
+                            -1 => 'Rejected',
+                            0 => 'Cancelled',
+                            1 => 'Submitted',
+                            2 => 'Verified',
+                            3 => 'Approved',
+                        ];
+                        $statusText = config("global.application_status.{$application->status}", 'Unknown Status');
+                        $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
+                    @endphp
+                    <td>
 
-                    {{ $statusText }}
-                </td>
-                <td>{{$application->expense_approved_by->name ?? '-'}}</td>
-            </tr>
+                        {{ $statusText }}
+                    </td>
+                    <td>{{ $application->expense_approved_by->name ?? '-' }}</td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="10" class="text-center text-danger">No Expense report found</td>
-            </tr>
+                <tr>
+                    <td colspan="10" class="text-center text-danger">No Expense report found</td>
+                </tr>
             @endforelse
         </tbody>
     </table>

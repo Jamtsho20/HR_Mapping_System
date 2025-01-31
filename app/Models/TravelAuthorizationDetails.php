@@ -15,6 +15,7 @@ class TravelAuthorizationDetails extends Model
         'travel_authorization_id',
         'mode_of_travel',
         'from_location',
+        'number_of_days',
         'to_location',
         'from_date',
         'to_date',

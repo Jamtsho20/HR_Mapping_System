@@ -1,9 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Othe Pay Changes')
 @section('buttons')
-    <a href="{{ route('other-pay-changes.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Other Pay
-        Changes
-        List</a>
+    <a href="{{ route('other-pay-changes.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
     <form action="{{ route('other-pay-changes.update', $payChange->id) }}" method="POST">
