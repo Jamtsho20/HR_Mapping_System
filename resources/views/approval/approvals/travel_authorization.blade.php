@@ -4,10 +4,7 @@
             <div class="card-body">
                 @if (request()->is('approval/applications'))
                     <p class="text-danger large" style="text-indent: -0.8em; padding-left: 1.5em;">
-                        * The approval option will be disabled if the grace period of 3 working days from the applied
-                        date
-                        expires,
-                        and you will no longer be able to approve the travel authorization.
+                        * The application will be automatically rejected if it exceeds the 3-working-day grace period from the date of submission.
                     </p>
                 @endif
 
@@ -36,7 +33,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($results->get(7) as $travelAuthorization)
-                                    <tr data-created-at="{{ $travelAuthorization->created_at->timestamp }}">
+                                    <tr  data-route="{{ route('approverejectbulk') }}" data-created-at="{{ $travelAuthorization->created_at->timestamp }}" data-id = "{{ $travelAuthorization->id }}">
                                         @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox" class="bulk_checkbox"
@@ -123,6 +120,7 @@
         timers.forEach(timer => {
             const travelAuthorizationId = timer.id.split('-')[1];
             const row = timer.closest('tr');
+            var flag = 0;
             const checkbox = row.querySelector('.bulk_checkbox');
             const detailButton = row.querySelector('.btn-outline-secondary');
             const createdAtTimestamp = row.getAttribute(
@@ -193,7 +191,6 @@
                 const now = new Date().getTime(); // Get current time in milliseconds (UTC)
                 const deadlineTime = new Date(deadline)
                     .getTime(); // Convert deadline to milliseconds (UTC)
-
                 const timeLeft = deadlineTime - now; // Calculate the remaining time
 
                 if (timeLeft <= 0) {
@@ -209,7 +206,45 @@
                             detailButton.style.opacity =
                                 '0.5'; // Optional: Reduce opacity to indicate disabled state
                         }
+
+
+                    if (flag == 0) {
+                const id = [row.getAttribute('data-id')];
+                const action = 'reject';
+                const routeUrl = row.getAttribute('data-route');
+                const itemType = 7;
+                const rejectRemarks = "The travel authorization application has been automatically rejected on behalf of the approver as the approval deadline was exceeded.";
+                $('#loader').show();
+                $.ajax({
+                            url: routeUrl,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                item_ids: id,
+                                action: action,
+                                reject_remarks: rejectRemarks,
+                                item_type_id: itemType
+                            },
+
+                            success: function(response) {
+
+
+                                // Reload the page
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 100);
+
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error('AJAX Error:', xhr.responseText);
+                                }
+
+
+                        });
+
                     }
+                    flag = 1;
+                }
                 } else {
                     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
