@@ -42,7 +42,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="employee">Old Employee Name<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="employee" value="{{ Auth::user()->name }}" disabled>
+                                                                                    <input type="text" class="form-control" name="employee" value="{{ Auth::user()->name }}" disabled>
                         </div>
                     </div>
                     <div class="col-md-3">
