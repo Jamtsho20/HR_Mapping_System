@@ -90,12 +90,12 @@
                             <thead>
                                 <tr>
                                     <th width="3%" class="text-center">#</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Number of Days</th>
-                                    <th>From Location</th>
-                                    <th>To Location</th>
-                                    <th>Mode of Travel</th>
+                                    <th>Start Date<span class="text-danger">*</span></th>
+                                    <th>End Date<span class="text-danger">*</span></th>
+                                    <th>Number of Days<span class="text-danger">*</span></th>
+                                    <th>From Location<span class="text-danger">*</span></th>
+                                    <th>To Location<span class="text-danger">*</span></th>
+                                    <th>Mode of Travel<span class="text-danger">*</span></th>
                                     <th colspan="2">Purpose</th>
                                 </tr>
                             </thead>
