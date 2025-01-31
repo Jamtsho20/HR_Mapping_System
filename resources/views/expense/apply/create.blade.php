@@ -839,7 +839,7 @@
                         dataType: 'JSON',
                         type: 'GET',
                         success: function(data) {
-                            const totalNumberOfDays = data.number_of_days;
+                            const totalNumberOfDays = data.total_days;
                             const totalNumDays = document.getElementById('total_number_of_days');
                             totalNumDays.value = totalNumberOfDays;
                             const tbody = $("#travelstable tbody");

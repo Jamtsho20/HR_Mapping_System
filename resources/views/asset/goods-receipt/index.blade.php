@@ -11,16 +11,14 @@
     @endif
 
     <div class="block-header block-header-default">
-    {{-- @component('layouts.includes.filter')
-        <div class="col-4 form-group">
+    @component('layouts.includes.filter')
+        <div class="col-12 form-group">
             <select class="form-control" id="req_type" name="req_type">
                 <option value="" disabled selected hidden>Select Requisition Type</option>
-                @foreach ($reqTypes as $type)
-                    <option value="{{ $type->id }}" {{ request()->get('req_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
-                @endforeach
+            
             </select>
         </div>
-    @endcomponent --}}
+    @endcomponent 
 
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -39,7 +37,7 @@
                                                 <thead>
                                                     <tr role="row">
                                                         <th>#</th>
-                                                        <th>RREQUISITION NUMBER</th>
+                                                        <th>REQUISITION NUMBER</th>
                                                         <th>REQUISITION DATE</th>
                                                         <th>ISSUE NUMBER</th>
                                                         <th>STATUS</th>

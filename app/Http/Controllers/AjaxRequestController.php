@@ -509,7 +509,7 @@ class AjaxRequestController extends Controller
     public function getTravelAuthorizationDetails($id)
     {
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
-        $number_of_days = $travelAuthorizationDetails->number_of_days;
+        $total_days = $travelAuthorizationDetails->total_days;
         if (!$travelAuthorizationDetails) {
             return response()->json(['message' => 'Travel authorization not found'], 404);
         }
@@ -530,7 +530,7 @@ class AjaxRequestController extends Controller
 
             });
         }
-        return response()->json(['travel_authorization_details' => $travelAuthorizationDetails, 'number_of_days' => $number_of_days]);
+        return response()->json(['travel_authorization_details' => $travelAuthorizationDetails, 'total_days' => $total_days]);
     }
 
     public function getEmployeeById($id)
