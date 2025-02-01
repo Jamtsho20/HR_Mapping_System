@@ -12,7 +12,7 @@
 
     <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-        <div class="col-4 form-group">
+        <div class="col-12 form-group">
             <select class="form-control" id="req_type" name="req_type">
                 <option value="" disabled selected hidden>Select Requisition Type</option>
                 @foreach ($reqTypes as $type)

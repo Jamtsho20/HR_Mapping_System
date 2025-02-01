@@ -839,7 +839,7 @@
                         dataType: 'JSON',
                         type: 'GET',
                         success: function(data) {
-                            const totalNumberOfDays = data.number_of_days;
+                            const totalNumberOfDays = data.total_days;
                             const totalNumDays = document.getElementById('total_number_of_days');
                             totalNumDays.value = totalNumberOfDays;
                             const tbody = $("#travelstable tbody");
@@ -890,7 +890,7 @@
                                     min="0"
                                     step="0.5"
                                     name="dsa_claim_detail[${detail.id}][total_days]"
-                                    value="${detail.total_days}"
+                                    value="${detail.no_of_days}"
                                     class="form-control form-control-sm resetKeyForNew" />
                             </td>
                             <td class="text-center">

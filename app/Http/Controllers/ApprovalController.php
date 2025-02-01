@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Mail\ApprovalNotificationMail;
 use App\Mail\InitiatorNotificationMail;
+use App\Mail\TravelApprovalMail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -331,6 +332,34 @@ class ApprovalController extends Controller
         } else if ($status == 3) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' approved.';
+
+
+        if ($appType['name'] == 'In Country') {
+
+            $applierId= $applicationData->created_by;
+            $applier = User::where('id', $applierId)->with('empJob')->first();
+            $updatedBy = User::where('id', $applicationData->updated_by)->first();
+            $department = $applier->empJob->department->id;
+            $roleId = 7;
+            $gm = User::whereHas('empJob.department', function($query) use ($department) {
+                $query->where('id', $department); // Replace with your specific department ID
+            })
+            ->whereHas('roles', function($query) use ($roleId) {
+                $query->where('roles.id', $roleId); // Replace with your specific role ID
+            })
+            ->get()->first();
+
+            $requestingUserId = $applicationData->created_by; // ID of the user who applied for the travel authorization
+            $approvingUserId = $applicationData->updated_by; // ID of the user who approved the application
+            $emailSubject = 'Travel Authorization Application';
+
+            // Send the email
+            try {
+                Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
+
+            } catch (\Exception $e) {
+                log::error('Failed to send email: ' . $e->getMessage());
+            }}
         } else if ($status == -1) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' rejected.';
@@ -395,8 +424,13 @@ class ApprovalController extends Controller
 
             $results->put($key, $data);
         }
+        $holidays;
+        if ($results->get(7)) {
+            $holidays = DB::table('work_holiday_lists')
+                ->select('start_date', 'end_date')
+                ->get();
+        }
 
-
-        return view('approval.index', compact('privileges', 'headers', 'results', 'users'));
+        return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }
 }

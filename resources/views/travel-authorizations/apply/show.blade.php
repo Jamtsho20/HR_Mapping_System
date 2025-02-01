@@ -45,9 +45,9 @@
                                     <td style="padding-left:25px;"> {{ $travelAuthorization->estimated_travel_expenses }}</td>
                                 </tr>
                                 <tr>
-                                    <th style="width:35%;">No of Day(s) <span class="pull-right d-none d-sm-block">:</span>
+                                    <th style="width:35%;">Total No of Day(s) <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $no_of_days }} day(s)</td>
+                                    <td style="padding-left:25px;"> {{ $travelAuthorization->total_days ?? '-' }} day(s)</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">
@@ -58,6 +58,7 @@
                                                     <tr>
                                                         <th>Start Date</th>
                                                         <th>End Date</th>
+                                                        <th>Number of Days</th>
                                                         <th>From Location</th>
                                                         <th>To Location</th>
                                                         <th>Mode of Travel</th>
@@ -69,6 +70,7 @@
                                                         <tr>
                                                             <td>{{ \Carbon\Carbon::parse($detail->from_date)->format('d-M-Y') }}</td>
                                                             <td>{{ \Carbon\Carbon::parse($detail->to_date)->format('d-M-Y') }}</td>
+                                                            <td>{{ $detail->number_of_days ?? '-' }}</td>
                                                             <td>{{ $detail->from_location }}</td>
                                                             <td>{{ $detail->to_location }}</td>
                                                             <td>
