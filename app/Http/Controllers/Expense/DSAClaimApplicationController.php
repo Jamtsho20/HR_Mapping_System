@@ -39,9 +39,7 @@ class DSAClaimApplicationController extends Controller
         'amount' => 'required',
     ];
 
-    protected $messages = [
-
-    ];
+    protected $messages = [];
 
     private $attachmentPath = 'images/dsa/';
 
@@ -74,7 +72,6 @@ class DSAClaimApplicationController extends Controller
             ->get(['id', 'advance_no'])
             ->toArray();
         return view('expense.dsa-claim.create', compact('empIdName', 'advances'));
-
     }
 
     /**
@@ -106,9 +103,9 @@ class DSAClaimApplicationController extends Controller
             try {
                 DB::beginTransaction();
 
-                if ($request->hasFile('attachments')) {
-                    // Upload file and get the file path
-                    
+                if ($request->hasFile('attachment')) {
+                    // Upload file and get the file path              
+
                     $attachmentPath = uploadImageToDirectory($request->file('attachments'), $this->attachmentPath);
                     // Store it as a JSON array
                     $attachment = json_encode([$attachmentPath]);
@@ -168,7 +165,6 @@ class DSAClaimApplicationController extends Controller
                 DB::rollBack();
                 return back()->withInput()->with('msg_error', $e->getMessage());
             }
-
         } else {
             return back()->withInput()->with('msg_error', 'No approval rule defined found for this expense!');
         }
@@ -245,7 +241,7 @@ class DSAClaimApplicationController extends Controller
                     ->filter()
                     ->toArray();
 
-                    DsaClaimDetail::where('dsa_claim_id', $dsaClaimApplication->id)
+                DsaClaimDetail::where('dsa_claim_id', $dsaClaimApplication->id)
                     ->whereNotIn('id', $requestIds)
                     ->delete();
 
@@ -301,7 +297,6 @@ class DSAClaimApplicationController extends Controller
             }
             DB::beginTransaction();
             return redirect('expense/apply-expense')->with('msg_success', 'DSA Claim/Settltment has been updated successfully!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
