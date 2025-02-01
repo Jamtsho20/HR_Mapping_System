@@ -103,8 +103,8 @@ class DSAClaimApplicationController extends Controller
             try {
                 DB::beginTransaction();
 
-                if ($request->hasFile('attachments')) {
-                    // Upload file and get the file path
+                if ($request->hasFile('attachment')) {
+                    // Upload file and get the file path              
 
                     $attachmentPath = uploadImageToDirectory($request->file('attachments'), $this->attachmentPath);
                     // Store it as a JSON array

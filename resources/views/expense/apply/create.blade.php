@@ -312,7 +312,7 @@
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
-                                                    name="file">
+                                                    name="attachment">
                                             </div>
                                             <!-- Display area for uploaded file -->
                                             <div id="uploaded-file" style="margin-top: 10px;">
