@@ -127,6 +127,7 @@ Route::middleware('api.access.log')->group(function () {
     Route::namespace('Api\SAP')->middleware('auth:sanctum')->group(function () {
         Route::post('save-stores', [ApiController::class, 'saveStore']);
         Route::post('save-items', [ApiController::class, 'saveItem']);
+        Route::post('save-good-receipt-notes', [ApiController::class, 'saveGoodReceiptNote']);
     });
 Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
     Route::resource('holidays', 'HolidayListController');
