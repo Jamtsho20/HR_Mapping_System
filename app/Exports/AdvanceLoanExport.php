@@ -24,7 +24,7 @@ class AdvanceLoanExport implements FromCollection, WithHeadings
         $serialNo = 1;
 
         // Access the request data to apply filters
-        return AdvanceApplication::filter($this->request, false)->get()->map(function ($AdvanceReports) use (&$serialNo) {
+        return AdvanceApplication::whereStatus(3)->filter($this->request, false)->get()->map(function ($AdvanceReports) use (&$serialNo) {
             return [
                 $serialNo++,
                 $AdvanceReports->employee->username,

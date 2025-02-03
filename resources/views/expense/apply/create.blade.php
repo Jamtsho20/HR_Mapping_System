@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Expense')
 @section('content')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-@include('layouts.includes.loader')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    @include('layouts.includes.loader')
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <div class="card">
@@ -44,7 +44,8 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="expense_no">Expense No <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="expense_no" id="expense_no" placeholder="Generating..." readonly>
+                                            <input type="text" class="form-control" name="expense_no" id="expense_no"
+                                                placeholder="Generating..." readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -243,7 +244,8 @@
                                             <div class="form-group">
                                                 <label for="dsa_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="dsa_claim_no" id="dsa_claim_no" placeholder="Generating..." readonly>
+                                                <input type="text" class="form-control" name="dsa_claim_no"
+                                                    id="dsa_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -273,8 +275,8 @@
                                             <div class="form-group">
                                                 <label for="total_number_of_days">Total Number of Days</label>
                                                 <input type="number" class="form-control" id="total_number_of_days"
-                                                    name="total_number_of_days" value="{{ old('total_number_of_days', 0) }}"
-                                                    readonly>
+                                                    name="total_number_of_days"
+                                                    value="{{ old('total_number_of_days', 0) }}" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -312,7 +314,7 @@
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
-                                                    name="file">
+                                                    name="attachments">
                                             </div>
                                             <!-- Display area for uploaded file -->
                                             <div id="uploaded-file" style="margin-top: 10px;">
@@ -432,7 +434,8 @@
                             </div>
                         </form>
                     @elseif ($id == 4)
-                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_transfer" enctype="multipart/form-data">
+                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_transfer"
+                            enctype="multipart/form-data">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -482,10 +485,7 @@
                                                 <label for="transfer_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" name="transfer_claim_no"
-
-                                                    id="transfer_claim_no"
-
-                                                    placeholder="Generating..." readonly>
+                                                    id="transfer_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-6">

@@ -273,7 +273,7 @@ class EmployeeController extends Controller
             'personal.birth_place' => '',
             'personal.birth_country' => '',
             'personal.marital_status' => 'required',
-            'personal.email' => 'required|email|unique:mas_employees,email,' . ($employeeId ?? 'null'),
+            'personal.email' => 'required|email',
             'personal.contact_number' => 'required|digits:8',
             'personal.nationality' => 'required',
             'personal.date_of_appointment' => 'required|date',
