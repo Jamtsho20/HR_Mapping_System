@@ -744,8 +744,8 @@ class EmployeeController extends Controller
         ", [$masOfficeId])[0];
 
         $somsData = [
-            'employee_code' => str_replace('E', '', $employee->username),
-            // 'employee_code' => 2005,
+            // 'employee_code' => str_replace('E', '', $employee->username),
+            'employee_code' => $employee->employee_id,
             'person_id' => $employee->id,
             'first_name' => $employee->first_name,
             'middle_name' => $employee->middle_name,

@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 
 class ApiController extends Controller
 {
-    protected $basePath = 'https://soms-vm.tashicell.com/';
+    protected $basePath = 'https://soms-backend.tashicell.com';
+    // https://soms-backend.tashicell.com/api/v1/auth/authenticate
     protected $userName = 'E00000';
     protected $password = 'p@ssword';
 
