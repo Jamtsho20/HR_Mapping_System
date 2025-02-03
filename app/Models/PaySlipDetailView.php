@@ -16,11 +16,25 @@ class PaySlipDetailView extends Model
 
     public function scopeFilter($query, $request)
     {
-        $keyword = trim($request->query('search'));
-        if ($request->has('search') && $request->query('search') != '') {
-            $query->whereHas('employee', function($employeeQuery) use ($request, $keyword) {
-                $employeeQuery->where('name', 'like', '%' . $keyword. '%')
-                              ->orWhere('employee_id', 'like', '%' . $keyword. '%');
+        if ($request->filled('employee_id')) {
+            $query->whereHas('employee', function($employeeQuery) use ($request) {
+                $employeeQuery->where('id', $request->query('employee_id'));
+            });
+        }
+
+        if ($request->filled('department')) {
+            $query->whereHas('employee', function($employeeQuery) use ($request) {
+                $employeeQuery->whereHas('empJob', function ($jobQuery) use ($request) {
+                    $jobQuery->where('mas_department_id', $request->query('department'));
+                });
+            });
+        }
+
+        if ($request->filled('employment_type')) {
+            $query->whereHas('employee', function($employeeQuery) use ($request) {
+                $employeeQuery->whereHas('empJob', function ($jobQuery) use ($request) {
+                    $jobQuery->where('mas_employment_type_id', $request->query('employment_type'));
+                });
             });
         }
     }
