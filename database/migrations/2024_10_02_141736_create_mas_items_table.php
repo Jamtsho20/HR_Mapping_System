@@ -15,18 +15,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('item_no');
-            $table->string('grn_no');
-            $table->string('po_no');
+            // $table->string('grn_no');
+            // $table->string('po_no');
             $table->string('description')->nullable();
-            $table->integer('quantity')->default(0);
-            $table->string('uom')->nullable();
+             
             // $table->string('item_type')->nullable();
             $table->string('item_category')->index()->nullable();
-            $table->string('asset_type')->nullable();
-            $table->string('asset_no');
+            // $table->string('asset_type')->nullable();
+            // $table->string('asset_no');
             // $table->string('asset_class')->nullable();
             // $table->boolean('fa_enabled')->comment('1 => enabled, 0 => disabled');
-            $table->boolean('status')->comment('1 => active, 0 => inactive');
+            $table->boolean('status')->comment('1 => active, 0 => inactive and this it self will act as fa_enabled or disabled'); 
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

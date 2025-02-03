@@ -39,7 +39,7 @@ class TravelAuthorizationApplicationController extends Controller
         'details.*.to_location' => 'required|string',
         'details.*.from_date' => 'required|date',
         'details.*.to_date' => 'required|date|after_or_equal:details.*.from_date',
-        'advance_amount' => 'nullable|numeric',
+        'advance_amount' => 'nullable|numeric', // has been made nullable since advance amount can be entered from while applying in Advance application
         'details.*.purpose' => 'nullable|string|max:500',
         'travel_type' => 'required|exists:mas_travel_types,id',
     ];
