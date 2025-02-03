@@ -815,12 +815,12 @@ $(document).ready(function () {
         // Set allowed file types (MIME types)
         const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword'];
 
-        // Validate the file type
-        if (!allowedFileTypes.includes(file.type)) {
-            alert(`Invalid file type. Allowed file types are: PDF, DOCs, JPEG, PNG.`);
-            fileInput.value = "";
-            return false; // Return false if the file type is not allowed
-        }
+        // // Validate the file type
+        // if (!allowedFileTypes.includes(file.type)) {
+        //     alert(`Invalid file type. Allowed file types are: PDF, DOCs, JPEG, PNG.`);
+        //     fileInput.value = "";
+        //     return false; // Return false if the file type is not allowed
+        // }
 
         // Validate the file size
         if (file.size > maxSizeInBytes) {

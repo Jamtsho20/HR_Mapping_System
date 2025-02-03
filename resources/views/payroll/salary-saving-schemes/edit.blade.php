@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Loan / Device Emi')
+@section('page-title', 'SSS')
 @section('buttons')
 <a href="{{ route('salary-saving-schemes.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
