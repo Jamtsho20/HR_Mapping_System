@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('from_location');
             $table->tinyInteger("mode_of_travel")->comment("1 for Bike, 2 for Bus, 3 for Car, 4 for Flight, 5 for Train")->index()->nullable();
             $table->string('to_location');
+            $table->decimal('total_days', 10, 2);
             $table->date('from_date');
             $table->date('to_date');
             $table->text('purpose')->nullable();

@@ -48,7 +48,7 @@ class DSAClaimApplicationController extends Controller
         'dsa_claim_detail.*.to_date' => 'required|date|after_or_equal:dsa_claim_detail.*.from_date',
         'dsa_claim_detail.*.from_location' => 'required|string|max:255',
         'dsa_claim_detail.*.to_location' => 'required|string|max:255',
-        'dsa_claim_detail.*.total_days' => 'nullable|numeric|min:0',
+        'dsa_claim_detail.*.number_of_days' => 'required|numeric|min:0',
         'dsa_claim_detail.*.daily_allowance' => 'nullable|numeric|min:0',
         'dsa_claim_detail.*.travel_allowance' => 'nullable|numeric|min:0',
         'dsa_claim_detail.*.total_amount' => 'nullable|numeric|min:0',
@@ -89,8 +89,9 @@ class DSAClaimApplicationController extends Controller
         'dsa_claim_detail.*.to_location.required' => 'The to location is required.',
         'dsa_claim_detail.*.to_location.string' => 'The to location must be a string.',
         'dsa_claim_detail.*.to_location.max' => 'The to location may not be greater than 255 characters.',
-        'dsa_claim_detail.*.total_days.numeric' => 'The total days must be an number.',
-        'dsa_claim_detail.*.total_days.min' => 'The total days must be at least 0.',
+        'dsa_claim_detail.*.number_of_days.numeric' => 'The number of days must be an number.',
+        'dsa_claim_detail.*.number_of_days.required' => 'The number of days is required.',
+        'dsa_claim_detail.*.number_of_days.min' => 'The number of days must be at least 0.',
         'dsa_claim_detail.*.daily_allowance.numeric' => 'The daily allowance must be a number.',
         'dsa_claim_detail.*.daily_allowance.min' => 'The daily allowance must be at least 0.',
         'dsa_claim_detail.*.travel_allowance.numeric' => 'The travel allowance must be a number.',
@@ -135,8 +136,9 @@ class DSAClaimApplicationController extends Controller
          $empIdName = LoggedInUserEmpIdName();
          //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
          $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+         $excludedTravelIds = DsaClaimApplication::pluck('travel_authorization_id');
 
-        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         //get dsa advance which has been approved for settlement
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
@@ -144,8 +146,8 @@ class DSAClaimApplicationController extends Controller
             ->where('status', 3)
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no']);
-        return response()->json(["travels"=> $travels], 200);
-        return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
+        return response()->json(["travels"=> $travels, "advances"=> $advances], 200);
+        //return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
 
     }catch(\Exception $e){
         return $this->errorResponse($e->getMessage(), 500);
@@ -223,7 +225,7 @@ class DSAClaimApplicationController extends Controller
                             $applicationDetail->to_date = $detail['to_date'];
                             $applicationDetail->from_location = $detail['from_location'];
                             $applicationDetail->to_location = $detail['to_location'];
-                            $applicationDetail->total_days = $detail['total_days'] ?? $totalDays;
+                            $applicationDetail->total_days = $detail['number_of_days'] ?? $totalDays;
                             $applicationDetail->daily_allowance = $detail['daily_allowance'] ?? 0;
                             $applicationDetail->travel_allowance = $detail['travel_allowance'] ?? 0;
                             $applicationDetail->total_amount = $detail['total_amount'] ?? 0;

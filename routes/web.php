@@ -271,7 +271,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
         Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
-        Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'show', 'edit');
+        Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
         Route::resource('loan-report', 'LoanReportController')->except('create', 'show', 'edit');
@@ -357,7 +357,8 @@ Route::middleware('auth')->group(function () {
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
-        Route::resource('requisition-apply', 'RequisitionApplicationController')->except('create', 'show', 'edit');
+        Route::resource('mas-item', 'MasItemsController');
+        // Route::resource('requisition', 'RequisitionApplicationController')->except('create', 'show', 'edit');
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
@@ -370,10 +371,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('commission', 'CommissionController')->except('show', 'edit');
         Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
         Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
-        Route::resource('asset-transfer', 'AssetTransferController')->except('create', 'show', 'edit');
+        Route::resource('asset-transfer', 'AssetTransferController');
         Route::resource('transfer-history', 'TransferHistoryController')->except('create', 'show', 'edit');
         Route::resource('transfer-approval', 'TransferApprovalController')->except('create', 'show', 'edit');
-        Route::resource('fixed-asset-return', 'FixedAssetReturnController')->except('create', 'show', 'edit');
+        Route::resource('fixed-asset-return', 'FixedAssetReturnController');
         Route::resource('fixed-asset-return-history', 'FixedAssetReturnHistoryController')->except('create', 'show', 'edit');
         Route::resource('fixed-asset-return-approval', 'FixedAssetReturnApprovalController')->except('create', 'show', 'edit');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
@@ -388,7 +389,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-slab-details', 'PaySlabsDetailsController');
         Route::resource('pay-group-details', 'PayGroupDetailsController');
         Route::resource('executive-fixed-allowances', 'ExecutiveFixedAllowanceController');
-
     });
 
     //Payroll
@@ -446,7 +446,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('artisan-clear',function () {
+Route::get('artisan-clear', function () {
     \Artisan::call("cache:clear");
     \Artisan::call("config:clear");
 

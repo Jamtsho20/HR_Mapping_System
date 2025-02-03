@@ -79,7 +79,6 @@ class DashboardController extends Controller
                 'message' => $leaveEncashmentMessage,
             ];
         }
-        //collect all record related to login user to show in notification from application histories to show in notification tbl
 
         // Fetch leave status counts
         [$leaveData, $statusCounts] = $this->getLeaveData($currentYear, 1);
@@ -118,23 +117,23 @@ class DashboardController extends Controller
          $closingBalance = EmployeeLeave::where('mas_employee_id', $employeeId)
              ->where('mas_leave_type_id', 2)
              ->value('closing_balance');
-     
+
          // Check if an encashment application exists for the current year
          $hasEncashed = LeaveEncashmentApplication::where('mas_employee_id', $employeeId)
              ->whereYear('created_at', $currentYear)
              ->exists();
-     
+
          // If closing balance is more than or equal to 37 and no encashment exists for the current year
          if ($closingBalance >= 37 && !$hasEncashed) {
              // Fetch the leave encashment record for the employee
              $notification = LeaveEncashment::where('mas_employee_id', $employeeId)->first();
-     
+
              // If no notification exists or if email has not been sent
              if (!$notification || !$notification->email_sent) {
                  try {
                      // Fetch the user to send the email
                      $user = User::find($employeeId);
-     
+
                      // If user exists and email is valid, send the email and update the database
                      if ($user && $user->email) {
                          // Update or create the notification record
@@ -145,10 +144,10 @@ class DashboardController extends Controller
                                  'sent_at' => now(),
                              ]
                          );
-     
+
                          // Send the leave encashment email
                          Mail::to($user->email)->send(new LeaveEncashmentMail($user));
-     
+
                          return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
                      }
                  } catch (\Exception $e) {
@@ -157,13 +156,13 @@ class DashboardController extends Controller
                      return 'You are eligible for leave encashment.';
                  }
              }
-     
+
              return 'You are eligible for leave encashment.';
          }
-     
+
          return '';  // Return empty if the conditions are not met
      }
-     
+
 
 
     /**

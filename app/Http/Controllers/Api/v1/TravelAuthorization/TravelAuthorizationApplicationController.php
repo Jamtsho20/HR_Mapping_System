@@ -40,6 +40,8 @@ class TravelAuthorizationApplicationController extends Controller
 
     protected $rules = [
         'date' => 'required|date',
+        'total_days' => 'required|numeric',
+        'details.*.number_of_days' => 'required|numeric',
         'details.*.mode_of_travel' => 'required|string',
         'details.*.from_location' => 'required|string',
         'details.*.to_location' => 'required|string',
@@ -52,6 +54,8 @@ class TravelAuthorizationApplicationController extends Controller
 
     protected $messages = [
         'date.required' => 'The main travel date is required.',
+        'total_days.required' => 'The total number of days is required.',
+        'details.*.number_of_days.required' => 'Number of days is required for each travel detail.',
         'details.*.mode_of_travel.required' => 'Mode of travel is required for each travel detail.',
         'details.*.from_location.required' => 'From location is required for each travel detail.',
         'details.*.to_location.required' => 'To location is required for each travel detail.',
@@ -154,6 +158,7 @@ class TravelAuthorizationApplicationController extends Controller
 
                 $travelAuthorization->travel_authorization_no = $travelAuthorizationNo;
                 $travelAuthorization->date = $date;
+                $travelAuthorization->total_days = $request->total_days;
                 $travelAuthorization->advance_amount = $request->advance_required;
                 $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
                 $travelAuthorization->status = 1;
@@ -171,6 +176,7 @@ class TravelAuthorizationApplicationController extends Controller
                             'mode_of_travel' => $detail['mode_of_travel'],
                             'from_location' => $detail['from_location'],
                             'to_location' => $detail['to_location'],
+                            'number_of_days' => $detail['number_of_days'],
                             'from_date' => formatDate($detail['from_date']),
                             'to_date' => formatDate($detail['to_date']),
                             'purpose' => $detail['purpose'],

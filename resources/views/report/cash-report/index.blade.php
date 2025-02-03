@@ -77,7 +77,7 @@
                                             <tbody>
                                                 @forelse($cashes as $cash)
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ ($cashes->currentPage() - 1) * $cashes->perPage() + $loop->iteration }}</td>
                                                     <td>{{ $cash->employee->name }}</td>
                                                     <td>{{ $cash->employee->empJob->designation->name }}</td>
                                                     <td>{{ $cash->employee->empJob->office->name }}</td>

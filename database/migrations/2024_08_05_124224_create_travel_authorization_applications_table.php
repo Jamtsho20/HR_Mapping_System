@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->foreignId('type_id')->constrained('mas_travel_types')->onDelete('cascade');
-  
+            $table->decimal('number_of_days', 10, 2);
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
             $table->decimal("daily_allowance", 10, 2);
             $table->timestamps();

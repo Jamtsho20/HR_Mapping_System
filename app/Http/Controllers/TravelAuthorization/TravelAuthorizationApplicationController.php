@@ -39,7 +39,7 @@ class TravelAuthorizationApplicationController extends Controller
         'details.*.to_location' => 'required|string',
         'details.*.from_date' => 'required|date',
         'details.*.to_date' => 'required|date|after_or_equal:details.*.from_date',
-        'advance_amount' => 'nullable|numeric',
+        'advance_amount' => 'nullable|numeric', // has been made nullable since advance amount can be entered from while applying in Advance application
         'details.*.purpose' => 'nullable|string|max:500',
         'travel_type' => 'required|exists:mas_travel_types,id',
     ];
@@ -109,16 +109,19 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorization->advance_amount = $request->advance_required;
             $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
             $travelAuthorization->status = 1;
+            $travelAuthorization->total_days = $request->days_difference;
             $travelAuthorization->daily_allowance = $request->daily_allowance;
             $travelAuthorization->created_by = Auth::id();
             $travelAuthorization->type_id = $request->travel_type;
 
 
             $travelAuthorization->save();
+
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
                     $travelAuthorization->details()->create([
                         'mode_of_travel' => $detail['mode_of_travel'],
+                        'number_of_days' => $detail['number_of_days'],
                         'from_location' => $detail['from_location'],
                         'to_location' => $detail['to_location'],
                         'from_date' => $detail['from_date'],
