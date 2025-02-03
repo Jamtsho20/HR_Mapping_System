@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Loan / Device Emis')
+@section('page-title', 'SSS')
 @section('content')
     @if ($privileges->create)
         @section('buttons')

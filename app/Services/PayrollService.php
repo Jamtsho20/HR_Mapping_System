@@ -13,12 +13,14 @@ use App\Models\EmployeeOvertime;
 use App\Models\LoanEMIDeduction;
 use App\Models\SifaRegistration;
 use App\Models\PaySlipDetailView;
+use App\Models\EmployeeAttendance;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\EmployeeSalarySaving;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ExecutiveFixedAllowance;
+use App\Models\EmployeeAttendanceDetail;
 
 class PayrollService
 {
@@ -28,6 +30,7 @@ class PayrollService
         PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
         $employees = User::active()->completed()->whereKeyNot(1)->get();
         $userId = Auth::user()->id;
+        $attendance = EmployeeAttendance::whereForMonth()->first();
 
         foreach ($employees as $employee) {
             $durationOfService = $employee->durationOfService();
@@ -43,6 +46,8 @@ class PayrollService
             $employeeVariableValues['monthsSinceRegularization'] = $durationOfService['months'];
             $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
             $employeeVariableValues['sifaMember'] = $sifaMember ? 1 : 0;
+
+            $employeeAttendance = EmployeeAttendanceDetail::whereEMployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
 
             $basicPay = $employeeVariableValues['basicPay'] = $employee->empJob->basic_pay;
             $forMonthObject = date_create($payslip->for_month);
@@ -273,21 +278,14 @@ class PayrollService
         if ($calculation_method === 2) {
             return round(($amountToCalculateOn / $amount), 0);
         }
-        if ($calculation_method === 7) {
-            // $employeeDeduction = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->value('amount');
-            // return $employeeDeduction ?? 0;
-
-            // Loan Deduction
-            $loanDeduction = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->value('amount');
-
-            if ($loanDeduction !== null) {
-                return $loanDeduction; // Return Loan Deduction if present
+        if ($calculation_method === 7) {            
+            if ($payHeadId === 11) {
+                $amount = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->sum('amount');
+            } else {
+                $amount = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->sum('amount');
             }
 
-            // Salary Saving Deduction
-            $salarySavingDeduction = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->value('amount');
-            
-            return $salarySavingDeduction ?? 0; // Return Salary Saving Deduction if present, or 0
+            return $amount ?? 0;
         }
         if ($calculation_method === 3) {
             $slabId = $payHead->paySlab->id;
@@ -538,6 +536,19 @@ class PayrollService
         $paySlipDetailViews = DB::table("pay_slip_detail_views")->get();
         foreach ($paySlipDetailViews as $paySlipDetailView) {
             $allowanceTotal = $deductionTotal = 0;
+
+            // Attendance for Basic Pay Calculation
+            $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
+            $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($paySlipDetailView->mas_employee_id)->whereAttendanceId($attendance->id)->first();
+            $basicPay = $paySlipDetailView->basic_pay;
+
+            if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
+                $workingDays = $employeeAttendance->working_days;
+                $physicalDays = $employeeAttendance->physical_days;
+
+                $basicPay = round(($basicPay / $workingDays) * $physicalDays, 0);
+            }
+
             foreach ($payHeads as $payHead) {
                 $columnName = str_replace(" ", "_", $payHead->name);
                 $payHeadType = (int) $payHead->payhead_type;
@@ -547,11 +558,13 @@ class PayrollService
                     $deductionTotal += $paySlipDetailView->$columnName;
                 }
             }
-            $grossPay = $paySlipDetailView->basic_pay + $allowanceTotal;
+            $grossPay = $basicPay + $allowanceTotal;
+            // $grossPay = $paySlipDetailView->basic_pay + $allowanceTotal;
             $netPay = $grossPay - $deductionTotal;
             DB::table("pay_slip_detail_views")
                 ->whereRaw("id = ?", [$paySlipDetailView->id])
-                ->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
+                ->update(['basic_pay' => $basicPay, 'gross_pay' => $grossPay, 'net_pay' => $netPay]);
+                // ->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
         }
     }
 

@@ -12,26 +12,45 @@
                 <div class="form-group col-md-6">
                     <label for="for_month">For Month <span class="text-danger">*</span></label>
                     <input type="month" class="form-control" name="for_month"
-                        value="{{ substr($paySlip->for_month, 0, 7) }}" required="required">
+                        value="{{ substr($paySlip->for_month, 0, 7) }}" required="required" disabled>
                 </div>
-                {{-- <div class="d-flex align-items-center">
-                    <button type="submit" class="btn btn-primary mr-2">
-                        <i class="fa fa-upload"></i> UPDATE
-                    </button>
-                    &nbsp;
-                    <a href="{{ url('payroll/pay-slips') }}" class="btn btn-danger">
-                        <i class="fa fa-undo"></i> CANCEL
-                    </a>
-                </div> --}}
             </div>
         </div>
     </form>
 
 
     @component('layouts.includes.filter')
-        <div class="col-8 form-group">
-            <input type="text" name="search" class="form-control"
-                value="{{ request()->get('search') }}"placeholder="Search by employee name or id. eg. tashi or 1050">
+        <div class="col-3 form-group">
+            <select name="employee_id" class="form-control select2">
+                <option value="">-- Select Employee --</option>
+                @foreach($employees as $employee)
+                <option value="{{ $employee->id }}" {{ old('employee_id', request()->get('employee_id')) == $employee->id ? 'selected' : '' }} >{{ $employee->emp_id_name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-3 form-group">
+            <select name="payhead" class="form-control select2">
+                <option value="">-- Select Payhead --</option>
+                @foreach($payHeads as $payHead)
+                    <option value="{{ $payHead->id }}" {{ old('payhead', request()->get('payhead')) == $payHead->id ? 'selected' : '' }} >{{ $payHead->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-3 form-group">
+            <select name="department" class="form-control select2">
+                <option value="">-- Select Department --</option>
+                @foreach($departments as $id => $name)
+                    <option value="{{ $id }}" {{ old('department', request()->get('department')) == $id ? 'selected' : '' }} >{{ $name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-3 form-group">
+            <select name="employment_type" class="form-control select2">
+                <option value="">-- Select Employment Type --</option>
+                @foreach($employmentTypes as $id => $name)
+                    <option value="{{ $id }}" {{ old('employment_type', request()->get('employment_type')) == $id ? 'selected' : '' }} >{{ $name }}</option>
+                @endforeach
+            </select>
         </div>
     @endcomponent
         <div class="card">
@@ -48,7 +67,7 @@
                                         style="overflow: scroll; position: relative; border: 0px; width: 100%;">
                                         <div class="dataTables_scrollHeadInner"
                                             style="box-sizing: content-box; padding-right: 0px;">
-                                            <table
+                                            {{-- <table
                                                 class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                 id="basic-datatable table-responsive">
                                                 <thead>
@@ -66,9 +85,7 @@
                                                 <tbody>
                                                     @forelse ($records as $record)
                                                         <tr>
-                                                            <td>{{ $record->employee->name }}
-                                                                ({{ $record->employee->employee_id }})
-                                                            </td>
+                                                            <td>{{ $record->employee->emp_id_name }}</td>
                                                             <td>{{ $record->basic_pay }}</td>
                                                             @foreach ($payHeads as $payHead)
                                                                 <td>{{ $record->{str_replace(' ', '_', $payHead->name)} }}
@@ -92,8 +109,85 @@
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
+                                            </table> --}}
+                                            <table
+                                                class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                id="basic-datatable table-responsive">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>Name (ID)</th>
+                                                        <th>Basic Pay</th>
+                                                        @foreach ($payHeads as $payHead)
+                                                            <th>{{ $payHead->code }}</th>
+                                                        @endforeach
+                                                        <th>Gross Pay</th>
+                                                        <th>Net Pay</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        // Initialize totals
+                                                        $totalBasicPay = 0;
+                                                        $totalPayHeads = [];
+                                                        $totalGrossPay = 0;
+                                                        $totalNetPay = 0;
+                                                    @endphp
+
+                                                    @forelse ($records as $record)
+                                                        <tr>
+                                                            <td>{{ $record->employee->emp_id_name }}</td>
+                                                            <td>{{ round($record->basic_pay, 2) }}</td>
+                                                            @php
+                                                                $totalBasicPay += $record->basic_pay;
+                                                            @endphp
+
+                                                            @foreach ($payHeads as $payHead)
+                                                                <td>{{ round($record->{str_replace(' ', '_', $payHead->name)}, 2) }}</td>
+                                                                @php
+                                                                    // Sum up pay heads
+                                                                    $totalPayHeads[$payHead->name] = ($totalPayHeads[$payHead->name] ?? 0) + $record->{str_replace(' ', '_', $payHead->name)};
+                                                                @endphp
+                                                            @endforeach
+
+                                                            <td>{{ round($record->gross_pay, 2) }}</td>
+                                                            @php
+                                                                $totalGrossPay += $record->gross_pay;
+                                                            @endphp
+
+                                                            <td>{{ round($record->net_pay, 2) }}</td>
+                                                            @php
+                                                                $totalNetPay += $record->net_pay;
+                                                            @endphp
+
+                                                            <td>
+                                                                @if ($paySlip->status['key'] == 4)
+                                                                    <a href="#" class="btn btn-primary btn-sm"
+                                                                        id="send-payslip"
+                                                                        data-url="{{ route('pay-slips.send', [$paySlip->id, $record->employee->id]) }}">Email Pay slip</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="100" class="text-center text-danger">No records found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Total</th>
+                                                        <th>{{ round($totalBasicPay, 2) }}</th>
+                                                        @foreach ($payHeads as $payHead)
+                                                            <th>{{ round($totalPayHeads[$payHead->name] ?? 0, 2) }}</th>
+                                                        @endforeach
+                                                        <th>{{ round($totalGrossPay, 2) }}</th>
+                                                        <th>{{ round($totalNetPay, 2) }}</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
                                             </table>
-                                            <div>{{ $records->links() }}</div>
+                                            {{-- <div>{{ $records->links() }}</div> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -140,9 +234,7 @@
                                                 <tbody>
                                                     @forelse ($details as $detail)
                                                         <tr>
-                                                            <td>{{ $detail->employee->name }}
-                                                                ({{ $detail->employee->employee_id }})
-                                                            </td>
+                                                            <td>{{ $detail->employee->emp_id_name }}</td>
                                                             <td>{{ $detail->payHead->name }}</td>
                                                             <td>{{ $detail->amount }}</td>
                                                             <td>{{ $detail->updated_at ? $detail->updated_at->format('Y-m-d H:i:s') : '' }}

@@ -24,7 +24,7 @@ class SSSController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $salarySavings = EmployeeSalarySaving::filter($request)->orderBy('created_at')->paginate(config('global.pagination'));
+        $salarySavings = EmployeeSalarySaving::filter($request)->orderBy('id')->paginate(config('global.pagination'));
         $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
        return view('payroll.salary-saving-schemes.index', compact('privileges', 'salarySavings', 'employees'));
@@ -44,7 +44,7 @@ class SSSController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store()
+    public function store(Request $request)
     {
         try {
             $request->validate([

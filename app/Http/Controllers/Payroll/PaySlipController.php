@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers\Payroll;
 
-use App\Http\Controllers\Api\SAP\ApiController;
-use App\Http\Controllers\Controller;
-use App\Jobs\PostSalaryToSapJob;
-use App\Models\MasPayHead;
-use App\Models\PaySlip;
-use App\Models\PaySlipDetail;
-use App\Models\PaySlipDetailView;
-use App\Models\User;
-use App\Services\PayrollService;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\PaySlip;
+use App\Models\MasPayHead;
 use Illuminate\Http\Request;
+use App\Models\MasDepartment;
+use App\Models\PaySlipDetail;
+use App\Jobs\ProcessPaySlipJob;
+use App\Jobs\PostSalaryToSapJob;
+use App\Services\PayrollService;
+use App\Models\MasEmploymentType;
+use App\Models\PaySlipDetailView;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Schema;
-use App\Jobs\ProcessPaySlipJob;
+use App\Http\Controllers\Api\SAP\ApiController;
 
 class PaySlipController extends Controller
 {
@@ -91,8 +93,10 @@ class PaySlipController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $employees = User::select(['id', 'name', 'employee_id'])->get();
+        $employees = User::select(['id', 'name', 'employee_id', 'username', 'title']) ->whereNotIn('id', [1, 2])->get();
         $payHeads = MasPayHead::select(['id', 'name', 'code'])->orderBy('name')->get();
+        $departments = MasDepartment::pluck('name', 'id');
+        $employmentTypes = MasEmploymentType::whereKeyNot(1)->pluck('name', 'id');
 
         $paySlip = PaySlip::findOrFail($id);
         $month = $paySlip->for_month;
@@ -101,10 +105,12 @@ class PaySlipController extends Controller
         if (!$count) {
             $this->payrollService->populateReportTable($paySlip);
         }
-        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(config('global.pagination'))->withQueryString();
-        $details = $paySlip->details()->filter($request)->paginate(50)->withQueryString();
+        // $records = PaySlipDetailView::filter($request)->where('for_month', $month)->paginate(80)->withQueryString();
+        $records = PaySlipDetailView::filter($request)->where('for_month', $month)->get();
 
-        return view('payroll.pay-slips.show', compact('employees', 'paySlip', 'payHeads', 'records', 'details'));
+        $details = $paySlip->details()->filter($request)->paginate(24)->withQueryString();
+
+        return view('payroll.pay-slips.show', compact('employees', 'paySlip', 'payHeads', 'records', 'details', 'departments', 'employmentTypes'));
     }
 
     /**
@@ -174,7 +180,7 @@ class PaySlipController extends Controller
             ProcessPaySlipJob::dispatch($payslip, $status);
 
             $month = Carbon::parse($payslip->for_month)->format('F Y');
-            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' has been processed successfully.');
+            return redirect()->route('pay-slips.show', $id)->with('msg_success', 'Payslip for the month of ' . $month . ' is being processed ...');
         } catch (\Exception $e) {
             Log::error('Error processing payslip: ' . $e->getMessage());
 
