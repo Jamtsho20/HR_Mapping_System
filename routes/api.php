@@ -42,7 +42,7 @@ Route::middleware('api.access.log')->group(function () {
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
 
 
-    Route::post('/get-soms-token', [SomsApiComtroller::class, 'startSession']);
+    Route::get('/get-soms-token', [SomsApiComtroller::class, 'startSession']);
     //other app related route
     // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     //     return $request->user();

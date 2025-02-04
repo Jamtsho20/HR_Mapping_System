@@ -350,28 +350,6 @@ var hrms = function () {
             }
         });
 
-        //authentication for SOMs API
-        function getBearerToken() {alert("aa")
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    url: "https://soms-backend.tashicell.com/api/v1/auth/authenticate", // Replace with actual login login endpoint
-                    // url: "https://soms-test-backend.tashicell.com/api/v1/auth/authenticate", // test login end point
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({
-                        username: "E00001",  // Replace with actual username
-                        password: "p@ssword"   // Replace with actual password
-                    }),
-                    success: function (response) {
-                        console.log(response)
-                        resolve(response.token); // Assuming API returns { "token": "your_access_token" }
-                    },
-                    error: function (error) {
-                        reject(error);
-                    }
-                });
-            });
-        }
 
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
@@ -396,25 +374,26 @@ var hrms = function () {
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
 
                     // fetch("http://tipl-hrms.test/api/get-soms-token", { //for test
-                    fetch("https://hrms.tashicell.com/api/get-soms-token", {
-                        method: "POST",
-                        // headers: {
-                        //     "Content-Type": "application/json"
-                        // }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // console.log("Access Token:", data.access_token);
-                            // console.log("Refresh Token:", data.refresh_token);
+                    // // fetch("https://hrms.tashicell.com/api/get-soms-token", {
+                    //     method: "GET",
+                    //     headers: {
+                    //         "Content-Type": "application/json"
+                    //     }
+                    // })
+                    // .then(response => response.json())
+                    // .then(data => {
+                    //     console.log(data)
+                    //     if (data.success) {
+                    //         // console.log("Access Token:", data.access_token);
+                    //         // console.log("Refresh Token:", data.refresh_token);
                     
-                            // Store token in localStorage/sessionStorage
-                            localStorage.setItem("accessToken", data.access_token);
-                        } else {
-                            console.error("Error:", data.message);
-                        }
-                    })
-                    .catch(error => console.error("Fetch Error:", error));
+                    //         // Store token in localStorage/sessionStorage
+                    //         localStorage.setItem("accessToken", data.access_token);
+                    //     } else {
+                    //         console.error("Error:", data.message);
+                    //     }
+                    // })
+                    // .catch(error => console.error("Fetch Error:", error));
 
                     
                     let typingTimer; // Timer for debounce
@@ -425,10 +404,9 @@ var hrms = function () {
                         allowClear: true, // Allow clearing the selection
                         minimumInputLength: 3, // Trigger search only after typing 3 characters
                         
-                        // getBearerToken().then(token => {
                         ajax: {
                             transport: function (params, success, failure) {
-                                const accessToken = localStorage.getItem("accessToken");
+                                // const accessToken = localStorage.getItem("accessToken");
                                 // Debounce API requests
                                 clearTimeout(typingTimer); // Clear previous timer
                                 typingTimer = setTimeout(function () {
@@ -437,10 +415,10 @@ var hrms = function () {
                                         url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         type: 'GET',
                                         dataType: 'json',
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                            "Authorization": `Bearer ${accessToken}`,
-                                        },
+                                        // headers: {
+                                        //     "Content-Type": "application/json",
+                                        //     "Authorization": `Bearer ${accessToken}`,
+                                        // },
                                         success: success,
                                         error: failure
                                     });
@@ -471,10 +449,10 @@ var hrms = function () {
                             url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/Pricing?type=${encodeURIComponent(selectedItemId)}`, // Using selected item item
                             type: 'GET',
                             dataType: 'json',
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${accessToken}`,
-                            },
+                            // headers: {
+                            //     "Content-Type": "application/json",
+                            //     "Authorization": `Bearer ${accessToken}`,
+                            // },
                             success: function (pricingResponse) {
 
 
