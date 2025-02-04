@@ -11,8 +11,8 @@ class ApiController extends BaseController
 {
 
     use JsonResponseTrait;
-    protected $countryId = 1;
-    protected $superUser = 1;
+    protected $country = "Bhutan";
+    protected $sapUser = 2;
 
     public function saveStore(Request $request) {
         $rules = [
@@ -49,16 +49,16 @@ class ApiController extends BaseController
                 // If store exists, update it
                 $store->parent_store_id = $parentStoreId;
                 $store->name = $request->name;
-                $store->store_location = $request->store_location;
+                $store->country = isset($request->country) ? $request->country : $this->country;
+                $store->dzongkhag = $request->dzongkhag ?? null;
+                $store->region = isset($request->region) ? $request->region : null;
                 $store->store_email = isset($request->store_email) ? $request->store_email : null;
                 $store->phone_number = isset($request->phone_number) ? $request->phone_number : null;
                 $store->contact_person = isset($request->contact_person) ? $request->contact_person : null;
                 $store->contact_email = isset($request->contact_email) ? $request->contact_email : null;
                 $store->contact_number = isset($request->contact_number) ? $request->contact_number : null;
-                $store->country_id = $this->countryId;
-                $store->region_id = isset($request->region_id) ? $request->region_id : null;
                 $store->status = $request->status ?? 1;
-                $store->updated_by = $this->superUser; // Track who updated it
+                $store->updated_by = $this->sapUser; // Track who updated it
                 $store->save();
                 $message = 'Store updated successfully.';
             } else {
@@ -67,16 +67,16 @@ class ApiController extends BaseController
                 $store->parent_store_id = $parentStoreId;
                 $store->name = $request->name;
                 $store->code = $request->code;
-                $store->store_location = $request->store_location;
+                $store->country = isset($request->country) ? $request->country : $this->country;
+                $store->dzongkhag = $request->dzongkhag ?? null;
+                $store->region = isset($request->region) ? $request->region : null;
                 $store->store_email = isset($request->store_email) ? $request->store_email : null;
                 $store->phone_number = isset($request->phone_number) ? $request->phone_number : null;
                 $store->contact_person = isset($request->contact_person) ? $request->contact_person : null;
                 $store->contact_email = isset($request->contact_email) ? $request->contact_email : null;
                 $store->contact_number = isset($request->contact_number) ? $request->contact_number : null;
-                $store->country_id = $this->countryId;
-                $store->region_id = isset($request->region_id) ? $request->region_id : null;
                 $store->status = $request->status ?? 1;
-                $store->created_by = $this->superUser;
+                $store->created_by = $this->sapUser;
                 $store->save();
                 $message = 'Store created successfully.';
             }
@@ -120,14 +120,14 @@ class ApiController extends BaseController
                 // If item exists, update it
                 $item->store_id = $storeId;
                 $item->item_category = $request->item_category;
-                $item->asset_type = $request->asset_type;
-                $item->asset_class = $request->asset_class;
+                // $item->asset_type = $request->asset_type;
+                // $item->asset_class = $request->asset_class;
                 $item->item_description = $request->item_description;
                 $item->uom = $request->uom;
                 $item->quantity = $request->quantity;
-                $item->fa_enabled = $request->fa_enabled ?? 1;
+                // $item->fa_enabled = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
-                $item->updated_by = $this->superUser; // Track who updated it
+                $item->updated_by = $this->sapUser; // Track who updated it
                 $item->save();
                 $message = 'Item updated successfully.';
             } else {
@@ -135,14 +135,14 @@ class ApiController extends BaseController
                 $item = new MasItem();
                 $item->store_id = $storeId;
                 $item->item_category = $request->item_category;
-                $item->asset_type = $request->asset_type;
-                $item->asset_class = $request->asset_class;
+                // $item->asset_type = $request->asset_type;
+                // $item->asset_class = $request->asset_class;
                 $item->item_description = $request->item_description;
                 $item->uom = $request->uom;
                 $item->quantity = $request->quantity;
-                $item->fa_enabled = $request->fa_enabled ?? 1;
+                // $item->fa_enabled = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
-                $item->updated_by = $this->superUser;
+                $item->updated_by = $this->sapUser;
                 $item->save();
                 $message = 'Item created successfully.';
             }
@@ -152,6 +152,32 @@ class ApiController extends BaseController
 
         return $this->successResponse($item, $message);
     }
+
+    public function saveGoodReceiptNote(Request $request){
+        $rules = [
+            'item_number' => 'required',
+            'grn_no' => 'required',
+            'uom' => 'required',
+            'quantity' => 'required',
+        ];
+
+        $validator = \Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+
+        // Find item_id by item_number from mas_items table
+        $itemId = null;
+        if ($request->has('item_number') && $request->item_number) {
+            $itemId = MasItem::where('item_number', $request->item_number)->value('id');
+            if (!$itemId) {
+                return $this->errorResponse('Item number not found.');
+            }
+        }
+
+
+    }
+
     public function startSession()
     {
         try {
