@@ -220,7 +220,7 @@ class EmployeeController extends Controller
             $employee->registered_email_sent = true;
             $employee->save();
             if ($employee->status == 'Completed') {
-                // $this->postEmployeeToSap($employee);
+                $this->postEmployeeToSap($employee);
                 $this->postEmployeeToSoms($employee);
                 // $somsData = $this->prepareSomsData();
             }
@@ -760,7 +760,7 @@ class EmployeeController extends Controller
         ];
         $this->somsApiController->postEmployeeToSoms($somsData);
     }
-    
+
     public function showRegularizeDetails(Request $request)
     {
 
