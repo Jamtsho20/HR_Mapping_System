@@ -23,7 +23,7 @@ use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
 use App\Http\Controllers\Api\v1\TeamApiController;
-use App\Http\Controllers\Api\v1\UserController;
+use App\Http\Controllers\Api\SOMs\ApiController as SomsApiComtroller;
 
 
 /*
@@ -41,6 +41,8 @@ Route::middleware('api.access.log')->group(function () {
     Route::post('sap/login', [LoginController::class, 'sapLogin']);
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
 
+
+    Route::post('/get-soms-token', [SomsApiComtroller::class, 'startSession']);
     //other app related route
     // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     //     return $request->user();
