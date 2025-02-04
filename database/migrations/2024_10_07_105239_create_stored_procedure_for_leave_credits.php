@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create the stored procedure  while creating procedur always make sure to declare variable right after BEGIN statement
+        // Create the stored procedure
         DB::unprepared("
             CREATE PROCEDURE process_leave_credits(
                 IN emp_id INT, 
@@ -28,7 +28,8 @@ return new class extends Migration
                 DECLARE total_months_remaining INT;
                 DECLARE leave_entitlement INT;
                 DECLARE grade_step_id INT;
-                 -- Declare the cursor to loop through all applicable leave types
+                
+                -- Declare the cursor to loop through all applicable leave types
                 DECLARE leave_cursor CURSOR FOR
                     SELECT 
                         t1.id, 
@@ -82,40 +83,44 @@ return new class extends Migration
                             SET leave_entitlement = ROUND((total_months_remaining / 12) * duration);
                         -- for extra ordinary leave
                         ELSEIF (leave_id = 2) THEN 
-                        -- During employee registration by default earned leave will be credited as zero  
+                            -- During employee registration, by default earned leave will be credited as zero  
                             SET leave_entitlement = 0;  
-                        -- ELSE
-                            -- SET leave_entitlement = duration;
+                        ELSE
+                            SET leave_entitlement = duration;
                         END IF;
 
-                        -- Insert leave entitlement into employee_leaves table
-                        INSERT INTO employee_leaves (
-                            mas_leave_type_id,
-                            mas_employee_id,
-                            opening_balance,
-                            current_entitlement,
-                            leaves_availed,
-                            closing_balance,
-                            created_by,
-                            updated_by,
-                            created_at,
-                            updated_at
-                        )
-                        VALUES (
-                            leave_id,
-                            emp_id,
-                            0,
-                            leave_entitlement,
-                            0,
-                            leave_entitlement,
-                            created_by,
-                            updated_by,
-                            NOW(),
-                            NOW()
-                        );
+                        -- Insert leave entitlement into employee_leaves table **ONLY IF IT DOES NOT EXIST**
+                        IF NOT EXISTS (
+                            SELECT 1 FROM employee_leaves 
+                            WHERE mas_employee_id = emp_id 
+                            AND mas_leave_type_id = leave_id
+                        ) THEN
+                            INSERT INTO employee_leaves (
+                                mas_leave_type_id,
+                                mas_employee_id,
+                                opening_balance,
+                                current_entitlement,
+                                leaves_availed,
+                                closing_balance,
+                                created_by,
+                                updated_by,
+                                created_at,
+                                updated_at
+                            )
+                            VALUES (
+                                leave_id,
+                                emp_id,
+                                0,
+                                leave_entitlement,
+                                0,
+                                leave_entitlement,
+                                created_by,
+                                updated_by,
+                                NOW(),
+                                NOW()
+                            );
+                        END IF;
                     END IF;
-
-
                 END LOOP leave_loop;
 
                 -- Close the cursor
@@ -129,8 +134,6 @@ return new class extends Migration
             AFTER UPDATE ON mas_employees
             FOR EACH ROW
             BEGIN
-                -- INSERT INTO trigger_logs (old_status, new_status)
-                -- VALUES (OLD.status, NEW.status);
                 IF (CAST(OLD.status AS UNSIGNED) = 0 AND CAST(NEW.status AS UNSIGNED) = 1) THEN
                     CALL process_leave_credits(NEW.id, NEW.gender, NEW.created_by, NEW.updated_by, NEW.date_of_appointment);
                 END IF;
