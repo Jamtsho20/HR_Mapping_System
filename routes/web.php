@@ -270,7 +270,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
-        Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
+        Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'edit');
         Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');

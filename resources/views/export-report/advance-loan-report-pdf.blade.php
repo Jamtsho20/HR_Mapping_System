@@ -99,6 +99,9 @@
                     NO OF EMI
                 </th>
                 <th>
+                    EMI End Date
+                </th>
+                <th>
                     EMI Amount
                 </th>
 
@@ -109,12 +112,14 @@
                     APPROVAL DATE
                 </th>
 
+
             </tr>
         </thead>
         <tbody>
             @forelse($advanceReports as $reports)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $loop->iteration }}
+                    </td>
                     <td>{{ $reports->employee->username }}</td>
                     <td>{{ $reports->employee->name }}</td>
                     <td>{{ $reports->employee->empJob->designation->name }}
@@ -124,14 +129,20 @@
                     <td>{{ $reports->employee->empJob->office->name }}</td>
                     <td>{{ $reports->type->name }}</td>
                     <td>{{ $reports->item_type }}</td>
-                    <td>{{ \Carbon\Carbon::parse($reports->date)->format('d-M-Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($reports->date)->format('d-M-Y') }}
+                    </td>
                     <td>{{ $reports->amount }}</td>
-                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}
+                    </td>
                     <td>{{ $reports->no_of_emi }}</td>
+                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi)->format('d-F-Y') }}
+                    </td>
                     <td>{{ $reports->monthly_emi_amount }}</td>
                     <td>{{ $reports->advance_approved_by->name ?? '-' }}
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}
+                    </td>
+
                 </tr>
             @empty
                 <tr>

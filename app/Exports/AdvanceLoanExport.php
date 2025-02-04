@@ -20,10 +20,8 @@ class AdvanceLoanExport implements FromCollection, WithHeadings
     }
     public function collection()
     {
-
         $serialNo = 1;
 
-        // Access the request data to apply filters
         return AdvanceApplication::whereStatus(3)->filter($this->request, false)->get()->map(function ($AdvanceReports) use (&$serialNo) {
             return [
                 $serialNo++,
@@ -38,12 +36,13 @@ class AdvanceLoanExport implements FromCollection, WithHeadings
                 \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->format('d-F-Y'),
                 $AdvanceReports->no_of_emi,
                 $AdvanceReports->monthly_emi_amount,
-                $AdvanceReports->to_date,
+                \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->addMonths($AdvanceReports->no_of_emi)->format('d-F-Y'), // Adding months
                 $AdvanceReports->advance_approved_by->name,
                 \Carbon\Carbon::parse($AdvanceReports->updated_at)->format('d-F-Y')
             ];
         });
     }
+
     public function headings(): array
     {
         return [
