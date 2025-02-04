@@ -405,8 +405,8 @@ var hrms = function () {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            console.log("Access Token:", data.access_token);
-                            console.log("Refresh Token:", data.refresh_token);
+                            // console.log("Access Token:", data.access_token);
+                            // console.log("Refresh Token:", data.refresh_token);
                     
                             // Store token in localStorage/sessionStorage
                             localStorage.setItem("accessToken", data.access_token);
@@ -438,6 +438,7 @@ var hrms = function () {
                                         type: 'GET',
                                         dataType: 'json',
                                         headers: {
+                                            "Content-Type": "application/json",
                                             "Authorization": `Bearer ${accessToken}`,
                                         },
                                         success: success,
@@ -471,6 +472,7 @@ var hrms = function () {
                             type: 'GET',
                             dataType: 'json',
                             headers: {
+                                "Content-Type": "application/json",
                                 "Authorization": `Bearer ${accessToken}`,
                             },
                             success: function (pricingResponse) {
