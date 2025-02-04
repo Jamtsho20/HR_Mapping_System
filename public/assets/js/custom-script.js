@@ -395,7 +395,8 @@ var hrms = function () {
                 // });
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
 
-                    fetch("http://tipl-hrms.test/api/get-soms-token", {
+                    // fetch("http://tipl-hrms.test/api/get-soms-token", { //for test
+                    fetch("https://hrms.tashicell.com/api/get-soms-token", {
                         method: "POST",
                         // headers: {
                         //     "Content-Type": "application/json"
