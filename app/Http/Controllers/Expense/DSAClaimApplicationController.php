@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers\Expense;
 
+use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Models\DailyAllowance;
 use App\Models\DsaClaimApplication;
 use App\Models\DsaClaimDetail;
+use App\Models\DsaClaimType;
 use App\Models\TravelAuthorizationApplication;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
-use App\Http\Controllers\AjaxRequestController;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationForwardedMail;
 
 class DSAClaimApplicationController extends Controller
 {
@@ -154,10 +157,15 @@ class DSAClaimApplicationController extends Controller
                 $historyService->saveHistory($dsaClaimApplication->histories(), $approverByHierarchy, $request->remarks);
 
                 DB::commit();
-                if (isset($approverByHierarchy['approver_details'])) {
-                    $emailContent = 'has submitted a expense request of amount ' . $dsaClaimApplication->amount . ' is awaiting your approval.';
-                    $emailSubject = 'DSA Claim/Settlement Application';
-                    // Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
+                if(isset($approverByHierarchy['approver_details'])){
+                    // $claimType = DsaClaimType::where('id', $request->dsa_claim_type_id)->value('name');
+                    $emailContent = 'has submitted a expense request of amount Nu. ' . $dsaClaimApplication->amount . ' is awaiting your approval.';
+                    $emailSubject = 'DSA Claim/Settlement';
+                    try{
+                        Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                    }catch(\Exception $e){
+                        \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                    }
                 }
 
                 return redirect('expense/apply-expense')->with('msg_success', 'DSA Claim/Settltment has been applied successfully!');
