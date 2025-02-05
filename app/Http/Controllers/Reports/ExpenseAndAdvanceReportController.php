@@ -68,7 +68,9 @@ class ExpenseAndAdvanceReportController extends Controller
     public function show($id)
     {
         $expense = ExpenseApplication::findOrfail($id);
-        return view('report.expense-and-advance-report.show', compact('expense'));
+        $empDetails = empDetails($expense->created_by);
+
+        return view('report.expense-and-advance-report.show', compact('expense', 'empDetails'));
     }
 
     /**
