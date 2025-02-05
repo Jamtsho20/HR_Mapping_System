@@ -31,7 +31,7 @@
                                     <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                       {{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}
+                                        {{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -228,7 +228,7 @@
                 </div>
             </div>
         @endif
-        
+
         <div class="col-lg-12">
             <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
                 <div class="row">
@@ -241,6 +241,7 @@
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $expense->status,
+                            'rejectionRemarks' => $rejectionRemarks,
                         ])
                     </div>
                 </div>
