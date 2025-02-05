@@ -14,7 +14,10 @@
                         <h6>Advance Details</h6>
                     </div>
                 </div>
+
                 <div class="row">
+                    @include('components.employee-details', ['empDetails' => $empDetails])
+
                     <div class="col-md-12">
                         <table style="width:100%;" class="simple-table">
                             <tbody>
@@ -36,17 +39,17 @@
                                     <td style="padding-left:25px;"> {{ $advance->advanceType->name }}</td>
                                 </tr>
 
-                                @if ($advance->advance_type_id == 2)
+                                @if ($advance->type_id == 2)
                                     @include('advance-loan.approval.details.dsa-tour')
                                 @endif
 
-                                @if ($advance->advance_type_id == 4)
+                                @if ($advance->type_id == 4)
                                     @include('advance-loan.approval.details.gadget')
                                 @endif
-                                @if ($advance->advance_type_id == 6)
+                                @if ($advance->type_id == 6)
                                     @include('advance-loan.approval.details.salary')
                                 @endif
-                                @if ($advance->advance_type_id == 7)
+                                @if ($advance->type_id == 7)
                                     @include('advance-loan.approval.details.sifa')
                                 @endif
 
