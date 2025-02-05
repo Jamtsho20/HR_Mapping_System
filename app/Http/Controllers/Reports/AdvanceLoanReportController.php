@@ -58,7 +58,9 @@ class AdvanceLoanReportController extends Controller
     public function show(string $id)
     {
         $advance = AdvanceApplication::with('advanceType')->findOrFail($id);
-        return view('report.advance-loan-report.show', compact('advance'));
+        $empDetails = empDetails($advance->created_by);
+
+        return view('report.advance-loan-report.show', compact('advance', 'empDetails'));
     }
 
     /**
