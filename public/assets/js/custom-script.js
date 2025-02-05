@@ -350,6 +350,7 @@ var hrms = function () {
             }
         });
 
+
         //generating advance no based on advance types
         $(document).on('change', '#advance_type', function () {
             var advanceTypeId = $(this).val();
@@ -372,15 +373,40 @@ var hrms = function () {
                 // });
                 if (advanceTypeId == 4) { // external api from SOMs will be called here to get Item Types(name, code and amount)
 
+                    // fetch("http://tipl-hrms.test/api/get-soms-token", { //for test
+                    // // fetch("https://hrms.tashicell.com/api/get-soms-token", {
+                    //     method: "GET",
+                    //     headers: {
+                    //         "Content-Type": "application/json"
+                    //     }
+                    // })
+                    // .then(response => response.json())
+                    // .then(data => {
+                    //     console.log(data)
+                    //     if (data.success) {
+                    //         // console.log("Access Token:", data.access_token);
+                    //         // console.log("Refresh Token:", data.refresh_token);
+                    
+                    //         // Store token in localStorage/sessionStorage
+                    //         localStorage.setItem("accessToken", data.access_token);
+                    //     } else {
+                    //         console.error("Error:", data.message);
+                    //     }
+                    // })
+                    // .catch(error => console.error("Fetch Error:", error));
+
+                    
                     let typingTimer; // Timer for debounce
                     const debounceDelay = 200; // Delay in milliseconds
-
+                    
                     $('#item_type').select2({
                         placeholder: 'Select Item Type', // Placeholder text
                         allowClear: true, // Allow clearing the selection
                         minimumInputLength: 3, // Trigger search only after typing 3 characters
+                        
                         ajax: {
                             transport: function (params, success, failure) {
+                                // const accessToken = localStorage.getItem("accessToken");
                                 // Debounce API requests
                                 clearTimeout(typingTimer); // Clear previous timer
                                 typingTimer = setTimeout(function () {
@@ -389,9 +415,14 @@ var hrms = function () {
                                         url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/List?type=${encodeURIComponent(params.data.term)}`,
                                         type: 'GET',
                                         dataType: 'json',
+                                        // headers: {
+                                        //     "Content-Type": "application/json",
+                                        //     "Authorization": `Bearer ${accessToken}`,
+                                        // },
                                         success: success,
                                         error: failure
                                     });
+                                   
                                 }, debounceDelay);
                             },
                             processResults: function (data) {
@@ -418,6 +449,10 @@ var hrms = function () {
                             url: `https://soms-backend.tashicell.com/Api/HRMS/Gadget/Pricing?type=${encodeURIComponent(selectedItemId)}`, // Using selected item item
                             type: 'GET',
                             dataType: 'json',
+                            // headers: {
+                            //     "Content-Type": "application/json",
+                            //     "Authorization": `Bearer ${accessToken}`,
+                            // },
                             success: function (pricingResponse) {
 
 

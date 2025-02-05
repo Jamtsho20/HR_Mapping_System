@@ -815,7 +815,14 @@
                     }
 
                     // Calculate the total amount for the current row
-                    const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+                    let totalAmount = 0;
+                    if(totalDays > 15){
+                        totalAmount = (dailyAllowance * 15) + (totalDays - 15) * (dailyAllowance / 2) + travelAllowance;
+                    }else{
+                        totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+                    }
+                    // grandTotal += totalAmount;
+                    // const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
 
                     // Update the total amount for the current row only
                     $row.find("input[name*='[total_amount]']").val(totalAmount);
@@ -851,7 +858,13 @@
 
                                 // Loop through the travel authorization details
                                 data.travel_authorization_details.details.forEach((detail, index) => {
-                                    const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    // const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    let totalAmount = 0;
+                                    if(detail.no_of_days > 15){
+                                        totalAmount = (DAILY_ALLOWANCE * 15) + (detail.no_of_days - 15) * (DAILY_ALLOWANCE / 2);
+                                    }else{
+                                        totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    }
                                     grandTotal += totalAmount;
 
                                     const row = `

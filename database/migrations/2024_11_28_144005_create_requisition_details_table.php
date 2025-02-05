@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('requisition_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('requisition_id')->index()->constrained('requisition_applications')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('purchase_order_no')->comment('PO');
+            $table->string('grn_no')->comment('goods receipt number.');
             $table->string('item_description');
             $table->string('uom');
             $table->string('store');
             $table->decimal('stock_status')->comment('quantity availaible in warehouse');
-            $table->decimal('quantity_required', 5, 2);
+            $table->integer('quantity_required');
             $table->string('dzongkhag');
             $table->string('site_name');
             $table->text('remark')->nullable();
