@@ -63,8 +63,9 @@ class DSAClaimApplicationController extends Controller
         $empIdName = LoggedInUserEmpIdName();
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+        $excludedTravelIds = DsaClaimApplication::pluck('travel_authorization_id');
 
-        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         //get dsa advance which has been approved for settlement
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
@@ -86,7 +87,7 @@ class DSAClaimApplicationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, $this->rules, $this->messages);
-
+dd($request->all());
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
@@ -108,7 +109,7 @@ class DSAClaimApplicationController extends Controller
 
                 if ($request->hasFile('attachments')) {
                     // Upload file and get the file path
-                    
+
                     $attachmentPath = uploadImageToDirectory($request->file('attachments'), $this->attachmentPath);
                     // Store it as a JSON array
                     $attachment = json_encode([$attachmentPath]);

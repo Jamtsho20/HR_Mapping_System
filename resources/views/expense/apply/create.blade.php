@@ -246,7 +246,26 @@
                                                 <input type="text" class="form-control" name="dsa_claim_no" id="dsa_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
+
                                         <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="travel_authorization_id">Travel No(s) <span
+                                                        class="text-danger">*</span></label>
+                                                        <select class="form-control" id="travel_authorization"
+                                                                name="travel_authorization_id[]" multiple required>
+                                                            @foreach ($travels as $travel)
+                                                                <option value="{{ $travel->id }}">
+                                                                    {{ $travel->travel_authorization_no }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+
+                                                    <input type="hidden" name='advance_ids'>
+                                            </div>
+                                        </div>
+
+
+                                        {{-- <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="travel_authorization_id">Travel No <span
                                                         class="text-danger">*</span></label>
@@ -260,15 +279,15 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
+                                        </div> --}}
+                                        {{-- <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="dsa_advance_tour">Advance No</label>
                                                 <select class="form-control" id="dsa_advance_tour" name="advance_no">
                                                     <option value="" selected disabled>Select your option</option>
                                                 </select>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="total_number_of_days">Total Number of Days</label>
@@ -279,7 +298,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="advance_amount">Advance Amount </label>
+                                                <label for="advance_amount">Total Advance Amount </label>
                                                 <input type="number" class="form-control" id="advance_amount"
                                                     name="advance_amount" value="{{ old('advance_amount', 0) }}"
                                                     readonly>
@@ -289,7 +308,7 @@
                                             <div class="form-group">
                                                 <label for="grand_total_amount">Total Amount </label>
                                                 <input type="number" class="form-control" id="grand_total_amount"
-                                                    name="amount" value="{{ old('amount') }}" required readonly />
+                                                    name="amount" value="{{ old('amount', 0) }}" required readonly />
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -308,7 +327,7 @@
                                                     readonly />
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        {{-- <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
@@ -318,7 +337,7 @@
                                             <div id="uploaded-file" style="margin-top: 10px;">
                                                 <!-- Placeholder for uploaded file -->
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                                 <div class="tab-pane">
@@ -346,12 +365,24 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr class="data-row">
+                                                        {{-- <tr class="data-row">
                                                             <td class="text-center">
                                                                 <a href="#"
                                                                     class="delete-table-row btn btn-danger btn-sm">
                                                                     <i class="fa fa-times"></i>
                                                                 </a>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <input
+                                                                    name="dsa_claim_detail[AAAAA][travel_no]"
+                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    required />
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <input
+                                                                    name="dsa_claim_detail[AAAAA][advance_no]"
+                                                                    class="form-control form-control-sm resetKeyForNew"
+                                                                    required />
                                                             </td>
                                                             <td class="text-center">
                                                                 <input type="date"
@@ -405,14 +436,15 @@
                                                             </td>
                                                         </tr>
                                                         <tr class="notremovefornew">
-                                                            <td colspan="9"></td>
+                                                            <td colspan="11"></td>
                                                             <td class="text-right">
                                                                 <a href="#"
                                                                     class="add-table-row btn btn-sm btn-info">
                                                                     <i class="fa fa-plus"></i> Add New Row
                                                                 </a>
                                                             </td>
-                                                        </tr>
+                                                        </tr> --}}
+                                                        <tr><td colspan="13" class="text-center text-danger">No Travel Authorization Application Selected</td></tr>
                                                     </tbody>
                                                 </table>
 
@@ -571,8 +603,15 @@
 
 @push('page_scripts')
     <script>
-        $(document).ready(function() {
 
+
+
+
+        $(document).ready(function() {
+            $('#travel_authorization').select2({
+            placeholder: "Select travel numbers",
+            allowClear: true
+        });
             const form = document.getElementById('apply_expense');
             const dsaForm = document.getElementById('apply_dsa');
             const transferForm = document.getElementById('apply_transfer');
@@ -819,16 +858,161 @@
 
                     // Update the total amount for the current row only
                     $row.find("input[name*='[total_amount]']").val(totalAmount);
-
+                    calculateTotalNumberOfDays()
                     calculateGrandTotal();
                     calculateNetPayable();
                 }
             );
 
+            $(document).on("click", ".delete-table-row", function() {
+                calculateTotalNumberOfDays()
+                calculateGrandTotal();
+               calculateNetPayable();
+            })
+
             $(document).on("click", ".add-table-row", function() {
                 calculateGrandTotal();
                 calculateNetPayable();
             });
+
+            function getTravelAuthorizationDetailsMultiple() {
+    // Get selected travel authorization IDs (could be from a multi-select or input)
+    const travelAuthorizationIds = $("#travel_authorization").val(); // Assuming this is a multi-select element
+
+    if (travelAuthorizationIds && travelAuthorizationIds.length > 0) {
+        $.ajax({
+            url: `/gettravelauthorizationbytravelauthorizationidsMultiple`, // Adjust API endpoint to handle multiple IDs
+            type: 'GET',
+            data: { ids: travelAuthorizationIds }, // Send the list of IDs in the query params
+            dataType: 'JSON',
+
+            success: function(data) {
+
+
+    const tbody = $("#travelstable tbody");
+    tbody.empty();
+console.log(data.travel_authorization_details.advance_ids);
+$('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_details.advance_ids));
+
+    if (data && data.travel_authorization_details.travel_authorizations.length > 0) {
+        let grandTotal = 0;
+        let totalAdvanceAmount = 0;
+        let totalDays = 0;
+
+        // Loop through the returned travel authorizations
+        data.travel_authorization_details.travel_authorizations.forEach((travel_authorizations, authIndex) => {
+
+            // Append as a single row
+            tbody.append(`
+                    <tr>
+                        <td colspan="4" class="text-center" style="color: black;">
+                            <input type="hidden" name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" value="${travel_authorizations.travelAuthorization.id}">
+                            Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                        </td>
+                        <td colspan="4" class="text-center" style="color: black;">
+                            <input type="hidden" name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
+                            ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
+                                ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+                                : 'Advance Number: N/A, Advance Amount: N/A'}
+                        </td>
+                        <td colspan="4" class="text-center" style="color: black;">
+                            <input type="file" id="attachment" class="form-control" name="file[${travel_authorizations.id}]">
+                        </td>
+                    </tr>
+                `);
+                totalDays += parseFloat(travel_authorizations.no_of_days) || 0;
+                if(travel_authorizations.advance_details){
+                    totalAdvanceAmount +=  parseFloat(travel_authorizations.advance_details.amount) || 0;
+                    }
+                // Loop through the travel authorization details for each authorization
+                if (travel_authorizations.details && travel_authorizations.details.length > 0) {
+
+                    travel_authorizations.details.forEach((detail, index) => {
+
+                        const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                        grandTotal += totalAmount;
+
+                    const row = `
+                        <tr class="data-row">
+                            <td>
+                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                <input type="hidden" name="dsa_claim_detail[${detail.id}][id]" class="resetKeyForNew" value="${detail.id}">
+                            </td>
+                            <td class="text-center">
+                                <input type="date" value="${detail.from_date}" name="dsa_claim_detail[${detail.id}][from_date]" class="form-control form-control-sm resetKeyForNew" required />
+                            </td>
+                            <td class="text-center">
+                                <input type="text" value="${detail.from_location}" name="dsa_claim_detail[${detail.id}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
+                            </td>
+                            <td class="text-center">
+                                <input type="date" name="dsa_claim_detail[${detail.id}][to_date]" value="${detail.to_date}" class="form-control form-control-sm resetKeyForNew" required />
+                            </td>
+                            <td class="text-center">
+                                <input type="text" name="dsa_claim_detail[${detail.id}][to_location]" value="${detail.to_location}" class="form-control form-control-sm resetKeyForNew" required />
+                            </td>
+                            <td class="text-center">
+                                <input type="number" min="0" step="0.5" name="dsa_claim_detail[${detail.id}][total_days]" value="${detail.no_of_days}" class="form-control form-control-sm resetKeyForNew" />
+                            </td>
+                            <td class="text-center">
+                                <input type="number" name="dsa_claim_detail[${detail.id}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
+                            </td>
+                            <td class="text-center">
+                                <input type="number" min="0" name="dsa_claim_detail[${detail.id}][travel_allowance]" class="form-control form-control-sm resetKeyForNew" />
+                            </td>
+                            <td class="text-center">
+                                <input type="number" value="${totalAmount}" name="dsa_claim_detail[${detail.id}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly>
+                            </td>
+                            <td class="text-center">
+                                <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
+                            </td>
+                        </tr>`;
+
+                    tbody.append(row); // Append the row to the table body
+                });
+
+        //         const btnRow = `
+        //     <tr class="notremovefornew">
+        //         <td colspan="9"></td>
+        //         <td class="text-right">
+        //             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
+        //                 <i class="fa fa-plus"></i> Add New Row
+        //             </a>
+        //         </td>
+        //     </tr>`;
+        // tbody.append(btnRow);
+
+        //                         const lastDataRow = tbody.find("tr.data-row").last();
+        //                         const lastDataRowDailyAllowanceField = lastDataRow.find(
+        //                             "input[name*='[daily_allowance]']");
+        //                         lastDataRowDailyAllowanceField.val(
+        //                             DAILY_ALLOWANCE);
+            }
+        });
+
+        // Add the row for adding a new entry (Add New Row)
+
+
+        // Update the grand total
+        $('#grand_total_amount').val(grandTotal);
+
+        const totalNumDays = document.getElementById('total_number_of_days');
+        totalNumDays.value = totalDays;
+        $('#advance_amount').val(totalAdvanceAmount ?? 0);
+        calculateTotalNumberOfDays()
+        calculateNetPayable();
+
+    }
+}
+,
+            error: function(error) {
+                alert(`Error fetching data: ${error.responseText || error.statusText}`);
+                $("#travelstable tbody").empty().append(`
+                    <tr><td colspan="9" class="text-center text-danger">Error fetching details</td></tr>
+                `);
+            }
+        });
+    }
+}
 
             function getTravelAuthorizationDetails() {
                 const travelAuthorizationId = $("#travel_autorization").val();
@@ -939,7 +1123,8 @@
                                     DAILY_ALLOWANCE);
 
                                 // Update the grand total
-                                $('#grand_total_amount').val(grandTotal);
+                                $('#grand_total_amount').val(grandTotal ?? 0);
+
                             } else {
                                 tbody.append(
                                     `<tr><td colspan="9" class="text-center text-danger">No details found</td></tr>`
@@ -957,8 +1142,44 @@
                 }
             }
 
-            function getDsaAvanceByTravelAuth() {
-                const travelAuthorizationId = $("#travel_autorization").val();
+            // function getDsaAvanceByTravelAuth() {
+            //     const travelAuthorizationId = $("#travel_autorization").val();
+
+            //     if (travelAuthorizationId !== '') {
+            //         $.ajax({
+            //             url: `/getdsaadvancebytravelauth/${travelAuthorizationId}`,
+            //             dataType: 'JSON',
+            //             type: 'GET',
+            //             success: function(data) {
+            //                 $("#dsa_advance_tour").empty();
+
+            //                 // Check if data contains any options
+            //                 if (data.length > 0) {
+            //                     // Append a placeholder or default option
+            //                     $("#dsa_advance_tour").append(
+            //                         '<option value="">Select DSA Advance</option>');
+
+            //                     // Loop through the data and create options
+            //                     data.forEach(item => {
+            //                         const option =
+            //                             `<option value="${item.id}">${item.advance_no}</option>`;
+            //                         $("#dsa_advance_tour").append(option);
+            //                     });
+            //                 } else {
+            //                     // Append a message if no data is available
+            //                     $("#dsa_advance_tour").append(
+            //                         '<option value="">No DSA Advances availed</option>');
+            //                 }
+            //             },
+            //             error: function(error) {
+            //                 alert("Error fetching data", error);
+            //             }
+            //         });
+            //     }
+            // }
+
+            function getDsaAvanceByTravelAuth(id) {
+                const travelAuthorizationId = id
 
                 if (travelAuthorizationId !== '') {
                     $.ajax({
@@ -966,25 +1187,7 @@
                         dataType: 'JSON',
                         type: 'GET',
                         success: function(data) {
-                            $("#dsa_advance_tour").empty();
-
-                            // Check if data contains any options
-                            if (data.length > 0) {
-                                // Append a placeholder or default option
-                                $("#dsa_advance_tour").append(
-                                    '<option value="">Select DSA Advance</option>');
-
-                                // Loop through the data and create options
-                                data.forEach(item => {
-                                    const option =
-                                        `<option value="${item.id}">${item.advance_no}</option>`;
-                                    $("#dsa_advance_tour").append(option);
-                                });
-                            } else {
-                                // Append a message if no data is available
-                                $("#dsa_advance_tour").append(
-                                    '<option value="">No DSA Advances availed</option>');
-                            }
+                            return data
                         },
                         error: function(error) {
                             alert("Error fetching data", error);
@@ -1022,7 +1225,7 @@
                     }
                 });
 
-                console.log(totalAmount);
+
 
                 $('#amount').val(totalAmount.toFixed(2));
             }
@@ -1032,7 +1235,7 @@
                     url: '/getvehicledetailtypebyid/' + vehicleId,
                     type: 'GET',
                     success: function(response) {
-                        console.log(response);
+
 
                         var initialReading = response.final_reading;
                         var mileage = response.vehicle_type.mileage;
@@ -1117,8 +1320,22 @@
             });
 
             // Trigger the function when the dropdown value changes
-            $(document).on("change", "#travel_autorization", getTravelAuthorizationDetails);
-            $(document).on("change", "#travel_autorization", getDsaAvanceByTravelAuth);
+            $("#travel_authorization").on("change", function() {
+    const selectedValues = $(this).val(); // Get selected values
+
+    if (!selectedValues || selectedValues.length === 0) {
+        $('#grand_total_amount').val(0);
+        $('#total_number_of_days').val(0);
+        $('#advance_amount').val(0);
+        const tbody = $('#travelstable tbody');
+        tbody.empty();
+        tbody.append(`<tr><td colspan="13" class="text-center text-danger">No Travel Authorization Application Selected</td></tr>`);
+        $('#grand_total_amount').val(0);  // Reset grand total
+    } else {
+        getTravelAuthorizationDetailsMultiple(); // Fetch data if selections exist
+    }
+});
+            $(document).on("change", "#travel_authorization", getDsaAvanceByTravelAuth);
             $(document).on("change", "#dsa_advance_tour", getDsaAvanceDetails);
             $(document).on("input change", "#grand_total_amount, #advance_amount, input[name*='[total_amount]']",
                 calculateNetPayable);
@@ -1146,6 +1363,14 @@
                 var row = $(this).closest('tr');
                 calculateTotalAmountForRow(row);
             });
+
+            function calculateTotalNumberOfDays() {
+                var totalNumberOfDays = 0;
+                $('#travelstable tbody tr').each(function() {
+                    totalNumberOfDays += parseFloat($(this).find('input[name*="[total_days]"]').val() || 0);
+                });
+                $('#total_number_of_days').val(totalNumberOfDays);
+            }
         });
     </script>
 @endpush
