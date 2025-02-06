@@ -19,7 +19,7 @@
 @extends('layouts.app')
 @section('page-title', 'Dashboard')
 @section('content')
-<!-- 
+
 {{-- Holiday Alert (Displayed at the Top) --}}
 @php
 $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
@@ -31,7 +31,7 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
         <p class="card-text text-white glowing-text">* {{ $holidayAlert['message'] }}</p>
     </div>
 </div>
-@endif -->
+@endif
 
 
 
