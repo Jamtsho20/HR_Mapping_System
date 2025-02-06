@@ -23,6 +23,10 @@
 					<label for="username">Email *</label>
 					<input type="text" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
 				</div>
+				<div class="form-group">
+					<label for="password">Password *</label>
+					<input type="text" name="password" class="form-control" required>
+				</div>
 			</div>
 		</div>
 	</div>
