@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; // ✅ Import the DB facade
 
 class DeleteOldNotifications extends Command
 {
@@ -12,7 +13,7 @@ class DeleteOldNotifications extends Command
      *
      * @var string
      */
-    protected $signature = 'app:delete-old-notifications';
+    protected $signature = 'holiday:clear-old';
 
     /**
      * The console command description.
@@ -26,12 +27,21 @@ class DeleteOldNotifications extends Command
      */
     public function handle()
     {
-         // Delete holiday alerts older than 1 day
-         DB::table('system_notifications')
-         ->where('title', 'Holiday Alert')
-         ->where('created_at', '<', Carbon::now()->subDay())
-         ->delete();
+        try {
+            // Delete holiday alerts older than 1 day
+            $deletedCount = DB::table('system_notifications')
+                ->where('title', 'Holiday Alert')
+                ->where('created_at', '<', Carbon::now()->subDay())
+                ->delete();
 
-     $this->info('Old holiday alerts deleted successfully.');
+            if ($deletedCount > 0) {
+                $this->info("Deleted $deletedCount old holiday alerts.");
+            } else {
+                $this->info("No old holiday alerts found.");
+            }
+
+        } catch (\Exception $e) {
+            $this->error("Error deleting old holiday alerts: " . $e->getMessage());
+        }
     }
 }
