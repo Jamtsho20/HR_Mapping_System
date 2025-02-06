@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Models\SystemNotification;
 use App\Models\WorkHolidayList;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class CheckHolidayAlert extends Command
 {
@@ -53,7 +54,14 @@ class CheckHolidayAlert extends Command
                             ". You will get " . $numberOfDays . " day(s) off.";
 
             // Cache the alert message for 1 day (1440 minutes)
-            Cache::put('holiday_alert_message', $alertMessage, 1440);
+            //Cache::put('holiday_alert_message', $alertMessage, 1440);
+            // Insert the notification into the database
+            SystemNotification::create([
+                'title'      => 'Holiday Alert',
+                'message'    => $alertMessage,
+                'created_by' => 1, // Set a default user ID, or fetch the system admin ID dynamically
+                'updated_by' => null,
+            ]);
 
             \Log::info('Holiday Alert Message: ' . $alertMessage);
         } else {

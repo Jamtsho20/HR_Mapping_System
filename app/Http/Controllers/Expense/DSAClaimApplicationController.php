@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Expense;
 
 use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Controller;
+use App\Mail\ApplicationForwardedMail;
 use App\Models\AdvanceApplication;
+use App\Models\ApplicationHistory;
 use App\Models\DailyAllowance;
 use App\Models\DsaClaimApplication;
 use App\Models\DsaClaimDetail;
@@ -17,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationForwardedMail;
 
 class DSAClaimApplicationController extends Controller
 {
@@ -188,7 +189,12 @@ class DSAClaimApplicationController extends Controller
     {
         $dsa = DsaClaimApplication::findOrfail($id);
         $empDetails = empDetails($dsa->created_by);
-        return view('expense.apply.dsa-show', compact('dsa', 'empDetails'));
+
+        $rejectRemarks = ApplicationHistory::where('application_type', DsaClaimApplication::class)
+        ->where('application_id', $id)
+        ->value('remarks');
+
+        return view('expense.apply.dsa-show', compact('dsa', 'empDetails','rejectRemarks'));
     }
 
     /**
