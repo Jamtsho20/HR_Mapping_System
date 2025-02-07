@@ -28,7 +28,7 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
 @if ($holidayAlert)
 <div class="card mb-3 small-card bg-success">
     <div class="card-body">
-        <p class="card-text text-white glowing-text">* {{ $holidayAlert['message'] }}</p>
+        <p class="card-text text-white">* {{ $holidayAlert['message'] }}</p>
     </div>
 </div>
 @endif
