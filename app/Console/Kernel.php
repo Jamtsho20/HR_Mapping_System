@@ -23,7 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('credit-emp-earned-leaves-monthly')->monthly()->at('03:00');
         $schedule->command('credit-emp-leaves-yearly')->yearly()->at('00:00');
         $schedule->command('holiday:check-alert')->daily()->at('4:00');
-        $schedule->command('holiday:clear-old')->daily()->at('00:00');
+        // $schedule->command('holiday:clear-old')->daily()->at('9:22');
     }
 
     /**
