@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SystemSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Role;
 use DB;
 
@@ -143,6 +144,7 @@ class UserController extends Controller
 
         $rules['email'] = 'required|email|unique:mas_employees,email,' . $id;
         $rules['username'] = 'required|unique:mas_employees,username,' . $id;
+        $rules['password'] =  'nullable|min:6';
 
         $request->validate($rules);
 
@@ -157,6 +159,12 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->username = $request->username;
             $user->email = $request->email;
+
+            // Update password only if a new password is provided
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
             // $user->profile_pic = isset($imageSource) ? $imageSource : null;
             $user->updated_by = auth()->user()->id;
             $user->save();

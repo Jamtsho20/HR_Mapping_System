@@ -62,13 +62,14 @@ class DashboardController extends Controller
         });
 
         // Merge alerts and notifications into a single array
-        $combinedItems = $alerts->map(function ($alert) {
+        $combinedItems = collect($alerts)->map(function ($alert) {
             return [
-                'type' => 'alert', // Mark as alert type
+                'type' => 'alert',
                 'application_type' => $alert->lastPart,
                 'count' => $alert->count,
             ];
-        })->merge($notifications);
+        })->merge(collect($notifications));
+        
 
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);

@@ -61,7 +61,10 @@ class LeaveEncashmentReportController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $leave = LeaveEncashmentApplication::with('employeeLeave')->findOrFail($id);
+        $empDetails = empDetails($leave->created_by);
+
+        return view('report.leave-encashment-report.show', compact('leave', 'empDetails'));
     }
 
     /**

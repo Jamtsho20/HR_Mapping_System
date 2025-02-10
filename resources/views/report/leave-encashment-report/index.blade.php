@@ -90,6 +90,9 @@
                                                         <th>
                                                             BASIC PAY
                                                         </th>
+                                                        <th>
+                                                            ACTION
+                                                        </th>
 
                                                     </tr>
                                                 </thead>
@@ -105,6 +108,13 @@
                                                             <td>{{ $leave->leave_applied_for_encashment }}</td>
                                                             <td>{{ $leave->employeeLeave->closing_balance }}</td>
                                                             <td>{{ $leave->amount }}</td>
+                                                            <td>
+                                                                @if ($privileges->view)
+                                                                    <a href="{{ url('report/leave-encashment-report/' . $leave->id) }}"
+                                                                        class="btn btn-sm btn-outline-secondary"><i
+                                                                            class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                            </td>
                                                         </tr>
                                                     @empty
                                                         <tr>
