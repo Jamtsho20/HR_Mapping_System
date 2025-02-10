@@ -16,7 +16,6 @@
                     </div>
                 </div>
                 <div class="row">
-
                     <div class="col-md-12">
                         <table style="width:100%;" class="simple-table">
                             <tbody>
