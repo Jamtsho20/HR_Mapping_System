@@ -20,13 +20,19 @@
 @section('page-title', 'Dashboard')
 @section('content')
 
-    @if (Cache::has('holiday_alert_message'))
-        <div class="card mb-3 small-card bg-primary">
-            <div class="card-body">
-                <p class="card-text text-white">* {{ Cache::get('holiday_alert_message') }}</p>
-            </div>
-        </div>
-    @endif
+{{-- Holiday Alert (Displayed at the Top) --}}
+@php
+$holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
+@endphp
+
+@if ($holidayAlert)
+<div class="card mb-3 small-card bg-success">
+    <div class="card-body">
+        <p class="card-text text-white">* {{ $holidayAlert['message'] }}</p>
+    </div>
+</div>
+@endif
+
 
 
 <div class="row">
@@ -60,71 +66,74 @@
 
 <script>
     // Function to initialize a doughnut chart
-function createDoughnutChart(ctx, labels, data, chartLabel) {
-    const defaultText = `${labels[1]}`; //default label will be Balance
-    const defaultColor = 'rgb(11, 98, 164)'; //default color for balnce is set from here it self
-    const chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: chartLabel,
-                data: data,
-                backgroundColor: [
-                    'rgb(50, 205, 50)', // Green for Approved
-                    'rgb(11, 98, 164)', // Dark Blue for Balance
-                    'rgb(255, 152, 0)', // Orange for In-Progress
-                ],
-                borderColor: [
-                    'rgb(50, 205, 50)',
-                    'rgb(11, 98, 164)',
-                    'rgb(255, 152, 0)',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '65%', // Creates the inner circle
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'start',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label;
+    function createDoughnutChart(ctx, labels, data, chartLabel) {
+        const defaultText = `${labels[1]}`; //default label will be Balance
+        const defaultColor = 'rgb(11, 98, 164)'; //default color for balnce is set from here it self
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: chartLabel,
+                    data: data,
+                    backgroundColor: [
+                        'rgb(50, 205, 50)', // Green for Approved
+                        'rgb(11, 98, 164)', // Dark Blue for Balance
+                        'rgb(255, 152, 0)', // Orange for In-Progress
+                    ],
+                    borderColor: [
+                        'rgb(50, 205, 50)',
+                        'rgb(11, 98, 164)',
+                        'rgb(255, 152, 0)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '65%', // Creates the inner circle
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'start',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label;
+                            }
                         }
+                    },
+                    centerText: {
+                        text: defaultText, // Set default text to "Balance"
+                        color: defaultColor,
                     }
                 },
-                centerText: {
-                    text: defaultText, // Set default text to "Balance"
-                    color: defaultColor,
+                onClick: function(event, elements) {
+                    if (elements.length > 0) {
+                        const chartIndex = elements[0].index; // Index of the clicked segment
+                        const clickedLabel = labels[chartIndex]; // Get the label of the clicked segment
+                        const clickedValue = data[chartIndex]; // Get the value of the clicked segment
+
+                        // Update the center text
+                        chart.options.plugins.centerText.text = `${clickedLabel}`;
+                        chart.update();
+
+                        // Get the color of the clicked segment
+                        const clickedColor = chart.data.datasets[0].backgroundColor[chartIndex];
+                        // Call function to display the color in a square box inside the donut chart
+                        displayColorBoxInChart(chart, clickedColor);
+                    }
                 }
             },
-            onClick: function(event, elements) {
-                if (elements.length > 0) {
-                    const chartIndex = elements[0].index; // Index of the clicked segment
-                    const clickedLabel = labels[chartIndex]; // Get the label of the clicked segment
-                    const clickedValue = data[chartIndex]; // Get the value of the clicked segment
-
-                    // Update the center text
-                    chart.options.plugins.centerText.text = `${clickedLabel}`;
-                    chart.update();
-
-                    // Get the color of the clicked segment
-                    const clickedColor = chart.data.datasets[0].backgroundColor[chartIndex];
-                    // Call function to display the color in a square box inside the donut chart
-                    displayColorBoxInChart(chart, clickedColor);
-                }
-            }
-        },
-        plugins: [
-            {
+            plugins: [{
                 id: 'centerText',
                 beforeDraw(chart) {
-                    const {width, height, ctx} = chart;
+                    const {
+                        width,
+                        height,
+                        ctx
+                    } = chart;
                     const text = chart.options.plugins.centerText.text || '';
 
                     ctx.save();
@@ -151,133 +160,133 @@ function createDoughnutChart(ctx, labels, data, chartLabel) {
 
                     ctx.restore();
                 }
-            }
-        ]
+            }]
+        });
+
+        return chart;
+    }
+
+    // Function to display the color box inside the chart
+    function displayColorBoxInChart(chart, color) {
+        // Update color in the chart options for centerText plugin
+        chart.options.plugins.centerText.color = color;
+        chart.update(); // Re-render the chart to show the updated color box
+    }
+
+    // Casual Leave Chart Initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctxCasual = document.getElementById('casualLeaveChart').getContext('2d');
+        createDoughnutChart(
+            ctxCasual,
+            @json($leaveData),
+            @json($statusCounts),
+            'Leave Application Statuses'
+        );
+
+        // Earned Leave Chart Initialization
+        var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
+        createDoughnutChart(
+            ctxEarned,
+            @json($earnedLeaveData),
+            @json($earnedLeaveCounts),
+            'Earned Leave Statuses'
+        );
     });
-
-    return chart;
-}
-
-// Function to display the color box inside the chart
-function displayColorBoxInChart(chart, color) {
-    // Update color in the chart options for centerText plugin
-    chart.options.plugins.centerText.color = color;
-    chart.update(); // Re-render the chart to show the updated color box
-}
-
-// Casual Leave Chart Initialization
-document.addEventListener('DOMContentLoaded', function() {
-    var ctxCasual = document.getElementById('casualLeaveChart').getContext('2d');
-    createDoughnutChart(
-        ctxCasual,
-        @json($leaveData),
-        @json($statusCounts),
-        'Leave Application Statuses'
-    );
-
-    // Earned Leave Chart Initialization
-    var ctxEarned = document.getElementById('earnedLeaveChart').getContext('2d');
-    createDoughnutChart(
-        ctxEarned,
-        @json($earnedLeaveData),
-        @json($earnedLeaveCounts),
-        'Earned Leave Statuses'
-    );
-});
-
 </script>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-condensed table-striped table-bordered table-sm">
-                            <thead>
-                                <tr>
-                                    <th colspan="4">
-                                        <h5><strong>Holidays</strong></h5>
-                                    </th>
-                                </tr>
-                                <tr class="thead-light">
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($holidays as $index => $holiday)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $holiday->holiday_name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-condensed table-striped table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th colspan="4">
+                                    <h5><strong>Holidays</strong></h5>
+                                </th>
+                            </tr>
+                            <tr class="thead-light">
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($holidays as $index => $holiday)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $holiday->holiday_name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
 
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-danger">No holidays found</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-danger">No holidays found</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+    </div>
 
 
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-condensed table-striped table-bordered table-sm">
-                            <thead>
-                                <tr>
-                                    <th colspan="3">
-                                        <h5><strong>Notifications</strong></h5>
-                                    </th>
-                                </tr>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-condensed table-striped table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th colspan="3">
+                                    <h5><strong>Notifications</strong></h5>
+                                </th>
+                            </tr>
 
-                                <tr class="thead-light">
-                                    <th>#</th>
-                                    <th>Title</th>
-                                    <th>Message</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $index = 1; @endphp
+                            <tr class="thead-light">
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $index = 1; @endphp
 
-                                @foreach ($notifications as $notification)
-                                    <tr class="notification-row" data-id="{{ $notification['id'] }}">
-                                        <td>{{ $index++ }}</td>
-                                        <td>{{ $notification['title'] }}</td>
-                                        <td>{{ $notification['message'] }}</td>
-                                    </tr>
-                                @endforeach
+                            @foreach ($notifications as $notification)
+                            @if ($notification['title'] !== 'Holiday Alert') {{-- Exclude Holiday Alert --}}
+                            <tr class="notification-row" data-id="{{ $notification['id'] ?? 'N/A' }}">
+                                <td>{{ $index++ }}</td>
+                                <td>{{ $notification['title'] }}</td>
+                                <td>{{ $notification['message'] }}</td>
+                            </tr>
+                            @endif
+                            @endforeach
 
-                                @if ($alerts->isNotEmpty())
-                                    @foreach ($alerts as $alert)
-                                        <tr>
-                                            <td>{{ $index++ }}</td> <!-- Increment index here -->
-                                            <td>{{ $alert->lastPart }}</td>
-                                            <td>You have {{ $alert->count }} new alerts. <a class="text-primary"
-                                                    href="{{ url('approval/applications') }}">Please review
-                                                    them.</a></td>
-                                        </tr>
-                                    @endforeach
-                                @endif
-                            </tbody>
+                            @if ($alerts->isNotEmpty())
+                            @foreach ($alerts as $alert)
+                            <tr>
+                                <td>{{ $index++ }}</td> <!-- Increment index here -->
+                                <td>{{ $alert->lastPart }}</td>
+                                <td>You have {{ $alert->count }} new alerts. <a class="text-primary"
+                                        href="{{ url('approval/applications') }}">Please review
+                                        them.</a></td>
+                            </tr>
+                            @endforeach
+                            @endif
+                        </tbody>
 
-                        </table>
-                    </div>
+                    </table>
                 </div>
-
-
             </div>
 
+
         </div>
+
+    </div>
 
 
 
@@ -285,6 +294,16 @@ document.addEventListener('DOMContentLoaded', function() {
     @endsection
 
     <style>
+        .glowing-text {
+            text-shadow: 0 0 10px white,
+                0 0 20px white,
+                0 0 30px white;
+            animation: glow 1.5s infinite alternate;
+        }
+
+
+
+
         .small-card {
             height: 70px;
             /* Adjust the height as per your requirement */
@@ -352,20 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
             color: #666;
         }
 
-        .notification-glow {
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from {
-                background-color: white;
-            }
-
-            to {
-                background-color: red;
-            }
-        }
-
         .table-responsive {
             max-height: 300px;
             overflow-y: auto;
@@ -373,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     </style>
     @push('page_scripts')
-        <!-- <script>
+    <!-- <script>
             document.addEventListener("DOMContentLoaded", () => {
                 // Select all notification rows
                 const rows = document.querySelectorAll(".notification-row");
