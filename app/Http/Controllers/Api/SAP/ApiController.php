@@ -18,14 +18,7 @@ class ApiController extends BaseController
         $rules = [
             'name' => 'required',
             'code' => 'required',
-            'store_location' => 'required',
-            // 'store_email' => 'required',
-            // 'phone_number' => 'required',
-            // 'contact_person' => 'required',
-            // 'contact_email' => 'required',
-            // 'contact_number' => 'required',
-            // 'dzongkhag_code' => 'required',
-            'region_id' => 'required'
+            'dzongkhag' => 'required',
         ];
 
         $validator = \Validator::make($request->all(), $rules);
@@ -37,7 +30,7 @@ class ApiController extends BaseController
         if($request->has('parent_store_code') && $request->parent_store_code){
             $parentStoreId = MasStore::where('code', $request->parent_store_code)->value('id');
             if (!$parentStoreId) {
-                return $this->errorResponse('Parent store code not found.');
+                return $this->errorResponse('Parent store code associated for store code not found in HRMS system.');
             }
         }
 
@@ -49,6 +42,7 @@ class ApiController extends BaseController
                 // If store exists, update it
                 $store->parent_store_id = $parentStoreId;
                 $store->name = $request->name;
+                // $store->code = $request->code;
                 $store->country = isset($request->country) ? $request->country : $this->country;
                 $store->dzongkhag = $request->dzongkhag ?? null;
                 $store->region = isset($request->region) ? $request->region : null;
@@ -60,7 +54,7 @@ class ApiController extends BaseController
                 $store->status = $request->status ?? 1;
                 $store->updated_by = $this->sapUser; // Track who updated it
                 $store->save();
-                $message = 'Store updated successfully.';
+                $message = 'Warehouse updated successfully.';
             } else {
                 // If store does not exist, create a new one
                 $store = new MasStore();
@@ -78,7 +72,7 @@ class ApiController extends BaseController
                 $store->status = $request->status ?? 1;
                 $store->created_by = $this->sapUser;
                 $store->save();
-                $message = 'Store created successfully.';
+                $message = 'Warehouse created successfully.';
             }
         } catch(\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -89,12 +83,10 @@ class ApiController extends BaseController
 
     public function saveItem(Request $request) {
         $rules = [
-            'store_code' => 'required',
             'item_category' => 'required',
-            'item_number' => 'required',
+            'item_no' => 'required',
             'item_description' => 'required',
             'uom' => 'required',
-            'quantity' => 'required',
             'status' => 'required',
         ];
 
@@ -103,29 +95,16 @@ class ApiController extends BaseController
             return $this->validationErrorResponse($validator->errors());
         }
 
-        // Find store ID by store code
-        $storeId = null;
-        if ($request->has('store_code') && $request->store_code) {
-            $storeId = MasStore::where('code', $request->store_code)->value('id');
-            if (!$storeId) {
-                return $this->errorResponse('Store code not found.');
-            }
-        }
-
         try {
             // Check if item exists based on item_number
-            $item = MasItem::where('item_number', $request->item_number)->first();
+            $item = MasItem::where('item_no', $request->item_no)->first();
 
             if ($item) {
                 // If item exists, update it
-                $item->store_id = $storeId;
                 $item->item_category = $request->item_category;
-                // $item->asset_type = $request->asset_type;
-                // $item->asset_class = $request->asset_class;
                 $item->item_description = $request->item_description;
                 $item->uom = $request->uom;
-                $item->quantity = $request->quantity;
-                // $item->fa_enabled = $request->fa_enabled ?? 1;
+                $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
                 $item->updated_by = $this->sapUser; // Track who updated it
                 $item->save();
@@ -133,16 +112,12 @@ class ApiController extends BaseController
             } else {
                 // If item does not exist, create a new one
                 $item = new MasItem();
-                $item->store_id = $storeId;
                 $item->item_category = $request->item_category;
-                // $item->asset_type = $request->asset_type;
-                // $item->asset_class = $request->asset_class;
                 $item->item_description = $request->item_description;
                 $item->uom = $request->uom;
-                $item->quantity = $request->quantity;
-                // $item->fa_enabled = $request->fa_enabled ?? 1;
+                $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
-                $item->updated_by = $this->sapUser;
+                $item->created_by = $this->sapUser;
                 $item->save();
                 $message = 'Item created successfully.';
             }
@@ -153,27 +128,28 @@ class ApiController extends BaseController
         return $this->successResponse($item, $message);
     }
 
-    public function saveGoodReceiptNote(Request $request){
+    public function saveGrnItemMapping(Request $request){
         $rules = [
-            'item_number' => 'required',
-            'grn_no' => 'required',
+            'store_code' => 'required',
+            'item_no' => 'required',
             'uom' => 'required',
             'quantity' => 'required',
         ];
-
+       
         $validator = \Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
 
-        // Find item_id by item_number from mas_items table
-        $itemId = null;
-        if ($request->has('item_number') && $request->item_number) {
-            $itemId = MasItem::where('item_number', $request->item_number)->value('id');
-            if (!$itemId) {
-                return $this->errorResponse('Item number not found.');
-            }
+        $storeId = MasStore::where('code', $request->store_code)->value('id');
+        $itemId = MasItem::where('item_no', $request->item_no)->value('id');
+        if(!$storeId){
+            return $this->errorResponse('Store code not found in HRMS system.');
         }
+        if(!$itemId){
+            return $this->errorResponse('Item no not availaible for associated store code in HRMS system.');
+        }
+        
 
 
     }

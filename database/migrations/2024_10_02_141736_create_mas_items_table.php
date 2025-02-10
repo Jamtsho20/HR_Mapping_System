@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             // $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('item_no')->unique()->index();
-            $table->string('description')->nullable();
+            $table->string('item_description');
             $table->string('item_category')->index()->nullable();
             $table->string('uom');
             // $table->integer('current_stock')->comment('Total stocks availaible in store or live stock available in the system (CStock + RQty - CQty).');
             // $table->integer('received_quantity')->comment('as soon as if goods is received under same item_no in goods_receipt_note update RQTY');
             // $table->integer('changed_quantity')->comment('initially set changed_quantity to received_quantity and if there is update in RQty add to existing.');
-            $table->boolean('is_fixed_asset')->comment('1 => fixed asset, 0 => other type of asset'); 
+            $table->boolean('is_fixed_asset')->default(1)->comment('1 => fixed asset, 0 => other type of asset'); 
             $table->boolean('status')->comment('1 => active, 0 => inactive and this it self will act as fa_enabled or disabled'); 
-            $table->timestamp('last_synced_at')->nullable()->comment('Tracks last sync with SAP'); // Tracks last sync with SAP
+            // $table->timestamp('last_synced_at')->nullable()->comment('Tracks last sync with SAP'); // Tracks last sync with SAP
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
