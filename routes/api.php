@@ -38,7 +38,7 @@ use App\Http\Controllers\Api\SOMs\ApiController as SomsApiComtroller;
 */
 Route::middleware('api.access.log')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
-    Route::post('sap/login', [LoginController::class, 'sapLogin']);
+    Route::post('s      ap/login', [LoginController::class, 'sapLogin']);
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
 
 

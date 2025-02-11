@@ -27,6 +27,7 @@ class SifaExport implements FromCollection, WithHeadings
         return FinalPaySlip::filter($this->request)->get()->map(function ($sifaContributions) use (&$serialNo) {
             return [
                 $serialNo++,
+                $sifaContributions->employee->username,
                 $sifaContributions->employee->name,
                 $sifaContributions->employee->empJob->designation->name,
                 $sifaContributions->employee->empJob->empType->name,
@@ -41,9 +42,10 @@ class SifaExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
+            'Employee ID',
             'Employee Name',
             'Job Title',
-            'Employee Status',
+            'Employment Type',
             'SIFA',
             'Date',
 

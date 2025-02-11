@@ -85,7 +85,7 @@
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $gis->employee->name }}</td>
-                                                            <td>-</td>
+                                                            <td>{{ $gis->employee->empJob->gis_policy_number }}</td>
                                                             <td>{{ $gis->employee->cid_no }}</td>
                                                             <td>{{ $gis->employee->dob }}</td>
                                                             <td>{{ $gis->employee->empJob->basic_pay }}</td>
