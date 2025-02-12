@@ -16,6 +16,13 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationHistory;
+use App\Models\TravelAuthorizationApplication;
+use App\Models\DsaClaimApplication;
+use App\Models\AdvanceApplication;
+use Illuminate\Support\Facades\Auth;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimMappings;
+use App\Models\DsaClaimDetail;
 
 class ApprovalController extends Controller
 {
@@ -299,6 +306,51 @@ class ApprovalController extends Controller
         if ($request->query('tab') == 7) {
             $no_of_days = $data->estimated_travel_expenses / $data->daily_allowance;
         }
+        $oldDataFlag = true;
+        $travelNosString = "";
+        $advanceNosString = "";
+        if ($tab == 9) {
+            if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+                $data = DsaClaimApplication::findOrFail($id);
+            } else {
+                $data = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
+
+                // Extract Travel Authorization IDs
+                $travelNumbers = $data->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
+
+                // Extract Advance Application IDs (if they exist)
+                $advanceNumbers = $data->dsaClaimMappings->pluck('advance_application_id')->filter()->toArray();
+
+                // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
+                $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
+                    ->pluck('travel_authorization_no', 'id');
+
+                // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+                $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
+                    ->pluck('advance_no', 'id');
+
+                // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+                $data->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                    $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+
+                    $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                    if ($newDays <= 15) {
+                        $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
+                    } else {
+                        $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                    }
+                    return $mapping;
+                });
+
+                // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+                $travelNosString = $travelNos->implode(', ');
+                $advanceNosString = $advanceNos->implode(', ');
+                $oldDataFlag = false;
+            }
+        }
+
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
         $empDetails = empDetails($data->created_by);
@@ -307,7 +359,184 @@ class ApprovalController extends Controller
             ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
         // Pass the reject remarks to the view
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString'));
+    }
+
+    public function edit(Request $request, $id){
+
+        $oldDataFlag = true;
+        $travelNosString="";
+        $advanceNosString="";
+        $travelNumbers=[];
+        $da=0;
+
+        if(DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+            $dsa = DsaClaimApplication::findOrFail($id);
+            $userId = $dsa->created_by;
+            return redirect()->back()->with("msg_error", "The old DSA claim applicaitons cannot be edited");
+        }else{
+
+            $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
+          
+            $userId = $dsa->created_by;
+            // Extract Travel Authorization IDs
+            $travelNumbers = $dsa->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
+
+            // Extract Advance Application IDs (if they exist)
+            $advanceNumbers = $dsa->dsaClaimMappings->pluck('advance_application_id')->filter()->toArray();
+
+            // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
+            $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
+                ->pluck('travel_authorization_no', 'id');
+
+            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
+                ->pluck('advance_no', 'id');
+
+
+                // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+                $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                    $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+
+                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                    $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                 // Replace with actual daily allowance from config or DB
+                if ($newDays <= 15) {
+                    $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
+                } else {
+                    $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                }
+                return $mapping;
+            });
+
+            $job = Auth::user()->where('id', $userId)->with('empJob')->first();
+            if (!$job) {
+                return redirect()->back()->with('msg_error', 'You do not have a job assigned to you');
+            }
+
+            $gradeId = $job->empJob->grade->id;
+            $da = DailyAllowance::whereMasGradeId($gradeId)->first();
+            $da = $da->da_in_country;
+            $travelNosString = $travelNos->implode(', ');
+            $advanceNosString = $advanceNos->implode(', ');
+
+            $oldDataFlag = false;
+        }
+
+        $empIdName = $job->name;
+    return view('expense.dsa-approval.edit', compact('empIdName', 'da', 'dsa', 'oldDataFlag','travelNumbers', 'travelNosString', 'advanceNosString'));
+    }
+
+    public function update(Request $request, $id)
+    {
+
+
+
+        $dsaClaimApplication = DsaClaimApplication::findOrFail($id);
+
+        // $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request);
+        // $approvalService = new ApprovalService();
+        // $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
+
+        try {
+            DB::beginTransaction();
+
+            $attachments = [];
+
+
+
+            $dsaClaimApplication->update([
+                'type_id' => $request->dsa_claim_type_id,
+                'travel_authorization_id' => $travel_id_json ?? null,
+                'advance_application_id' => $advanceIdsJson ?? null,
+                'advance_amount' => is_array($request->advance_amount) ? array_sum($request->advance_amount) : $request->advance_amount,
+                'amount' => $request->amount,
+                'net_payable_amount' => !is_null($request->advance_ids) ? $request->net_payable_amount : $request->amount,
+                'balance_amount' => $request->balance_amount,
+                'total_number_of_days' => $request->total_number_of_days,
+            ]);
+
+            $decoded_travel_auth_ids = array_map(fn($item) => json_decode($item, true), $request->travel_authorization_id);
+
+            foreach ($decoded_travel_auth_ids as $travel_auth) {
+                $taAmount = $request->ta_amount[$travel_auth['id']] ?? 0;
+                $advanceAmount = $request->advance_amount[$travel_auth['id']] ?? 0;
+                $total_days = $request->total_days[$travel_auth['id']] ?? 0;
+                $attachment = isset($attachments[$travel_auth['id']]) ? json_encode($attachments[$travel_auth['id']]) : json_encode([]);
+
+                DsaClaimMappings::updateOrCreate(
+                    ['travel_authorization_id' => $travel_auth['id'], 'dsa_claim_id' => $dsaClaimApplication->id],
+                    [
+                        'advance_application_id' => $travel_auth['advance_id'] ?? null,
+                        'ta_amount' => $taAmount,
+                        'advance_amount' => $advanceAmount,
+                        'number_of_days' => $total_days
+                    ]
+                );
+            }
+
+            if (isset($request->dsa_claim_detail)) {
+                // Get all existing DsaClaimDetail records for the current claim
+                $existingDetails = DsaClaimDetail::whereIn('dsa_map_id', function ($query) use ($dsaClaimApplication) {
+                    $query->select('id')
+                          ->from('dsa_claim_mappings')
+                          ->where('dsa_claim_id', $dsaClaimApplication->id);
+                })->get();
+
+                // Collect incoming `dsa_map_id`s from the request
+                $incomingDetailIds = [];
+
+                foreach ($request->dsa_claim_detail as $detail) {
+                    $dsaMapping = DsaClaimMappings::where('travel_authorization_id', $detail['travel_authorization_id'])
+                                                  ->where('dsa_claim_id', $dsaClaimApplication->id)
+                                                  ->first();
+
+                    if ($dsaMapping) {
+                        $dsaClaimDetail = DsaClaimDetail::updateOrCreate(
+                            ['dsa_map_id' => $dsaMapping->id],
+                            [
+                                'from_date' => $detail['from_date'],
+                                'from_location' => $detail['from_location'],
+                                'to_date' => $detail['to_date'],
+                                'to_location' => $detail['to_location'],
+                                'total_days' => $detail['total_days'],
+                                'daily_allowance' => $detail['daily_allowance'],
+                                'total_amount' => $detail['total_amount']
+                            ]
+                        );
+
+                        $incomingDetailIds[] = $dsaClaimDetail->id; // Store ID of updated/created records
+                    }
+                }
+
+                // Delete records that are no longer in the request
+                DsaClaimDetail::whereIn('dsa_map_id', $existingDetails->pluck('dsa_map_id'))
+                              ->whereNotIn('id', $incomingDetailIds)
+                              ->delete();
+            }
+
+
+            $applicationHistory = $dsaClaimApplication->histories->where('application_type', "App\Models\DsaClaimApplication")->where('application_id', $id)->first();
+            $actionBy = auth()->id();
+
+            // Update application status
+            $dsaClaimApplication->update([
+
+                'updated_by' => $actionBy,
+            ]);
+
+            $applicationHistory->update([
+                'edited_by' => $actionBy
+            ]);
+
+            DB::commit();
+
+            return redirect('approval/applications')->with('msg_success', 'DSA Claim/Settlement has been updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', $e->getMessage());
+        }
     }
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)

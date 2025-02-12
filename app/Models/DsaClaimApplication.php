@@ -35,6 +35,9 @@ class DsaClaimApplication extends Model
         return $this->hasMany(DsaClaimDetail::class, 'dsa_claim_id');
     }
 
+    public function dsaClaimMappings() {
+        return $this->hasMany(DsaClaimMappings::class, 'dsa_claim_id');
+    }
     public function dsaadvance()
     {
         return $this->belongsTo(AdvanceApplication::class, 'advance_application_id');

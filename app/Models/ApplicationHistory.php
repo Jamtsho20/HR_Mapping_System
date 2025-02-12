@@ -20,6 +20,7 @@ class ApplicationHistory extends Model
         'status',
         'remarks',
         'action_performed_by',
+        'edited_by',
         'application_type',  // Polymorphic type
         'application_id',  //new
         'status',            //new
@@ -60,18 +61,21 @@ class ApplicationHistory extends Model
         static::updated(function ($application) {
             // $changes = $application->getChanges();
             // \Log::info('Creating audit log for updated application history with changes', ['changes' => $application]);
-            ApplicationAuditLog::create([
-                'application_type' => $application->application_type,
-                'application_id' => $application->application_id,
-                'approval_option' => $application->approval_option,
-                'hierarchy_id' => $application->hierarchy_id,
-                'status' => $application->status,
-                'remarks' => $application->remarks,
-                'action_performed_by' => $application->action_performed_by,
-                'edited_by' => null,
-
-                'sap_response' => $application->sap_response,
-            ]);
+            ApplicationAuditLog::updateOrCreate(
+                [
+                    'application_id' => $application->application_id,
+                    'application_type' => $application->application_type,
+                    'status' => $application->status,
+                    'action_performed_by' => $application->action_performed_by
+                ], // Unique condition to check
+                [
+                    'approval_option' => $application->approval_option,
+                    'hierarchy_id' => $application->hierarchy_id,
+                    'remarks' => $application->remarks,
+                    'edited_by' => $application->edited_by ?? null,
+                    'sap_response' => $application->sap_response,
+                ]
+            );
         });
     }
 }

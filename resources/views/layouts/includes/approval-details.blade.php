@@ -11,6 +11,7 @@
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
                         @endif
+
                     @endforeach
                 </td>
             </tr>
@@ -25,6 +26,7 @@
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
                         @endif
+
                     @endforeach
 
                 </td>
@@ -44,6 +46,7 @@
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
+
                         @endif
                     @endforeach
                 </td>
@@ -58,5 +61,7 @@
             </tr>
 
         @endif
+        
+
     </tbody>
 </table>

@@ -14,6 +14,7 @@ use App\Models\DsaClaimType;
 use App\Models\TravelAuthorizationApplication;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
+use App\Models\DsaClaimMappings;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -64,9 +65,10 @@ class DSAClaimApplicationController extends Controller
         //common function to generate combination of loggedInUser employeeId and username
         $empIdName = LoggedInUserEmpIdName();
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
-        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
-
-        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id')->whereNotIn('status', [-1,3]);
+        $excludedTravelIds = DsaClaimApplication::pluck('travel_authorization_id')->whereNotIn('status', [-1,3]);
+dd($excludedTravelIds);
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         //get dsa advance which has been approved for settlement
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
@@ -86,10 +88,6 @@ class DSAClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {
-        if($request){
-            return back()->withInput()->with('msg_error', 'Currently the module you are trying to access is under maintainence. Please check back later.');
-        }
-        
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -106,56 +104,98 @@ class DSAClaimApplicationController extends Controller
             return back()->withInput()->with('msg_error', 'DSA Claim Application Number already exists. Please try again.');
         }
 
+       //dd($request->all());
 
         if ($approverByHierarchy) {
             try {
                 DB::beginTransaction();
 
-                if ($request->hasFile('attachments')) {
-                    // Upload file and get the file path
+                $attachments = [];
 
-                    $attachmentPath = uploadImageToDirectory($request->file('attachments'), $this->attachmentPath);
-                    // Store it as a JSON array
-                    $attachment = json_encode([$attachmentPath]);
-                } else {
-                    $attachment = json_encode([]);
+                if ($request->hasFile('files')) {
+                    foreach ($request->file('files') as $travelAuthId => $file) {
+                        if ($file->isValid()) {
+                            // Upload each file and store the path
+                            try {
+                                $attachmentPath = uploadImageToDirectory($file, $this->attachmentPath);
+                            } catch (\Exception $e) {
+                                throw $e;
+                            }
+                            $attachments[$travelAuthId] = $attachmentPath;
+                        }
+                    }
                 }
+
 
                 $dsaClaimApplication = DsaClaimApplication::create([
                     'dsa_claim_no' => $dsaClaimNo,
                     'type_id' => $request->dsa_claim_type_id,
-                    'travel_authorization_id' => $request->travel_authorization_id,
-                    'advance_application_id' => $request->advance_no ?? null,
+                    'travel_authorization_id' => $travel_id_json ?? null,
+                    'advance_application_id' => $advanceIdsJson ?? null,
+                    'advance_amount' => is_array($request->advance_amount) ? array_sum($request->advance_amount) : $request->advance_amount,
                     'amount' => $request->amount,
-                    'net_payable_amount' => !is_null($request->advance_no) ? $request->net_payable_amount : $request->amount,
+                    'net_payable_amount' => !is_null($request->advance_ids) ? $request->net_payable_amount : $request->amount,
                     'balance_amount' => $request->balance_amount,
-                    'attachment' => $attachment,
+                    'total_number_of_days' => $request->total_number_of_days,
                     'status' => 1,
                 ]);
 
-                if ($dsaClaimApplication) {
+                $travel_auth_ids = $request->travel_authorization_id;
+                $decoded_travel_auth_ids = array_map(fn($item) => json_decode($item, true), $travel_auth_ids);
+                //dd($decoded_travel_auth_ids);
+                // Loop through the decoded array
+                foreach ($decoded_travel_auth_ids as $travel_auth) {
+
+                    $taAmounts = $request->ta_amount;
+                    $taAmount = $taAmounts[$travel_auth['id']] ?? 0;
+                    $advanceAmounts = $request->advance_amount;
+                    $advanceAmount = $advanceAmounts[$travel_auth['id']] ?? 0;
+                    $days =  $request->total_days;
+                    $total_days = $days[$travel_auth['id']] ?? 0;
+
+                    $attachment = isset($attachments[$travel_auth['id']]) ? json_encode($attachments[$travel_auth['id']]) : json_encode([]);
+
+                    $dsaMapping = DsaClaimMappings::create([
+                        'travel_authorization_id' => $travel_auth['id'],
+                        'dsa_claim_id' => $dsaClaimApplication->id,
+                        'advance_application_id' => $travel_auth['advance_id'] ?? null,
+                        'ta_amount' => $taAmount,
+                        'advance_amount' => $advanceAmount,
+                        'attachment' => $attachment,
+                        'number_of_days' => $total_days
+                    ]);
+
+                }
+                if (isset($request->dsa_claim_detail)) {
                     foreach ($request->dsa_claim_detail as $detail) {
+                        // Find the corresponding DsaClaimMappings entry based on travel_authorization_id
+                        $dsaMapping = DsaClaimMappings::where('travel_authorization_id', $detail['travel_authorization_id'])
+                                                      ->where('dsa_claim_id', $dsaClaimApplication->id)
+                                                      ->first();
 
-                        $from = new DateTime($detail['from_date']);
-                        $to = new DateTime($detail['to_date']);
-
-                        $interval = $from->diff($to);
-                        $totalDays = $interval->days;
-
-                        $applicationDetail = new DsaClaimDetail();
-                        $applicationDetail->dsa_claim_id = $dsaClaimApplication->id;
-                        $applicationDetail->from_date = $detail['from_date'];
-                        $applicationDetail->to_date = $detail['to_date'];
-                        $applicationDetail->from_location = $detail['from_location'];
-                        $applicationDetail->to_location = $detail['to_location'];
-                        $applicationDetail->total_days = $detail['total_days'] ?? $totalDays;
-                        $applicationDetail->daily_allowance = $detail['daily_allowance'] ?? 0;
-                        $applicationDetail->travel_allowance = $detail['travel_allowance'] ?? 0;
-                        $applicationDetail->total_amount = $detail['total_amount'] ?? 0;
-                        $applicationDetail->remark = $detail['remark'];
-                        $applicationDetail->save();
+                        if ($dsaMapping) {
+                            $dsaClaimDetail = DsaClaimDetail::create([
+                                'dsa_claim_id' => null, // Foreign key
+                                'dsa_map_id' => $dsaMapping->id,
+                                'from_date' => $detail['from_date'],
+                                'from_location' => $detail['from_location'],
+                                'to_date' => $detail['to_date'],
+                                'to_location' => $detail['to_location'],
+                                'total_days' => $detail['total_days'],
+                                'daily_allowance' => $detail['daily_allowance'],
+                                'travel_allowance' => $detail['travel_allowance']??0,
+                                'total_amount' => $detail['total_amount'],
+                                'remark' => $detail['remark'] ?? null, // Optional field
+                            ]);
+                        } else {
+                            // Log error or handle cases where the mapping does not exist
+                            \Log::warning("DsaClaimMappings not found for travel_authorization_id: " . $detail['travel_authorization_id']);
+                        }
+                        //dd($dsaMapping,$dsaClaimDetail);
                     }
                 }
+
+
 
                 // Create a history record
                 $historyService = new ApplicationHistoriesService();
@@ -191,14 +231,56 @@ class DSAClaimApplicationController extends Controller
      */
     public function show($id)
     {
-        $dsa = DsaClaimApplication::findOrfail($id);
+        $oldDataFlag = true;
+        $travelNosString="";
+        $advanceNosString="";
+        if(DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+            $dsa = DsaClaimApplication::findOrFail($id);
+        }else{
+            $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
+
+            // Extract Travel Authorization IDs
+            $travelNumbers = $dsa->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
+
+            // Extract Advance Application IDs (if they exist)
+            $advanceNumbers = $dsa->dsaClaimMappings->pluck('advance_application_id')->filter()->toArray();
+
+            // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
+            $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
+                ->pluck('travel_authorization_no', 'id');
+
+            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
+                ->pluck('advance_no', 'id');
+
+
+            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+
+                $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                 // Replace with actual daily allowance from config or DB
+                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                if ($newDays <= 15) {
+                    $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
+                } else {
+                    $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                }
+                return $mapping;
+            });
+
+            // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+
+            $travelNosString = $travelNos->implode(', ');
+            $advanceNosString = $advanceNos->implode(', ');
+
+            $oldDataFlag = false;
+        }
+       
+
         $empDetails = empDetails($dsa->created_by);
-
-        $rejectRemarks = ApplicationHistory::where('application_type', DsaClaimApplication::class)
-        ->where('application_id', $id)
-        ->value('remarks');
-
-        return view('expense.apply.dsa-show', compact('dsa', 'empDetails','rejectRemarks'));
+        return view('expense.apply.dsa-show', compact('dsa', 'empDetails', 'oldDataFlag', 'travelNosString', 'advanceNosString'));
     }
 
     /**
@@ -301,7 +383,7 @@ class DSAClaimApplicationController extends Controller
                     }
 
                     // Upload the new file and get the file path
-                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                     // Store the new attachment as a JSON array
                     $attachment = json_encode([$attachmentPath]);
