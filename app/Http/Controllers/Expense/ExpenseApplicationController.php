@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\DsaClaimMappings;
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;
@@ -122,7 +123,17 @@ class ExpenseApplicationController extends Controller
 
         $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
 
-        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+
+
+        $excludedTravelIds = collect(DsaClaimApplication::whereNotIn('status', [-1])
+        ->select('travel_authorization_id')
+        ->union(DsaClaimMappings::select('travel_authorization_id'))
+        ->get()
+        ->pluck('travel_authorization_id')
+            )->filter()->values()->toArray();
+
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
+
         $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
         //$dsaClaimNo = $this->ajax->getDsaClaimNumber();
         //$transferClaimNo = $this->ajax->getTransferClaimNumber();
@@ -273,7 +284,7 @@ class ExpenseApplicationController extends Controller
     public function edit($id)
     {
         $expenses = MasExpenseType::all();
-        
+
         $expenseApplication = ExpenseApplication::findOrfail($id);
         $vehicles = MasVehicle::all();
 

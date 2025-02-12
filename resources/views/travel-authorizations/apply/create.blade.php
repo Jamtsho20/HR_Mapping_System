@@ -346,7 +346,12 @@
                 const dailyAllowance = parseFloat(dailyAllowanceInput.value) || 0;
                 addDaysDifferenceEventListeners();
                 const totalDaysValue = totalDays() || 0;
-                const estimatedAmount = (totalDaysValue * dailyAllowance);
+                let estimatedAmount = 0;
+                if(totalDaysValue > 15){
+                    estimatedAmount = (dailyAllowance * 15) + (totalDaysValue - 15) * (dailyAllowance / 2);
+                }else{
+                    estimatedAmount = dailyAllowance * totalDaysValue;
+                }
                 estimatedTravelExpensesInput.value = estimatedAmount > 0 ? estimatedAmount : 0;
 
             }

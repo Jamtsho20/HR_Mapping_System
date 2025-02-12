@@ -11,6 +11,7 @@
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
                         @endif
+
                     @endforeach
                 </td>
             </tr>
@@ -25,6 +26,7 @@
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
                         @endif
+
                     @endforeach
 
                 </td>
@@ -44,6 +46,7 @@
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
+
                         @endif
                     @endforeach
                 </td>
@@ -58,5 +61,19 @@
             </tr>
 
         @endif
+        @foreach ($approvalDetail as $log )
+                    @if($log->edited_by)
+                        <tr>
+                            <td style="padding-left:16px;"><strong>Edited By:
+                                {{ $log->editedBy->title }}
+                                {{$log->editedBy->name}}
+                                on
+                                {{ $log->updated_at->format('d-m-y') }}</strong>
+                            </td>
+                        </tr>
+                    @endif
+
+        @endforeach
+
     </tbody>
 </table>

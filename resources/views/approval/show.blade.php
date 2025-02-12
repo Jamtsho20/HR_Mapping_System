@@ -57,7 +57,7 @@
             'sifaDocuments' => $sifaDocuments,
         ])
     @elseif ($tab == 9)
-        @include('approval.view.dsa_claim', ['dsa' => $data, 'empDetails' => $empDetails])
+        @include('approval.view.dsa_claim', ['dsa' => $data, 'empDetails' => $empDetails, 'oldDataFlag' => $oldDataFlag, 'travelNosString' => $travelNosString, 'advanceNosString' => $advanceNosString])
     @endif
 
 @endsection

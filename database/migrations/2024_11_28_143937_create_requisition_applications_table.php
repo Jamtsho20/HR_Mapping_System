@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('type_id')->index()->constrained('mas_requisition_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('requisition_no')->index();
             $table->date('requisition_date')->index();
-            $table->string('asset_type')->index()->nullable()->comment('if required in future, can make use of it');
+            // $table->string('asset_type')->index()->nullable()->comment('if required in future, can make use of it');
             $table->date('need_by_date');
             $table->foreignId('employee_id')->index()->nullable()->constrained('mas_employees')->cascadeOnUpdate()->restrictOnDelete()->comment('if requisition is done on behalf of someone');
             $table->string('item_category')->index();

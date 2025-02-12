@@ -184,7 +184,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('index', 'create', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
-        Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'edit');
+        Route::resource('dsa-approval', 'DSAApprovalController');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');
         // Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'edit');
         // Route::resource('expense-fuel', 'ExpenseFuelController');
@@ -270,7 +270,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('leave-availed-report', 'LeaveAvailedReportController')->except('create', 'show', 'edit');
         Route::resource('leave-balance-report', 'LeaveBalanceReportController')->except('create', 'show', 'edit');
         Route::resource('vehicle-fuel-report', 'VehicleFuelReportController')->except('create', 'show', 'edit');
-        Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'show', 'edit');
+        Route::resource('advance-loan-report', 'AdvanceLoanReportController')->except('create', 'edit');
         Route::resource('expense-and-advance-report', 'ExpenseAndAdvanceReportController')->except('create', 'edit');
         Route::resource('leave-encashment-report', 'LeaveEncashmentReportController')->except('create', 'show', 'edit');
         Route::resource('salary-report', 'SalaryReportController')->except('create', 'show', 'edit');
@@ -357,6 +357,7 @@ Route::middleware('auth')->group(function () {
     //AssetsReport
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
+        Route::resource('mas-item', 'MasItemsController');
         // Route::resource('requisition', 'RequisitionApplicationController')->except('create', 'show', 'edit');
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');

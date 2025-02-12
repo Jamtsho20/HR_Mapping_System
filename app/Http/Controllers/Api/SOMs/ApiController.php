@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 
 class ApiController extends Controller
 {
-    protected $basePath = 'https://soms-vm.tashicell.com/';
-    protected $userName = 'E00000';
+    // protected $basePath = 'https://soms-test-backend.tashicell.com'; //test url
+    protected $basePath = 'https://soms-backend.tashicell.com'; // live url
+    protected $userName = 'E00001';
     protected $password = 'p@ssword';
 
 
@@ -22,7 +23,7 @@ class ApiController extends Controller
             ]);
 
             curl_setopt_array($curl, array(
-                CURLOPT_URL => $this->basePath . 'api/v1/auth/authenticate',
+                CURLOPT_URL => $this->basePath . '/api/v1/auth/authenticate',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -106,7 +107,7 @@ class ApiController extends Controller
     public function postEmployeeToSoms($data)
     {
         $response = $this->startSession();
-
+        
         if (json_last_error() === JSON_ERROR_NONE) {
             $token = json_decode($response->getContent(), true);
 
@@ -118,10 +119,11 @@ class ApiController extends Controller
         if (empty($accessToken)) {
             return response()->json(['msg_error' => 'Failed to retrieve access token'], 500);
         }
-
+        // dd($data['employee_code']);
         $curl = curl_init();
+
         curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->basePath . 'Api/HRMS/employeeMaster',
+            CURLOPT_URL => $this->basePath . '/Api/HRMS/employeeMaster',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -129,17 +131,19 @@ class ApiController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
+            // CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => [
-                "access_token: $accessToken",
                 'Content-Type: application/json',
+                "Authorization: Bearer $accessToken",
             ],
         ));
-
+        
         $response = curl_exec($curl);
+        // dd($response);
         $responseArray = json_decode($response, true);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
+        // \Log::info($response);
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
             curl_close($curl);
@@ -151,9 +155,11 @@ class ApiController extends Controller
         if ($httpCode != 201) {
             $errorMessage = $responseArray['error']['message']['value'] ?? 'Something went wrong from SOMs API';
             \Log::info($errorMessage);
+            \Log::info('SOMs API Response: ' . $response);
+            \Log::info('HTTP Status Code: ' . $httpCode);
             return response()->json(['msg_error' => $errorMessage], $httpCode);
         }
-        \Log::info('SOMs response: ' . $responseArray);
-        return response()->json(['success' => true, 'data' => $responseArray], 201);
+        \Log::info('SOMs response: Employee with employee_id: ' . $data['employee_code'] . ' created successfully');
+        return response()->json(['success' => true], 201);
     }
 }

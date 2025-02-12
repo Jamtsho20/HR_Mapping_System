@@ -57,7 +57,8 @@ class AdvanceLoanReportController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $advance = AdvanceApplication::with('advanceType')->findOrFail($id);
+        return view('report.advance-loan-report.show', compact('advance'));
     }
 
     /**
@@ -88,7 +89,7 @@ class AdvanceLoanReportController extends Controller
     {
 
 
-        $advanceReports = AdvanceApplication::filter($request,false)->get();
+        $advanceReports = AdvanceApplication::whereStatus(3)->filter($request, false)->get();
 
 
 
@@ -105,7 +106,7 @@ class AdvanceLoanReportController extends Controller
     }
     public function printAdvanceLoan(Request $request)
     {
-        $advanceReports = AdvanceApplication::filter($request,false)->get();
+        $advanceReports = AdvanceApplication::whereStatus(3)->filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.advance-loan-report-pdf', compact('advanceReports'))->setPaper('a4', 'landscape');;

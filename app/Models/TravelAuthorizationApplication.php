@@ -34,6 +34,11 @@ class TravelAuthorizationApplication extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function advance()
+    {
+        return $this->hasOne(AdvanceApplication::class, 'travel_authorization_id');
+    }
+
     public function details()
 {
     return $this->hasMany(TravelAuthorizationDetails::class, 'travel_authorization_id');

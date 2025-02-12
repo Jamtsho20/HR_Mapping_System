@@ -119,6 +119,9 @@
                                                                     NO OF EMI
                                                                 </th>
                                                                 <th>
+                                                                    EMI End Date
+                                                                </th>
+                                                                <th>
                                                                     EMI Amount
                                                                 </th>
 
@@ -128,6 +131,8 @@
                                                                 <th>
                                                                     APPROVAL DATE
                                                                 </th>
+                                                                <th>
+                                                                    Action </th>
 
                                                             </tr>
                                                         </thead>
@@ -151,10 +156,19 @@
                                                                     <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}
                                                                     </td>
                                                                     <td>{{ $reports->no_of_emi }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi)->format('d-F-Y') }}
+                                                                    </td>
                                                                     <td>{{ $reports->monthly_emi_amount }}</td>
                                                                     <td>{{ $reports->advance_approved_by->name ?? '-' }}
                                                                     </td>
                                                                     <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}
+                                                                    </td>
+                                                                    <td>
+                                                                        @if ($privileges->view)
+                                                                            <a href="{{ url('report/advance-loan-report/' . $reports->id) }}"
+                                                                                class="btn btn-sm btn-outline-secondary"><i
+                                                                                    class="fa fa-list"></i> Detail</a>
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @empty

@@ -18,11 +18,12 @@ return new class extends Migration
             $table->foreignId('travel_authorization_id')->nullable()->constrained('travel_authorization_applications')->restrictOnDelete()->restrictOnUpdate();
             $table->foreignId('advance_application_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();
             $table->decimal('amount', 12, 2);
+            $table->decimal('advance_amount', 12, 2);
             $table->decimal('net_payable_amount', 12, 2);
             $table->decimal('balance_amount', 12, 2)->nullable();
             $table->json('attachment')->nullable()->comment('relevant attachment path and casted to array');
             $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
-
+            $table->integer('number_of_days')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

@@ -1,4 +1,8 @@
 <div class="card-body">
+    <p class="text-green p-3 pt-0" style=" text-indent: -.01em; padding-left: 1em;">
+        <span style="">*</span>
+        The RESET & EDIT button allows you to revert any changes and modify the DSA claim again.
+    </p>
     <div class="table-responsive">
         <div id="basic-datatable_wrapper"
             class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -33,7 +37,7 @@
                                                 TOTAL PAYABLE AMOUNT
                                             </th>
                                             <th>
-                                                ADV. BALANCE AMOUNT
+                                                ADVANCE AMOUNT
                                             </th>
                                             <th>
                                                 TOTAL AMOUNT
@@ -57,13 +61,12 @@
                                             </td>
                                             @endif
 
-
                                             <td>{{ $dsaclaim->employee->employee_id }}
                                                 ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
                                             <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
                                             <td>{{ $dsaclaim->net_payable_amount }}
                                             </td>
-                                            <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
+                                            <td>{{ $dsaclaim->advance_amount ?? '0.00' }}
                                             </td>
                                             <td>{{ $dsaclaim->amount }}</td>
 
@@ -117,7 +120,13 @@
                                                 </a>
                                                 @endif
                                                 @endif
-
+                                                @if ($privileges->edit && $routeName=='approval.index')
+                                                <a href="{{ url('approval/applications/'.$dsaclaim->id.'/edit') }}"
+                                                    class="btn btn-sm btn-rounded btn-outline-success">
+                                                     <i class="fa fa-edit"></i>RESET & EDIT
+                                                </a>
+                                                @endif
+                                            </td>
                                             </td>
                                         </tr>
                                         @empty

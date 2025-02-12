@@ -51,6 +51,7 @@ use App\Models\MasCommissionTypes;
 use App\Models\GoodReceiptApplicationDetail;
 use App\Models\LeaveApplication;
 use DateTime;
+use App\Models\DsaClaimMappings;
 
 class AjaxRequestController extends Controller
 {
@@ -553,6 +554,8 @@ class AjaxRequestController extends Controller
         return response()->json(['message' => 'No travel authorizations found for the given IDs'], 404);
     }
 
+    $attachments = DsaClaimMappings::whereIn('travel_authorization_id', $ids)->get(['travel_authorization_id', 'attachment']);
+
     // Loop through each travel authorization and process its details
     $travelAuthorizationDetails->each(function ($travelAuthorization) {
         // Process the details for each travel authorization
@@ -584,6 +587,7 @@ class AjaxRequestController extends Controller
                 'advance_details' => $advanceDetail->where('travel_authorization_id', $travelAuthorization->id)->first()
             ];
         }),
+        'attachments' => $attachments,
         'advance_ids' => $advanceDetail->pluck('id')
     ];
 

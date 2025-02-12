@@ -273,7 +273,7 @@ class EmployeeController extends Controller
             'personal.birth_place' => '',
             'personal.birth_country' => '',
             'personal.marital_status' => 'required',
-            'personal.email' => 'required|email|unique:mas_employees,email,' . ($employeeId ?? 'null'),
+            'personal.email' => 'required|email',
             'personal.contact_number' => 'required|digits:8',
             'personal.nationality' => 'required',
             'personal.date_of_appointment' => 'required|date',
@@ -744,8 +744,8 @@ class EmployeeController extends Controller
         ", [$masOfficeId])[0];
 
         $somsData = [
-            'employee_code' => str_replace('E', '', $employee->username),
-            // 'employee_code' => 2005,
+            // 'employee_code' => str_replace('E', '', $employee->username),
+            'employee_code' => $employee->employee_id,
             'person_id' => $employee->id,
             'first_name' => $employee->first_name,
             'middle_name' => $employee->middle_name,
@@ -760,6 +760,7 @@ class EmployeeController extends Controller
         ];
         $this->somsApiController->postEmployeeToSoms($somsData);
     }
+
     public function showRegularizeDetails(Request $request)
     {
 

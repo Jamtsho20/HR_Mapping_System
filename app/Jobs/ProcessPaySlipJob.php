@@ -3,21 +3,23 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use App\Models\PaySlip;
 use App\Models\MasPayHead;
+use App\Models\PaySlipDetail;
+use Illuminate\Bus\Queueable;
+use App\Models\MasEmployeeJob;
 use App\Models\EmployeeOvertime;
 use App\Models\LoanEMIDeduction;
-use App\Models\MasEmployeeJob;
-use App\Models\PaySlipDetail;
 use App\Models\SifaRegistration;
-use App\Models\PaySlip;
 use App\Services\PayrollService;
-use Illuminate\Bus\Queueable;
+use App\Models\EmployeeAttendance;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Queue\SerializesModels;
+use App\Models\EmployeeAttendanceDetail;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 
 class ProcessPaySlipJob implements ShouldQueue
@@ -52,8 +54,9 @@ class ProcessPaySlipJob implements ShouldQueue
             $paySlipId = $payslip->id;
 
             PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
-            $employees = User::active()->completed()->whereKeyNot(1)->get();
+            $employees = User::active()->completed()->whereNotIn('id', [1, 2])->get();
             $userId = 185;
+            $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
     
             foreach ($employees as $employee) {
                 $durationOfService = $employee->durationOfService();
@@ -70,7 +73,17 @@ class ProcessPaySlipJob implements ShouldQueue
                 $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
                 $employeeVariableValues['sifaMember'] = $sifaMember ? 1 : 0;
     
-                $basicPay = $employeeVariableValues['basicPay'] = $employee->empJob->basic_pay;
+                // Attendance for Basic Pay Calculation
+                $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
+                $basicPay = $employee->empJob->basic_pay;
+                if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
+                    $workingDays = $employeeAttendance->working_days;
+                    $physicalDays = $employeeAttendance->physical_days;
+
+                    $basicPay = round(($basicPay / $workingDays) * $physicalDays, 0);
+                }
+                $employeeVariableValues['basicPay'] = $basicPay;
+
                 $forMonthObject = date_create($payslip->for_month);
                 $overtimeHours = EmployeeOvertime::whereMasEmployeeId($employee->id)->whereForMonth($forMonthObject->format("Y-m-01"))->value("overtime_hours");
                 $hourlyWage = ($basicPay / 30) / 8;

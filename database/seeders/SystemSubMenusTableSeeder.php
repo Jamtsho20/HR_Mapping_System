@@ -109,7 +109,7 @@ class SystemSubMenusTableSeeder extends Seeder
 
             //submenu for asset
             ['system_menu_id' => 13, 'name' => 'Store Master', 'route' => 'asset/mas-store', 'display_order' => 1],
-            ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition-apply', 'display_order' => 2],
+            ['system_menu_id' => 13, 'name' => 'Requisiton-Apply', 'route' => 'asset/requisition', 'display_order' => 2],
             ['system_menu_id' => 13, 'name' => 'Requisition-History', 'route' => 'asset/requisition-history', 'display_order' => 3],
             ['system_menu_id' => 13, 'name' => 'Requisition-Approval', 'route' => 'asset/requisition-approval', 'display_order' => 4],
             ['system_menu_id' => 13, 'name' => 'Goods-Issue', 'route' => 'asset/goods-issue', 'display_order' => 5],
@@ -125,6 +125,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return', 'route' => 'asset/fixed-asset-return', 'display_order' => 16],
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return-History', 'route' => 'asset/fixed-asset-return-history', 'display_order' => 17],
             ['system_menu_id' => 13, 'name' => 'Fixed-Asset-return-Approval', 'route' => 'asset/fixed-asset-return-approval', 'display_order' => 18],
+            ['system_menu_id' => 14, 'name' => 'Mas-Item', 'route' => 'asset/mas-item', 'display_order' => 19],
 
             //submenu for payroll
             ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],

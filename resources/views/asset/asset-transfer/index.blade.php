@@ -36,7 +36,7 @@
                                             <table
                                                 class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                 id="basic-datatable">
-                                                <thead>
+                                                <thead class="thead-light">
                                                     <tr role="row">
                                                         <th>#</th>
                                                         <th>TRANSFER NUMBER</th>

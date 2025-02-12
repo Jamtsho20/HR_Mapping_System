@@ -16,6 +16,7 @@ class DsaClaimDetail extends Model
      */
     protected $fillable = [
         'dsa_claim_id',
+        'dsa_map_id',
         'from_date',
         'to_date',
         'from_location',
@@ -30,5 +31,10 @@ class DsaClaimDetail extends Model
     public function dsaClaimApplication()
     {
         return $this->belongsTo(DsaClaimApplication::class, 'dsa_claim_id');
+    }
+
+    public function dsaClaimMapping()
+    {
+        return $this->belongsTo(DsaClaimMappings::class, 'dsa_map_id');
     }
 }

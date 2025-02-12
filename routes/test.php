@@ -1,6 +1,13 @@
 <?php
 
+use App\Models\User;
+use App\Models\MasPayHead;
+use App\Models\MasEmployeeJob;
+use App\Models\SifaRegistration;
 use App\Services\PayrollService;
+use App\Models\EmployeeAttendance;
+use App\Models\EmployeeSalarySaving;
+use App\Models\EmployeeAttendanceDetail;
 use App\Http\Controllers\Api\SAP\ApiController;
 
 /*
@@ -14,10 +21,86 @@ use App\Http\Controllers\Api\SAP\ApiController;
 |
  */
 
- Route::get('/debug', function () {
+ Route::get('debug', function () {
     $sap = new ApiController();
     $pay = new PayrollService();
 
+    $employees = User::active()->completed()->whereKey(260)->get();
+    $userId = 185;
+    $payHeads = MasPayHead::orderBy("Name")->get();
+
+    $salarySavingDeduction = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->sum('amount');
+
+    // foreach ($employees as $employee) {
+    //     $durationOfService = $employee->durationOfService();
+    //     $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
+    //     $sifaMember = SifaRegistration::whereMasEmployeeId($employee->id)->whereIsRegistered(1)->whereStatus(SIFA_APPROVED)->first();
+
+    //     $employeeVariableValues = [];
+    //     $employeeVariableValues['grade'] = $employee->empJob->grade->name;
+    //     $employeeVariableValues['gradeStep'] = $employee->empJob->gradeStep->name;
+    //     $employeeVariableValues['yearsInService'] = $durationOfService['yearsOfService'];
+    //     $employeeVariableValues['monthsInService'] = $durationOfService['monthsOfService'];
+    //     $employeeVariableValues['yearsSinceRegularization'] = $durationOfService['years'];
+    //     $employeeVariableValues['monthsSinceRegularization'] = $durationOfService['months'];
+    //     $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
+    //     $employeeVariableValues['sifaMember'] = $sifaMember ? 1 : 0;
+
+    //     // Attendance for Basic Pay Calculation
+    //     $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
+    //     $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
+    //     $basicPay = $employee->empJob->basic_pay;
+    //     if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
+    //         $workingDays = $employeeAttendance->working_days;
+    //         $physicalDays = $employeeAttendance->physical_days;
+
+    //         $basicPay = round(($basicPay / $workingDays) * $physicalDays, 0);
+    //     }
+    //     $employeeVariableValues['basicPay'] = $basicPay;
+
+    //     dd($employeeVariableValues);
+    // }
+
+
+    $paySlipDetailViews = DB::table("pay_slip_detail_views")->get();
+        foreach ($paySlipDetailViews as $paySlipDetailView) {
+            $allowanceTotal = $deductionTotal = 0;
+
+            // Attendance for Basic Pay Calculation
+            $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
+            $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($paySlipDetailView->mas_employee_id)->whereAttendanceId($attendance->id)->first();
+            $basicPay = $paySlipDetailView->basic_pay;
+
+            if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
+                $workingDays = $employeeAttendance->working_days;
+                $physicalDays = $employeeAttendance->physical_days;
+
+                $basicPay = round(($basicPay / $workingDays) * $physicalDays, 0);
+            }
+
+
+            
+            foreach ($payHeads as $payHead) {
+                $columnName = str_replace(" ", "_", $payHead->name);
+                $payHeadType = (int) $payHead->payhead_type;
+                if ($payHeadType === 1) {
+                    $allowanceTotal += $paySlipDetailView->$columnName;
+                } else {
+                    $deductionTotal += $paySlipDetailView->$columnName;
+                }
+            }
+            // $grossPay = $paySlipDetailView->basic_pay + $allowanceTotal;
+            $grossPay = $basicPay + $allowanceTotal;
+            $netPay = $grossPay - $deductionTotal;
+
+            if($paySlipDetailView->mas_employee_id == 260) {
+                dd($grossPay, $basicPay, $netPay);
+            }
+            // DB::table("pay_slip_detail_views")
+            //     ->whereRaw("id = ?", [$paySlipDetailView->id])
+            //     ->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
+        }
+        
     // $forMonth = '2024-12-01';
     // $departments = App\Models\MasDepartment::pluck('code', 'id');
 

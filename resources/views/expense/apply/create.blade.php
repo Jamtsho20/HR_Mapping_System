@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('page-title', 'Apply Expense')
 @section('content')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-@include('layouts.includes.loader')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    @include('layouts.includes.loader')
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <div class="card">
@@ -44,7 +44,8 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="expense_no">Expense No <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="expense_no" id="expense_no" placeholder="Generating..." readonly>
+                                            <input type="text" class="form-control" name="expense_no" id="expense_no"
+                                                placeholder="Generating..." readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -121,7 +122,6 @@
 
 
                                     <!-- sd -->
-
                                     <div class="tab-pane" id="vehiclefuelclaimsection">
                                         <div class="card">
                                             <div class="card-body p-0">
@@ -243,18 +243,20 @@
                                             <div class="form-group">
                                                 <label for="dsa_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="dsa_claim_no" id="dsa_claim_no" placeholder="Generating..." readonly>
+                                                <input type="text" class="form-control" name="dsa_claim_no"
+                                                    id="dsa_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
+
                                                 <label for="travel_authorization_id">Travel No(s) <span
                                                         class="text-danger">*</span></label>
                                                         <select class="form-control" id="travel_authorization"
                                                                 name="travel_authorization_id[]" multiple required>
                                                             @foreach ($travels as $travel)
-                                                                <option value="{{ $travel->id }}">
+                                                                <option value='@json(["id" => $travel->id, "advance_id" => $travel->advance->id ?? null])'>
                                                                     {{ $travel->travel_authorization_no }}
                                                                 </option>
                                                             @endforeach
@@ -292,15 +294,15 @@
                                             <div class="form-group">
                                                 <label for="total_number_of_days">Total Number of Days</label>
                                                 <input type="number" class="form-control" id="total_number_of_days"
-                                                    name="total_number_of_days" value="{{ old('total_number_of_days', 0) }}"
-                                                    readonly>
+                                                    name="total_number_of_days"
+                                                    value="{{ old('total_number_of_days', 0) }}" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="advance_amount">Total Advance Amount </label>
                                                 <input type="number" class="form-control" id="advance_amount"
-                                                    name="advance_amount" value="{{ old('advance_amount', 0) }}"
+                                                    name="advance_amount"
                                                     readonly>
                                             </div>
                                         </div>
@@ -331,7 +333,7 @@
                                             <div class="form-group">
                                                 <label for="file">Attachment (s)</label>
                                                 <input type="file" id="attachment" class="form-control"
-                                                    name="file">
+                                                    name="attachments">
                                             </div>
                                             <!-- Display area for uploaded file -->
                                             <div id="uploaded-file" style="margin-top: 10px;">
@@ -340,6 +342,12 @@
                                         </div> --}}
                                     </div>
                                 </div>
+                                <p class="text-danger p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
+                                    <span style="">*</span>
+                                    For each travel authorization application, the total number of days,
+                                    the formula used for calculating the amount, and the final amount will be
+                                    displayed at the end of each application.
+                                </p>
                                 <div class="tab-pane">
                                     <div class="card">
                                         <div class="card-body p-0">
@@ -464,7 +472,8 @@
                             </div>
                         </form>
                     @elseif ($id == 4)
-                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_transfer" enctype="multipart/form-data">
+                        <form action="{{ route('transfer-claim.store') }}" method="POST" id="apply_transfer"
+                            enctype="multipart/form-data">
                             @csrf
                             <div class="card">
                                 <div class="card-body">
@@ -514,10 +523,7 @@
                                                 <label for="transfer_claim_no">Claim No <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" name="transfer_claim_no"
-
-                                                    id="transfer_claim_no"
-
-                                                    placeholder="Generating..." readonly>
+                                                    id="transfer_claim_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -632,14 +638,47 @@
             });
             window.DAILY_ALLOWANCE = {{ $dailyAllowance->da_in_country }};
 
+            // function calculateGrandTotal() {
+            //     let grandTotal = 0;
+
+            //     // Loop through each row and sum up the total amounts
+            //     $("input[name*='[total_amount]']").each(function() {
+            //         const rowTotal = parseFloat($(this).val() || 0, 10);
+            //         grandTotal += rowTotal;
+            //     });
+
+            //     // Update the grand total input field
+            //     $('#grand_total_amount').val(grandTotal);
+            // }
+            // const dateFields = document.querySelectorAll('input[name^="fuel_claim_details"][name$="[date]"]');
+
+            // // Iterate through each field and set the min attribute
+            // // dateFields.forEach(field => {
+            // //     field.setAttribute('min', '2025-01-01');
+            // // });
+
+            // const dsaFields = document.querySelectorAll('input[name^="dsa_claim_detail"][name$="[from_date]"]');
+
+            // // // Iterate through each field and set the min attribute
+            // dsaFields.forEach(field => {
+            //     field.setAttribute('min', '2025-01-01');
+            // });
+
+
             function calculateGrandTotal() {
+                let totalDays = 0;
+
                 let grandTotal = 0;
 
                 // Loop through each row and sum up the total amounts
-                $("input[name*='[total_amount]']").each(function() {
-                    const rowTotal = parseFloat($(this).val() || 0, 10);
-                    grandTotal += rowTotal;
+                $("input[name^='ta_amount']").each(function() {
+                    grandTotal += parseFloat($(this).val() || 0, 10);
                 });
+
+
+
+    // Update the grand total input field
+    $('#grand_total_amount').val(grandTotal);
 
                 // Update the grand total input field
                 $('#grand_total_amount').val(grandTotal);
@@ -812,15 +851,109 @@
             $('#transferclaim').on('change', handleTransferClaimChange);
 
 
+            function updateTravelAuthRow(travelAuthorizationId, newTaAmount, newAdvanceAmount, newDays) {
+    // Find the last row with the specific travel authorization ID
+    const row = $(`tr.travel-auth-${travelAuthorizationId}.last-row`).last();  // Selecting the last row with the class travel-auth-75
+
+
+    // Find the ta_amount input field
+    const taAmountInput = row.find(`input[name='ta_amount[${travelAuthorizationId}]']`);
+
+    // Check if the input is found and update it
+    if (taAmountInput.length > 0) {
+        console.log('Found TA amount input:', taAmountInput);
+
+        // If the input is readonly, remove the readonly attribute, update the value, then add readonly back
+        if (taAmountInput.is('[readonly]')) {
+            taAmountInput.removeAttr('readonly');  // Remove readonly
+        }
+
+        taAmountInput.val(newTaAmount);  // Update the value
+
+        // Reapply readonly if you want to keep it
+        taAmountInput.attr('readonly', true);  // Set it back to readonly
+    } else {
+        console.log('TA amount input not found');
+    }
+
+    const daysSpan = row.find('span.days-span');
+    daysSpan.text(newDays);
+
+    $formula='';
+                if(newDays <= 15){
+
+                            formula= DAILY_ALLOWANCE + " * " + newDays + "day(s)";
+                        }else{
+
+                            formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (newDays-15) + "day(s)) ="  ;
+                        };
+
+    const formulaSpan = row.find('span.formula-span');
+    formulaSpan.text(formula);
+    // Find and update the advance_amount input field
+    const advanceAmountInput = row.find(`input[name='advance_amount[${travelAuthorizationId}]']`);
+    if (advanceAmountInput.length > 0) {
+        console.log('Found advance amount input:', advanceAmountInput);
+        advanceAmountInput.val(newAdvanceAmount);  // Update the advance amount
+    } else {
+        console.log('Advance amount input not found');
+    }
+}
+
 
 
             // Event delegation to handle dynamically added rows
+
+            $(document).on('change input', 'input[name*="dsa_claim_detail"][name*="total_amount"]', function() {
+                    const row = $(this).closest('tr'); // Get the row containing the changed input
+                    const parentTable = row.closest('table'); // Get the parent table (or use tbody if needed)
+
+                    // Extract the travelAuthId from the row's class
+                    const travelAuthClass = row.attr('class').split(' ').find(cls => cls.startsWith('travel-auth-'));
+                    if (!travelAuthClass) {
+                        console.log("Travel Auth ID not found for this row");
+                        return;
+                    }
+
+
+                    // Sum only rows within the same table/tbody that match this travelAuthId
+                    let taAmount = 0;
+                    let days = 0;
+                    const travelAuthId = row.attr('class').match(/travel-auth-(\d+)/)?.[1];
+                    parentTable.find(`tr.travel-auth-${travelAuthId}`).each(function() {
+                        const taInput = $(this).find('input[name*="dsa_claim_detail"][name*="total_amount"]');
+                        const dInput = $(this).find('input[name*="dsa_claim_detail"][name*="total_days"]');
+                        if (taInput.length > 0 && dInput.length > 0) {
+                            taAmount += parseFloat(taInput.val()) || 0;
+                            days += parseFloat(dInput.val()) || 0;
+                        }
+                    });
+
+
+
+
+                    // Find advance amount from the last row of this travelAuthId group within the same table
+                    const lastRow = parentTable.find(`tr.travel-auth-${travelAuthId}.last-row`);
+                    const advanceAmount = parseFloat(lastRow.find('input[name*="advance_amount"]').val()) || 0;
+
+                    console.log(`Travel Auth ID: ${travelAuthId}, Total TA Amount: ${taAmount}, Advance Amount: ${advanceAmount}`);
+
+                    // Update only the last row with the new calculated values
+                    updateTravelAuthRow(travelAuthId, taAmount, advanceAmount, days);
+                });
+
+
+
+
             $(document).on(
                 "input change",
-                "input[name*='[daily_allowance]'], input[name*='[travel_allowance]'], input[name*='[total_days]'], input[name*='[from_date]'], input[name*='[to_date]']",
+                "input[name*='[daily_allowance]'],  input[name*='[travel_allowance]'], input[name*='[total_days]'], input[name*='[from_date]'], input[name*='[to_date]']",
                 function() {
                     // Find the closest row for the current input
                     const $row = $(this).closest("tr");
+
+
+                    // const travelAuthId = $row.attr('class').split(' ').find(cls => cls.startsWith('travel-auth-'));
 
                     // Ensure all values are fetched from the same row
                     const dailyAllowance = parseFloat($row.find("input[name*='[daily_allowance]']").val() ||
@@ -854,10 +987,19 @@
                     }
 
                     // Calculate the total amount for the current row
-                    const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+                    let totalAmount = 0;
+                    if(totalDays > 15){
+                        totalAmount = (dailyAllowance * 15) + (totalDays - 15) * (dailyAllowance / 2) + travelAllowance;
+                    }else{
+                        totalAmount = (dailyAllowance * totalDays) + travelAllowance;
+                    }
+                    // grandTotal += totalAmount;
+                    // const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
 
                     // Update the total amount for the current row only
                     $row.find("input[name*='[total_amount]']").val(totalAmount);
+                    $('input[name*="dsa_claim_detail"][name*="total_amount"]').trigger('change');
+
                     calculateTotalNumberOfDays()
                     calculateGrandTotal();
                     calculateNetPayable();
@@ -865,6 +1007,7 @@
             );
 
             $(document).on("click", ".delete-table-row", function() {
+                $('input[name*="dsa_claim_detail"][name*="total_amount"]').trigger('change');
                 calculateTotalNumberOfDays()
                 calculateGrandTotal();
                calculateNetPayable();
@@ -879,11 +1022,13 @@
     // Get selected travel authorization IDs (could be from a multi-select or input)
     const travelAuthorizationIds = $("#travel_authorization").val(); // Assuming this is a multi-select element
 
+    const extractedIds = travelAuthorizationIds.map(item => JSON.parse(item).id);
+
     if (travelAuthorizationIds && travelAuthorizationIds.length > 0) {
         $.ajax({
             url: `/gettravelauthorizationbytravelauthorizationidsMultiple`, // Adjust API endpoint to handle multiple IDs
             type: 'GET',
-            data: { ids: travelAuthorizationIds }, // Send the list of IDs in the query params
+            data: { ids: extractedIds }, // Send the list of IDs in the query params
             dataType: 'JSON',
 
             success: function(data) {
@@ -891,7 +1036,7 @@
 
     const tbody = $("#travelstable tbody");
     tbody.empty();
-console.log(data.travel_authorization_details.advance_ids);
+
 $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_details.advance_ids));
 
     if (data && data.travel_authorization_details.travel_authorizations.length > 0) {
@@ -899,24 +1044,39 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
         let totalAdvanceAmount = 0;
         let totalDays = 0;
 
+
         // Loop through the returned travel authorizations
         data.travel_authorization_details.travel_authorizations.forEach((travel_authorizations, authIndex) => {
-
+            // <td colspan="4" class="text-center" style="color: black;">
+            //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" value="${travel_authorizations.travelAuthorization.id}">
+            //                 Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+            //             </td>
+            //             <td colspan="4" class="text-center" style="color: black;">
+            //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
+            //                 ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
+            //                     ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+            //                     : 'Advance Number: N/A, Advance Amount: N/A'}
+            //             </td>
             // Append as a single row
+            const travelAuthGroupClass = `${travel_authorizations.travelAuthorization.id}`;
             tbody.append(`
-                    <tr>
-                        <td colspan="4" class="text-center" style="color: black;">
-                            <input type="hidden" name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" value="${travel_authorizations.travelAuthorization.id}">
-                            Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                    <tr class="travel-auth-${travelAuthGroupClass}">
+
+                        <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
+                            <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
+                                Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                            </span>
                         </td>
-                        <td colspan="4" class="text-center" style="color: black;">
-                            <input type="hidden" name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
-                            ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
-                                ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
-                                : 'Advance Number: N/A, Advance Amount: N/A'}
+                        <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
+                            <span name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" data-value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
+                                ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
+                                    ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+                                    : 'Advance Number: N/A, Advance Amount: N/A'}
+                            </span>
                         </td>
+
                         <td colspan="4" class="text-center" style="color: black;">
-                            <input type="file" id="attachment" class="form-control" name="file[${travel_authorizations.id}]">
+                            <input type="file" id="attachment" class="form-control" name="files[${travel_authorizations.travelAuthorization.id}]" enctype="multipart/form-data">
                         </td>
                     </tr>
                 `);
@@ -926,32 +1086,36 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
                     }
                 // Loop through the travel authorization details for each authorization
                 if (travel_authorizations.details && travel_authorizations.details.length > 0) {
-
+                    let taAmount = 0;
+                    let days = 0;
                     travel_authorizations.details.forEach((detail, index) => {
 
                         const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
-                        grandTotal += totalAmount;
+
+                        days+=parseFloat(detail.no_of_days);
 
                     const row = `
-                        <tr class="data-row">
+                        <tr class="data-row travel-auth-${travelAuthGroupClass}">
                             <td>
                                 <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                 <input type="hidden" name="dsa_claim_detail[${detail.id}][id]" class="resetKeyForNew" value="${detail.id}">
+
+                                <input type="hidden" name="dsa_claim_detail[${detail.id}][travel_authorization_id]" class="resetKeyForNew" value="${travel_authorizations.travelAuthorization.id}">
                             </td>
                             <td class="text-center">
-                                <input type="date" value="${detail.from_date}" name="dsa_claim_detail[${detail.id}][from_date]" class="form-control form-control-sm resetKeyForNew" required />
+                                <input type="date" value="${detail.from_date}" name="dsa_claim_detail[${detail.id}][from_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
                             </td>
                             <td class="text-center">
                                 <input type="text" value="${detail.from_location}" name="dsa_claim_detail[${detail.id}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
                             </td>
                             <td class="text-center">
-                                <input type="date" name="dsa_claim_detail[${detail.id}][to_date]" value="${detail.to_date}" class="form-control form-control-sm resetKeyForNew" required />
+                                <input type="date" value="${detail.to_date}" name="dsa_claim_detail[${detail.id}][to_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
                             </td>
                             <td class="text-center">
-                                <input type="text" name="dsa_claim_detail[${detail.id}][to_location]" value="${detail.to_location}" class="form-control form-control-sm resetKeyForNew" required />
+                                <input type="text" value="${detail.to_location}" name="dsa_claim_detail[${detail.id}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
                             </td>
                             <td class="text-center">
-                                <input type="number" min="0" step="0.5" name="dsa_claim_detail[${detail.id}][total_days]" value="${detail.no_of_days}" class="form-control form-control-sm resetKeyForNew" />
+                                <input type="number" min="0" max="${detail.no_of_days}" step="0.5" name="dsa_claim_detail[${detail.id}][total_days]" value="${detail.no_of_days}" class="form-control form-control-sm resetKeyForNew" />
                             </td>
                             <td class="text-center">
                                 <input type="number" name="dsa_claim_detail[${detail.id}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
@@ -969,6 +1133,50 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
 
                     tbody.append(row); // Append the row to the table body
                 });
+                $formula='';
+                if(days <= 15){
+                            taAmount+=DAILY_ALLOWANCE * days;
+                            formula= DAILY_ALLOWANCE + " * " + days + "day(s)";
+                        }else{
+                            taAmount+=(DAILY_ALLOWANCE/2)*(days-15) + DAILY_ALLOWANCE * 15;
+                            formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (days-15) + "day(s)) ="  ;
+                        };
+                        grandTotal+=taAmount;
+
+                tbody.append(`
+                    <tr class="travel-auth-${travelAuthGroupClass} last-row">
+                        <td colspan="1" class="text-center" style="color: black;">
+                        </td>
+                        <td colspan="1" class="text-center" style="color: black; font-weight: bold;">
+                            <span>
+                                Total Days:
+                            </span>
+                            <span class="days-span">
+                                 ${days}
+                            </span>
+                            <input type="hidden" id="total_days" name="total_days[${travel_authorizations.travelAuthorization.id}]" value="${days}">
+                        </td>
+                        <td colspan="5" class="text-center" style="color: black; ">
+                            <span style="font-weight: bold;">Formula:</span>
+                            <span class="formula-span">
+                                 ${formula}
+                            </span>
+                        </td>
+                        <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
+                            <span>
+                                Travel Authorization Amount:
+                            </span>
+                        </td>
+
+                        <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
+                            <input type="number" id="ta_amount" style="color: black;  font-weight: bold;" class="form-control" name="ta_amount[${travel_authorizations.travelAuthorization.id}]" value="${taAmount}"readonly>
+                            <input type="hidden" id="advance_amount" name="advance_amount[${travel_authorizations.travelAuthorization.id}]" value="${travel_authorizations?.advance_details?.amount ?? ''}">
+                        </td>
+                        <td colspan="1" class="text-center" style="color: black;">
+
+                        </td>
+                    </tr>
+                `);
 
         //         const btnRow = `
         //     <tr class="notremovefornew">
@@ -999,6 +1207,7 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
         totalNumDays.value = totalDays;
         $('#advance_amount').val(totalAdvanceAmount ?? 0);
         calculateTotalNumberOfDays()
+        calculateGrandTotal();
         calculateNetPayable();
 
     }
@@ -1014,6 +1223,15 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
     }
 }
 
+$(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', function() {
+    const maxVal = parseFloat($(this).attr('max')); // Get max value
+    const currentVal = parseFloat($(this).val());   // Get current value
+
+    if (currentVal > maxVal) {
+        showErrorMessage(`Value cannot be more than the number of days`);
+        $(this).val(maxVal); // Reset to max value
+    }
+});
             function getTravelAuthorizationDetails() {
                 const travelAuthorizationId = $("#travel_autorization").val();
 
@@ -1026,6 +1244,7 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
                             const totalNumberOfDays = data.total_days;
                             const totalNumDays = document.getElementById('total_number_of_days');
                             totalNumDays.value = totalNumberOfDays;
+
                             const tbody = $("#travelstable tbody");
                             tbody.empty(); // Clear the existing rows
 
@@ -1035,7 +1254,13 @@ $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_deta
 
                                 // Loop through the travel authorization details
                                 data.travel_authorization_details.details.forEach((detail, index) => {
-                                    const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    // const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    let totalAmount = 0;
+                                    if(totalNumberOfDays > 15){
+                                        totalAmount = (DAILY_ALLOWANCE * 15) + (totalNumberOfDays - 15) * (DAILY_ALLOWANCE / 2);
+                                    }else{
+                                        totalAmount = DAILY_ALLOWANCE * totalNumberOfDays;
+                                    }
                                     grandTotal += totalAmount;
 
                                     const row = `
