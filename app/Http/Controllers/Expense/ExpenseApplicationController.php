@@ -79,8 +79,7 @@ class ExpenseApplicationController extends Controller
     {
 
         $privileges = $request->instance();
-        // $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
-        $headers = MasExpenseType::whereIn('id', [2, 4])->get();
+        $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
         $user = loggedInUser();
         $empIdName = LoggedInUserEmpIdName();
         $expenseTypes = MasExpenseType::whereStatus(1)->get(['id', 'name']);
@@ -101,8 +100,7 @@ class ExpenseApplicationController extends Controller
         $itemType = $request->get('item_type', null);
 
         $expenses = MasExpenseType::whereNotIn('id', [1, 2, 3, 4])->get(); // exclude general and conveyance and dsa claim and transfer claim
-        // $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
-        $headers = MasExpenseType::whereIn('id', [2, 4])->get();
+        $headers = MasExpenseType::whereIn('id', [2, 3, 4])->get();
 
         $job = Auth::user()->empJob;
         if (!$job) {

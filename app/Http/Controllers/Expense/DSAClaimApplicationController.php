@@ -86,6 +86,10 @@ class DSAClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        if($request){
+            return back()->withInput()->with('msg_error', 'Currently the module you are trying to access is under maintainence. Please check back later.');
+        }
+        
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
