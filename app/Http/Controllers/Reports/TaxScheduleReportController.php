@@ -27,6 +27,7 @@ class TaxScheduleReportController extends Controller
         $taxSchedules = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $employee = employeeList();
 
+
         return view('report.tax-schedule-report.index', compact('privileges', 'employee', 'taxSchedules'));
     }
 

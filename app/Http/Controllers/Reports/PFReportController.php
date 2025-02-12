@@ -50,6 +50,7 @@ class PFReportController extends Controller
                 logger()->warning("Unable to calculate PF for FinalPaySlip ID: {$pf->id}");
             }
 
+
             // Return data structure with calculated PF and original slip details
             return [
                 'id' => $pf->id,
@@ -60,9 +61,10 @@ class PFReportController extends Controller
                 'employer_pf_amount' => $pfAmount,
                 'net_pay' => $details['net_pay'] ?? 0,
                 'details' => $details, // Include the entire details structure if needed
-                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+                'total' => $pfAmount + ($details['deductions']['PF Contr'] ?: 0) // total of PFs
             ];
         });
+
 
 
         $employee = employeeList();
@@ -176,7 +178,7 @@ class PFReportController extends Controller
                 'employer_pf_amount' => $pfAmount,
                 'net_pay' => $details['net_pay'] ?? 0,
                 'details' => $details, // Include the entire details structure if needed
-                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+                'total' => $pfAmount + ($details['deductions']['PF Contr'] ?: 0) // total of PFs
             ];
         });
 
@@ -208,6 +210,7 @@ class PFReportController extends Controller
             }
 
             return [
+                'id' => $pf->id,
                 'employee_name' => $pf->employee->name ?? 'N/A',
                 'pf_number' => $pf->employee->empJob->pf_number ?? 'N/A',
                 'CID' => $pf->employee->cid_no ?? 'N/A',
@@ -215,7 +218,7 @@ class PFReportController extends Controller
                 'employer_pf_amount' => $pfAmount,
                 'net_pay' => $details['net_pay'] ?? 0,
                 'details' => $details, // Include the entire details structure if needed
-                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+                'total' => $pfAmount + ($details['deductions']['PF Contr'] ?: 0) // total of PFs
             ];
         });
 
@@ -262,7 +265,7 @@ class PFReportController extends Controller
                 'employer_pf_amount' => $pfAmount,
                 'net_pay' => $details['net_pay'] ?? 0,
                 'details' => $details, // Include the entire details structure if needed
-                'total' => $pfAmount + isset($details['deductions']['PF']) ?? 0 // total of PFs
+                'total' => $pfAmount + ($details['deductions']['PF Contr'] ?: 0) // total of PFs
             ];
         });
 

@@ -542,6 +542,7 @@ class ApprovalController extends Controller
 
     private function sendMail($applicationModel, $applicationData, $appType, $status, $applicationForwardedTo)
     {
+        // dd($applicationForwardedTo);
         $initiatorEmail = User::where('id', $applicationData['created_by'])->value('email');
         $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
         $initiatorMailContent = $preparedMail['initiator_mail_content'];

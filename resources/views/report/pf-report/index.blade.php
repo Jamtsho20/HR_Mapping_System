@@ -71,7 +71,7 @@
                                                             Member Contribution
                                                         </th>
                                                         <th>
-                                                            Employee Contribution
+                                                            Employer Contribution
                                                         </th>
                                                         <th>
                                                             Total Contribution
@@ -86,10 +86,10 @@
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $pf['employee_name'] }}</td>
-                                                            <td>{{ $pf['details']['pf_number'] ?? '-' }}</td>
+                                                            <td>{{ $pf['pf_number'] }}</td>
                                                             <td>{{ $pf['CID'] ?? '-' }}</td>
                                                             <td>{{ $pf['basic_pay'] ?? '-' }}</td>
-                                                            <td>{{ $pf['details']['deductions']['PF'] ?? 0 }}</td>
+                                                            <td>{{ $pf['details']['deductions']['PF Contr'] ?? 0 }}</td>
                                                             <td>{{ $pf['employer_pf_amount'] ?? 0 }}</td>
                                                             <td>{{ $pf['total'] ?? 0 }}</td>
                                                         </tr>

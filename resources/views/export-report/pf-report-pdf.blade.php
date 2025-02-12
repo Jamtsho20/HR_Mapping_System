@@ -78,7 +78,7 @@
                     Member Contribution
                 </th>
                 <th>
-                    Employee Contribution
+                    Employer Contribution
                 </th>
                 <th>
                     Total Contribution
@@ -90,21 +90,21 @@
         <tbody>
 
             @forelse ($pfDeductionsWithPF as $pf)
-            <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{ $pf['employee_name'] }}</td>
-                <td>{{ $pf['details']['pf_number'] ?? '-' }}</td>
-                <td>{{ $pf['CID'] ?? '-' }}</td>
-                <td>{{ $pf['basic_pay'] ?? '-' }}</td>
-                <td>{{ $pf['details']['deductions']['PF'] ?? 0 }}</td>
-                <td>{{ $pf['employer_pf_amount'] ?? 0}}</td>
-                <td>{{ $pf['total'] ?? 0 }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $pf['employee_name'] }}</td>
+                    <td>{{ $pf['pf_number'] }}</td>
+                    <td>{{ $pf['CID'] ?? '-' }}</td>
+                    <td>{{ $pf['basic_pay'] ?? '-' }}</td>
+                    <td>{{ $pf['details']['deductions']['PF Contr'] ?? 0 }}</td>
+                    <td>{{ $pf['employer_pf_amount'] ?? 0 }}</td>
+                    <td>{{ $pf['total'] ?? 0 }}</td>>
+                </tr>
             @empty
 
-            <tr>
-                <td colspan="6" class="text-center text-danger">No PF Reports found</td>
-            </tr>
+                <tr>
+                    <td colspan="6" class="text-center text-danger">No PF Reports found</td>
+                </tr>
             @endforelse
 
         </tbody>

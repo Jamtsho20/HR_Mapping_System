@@ -29,7 +29,7 @@ class LoanReportController extends Controller
         $bankCode = ['BOB_Loan', 'TBank_loan'];
         $privileges = $request->instance();
         $employee = employeeList();
-        $banks = MasPayHead::whereIn('id', [12, 13])->get();
+        $banks = MasPayHead::whereIn('id', [17, 18, 19, 20, 21, 22, 23, 24])->get();
         // $jsonData = FinalPaySlip::select('details')->get();
         // $details = $jsonData[0]->details; // Decoded into an array
 
@@ -40,12 +40,14 @@ class LoanReportController extends Controller
         // dd($loanDeductions);
 
         $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])          
+            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
+            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->filter($request) // Apply the filters
-            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
+            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type') // Select the columns you need, including pay_head name
             ->paginate(config('global.pagination')) // Paginate the results
             ->withQueryString(); // Retain the query string in the pagination links
+
 
 
         return view('report.loan-report.index', compact('privileges', 'loans', 'employee', 'banks'));
@@ -104,11 +106,13 @@ class LoanReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
+        $loans =
+            FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
+            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->filter($request) // Apply the filters
-            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name')->get();
+            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
 
 
 
@@ -125,11 +129,13 @@ class LoanReportController extends Controller
     }
     public function printLoan(Request $request)
     {
-        $loans = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [12, 13])
+        $loans =
+            FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
+            ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->filter($request) // Apply the filters
-            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name')->get();
+            ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans'))->setPaper('a4', 'landscape');;
 

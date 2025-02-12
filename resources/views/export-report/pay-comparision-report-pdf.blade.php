@@ -56,12 +56,15 @@
     </div>
     <hr>
     <h1 class="title">Pay Comparision Report</h1>
-    <table
-        class="table table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
+    <table class="table table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr>
-                <th colspan="6" class="custom-border">for the month of {{$currentMonthName}}</th>
-                <th colspan="3" class="custom-border">Month : {{$previousMonthName}}</th>
+                <th colspan="6" class="custom-border">for the month
+                    of {{ \Carbon\Carbon::parse($currentMonth)->format('F Y') }}
+                </th>
+                <th colspan="3" class="custom-border">Month :
+                    {{ \Carbon\Carbon::parse($previousMonth)->format('F Y') }}
+                </th>
                 <th colspan="3" class="custom-border">Differences</th>
             </tr>
             <tr>
@@ -81,26 +84,49 @@
 
         </thead>
         <tbody>
-            @forelse ($payslipData as $data)
-            <tr>
-                <td>{{ $loop->iteration}}</td>
-                <td>{{ $data['employee_name'] }}</td>
-                <td>{{ $data['employee_id'] }}</td>
-                <td>{{ number_format($data['current_basic'], 2) }}</td>
-                <td>{{ number_format($data['current_allowances'], 2) }}</td>
-                <td>{{ number_format($data['current_gross'], 2) }}</td>
 
-                <td>{{ number_format($data['previous_basic'], 2) }}</td>
-                <td>{{ number_format($data['previous_allowances'], 2) }}</td>
-                <td>{{ number_format($data['previous_gross'], 2) }}</td>
+            @foreach ($current as $data)
+                @php
 
-                <td>{{ number_format($data['basic_diff'], 2) }}</td>
-                <td>{{ number_format($data['allowances_diff'], 2) }}</td>
-                <td>{{ number_format($data['gross_diff'], 2) }}</td>
-            </tr>
-            @empty
-            <tr colspan="12">No Pay Comparision Reports Found</tr>
-            @endforelse
+                    $previousData = $previous->where('mas_employee_id', $data->mas_employee_id)->first();
+
+                @endphp
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $data->employee->name ?? config('global_null') }}</td>
+                    <td>{{ $data->employee->username }}</td>
+
+                    {{-- Current Salary Details --}}
+                    <td>{{ $data['basic_pay'] }}</td>
+                    <td>
+
+                        {{ $data['total_allowance'] }}</td>
+                    <td>{{ $data['gross_pay'] }}</td>
+
+                    {{-- Previous Salary Details --}}
+                    <td>{{ $previousData['details']['basic_pay'] ?? config('global_null') }}
+                    </td>
+                    <td>{{ $previousData['total_allowances'] }}</td>
+                    <td>{{ $previousData['details']['gross_pay'] ?? config('global_null') }}
+                    </td>
+
+                    {{-- Differences --}}
+                    <td>{{ ($data['basic_pay'] ?: 0) - ($previousData['details']['basic_pay'] ?: 0) }}
+                    </td>
+                    <td>{{ $data['total_allowance'] - $previousData['total_allowances'] }}
+                    </td>
+                    <td>{{ $data['gross_pay'] - $previousData['details']['gross_pay'] }}
+                    </td>
+                </tr>
+            @endforeach
+
+            @if ($current->isEmpty())
+                <tr>
+                    <td colspan="12">No Pay Comparison Reports Found</td>
+                </tr>
+            @endif
+
+
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

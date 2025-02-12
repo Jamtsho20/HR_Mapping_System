@@ -67,7 +67,7 @@ class LeaveEncashmentApplication extends Model
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
-    public function updated_by()
+    public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }

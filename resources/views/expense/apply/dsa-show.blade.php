@@ -361,6 +361,12 @@
                                     <td style="padding-left:25px;">
                                         {{ $dsa->status == -1 ? $dsa->expense_approved_by->name : 'N/A' }} </td>
                                 </tr>
+                                <tr>
+                                    <th style="width:35%;">Rejected Remarks <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        {{ $dsa->status == -1 ? $rejectRemarks : 'N/A' }} </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
