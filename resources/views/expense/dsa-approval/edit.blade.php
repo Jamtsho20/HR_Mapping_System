@@ -114,9 +114,7 @@ enctype="multipart/form-data" id="apply_dsa">
                                 <th class="text-center" colspan="2">To</th>
                                 <th class="text-center" rowspan="2">Number of Days</th>
                                 <th class="text-center" rowspan="2">Daily Allowance</th>
-                                <th class="text-center" rowspan="2">Travel Allowance</th>
                                 <th class="text-center" rowspan="2">Total Amount</th>
-                                <th class="text-center" rowspan="2">Remarks</th>
                             </tr>
                             <tr role="row">
                                 <th class="text-center">Date</th>
@@ -426,11 +424,12 @@ data.travel_authorization_details.travel_authorizations.forEach((travel_authoriz
         .filter((file, index, self) => self.indexOf(file) === index); // Flatten in case of multiple records
 
 
-
+        var assetBaseUrl = "{{ asset('') }}";
     if (matchingAttachments.length > 0) {
         matchingAttachments.forEach((file) => {
+            let fullFileUrl = assetBaseUrl + file;
                 attachmentLinks += `
-                <a href="${file}" class="btn btn-sm btn-primary mb-1" target="_blank">
+                <a href="${fullFileUrl}" class="btn btn-sm btn-primary mb-1" target="_blank">
                     <i class="fas fa-file-alt"></i> View Attachment
                     </a><br>
                     <input type="hidden" name="files[${travel_authorizations.travelAuthorization.id}]" value="${file}">
@@ -443,20 +442,21 @@ data.travel_authorization_details.travel_authorizations.forEach((travel_authoriz
             }
 
                 tbody.append(`
+        
                     <tr class="travel-auth-${travelAuthGroupClass}">
-                        <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
+                        <td colspan="3" class="text-center" style="color: black; font-weight: bold;">
                             <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
                                 Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
                             </span>
                         </td>
-                        <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
+                        <td colspan="3" class="text-center" style="color: black; font-weight: bold;">
                             <span name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" data-value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
                                 ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
                                     ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
                                     : 'Advance Number: N/A, Advance Amount: N/A'}
                             </span>
                         </td>
-                        <td colspan="4" class="text-center" style="color: black;">
+                        <td colspan="2" class="text-center" style="color: black;">
                             ${attachmentLinks}
                         </td>
                     </tr>
@@ -474,7 +474,7 @@ data.travel_authorization_details.travel_authorizations.forEach((travel_authoriz
                 const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
 
                 days+=parseFloat(detail.no_of_days);
-
+console.log(detail);
             const row = `
                 <tr class="data-row travel-auth-${travelAuthGroupClass}">
                     <td>
@@ -501,15 +501,11 @@ data.travel_authorization_details.travel_authorizations.forEach((travel_authoriz
                     <td class="text-center">
                         <input type="number" name="dsa_claim_detail[${detail.id}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
                     </td>
-                    <td class="text-center">
-                        <input type="number" min="0" name="dsa_claim_detail[${detail.id}][travel_allowance]" class="form-control form-control-sm resetKeyForNew" />
-                    </td>
+                 
                     <td class="text-center">
                         <input type="number" value="${totalAmount}" name="dsa_claim_detail[${detail.id}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly>
                     </td>
-                    <td class="text-center">
-                        <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
-                    </td>
+                   
                 </tr>`;
 
             tbody.append(row); // Append the row to the table body
@@ -537,7 +533,7 @@ data.travel_authorization_details.travel_authorizations.forEach((travel_authoriz
                     </span>
                     <input type="hidden" id="total_days" name="total_days[${travel_authorizations.travelAuthorization.id}]" value="${days}">
                 </td>
-                <td colspan="5" class="text-center" style="color: black; ">
+                <td colspan="4" class="text-center" style="color: black; ">
                     <span style="font-weight: bold;">Formula:</span>
                     <span class="formula-span">
                          ${formula}
@@ -553,7 +549,6 @@ data.travel_authorization_details.travel_authorizations.forEach((travel_authoriz
                     <input type="number" id="ta_amount" style="color: black;  font-weight: bold;" class="form-control" name="ta_amount[${travel_authorizations.travelAuthorization.id}]" value="${taAmount}"readonly>
                     <input type="hidden" id="advance_amount" name="advance_amount[${travel_authorizations.travelAuthorization.id}]" value="${travel_authorizations?.advance_details?.amount ?? ''}">
                 </td>
-                <td colspan="1" class="text-center" style="color: black;">
 
                 </td>
             </tr>

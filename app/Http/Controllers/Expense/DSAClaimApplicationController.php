@@ -277,6 +277,7 @@ dd($excludedTravelIds);
 
             $oldDataFlag = false;
         }
+       
 
         $empDetails = empDetails($dsa->created_by);
         return view('expense.apply.dsa-show', compact('dsa', 'empDetails', 'oldDataFlag', 'travelNosString', 'advanceNosString'));
@@ -382,7 +383,7 @@ dd($excludedTravelIds);
                     }
 
                     // Upload the new file and get the file path
-                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->filePath);
+                    $attachmentPath = uploadImageToDirectory($request->file('attachment'), $this->attachmentPath);
 
                     // Store the new attachment as a JSON array
                     $attachment = json_encode([$attachmentPath]);

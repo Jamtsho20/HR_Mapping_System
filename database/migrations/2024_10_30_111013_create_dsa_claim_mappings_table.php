@@ -20,6 +20,8 @@ return new class extends Migration
             $table->decimal('ta_amount', 12, 2)->nullable();
             $table->json('attachment')->nullable()->comment('Relevant attachment path, stored as JSON');
             $table->integer('number_of_days')->nullable();
+            $table->foreignId('created_by')->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }

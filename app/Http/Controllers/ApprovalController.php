@@ -377,6 +377,7 @@ class ApprovalController extends Controller
         }else{
 
             $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
+          
             $userId = $dsa->created_by;
             // Extract Travel Authorization IDs
             $travelNumbers = $dsa->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
@@ -501,9 +502,7 @@ class ApprovalController extends Controller
                                 'to_location' => $detail['to_location'],
                                 'total_days' => $detail['total_days'],
                                 'daily_allowance' => $detail['daily_allowance'],
-                                'travel_allowance' => $detail['travel_allowance'] ?? 0,
-                                'total_amount' => $detail['total_amount'],
-                                'remark' => $detail['remark'] ?? null,
+                                'total_amount' => $detail['total_amount']
                             ]
                         );
 
