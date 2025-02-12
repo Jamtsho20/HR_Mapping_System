@@ -14,7 +14,6 @@ use App\Models\DsaClaimType;
 use App\Models\TravelAuthorizationApplication;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
-use App\Http\Controllers\AjaxRequestController;
 use App\Models\DsaClaimMappings;
 use DateTime;
 use Illuminate\Http\Request;
