@@ -94,7 +94,8 @@
                                                             <td>{{ $loan->employee->name }}</td>
                                                             <td>{{ $loan->pay_head_name }}</td>
                                                             <td>{{ $loan->loan_number }}</td>
-                                                            <td>{{ $loan->loan_type }}</td>
+                                                            <td>{{ $loan->loan_type ?? config('global.null_value') }}
+                                                            </td>
                                                             <td>{{ $loan->amount }}</td>
                                                             <td>{{ $loan->for_month }}</td>
                                                         </tr>

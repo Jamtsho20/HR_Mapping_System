@@ -217,7 +217,8 @@
                                                                         'badge bg-secondary';
                                                                 @endphp
                                                                 <td>{{ $statusText }}</td>
-                                                                <td>{{ $claim->expense_approved_by->name }}</td>
+                                                                <td>{{ $claim->expense_approved_by->name ?? config('global.null_value') }}
+                                                                </td>
                                                                 <td>{{ $claim->updated_at->format('m-d-y') }}</td>
                                                             </tr>
                                                         @empty

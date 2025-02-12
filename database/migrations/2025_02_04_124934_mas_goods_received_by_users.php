@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('mas_goods_received_by_users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('requistion_application_id')->index()->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('requested_quantity');
             $table->integer('received_quantity');
-            $table->foreignId('received_from')->index()->constrained('mas_employees');
-            $table->foreignId('received_by')->index()->constrained('mas_employees');
+            $table->foreignId('received_from')->index()->constrained('mas_employees')->comment('here it will be sap user');
+            $table->foreignId('received_by')->nullable()->index()->constrained('mas_employees');
             $table->timestamp('received_at')->default(\DB::raw('CURRENT_TIMESTAMP'))->comment('Timestamp when goods were received by the user');
             $table->boolean('is_confirmed')->default(0)->comment('1 = Confirmed by user, 0 = Pending confirmation');
             $table->timestamps();

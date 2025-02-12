@@ -2,18 +2,19 @@
 
 namespace App\Exports;
 
-use App\Models\finalPaySlip;
+use App\Models\EmployeeSalarySaving;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class GISExport implements FromCollection, WithHeadings
+class SSSExport implements FromCollection, WithHeadings
 {
     /**
      * @return \Illuminate\Support\Collection
      */
     protected $request;
-
-    // Constructor to inject the Request
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function __construct($request)
     {
         $this->request = $request;
@@ -24,31 +25,27 @@ class GISExport implements FromCollection, WithHeadings
         $serialNo = 1;
 
         // Access the request data to apply filters
-        return FinalPaySlip::filter($this->request)->get()->map(function ($gis) use (&$serialNo) {
+        return EmployeeSalarySaving::filter($this->request)->get()->map(function ($sss) use (&$serialNo) {
             return [
                 $serialNo++,
-                $gis->employee->name,
-                $gis->employee->empJob->gis_policy_number ?? '-',
-                $gis->employee->cid_no,
-                $gis->employee->dob,
-                $gis->employee->empJob->basic_pay,
-                $gis->details['deductions']['GSLI'] ?? '0',
-                $gis->for_month,
+                $sss->employee->username,
+                $sss->employee->name,
+                $sss->policy_number ?? '-',
+                $sss->amount,
+
             ];
         });
     }
-
     public function headings(): array
     {
         return [
             'Sl No',
+            'Employee ID',
             'Employee Name',
             'Policy Number',
-            'CID',
-            'DOB',
-            'Basic',
-            'GIS Amount',
-            'Date',
+            'SSS Amount',
+
+
         ];
     }
 }

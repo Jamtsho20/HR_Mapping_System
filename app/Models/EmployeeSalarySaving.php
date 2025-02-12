@@ -20,5 +20,6 @@ class EmployeeSalarySaving extends Model
         if ($request->has('employee') && $request->query('employee') != '') {
             $query->where('employee_id', $request->query('employee'));
         }
+
     }
 }

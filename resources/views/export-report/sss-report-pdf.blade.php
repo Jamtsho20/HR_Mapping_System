@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIS Report</title>
+    <title>Salary Saving Scheme Report</title>
     <style>
         body {
             font-size: 12px;
@@ -29,6 +29,7 @@
             text-align: center;
             padding: 10px 10px;
         }
+
 
         table,
         th,
@@ -55,7 +56,7 @@
         @include('layouts.includes.letter-head')
     </div>
     <hr>
-    <h1 class="title">GIS Report</h1>
+    <h1 class="title">Salary Saving Scheme Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">
@@ -63,48 +64,41 @@
                     #
                 </th>
                 <th>
-                    EMployee Name
+                    Employee ID </th>
+                <th>
+                    Full name
                 </th>
                 <th>
-                    Policy Number
+                    policy number
                 </th>
                 <th>
-                    CID
-                </th>
-                <th>
-                    DOB
-                </th>
-                <th>
-                    Basic
-                </th>
-                <th>
-                    GIS AMount
-                </th>
-                <th>
-                    Date
+                    sss amount
                 </th>
 
 
             </tr>
         </thead>
         <tbody>
-            @forelse($gisDeductions as $gis)
+
+            @forelse ($sss as $salary)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $gis->employee->name }}</td>
-                    <td>{{ $gis->employee->empJob->gis_policy_number ?? '-' }}</td>
-                    <td>{{ $gis->employee->cid_no }}</td>
-                    <td>{{ $gis->employee->dob }}</td>
-                    <td>{{ $gis->employee->empJob->basic_pay }}</td>
-                    <td>{{ $gis->details['deductions']['GSLI'] ?? '0' }}</td>
-                    <td>{{ $gis->for_month }}</td>
+                    <td>{{ $loop->iteration }}
+                    </td>
+                    <td>{{ $salary->employee->username }}</td>
+                    <td>{{ $salary->employee->name }}</td>
+                    <td>{{ $salary->policy_number }}</td>
+                    <td>{{ $salary->amount }}</td>
 
                 </tr>
             @empty
+
                 <tr>
-                    <td colspan="5" class="text-center text-danger">No GIS Reports found</td>
+                    <td colspan="6" class="text-center text-danger">No SSS
+                        Reports
+                        found</td>
                 </tr>
             @endforelse
+
         </tbody>
     </table>
     @include('layouts.includes.report-footer')
