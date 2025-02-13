@@ -53,6 +53,7 @@
                                                         <tr role="row">
                                                             <th> # </th>
                                                             <th> Employee </th>
+                                                            <th> Employee ID </th>
                                                             <th> Pay Head </th>
                                                             <th> Loan Type </th>
                                                             <th> Amount </th>
@@ -72,6 +73,7 @@
                                                             <tr>
                                                                 <td>{{ $loop->iteration }}</td>
                                                                 <td>{{ $record->employee->emp_id_name }} </td>
+                                                                <td>{{ $record->employee->employee_id }} </td>
                                                                 <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->loanType?->name }} </td>
                                                                 <td>{{ $record->amount }} </td>
