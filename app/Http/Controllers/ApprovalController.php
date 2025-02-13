@@ -339,7 +339,7 @@ class ApprovalController extends Controller
                     if ($newDays <= 15) {
                         $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                     } else {
-                        $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                        $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s))";
                     }
                     return $mapping;
                 });
@@ -377,7 +377,7 @@ class ApprovalController extends Controller
         }else{
 
             $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
-          
+
             $userId = $dsa->created_by;
             // Extract Travel Authorization IDs
             $travelNumbers = $dsa->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
@@ -405,7 +405,7 @@ class ApprovalController extends Controller
                 if ($newDays <= 15) {
                     $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                 } else {
-                    $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                    $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s))";
                 }
                 return $mapping;
             });
@@ -445,7 +445,6 @@ class ApprovalController extends Controller
             $attachments = [];
 
 
-
             $dsaClaimApplication->update([
                 'type_id' => $request->dsa_claim_type_id,
                 'travel_authorization_id' => $travel_id_json ?? null,
@@ -454,6 +453,7 @@ class ApprovalController extends Controller
                 'amount' => $request->amount,
                 'net_payable_amount' => !is_null($request->advance_ids) ? $request->net_payable_amount : $request->amount,
                 'balance_amount' => $request->balance_amount,
+
                 'total_number_of_days' => $request->total_number_of_days,
             ]);
 
@@ -486,7 +486,7 @@ class ApprovalController extends Controller
 
                 // Collect incoming `dsa_map_id`s from the request
                 $incomingDetailIds = [];
-
+//dd($request->all());
                 foreach ($request->dsa_claim_detail as $detail) {
                     $dsaMapping = DsaClaimMappings::where('travel_authorization_id', $detail['travel_authorization_id'])
                                                   ->where('dsa_claim_id', $dsaClaimApplication->id)
@@ -494,7 +494,7 @@ class ApprovalController extends Controller
 
                     if ($dsaMapping) {
                         $dsaClaimDetail = DsaClaimDetail::updateOrCreate(
-                            ['dsa_map_id' => $dsaMapping->id],
+                            ['dsa_map_id' => $dsaMapping->id , 'id' => (int) $detail['id']],
                             [
                                 'from_date' => $detail['from_date'],
                                 'from_location' => $detail['from_location'],
@@ -502,11 +502,12 @@ class ApprovalController extends Controller
                                 'to_location' => $detail['to_location'],
                                 'total_days' => $detail['total_days'],
                                 'daily_allowance' => $detail['daily_allowance'],
-                                'total_amount' => $detail['total_amount']
+                                'total_amount' => $detail['total_amount'],
+                                'travel_allowance' => $detail['travel_allowance']
                             ]
                         );
-
-                        $incomingDetailIds[] = $dsaClaimDetail->id; // Store ID of updated/created records
+                  
+                        $incomingDetailIds[] = (int) $detail['id']; // Store ID of updated/created records
                     }
                 }
 

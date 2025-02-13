@@ -125,7 +125,7 @@ class ExpenseApplicationController extends Controller
 
 
 
-        $excludedTravelIds = collect(DsaClaimApplication::whereNotIn('status', [-1])
+        $excludedTravelIds = collect(DsaClaimApplication::whereIn('status', [2,3])
         ->select('travel_authorization_id')
         ->union(DsaClaimMappings::select('travel_authorization_id'))
         ->get()
