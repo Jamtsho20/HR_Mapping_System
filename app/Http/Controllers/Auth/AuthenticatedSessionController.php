@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        $activeUser = User::where('username', $request->username)->value('is_active');
+        if($activeUser != "Active"){
+            return back()->withInput()->with('msg_error', 'The user associated with these credentials has been deactivated. Please contact the system administrator for further assistance.');
+        }
+
         $request->authenticate();
 
         $request->session()->regenerate();
