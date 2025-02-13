@@ -1,8 +1,4 @@
 <div class="card-body">
-    <p class="text-green p-3 pt-0" style=" text-indent: -.01em; padding-left: 1em;">
-        <span style="">*</span>
-        The RESET & EDIT button allows you to revert any changes and modify the DSA claim again.
-    </p>
     <div class="table-responsive">
         <div id="basic-datatable_wrapper"
             class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -123,7 +119,7 @@
                                                 @if ($privileges->edit && $routeName=='approval.index')
                                                 <a href="{{ url('approval/applications/'.$dsaclaim->id.'/edit') }}"
                                                     class="btn btn-sm btn-rounded btn-outline-success">
-                                                     <i class="fa fa-edit"></i>RESET & EDIT
+                                                     <i class="fa fa-edit"></i>EDIT
                                                 </a>
                                                 @endif
                                             </td>

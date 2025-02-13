@@ -62,6 +62,11 @@
                 </div>
             </div>
         </div>
+        @if (session('msg_error'))
+            <div class="alert alert-danger text-center">
+                {{ session('msg_error') }}
+            </div>
+        @endif
         <!-- CONTAINER CLOSED -->
     </div>
     <!-- End PAGE -->
