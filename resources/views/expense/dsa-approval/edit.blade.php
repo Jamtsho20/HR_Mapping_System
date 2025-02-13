@@ -58,7 +58,7 @@ enctype="multipart/form-data" id="apply_dsa">
                     <label for="total_number_of_days">Total Number of Days</label>
                     <input type="number" class="form-control" id="total_number_of_days"
                         name="total_number_of_days"
-                        value="{{ old('total_number_of_days', 0) }}" readonly>
+                        value="{{ old('total_number_of_days', $dsa->total_number_of_days) }}" readonly>
                 </div>
             </div>
             <div class="col-md-3">
@@ -66,21 +66,21 @@ enctype="multipart/form-data" id="apply_dsa">
                     <label for="advance_amount">Total Advance Amount </label>
                     <input type="number" class="form-control" id="advance_amount"
                         name="advance_amount"
-                        readonly>
+                        value="{{ old('advance_amount', $dsa->advance_amount) }}" readonly>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="grand_total_amount">Total Amount </label>
                     <input type="number" class="form-control" id="grand_total_amount"
-                        name="amount" value="{{ old('amount', 0) }}" required readonly />
+                        name="amount" value="{{ old('amount', $dsa->amount) }}" required readonly />
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="netpayable">Net Payable Amount</label>
                     <input type="number" class="form-control" id="net_payable_amount"
-                        name="net_payable_amount" value="{{ old('net_payable_amount') }}"
+                        name="net_payable_amount" value="{{ old('net_payable_amount', $dsa->net_payable_amount) }}"
                         required readonly>
                 </div>
             </div>
@@ -88,7 +88,7 @@ enctype="multipart/form-data" id="apply_dsa">
                 <div class="form-group">
                     <label for="balance_amount">Balance Amount </label>
                     <input type="number" class="form-control" id="balance_amount"
-                        name="balance_amount" value="{{ old('balance_amount', 0) }}"
+                        name="balance_amount" value="{{ old('balance_amount', $dsa->balance_amount) }}"
                         readonly />
                 </div>
             </div>
@@ -114,7 +114,9 @@ enctype="multipart/form-data" id="apply_dsa">
                                 <th class="text-center" colspan="2">To</th>
                                 <th class="text-center" rowspan="2">Number of Days</th>
                                 <th class="text-center" rowspan="2">Daily Allowance</th>
+                                <th class="text-center" rowspan="2">Travel Allowance</th>
                                 <th class="text-center" rowspan="2">Total Amount</th>
+                                <th class="text-center" rowspan="2">Remarks</th>
                             </tr>
                             <tr role="row">
                                 <th class="text-center">Date</th>
@@ -124,8 +126,109 @@ enctype="multipart/form-data" id="apply_dsa">
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($dsa->dsaClaimMappings as $mapping)
 
-                            <tr><td colspan="13" class="text-center text-danger">No Travel Authorization Application Selected</td></tr>
+
+                                <tr class="travel-auth-${travelAuthGroupClass}">
+                                    <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
+                                        <span name="dsa_claim_detail[{{$mapping->travel_authorization_id}}][travel_authorization_id]" data-value="{{$mapping->travel_authorization_id}}">
+                                            Travel Authorization Number: {{$mapping->travel_authorization_no}}
+                                        </span>
+                                    </td>
+                                    <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
+                                        <span name="dsa_claim_detail[{{$mapping->travel_authorization_id}}][advance_detail_id]" data-value="{{$mapping->advance_application_id ?? ''}}">
+                                            Advance Number: {{$mapping->advance_application_id ?? 'N/A'}}, Advance Amount: {{$mapping->advance_amount ?? 'N/A'}}
+                                        </span>
+                                    </td>
+                                    <td colspan="4" class="text-center" style="color: black;">
+                                        @php
+                                        $attachments = json_decode($mapping->attachment, true); // Decode JSON to array
+                                        @endphp
+
+                                        @if (isset($attachments) && !empty($attachments))
+
+                                        <a href="{{ asset($mapping->attachments)}}" class="btn btn-sm btn-primary mb-1"
+                                            target="_blank">
+                                            <i class="fas fa-file-alt"></i> View Attachment
+                                        </a><br>
+                                        @else
+                                        <span class="text-danger">No attachment available.</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @foreach ( $mapping->dsaDetails as $detail )
+
+                                <tr class="data-row travel-auth-{{$mapping->travel_authorization_id}}">
+                                    <td>
+                                        <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                        <input type="hidden" name="dsa_claim_detail[{{$detail->id}}][id]" class="resetKeyForNew" value="{{$detail->id}}">
+
+                                        <input type="hidden" name="dsa_claim_detail[{{$detail->id}}][travel_authorization_id]" class="resetKeyForNew" value="{{$mapping->travel_authorization_id}}">
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="date" value="{{$detail->from_date}}" name="dsa_claim_detail[{{$detail->id}}][from_date]" class="form-control form-control-sm resetKeyForNew" min="{{$detail->from_date}}" max="{{$detail->to_date}}" required />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="text" value="{{$detail->from_location}}" name="dsa_claim_detail[{{$detail->id}}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="date" value="{{$detail->to_date}}" name="dsa_claim_detail[{{$detail->id}}][to_date]" class="form-control form-control-sm resetKeyForNew" min="{{$detail->from_date}}" max="{{$detail->to_date}}" required />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="text" value="{{$detail->to_location}}" name="dsa_claim_detail[{{$detail->id}}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" min="0" max="{{$detail->total_days}}" step="0.5" name="dsa_claim_detail[{{$detail->id}}][total_days]" value="{{$detail->total_days}}" class="form-control form-control-sm resetKeyForNew" />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" name="dsa_claim_detail[{{$detail->id}}][daily_allowance]" value="{{$detail->daily_allowance}}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" name="dsa_claim_detail[{{$detail->id}}][travel_allowance]" value="{{$detail->travel_allowance}}" class="form-control form-control-sm resetKeyForNew notclearfornew" />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" value="{{$detail->total_amount}}" name="dsa_claim_detail[{{$detail->id}}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="text" name="dsa_claim_detail[{{$detail->id}}][remark]" value="{{$detail->remark}}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
+                                    </td>
+                                </tr>
+                                @endforeach
+                                <tr class="travel-auth-{{ $mapping->travel_authorization_id }} last-row">
+                                    <td colspan="1" class="text-center" style="color: black;">
+                                    </td>
+                                    <td colspan="1" class="text-center" style="color: black; font-weight: bold;">
+                                        <span>
+                                            Total Days:
+                                        </span>
+                                        <span class="days-span">
+                                             {{$mapping->number_of_days}}
+                                        </span>
+                                        <input type="hidden" id="total_days" name="total_days[{{$mapping->travel_authorization_id}}]" value="{{$mapping->number_of_days}}">
+                                    </td>
+                                    <td colspan="5" class="text-center" style="color: black; ">
+                                        <span style="font-weight: bold;">Formula:</span>
+                                        <span class="formula-span">
+                                             {{$mapping->formula}}
+                                        </span>
+                                    </td>
+                                    <td colspan="2" class="text-center" style="color: black;  font-weight: bold;">
+                                        <span>
+                                            Travel Authorization Amount:
+                                        </span>
+                                    </td>
+
+                                    <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
+                                        <input type="number" id="ta_amount" style="color: black;  font-weight: bold;" class="form-control" name="ta_amount[{{$mapping->travel_authorization_id}}]" value="{{$mapping->ta_amount}}"readonly>
+                                        <input type="hidden" id="advance_amount" name="advance_amount[{{$mapping->travel_authorization_id}}]" value="{{$mapping->advance_amount}}">
+                                    </td>
+
+                                    </td>
+                                </tr>
+
+
+                            @endforeach
+
                         </tbody>
                     </table>
 
@@ -165,7 +268,7 @@ let selectedTexts = [];
 
     $('#selected_travel_authorizations').val(selectedTexts.join(', '));
     $('.select2-container').hide();
-    getTravelAuthorizationDetailsMultiple();
+    // getTravelAuthorizationDetailsMultiple();
     const form = document.getElementById('apply_expense');
     const dsaForm = document.getElementById('apply_dsa');
     const loader = document.getElementById('loader');
@@ -385,199 +488,7 @@ advanceAmountInput.val(newAdvanceAmount);  // Update the advance amount
         calculateNetPayable();
     });
 
-    function getTravelAuthorizationDetailsMultiple() {
-// Get selected travel authorization IDs (could be from a multi-select or input)
-const travelAuthorizationIds = $("#travel_authorization").val(); // Assuming this is a multi-select element
 
-const extractedIds = travelAuthorizationIds.map(item => JSON.parse(item).id);
-
-if (travelAuthorizationIds && travelAuthorizationIds.length > 0) {
-$.ajax({
-    url: `/gettravelauthorizationbytravelauthorizationidsMultiple`, // Adjust API endpoint to handle multiple IDs
-    type: 'GET',
-    data: { ids: extractedIds }, // Send the list of IDs in the query params
-    dataType: 'JSON',
-
-    success: function(data) {
-
-
-const tbody = $("#travelstable tbody");
-tbody.empty();
-
-$('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_details.advance_ids));
-
-if (data && data.travel_authorization_details.travel_authorizations.length > 0) {
-let grandTotal = 0;
-let totalAdvanceAmount = 0;
-let totalDays = 0;
-
-let attachments = data.travel_authorization_details.attachments;
-// Loop through the returned travel authorizations
-data.travel_authorization_details.travel_authorizations.forEach((travel_authorizations, authIndex) => {
-
-    const travelAuthGroupClass = `${travel_authorizations.travelAuthorization.id}`;
-    let attachmentLinks = '';
-
-    let matchingAttachments = attachments
-        .filter(att => att.travel_authorization_id === travel_authorizations.travelAuthorization.id)
-        .flatMap(att => JSON.parse(att.attachment)) // Parse JSON & flatten
-        .filter((file, index, self) => self.indexOf(file) === index); // Flatten in case of multiple records
-
-
-        var assetBaseUrl = "{{ asset('') }}";
-    if (matchingAttachments.length > 0) {
-        matchingAttachments.forEach((file) => {
-            let fullFileUrl = assetBaseUrl + file;
-                attachmentLinks += `
-                <a href="${fullFileUrl}" class="btn btn-sm btn-primary mb-1" target="_blank">
-                    <i class="fas fa-file-alt"></i> View Attachment
-                    </a><br>
-                    <input type="hidden" name="files[${travel_authorizations.travelAuthorization.id}]" value="${file}">
-                    `;
-                });
-
-
-                }else {
-                attachmentLinks += `<span class="text-danger">No attachment available.</span>`;
-            }
-
-                tbody.append(`
-        
-                    <tr class="travel-auth-${travelAuthGroupClass}">
-                        <td colspan="3" class="text-center" style="color: black; font-weight: bold;">
-                            <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
-                            </span>
-                        </td>
-                        <td colspan="3" class="text-center" style="color: black; font-weight: bold;">
-                            <span name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" data-value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
-                                ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
-                                    ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
-                                    : 'Advance Number: N/A, Advance Amount: N/A'}
-                            </span>
-                        </td>
-                        <td colspan="2" class="text-center" style="color: black;">
-                            ${attachmentLinks}
-                        </td>
-                    </tr>
-                `);
-        totalDays += parseFloat(travel_authorizations.no_of_days) || 0;
-        if(travel_authorizations.advance_details){
-            totalAdvanceAmount +=  parseFloat(travel_authorizations.advance_details.amount) || 0;
-            }
-        // Loop through the travel authorization details for each authorization
-        if (travel_authorizations.details && travel_authorizations.details.length > 0) {
-            let taAmount = 0;
-            let days = 0;
-            travel_authorizations.details.forEach((detail, index) => {
-
-                const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
-
-                days+=parseFloat(detail.no_of_days);
-console.log(detail);
-            const row = `
-                <tr class="data-row travel-auth-${travelAuthGroupClass}">
-                    <td>
-                        <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
-                        <input type="hidden" name="dsa_claim_detail[${detail.id}][id]" class="resetKeyForNew" value="${detail.id}">
-
-                        <input type="hidden" name="dsa_claim_detail[${detail.id}][travel_authorization_id]" class="resetKeyForNew" value="${travel_authorizations.travelAuthorization.id}">
-                    </td>
-                    <td class="text-center">
-                        <input type="date" value="${detail.from_date}" name="dsa_claim_detail[${detail.id}][from_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
-                    </td>
-                    <td class="text-center">
-                        <input type="text" value="${detail.from_location}" name="dsa_claim_detail[${detail.id}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
-                    </td>
-                    <td class="text-center">
-                        <input type="date" value="${detail.to_date}" name="dsa_claim_detail[${detail.id}][to_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
-                    </td>
-                    <td class="text-center">
-                        <input type="text" value="${detail.to_location}" name="dsa_claim_detail[${detail.id}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
-                    </td>
-                    <td class="text-center">
-                        <input type="number" min="0" max="${detail.no_of_days}" step="0.5" name="dsa_claim_detail[${detail.id}][total_days]" value="${detail.no_of_days}" class="form-control form-control-sm resetKeyForNew" />
-                    </td>
-                    <td class="text-center">
-                        <input type="number" name="dsa_claim_detail[${detail.id}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
-                    </td>
-                 
-                    <td class="text-center">
-                        <input type="number" value="${totalAmount}" name="dsa_claim_detail[${detail.id}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly>
-                    </td>
-                   
-                </tr>`;
-
-            tbody.append(row); // Append the row to the table body
-        });
-        $formula='';
-        if(days <= 15){
-                    taAmount+=DAILY_ALLOWANCE * days;
-                    formula= DAILY_ALLOWANCE + " * " + days + "day(s)";
-                }else{
-                    taAmount+=(DAILY_ALLOWANCE/2)*(days-15) + DAILY_ALLOWANCE * 15;
-                    formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (days-15) + "day(s)) ="  ;
-                };
-                grandTotal+=taAmount;
-
-        tbody.append(`
-            <tr class="travel-auth-${travelAuthGroupClass} last-row">
-                <td colspan="1" class="text-center" style="color: black;">
-                </td>
-                <td colspan="1" class="text-center" style="color: black; font-weight: bold;">
-                    <span>
-                        Total Days:
-                    </span>
-                    <span class="days-span">
-                         ${days}
-                    </span>
-                    <input type="hidden" id="total_days" name="total_days[${travel_authorizations.travelAuthorization.id}]" value="${days}">
-                </td>
-                <td colspan="4" class="text-center" style="color: black; ">
-                    <span style="font-weight: bold;">Formula:</span>
-                    <span class="formula-span">
-                         ${formula}
-                    </span>
-                </td>
-                <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
-                    <span>
-                        Travel Authorization Amount:
-                    </span>
-                </td>
-
-                <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
-                    <input type="number" id="ta_amount" style="color: black;  font-weight: bold;" class="form-control" name="ta_amount[${travel_authorizations.travelAuthorization.id}]" value="${taAmount}"readonly>
-                    <input type="hidden" id="advance_amount" name="advance_amount[${travel_authorizations.travelAuthorization.id}]" value="${travel_authorizations?.advance_details?.amount ?? ''}">
-                </td>
-
-                </td>
-            </tr>
-        `);
-
-
-// Update the grand total
-$('#grand_total_amount').val(grandTotal);
-
-const totalNumDays = document.getElementById('total_number_of_days');
-totalNumDays.value = totalDays;
-$('#advance_amount').val(totalAdvanceAmount ?? 0);
-calculateTotalNumberOfDays()
-calculateGrandTotal();
-calculateNetPayable();
-
-}
-})}}
-,
-    error: function(error) {
-        alert(`Error fetching data: ${error.responseText || error.statusText}`);
-        $("#travelstable tbody").empty().append(`
-            <tr><td colspan="9" class="text-center text-danger">Error fetching details</td></tr>
-        `);
-    }
-
-});
-}
-}
 
 $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', function() {
 const maxVal = parseFloat($(this).attr('max')); // Get max value
@@ -661,7 +572,7 @@ tbody.empty();
 tbody.append(`<tr><td colspan="13" class="text-center text-danger">No Travel Authorization Application Selected</td></tr>`);
 $('#grand_total_amount').val(0);  // Reset grand total
 } else {
-getTravelAuthorizationDetailsMultiple(); // Fetch data if selections exist
+//getTravelAuthorizationDetailsMultiple(); // Fetch data if selections exist
 }
 });
     $(document).on("change", "#travel_authorization", getDsaAvanceByTravelAuth);
@@ -683,6 +594,7 @@ getTravelAuthorizationDetailsMultiple(); // Fetch data if selections exist
         $('#travelstable tbody tr').each(function() {
             totalNumberOfDays += parseFloat($(this).find('input[name*="[total_days]"]').val() || 0);
         });
+        
         $('#total_number_of_days').val(totalNumberOfDays);
     }
 });
