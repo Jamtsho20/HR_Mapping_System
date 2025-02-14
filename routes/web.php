@@ -19,6 +19,7 @@ use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\PayComparisionReportController;
 use App\Http\Controllers\Reports\PFReportController;
 use App\Http\Controllers\Reports\SalaryReportController;
+use App\Http\Controllers\Reports\SalarySavingSchemeController;
 use App\Http\Controllers\Reports\SamsungDeductionReportController;
 use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TaxScheduleReportController;
@@ -184,7 +185,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('index', 'create', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
-        Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'edit');
+        Route::resource('dsa-approval', 'DSAApprovalController');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');
         // Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'edit');
         // Route::resource('expense-fuel', 'ExpenseFuelController');
@@ -299,6 +300,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-gis-excel-report', [GISReportController::class, 'exportGISExcel'])->name('gis-report-excel.export');
     Route::get('/export-pf-report', [PFReportController::class, 'exportPF'])->name('pf-report-pdf.export');
     Route::get('/export-pf-excel-report', [PFReportController::class, 'exportPFExcel'])->name('pf-report-excel.export');
+
+    Route::get('/export-sss-report', [SalarySavingSchemeController::class, 'exportSSS'])->name('sss-report-pdf.export');
+    Route::get('/export-sss-excel-report', [SalarySavingSchemeController::class, 'exportSSSExcel'])->name('sss-report-excel.export');
+
     Route::get('/export-loan-report', [LoanReportController::class, 'exportLoan'])->name('loan-report-pdf.export');
     Route::get('/export-loan-excel-report', [LoanReportController::class, 'exportLoanExcel'])->name('loan-report-excel.export');
     Route::get('/export-samsung-deduction-report', [SamsungDeductionReportController::class, 'exportSamsungDeduction'])->name('samsung-deduction-report-pdf.export');
@@ -338,6 +343,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-sifa-report', [SIFAContributionController::class, 'printSifa'])->name('sifa-report-print');
     Route::get('/print-gis-report', [GISReportController::class, 'printGIS'])->name('gis-report-print');
     Route::get('/print-pf-report', [PFReportController::class, 'printPF'])->name('pf-report-print');
+    Route::get('/sss-report-print', [SalarySavingSchemeController::class, 'printSSS'])->name('sss-report-print');
     Route::get('/print-loan-report', [LoanReportController::class, 'printLoan'])->name('loan-report-print');
     Route::get('/print-samsung-deduction-report', [SamsungDeductionReportController::class, 'printSamsungDeduction'])->name('samsung-deduction-report-print');
     Route::get('/print-cheque-report', [ChequeReportController::class, 'printCheque'])->name('cheque-report-print');
@@ -432,6 +438,7 @@ Route::middleware('auth')->group(function () {
     // Route::post('approverejectbulk', 'AjaxRequestController@bulkApprovalRejection')->name('approverejectbulk');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
+    Route::get('gettravelauthorizationbytravelauthorizationidsMultiple', 'AjaxRequestController@getTravelAuthorizationDetailsMultiple');
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
     Route::get('getdsaadvancedetails/{id}', 'AjaxRequestController@getDsaAdvanceDetails');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');

@@ -22,10 +22,10 @@ class PFExport implements FromCollection, WithHeadings
         return collect($this->pfDeductionsWithPF->map(function ($pf) {
             return [
                 $pf['employee_name'],
-                $pf['details']['pf_number'] ?? '-',
+                $pf['pf_number'],
                 $pf['CID'] ?? '-',
                 $pf['basic_pay'] ?? '-',
-                $pf['details']['deductions']['PF'] ?? 0,
+                $pf['details']['deductions']['PF Contr'] ?? 0,
                 $pf['employer_pf_amount'] ?? 0,
                 $pf['total'] ?? 0,
             ];
@@ -43,7 +43,7 @@ class PFExport implements FromCollection, WithHeadings
             'CID',
             'Basic Pay',
             'Member Contribution',
-            'Employee COntribution',
+            'Employer COntribution',
             'Total',
         ];
     }

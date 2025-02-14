@@ -81,6 +81,10 @@
                                                             Cash ALL
                                                         </th>
                                                         <th>
+                                                            Additional Work ALL
+                                                        </th>
+
+                                                        <th>
                                                             Health Tax
                                                         </th>
                                                         <th>
@@ -103,16 +107,21 @@
                                                             <td>{{ $pf->employee->name }}</td>
                                                             <td>{{ $pf->employee->cid_no }}</td>
                                                             <td>{{ $pf->details['basic_pay'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['allowances']['Critical ALL'] ?? '0' }}
+                                                            <td>{{ $pf->details['allowances']['Critical Allowance'] ?? '0' }}
                                                             </td>
-                                                            <td>{{ $pf->details['allowances']['House ALL'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['allowances']['Medical ALL'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['allowances']['Medical ALL'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['allowances']['Corporate ALL'] ?? '0' }}
+                                                            <td>{{ $pf->details['allowances']['House Allowance'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $pf->details['allowances']['Medical Allowance'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $pf->details['allowances']['Corporate Allowance'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $pf->details['allowances']['Cash Allowance'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $pf->details['allowances']['Add. Work Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $pf->details['deductions']['H/Tax'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['deductions']['TDS'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['deductions']['TDS'] ?? ('0' + $pf->details['deductions']['H/Tax'] ?? '0') }}
+                                                            <td>{{ $pf->details['deductions']['Salary Tax'] ?? '0' }}</td>
+                                                            <td>{{ ($pf->details['deductions']['Salary Tax'] ?: 0) + ($pf->details['deductions']['H/Tax'] ?: 0) }}
                                                             </td>
                                                             <td>{{ $pf->for_month }}</td>
 

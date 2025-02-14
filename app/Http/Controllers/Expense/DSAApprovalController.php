@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Expense;
 use App\Http\Controllers\Controller;
 use App\Models\DsaClaimApplication;
 use Illuminate\Http\Request;
+use App\Models\TravelAuthorizationApplication;
+use App\Models\AdvanceApplication;
 
 class DSAApprovalController extends Controller
 {
@@ -23,7 +25,7 @@ class DSAApprovalController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-               
+
         return view('expense.dsa-approval.index', compact( 'privileges'));
     }
 
@@ -68,9 +70,10 @@ class DSAApprovalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        //
-    }
+{
+  
+}
+
 
     /**
      * Update the specified resource in storage.

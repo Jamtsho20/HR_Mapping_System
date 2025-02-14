@@ -24,6 +24,7 @@ return new class extends Migration
             $table->tinyInteger('status')->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Verified, 3 => Approved');
             $table->text('remarks')->nullable();
             $table->foreignId('action_performed_by')->index()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('edited_by')->index()->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->json('sap_response')->nullable();
             $table->boolean('is_posted_to_sap')->default(0);
 

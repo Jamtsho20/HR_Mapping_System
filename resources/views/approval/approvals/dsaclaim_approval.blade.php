@@ -33,7 +33,7 @@
                                                 TOTAL PAYABLE AMOUNT
                                             </th>
                                             <th>
-                                                ADV. BALANCE AMOUNT
+                                                ADVANCE AMOUNT
                                             </th>
                                             <th>
                                                 TOTAL AMOUNT
@@ -57,13 +57,12 @@
                                             </td>
                                             @endif
 
-
                                             <td>{{ $dsaclaim->employee->employee_id }}
                                                 ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
                                             <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
                                             <td>{{ $dsaclaim->net_payable_amount }}
                                             </td>
-                                            <td>{{ $dsaclaim->dsaexpense?->amount ?? '0.00' }}
+                                            <td>{{ $dsaclaim->advance_amount ?? '0.00' }}
                                             </td>
                                             <td>{{ $dsaclaim->amount }}</td>
 
@@ -117,7 +116,13 @@
                                                 </a>
                                                 @endif
                                                 @endif
-
+                                                @if ($privileges->edit && $routeName=='approval.index')
+                                                <a href="{{ url('approval/applications/'.$dsaclaim->id.'/edit') }}"
+                                                    class="btn btn-sm btn-rounded btn-outline-success">
+                                                     <i class="fa fa-edit"></i>EDIT
+                                                </a>
+                                                @endif
+                                            </td>
                                             </td>
                                         </tr>
                                         @empty
