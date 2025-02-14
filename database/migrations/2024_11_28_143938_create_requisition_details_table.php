@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('dzongkhag');
             // $table->string('site_name');
             $table->foreignId('office_id')->index()->nullable()->constrained('mas_offices')->comment('for now no need to make use of this only for future purpose');
-            $table->foreignId('site_name')->index()->nullable()->constrained('mas_offices')->comment('in frontend make use of site_name');
+            $table->foreignId('site_id')->index()->nullable()->constrained('mas_sites');
             $table->text('remark')->nullable();
             $table->timestamps();
         });

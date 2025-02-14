@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('goods_received_item_serials', function (Blueprint $table) {
+        Schema::create('asset_return_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('goods_received_detail_id')->index()->constrained('goods_received_details')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('serial_no')->index()->comment('Unique serial number for each item.'); 
             $table->timestamps();
         });
     }
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('goods_received_item_serials');
+        Schema::dropIfExists('asset_return_details');
     }
 };

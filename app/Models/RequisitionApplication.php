@@ -24,11 +24,18 @@ class RequisitionApplication extends Model
 
     ];
 
+    
+    
     public function requisitionType()
     {
         return $this->belongsTo(MasRequisitionType::class, 'type_id');
     }
-
+    
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
+    
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -47,9 +54,9 @@ class RequisitionApplication extends Model
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        if($request->req_type){
-            $query->where('type_id', $request->req_type);
-        }
+        // if($request->req_type){
+        //     $query->where('type_id', $request->req_type);
+        // }
 
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);

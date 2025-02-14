@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller as BaseController;
+use App\Models\GrnItemMapping;
 use App\Models\MasItem;
 use App\Models\MasStore;
 use App\Traits\JsonResponseTrait;
@@ -103,23 +104,25 @@ class ApiController extends BaseController
                 // If item exists, update it
                 $item->item_category = $request->item_category;
                 $item->item_description = $request->item_description;
+                $item->item_no = $request->item_no;
                 $item->uom = $request->uom;
                 $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
                 $item->updated_by = $this->sapUser; // Track who updated it
                 $item->save();
-                $message = 'Item updated successfully.';
+                $message = 'Item master updated successfully.';
             } else {
                 // If item does not exist, create a new one
                 $item = new MasItem();
                 $item->item_category = $request->item_category;
                 $item->item_description = $request->item_description;
+                $item->item_no = $request->item_no;
                 $item->uom = $request->uom;
                 $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
                 $item->created_by = $this->sapUser;
                 $item->save();
-                $message = 'Item created successfully.';
+                $message = 'Item master created successfully.';
             }
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -133,7 +136,9 @@ class ApiController extends BaseController
             'store_code' => 'required',
             'item_no' => 'required',
             'uom' => 'required',
+            'grn_no' => 'required',
             'quantity' => 'required',
+            'current_stock' => 'required'
         ];
        
         $validator = \Validator::make($request->all(), $rules);
@@ -142,16 +147,31 @@ class ApiController extends BaseController
         }
 
         $storeId = MasStore::where('code', $request->store_code)->value('id');
-        $itemId = MasItem::where('item_no', $request->item_no)->value('id');
+        $item = MasItem::where('item_no', $request->item_no)->first();
         if(!$storeId){
             return $this->errorResponse('Store code not found in HRMS system.');
         }
-        if(!$itemId){
-            return $this->errorResponse('Item no not availaible for associated store code in HRMS system.');
+
+        if(!$item){
+            return $this->errorResponse('Item no. not availaible for associated store code in HRMS system.');
         }
         
+        try{
+    
+            $itemMapping = new GrnItemMapping();
+            $itemMapping->store_id = $storeId;
+            $itemMapping->item_id = $item->id;
+            $itemMapping->item_description = $request->item_description ?? $item->item_description;
+            $itemMapping->grn_no = $request->grn_no;
+            $itemMapping->uom = $request->uom ?? $item->uom;
+            $itemMapping->current_stock = $request->current_stock;
+            $itemMapping->status = isset($request->status) ? $request->status : 1;
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
 
-
+        return $this->successResponse($item, 'Grn item mapping created successfully.');
+        
     }
 
     public function startSession()

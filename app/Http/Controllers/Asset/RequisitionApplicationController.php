@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ApplicationForwardedMail;
+use App\Models\GrnItemMapping;
 use App\Models\MasRequisitionType;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
@@ -29,12 +30,11 @@ class RequisitionApplicationController extends Controller
      }
 
      protected $rules = [
-        'requisition_no' => 'required|unique:requisition_applications,requisition_no',
-        'type_id' => 'required',
+        // 'requisition_no' => 'required|unique:requisition_applications,requisition_no',
+        // 'type_id' => 'required',
         'requisition_date' => 'required',
         'need_by_date' => 'required',
-        'item_category' => 'required',
-        'details.*.purchase_order_no' => 'required',
+        'details.*.grn_no' => 'required',
         'details.*.item_description' => 'required',
         'details.*.uom' => 'required',
         'details.*.store' => 'required',
@@ -45,7 +45,7 @@ class RequisitionApplicationController extends Controller
      ];
 
      protected $messages = [
-        'details.*.purchase_order_no.required' => 'The purchase order number is required for each detail item.',
+        'details.*.grn_no.required' => 'The purchase order number is required for each detail item.',
         'details.*.item_description.required' => 'The item description is required for each detail item.',
         'details.*.uom.required' => 'The unit of measure is required for each detail item.',
         'details.*.store.required' => 'The store is required for each detail item.',
@@ -69,7 +69,8 @@ class RequisitionApplicationController extends Controller
      public function create()
      {
         $reqTypes = MasRequisitionType::get();
-         return view('asset.requisition-apply.create', compact('reqTypes'));
+        $grnNos = GrnItemMapping::whereStatus(1)->pluck('grn_no')->toArray();
+        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos'));
      }
 
      /**
