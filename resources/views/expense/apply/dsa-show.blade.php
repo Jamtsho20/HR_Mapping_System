@@ -239,21 +239,21 @@
                                     </td>
 
                                     <td colspan="4" style="padding-left:25px;">
-                                        <!-- @php
-                                            $attachments = json_decode($detail->attachment, true); // Decode JSON to array
-                                        @endphp -->
+                                        @php
+                                        $attachments = json_decode($detail->attachment, true); // Decode JSON to array
+                                        @endphp
 
-                                        @if ($detail->attachment)
-
-                                        <a href="{{ asset(json_decode($detail->attachment))}}" class="btn btn-sm btn-primary mb-1"
-                                            target="_blank">
+                                        @if (!empty($attachments) && is_array($attachments))
+                                        @foreach ($attachments as $attachment)
+                                        <a href="{{ asset($attachment) }}" class="btn btn-sm btn-primary mb-1" target="_blank">
                                             <i class="fas fa-file-alt"></i> View Attachment
                                         </a><br>
+                                        @endforeach
                                         @else
                                         <span class="text-danger">No attachment available.</span>
                                         @endif
-
                                     </td>
+
                                 </tr>
 
                                 @foreach ($detail->dsaDetails as $claimDetail )
@@ -345,34 +345,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                <table style="width:100%;" class="simple-table">
-                    <tbody>
-                        <tr>
-                            <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
-                            <td style="padding-left:25px;">
-                                {{ $dsa->status == 3 ? $dsa->expense_approved_by->name : 'N/A' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
-                            <td style="padding-left:25px;">
-                                {{ $dsa->status == -1 ? $dsa->expense_approved_by->name : 'N/A' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th style="width:35%;">Rejected Remarks <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
-                            <td style="padding-left:25px;">
-                                {{ $dsa->status == -1 ? $rejectRemarks : 'N/A' }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    <div class="col-md-12">
+                        @include('layouts.includes.approval-details', [
+                            'approvalDetail' => $approvalDetail,
+                            'applicationStatus' => $dsa->status
+                        ])
+
+                    </div>
+                </div>
     </div>
 </div>
 </div>

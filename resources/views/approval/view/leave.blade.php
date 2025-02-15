@@ -83,8 +83,7 @@
                     <div class="col-md-12">
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
-                            'applicationStatus' => $leave->status,
-                            'rejectionRemarks' => $leave->reject_remarks,
+                            'applicationStatus' => $leave->status
                         ])
 
                     </div>

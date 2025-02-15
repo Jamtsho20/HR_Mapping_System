@@ -131,7 +131,7 @@ class ExpenseApplicationController extends Controller
         ->get()
         ->pluck('travel_authorization_id')
             )->filter()->values()->toArray();
-
+        
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
@@ -271,6 +271,8 @@ class ExpenseApplicationController extends Controller
         $expense = ExpenseApplication::findOrfail($id);
         // dd($expense);
         $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
+
+      
 
         return view('expense.apply.show', compact('expense','approvalDetail'));
     }
