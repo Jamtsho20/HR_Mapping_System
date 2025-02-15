@@ -103,8 +103,7 @@
                     <div class="col-md-12">
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
-                            'applicationStatus' => $travelAuthorization->status,
-                            'rejectionRemarks' => $travelAuthorization->reject_remarks ,
+                            'applicationStatus' => $travelAuthorization->status
                         ])
 
                     </div>

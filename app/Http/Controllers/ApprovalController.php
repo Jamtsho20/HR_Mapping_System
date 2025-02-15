@@ -309,6 +309,7 @@ class ApprovalController extends Controller
         $oldDataFlag = true;
         $travelNosString = "";
         $advanceNosString = "";
+        $approvalDetail = getApplicationLogs($mappedModel['name'], $id);
         if ($tab == 9) {
             if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
                 $data = DsaClaimApplication::findOrFail($id);
@@ -649,6 +650,7 @@ class ApprovalController extends Controller
                     $item->reject_remarks = ApplicationHistory::where('application_type', $modelClass)
                         ->where('application_id', $item->id)
                         ->value('remarks'); // Fetch the reject_remarks
+                    $item->approvalDetails = getApplicationLogs($modelClass, $item->id);
                     return $item;
                 });
             }
@@ -661,6 +663,7 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
+
 
         return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }

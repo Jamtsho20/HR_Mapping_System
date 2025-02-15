@@ -25,16 +25,16 @@
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
+                                </td>
+            </tr>
+            <tr>
+                <td style="padding-left:16px;"><strong>Remarks:</strong>
+                    {{ $log->remarks ? $log->remarks : 'N/A' }}</td></tr>
                         @endif
 
                     @endforeach
 
-                </td>
-            </tr>
-            <tr>
-                <td style="padding-left:16px;"><strong>Remarks:</strong>
-                    {{ $rejectionRemarks ?? config('global.null_value') }}</td>
-            </tr>
+               
         @elseif($applicationStatus == 2)
             <tr>
 
