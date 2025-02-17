@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasPayGroupDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class eTeeruRemittanceReportController extends Controller
 {
@@ -18,8 +20,8 @@ class eTeeruRemittanceReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        //  $taxSchedules = MasPayGroupDetail::filter($request)->paginate(config('global.pagination'))->withQueryString();
-        $taxSchedules = MasPayGroupDetail::where('mas_pay_group_id', 4)
+        //  $eTeeru = MasPayGroupDetail::filter($request)->paginate(config('global.pagination'))->withQueryString();
+        $eTeeru = MasPayGroupDetail::where('mas_pay_group_id', 4)
             ->join(
                 'mas_employee_jobs',
                 'mas_pay_group_details.mas_grade_id',
@@ -52,7 +54,7 @@ class eTeeruRemittanceReportController extends Controller
         $employee = employeeList();
 
 
-        return view('report.eteeru-remittance.index', compact('privileges', 'employee', 'taxSchedules'));
+        return view('report.eteeru-remittance.index', compact('privileges', 'employee', 'eTeeru'));
     }
 
     /**
@@ -101,5 +103,84 @@ class eTeeruRemittanceReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function exportEteeru(Request $request)
+    {
+
+        // Load all bookings with their dzongkhag names
+        $eTeeru = MasPayGroupDetail::where('mas_pay_group_id', 4)
+            ->join(
+                'mas_employee_jobs',
+                'mas_pay_group_details.mas_grade_id',
+                '=',
+                'mas_employee_jobs.mas_grade_id'
+            )
+            ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
+            ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
+            // Select the required fields
+            ->select(
+                'mas_employees.name',
+                'mas_employees.contact_number',
+                'mas_pay_group_details.amount',
+                'final_pay_slips.for_month'
+            ) // Select the required fields
+
+            ->when($request->employee_id, function ($query, $name) {
+                return $query->where('mas_employees.id', '=', $name);
+            })
+
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })
+            ->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru'))->setPaper('a4', 'landscape');
+
+        // Return the PDF download
+        return $pdf->download('eTeeru-Remittance-Report.pdf');
+    }
+    public function exportEteeruExcel(Request $request)
+    {
+        return Excel::download(new EteeruExport($request), 'employee-report.xlsx');
+    }
+
+    public function printEteeru(Request $request)
+    {
+        $eTeeru = MasPayGroupDetail::where('mas_pay_group_id', 4)
+            ->join(
+                'mas_employee_jobs',
+                'mas_pay_group_details.mas_grade_id',
+                '=',
+                'mas_employee_jobs.mas_grade_id'
+            )
+            ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
+            ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
+            // Select the required fields
+            ->select(
+                'mas_employees.name',
+                'mas_employees.contact_number',
+                'mas_pay_group_details.amount',
+                'final_pay_slips.for_month'
+            ) // Select the required fields
+
+            ->when($request->employee_id, function ($query, $name) {
+                return $query->where('mas_employees.id', '=', $name);
+            })
+
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })
+            ->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru'))->setPaper('a4', 'landscape');
+
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('eTeeru-Remittance-Report.pdf');
     }
 }
