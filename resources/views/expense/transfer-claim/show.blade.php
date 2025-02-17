@@ -91,23 +91,11 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <table style="width:100%;" class="simple-table">
-                            <tbody>
-                                <tr>
-                                    <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $transfer->status == 3 ? $transfer->transfer_approved_by->name : 'N/A' }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $transfer->status == -1 ? $transfer->transfer_approved_by->name : 'N/A' }} </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @include('layouts.includes.approval-details', [
+                            'approvalDetail' => $approvalDetail,
+                            'applicationStatus' => $transfer->status
+                        ])
+
                     </div>
                 </div>
             </div>

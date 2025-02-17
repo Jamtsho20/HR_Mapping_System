@@ -124,8 +124,10 @@
                                                         <th>
                                                             department
                                                         </th>
-
                                                         <th>
+                                                            DSA Settlement Number
+
+                                                        {{-- <th>
                                                             from location
                                                         </th>
                                                         <th>
@@ -136,7 +138,7 @@
                                                         </th>
                                                         <th>
                                                             To Date
-                                                        </th>
+                                                        </th> --}}
                                                         <th>
                                                             Total days
                                                         </th>
@@ -181,24 +183,52 @@
                                                     @php $serialNumber = 1; @endphp
 
                                                     @foreach ($dsaClaim as $claim)
-                                                        @forelse($claim->dsaClaimDetails as $dsa)
+
                                                             <tr>
                                                                 <td>{{ $serialNumber++ }}</td>
                                                                 <td>{{ $claim->employee->name }}</td>
                                                                 <td>{{ $claim->employee->empJob->designation->name }}</td>
                                                                 <td>{{ $claim->employee->empJob->department->name }}</td>
-                                                                <td>{{ $dsa->from_location }}</td>
+                                                                <td>{{ $claim->dsa_claim_no}}</td>
+                                                                {{-- <td>{{ $dsa->from_location }}</td>
                                                                 <td>{{ $dsa->to_location }}</td>
                                                                 <td>{{ $dsa->from_date }}</td>
-                                                                <td>{{ $dsa->to_date }}</td>
-                                                                <td>{{ $dsa->total_days }}</td>
-                                                                <td>{{ $dsa->daily_allowance }}</td>
-                                                                <td>{{ $dsa->travel_allowance }}</td>
-                                                                <td>{{ $dsa->total_amount }}</td>
-                                                                <td>{{ $claim->travel->travel_authorization_no ?? '-' }}
+                                                                <td>{{ $dsa->to_date }}</td> --}}
+                                                                <td>{{ $claim->total_number_of_days ?? config("global.null_value")}}</td>
+                                                                <td>
+                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
+                                                                        {{ $claim->dsaClaimMappings->first()->dsaDetails->first()->daily_allowance }}
+                                                                    @else
+                                                                        {{ $claim->dsaClaimDetails->first()->daily_allowance ?? '-' }}
+                                                                    @endif
                                                                 </td>
-                                                                <td>{{ $claim->dsaadvance->advance_no ?? '-' }}</td>
-                                                                <td>{{ $claim->dsaadvance->amount ?? '-' }}</td>
+                                                                <td>
+                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
+                                                                    {{ $claim->dsaClaimMappings->pluck('dsaDetails')->flatten()->sum('travel_allowance') }}
+
+                                                                    @else
+                                                                        {{ $claim->dsaClaimDetails->sum('travel_allowance') ?? '-' }}
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ $claim->amount }}</td>
+                                                                <td>
+                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
+                                                                        {{ implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.travel_authorization_no')->filter()->toArray()) }}
+                                                                    @else
+                                                                        {{ $claim->travel->travel_authorization_no ?? '-' }}
+                                                                    @endif
+                                                                </td>
+
+                                                                </td>
+                                                                <td>
+                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
+                                                                        {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.advance_no')->filter()->toArray()) }}
+                                                                    @else
+                                                                        {{ $claim->dsaadvance->advance_no ?? '-' }}
+                                                                    @endif
+                                                                </td>
+
+                                                                <td>{{ $claim->advance_amount ?? '-' }}</td>
                                                                 <td>{{ $claim->net_payable_amount }}</td>
                                                                 @php
                                                                     $statusClasses = [
@@ -217,16 +247,15 @@
                                                                         'badge bg-secondary';
                                                                 @endphp
                                                                 <td>{{ $statusText }}</td>
-                                                                <td>{{ $claim->expense_approved_by->name ?? config('global.null_value') }}
-                                                                </td>
+                                                                <td>{{ $claim->expense_approved_by->name ?? config("global.null_value") }}</td>
                                                                 <td>{{ $claim->updated_at->format('m-d-y') }}</td>
                                                             </tr>
-                                                        @empty
+                                                        {{-- @empty
                                                             <tr>
                                                                 <td colspan="12" class="text-center text-danger">No DSA
                                                                     Settlement Details found for this claim</td>
-                                                            </tr>
-                                                        @endforelse
+                                                            </tr> --}}
+
                                                     @endforeach
 
 

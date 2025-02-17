@@ -219,7 +219,7 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $holiday->holiday_name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
 
                             </tr>
                             @empty

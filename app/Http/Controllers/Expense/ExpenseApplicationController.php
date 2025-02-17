@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\DsaClaimMappings;
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;
@@ -122,7 +123,26 @@ class ExpenseApplicationController extends Controller
 
         $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
 
-        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereStatus(3)->get();
+
+
+        $applicationIds = DsaClaimApplication::whereCreatedBy(loggedInUser())
+            ->whereIn('status', [1,3])
+            ->pluck('id'); // Get only the IDs
+
+        
+        $excludedTravelIds = collect(
+            DsaClaimApplication::whereIn('id', $applicationIds)
+                ->select('travel_authorization_id')
+                ->union(
+                    DsaClaimMappings::whereIn('dsa_claim_id', $applicationIds) // Use these IDs in mappings
+                        ->select('travel_authorization_id')
+                )
+                ->get()
+                ->pluck('travel_authorization_id')
+        )->filter()->values()->toArray();
+        
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
+
         $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
         //$dsaClaimNo = $this->ajax->getDsaClaimNumber();
         //$transferClaimNo = $this->ajax->getTransferClaimNumber();
@@ -261,6 +281,8 @@ class ExpenseApplicationController extends Controller
         // dd($expense);
         $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
 
+      
+
         return view('expense.apply.show', compact('expense','approvalDetail'));
     }
 
@@ -273,7 +295,7 @@ class ExpenseApplicationController extends Controller
     public function edit($id)
     {
         $expenses = MasExpenseType::all();
-        
+
         $expenseApplication = ExpenseApplication::findOrfail($id);
         $vehicles = MasVehicle::all();
 

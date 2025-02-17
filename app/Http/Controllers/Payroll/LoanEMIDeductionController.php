@@ -27,7 +27,10 @@ class LoanEMIDeductionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $loanEMIDeductions = LoanEMIDeduction::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+        $loanEMIDeductions = LoanEMIDeduction::filter($request)->orderBy('created_at')
+        // ->paginate(config('global.pagination'))
+        // ->withQueryString();
+        ->get();
 
         $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
         $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->whereIn('id', [16,17,18,19,20,21,22,23,24])->pluck('name', 'id'); // only loans

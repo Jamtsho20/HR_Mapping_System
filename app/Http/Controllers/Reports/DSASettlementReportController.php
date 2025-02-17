@@ -39,7 +39,15 @@ class DSASettlementReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $dsaClaim = DsaClaimApplication::with('dsaClaimDetails')->filter($request, false)->paginate(config('global.pagination'))->withQueryString();
+        $dsaClaim = DsaClaimApplication::with([
+            'dsaClaimDetails',
+            'dsaClaimMappings.dsaDetails',
+            'dsaClaimMappings.travelAuthorization',
+            'dsaClaimMappings.advanceApplication',
+            'dsaClaimMappings.dsaClaimApplication'
+        ])->filter($request, false)
+          ->paginate(config('global.pagination'))
+          ->withQueryString();
 
         return view('report.dsa-settlement-report.index', compact('privileges', 'dsaClaim', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
     }

@@ -51,6 +51,7 @@ use App\Models\MasCommissionTypes;
 use App\Models\GoodReceiptApplicationDetail;
 use App\Models\LeaveApplication;
 use DateTime;
+use App\Models\DsaClaimMappings;
 
 class AjaxRequestController extends Controller
 {
@@ -369,7 +370,7 @@ class AjaxRequestController extends Controller
 
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
-        
+
         // return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount, 'region_name' => $loggedInUserRegion[0]->region_name]);
         return response()->json(['attachment_required' => $attachmentRequired, 'limit_amount' => $limitAmount]);
     }
@@ -532,6 +533,70 @@ class AjaxRequestController extends Controller
         }
         return response()->json(['travel_authorization_details' => $travelAuthorizationDetails, 'total_days' => $total_days]);
     }
+
+    public function getTravelAuthorizationDetailsMultiple(Request $request)
+{
+    // Ensure you get an array of IDs from the request
+    $ids = $request->input('ids');
+
+    // Validate the incoming request
+    if (empty($ids) || !is_array($ids)) {
+        return response()->json(['message' => 'Invalid or missing travel authorization IDs'], 400);
+    }
+
+    // Fetch travel authorizations based on the provided IDs
+    $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')
+        ->whereIn('id', $ids)
+        ->get(); // Get multiple travel authorizations
+    $advanceDetail = AdvanceApplication::whereIn('travel_authorization_id', $ids)->get();
+    // Check if any travel authorizations were found
+    if ($travelAuthorizationDetails->isEmpty()) {
+        return response()->json(['message' => 'No travel authorizations found for the given IDs'], 404);
+    }
+
+    $attachments = DsaClaimMappings::whereIn('travel_authorization_id', $ids)->get(['travel_authorization_id', 'attachment']);
+
+    // Loop through each travel authorization and process its details
+    $travelAuthorizationDetails->each(function ($travelAuthorization) {
+        // Process the details for each travel authorization
+        $travelAuthorization->details->each(function ($detail) {
+            $detail->mode_of_travel = $detail->travel_name;
+
+            // Calculate the number of days if not provided
+            if ($detail->number_of_days) {
+                $detail->no_of_days = $detail->number_of_days;
+            } else {
+                if ($detail->from_date && $detail->to_date) {
+                    $fromDate = new \DateTime($detail->from_date);
+                    $toDate = new \DateTime($detail->to_date);
+                    $interval = $fromDate->diff($toDate);
+                    $detail->no_of_days = $interval->days + 1;
+                }
+            }
+        });
+    });
+
+    // Prepare the response data
+    $response = [
+        'travel_authorizations' => $travelAuthorizationDetails->map(function ($travelAuthorization) use ($advanceDetail) {
+            return [
+                'travelAuthorization' => $travelAuthorization,
+                'id' => $travelAuthorization->id,
+                'total_days' => $travelAuthorization->total_days,
+                'details' => $travelAuthorization->details,
+                'advance_details' => $advanceDetail->where('travel_authorization_id', $travelAuthorization->id)->first()
+            ];
+        }),
+        'attachments' => $attachments,
+        'advance_ids' => $advanceDetail->pluck('id')
+    ];
+
+    // return response()->json($response);
+
+    // Return the response with the travel authorization details and total days
+    return response()->json(['travel_authorization_details' => $response]);
+}
+
 
     public function getEmployeeById($id)
     {

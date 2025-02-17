@@ -11,18 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dsa_claim_applications', function (Blueprint $table) {
+        Schema::create('dsa_claim_mappings', function (Blueprint $table) {
             $table->id();
-            $table->string('dsa_claim_no')->index();
-            $table->foreignId('type_id')->index()->constrained('dsa_claim_types')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('travel_authorization_id')->nullable()->constrained('travel_authorization_applications')->restrictOnDelete()->restrictOnUpdate();
             $table->foreignId('advance_application_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();
-            $table->decimal('amount', 12, 2);
-            $table->decimal('advance_amount', 12, 2);
-            $table->decimal('net_payable_amount', 12, 2);
-            $table->decimal('balance_amount', 12, 2)->nullable();
-            $table->json('attachment')->nullable()->comment('relevant attachment path and casted to array');
-            $table->tinyInteger('status')->default(1)->comment('-1 => Rejected, 0 => cancelled/withdrawn, 1 => New, 2 => Approved');
+            $table->foreignId('dsa_claim_id')->constrained('dsa_claim_applications')->restrictOnDelete()->cascadeOnUpdate();
+            $table->decimal('advance_amount', 12, 2)->nullable();
+            $table->decimal('ta_amount', 12, 2)->nullable();
+            $table->json('attachment')->nullable()->comment('Relevant attachment path, stored as JSON');
             $table->integer('number_of_days')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dsa_claim_applications');
+        Schema::dropIfExists('dsa_claim_mappings');
     }
 };

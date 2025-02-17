@@ -35,10 +35,14 @@ class LoginController extends Controller
                 ->orWhere('username', $request->username)
                 ->first();
             $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
-
+            
             // If user found, return as JSON
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
+            }
+
+            if(!$user->is_active){
+                return response()->json(['message' => 'User is inactive'], 404);
             }
 
             if (!$user || !Hash::check($request->password, $user->password)) {

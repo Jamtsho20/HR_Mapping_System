@@ -185,7 +185,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('expense-policy', 'ExpensePolicyController');
         Route::resource('approval', 'ExpenseApprovalController')->except('index', 'create', 'edit');
         Route::resource('dsa-claim-settlement', 'DSAClaimApplicationController');
-        Route::resource('dsa-approval', 'DSAApprovalController')->except('create', 'edit');
+        Route::resource('dsa-approval', 'DSAApprovalController');
         Route::resource('transfer-claim', 'TransferClaimApplicationController');
         // Route::resource('transfer-claim-approval', 'TransferClaimApprovalController')->except('create', 'edit');
         // Route::resource('expense-fuel', 'ExpenseFuelController');
@@ -438,6 +438,7 @@ Route::middleware('auth')->group(function () {
     // Route::post('approverejectbulk', 'AjaxRequestController@bulkApprovalRejection')->name('approverejectbulk');
     Route::get('getemployeebyid/{id}', 'AjaxRequestController@getEmployeeById');
     Route::get('gettravelauthorizationbytravelauthorizationid/{id}', 'AjaxRequestController@getTravelAuthorizationDetails');
+    Route::get('gettravelauthorizationbytravelauthorizationidsMultiple', 'AjaxRequestController@getTravelAuthorizationDetailsMultiple');
     Route::get('getdsaadvancebytravelauth/{id}', 'AjaxRequestController@getDsaAdvancebyTravelAuth');
     Route::get('getdsaadvancedetails/{id}', 'AjaxRequestController@getDsaAdvanceDetails');
     Route::get('gettravelbyid/{id}', 'AjaxRequestController@getTravelNumber');

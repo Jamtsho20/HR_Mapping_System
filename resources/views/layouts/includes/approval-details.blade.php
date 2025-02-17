@@ -11,6 +11,7 @@
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
                         @endif
+
                     @endforeach
                 </td>
             </tr>
@@ -24,15 +25,16 @@
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
-                        @endif
-                    @endforeach
-
-                </td>
+                                </td>
             </tr>
             <tr>
                 <td style="padding-left:16px;"><strong>Remarks:</strong>
-                    {{ $rejectionRemarks ?? config('global.null_value') }}</td>
-            </tr>
+                    {{ $log->remarks ? $log->remarks : 'N/A' }}</td></tr>
+                        @endif
+
+                    @endforeach
+
+               
         @elseif($applicationStatus == 2)
             <tr>
 
@@ -44,6 +46,7 @@
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
                                 {{ $log->created_at->format('d-m-y') }}</strong>
+
                         @endif
                     @endforeach
                 </td>
@@ -58,5 +61,7 @@
             </tr>
 
         @endif
+        
+
     </tbody>
 </table>
