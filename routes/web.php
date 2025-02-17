@@ -9,6 +9,7 @@ use App\Http\Controllers\Reports\CashReportController;
 use App\Http\Controllers\Reports\ChequeReportController;
 use App\Http\Controllers\Reports\DSASettlementReportController;
 use App\Http\Controllers\Reports\EmployeeReportController;
+use App\Http\Controllers\Reports\eTeeruRemittanceReportController;
 use App\Http\Controllers\Reports\ExpenseAndAdvanceReportController;
 use App\Http\Controllers\Reports\GISReportController;
 use App\Http\Controllers\Reports\LeaveAvailedReportController;
@@ -333,6 +334,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/tax-schedule-report', [TaxScheduleReportController::class, 'exportTaxSchedule'])->name('tax-schedule-report-pdf.export');
     Route::get('/tax-schedule-excel-report', [TaxScheduleReportController::class, 'exportTaxScheduleExcel'])->name('tax-schedule-report-excel.export');
 
+    Route::get('/eteeru-remittance', [eTeeruRemittanceReportController::class, 'exportEteeru'])->name('eteeru-remittance-pdf.export');
+    Route::get('/eteeru-remittance-excel-report', [eTeeruRemittanceReportController::class, 'exportEteeruExcel'])->name('eteeru-remittance-excel.export');
+
     Route::get('/export-encashment-report', [LeaveEncashmentReportController::class, 'exportEncashment'])->name('encashment-pdf.export');
     Route::get('/export-encashment-excel-report', [LeaveEncashmentReportController::class, 'exportEncashmentExcel'])->name('encashment.export');
 
@@ -355,6 +359,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-transfer-claim-report', [TransferClaimReportController::class, 'printTransferClaim'])->name('transfer-claim-print');
     Route::get('/print-dsa-settlement-report', [DSASettlementReportController::class, 'printDSASettlement'])->name('dsa-settlement-print');
     Route::get('/print-tax-schedle-report', [TaxScheduleReportController::class, 'printTaxSchedule'])->name('tax-schedule-report-print');
+    Route::get('/print-eteeru-remittance', [eTeeruRemittanceReportController::class, 'printEteeru'])->name('eteeru-remittance-print');
     Route::get('/print-pay-comparision-report', [PayComparisionReportController::class, 'printPayComparision'])->name('pay-comparision-report-print');
     Route::get('/print-leave-encashment-report', [LeaveEncashmentReportController::class, 'printLeaveEncashment'])->name('leave-encashment-report-print');
 
