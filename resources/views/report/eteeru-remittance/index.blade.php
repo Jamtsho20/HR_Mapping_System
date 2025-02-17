@@ -22,8 +22,8 @@
 
             </div>
             <div class="col-3 form-group">
-                <select name="employee_id" class="form-control ">
-                    <option value="" disabled="" selected="" hidden="">Select Employee ID</option>
+                <select name="employee_id" class="form-control select2 select2-hidden-accessible">
+                    <option value="" disabled="" selected="" hidden="">Select Employee</option>
                     @foreach ($employee as $name)
                         <option value="{{ $name->id }}" {{ request()->get('employee_id') == $name->id ? 'selected' : '' }}>
                             {{ $name->name }}
