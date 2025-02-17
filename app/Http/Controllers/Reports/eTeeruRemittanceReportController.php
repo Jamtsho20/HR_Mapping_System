@@ -29,10 +29,21 @@ class eTeeruRemittanceReportController extends Controller
             ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
             ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
             // Select the required fields
-                ->select('mas_employees.name', 'mas_employees.contact_number', 'mas_pay_group_details.amount',
-                'final_pay_slips.for_month') // Select the required fields
+            ->select(
+                'mas_employees.name',
+                'mas_employees.contact_number',
+                'mas_pay_group_details.amount',
+                'final_pay_slips.for_month'
+            ) // Select the required fields
 
-            ->filter($request)
+            ->when($request->employee_id, function ($query, $name) {
+                return $query->where('mas_employees.id', '=', $name);
+            })
+
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })
             ->paginate(config('global.pagination'))
             ->withQueryString();
 
