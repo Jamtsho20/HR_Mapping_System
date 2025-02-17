@@ -26,7 +26,7 @@ class ProcessPaySlipJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $payslip;    
+    public $payslip;
     public $status;
 
     /**
@@ -57,12 +57,12 @@ class ProcessPaySlipJob implements ShouldQueue
             $employees = User::active()->completed()->whereNotIn('id', [1, 2])->get();
             $userId = 185;
             $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
-    
+
             foreach ($employees as $employee) {
                 $durationOfService = $employee->durationOfService();
                 $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
                 $sifaMember = SifaRegistration::whereMasEmployeeId($employee->id)->whereIsRegistered(1)->whereStatus(SIFA_APPROVED)->first();
-    
+
                 $employeeVariableValues = [];
                 $employeeVariableValues['grade'] = $employee->empJob->grade->name;
                 $employeeVariableValues['gradeStep'] = $employee->empJob->gradeStep->name;
@@ -72,7 +72,7 @@ class ProcessPaySlipJob implements ShouldQueue
                 $employeeVariableValues['monthsSinceRegularization'] = $durationOfService['months'];
                 $employeeVariableValues['employmentType'] = $employeeJob->empType->id;
                 $employeeVariableValues['sifaMember'] = $sifaMember ? 1 : 0;
-    
+
                 // Attendance for Basic Pay Calculation
                 $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
                 $basicPay = $employee->empJob->basic_pay;
@@ -87,10 +87,10 @@ class ProcessPaySlipJob implements ShouldQueue
                 $forMonthObject = date_create($payslip->for_month);
                 $overtimeHours = EmployeeOvertime::whereMasEmployeeId($employee->id)->whereForMonth($forMonthObject->format("Y-m-01"))->value("overtime_hours");
                 $hourlyWage = ($basicPay / 30) / 8;
-    
+
                 $employeeVariableValues['overtimeHours'] = $overtimeHours ?? 0;
                 $employeeVariableValues['hourlyWage'] = $hourlyWage;
-    
+
                 $payScaleBasePay = $employeeVariableValues['payScaleBasePay'] = $employee->empJob->gradeStep->starting_salary;
                 $employeeGradeId = $employee->empJob->gradeStep->mas_grade_id;
                 $employeeGroupId = false;
@@ -103,15 +103,16 @@ class ProcessPaySlipJob implements ShouldQueue
                 $deductionComputeResult = PayrollService::computeDeductions($basicPay, $netPay, $payScaleBasePay, $grossPay, $employeeGradeId, $employeeGroupId, $paySlipId, $employee, $userId, $employeeVariableValues);
                 $netPay = $deductionComputeResult['netPay'];
                 $pf = $deductionComputeResult['pf'] ?: 0;
+                $gis = $deductionComputeResult['gis'] ?: 0;
                 $payHeadsAfterGross = array_merge($payHeadsAfterGross, $deductionComputeResult['payHeadsAfterGross']);
-                $pitNetPay = $employeeVariableValues['pitNetPay'] = $grossPay - $pf;
-    
+                $pitNetPay = $employeeVariableValues['pitNetPay'] = $grossPay - ($pf + $gis);
+
                 foreach ($payHeadsAfterGross as $payHeadAfter) {
                     if ((int) $payHeadAfter['type'] === 2) {
                         $payHead = MasPayHead::whereRaw("id = ?", [$payHeadAfter['mas_pay_head_id']])->first();
                         $calculation_method = (int) $payHead->calculation_method;
                         $calculated_on = (int) $payHead->calculated_on;
-    
+
                         if ($calculated_on === 4) {
                             $amountToCalculateOn = $pitNetPay;
                         }
@@ -132,7 +133,7 @@ class ProcessPaySlipJob implements ShouldQueue
                         } else {
                             $payHeadAmount = PayrollService::calculatePayHeadAmount($employee, $employeeGradeId, $employeeGroupId, $payHead->amount, $calculation_method, $payHead->id, $amountToCalculateOn, $employeeVariableValues);
                         }
-    
+
                         if ($payHeadAmount !== false) {
                             $netPay -= $payHeadAmount;
                             $employeeVariableValues['netPay'] -= $payHeadAmount;
@@ -147,7 +148,7 @@ class ProcessPaySlipJob implements ShouldQueue
                     }
                 }
             }
-            
+
             PayrollService::populateReportTable($payslip);
 
             $payrollService->updateStatus($payslip, $this->status);

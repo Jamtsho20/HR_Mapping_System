@@ -100,6 +100,11 @@
                     <td colspan="5" class="text-center text-danger">No SIFA contributon Reports found</td>
                 </tr>
             @endforelse
+            <tr>
+                <td colspan="5" class="text-right">Total:</td>
+                <td colspan="">{{ $totalAmount }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

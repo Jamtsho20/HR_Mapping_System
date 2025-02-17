@@ -90,7 +90,7 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half" style="text-align: right; padding-left: 120px;">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 100px;">{{ number_format($paySlip->$column, 2) }}</td>
                             @php
                                 $deductionsTotal += $paySlip->$column ?? 0;
                             @endphp
