@@ -98,6 +98,10 @@
                         found</td>
                 </tr>
             @endforelse
+            <tr>
+                <td colspan="4" class="text-right">Total:</td>
+                <td>{{ $totalAmount }}</td>
+            </tr>
 
         </tbody>
     </table>

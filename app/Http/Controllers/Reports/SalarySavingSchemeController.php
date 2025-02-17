@@ -89,12 +89,14 @@ class SalarySavingSchemeController extends Controller
     {
 
         $sss = EmployeeSalarySaving::filter($request)
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
-
+            ->get();
+        $totalAmount = $sss->sum('amount');
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.sss-report-pdf', compact('sss'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.sss-report-pdf', compact('sss', 'totalAmount'))->setPaper('a4', 'landscape');
+
+
+
 
         // Return the PDF download
         return $pdf->download('SSS.pdf');
@@ -111,10 +113,12 @@ class SalarySavingSchemeController extends Controller
     {
         // Load all bookings with their dzongkhag names
         $sss = EmployeeSalarySaving::filter($request)
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
+            ->get();
+
+        $totalAmount = $sss->sum('amount');
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.sss-report-pdf', compact('sss'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.sss-report-pdf', compact('sss', 'totalAmount'))->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
         return $pdf->stream('sss.pdf');
