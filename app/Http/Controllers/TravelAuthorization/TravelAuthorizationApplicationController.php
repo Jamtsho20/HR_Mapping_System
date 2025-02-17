@@ -162,7 +162,7 @@ class TravelAuthorizationApplicationController extends Controller
 
         $approvalDetail = getApplicationLogs(\App\Models\TravelAuthorizationApplication::class, $travelAuthorization->id);
 
-        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context', 'no_of_days','approvalDetail','rejectionRemarks'));
+        return view('travel-authorizations.apply.show', compact('travelAuthorization', 'context', 'no_of_days','approvalDetail'));
     }
 
 
