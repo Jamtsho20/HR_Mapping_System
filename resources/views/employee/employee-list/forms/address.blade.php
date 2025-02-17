@@ -92,8 +92,8 @@
                     <option value="" disabled selected hidden>Select your option</option>
                     @if (isset($employee->empPresentAddress->masDzongkhag))
                         @foreach ($employee->empPresentAddress->masDzongkhag->gewogs as $gewog)
-                            <option value="{{ $gewog->id }}"
-                                {{ old('current_address.mas_gewog_id', $employee->empPermenantAddress->masGewog->id ?? '') == $gewog->id ? 'selected' : '' }}>
+                            <option value="{{ $dzongkhag->id }}"
+                                {{ old('current_address.mas_gewog_id', isset($employee->empPresentAddress->masGewog->id) ? $employee->empPresentAddress->masGewog->id : '') == $gewog->id ? 'selected' : '' }}>
                                 {{ $gewog->name }}
                             </option>
                         @endforeach
