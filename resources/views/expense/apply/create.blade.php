@@ -342,7 +342,7 @@
                                         </div> --}}
                                     </div>
                                 </div>
-                                <p class="text-danger p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
+                                <p class="text-success p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                                     <span style="">*</span>
                                     For each travel authorization application, the total number of days,
                                     the formula used for calculating the amount, and the final amount will be

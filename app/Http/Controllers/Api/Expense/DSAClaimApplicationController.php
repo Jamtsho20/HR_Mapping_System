@@ -17,6 +17,7 @@ use App\Traits\JsonResponseTrait;
 use App\Models\MasExpenseType;
 use App\Http\Controllers\AjaxRequestController;
 use App\Models\ApplicationHistory;
+use App\Models\DsaClaimMappings;
 
 use App\Services\ApplicationHistoriesService;
 
@@ -132,6 +133,38 @@ class DSAClaimApplicationController extends Controller
      */
     public function create()
     {   try{
+       $job = Auth::user()->empJob;
+        if (!$job) {
+            return response()->json('msg_error', 'You do not have a job assigned to you');
+        }
+
+        $gradeId = $job->grade->id;
+
+        //common function to generate combination of loggedInUser employeeId and username
+        $empIdName = LoggedInUserEmpIdName();
+        //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
+        $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id');
+        //get dsa advance which has been approved for settlement
+        $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
+            ->where('created_by', loggedInUser())
+            ->whereNotIn('id', $excludedAdvanceIds)
+            ->get(['id', 'advance_no'])
+            ->toArray();
+
+        $excludedTravelIds = collect(DsaClaimApplication::whereIn('status', [2,3])
+        ->select('travel_authorization_id')
+        ->union(DsaClaimMappings::select('travel_authorization_id'))
+        ->get()
+        ->pluck('travel_authorization_id')
+            )->filter()->values()->toArray();
+
+        $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
+
+        $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
+        //$dsaClaimNo = $this->ajax->getDsaClaimNumber();
+        //$transferClaimNo = $this->ajax->getTransferClaimNumber();
+
+
          //common function to generate combination of loggedInUser employeeId and username
          $empIdName = LoggedInUserEmpIdName();
          //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
@@ -146,7 +179,7 @@ class DSAClaimApplicationController extends Controller
             ->where('status', 3)
             ->whereNotIn('id', $excludedAdvanceIds)
             ->get(['id', 'advance_no']);
-        return response()->json(["travels"=> $travels, "advances"=> $advances], 200);
+        return response()->json(["travels"=> $travels, "advances"=> $advances, "dailyAllowance" => $dailyAllowance, 'exculded'], 200);
         //return $this->successResponse( $travels, 'DSA claim applications retrieved successfully');
 
     }catch(\Exception $e){
@@ -270,8 +303,8 @@ class DSAClaimApplicationController extends Controller
     {
         try{
         $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);
-
-        return $this->successResponse($dsa, 'DSA claim application retrieved successfully');
+        $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
+        return $this->successResponse([$dsa, $approvalDetail], 'DSA claim application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
         }

@@ -193,7 +193,12 @@
             </table>
 
             <br>
-
+            <p class="text-success p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
+                <span style="">*</span>
+                For each travel authorization application, the total number of days,
+                the formula used for calculating the amount, and the final amount will be
+                displayed at the end of each application.
+            </p>
             <div class="dataTables_scroll">
                 <div class="dataTables_scrollHead"
                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -239,12 +244,8 @@
                                     </td>
 
                                     <td colspan="4" style="padding-left:25px;">
-                                        <!-- @php
-                                            $attachments = json_decode($detail->attachment, true); // Decode JSON to array
-                                        @endphp -->
-
-                                        @if ($detail->attachment)
-
+                             
+                                        @if ($detail->attachment && json_decode($detail->attachment))
                                         <a href="{{ asset(json_decode($detail->attachment))}}" class="btn btn-sm btn-primary mb-1"
                                             target="_blank">
                                             <i class="fas fa-file-alt"></i> View Attachment
@@ -346,31 +347,11 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <table style="width:100%;" class="simple-table">
-                    <tbody>
-                        <tr>
-                            <th style="width:35%;">Approved By <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
-                            <td style="padding-left:25px;">
-                                {{ $dsa->status == 3 ? $dsa->expense_approved_by->name : 'N/A' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th style="width:35%;">Rejected By <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
-                            <td style="padding-left:25px;">
-                                {{ $dsa->status == -1 ? $dsa->expense_approved_by->name : 'N/A' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th style="width:35%;">Rejected Remarks <span class="pull-right d-none d-sm-block">:</span>
-                                &nbsp;&nbsp;</th>
-                            <td style="padding-left:25px;">
-                                {{ $dsa->status == -1 ? $rejectRemarks : 'N/A' }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                @include('layouts.includes.approval-details', [
+                    'approvalDetail' => $approvalDetail,
+                    'applicationStatus' => $dsa->status,
+
+                ])
             </div>
         </div>
     </div>
