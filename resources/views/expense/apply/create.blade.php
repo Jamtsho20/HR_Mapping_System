@@ -342,7 +342,7 @@
                                         </div> --}}
                                     </div>
                                 </div>
-                                <p class="text-success p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
+                                <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                                     <span style="">*</span>
                                     For each travel authorization application, the total number of days,
                                     the formula used for calculating the amount, and the final amount will be
@@ -852,53 +852,54 @@
 
 
             function updateTravelAuthRow(travelAuthorizationId, newTaAmount, newAdvanceAmount, newDays) {
-    // Find the last row with the specific travel authorization ID
-    const row = $(`tr.travel-auth-${travelAuthorizationId}.last-row`).last();  // Selecting the last row with the class travel-auth-75
+                // Find the last row with the specific travel authorization ID
+                const row = $(`tr.travel-auth-${travelAuthorizationId}.last-row`).last();  // Selecting the last row with the class travel-auth-75
 
 
-    // Find the ta_amount input field
-    const taAmountInput = row.find(`input[name='ta_amount[${travelAuthorizationId}]']`);
+                // Find the ta_amount input field
+                const taAmountInput = row.find(`input[name='ta_amount[${travelAuthorizationId}]']`);
 
-    // Check if the input is found and update it
-    if (taAmountInput.length > 0) {
-        console.log('Found TA amount input:', taAmountInput);
+                // Check if the input is found and update it
+                if (taAmountInput.length > 0) {
 
-        // If the input is readonly, remove the readonly attribute, update the value, then add readonly back
-        if (taAmountInput.is('[readonly]')) {
-            taAmountInput.removeAttr('readonly');  // Remove readonly
-        }
 
-        taAmountInput.val(newTaAmount);  // Update the value
 
-        // Reapply readonly if you want to keep it
-        taAmountInput.attr('readonly', true);  // Set it back to readonly
-    } else {
-        console.log('TA amount input not found');
-    }
+                    // If the input is readonly, remove the readonly attribute, update the value, then add readonly back
+                    if (taAmountInput.is('[readonly]')) {
+                        taAmountInput.removeAttr('readonly');  // Remove readonly
+                    }
 
-    const daysSpan = row.find('span.days-span');
-    daysSpan.text(newDays);
+                    taAmountInput.val(newTaAmount);  // Update the value
 
-    $formula='';
-                if(newDays <= 15){
+                    // Reapply readonly if you want to keep it
+                    taAmountInput.attr('readonly', true);  // Set it back to readonly
+                } else {
 
-                            formula= DAILY_ALLOWANCE + " * " + newDays + "day(s)";
-                        }else{
+                }
 
-                            formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (newDays-15) + "day(s)) ="  ;
-                        };
+                const daysSpan = row.find('span.days-span');
+                daysSpan.text(newDays);
 
-    const formulaSpan = row.find('span.formula-span');
-    formulaSpan.text(formula);
-    // Find and update the advance_amount input field
-    const advanceAmountInput = row.find(`input[name='advance_amount[${travelAuthorizationId}]']`);
-    if (advanceAmountInput.length > 0) {
-        console.log('Found advance amount input:', advanceAmountInput);
-        advanceAmountInput.val(newAdvanceAmount);  // Update the advance amount
-    } else {
-        console.log('Advance amount input not found');
-    }
-}
+                $formula='';
+                            if(newDays <= 15){
+
+                                        formula= DAILY_ALLOWANCE + " * " + newDays + "day(s)";
+                                    }else{
+
+                                        formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (newDays-15) + "day(s)) ="  ;
+                                    };
+
+                const formulaSpan = row.find('span.formula-span');
+                formulaSpan.text(formula);
+                // Find and update the advance_amount input field
+                const advanceAmountInput = row.find(`input[name='advance_amount[${travelAuthorizationId}]']`);
+                if (advanceAmountInput.length > 0) {
+
+                    advanceAmountInput.val(newAdvanceAmount);  // Update the advance amount
+                } else {
+
+                }
+            }
 
 
 
@@ -911,7 +912,7 @@
                     // Extract the travelAuthId from the row's class
                     const travelAuthClass = row.attr('class').split(' ').find(cls => cls.startsWith('travel-auth-'));
                     if (!travelAuthClass) {
-                        console.log("Travel Auth ID not found for this row");
+
                         return;
                     }
 
@@ -936,7 +937,7 @@
                     const lastRow = parentTable.find(`tr.travel-auth-${travelAuthId}.last-row`);
                     const advanceAmount = parseFloat(lastRow.find('input[name*="advance_amount"]').val()) || 0;
 
-                    console.log(`Travel Auth ID: ${travelAuthId}, Total TA Amount: ${taAmount}, Advance Amount: ${advanceAmount}`);
+                
 
                     // Update only the last row with the new calculated values
                     updateTravelAuthRow(travelAuthId, taAmount, advanceAmount, days);
@@ -1034,185 +1035,185 @@
             success: function(data) {
 
 
-    const tbody = $("#travelstable tbody");
-    tbody.empty();
+                const tbody = $("#travelstable tbody");
+                tbody.empty();
 
-$('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_details.advance_ids));
+            $('input[name="advance_ids"]').val(JSON.stringify(data.travel_authorization_details.advance_ids));
 
-    if (data && data.travel_authorization_details.travel_authorizations.length > 0) {
-        let grandTotal = 0;
-        let totalAdvanceAmount = 0;
-        let totalDays = 0;
+                if (data && data.travel_authorization_details.travel_authorizations.length > 0) {
+                    let grandTotal = 0;
+                    let totalAdvanceAmount = 0;
+                    let totalDays = 0;
 
 
-        // Loop through the returned travel authorizations
-        data.travel_authorization_details.travel_authorizations.forEach((travel_authorizations, authIndex) => {
-            // <td colspan="4" class="text-center" style="color: black;">
-            //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" value="${travel_authorizations.travelAuthorization.id}">
-            //                 Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
-            //             </td>
-            //             <td colspan="4" class="text-center" style="color: black;">
-            //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
-            //                 ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
-            //                     ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
-            //                     : 'Advance Number: N/A, Advance Amount: N/A'}
-            //             </td>
-            // Append as a single row
-            const travelAuthGroupClass = `${travel_authorizations.travelAuthorization.id}`;
-            tbody.append(`
-                    <tr class="travel-auth-${travelAuthGroupClass}">
+                    // Loop through the returned travel authorizations
+                    data.travel_authorization_details.travel_authorizations.forEach((travel_authorizations, authIndex) => {
+                        // <td colspan="4" class="text-center" style="color: black;">
+                        //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" value="${travel_authorizations.travelAuthorization.id}">
+                        //                 Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                        //             </td>
+                        //             <td colspan="4" class="text-center" style="color: black;">
+                        //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
+                        //                 ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
+                        //                     ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+                        //                     : 'Advance Number: N/A, Advance Amount: N/A'}
+                        //             </td>
+                        // Append as a single row
+                        const travelAuthGroupClass = `${travel_authorizations.travelAuthorization.id}`;
+                        tbody.append(`
+                                <tr class="travel-auth-${travelAuthGroupClass}">
 
-                        <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
-                            <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
-                            </span>
-                        </td>
-                        <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
-                            <span name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" data-value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
-                                ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
-                                    ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
-                                    : 'Advance Number: N/A, Advance Amount: N/A'}
-                            </span>
-                        </td>
+                                    <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
+                                        <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
+                                            Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                                        </span>
+                                    </td>
+                                    <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
+                                        <span name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" data-value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
+                                            ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
+                                                ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+                                                : 'Advance Number: N/A, Advance Amount: N/A'}
+                                        </span>
+                                    </td>
 
-                        <td colspan="4" class="text-center" style="color: black;">
-                            <input type="file" id="attachment" class="form-control" name="files[${travel_authorizations.travelAuthorization.id}]" enctype="multipart/form-data">
-                        </td>
-                    </tr>
-                `);
-                totalDays += parseFloat(travel_authorizations.no_of_days) || 0;
-                if(travel_authorizations.advance_details){
-                    totalAdvanceAmount +=  parseFloat(travel_authorizations.advance_details.amount) || 0;
-                    }
-                // Loop through the travel authorization details for each authorization
-                if (travel_authorizations.details && travel_authorizations.details.length > 0) {
-                    let taAmount = 0;
-                    let days = 0;
-                    travel_authorizations.details.forEach((detail, index) => {
+                                    <td colspan="4" class="text-center" style="color: black;">
+                                        <input type="file" id="attachment" class="form-control" name="files[${travel_authorizations.travelAuthorization.id}]" enctype="multipart/form-data">
+                                    </td>
+                                </tr>
+                            `);
+                            totalDays += parseFloat(travel_authorizations.no_of_days) || 0;
+                            if(travel_authorizations.advance_details){
+                                totalAdvanceAmount +=  parseFloat(travel_authorizations.advance_details.amount) || 0;
+                                }
+                            // Loop through the travel authorization details for each authorization
+                            if (travel_authorizations.details && travel_authorizations.details.length > 0) {
+                                let taAmount = 0;
+                                let days = 0;
+                                travel_authorizations.details.forEach((detail, index) => {
 
-                        const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
+                                    const totalAmount = DAILY_ALLOWANCE * detail.no_of_days;
 
-                        days+=parseFloat(detail.no_of_days);
+                                    days+=parseFloat(detail.no_of_days);
 
-                    const row = `
-                        <tr class="data-row travel-auth-${travelAuthGroupClass}">
-                            <td>
-                                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
-                                <input type="hidden" name="dsa_claim_detail[${detail.id}][id]" class="resetKeyForNew" value="${detail.id}">
+                                const row = `
+                                    <tr class="data-row travel-auth-${travelAuthGroupClass}">
+                                        <td>
+                                            <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                            <input type="hidden" name="dsa_claim_detail[${detail.id}][id]" class="resetKeyForNew" value="${detail.id}">
 
-                                <input type="hidden" name="dsa_claim_detail[${detail.id}][travel_authorization_id]" class="resetKeyForNew" value="${travel_authorizations.travelAuthorization.id}">
-                            </td>
-                            <td class="text-center">
-                                <input type="date" value="${detail.from_date}" name="dsa_claim_detail[${detail.id}][from_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
-                            </td>
-                            <td class="text-center">
-                                <input type="text" value="${detail.from_location}" name="dsa_claim_detail[${detail.id}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
-                            </td>
-                            <td class="text-center">
-                                <input type="date" value="${detail.to_date}" name="dsa_claim_detail[${detail.id}][to_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
-                            </td>
-                            <td class="text-center">
-                                <input type="text" value="${detail.to_location}" name="dsa_claim_detail[${detail.id}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
-                            </td>
-                            <td class="text-center">
-                                <input type="number" min="0" max="${detail.no_of_days}" step="0.5" name="dsa_claim_detail[${detail.id}][total_days]" value="${detail.no_of_days}" class="form-control form-control-sm resetKeyForNew" />
-                            </td>
-                            <td class="text-center">
-                                <input type="number" name="dsa_claim_detail[${detail.id}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
-                            </td>
-                            <td class="text-center">
-                                <input type="number" min="0" name="dsa_claim_detail[${detail.id}][travel_allowance]" class="form-control form-control-sm resetKeyForNew" />
-                            </td>
-                            <td class="text-center">
-                                <input type="number" value="${totalAmount}" name="dsa_claim_detail[${detail.id}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly>
-                            </td>
-                            <td class="text-center">
-                                <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
-                            </td>
-                        </tr>`;
+                                            <input type="hidden" name="dsa_claim_detail[${detail.id}][travel_authorization_id]" class="resetKeyForNew" value="${travel_authorizations.travelAuthorization.id}">
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="date" value="${detail.from_date}" name="dsa_claim_detail[${detail.id}][from_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="text" value="${detail.from_location}" name="dsa_claim_detail[${detail.id}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="date" value="${detail.to_date}" name="dsa_claim_detail[${detail.id}][to_date]" class="form-control form-control-sm resetKeyForNew" min="${detail.from_date}" max="${detail.to_date}" required />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="text" value="${detail.to_location}" name="dsa_claim_detail[${detail.id}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="number" min="0" max="${detail.no_of_days}" step="0.5" name="dsa_claim_detail[${detail.id}][total_days]" value="${detail.no_of_days}" class="form-control form-control-sm resetKeyForNew" />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="number" name="dsa_claim_detail[${detail.id}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="number" min="0" name="dsa_claim_detail[${detail.id}][travel_allowance]" class="form-control form-control-sm resetKeyForNew" />
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="number" value="${totalAmount}" name="dsa_claim_detail[${detail.id}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly>
+                                        </td>
+                                        <td class="text-center">
+                                            <textarea name="dsa_claim_detail[${detail.id}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
+                                        </td>
+                                    </tr>`;
 
-                    tbody.append(row); // Append the row to the table body
-                });
-                $formula='';
-                if(days <= 15){
-                            taAmount+=DAILY_ALLOWANCE * days;
-                            formula= DAILY_ALLOWANCE + " * " + days + "day(s)";
-                        }else{
-                            taAmount+=(DAILY_ALLOWANCE/2)*(days-15) + DAILY_ALLOWANCE * 15;
-                            formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (days-15) + "day(s)) ="  ;
-                        };
-                        grandTotal+=taAmount;
+                                tbody.append(row); // Append the row to the table body
+                            });
+                            $formula='';
+                            if(days <= 15){
+                                        taAmount+=DAILY_ALLOWANCE * days;
+                                        formula= DAILY_ALLOWANCE + " * " + days + "day(s)";
+                                    }else{
+                                        taAmount+=(DAILY_ALLOWANCE/2)*(days-15) + DAILY_ALLOWANCE * 15;
+                                        formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (days-15) + "day(s)) ="  ;
+                                    };
+                                    grandTotal+=taAmount;
 
-                tbody.append(`
-                    <tr class="travel-auth-${travelAuthGroupClass} last-row">
-                        <td colspan="1" class="text-center" style="color: black;">
-                        </td>
-                        <td colspan="1" class="text-center" style="color: black; font-weight: bold;">
-                            <span>
-                                Total Days:
-                            </span>
-                            <span class="days-span">
-                                 ${days}
-                            </span>
-                            <input type="hidden" id="total_days" name="total_days[${travel_authorizations.travelAuthorization.id}]" value="${days}">
-                        </td>
-                        <td colspan="5" class="text-center" style="color: black; ">
-                            <span style="font-weight: bold;">Formula:</span>
-                            <span class="formula-span">
-                                 ${formula}
-                            </span>
-                        </td>
-                        <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
-                            <span>
-                                Travel Authorization Amount:
-                            </span>
-                        </td>
+                            tbody.append(`
+                                <tr class="travel-auth-${travelAuthGroupClass} last-row">
+                                    <td colspan="1" class="text-center" style="color: black;">
+                                    </td>
+                                    <td colspan="1" class="text-center" style="color: black; font-weight: bold;">
+                                        <span>
+                                            Total Days:
+                                        </span>
+                                        <span class="days-span">
+                                            ${days}
+                                        </span>
+                                        <input type="hidden" id="total_days" name="total_days[${travel_authorizations.travelAuthorization.id}]" value="${days}">
+                                    </td>
+                                    <td colspan="5" class="text-center" style="color: black; ">
+                                        <span style="font-weight: bold;">Formula:</span>
+                                        <span class="formula-span">
+                                            ${formula}
+                                        </span>
+                                    </td>
+                                    <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
+                                        <span>
+                                            Travel Authorization Amount:
+                                        </span>
+                                    </td>
 
-                        <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
-                            <input type="number" id="ta_amount" style="color: black;  font-weight: bold;" class="form-control" name="ta_amount[${travel_authorizations.travelAuthorization.id}]" value="${taAmount}"readonly>
-                            <input type="hidden" id="advance_amount" name="advance_amount[${travel_authorizations.travelAuthorization.id}]" value="${travel_authorizations?.advance_details?.amount ?? ''}">
-                        </td>
-                        <td colspan="1" class="text-center" style="color: black;">
+                                    <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
+                                        <input type="number" id="ta_amount" style="color: black;  font-weight: bold;" class="form-control" name="ta_amount[${travel_authorizations.travelAuthorization.id}]" value="${taAmount}"readonly>
+                                        <input type="hidden" id="advance_amount" name="advance_amount[${travel_authorizations.travelAuthorization.id}]" value="${travel_authorizations?.advance_details?.amount ?? ''}">
+                                    </td>
+                                    <td colspan="1" class="text-center" style="color: black;">
 
-                        </td>
-                    </tr>
-                `);
+                                    </td>
+                                </tr>
+                            `);
 
-        //         const btnRow = `
-        //     <tr class="notremovefornew">
-        //         <td colspan="9"></td>
-        //         <td class="text-right">
-        //             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
-        //                 <i class="fa fa-plus"></i> Add New Row
-        //             </a>
-        //         </td>
-        //     </tr>`;
-        // tbody.append(btnRow);
+                    //         const btnRow = `
+                    //     <tr class="notremovefornew">
+                    //         <td colspan="9"></td>
+                    //         <td class="text-right">
+                    //             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px">
+                    //                 <i class="fa fa-plus"></i> Add New Row
+                    //             </a>
+                    //         </td>
+                    //     </tr>`;
+                    // tbody.append(btnRow);
 
-        //                         const lastDataRow = tbody.find("tr.data-row").last();
-        //                         const lastDataRowDailyAllowanceField = lastDataRow.find(
-        //                             "input[name*='[daily_allowance]']");
-        //                         lastDataRowDailyAllowanceField.val(
-        //                             DAILY_ALLOWANCE);
+                    //                         const lastDataRow = tbody.find("tr.data-row").last();
+                    //                         const lastDataRowDailyAllowanceField = lastDataRow.find(
+                    //                             "input[name*='[daily_allowance]']");
+                    //                         lastDataRowDailyAllowanceField.val(
+                    //                             DAILY_ALLOWANCE);
+                        }
+                    });
+
+                    // Add the row for adding a new entry (Add New Row)
+
+
+                    // Update the grand total
+                    $('#grand_total_amount').val(grandTotal);
+
+                    const totalNumDays = document.getElementById('total_number_of_days');
+                    totalNumDays.value = totalDays;
+                    $('#advance_amount').val(totalAdvanceAmount ?? 0);
+                    calculateTotalNumberOfDays()
+                    calculateGrandTotal();
+                    calculateNetPayable();
+
+                }
             }
-        });
-
-        // Add the row for adding a new entry (Add New Row)
-
-
-        // Update the grand total
-        $('#grand_total_amount').val(grandTotal);
-
-        const totalNumDays = document.getElementById('total_number_of_days');
-        totalNumDays.value = totalDays;
-        $('#advance_amount').val(totalAdvanceAmount ?? 0);
-        calculateTotalNumberOfDays()
-        calculateGrandTotal();
-        calculateNetPayable();
-
-    }
-}
-,
+            ,
             error: function(error) {
                 alert(`Error fetching data: ${error.responseText || error.statusText}`);
                 $("#travelstable tbody").empty().append(`

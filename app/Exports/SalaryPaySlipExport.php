@@ -29,7 +29,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
                 $salaries->employee->empJob->designation->name,
                 $salaries->employee->empJob->empType->name,
                 $salaries->for_month,
-                $salaries->employee->empJob->basic_pay,
+                $salaries->details['basic_pay'] ?? '0',
                 $salaries->details['allowances']['House ALL'] ?? '0',
                 $salaries->details['allowances']['Medical ALL'] ?? '0',
                 $salaries->details['allowances']['Overtime ALL'] ?? '0',
@@ -45,7 +45,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
                 $salaries->details['deductions']['SIFA'] ?? '0',
                 $salaries->details['deductions']['TDS'] ?? '0',
                 $salaries->details['deductions']['H/Tax'] ?? '0',
-                $salaries->details['net_pay']??'0',
+                $salaries->details['net_pay'] ?? '0',
             ];
         });
     }
@@ -78,4 +78,3 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
         ];
     }
 }
-

@@ -50,6 +50,7 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($results->get(2) as $application)
+                                 
                                         <tr>
                                             @if ($privileges->edit)
                                                 <td>
@@ -110,7 +111,7 @@
                                                             <i class="fa fa-list"></i> Detail
                                                         </a>
                                                     @elseif ($routeName == 'approval.rejected')
-                                                    <a href="{{ url('approval/rejected-applications/' . $application->id . '?tab=1') }}" class="btn btn-sm btn-outline-secondary">
+                                                    <a href="{{ url('approval/rejected-applications/' . $application->id . '?tab=2') }}" class="btn btn-sm btn-outline-secondary">
                                                         <i class="fa fa-list"></i> Detail
                                                     </a>
                                                     @else

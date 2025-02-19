@@ -178,14 +178,7 @@ class LeaveApplicationController extends Controller
         $leave = LeaveApplication::findOrfail($id);
         $empDetails = empDetails($leave->created_by);
         $approvalDetail = getApplicationLogs(\App\Models\LeaveApplication::class, $leave->id);
-
-
-        $rejectionRemarks = $leave->histories()
-            ->where('status', -1) // Assuming -1 represents rejection
-            ->latest() // Get the most recent rejection record
-            ->value('remarks'); // Retrieve the 'remarks' column
-
-        return view('leave.leave.show', compact('leave', 'empDetails', 'rejectionRemarks', 'approvalDetail'));
+        return view('leave.leave.show', compact('leave', 'empDetails', 'approvalDetail'));
     }
 
     /**

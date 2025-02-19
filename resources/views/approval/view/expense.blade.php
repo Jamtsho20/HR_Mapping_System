@@ -263,10 +263,11 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
+         
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
                             'applicationStatus' => $expense->status,
-                            'rejectionRemarks' => $expense->reject_remarks,
+                           
                         ])
 
                     </div>

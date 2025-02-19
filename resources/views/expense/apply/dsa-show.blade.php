@@ -31,13 +31,13 @@
                             <tr>
                                 <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->dsaadvance->advance_application_id ?? '-' }}
+                                <td style="padding-left:25px;"> {{ $dsa->dsaadvance->advance_application_id ?? config('global.null_value') }}
                                 </td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Advance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->total_amount ?? '-' }}</td>
+                                <td style="padding-left:25px;"> {{ $dsa->total_amount ?? config('global.null_value')  }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Net Payable Amount <span
@@ -160,29 +160,29 @@
                     <tr>
                         <th style="width:35%;">Advance No(s) <span class="pull-right d-none d-sm-block">:</span>
                             &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $advanceNosString ?? '-' }}
-                        </td>
+                        <td style="padding-left:25px;"> {{ !empty($advanceNosString) ? $advanceNosString : config('global.null_value') }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Total Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->amount ?? '-' }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->amount ?? config('global.null_value')  }}</td>
                     </tr>
+                    <tr>
                     <tr>
                         <th style="width:35%;">Advance Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? '-' }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? config('global.null_value')  }}</td>
                     </tr>
 
                     <tr>
                         <th style="width:35%;">Net Payable Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? '-' }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? config('global.null_value')  }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Balance Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->balance_amount }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->balance_amount ?? config('global.null_value')  }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Total Number of Days <span
@@ -193,7 +193,7 @@
             </table>
 
             <br>
-            <p class="text-success p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
+            <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                 <span style="">*</span>
                 For each travel authorization application, the total number of days,
                 the formula used for calculating the amount, and the final amount will be
@@ -244,17 +244,21 @@
                                     </td>
 
                                     <td colspan="4" style="padding-left:25px;">
-                             
-                                        @if ($detail->attachment && json_decode($detail->attachment))
-                                        <a href="{{ asset(json_decode($detail->attachment))}}" class="btn btn-sm btn-primary mb-1"
-                                            target="_blank">
+                                        @php
+                                        $attachments = json_decode($detail->attachment, true); // Decode JSON to array
+                                        @endphp
+
+                                        @if (!empty($attachments) && is_array($attachments))
+                                        @foreach ($attachments as $attachment)
+                                        <a href="{{ asset($attachment) }}" class="btn btn-sm btn-primary mb-1" target="_blank">
                                             <i class="fas fa-file-alt"></i> View Attachment
                                         </a><br>
+                                        @endforeach
                                         @else
                                         <span class="text-danger">No attachment available.</span>
                                         @endif
-
                                     </td>
+
                                 </tr>
 
                                 @foreach ($detail->dsaDetails as $claimDetail )
@@ -346,14 +350,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                @include('layouts.includes.approval-details', [
-                    'approvalDetail' => $approvalDetail,
-                    'applicationStatus' => $dsa->status,
+                    <div class="col-md-12">
+                        @include('layouts.includes.approval-details', [
+                            'approvalDetail' => $approvalDetail,
+                            'applicationStatus' => $dsa->status
+                        ])
 
-                ])
-            </div>
-        </div>
+                    </div>
+                </div>
     </div>
 </div>
 </div>

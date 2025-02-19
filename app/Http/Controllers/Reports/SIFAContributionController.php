@@ -27,7 +27,7 @@ class SIFAContributionController extends Controller
         $sifaContributions = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $employee = employeeList();
 
-        return view('report.sifa-contribution.index', compact('privileges','employee', 'sifaContributions'));
+        return view('report.sifa-contribution.index', compact('privileges', 'employee', 'sifaContributions'));
     }
 
     /**
@@ -100,8 +100,13 @@ class SIFAContributionController extends Controller
     {
         $sifaContributions = FinalPaySlip::filter($request)->get();
 
+        $totalAmount = $sifaContributions->sum(function ($paySlip) {
+            return $paySlip->details['deductions']['SIFA'] ?? 0;
+        });
+
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount'))->setPaper('a4', 'landscape');;
 
 
         // Return the PDF as a stream to display it in the browser

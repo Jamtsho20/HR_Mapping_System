@@ -51,8 +51,7 @@
         <div class="card-footer">
             @include('layouts.includes.approval-details', [
                 'approvalDetail' => $approvalDetail,
-                'applicationStatus' => $sifaRegistration->status,
-                'rejectionRemarks' => $sifaRegistration->reject_remarks,
+                'applicationStatus' => $sifaRegistration->status
             ])
 
         </div>

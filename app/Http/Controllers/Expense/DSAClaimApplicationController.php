@@ -87,7 +87,7 @@ class DSAClaimApplicationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {dd($request->all());
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -234,6 +234,7 @@ class DSAClaimApplicationController extends Controller
         $oldDataFlag = true;
         $travelNosString="";
         $advanceNosString="";
+        $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
         if(DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
             $dsa = DsaClaimApplication::findOrFail($id);
         }else{
@@ -281,7 +282,7 @@ class DSAClaimApplicationController extends Controller
 
 
         $empDetails = empDetails($dsa->created_by);
-        return view('expense.apply.dsa-show', compact('dsa', 'empDetails', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'approvalDetail'));
+        return view('expense.apply.dsa-show', compact('dsa', 'empDetails', 'oldDataFlag', 'travelNosString', 'advanceNosString','approvalDetail'));
     }
 
     /**

@@ -80,7 +80,6 @@ class PaySlipController extends Controller
             $paySlip->save();
 
             return redirect()->route('pay-slips.index')->with('msg_success', 'Payslip for the month of ' . Carbon::parse($paySlip->for_month)->format('F Y') . ' has been created successfully.');
-
         } catch (\Exception $e) {
             Log::error('Error creating payslip: ' . $e->getMessage());
 
@@ -93,7 +92,7 @@ class PaySlipController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $employees = User::select(['id', 'name', 'employee_id', 'username', 'title']) ->whereNotIn('id', [1, 2])->get();
+        $employees = User::select(['id', 'name', 'employee_id', 'username', 'title'])->whereNotIn('id', [1, 2])->get();
         $payHeads = MasPayHead::select(['id', 'name', 'code'])->orderBy('name')->get();
         $departments = MasDepartment::pluck('name', 'id');
         $employmentTypes = MasEmploymentType::whereKeyNot(1)->pluck('name', 'id');
@@ -462,5 +461,4 @@ class PaySlipController extends Controller
             return redirect()->back()->with('msg_error', 'An error occurred while sending the payslip: ' . $e->getMessage());
         }
     }
-
 }
