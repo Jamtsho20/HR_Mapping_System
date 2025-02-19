@@ -18,6 +18,18 @@
             placeholder="Employee Id">
     </div>
     <div class="col-md-3 form-group">
+        <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Employment Type" tabindex="-1"
+            name="empType">
+            <option value="" disabled selected hidden>Select Employment Type</option>
+            @foreach ($empTypes as $empType)
+            <option value="{{ $empType->id }}" {{ request()->get('empType') == $empType->id ? 'selected' : '' }}>
+                {{ $empType->name }}
+            </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-md-3 form-group">
         <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Section" tabindex="-1"
             name="section">
             <option value="" disabled selected hidden>Select Sections</option>

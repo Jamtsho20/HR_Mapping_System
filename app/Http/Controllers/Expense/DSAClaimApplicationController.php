@@ -67,7 +67,7 @@ class DSAClaimApplicationController extends Controller
         //dsa advance that need to be excluded (if dsa sttlement has been applied then no need to fetch those advance)
         $excludedAdvanceIds = DsaClaimApplication::pluck('advance_application_id')->whereNotIn('status', [-1,3]);
         $excludedTravelIds = DsaClaimApplication::pluck('travel_authorization_id')->whereNotIn('status', [-1,3]);
-dd($excludedTravelIds);
+
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         //get dsa advance which has been approved for settlement
@@ -87,7 +87,7 @@ dd($excludedTravelIds);
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {dd($request->all());
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
@@ -277,8 +277,9 @@ dd($excludedTravelIds);
             $advanceNosString = $advanceNos->implode(', ');
 
             $oldDataFlag = false;
+            $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
         }
-       
+
 
         $empDetails = empDetails($dsa->created_by);
         return view('expense.apply.dsa-show', compact('dsa', 'empDetails', 'oldDataFlag', 'travelNosString', 'advanceNosString','approvalDetail'));

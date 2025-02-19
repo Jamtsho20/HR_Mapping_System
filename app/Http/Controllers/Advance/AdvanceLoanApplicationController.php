@@ -186,7 +186,7 @@ class AdvanceLoanApplicationController extends Controller
         $advance->mode_of_travel_name = $this->travelModes[$advance->mode_of_travel] ?? 'Unknown';
 
         $approvalDetail = getApplicationLogs(\App\Models\AdvanceApplication::class, $advance->id);
-        return view('advance-loan.apply.show', compact('advance', 'advanceTypes','approvalDetail', 'rejectionRemarks'));
+        return view('advance-loan.apply.show', compact('advance', 'advanceTypes','approvalDetail'));
     }
 
 

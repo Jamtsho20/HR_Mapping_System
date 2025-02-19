@@ -84,7 +84,7 @@
                 <br>
 
                 <div class="card-body  p-0">
-                    <p class="text-danger ">*For half-day entries, subtract 0.5 from the total number of days for each row.</p>
+                    <p class="info-green ">*For half-day entries, subtract 0.5 from the total number of days for each row.</p>
                     <div class="table-responsive">
                         <table id="travel_details" class="table table-condensed table-bordered table-striped table-sm">
                             <thead>

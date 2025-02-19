@@ -191,6 +191,12 @@ class User extends Authenticatable
                 $q->where('id', $request->query('office'));
             });
         }
+        if ($request->has('empType') && $request->query('empType') != '') {
+            $query->whereHas('empJob.empType', function ($q) use ($request) {
+                $q->where('id', $request->query('empType'));
+            });
+        }
+
         if ($request->has('is_active') && $request->query('is_active') != '') {
             $status = $request->query('is_active') === 'Active' ? 1 : 0;
             $query->where('is_active', $status);
