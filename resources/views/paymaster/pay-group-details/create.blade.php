@@ -8,7 +8,7 @@
         <div class="card-body">
             <div class="row">
                 <input type="hidden" class="form-control" name="mas_pay_group_id" value="{{ $payGroup->id }}" required>
-                
+
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="mas_grade_id">Grade</label>

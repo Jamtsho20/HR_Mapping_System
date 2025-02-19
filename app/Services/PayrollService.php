@@ -534,7 +534,8 @@ class PayrollService
         INSERT INTO pay_slip_detail_views (mas_employee_id, basic_pay, created_at, for_month, $insertQueryColumnSegment)
         SELECT c.id, d.basic_pay, NOW(), ?, $insertQuerySegment
         FROM mas_employees c
-        JOIN mas_employee_jobs d ON d.mas_employee_id = c.id";
+        JOIN mas_employee_jobs d ON d.mas_employee_id = c.id
+        WHERE c.status <> 0 OR c.is_active <> 0";
 
         // Execute the insert statement with parameters
         DB::insert($insertQuery, $parameters);

@@ -74,15 +74,25 @@ class LoanEMIDeductionController extends Controller
                 ]
             );
 
+            // $startDate = Carbon::parse($validated['start_date'])->startOfMonth();
+            // $validated['start_date'] = $startDate->format('Y-m-d');
+
+            // if ($request->has('recurring')) {
+            //     $recurringMonths = $validated['recurring_months'] ?? 0;
+            //     $validated['end_date'] = $startDate->copy()->addMonths($recurringMonths)->format('Y-m-d');
+            // } else {
+            //     $validated['end_date'] = $startDate->format('Y-m-d');
+            // }
             $startDate = Carbon::parse($validated['start_date'])->startOfMonth();
             $validated['start_date'] = $startDate->format('Y-m-d');
 
             if ($request->has('recurring')) {
                 $recurringMonths = $validated['recurring_months'] ?? 0;
-                $validated['end_date'] = $startDate->copy()->addMonths($recurringMonths)->format('Y-m-d');
+                $validated['end_date'] = $startDate->copy()->addMonths($recurringMonths - 1)->format('Y-m-d');
             } else {
                 $validated['end_date'] = $startDate->format('Y-m-d');
             }
+
 
             $loanEMIDeduction = new LoanEMIDeduction();
             $loanEMIDeduction->mas_pay_head_id = $validated['mas_pay_head_id'];
