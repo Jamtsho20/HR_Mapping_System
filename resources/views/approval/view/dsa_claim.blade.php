@@ -196,7 +196,7 @@
 
                     <br>
                     <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
-                        <span style="">*</span>
+                        <span>*</span>
                         For each travel authorization application, the total number of days,
                         the formula used for calculating the amount, and the final amount will be
                         displayed at the end of each application.
