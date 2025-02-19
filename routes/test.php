@@ -25,14 +25,19 @@ use Illuminate\Support\Facades\Hash;
 Route::get('debug', function () {
     $sap = new ApiController();
     $pay = new PayrollService();
-    // dd(Hash::make('bccl@2025$'));
+    $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
 
-    $employees = User::active()->completed()->whereKey(260)->get();
-    $userId = 185;
-    $payHeads = MasPayHead::orderBy("Name")->get();
+    $employee = User::find(182);
+    $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
 
-    $salarySavingDeduction = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->sum('amount');
+    $basicPay = $employee->empJob->basic_pay;
+    if ($attendance && $employeeAttendance) {
+        $workingDays = $employeeAttendance->working_days;
+        $physicalDays = $employeeAttendance->physical_days;
 
+        $basicPay = round(($basicPay / $workingDays) * $physicalDays, 3);
+    }
+    dd($basicPay);
     // foreach ($employees as $employee) {
     //     $durationOfService = $employee->durationOfService();
     //     $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
