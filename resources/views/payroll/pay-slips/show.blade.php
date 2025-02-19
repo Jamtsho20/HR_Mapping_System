@@ -322,7 +322,7 @@
 
                             <div class="form-group col-md-6">
                                 <label for="amount">Amount <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="amount" required>
+                                <input type="number" step="0.001" min="0" class="form-control" name="amount" required>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">SUBMIT</button>
@@ -375,7 +375,7 @@
 
                             <div class="form-group col-md-6">
                                 <label for="amount">Amount <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="amount" value="" required>
+                                <input type="number" step="0.001" min="0" class="form-control" name="amount" value="" required>
                             </div>
                         </div>
 
