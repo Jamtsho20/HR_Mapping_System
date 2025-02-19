@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Show and enable the corresponding form section based on the selected type
         if (selectedType === '4') {
-            if (employmentTypeId === 3) {
+            if ([3, 6, 7, 8].includes(employmentTypeId)) {
                 var msg = 'You are not allowed to apply based on your employment type';
                 showErrorMessage(msg);
             } else {
