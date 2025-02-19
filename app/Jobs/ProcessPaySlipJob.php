@@ -76,7 +76,7 @@ class ProcessPaySlipJob implements ShouldQueue
                 // Attendance for Basic Pay Calculation
                 $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
                 $basicPay = $employee->empJob->basic_pay;
-                if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
+                if ($attendance && $employeeAttendance) {
                     $workingDays = $employeeAttendance->working_days;
                     $physicalDays = $employeeAttendance->physical_days;
 
