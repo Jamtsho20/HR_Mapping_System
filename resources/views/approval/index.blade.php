@@ -271,6 +271,7 @@
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 try {
+                                    
                                     var errorResponse = JSON.parse(jqXHR.responseText);
                                     // alert(errorResponse.msg_error ||
                                     //     'An unexpected error occurred.');

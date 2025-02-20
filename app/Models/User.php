@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CreatedByTrait;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -191,6 +192,12 @@ class User extends Authenticatable
                 $q->where('id', $request->query('office'));
             });
         }
+        if ($request->has('empType') && $request->query('empType') != '') {
+            $query->whereHas('empJob.empType', function ($q) use ($request) {
+                $q->where('id', $request->query('empType'));
+            });
+        }
+
         if ($request->has('is_active') && $request->query('is_active') != '') {
             $status = $request->query('is_active') === 'Active' ? 1 : 0;
             $query->where('is_active', $status);
@@ -255,5 +262,14 @@ class User extends Authenticatable
         } elseif ($this->gender == 2) {
             $title = "Ms.";
         }
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('ignoreSoftDeleted', function (Builder $builder) {
+            $builder->whereNull('deleted_at');
+        });
     }
 }

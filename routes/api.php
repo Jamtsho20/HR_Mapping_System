@@ -38,7 +38,7 @@ use App\Http\Controllers\Api\SOMs\ApiController as SomsApiComtroller;
 */
 Route::middleware('api.access.log')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
-    Route::post('s      ap/login', [LoginController::class, 'sapLogin']);
+    Route::post('sap/login', [LoginController::class, 'sapLogin']);
     Route::post('forgot-password', [LoginController::class, 'handleForgotPassword']);
 
 
@@ -129,7 +129,8 @@ Route::middleware('api.access.log')->group(function () {
     Route::namespace('Api\SAP')->middleware('auth:sanctum')->group(function () {
         Route::post('save-stores', [ApiController::class, 'saveStore']);
         Route::post('save-items', [ApiController::class, 'saveItem']);
-        Route::post('save-grn-item-mappings', [ApiController::class, 'saveGrnItemMapping']);
+        Route::post('save-grn-items', [ApiController::class, 'saveGrnItemMapping']);
+        Route::post('save-goods-issued', [ApiController::class, 'saveGoodsIssued']);
     });
 Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
     Route::resource('holidays', 'HolidayListController');

@@ -244,12 +244,33 @@ if (!function_exists('LoggedInUserEmpIdName')) {
 ;
     }
 }
+
 if(!function_exists('generateTransactionNumber')){
-    function generateTransactionNumber($code, $nextSequence){
+    function generateTransactionNumber($code, $currentSequence){
         //include cureent Ymd in while generating transaction number
         $datePart = now()->format('Ymd');
         // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
-        return $code . '/' . $datePart . '/' . $nextSequence + 1;
+        return $code . '/' . $datePart . '/' . $currentSequence + 1;
+    }
+}
+
+if(!function_exists('generateTransactionNumber1')){
+    // type => respective modelType(eg: MasRequisitionType, lastTransaction is latest transaction from application model(eg: RequisitionApplication),
+    // columnName is coulumn name in application table that holds transaction_number(eg:requisition_no)
+    function generateTransactionNumber1($type, $lastTransaction, $columnName){ 
+        //include cureent Ymd in while generating transaction number
+        if ($lastTransaction) {
+            // Extract the sequence part (last part after the last slash)
+            preg_match('/(\d+)$/', $lastTransaction[$columnName], $matches);
+            $lastSequence = $matches ? (int) $matches[0] : 0;
+            $currentSequence = $lastSequence;
+        } else {
+            $currentSequence = 1;
+        }
+
+        $datePart = now()->format('Ymd');
+        // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+        return $type['code'] . '/' . $datePart . '/' . $currentSequence + 1;
     }
 }
 

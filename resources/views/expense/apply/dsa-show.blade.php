@@ -31,13 +31,13 @@
                             <tr>
                                 <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->dsaadvance->advance_application_id ?? '-' }}
+                                <td style="padding-left:25px;"> {{ $dsa->dsaadvance->advance_application_id ?? config('global.null_value') }}
                                 </td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Advance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->total_amount ?? '-' }}</td>
+                                <td style="padding-left:25px;"> {{ $dsa->total_amount ?? config('global.null_value')  }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Net Payable Amount <span
@@ -160,29 +160,29 @@
                     <tr>
                         <th style="width:35%;">Advance No(s) <span class="pull-right d-none d-sm-block">:</span>
                             &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $advanceNosString ?? '-' }}
-                        </td>
+                        <td style="padding-left:25px;"> {{ !empty($advanceNosString) ? $advanceNosString : config('global.null_value') }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Total Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->amount ?? '-' }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->amount ?? config('global.null_value')  }}</td>
                     </tr>
+                    <tr>
                     <tr>
                         <th style="width:35%;">Advance Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? '-' }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? config('global.null_value')  }}</td>
                     </tr>
 
                     <tr>
                         <th style="width:35%;">Net Payable Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? '-' }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? config('global.null_value')  }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Balance Amount <span
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->balance_amount }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->balance_amount ?? config('global.null_value')  }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Total Number of Days <span
@@ -193,7 +193,12 @@
             </table>
 
             <br>
-
+            <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
+                <span style="">*</span>
+                For each travel authorization application, the total number of days,
+                the formula used for calculating the amount, and the final amount will be
+                displayed at the end of each application.
+            </p>
             <div class="dataTables_scroll">
                 <div class="dataTables_scrollHead"
                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">

@@ -61,12 +61,13 @@ class EmployeeController extends Controller
         $privileges = $request->instance();
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
+        $empTypes = MasEmploymentType::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $workLocations = MasOffice::orderBy('name')->get(['id', 'name']);
 
         // dd(User::get());
         $employees = User::filter($request)->orderBy('id')->paginate(config('global.pagination'))->withQueryString();
-        return view('employee/employee-list.index', compact('privileges','employees','departments','sections','designations','workLocations'));
+        return view('employee/employee-list.index', compact('privileges','employees','departments','sections','designations','workLocations','empTypes'));
     }
     /**
      * Show the form for creating a new resource.

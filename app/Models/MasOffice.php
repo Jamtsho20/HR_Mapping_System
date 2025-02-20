@@ -11,12 +11,21 @@ class MasOffice extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'name','mas_dzongkhag_id'
+        'name', 'mas_dzongkhag_id'
     ];
 
-    
     //relationship
+    public function dzongkhag()
+    {
+        return $this->belongsTo(MasDzongkhag::class, 'mas_dzongkhag_id'); 
+    }
+
+    public function reqDetail()
+    {
+        return $this->hasOne(RequisitionDetail::class, 'office_id');
+    }
     
+    //search filter
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '')
@@ -27,10 +36,5 @@ class MasOffice extends Model
         {
             $query->where('mas_dzongkhag_id', $request->query('dzongkhag'));
         }
-    }
-
-    public function dzongkhag()
-    {
-        return $this->belongsTo(MasDzongkhag::class, 'mas_dzongkhag_id'); 
     }
 }
