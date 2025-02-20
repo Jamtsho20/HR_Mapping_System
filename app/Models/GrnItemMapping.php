@@ -8,4 +8,38 @@ use Illuminate\Database\Eloquent\Model;
 class GrnItemMapping extends Model
 {
     use HasFactory;
+
+   public function store() 
+   {
+        return $this->belongsTo(MasStore::class, 'store_id');
+   }
+
+   public function item() 
+   {
+        return $this->belongsTo(MasItem::class, 'item_id');
+   }
+
+   public function employee()
+   {
+        return $this->belongsTo(User::class, 'created_by');
+   }
+
+   public function scopeFilter($query, $request)
+   {
+        if ($request->has('item_id') && $request->query('item_id') != '') {
+            $query->where('item_id', $request->query('item_id'));
+        }
+
+        if ($request->has('store_id') && $request->query('store_id') != '') {
+            $query->where('store_id', $request->query('store_id'));
+        }
+
+        if ($request->has('item_description') && $request->query('item_description') != '') {
+            $query->where('item_description', $request->query('item_description'));
+        }
+
+        if ($request->has('grn_no') && $request->query('grn_no') != '') {
+            $query->where('grn_no', $request->query('grn_no'));
+        }
+   }
 }

@@ -136,6 +136,4 @@ class TravelAuthorizationApplication extends Model
     }
     }
 
-
-
 }

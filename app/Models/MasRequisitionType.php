@@ -17,6 +17,6 @@ class MasRequisitionType extends Model
     
     public function requisitions()
     {
-        return $this->hasMany(RequisitionApplication::class, 'requisition_type_id');
+        return $this->hasMany(RequisitionApplication::class, 'type_id');
     }
 }

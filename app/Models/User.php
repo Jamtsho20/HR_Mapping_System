@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CreatedByTrait;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -261,5 +262,14 @@ class User extends Authenticatable
         } elseif ($this->gender == 2) {
             $title = "Ms.";
         }
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('ignoreSoftDeleted', function (Builder $builder) {
+            $builder->whereNull('deleted_at');
+        });
     }
 }

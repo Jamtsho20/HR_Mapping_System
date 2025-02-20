@@ -28,15 +28,20 @@ class RequisitionApplication extends Model
     {
         return $this->belongsTo(MasRequisitionType::class, 'type_id');
     }
-
-    public function employee()
+    
+    public function audit_logs()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
     public function histories()
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
+    }
+    
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function details()
@@ -44,12 +49,17 @@ class RequisitionApplication extends Model
         return $this->hasMany(RequisitionDetail::class, 'requisition_id');
     }
 
+    public function goodReceivedByUser()
+    {
+        return $this->hasOne(GoodReceiptApplication::class, 'requisition_application_id');
+    }
+
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        if($request->req_type){
-            $query->where('type_id', $request->req_type);
-        }
+        // if($request->req_type){
+        //     $query->where('type_id', $request->req_type);
+        // }
 
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
