@@ -149,8 +149,8 @@ class TransferClaimApplicationController extends Controller
 
         $transfer = TransferClaimApplication::findOrfail($id);
 
-
-        return view('expense.transfer-claim.show', compact('transfer', 'empIdName'));
+        $approvalDetail = getApplicationLogs(\App\Models\TransferClaimApplication::class,$id);
+        return view('expense.transfer-claim.show', compact('transfer', 'empIdName','approvalDetail'));
     }
 
     /**

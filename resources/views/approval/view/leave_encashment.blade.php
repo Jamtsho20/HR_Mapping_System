@@ -64,8 +64,7 @@
                     <div class="col-md-12">
                         @include('layouts.includes.approval-details', [
                             'approvalDetail' => $approvalDetail,
-                            'applicationStatus' => $leaveEncashment->status,
-                            'rejectionRemarks' => $leaveEncashment->reject_remarks,
+                            'applicationStatus' => $leaveEncashment->status
                         ])
 
                     </div>

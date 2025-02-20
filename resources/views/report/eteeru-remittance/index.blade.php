@@ -4,11 +4,11 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('tax-schedule-report-excel.export', Request::query()) }}" data-toggle="tooltip"
+            <a href="{{ route('eteeru-remittance-excel.export', Request::query()) }}" data-toggle="tooltip"
                 data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('tax-schedule-report-pdf.export', Request::query()) }}" data-toggle="tooltip"
-                data-placement="top" title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('tax-schedule-report-print', Request::query()) }}" target="_blank"
+            <a href="{{ route('eteeru-remittance-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+                title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
+            <a href="{{ route('eteeru-remittance-print', Request::query()) }}" target="_blank"
                 onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
         </div>
     </div>
@@ -22,8 +22,8 @@
 
             </div>
             <div class="col-3 form-group">
-                <select name="employee_id" class="form-control ">
-                    <option value="" disabled="" selected="" hidden="">Select Employee ID</option>
+                <select name="employee_id" class="form-control select2 select2-hidden-accessible">
+                    <option value="" disabled="" selected="" hidden="">Select Employee</option>
                     @foreach ($employee as $name)
                         <option value="{{ $name->id }}" {{ request()->get('employee_id') == $name->id ? 'selected' : '' }}>
                             {{ $name->name }}
@@ -74,17 +74,17 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @forelse($taxSchedules as $pf)
+                                                    @forelse($eTeeru as $et)
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $pf->name }}</td>
-                                                            <td>{{ $pf->contact_number }}</td>
-                                                            <td>{{ $pf->amount }}</td>
-                                                            <td>{{ $pf->for_month }}</td>
+                                                            <td>{{ $et->name }}</td>
+                                                            <td>{{ $et->contact_number }}</td>
+                                                            <td>{{ $et->amount }}</td>
+                                                            <td>{{ $et->for_month }}</td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="13" class="text-center text-danger">No Salary
+                                                            <td colspan="13" class="text-center text-danger">No eTeeru
                                                                 Remittance Reports found</td>
                                                         </tr>
                                                     @endforelse
@@ -96,9 +96,9 @@
                             </div>
                         </div>
                     </div>
-                    @if ($taxSchedules->hasPages())
+                    @if ($eTeeru->hasPages())
                         <div class="card-footer">
-                            {{ $taxSchedules->links() }}
+                            {{ $eTeeru->links() }}
                         </div>
                     @endif
 

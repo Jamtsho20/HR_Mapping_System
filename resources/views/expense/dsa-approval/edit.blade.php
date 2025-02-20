@@ -95,7 +95,7 @@ enctype="multipart/form-data" id="apply_dsa">
 
         </div>
     </div>
-    <p class="text-green p-3 pt-0" style=" text-indent: -.01em; padding-left: 1em;">
+    <p class="info-green p-3 pt-0" style=" text-indent: -.01em; padding-left: 1em;">
         <span style="">*</span>
         For each travel authorization application, the total number of days,
         the formula used for calculating the amount, and the final amount will be
@@ -594,7 +594,7 @@ $('#grand_total_amount').val(0);  // Reset grand total
         $('#travelstable tbody tr').each(function() {
             totalNumberOfDays += parseFloat($(this).find('input[name*="[total_days]"]').val() || 0);
         });
-        
+
         $('#total_number_of_days').val(totalNumberOfDays);
     }
 });

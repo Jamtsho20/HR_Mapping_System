@@ -9,6 +9,7 @@ use App\Models\EmployeeAttendance;
 use App\Models\EmployeeSalarySaving;
 use App\Models\EmployeeAttendanceDetail;
 use App\Http\Controllers\Api\SAP\ApiController;
+use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,16 +22,22 @@ use App\Http\Controllers\Api\SAP\ApiController;
 |
  */
 
- Route::get('debug', function () {
+Route::get('debug', function () {
     $sap = new ApiController();
     $pay = new PayrollService();
+    $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
 
-    $employees = User::active()->completed()->whereKey(260)->get();
-    $userId = 185;
-    $payHeads = MasPayHead::orderBy("Name")->get();
+    $employee = User::find(182);
+    $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
 
-    $salarySavingDeduction = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->sum('amount');
+    $basicPay = $employee->empJob->basic_pay;
+    if ($attendance && $employeeAttendance) {
+        $workingDays = $employeeAttendance->working_days;
+        $physicalDays = $employeeAttendance->physical_days;
 
+        $basicPay = round(($basicPay / $workingDays) * $physicalDays, 3);
+    }
+    dd($basicPay);
     // foreach ($employees as $employee) {
     //     $durationOfService = $employee->durationOfService();
     //     $employeeJob = MasEmployeeJob::whereMasEmployeeId($employee->id)->first();
@@ -63,44 +70,44 @@ use App\Http\Controllers\Api\SAP\ApiController;
 
 
     $paySlipDetailViews = DB::table("pay_slip_detail_views")->get();
-        foreach ($paySlipDetailViews as $paySlipDetailView) {
-            $allowanceTotal = $deductionTotal = 0;
+    foreach ($paySlipDetailViews as $paySlipDetailView) {
+        $allowanceTotal = $deductionTotal = 0;
 
-            // Attendance for Basic Pay Calculation
-            $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
-            $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($paySlipDetailView->mas_employee_id)->whereAttendanceId($attendance->id)->first();
-            $basicPay = $paySlipDetailView->basic_pay;
+        // Attendance for Basic Pay Calculation
+        $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
+        $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($paySlipDetailView->mas_employee_id)->whereAttendanceId($attendance->id)->first();
+        $basicPay = $paySlipDetailView->basic_pay;
 
-            if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
-                $workingDays = $employeeAttendance->working_days;
-                $physicalDays = $employeeAttendance->physical_days;
+        if ($attendance && $employeeAttendance && !is_null($employeeAttendance->working_days) && $employeeAttendance->working_days > 0 && !is_null($employeeAttendance->physical_days) && $employeeAttendance->physical_days > 0) {
+            $workingDays = $employeeAttendance->working_days;
+            $physicalDays = $employeeAttendance->physical_days;
 
-                $basicPay = round(($basicPay / $workingDays) * $physicalDays, 0);
-            }
-
-
-            
-            foreach ($payHeads as $payHead) {
-                $columnName = str_replace(" ", "_", $payHead->name);
-                $payHeadType = (int) $payHead->payhead_type;
-                if ($payHeadType === 1) {
-                    $allowanceTotal += $paySlipDetailView->$columnName;
-                } else {
-                    $deductionTotal += $paySlipDetailView->$columnName;
-                }
-            }
-            // $grossPay = $paySlipDetailView->basic_pay + $allowanceTotal;
-            $grossPay = $basicPay + $allowanceTotal;
-            $netPay = $grossPay - $deductionTotal;
-
-            if($paySlipDetailView->mas_employee_id == 260) {
-                dd($grossPay, $basicPay, $netPay);
-            }
-            // DB::table("pay_slip_detail_views")
-            //     ->whereRaw("id = ?", [$paySlipDetailView->id])
-            //     ->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
+            $basicPay = round(($basicPay / $workingDays) * $physicalDays, 0);
         }
-        
+
+
+
+        foreach ($payHeads as $payHead) {
+            $columnName = str_replace(" ", "_", $payHead->name);
+            $payHeadType = (int) $payHead->payhead_type;
+            if ($payHeadType === 1) {
+                $allowanceTotal += $paySlipDetailView->$columnName;
+            } else {
+                $deductionTotal += $paySlipDetailView->$columnName;
+            }
+        }
+        // $grossPay = $paySlipDetailView->basic_pay + $allowanceTotal;
+        $grossPay = $basicPay + $allowanceTotal;
+        $netPay = $grossPay - $deductionTotal;
+
+        if ($paySlipDetailView->mas_employee_id == 260) {
+            dd($grossPay, $basicPay, $netPay);
+        }
+        // DB::table("pay_slip_detail_views")
+        //     ->whereRaw("id = ?", [$paySlipDetailView->id])
+        //     ->update(['gross_pay' => $grossPay, 'net_pay' => $netPay]);
+    }
+
     // $forMonth = '2024-12-01';
     // $departments = App\Models\MasDepartment::pluck('code', 'id');
 
@@ -167,7 +174,7 @@ use App\Http\Controllers\Api\SAP\ApiController;
     // $payslip = PaySlip::first();
     // return $pay->generateAndMailPaySlip($payslip, 2);
 
-    
+
     dd($pay->checkFormulaValidity(
         "IF ([EMPLOYMENT_TYPE] == 2 || [EMPLOYMENT_TYPE] == 4 || [EMPLOYMENT_TYPE] == 5)
         IF ([BASIC_PAY] <= 15999)
@@ -184,10 +191,11 @@ use App\Http\Controllers\Api\SAP\ApiController;
         ENDIF
         ELSE
         THEN (0)
-        ENDIF"));
+        ENDIF"
+    ));
 
     dd($pay->checkFormulaValidity(
-"IF ([EMPLOYMENT_TYPE] == 2)
+        "IF ([EMPLOYMENT_TYPE] == 2)
 THEN ([BASIC_PAY] * 0.15)
 ELSEIF ([EMPLOYMENT_TYPE] == 4)
 THEN ([BASIC_PAY] * 0.15)
@@ -197,8 +205,8 @@ ELSEIF ([EMPLOYMENT_TYPE] == 7)
 THEN ([BASIC_PAY] * 0.05)
 ELSE
 THEN 0
-ENDIF"));
-
+ENDIF"
+    ));
 });
 
 // private function finalizeDetail($detail)

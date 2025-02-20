@@ -125,13 +125,22 @@ class ExpenseApplicationController extends Controller
 
 
 
-        $excludedTravelIds = collect(DsaClaimApplication::whereIn('status', [2,3])
-        ->select('travel_authorization_id')
-        ->union(DsaClaimMappings::select('travel_authorization_id'))
-        ->get()
-        ->pluck('travel_authorization_id')
-            )->filter()->values()->toArray();
+        $applicationIds = DsaClaimApplication::whereCreatedBy(loggedInUser())
+            ->whereIn('status', [1,3])
+            ->pluck('id'); // Get only the IDs
 
+        
+        $excludedTravelIds = collect(
+            DsaClaimApplication::whereIn('id', $applicationIds)
+                ->select('travel_authorization_id')
+                ->union(
+                    DsaClaimMappings::whereIn('dsa_claim_id', $applicationIds) // Use these IDs in mappings
+                        ->select('travel_authorization_id')
+                )
+                ->get()
+                ->pluck('travel_authorization_id')
+        )->filter()->values()->toArray();
+        
         $travels = TravelAuthorizationApplication::whereCreatedBy(loggedInUser())->whereNotIn('id', $excludedTravelIds)->whereStatus(3)->get();
 
         $dailyAllowance = DailyAllowance::whereMasGradeId($gradeId)->first();
@@ -271,6 +280,8 @@ class ExpenseApplicationController extends Controller
         $expense = ExpenseApplication::findOrfail($id);
         // dd($expense);
         $approvalDetail = getApplicationLogs(\App\Models\ExpenseApplication::class, $expense->id);
+
+      
 
         return view('expense.apply.show', compact('expense','approvalDetail'));
     }

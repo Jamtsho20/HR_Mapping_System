@@ -3,7 +3,7 @@
         <div class="card">
             <div class="card-body">
                 @if (request()->is('approval/applications'))
-                    <p class="text-danger large" style="text-indent: -0.8em; padding-left: 1.5em;">
+                    <p class="info-green  large" style="text-indent: -0.8em; padding-left: 1.5em;">
                         * The application will be automatically rejected if it exceeds the 3-working-day grace period from the date of submission.
                     </p>
                 @endif

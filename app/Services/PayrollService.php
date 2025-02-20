@@ -178,6 +178,7 @@ class PayrollService
         $deductions = MasPayHead::whereRaw("payhead_type = 2")->get();
         $payHeadsAfterGross = [];
         $pf = false;
+        $gis = false;
 
         foreach ($deductions as $deduction) {
             $calculation_method = (int) $deduction->calculation_method; // 1 => "Actual", 2 => "Division", 3 => "Slab Wise", 4 => "Group Wise", 5 => "Percentage", 6 => "Formula"
@@ -221,6 +222,11 @@ class PayrollService
                 if ($deduction->code === "PF Contr") {
                     $pf = $deductionAmount; // PROVIDENT FUND AMOUNT
                 }
+
+                if ($deduction->code === "GSLI") {
+                    $gis = $deductionAmount; // Group Savings Linked Insurance
+                }
+
                 $netPay -= $deductionAmount;
                 PaySlipDetail::create(['pay_slip_id' => $paySlipId, 'mas_employee_id' => $employee->id, 'mas_pay_head_id' => $deduction->id, 'amount' => $deductionAmount, 'created_by' => $userId]);
             }
@@ -229,6 +235,7 @@ class PayrollService
         return [
             'netPay' => $netPay,
             'pf' => $pf,
+            'gis' => $gis,
             'payHeadsAfterGross' => $payHeadsAfterGross,
         ];
     }
@@ -278,7 +285,7 @@ class PayrollService
         if ($calculation_method === 2) {
             return round(($amountToCalculateOn / $amount), 0);
         }
-        if ($calculation_method === 7) {            
+        if ($calculation_method === 7) {
             if ($payHeadId === 11) {
                 $amount = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->sum('amount');
             } else {
@@ -527,7 +534,8 @@ class PayrollService
         INSERT INTO pay_slip_detail_views (mas_employee_id, basic_pay, created_at, for_month, $insertQueryColumnSegment)
         SELECT c.id, d.basic_pay, NOW(), ?, $insertQuerySegment
         FROM mas_employees c
-        JOIN mas_employee_jobs d ON d.mas_employee_id = c.id";
+        JOIN mas_employee_jobs d ON d.mas_employee_id = c.id
+        WHERE c.status <> 0 OR c.is_active <> 0";
 
         // Execute the insert statement with parameters
         DB::insert($insertQuery, $parameters);

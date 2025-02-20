@@ -158,13 +158,14 @@
                 <input type="hidden" name="personal[is_active]" value="0">
                 <input type="checkbox" name="personal[is_active]"
                     class="custom-switch-input form-control form-control-sm" value="1"
-                    {{ old('personal.is_active', isset($employee) ? $employee->is_active : '') == 'Active' ? 'checked' : '' }} />
+                    {{ old('personal.is_active', isset($employee) && $employee->is_active == 'Active' ? 1 : 0) == 1 ? 'checked' : '' }} />
                 <span class="custom-switch-indicator"></span>
                 <span class="custom-switch-description">is Active</span>
             </label>
         </div>
     </div>
 </div>
+
 @push('page-scripts')
     <script>
         $(document).ready(function() {

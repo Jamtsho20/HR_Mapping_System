@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('immediate_supervisor')->index()->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('mas_office_id')->index()->constrained()->cascadeOnUpdate()->restrictOnDelete()->comment('job location');
             $table->integer('basic_pay');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }
