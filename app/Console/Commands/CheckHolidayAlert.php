@@ -63,7 +63,7 @@ class CheckHolidayAlert extends Command
                 'updated_by' => null,
             ]);
 
-            \Log::info('Holiday Alert Message: ' . $alertMessage);
+            
         } else {
             // Clear any previous alert message from the cache
             Cache::forget('holiday_alert_message');
