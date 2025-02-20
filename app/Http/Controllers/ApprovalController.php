@@ -59,7 +59,7 @@ class ApprovalController extends Controller
             })
                 ->whereNotIn('status', [-1, 3])
                 ->filter($request, false)
-                ->orderBy('created_at')
+                ->orderByDesc('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
 

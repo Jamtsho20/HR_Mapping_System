@@ -2,26 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MasStore extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
     
     protected $fillable = [
         'parent_store_id',
         'name',
         'code',
-        'store_location',
+        'country',
+        'dzongkhag',
+        'region',
         'store_email',
         'phone_number',
         'contact_person',
         'contact_email',
-        'contact_number',
-        'country_id',
-        'dzongkhag_id',
-        'region_id',
         'status',
         'created_by',
         'updated_by',
@@ -32,19 +31,34 @@ class MasStore extends Model
         return $this->hasMany(MasStore::class, 'parent_store_id');
     }
 
+    public function grnItems()
+    {
+        return $this->hasMany(GrnItemMapping::class, 'store_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
      //accessors & mutators
      public function scopeFilter($query, $request)
      {
-         if ($request->has('store_name') && $request->query('store_name') != '') {
-             $query->where('store_name', 'LIKE', '%' . $request->query('store_name') . '%');
+         if ($request->has('name') && $request->query('name') != '') {
+             $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
+         }
+
+         if ($request->has('code') && $request->query('code') != '') {
+             $query->where('code', $request->query('code'));
+         }
+
+         if ($request->has('dzongkhag') && $request->query('dzongkhag') != '') {
+             $query->where('dzongkhag', 'LIKE', '%' . $request->query('dzongkhag') . '%');
          }
          
-         if ($request->has('store_location') && $request->query('store_location') != '') {
-             $query->where('store_location', 'LIKE', '%' . $request->query('store_location') . '%');
+         if ($request->has('region') && $request->query('region') != '') {
+             $query->where('region', 'LIKE', '%' . $request->query('region') . '%');
          }
- 
-         if ($request->has('status') && $request->query('status') != '') {
-             $query->where('status', $request->query('status'));
-         }
+         
     }
 }

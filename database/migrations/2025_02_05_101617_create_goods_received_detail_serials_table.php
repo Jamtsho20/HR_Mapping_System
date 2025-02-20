@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('goods_received_detail_id')->index()->constrained('goods_received_details')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('asset_serial_no')->unique()->index()->comment('Unique serial number for each item.'); 
             $table->string('asset_description')->nullable()->comment('if it is null make use of item description');
-            $table->boolean('is_commissioned')->comment('1 => commissioned, 0 => not commissioned');
+            $table->boolean('is_commissioned')->default(0)->comment('1 => commissioned, 0 => not commissioned');
             // $table->string('asset_class')->nullable();
             $table->timestamps();
         });

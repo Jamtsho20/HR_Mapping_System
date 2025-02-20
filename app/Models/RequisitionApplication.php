@@ -24,8 +24,6 @@ class RequisitionApplication extends Model
 
     ];
 
-    
-    
     public function requisitionType()
     {
         return $this->belongsTo(MasRequisitionType::class, 'type_id');
@@ -35,20 +33,25 @@ class RequisitionApplication extends Model
     {
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
+
+    public function histories()
+    {
+        return $this->morphMany(ApplicationHistory::class, 'application');
+    }
     
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function histories()
-    {
-        return $this->morphMany(ApplicationHistory::class, 'application');
-    }
-
     public function details()
     {
         return $this->hasMany(RequisitionDetail::class, 'requisition_id');
+    }
+
+    public function goodReceivedByUser()
+    {
+        return $this->hasOne(GoodReceiptApplication::class, 'requisition_application_id');
     }
 
     //scope filter

@@ -20,10 +20,10 @@ return new class extends Migration
             $table->string('item_description')->nullable();
             $table->string('asset_type')->nullable()->comment('eg. consumable, fixed asset');
             $table->string('asset_class')->nullable();
-            $table->integer('requested_quantity');
-            $table->integer('received_quantity');
-            $table->integer('comissioned_quantity')->comment('quantity that has been commissioned (put to use)');
-            $table->unsignedTinyInteger('commissioned_status')->comment('1 => Partial Comissioned, 0 => Not Commissioned, 2 => Comissioned Completed (while displaying at frontend only display with status 0 and 1)');
+            $table->integer('requested_quantity')->default(0);
+            $table->integer('received_quantity')->default(0);
+            $table->integer('comissioned_quantity')->default(0)->comment('quantity that has been commissioned (put to use)');
+            $table->unsignedTinyInteger('commissioned_status')->default(0)->comment('1 => Partial Comissioned, 0 => Not Commissioned, 2 => Comissioned Completed (while displaying at frontend only display with status 0 and 1)');
             $table->timestamps();
         });
     }

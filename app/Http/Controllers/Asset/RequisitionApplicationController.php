@@ -31,16 +31,17 @@ class RequisitionApplicationController extends Controller
 
      protected $rules = [
         // 'requisition_no' => 'required|unique:requisition_applications,requisition_no',
-        // 'type_id' => 'required',
+        'type_id' => 'required',
         'requisition_date' => 'required',
         'need_by_date' => 'required',
         'details.*.grn_no' => 'required',
         'details.*.item_description' => 'required',
         'details.*.uom' => 'required',
         'details.*.store' => 'required',
-        'details.*.stock_status' => 'required',
+        // 'details.*.stock_status' => 'required',
         'details.*.quantity_required' => 'required',
         'details.*.dzongkhag' => 'required',
+        'details.*.office_name' => 'required',
         'details.*.site_name' => 'required',
      ];
 
@@ -49,9 +50,10 @@ class RequisitionApplicationController extends Controller
         'details.*.item_description.required' => 'The item description is required for each detail item.',
         'details.*.uom.required' => 'The unit of measure is required for each detail item.',
         'details.*.store.required' => 'The store is required for each detail item.',
-        'details.*.stock_status.required' => 'The stock status is required for each detail item.',
+        // 'details.*.stock_status.required' => 'The stock status is required for each detail item.',
         'details.*.quantity_required.required' => 'The quantity is required for each detail item.',
         'details.*.dzongkhag.required' => 'The dzongkhag is required for each detail item.',
+        'details.*.office_name.required' => 'The office name is required for each detail item.',
         'details.*.site_name.required' => 'The site name is required for each detail item.',
     ];
 
@@ -78,15 +80,17 @@ class RequisitionApplicationController extends Controller
       */
      public function store(Request $request)
      {
-        // dd($request->all());
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
+        $reqType = MasRequisitionType::where('type_id', $request->type_id)->first();
+        $lastTransaction = RequisitionApplication::latest('id')->first();
+        $reqNumber = generateTransactionNumber1($reqType, $lastTransaction, 'requisition_no');
         try {
             DB::beginTransaction();
-            $requisition->requisition_no = $request->requisition_no;
+            $requisition->requisition_no = $reqNumber;
             $requisition->type_id = $request->type_id;
             $requisition->requisition_date = $request->requisition_date;
             $requisition->need_by_date = $request->need_by_date;

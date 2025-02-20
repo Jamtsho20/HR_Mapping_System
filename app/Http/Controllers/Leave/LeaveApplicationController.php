@@ -153,6 +153,9 @@ class LeaveApplicationController extends Controller
                 $emailContent = 'has applied ' . $request->no_of_days . ' day(s) of ' .  $leaveType . ' from ' . $request->from_date . ' to ' . $request->to_date . '.';
                 $emailSubject = 'Leave';
                 try{
+                    // Mail::raw('This is a test email', function ($message) {
+                    //     $message->to('heranghalley123@gmail.com')->subject('Test Email');
+                    // });
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }catch(\Exception $e){
                     \Log::error('Error sending mail for ' . $request->leave_type . ': ' . $e->getMessage());
