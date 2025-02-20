@@ -44,7 +44,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="loan_number">Loan Number <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="loan_number" required="required"
+                        <input type="text" class="form-control" name="loan_number" required="required"
                             value="{{ $loanEMIDeduction->loan_number }}">
                     </div>
                     <div class="form-group col-md-6">
