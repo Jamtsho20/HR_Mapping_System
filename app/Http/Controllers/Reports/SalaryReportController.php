@@ -82,9 +82,8 @@ class SalaryReportController extends Controller
     {
         $salaries = FinalPaySlip::filter($request)->get();
 
-        // Initialize variables to store totals
-        $totalBasic = $totalGross = $totalOver = $totalAdd = $totalCash = $totalCorporate = $totalCritical = $totalDifficulty = $totalHouse = $totalMedical = 0;
-        $totalAdvSalary = $totalAdvStaff = $totalGSLI = $totalHealth = $totalPF = $totalSalaryTax = $totalSamsundDed = $totalSIFA = $totalSSSS = $totalNet = $totalBOB =  $totalTbank = 0;
+        $totalNet = $totalBasic = $totalGross = $totalOver = $totalAdd = $totalCash = $totalCorporate = $totalCritical = $totalDifficulty = $totalHouse = $totalMedical = 0;
+        $totalAdvSalary = $totalAdvStaff = $totalGSLI = $totalHealth = $totalPF = $totalSalaryTax = $totalSamsundDed = $totalSIFA = $totalSSSS = $totalNet = $totalBOB =  $totalTbank = $totalBnb = $totalNPPF = $totalBDFC = $totalRICB = $totalDPNB = $totalSifaLoan = 0;
 
         // Iterate through salaries once to calculate all totals
         foreach ($salaries as $salary) {
@@ -92,10 +91,10 @@ class SalaryReportController extends Controller
 
             // Basic Pay and Gross Pay (assuming they are the same for simplicity)
             $totalBasic += $details['basic_pay'] ?? 0;
-            $totalGross += $details['basic_pay'] ?? 0;
+            $totalGross += $details['gross_pay'] ?? 0;
+            $totalNet += $details['net_pay'] ?? 0;
 
-            // Overtime
-            $totalOver += $details['overtime_hours'] ?? 0;
+
 
             // Allowances
             $totalAdd += $details['allowances']['Add. Work Allowance'] ?? 0;
@@ -117,13 +116,20 @@ class SalaryReportController extends Controller
             $totalSIFA += $details['deductions']['SIFA'] ?? 0;
             $totalSSSS += $details['deductions']['SSSS'] ?? 0;
             $totalNet += $details['net_pay'] ?? 0;
-            $totalBOB += $details['Loan BOB'] ?? 0;
-            $totalTbank += $details['Loan TBank'] ?? 0;
+            $totalBOB += $details['deductions']['Loan BOB'] ?? 0;
+            $totalTbank += $details['deductions']['Loan TBank'] ?? 0;
+            $totalBnb += $details['deductions']['Loan BNB'] ?? 0;
+            $totalNPPF += $details['deductions']['Loan NPPF'] ?? 0;
+            $totalBDFC += $details['deductions']['Loan BDFC'] ?? 0;
+            $totalRICB += $details['deductions']['Loan RICB'] ?? 0;
+            $totalDPNB += $details['deductions']['Loan DPNB'] ?? 0;
+            $totalSifaLoan += $details['deductions']['Loan SIFA'] ?? 0;
         }
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.salary-report-pdf', compact(
             'salaries',
+            'totalNet',
             'totalBasic',
             'totalGross',
             'totalOver',
@@ -145,7 +151,13 @@ class SalaryReportController extends Controller
             'totalSSSS',
             'totalNet',
             'totalBOB',
-            'totalTbank'
+            'totalTbank',
+            'totalBnb',
+            'totalNPPF',
+            'totalBDFC',
+            'totalRICB',
+            'totalDPNB',
+            'totalSifaLoan'
         ))->setPaper('a4', 'landscape');
 
         // Return the PDF download
@@ -162,8 +174,8 @@ class SalaryReportController extends Controller
         $salaries = FinalPaySlip::filter($request)->get();
 
         // Initialize variables to store totals
-        $totalBasic = $totalGross = $totalOver = $totalAdd = $totalCash = $totalCorporate = $totalCritical = $totalDifficulty = $totalHouse = $totalMedical = 0;
-        $totalAdvSalary = $totalAdvStaff = $totalGSLI = $totalHealth = $totalPF = $totalSalaryTax = $totalSamsundDed = $totalSIFA = $totalSSSS = $totalNet = $totalBOB =  $totalTbank = 0;
+        $totalNet = $totalBasic = $totalGross = $totalOver = $totalAdd = $totalCash = $totalCorporate = $totalCritical = $totalDifficulty = $totalHouse = $totalMedical = 0;
+        $totalAdvSalary = $totalAdvStaff = $totalGSLI = $totalHealth = $totalPF = $totalSalaryTax = $totalSamsundDed = $totalSIFA = $totalSSSS = $totalNet = $totalBOB =  $totalTbank = $totalBnb = $totalNPPF = $totalBDFC = $totalRICB = $totalDPNB = $totalSifaLoan = 0;
 
         // Iterate through salaries once to calculate all totals
         foreach ($salaries as $salary) {
@@ -171,10 +183,10 @@ class SalaryReportController extends Controller
 
             // Basic Pay and Gross Pay (assuming they are the same for simplicity)
             $totalBasic += $details['basic_pay'] ?? 0;
-            $totalGross += $details['basic_pay'] ?? 0;
+            $totalGross += $details['gross_pay'] ?? 0;
+            $totalNet += $details['net_pay'] ?? 0;
 
-            // Overtime
-            $totalOver += $details['overtime_hours'] ?? 0;
+
 
             // Allowances
             $totalAdd += $details['allowances']['Add. Work Allowance'] ?? 0;
@@ -196,13 +208,20 @@ class SalaryReportController extends Controller
             $totalSIFA += $details['deductions']['SIFA'] ?? 0;
             $totalSSSS += $details['deductions']['SSSS'] ?? 0;
             $totalNet += $details['net_pay'] ?? 0;
-            $totalBOB += $details['Loan BOB'] ?? 0;
-            $totalTbank += $details['Loan TBank'] ?? 0;
+            $totalBOB += $details['deductions']['Loan BOB'] ?? 0;
+            $totalTbank += $details['deductions']['Loan TBank'] ?? 0;
+            $totalBnb += $details['deductions']['Loan BNB'] ?? 0;
+            $totalNPPF += $details['deductions']['Loan NPPF'] ?? 0;
+            $totalBDFC += $details['deductions']['Loan BDFC'] ?? 0;
+            $totalRICB += $details['deductions']['Loan RICB'] ?? 0;
+            $totalDPNB += $details['deductions']['Loan DPNB'] ?? 0;
+            $totalSifaLoan += $details['deductions']['Loan SIFA'] ?? 0;
         }
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.salary-report-pdf', compact(
             'salaries',
+            'totalNet',
             'totalBasic',
             'totalGross',
             'totalOver',
@@ -224,7 +243,13 @@ class SalaryReportController extends Controller
             'totalSSSS',
             'totalNet',
             'totalBOB',
-            'totalTbank'
+            'totalTbank',
+            'totalBnb',
+            'totalNPPF',
+            'totalBDFC',
+            'totalRICB',
+            'totalDPNB',
+            'totalSifaLoan'
         ))->setPaper('a4', 'landscape');
 
 
