@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\GoodsReceivedDetail;
-use App\Models\GoodsReceivedItemSerial;
+use App\Models\GoodsReceivedDetailSerial;
 use App\Models\GrnItemMapping;
 use App\Models\MasItem;
 use App\Models\MasStore;
@@ -13,6 +13,7 @@ use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\MasGoodsReceivedByUser;
 class ApiController extends BaseController
 {
 
@@ -107,9 +108,10 @@ class ApiController extends BaseController
 
             if ($item) {
                 // If item exists, update it
-                $item->item_category = $request->item_category;
+                $item->item_group = $request->item_category;
                 $item->item_description = $request->item_description;
                 $item->item_no = $request->item_no;
+                $item->item_no_old = $request->item_no_old;
                 $item->uom = $request->uom;
                 $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
@@ -119,9 +121,10 @@ class ApiController extends BaseController
             } else {
                 // If item does not exist, create a new one
                 $item = new MasItem();
-                $item->item_category = $request->item_category;
+                $item->item_group = $request->item_category;
                 $item->item_description = $request->item_description;
                 $item->item_no = $request->item_no;
+                $item->item_no_old = $request->item_no_old;
                 $item->uom = $request->uom;
                 $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
@@ -190,7 +193,7 @@ class ApiController extends BaseController
 
     public function saveGoodsIssued(Request $request)
     {
-        $reqApplication = RequisitionApplication::with('reqDetails')->where('doc_no', $request->purchase_req_doc_no)->first();
+        $reqApplication = RequisitionApplication::with('details')->where('doc_no', $request->purchase_req_doc_no)->first();
         if(!$reqApplication){
             \Log::info("Purchase requisition doc no. {$request->purchase_req_doc_no} not found in HRMS system.");
             return $this->errorResponse("Purchase requisition doc no. {$request->purchase_req_doc_no} not found in HRMS system.");
@@ -201,7 +204,7 @@ class ApiController extends BaseController
             // Save the Goods Received by User
             $goodsReceived = MasGoodsReceivedByUser::create([
                 'requisition_application_id' => $reqApplication['id'],
-                'total_requested_quantity' => $reqApplication['total_required_quantity'],
+                'total_requested_quantity' => $reqApplication['total_quantity_required'],
                 'total_received_quantity' => $request->received_quantity,
                 'received_from' => $this->sapUser,
                 'received_by' => $reqApplication['created_by'],
@@ -220,7 +223,8 @@ class ApiController extends BaseController
             $serialNumbers = [];
 
             foreach ($request->details as $detail) {
-                $reqDetail = $reqApplication->requisitionDetails->where('grn_no', $detail['grn_no'])->first();
+
+                $reqDetail = $reqApplication->details->where('grn_no', $detail['grn_no'])->first();
 
                 $goodsReceivedDetails[] = [
                     'goods_received_by_user_id' => $goodsReceived->id,
@@ -237,10 +241,16 @@ class ApiController extends BaseController
                     // 'created_at' => now(),
                     // 'updated_at' => now(),
                 ];
+                // Bulk insert
+                $goodsReceivedDetails = GoodsReceivedDetail::insert($goodsReceivedDetails);
+
+                if (!empty($serialNumbers)) {
+
 
                 if (!empty($detail['serials'])) {
                     foreach ($detail['serials'] as $serial) {
                         $serialNumbers[] = [
+                            'goods_received_detail_id' => $goodsReceivedDetails->id,
                             'asset_serial_no' => $serial['asset_serial_no'],
                             'asset_description' => $serial['asset_description'] ?? $detail['item_description'],
                             // 'is_commissioned' => $serial['is_commissioned'] ?? 0,
@@ -251,10 +261,7 @@ class ApiController extends BaseController
                 }
             }
 
-            // Bulk insert
-            GoodsReceivedDetail::insert($goodsReceivedDetails);
-            if (!empty($serialNumbers)) {
-                GoodsReceivedItemSerial::insert($serialNumbers);
+                GoodsReceivedDetailSerial::insert($serialNumbers);
             }
 
             DB::commit();
@@ -266,7 +273,7 @@ class ApiController extends BaseController
             return $this->errorResponse("Failed to save data for {$request->doc_no} " . $e->getMessage());
             // return response()->json(['error' => "Failed to save data for {$request->doc_no}", 'message' => $e->getMessage()], 500);
         }
-    
+
     }
 
     public function startSession()
@@ -484,5 +491,5 @@ class ApiController extends BaseController
         \Log::info('sap response: ' . json_encode($responseArray));
         return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
-    
+
 }
