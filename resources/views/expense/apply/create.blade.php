@@ -73,7 +73,7 @@
                                     </div>
                                     <div class="col-md-4" style="display: none;" id="vehicle">
                                         <label for="mas_vehicle_id">Vehicle No <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="mas_vehicle_id" name="mas_vehicle_id">
+                                        <select class="form-control select2" id="mas_vehicle_id" name="mas_vehicle_id" required>
                                             <option value="" disabled selected hidden>Select your option
                                             </option>
                                             @foreach ($vehicles as $vehicle)
