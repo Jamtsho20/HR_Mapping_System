@@ -79,7 +79,7 @@
                                                             add. work all.
                                                         </th>
                                                         <th>
-                                                            coporate all.
+                                                            corporate all.
                                                         </th>
                                                         <th>
                                                             diff. all.
@@ -139,7 +139,7 @@
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}
                                                             </td>
-                                                            <td>{{ $salary->details['allowances']['Overtime Allowance'] ?? '0' }}
+                                                            <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}
                                                             </td>
@@ -166,7 +166,10 @@
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}
                                                             </td>
+                                                            <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}
+                                                            </td>
                                                             <td>{{ $salary->details['deductions']['PF'] ?? '0' }}</td>
+
                                                             <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['deductions']['TDS'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
