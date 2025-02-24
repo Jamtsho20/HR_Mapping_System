@@ -77,25 +77,29 @@
                     #
                 </th>
                 <th>
-                    Employee Name
+                    EID
                 </th>
                 <th>
-                    Job title
+                    Name
+                </th>
+
+                <th>
+                    Disg.
                 </th>
                 <th>
-                    job nature
+                    JN
                 </th>
                 <th>
-                    Salary month
+                    Month
                 </th>
                 <th>
-                    basic pay
+                    Basic
                 </th>
                 <th>
-                    house all.
+                    House all.
                 </th>
                 <th>
-                    medical all.
+                    Med all.
                 </th>
                 <th>
                     add. work all.
@@ -107,26 +111,31 @@
                     diff. all.
                 </th>
                 <th>
-                    critical all.
+                    crit. all.
                 </th>
                 <th>
-                    gross earning
+                    Gross
                 </th>
 
                 <th>
-                    samsung
+                    EMI
                 </th>
                 <th>
                     GIS
                 </th>
-
+                <th>BNB</th>
+                <th>NPPF</th>
+                <th>BDFC</th>
+                <th>RICB</th>
+                <th>DPNB</th>
                 <th>
-                    BOB loan
+                    BOB
                 </th>
 
                 <th>
-                    Tbank loan
+                    Tbank
                 </th>
+                <th>Sifa loan</th>
                 <th>
                     PF
                 </th>
@@ -150,6 +159,7 @@
             @forelse($salaries as $salary)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
+                    <td>{{ $salary->employee->username }}</td>
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->empJob->designation->name }}</td>
                     <td>{{ $salary->employee->empJob->empType->name }}</td>
@@ -164,8 +174,20 @@
                     <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
                     <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
-                    <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}</td>
-                    <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan NPPF'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan BDFC'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan RICB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan DPNB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}
+                    </td>
                     <td>{{ $salary->details['deductions']['PF'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['TDS'] ?? '0' }}</td>
@@ -176,7 +198,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="21" class="text-center text-danger">No Salary Reports found</td>
+                    <td colspan="28" class="text-center text-danger">No Salary Reports found</td>
                 </tr>
             @endforelse
 

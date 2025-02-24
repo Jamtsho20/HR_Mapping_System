@@ -114,7 +114,7 @@
                                                                     Name
                                                                 </th>
                                                                 <th>
-                                                                    CID No.
+                                                                    CID No
                                                                 </th>
                                                                 <th>
                                                                     Department
