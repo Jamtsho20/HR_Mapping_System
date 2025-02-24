@@ -28,6 +28,7 @@ class MasAdvanceTypes extends Model
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
         }
+        
         if ($request->has('code') && $request->query('code') != '') {
             $query->where('code', 'LIKE', '%' . $request->query('code') . '%');
         }

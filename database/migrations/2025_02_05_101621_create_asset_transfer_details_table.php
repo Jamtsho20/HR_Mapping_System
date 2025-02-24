@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('asset_transfer_id')->index()->constrained('asset_transfer_applications')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('asset_no');
-            $table->string('category');
-            $table->text('item_description');
-            $table->string('asset_key');
+            // $table->string('category');
+            $table->text('asset_description');
+            // $table->string('asset_key');
             $table->string('asset_type');
             $table->string('units');
-            $table->string('property_type');
+            $table->integer('quantity');
+            // $table->string('property_type');
             $table->timestamps();
         });
     }

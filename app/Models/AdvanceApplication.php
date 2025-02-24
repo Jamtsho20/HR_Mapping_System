@@ -66,10 +66,12 @@ class AdvanceApplication extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
     public function advanceType()
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
     }
+
     public function type()
     {
         return $this->belongsTo(MasAdvanceTypes::class, 'type_id');
@@ -79,6 +81,7 @@ class AdvanceApplication extends Model
     {
         return $this->hasMany(AdvanceDetail::class, 'advance_application_id');
     }
+    
     public function travelAuthorization()
     {
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');

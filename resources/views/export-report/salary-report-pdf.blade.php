@@ -101,7 +101,7 @@
                     add. work all.
                 </th>
                 <th>
-                    coporate all.
+                    corporate all.
                 </th>
                 <th>
                     diff. all.
@@ -117,24 +117,25 @@
                     samsung
                 </th>
                 <th>
-                    GIS
+                    gis
                 </th>
 
-                <th>
-                    BOB loan
-                </th>
-
-                <th>
-                    Tbank loan
-                </th>
+                <th>BNB</th>
+                <th>NPPF</th>
+                <th>BDFC</th>
+                <th>RICB</th>
+                <th>DPNB</th>
+                <th> BOB </th>
+                <th> Tbank </th>
+                <th>Sifa loan</th>
                 <th>
                     PF
                 </th>
                 <th>
-                    SIFA
+                    sifa
                 </th>
                 <th>
-                    TDS
+                    tds
                 </th>
                 <th>
                     H/Tax
@@ -149,58 +150,60 @@
         <tbody>
             @forelse($salaries as $salary)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ ($salaries->currentPage() - 1) * $salaries->perPage() + $loop->iteration }}
+                    </td>
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->empJob->designation->name }}</td>
                     <td>{{ $salary->employee->empJob->empType->name }}</td>
                     <td>{{ $salary->for_month }}</td>
                     <td>{{ $salary->employee->empJob->basic_pay }}</td>
-                    <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}</td>
-                    <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}</td>
-                    <td>{{ $salary->details['allowances']['Overtime Allowance'] ?? '0' }}</td>
-                    <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}</td>
-                    <td>{{ $salary->details['allowances']['Difficulty Allowance'] ?? '0' }}</td>
-                    <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['allowances']['Difficulty Allowance'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}
+                    </td>
                     <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
-                    <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
+                    </td>
                     <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
-                    <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}</td>
-                    <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}</td>
-                    <td>{{ $salary->details['deductions']['PF'] ?? '0' }}</td>
+
+                    <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan NPPF'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan BDFC'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan RICB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan DPNB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}
+                    </td>
+                    <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}</td>
+
                     <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
-                    <td>{{ $salary->details['deductions']['TDS'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
                     <td>{{ $salary->details['net_pay'] }}</td>
-
 
                 </tr>
             @empty
                 <tr>
-                    <td colspan="21" class="text-center text-danger">No Salary Reports found</td>
+                    <td colspan="28" class="text-center text-danger">No Salary
+                        Reports found</td>
                 </tr>
             @endforelse
-
-            <tr class="font-weight-bold bg-light">
-                <td colspan="5" class="text-right">Total:</td>
-                <td>{{ $totalBasic }}</td>
-                <td>{{ $totalHouse }}</td>
-                <td>{{ $totalMedical }}</td>
-                <td>{{ $totalAdd }}</td>
-                <td>{{ $totalCorporate }}</td>
-                <td>{{ $totalDifficulty }}</td>
-                <td>{{ $totalCritical }}</td>
-                <td>{{ $totalGross }}</td>
-                <td>{{ $totalSamsundDed }}</td>
-                <td>{{ $totalGSLI }}</td>
-                <td>{{ $totalBOB }}</td>
-                <td>{{ $totalTbank }}</td>
-                <td>{{ $totalPF }}</td>
-                <td>{{ $totalSIFA }}</td>
-                <td>{{ $totalSalaryTax }}</td>
-                <td>{{ $totalHealth }}</td>
-                <td>{{ $totalNet }}</td>
-
-            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')
