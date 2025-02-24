@@ -8,6 +8,7 @@ use App\Models\FinalPaySlip;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
 
 class SIFAContributionController extends Controller
 {
@@ -82,11 +83,12 @@ class SIFAContributionController extends Controller
 
         // Load all bookings with their dzongkhag names
         $sifaContributions = FinalPaySlip::filter($request)->get();
-
-
+        $totalAmount = $sifaContributions->sum(function ($paySlip) {
+            return $paySlip->details['deductions']['SIFA'] ?? 0;
+        });
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.sifa-contribution-report-pdf', compact('sifaContributions', 'totalAmount'))->setPaper('a4', 'landscape');;
 
         // Return the PDF download
         return $pdf->download('Sifa-Contribution.pdf');
