@@ -98,13 +98,14 @@
                                                             gis
                                                         </th>
 
-                                                        <th>
-                                                            bob loan
-                                                        </th>
-
-                                                        <th>
-                                                            tbank loan
-                                                        </th>
+                                                        <th>BNB</th>
+                                                        <th>NPPF</th>
+                                                        <th>BDFC</th>
+                                                        <th>RICB</th>
+                                                        <th>DPNB</th>
+                                                        <th> BOB </th>
+                                                        <th> Tbank </th>
+                                                        <th>Sifa loan</th>
                                                         <th>
                                                             PF
                                                         </th>
@@ -150,6 +151,17 @@
                                                             <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
+
+                                                            <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan NPPF'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan BDFC'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan RICB'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan DPNB'] ?? '0' }}
+                                                            </td>
                                                             <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}
@@ -163,7 +175,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="21" class="text-center text-danger">No Salary
+                                                            <td colspan="28" class="text-center text-danger">No Salary
                                                                 Reports found</td>
                                                         </tr>
                                                     @endforelse
