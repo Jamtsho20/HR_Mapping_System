@@ -83,6 +83,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
             'Loan DPNB',
             'Loan BOB',
             'Loan TBank',
+            'Loan SIFA',
             'PF',
             'SIFA',
             'TDS',
