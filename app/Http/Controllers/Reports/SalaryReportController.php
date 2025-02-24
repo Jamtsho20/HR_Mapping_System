@@ -80,6 +80,10 @@ class SalaryReportController extends Controller
 
     public function exportSalary(Request $request)
     {
+        $options = [
+            'isRemoteEnabled' => true,
+            'isHtml5ParserEnabled' => true
+        ];
         $salaries = FinalPaySlip::filter($request)->get();
 
         $totalNet = $totalBasic = $totalGross = $totalOver = $totalAdd = $totalCash = $totalCorporate = $totalCritical = $totalDifficulty = $totalHouse = $totalMedical = 0;
@@ -158,7 +162,7 @@ class SalaryReportController extends Controller
             'totalRICB',
             'totalDPNB',
             'totalSifaLoan'
-        ))->setPaper('a4', 'landscape');
+        ))->setOptions($options)->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Salary-Report.pdf');
