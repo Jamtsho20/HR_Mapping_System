@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\GoodsReceivedDetail;
 use App\Models\GoodsReceivedItemSerial;
 use App\Models\GrnItemMapping;
+use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
 use App\Models\RequisitionApplication;
