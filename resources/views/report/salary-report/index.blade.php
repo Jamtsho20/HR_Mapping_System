@@ -168,7 +168,8 @@
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}
                                                             </td>
-                                                            <td>{{ $salary->details['deductions']['PF'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}
+                                                            </td>
 
                                                             <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
