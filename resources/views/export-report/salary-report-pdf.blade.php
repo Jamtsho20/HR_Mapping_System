@@ -3,64 +3,90 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salary Report</title>
     <style>
+        :root {
+            --border-color: #000;
+            --header-bg: #f2f2f2;
+            --cell-padding: 4px;
+        }
+
         * {
-            padding: 0;
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        /* .img-container {
-            display: flex !important;
-            justify-content: center !important;
-        } */
-        .img-container {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            width: 60%;
-
-
-        }
-
-        .title {
-            text-align: center;
-            padding: 10px 10px;
-        }
-
 
         body {
             font-size: 8px;
             width: 100%;
-            zoom: 60%;
+            line-height: 1.4;
         }
 
-        table {
+        .img-container {
+            display: block;
+            margin: 0 auto;
+            width: 60%;
+        }
+
+        .title {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .salary-table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        table,
-        th,
-        td {
-            border: 1px solid black;
+        .salary-table th,
+        .salary-table td {
+            border: 1px solid var(--border-color);
+            padding: var(--cell-padding);
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        th,
-        td {
-            padding: 4px;
-            /* Reduce padding */
-
-        }
-
-        th {
-            background-color: #f2f2f2;
+        .salary-table th {
+            background-color: var(--header-bg);
             text-transform: capitalize;
+            font-weight: bold;
+        }
+
+        .salary-table .totals-row td {
+            font-weight: bold;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #dc3545;
+            padding: 10px;
+        }
+
+        @page {
+            margin: 10mm 5mm;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
-
 </head>
 
 <body>
@@ -70,173 +96,110 @@
     <hr>
 
     <h1 class="title">Salary Report</h1>
-    <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
-        <thead class="thead-light">
-            <tr role="row">
-                <th>
-                    #
-                </th>
-                <th>
-                    EID
-                </th>
-                <th>
-                    Name
-                </th>
-                <th>
-                    title
-                </th>
-                <th>
-                    job nature
-                </th>
-                <th>
-                    month
-                </th>
-                <th>
-                    basic
-                </th>
-                <th>
-                    house all.
-                </th>
-                <th>
-                    med all.
-                </th>
-                <th>
-                    add. work all.
-                </th>
-                <th>
-                    cor.all.
-                </th>
-                <th>
-                    diff. all.
-                </th>
-                <th>
-                    crit. all.
-                </th>
-                <th>
-                    gross
-                </th>
 
-                <th>
-                    EMI
-                </th>
-                <th>
-                    GIS
-                </th>
-
+    <table class="salary-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>EID</th>
+                <th>Name</th>
+                <th>Title</th>
+                <th>Job Nature</th>
+                <th>Month</th>
+                <th>Basic</th>
+                <th>House All.</th>
+                <th>Med All.</th>
+                <th>Add. Work All.</th>
+                <th>Cor. All.</th>
+                <th>Diff. All.</th>
+                <th>Crit. All.</th>
+                <th>Gross</th>
+                <th>EMI</th>
+                <th>GIS</th>
                 <th>BNB</th>
                 <th>NPPF</th>
                 <th>BDFC</th>
                 <th>RICB</th>
                 <th>DPNB</th>
-                <th>BOB </th>
-                <th>Tbank </th>
-                <th>Sifa loan</th>
-                <th>
-                    PF
-                </th>
-                <th>
-                    sifa
-                </th>
-                <th>
-                    tds
-                </th>
-                <th>
-                    H/Tax
-                </th>
-                <th>
-                    Net Pay
-                </th>
-
+                <th>BOB</th>
+                <th>Tbank</th>
+                <th>Sifa Loan</th>
+                <th>PF</th>
+                <th>SIFA</th>
+                <th>TDS</th>
+                <th>H/Tax</th>
+                <th>Net Pay</th>
             </tr>
         </thead>
 
         <tbody>
             @forelse($salaries as $salary)
                 <tr>
-                    <td>{{ $loop->iteration }}
-                    </td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $salary->employee->username }}</td>
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->empJob->designation->name }}</td>
                     <td>{{ $salary->employee->empJob->empType->name }}</td>
                     <td>{{ $salary->for_month }}</td>
                     <td>{{ $salary->employee->empJob->basic_pay }}</td>
-                    <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['allowances']['Difficulty Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
-                    <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
-                    </td>
+                    <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['allowances']['Difficulty Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}</td>
+                    <td>{{ $salary->details['gross_pay'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
-
-                    <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan NPPF'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan BDFC'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan RICB'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan DPNB'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}
-                    </td>
-                    <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}
-                    </td>
+                    <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan NPPF'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan BDFC'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan RICB'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan DPNB'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}</td>
-
                     <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
                     <td>{{ $salary->details['net_pay'] }}</td>
-
                 </tr>
             @empty
                 <tr>
-                    <td colspan="28" class="text-center text-danger">No Salary
-                        Reports found</td>
+                    <td colspan="29" class="empty-message">No Salary Reports found</td>
                 </tr>
             @endforelse
-            <tr>
+
+            <tr class="totals-row">
                 <td colspan="6" class="text-right">Total:</td>
-                <td colspan="">{{ $totalBasic }}</td>
-                <td colspan="">{{ $totalHouse }}</td>
-                <td colspan="">{{ $totalMedical }}</td>
-                <td colspan="">{{ $totalAdd }}</td>
-                <td colspan="">{{ $totalCorporate }}</td>
-                <td colspan="">{{ $totalDifficulty }}</td>
-                <td colspan="">{{ $totalCritical }}</td>
-                <td colspan="">{{ $totalGross }}</td>
-                <td colspan="">{{ $totalSamsundDed }}</td>
-                <td colspan="">{{ $totalGSLI }}</td>
-                <td colspan="">{{ $totalBnb }}</td>
-                <td colspan="">{{ $totalNPPF }}</td>
-                <td colspan="">{{ $totalBDFC }}</td>
-                <td colspan="">{{ $totalRICB }}</td>
-                <td colspan="">{{ $totalDPNB }}</td>
-                <td colspan="">{{ $totalBOB }}</td>
-                <td colspan="">{{ $totalTbank }}</td>
-                <td colspan="">{{ $totalSifaLoan }}</td>
-                <td colspan="">{{ $totalPF }}</td>
-                <td colspan="">{{ $totalPF }}</td>
-                <td colspan="">{{ $totalSIFA }}</td>
-                <td colspan="">{{ $totalHealth }}</td>
-                <td colspan="">{{ $totalNet }}</td>
-                <td></td>
+                <td>{{ $totals['basic'] }}</td>
+                <td>{{ $totals['allowances']['house'] }}</td>
+                <td>{{ $totals['allowances']['medical'] }}</td>
+                <td>{{ $totals['allowances']['add'] }}</td>
+                <td>{{ $totals['allowances']['corporate'] }}</td>
+                <td>{{ $totals['allowances']['difficulty'] }}</td>
+                <td>{{ $totals['allowances']['critical'] }}</td>
+                <td>{{ $totals['gross'] }}</td>
+                <td>{{ $totals['deductions']['samsung'] }}</td>
+                <td>{{ $totals['deductions']['gsli'] }}</td>
+                <td>{{ $totals['deductions']['loans']['bnb'] }}</td>
+                <td>{{ $totals['deductions']['loans']['nppf'] }}</td>
+                <td>{{ $totals['deductions']['loans']['bdfc'] }}</td>
+                <td>{{ $totals['deductions']['loans']['ricb'] }}</td>
+                <td>{{ $totals['deductions']['loans']['dpnb'] }}</td>
+                <td>{{ $totals['deductions']['loans']['bob'] }}</td>
+                <td>{{ $totals['deductions']['loans']['tbank'] }}</td>
+                <td>{{ $totals['deductions']['loans']['sifa'] }}</td>
+                <td>{{ $totals['deductions']['pf'] }}</td>
+                <td>{{ $totals['deductions']['sifa'] }}</td>
+                <td>{{ $totals['deductions']['salary_tax'] }}</td>
+                <td>{{ $totals['deductions']['health'] }}</td>
+                <td>{{ $totals['net'] }}</td>
             </tr>
         </tbody>
     </table>
+
     @include('layouts.includes.report-footer')
 </body>
 
