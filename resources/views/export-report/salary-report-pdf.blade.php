@@ -32,9 +32,9 @@
 
 
         body {
-            font-size: 10px;
+            font-size: 8px;
             width: 100%;
-            zoom: 75%;
+            zoom: 60%;
         }
 
         table {
@@ -77,47 +77,50 @@
                     #
                 </th>
                 <th>
-                    Employee Name
+                    EID
                 </th>
                 <th>
-                    Job title
+                    Name
+                </th>
+                <th>
+                    title
                 </th>
                 <th>
                     job nature
                 </th>
                 <th>
-                    Salary month
+                    month
                 </th>
                 <th>
-                    basic pay
+                    basic
                 </th>
                 <th>
                     house all.
                 </th>
                 <th>
-                    medical all.
+                    med all.
                 </th>
                 <th>
                     add. work all.
                 </th>
                 <th>
-                    corporate all.
+                    cor.all.
                 </th>
                 <th>
                     diff. all.
                 </th>
                 <th>
-                    critical all.
+                    crit. all.
                 </th>
                 <th>
-                    gross earning
+                    gross
                 </th>
 
                 <th>
-                    samsung
+                    EMI
                 </th>
                 <th>
-                    gis
+                    GIS
                 </th>
 
                 <th>BNB</th>
@@ -125,8 +128,8 @@
                 <th>BDFC</th>
                 <th>RICB</th>
                 <th>DPNB</th>
-                <th> BOB </th>
-                <th> Tbank </th>
+                <th>BOB </th>
+                <th>Tbank </th>
                 <th>Sifa loan</th>
                 <th>
                     PF
@@ -150,8 +153,9 @@
         <tbody>
             @forelse($salaries as $salary)
                 <tr>
-                    <td>{{ ($salaries->currentPage() - 1) * $salaries->perPage() + $loop->iteration }}
+                    <td>{{ $loop->iteration }}
                     </td>
+                    <td>{{ $salary->employee->username }}</td>
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->empJob->designation->name }}</td>
                     <td>{{ $salary->employee->empJob->empType->name }}</td>
@@ -204,6 +208,33 @@
                         Reports found</td>
                 </tr>
             @endforelse
+            <tr>
+                <td colspan="6" class="text-right">Total:</td>
+                <td colspan="">{{ $totalBasic }}</td>
+                <td colspan="">{{ $totalHouse }}</td>
+                <td colspan="">{{ $totalMedical }}</td>
+                <td colspan="">{{ $totalAdd }}</td>
+                <td colspan="">{{ $totalCorporate }}</td>
+                <td colspan="">{{ $totalDifficulty }}</td>
+                <td colspan="">{{ $totalCritical }}</td>
+                <td colspan="">{{ $totalGross }}</td>
+                <td colspan="">{{ $totalSamsundDed }}</td>
+                <td colspan="">{{ $totalGSLI }}</td>
+                <td colspan="">{{ $totalBnb }}</td>
+                <td colspan="">{{ $totalNPPF }}</td>
+                <td colspan="">{{ $totalBDFC }}</td>
+                <td colspan="">{{ $totalRICB }}</td>
+                <td colspan="">{{ $totalDPNB }}</td>
+                <td colspan="">{{ $totalBOB }}</td>
+                <td colspan="">{{ $totalTbank }}</td>
+                <td colspan="">{{ $totalSifaLoan }}</td>
+                <td colspan="">{{ $totalPF }}</td>
+                <td colspan="">{{ $totalPF }}</td>
+                <td colspan="">{{ $totalSIFA }}</td>
+                <td colspan="">{{ $totalHealth }}</td>
+                <td colspan="">{{ $totalNet }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')
