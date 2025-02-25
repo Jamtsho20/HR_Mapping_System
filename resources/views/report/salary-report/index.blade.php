@@ -113,7 +113,7 @@
                                                             sifa
                                                         </th>
                                                         <th>
-                                                            tds
+                                                            TDS
                                                         </th>
                                                         <th>
                                                             H/Tax
