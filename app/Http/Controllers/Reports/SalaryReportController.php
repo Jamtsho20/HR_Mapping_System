@@ -213,7 +213,7 @@ class SalaryReportController extends Controller
 
         // Use chunk to process records in batches
         FinalPaySlip::filter($request)
-            ->chunk(100, function ($salaries) use (&$totals) {
+            ->chunk(50, function ($salaries) use (&$totals) {
                 foreach ($salaries as $salary) {
                     $details = $salary->details;
 
@@ -313,7 +313,7 @@ class SalaryReportController extends Controller
 
         // Use chunk to process records in batches
         FinalPaySlip::filter($request)
-            ->chunk(100, function ($salaries) use (&$totals) {
+            ->chunk(50, function ($salaries) use (&$totals) {
                 foreach ($salaries as $salary) {
                     $details = $salary->details;
 
