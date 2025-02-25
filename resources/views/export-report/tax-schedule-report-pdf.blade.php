@@ -139,6 +139,13 @@
                     <td colspan="5" class="text-center text-danger">No Tax Schedule Reports found</td>
                 </tr>
             @endforelse
+            <tr>
+                <td colspan="10" style="text-align: right">Total:</td>
+                <td>{{ $totalHealth }}</td>
+                <td>{{ $totalSalary }}</td>
+                <td>{{ $totalHealth + $totalSalary }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

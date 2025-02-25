@@ -116,8 +116,12 @@ class LoanReportController extends Controller
 
 
 
+        $totalLoans = $loans->sum(function ($loan) {
+            return $loan->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans', 'totalLoans'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Loan-Report.pdf');
@@ -136,8 +140,15 @@ class LoanReportController extends Controller
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
+
+        $totalLoans = $loans->sum(function ($loan) {
+            return $loan->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans', 'totalLoans'))->setPaper('a4', 'landscape');
+
+
 
 
         // Return the PDF as a stream to display it in the browser

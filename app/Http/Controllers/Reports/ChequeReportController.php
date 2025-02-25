@@ -25,7 +25,7 @@ class ChequeReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
- 
+
 
         $cheques = FinalPaySlip::whereHas('employee.empJob', function ($query) {
             $query->where('salary_disbursement_mode', 2);
@@ -91,10 +91,11 @@ class ChequeReportController extends Controller
             $query->where('salary_disbursement_mode', 2);
         })->filter($request)->get();
 
+        $totalCheques = $cheques->sum(function ($cheque) {
+            return $cheque->details['net_pay'] ?? 0;
+        });
 
-
-        // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.cheque-report-pdf', compact('cheques'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.cheque-report-pdf', compact('cheques', 'totalCheques'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Cheque-Report.pdf');
@@ -110,7 +111,12 @@ class ChequeReportController extends Controller
             $query->where('salary_disbursement_mode', 2);
         })->filter($request)->get();
 
-        $pdf = Pdf::loadView('export-report.cheque-report-pdf', compact('cheques'))->setPaper('a4', 'landscape');;
+        $totalCheques =
+            $cheques->sum(function ($cheque) {
+                return $cheque->details['net_pay'] ?? 0;
+            });
+
+        $pdf = Pdf::loadView('export-report.cheque-report-pdf', compact('cheques', 'totalCheques'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser

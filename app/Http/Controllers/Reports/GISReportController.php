@@ -29,8 +29,6 @@ class GISReportController extends Controller
         $employee = employeeList();
 
         return view('report.gis-report.index', compact('privileges', 'employee', 'gisDeductions'));
-
-
     }
 
     /**
@@ -87,9 +85,12 @@ class GISReportController extends Controller
         $gisDeductions = FinalPaySlip::filter($request)->get();
 
 
+        $totalGIS = $gisDeductions->sum(function ($pf) {
+            return $pf->details['deductions']['GSLI'] ?? 0;
+        });
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.gis-report-pdf', compact('gisDeductions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.gis-report-pdf', compact('gisDeductions', 'totalGIS'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('GIS-Deduction.pdf');
@@ -103,8 +104,12 @@ class GISReportController extends Controller
     {
         $gisDeductions = FinalPaySlip::filter($request)->get();
 
+        $totalGIS = $gisDeductions->sum(function ($pf) {
+            return $pf->details['deductions']['GSLI'] ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.gis-report-pdf', compact('gisDeductions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.gis-report-pdf', compact('gisDeductions', 'totalGIS'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser

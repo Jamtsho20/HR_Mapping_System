@@ -83,6 +83,8 @@ class PFReportController extends Controller
             4 => 0.15, // executive long term contract
             5 => 0.10, // Long-term Contract(Technical Staff Group 2 Level)
             6 => 0.05, // general support staff long term contract
+            7 => 0.05, //Short Term Contract
+            8 => 0,
         ];
 
         //calculate
@@ -143,8 +145,7 @@ class PFReportController extends Controller
         // Load all bookings with their dzongkhag names
         $pfDeductions = FinalPaySlip::filter($request)
             ->with(['employee.empJob.empType'], ['employee.empJob']) // Load necessary relationships
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
+            ->get();
 
         // Collection to hold data with calculated PF
         $pfDeductionsWithPF = $pfDeductions->map(function ($pf) {
@@ -182,11 +183,15 @@ class PFReportController extends Controller
             ];
         });
 
+        $totalEmployeeAmount = $pfDeductions->sum(function ($pf) {
+            return $pf->details['deductions']['PF Contr'] ?? 0;
+        });
 
-
+        $totalEmployerAmount = $pfDeductionsWithPF->sum('employer_pf_amount');
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions', 'pfDeductionsWithPF'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions', 'pfDeductionsWithPF', 'totalEmployeeAmount', 'totalEmployerAmount'))->setPaper('a4', 'landscape');
+
 
         // Return the PDF download
         return $pdf->download('PF-Deduction.pdf');
@@ -230,8 +235,7 @@ class PFReportController extends Controller
         // Load all bookings with their dzongkhag names
         $pfDeductions = FinalPaySlip::filter($request)
             ->with(['employee.empJob.empType'], ['employee.empJob']) // Load necessary relationships
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
+            ->get();
 
         // Collection to hold data with calculated PF
         $pfDeductionsWithPF = $pfDeductions->map(function ($pf) {
@@ -270,10 +274,14 @@ class PFReportController extends Controller
         });
 
 
+        $totalEmployeeAmount = $pfDeductions->sum(function ($pf) {
+            return $pf->details['deductions']['PF Contr'] ?? 0;
+        });
 
+        $totalEmployerAmount = $pfDeductionsWithPF->sum('employer_pf_amount');
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions', 'pfDeductionsWithPF'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.pf-report-pdf', compact('pfDeductions', 'pfDeductionsWithPF', 'totalEmployeeAmount', 'totalEmployerAmount'))->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
         return $pdf->stream('PF-Deduction.pdf');
