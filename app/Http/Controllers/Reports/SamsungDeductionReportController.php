@@ -28,9 +28,9 @@ class SamsungDeductionReportController extends Controller
         $employee = employeeList();
         $samsungDeductions = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [11])
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [16])
             ->filter($request) // Apply the filters
-            ->select('final_pay_slips.for_month','loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
+            ->select('final_pay_slips.for_month', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
             ->paginate(config('global.pagination')) // Paginate the results
             ->withQueryString(); // Retain the query string in the pagination links
 
