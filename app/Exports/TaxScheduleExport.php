@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\finalPaySlip;
+use App\Models\FinalPaySlip;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -28,7 +28,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
             $hTax = $taxSchedules->details['deductions']['H/Tax'] ?? 0;
             $tds =                $taxSchedules->details['deductions']['TDS'] ?? '0';
 
-       
+
             return [
                 $serialNo++,
                 $taxSchedules->employee->name,
