@@ -95,6 +95,11 @@
                         Remittance Reports found</td>
                 </tr>
             @endforelse
+            <tr>
+                <td colspan="3" style="text-align: right">Total:</td>
+                <td>{{ $totaleTeeru }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

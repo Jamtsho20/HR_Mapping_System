@@ -85,9 +85,15 @@ class TaxScheduleReportController extends Controller
         $taxSchedules = FinalPaySlip::filter($request)->get();
 
 
+        $totalHealth = $taxSchedules->sum(function ($health) {
+            return $health->details['deductions']['H/Tax'] ?? 0;
+        });
+        $totalSalary = $taxSchedules->sum(function ($salary) {
+            return $salary->details['deductions']['Salary Tax'] ?? 0;
+        });
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('taxSchedules'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('taxSchedules', 'totalHealth', 'totalSalary'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('TaxSchedule-Deduction.pdf');
@@ -101,8 +107,15 @@ class TaxScheduleReportController extends Controller
     {
         $taxSchedules = FinalPaySlip::filter($request)->get();
 
+        $totalHealth = $taxSchedules->sum(function ($health) {
+            return $health->details['deductions']['H/Tax'] ?? 0;
+        });
+        $totalSalary = $taxSchedules->sum(function ($salary) {
+            return $salary->details['deductions']['Salary Tax'] ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('taxSchedules'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('taxSchedules', 'totalHealth', 'totalSalary'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser
