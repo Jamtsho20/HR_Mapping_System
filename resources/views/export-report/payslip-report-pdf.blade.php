@@ -84,7 +84,7 @@
                                         @foreach ($column as $key => $value)
                                             <tr>
                                                 <td class="w-half">{{ $key }}:</td>
-                                                <td class="w-half" style="text-align: right; padding-left: 30px;">
+                                                <td class="w-half" style="text-align: right; padding-left: 90px;">
                                                     {{ number_format($value ?? '0', 2) }}
                                                 </td>
                                             </tr>
@@ -125,7 +125,7 @@
             </div>
     @endforeach
 
-    
+
     <div class="lightborder-topbottom w-full text-center">
         <table class="borderless w-full font-small" style="margin: 0; padding: 0;">
             <tbody>
