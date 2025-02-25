@@ -25,6 +25,10 @@ class SalaryReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
+        $request->merge([
+            'year' => $request->get('year', \Carbon\Carbon::now()->format('Y-m'))
+        ]);
+
         $salaries = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.salary-report.index', compact('privileges', 'salaries', 'employee'));

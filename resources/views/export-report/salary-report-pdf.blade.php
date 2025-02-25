@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Report</title>
+    <title>Salary Report
+    </title>
     <style>
         :root {
             --border-color: #000;
@@ -47,9 +48,10 @@
             border: 1px solid var(--border-color);
             padding: var(--cell-padding);
             text-align: left;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            /* white-space: nowrap; */
+            word-wrap: break-word;
+
+
         }
 
         .salary-table th {
@@ -95,7 +97,9 @@
     </div>
     <hr>
 
-    <h1 class="title">Salary Report</h1>
+    <h1 class="title">Salary Report for
+        {{ \Carbon\Carbon::parse(request()->get('year', now()->format('Y-m')))->translatedFormat('F Y') }}
+    </h1>
 
     <table class="salary-table">
         <thead>
@@ -105,7 +109,6 @@
                 <th>Name</th>
                 <th>Title</th>
                 <th>Job Nature</th>
-                <th>Month</th>
                 <th>Basic</th>
                 <th>House All.</th>
                 <th>Med All.</th>
@@ -140,7 +143,6 @@
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->empJob->designation->name }}</td>
                     <td>{{ $salary->employee->empJob->empType->name }}</td>
-                    <td>{{ $salary->for_month }}</td>
                     <td>{{ $salary->employee->empJob->basic_pay }}</td>
                     <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}</td>
                     <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}</td>
@@ -172,7 +174,7 @@
             @endforelse
 
             <tr class="totals-row">
-                <td colspan="6" class="text-right">Total:</td>
+                <td colspan="5" class="text-right">Total:</td>
                 <td>{{ $totals['basic'] }}</td>
                 <td>{{ $totals['allowances']['house'] }}</td>
                 <td>{{ $totals['allowances']['medical'] }}</td>

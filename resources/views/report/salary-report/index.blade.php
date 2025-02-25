@@ -18,7 +18,8 @@
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
             <div class="col-3 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+                <input type="month" name="year" class="form-control"
+                    value="{{ request()->get('year', \Carbon\Carbon::now()->format('Y-m')) }}">
             </div>
             <div class="col-3 form-group">
                 <select name="employee_id" class="form-control select2 select2-hidden-accessible"
