@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\finalPaySlip;
+use App\Models\FinalPaySlip;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
