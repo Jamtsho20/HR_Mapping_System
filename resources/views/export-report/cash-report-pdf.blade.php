@@ -82,20 +82,25 @@
 
         <tbody>
             @forelse($cashes as $cash)
-            <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>{{ $cash->employee->name }}</td>
-                <td>{{ $cash->employee->empJob->designation->name }}</td>
-                <td>{{ $cash->employee->empJob->office->name }}</td>
-                <td>{{ $cash->details['net_pay'] }}</td>
-                <td>{{ $cash->for_month }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $cash->employee->name }}</td>
+                    <td>{{ $cash->employee->empJob->designation->name }}</td>
+                    <td>{{ $cash->employee->empJob->office->name }}</td>
+                    <td>{{ $cash->details['net_pay'] }}</td>
+                    <td>{{ $cash->for_month }}</td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="21" class="text-center text-danger">No Cash
-                    Reports found</td>
-            </tr>
+                <tr>
+                    <td colspan="21" class="text-center text-danger">No Cash
+                        Reports found</td>
+                </tr>
             @endforelse
+            <tr>
+                <td colspan="4" style="text-align: right">Total</td>
+                <td>{{ $totalCashes }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

@@ -91,10 +91,13 @@ class CashReportController extends Controller
             $query->where('salary_disbursement_mode', 1);
         })->filter($request)->get();
 
+        $totalCashes = $cashes->sum(function ($cash) {
+            return $cash->details['net_pay'] ?? 0;
+        });
+        $pdf = Pdf::loadView('export-report.cash-report-pdf', compact('cashes', 'totalCashes'))->setPaper('a4', 'landscape');
 
 
-        // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.cash-report-pdf', compact('cashes'))->setPaper('a4', 'landscape');;
+
 
         // Return the PDF download
         return $pdf->download('Cash-Report.pdf');
@@ -110,7 +113,10 @@ class CashReportController extends Controller
             $query->where('salary_disbursement_mode', 1);
         })->filter($request)->get();
 
-        $pdf = Pdf::loadView('export-report.cash-report-pdf', compact('cashes'))->setPaper('a4', 'landscape');;
+        $totalCashes = $cashes->sum(function ($cash) {
+            return $cash->details['net_pay'] ?? 0;
+        });
+        $pdf = Pdf::loadView('export-report.cash-report-pdf', compact('cashes', 'totalCashes'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser
