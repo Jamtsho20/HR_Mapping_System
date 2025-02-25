@@ -73,7 +73,7 @@ const SAP_BASE_URL = "https://192.168.196.20";
 const SAP_PORT = 50000;
 const SAP_CONPANY_DB = "TICL_DB_PRD";
 const SAP_USERNAME = "manager";
-const SAP_PASSWORD = "Ticl@2024";
+const SAP_PASSWORD = "Ticl@2025";
 
 // Payslip statuses
 const SIFA_APPROVED = 3;
@@ -81,7 +81,7 @@ const NEWLY_CREATED = 1;
 const PREPARED = 2;
 const VERIFIED = 3;
 const APPROVED_POSTED = 4;
-const UNPAID_SALARY_STAFF = 23197;
+const UNPAID_SALARY_STAFF = 205150;
 const ALLOWANCE = 1;
 const DEDUCTION = 2;
 

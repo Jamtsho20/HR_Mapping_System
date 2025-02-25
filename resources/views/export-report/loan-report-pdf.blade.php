@@ -85,21 +85,26 @@
 
         <tbody>
             @forelse($loans as $loan)
-            <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{$loan->employee->name}}</td>
-                <td>{{$loan->pay_head_name}}</td>
-                <td>{{$loan->loan_number}}</td>
-                <td>{{$loan->loan_type}}</td>
-                <td>{{$loan->amount}}</td>
-                <td>{{$loan->for_month}}</td>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $loan->employee->name }}</td>
+                    <td>{{ $loan->pay_head_name }}</td>
+                    <td>{{ $loan->loan_number }}</td>
+                    <td>{{ $loan->loan_type }}</td>
+                    <td>{{ $loan->amount }}</td>
+                    <td>{{ $loan->for_month }}</td>
 
-            </tr>
+                </tr>
             @empty
-            <tr>
-                <td colspan="21" class="text-center text-danger">No Loan Reports found</td>
-            </tr>
+                <tr>
+                    <td colspan="21" class="text-center text-danger">No Loan Reports found</td>
+                </tr>
             @endforelse
+            <tr>
+                <td colspan="5" style="text-align:right">Total:</td>
+                <td>{{ $totalLoans }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

@@ -137,8 +137,13 @@ class eTeeruRemittanceReportController extends Controller
             })
             ->get();
 
+        $totaleTeeru = $eTeeru->sum(function ($pf) {
+            return $pf->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru', 'totaleTeeru'))->setPaper('a4', 'landscape');
+
 
         // Return the PDF download
         return $pdf->download('eTeeru-Remittance-Report.pdf');
@@ -177,8 +182,13 @@ class eTeeruRemittanceReportController extends Controller
             })
             ->get();
 
+
+        $totaleTeeru = $eTeeru->sum(function ($pf) {
+            return $pf->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru', 'totaleTeeru'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser
