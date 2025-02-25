@@ -91,15 +91,19 @@ class SamsungDeductionReportController extends Controller
         // Load all bookings with their dzongkhag names
         $samsungDeductions = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [11])
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [16])
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.for_month', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
             ->get();
 
 
 
+        $totalSamsung = $samsungDeductions->sum(function ($device) {
+            return $device->amount ?? 0;
+        });
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions', 'totalSamsung'))->setPaper('a4', 'landscape');;
+
 
         // Return the PDF download
         return $pdf->download('SamsungDeduction-Report.pdf');
@@ -113,12 +117,16 @@ class SamsungDeductionReportController extends Controller
     {
         $samsungDeductions = FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [11])
+            ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [16])
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.for_month', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
             ->get();
+
+        $totalSamsung = $samsungDeductions->sum(function ($device) {
+            return $device->amount ?? 0;
+        });
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions', 'totalSamsung'))->setPaper('a4', 'landscape');;
 
 
         // Return the PDF as a stream to display it in the browser
