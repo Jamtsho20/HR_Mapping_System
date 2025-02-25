@@ -27,6 +27,35 @@ Route::get('debug', function () {
     $pay = new PayrollService();
     $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
 
+
+    dd($pay->checkFormulaValidity(
+        "IF ([SIFA_MEMBER] == 1)
+IF ([GRADE] == 'E0')
+THEN (400)
+ENDIF
+IF ([GRADE] == 'P')
+THEN (325)
+ENDIF
+IF ([GRADE] == 'S')
+THEN (125)
+ENDIF
+IF ([GRADE] == 'T1')
+THEN (225)
+ENDIF
+IF ([GRADE] == 'T2')
+THEN (225)
+ENDIF
+IF ([GRADE] == 'GSSG')
+THEN (125)
+ENDIF
+IF ([GRADE] == 'T')
+THEN (225)
+ENDIF
+ELSE
+THEN (0)
+ENDIF"
+    ));
+
     $employee = User::find(182);
     $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
 

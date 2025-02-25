@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('transfer_no')->index();
             $table->foreignId('type_id')->index()->constrained('mas_transfer_types')->restrictOnDelete()->cascadeOnUpdate();
             $table->date('transfer_date')->index();
-            $table->text('reason_of_transfer')->nullable();
+            $table->text('reason_of_transfer');
             $table->foreignId('from_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('to_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             // $table->string('old_location'); // make use of office / site_id / store_id
