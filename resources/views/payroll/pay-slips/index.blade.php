@@ -79,11 +79,13 @@
                                                                     </td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->edit)
-                                                                            <a href="{{ route('pay-slips.show', $record->id) }}"
-                                                                                class="btn btn-sm btn-rounded btn-outline-info">
-                                                                                <i class="fa fa-list"></i>
-                                                                                DETAILS
-                                                                            </a>
+                                                                            @if ($record->status['key'] != 4)
+                                                                                <a href="{{ route('pay-slips.show', $record->id) }}"
+                                                                                    class="btn btn-sm btn-rounded btn-outline-info">
+                                                                                    <i class="fa fa-list"></i>
+                                                                                    DETAILS
+                                                                                </a>
+                                                                            @endif
                                                                             @if ($record->status['key'] == 1)
                                                                                 <a href="{{ route('pay-slips.process', ['id' => $record->id, 'status' => 2]) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-success"
