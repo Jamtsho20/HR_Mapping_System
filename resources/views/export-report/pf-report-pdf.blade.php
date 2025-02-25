@@ -107,6 +107,13 @@
                 </tr>
             @endforelse
 
+            <tr>
+                <td colspan="5" style="text-align:right">Total:</td>
+                <td>{{ $totalEmployeeAmount }}</td>
+                <td>{{ $totalEmployerAmount }}</td>
+                <td>{{ $totalEmployeeAmount + $totalEmployerAmount }}</td>
+            </tr>
+
         </tbody>
     </table>
     @include('layouts.includes.report-footer')
