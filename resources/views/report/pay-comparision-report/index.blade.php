@@ -88,23 +88,22 @@
                                                             {{-- Current Salary Details --}}
                                                             <td>{{ $data['basic_pay'] }}</td>
                                                             <td>
-
                                                                 {{ $data['total_allowance'] }}</td>
                                                             <td>{{ $data['gross_pay'] }}</td>
 
                                                             {{-- Previous Salary Details --}}
                                                             <td>{{ $previousData['details']['basic_pay'] ?? config('global_null') }}
                                                             </td>
-                                                            <td>{{ $previousData['total_allowances'] }}</td>
+                                                            <td>{{ $previousData['total_allowances'] ?? 0 }}</td>
                                                             <td>{{ $previousData['details']['gross_pay'] ?? config('global_null') }}
                                                             </td>
 
                                                             {{-- Differences --}}
-                                                            <td>{{ ($data['basic_pay'] ?: 0) - ($previousData['details']['basic_pay'] ?: 0) }}
+                                                            <td>{{ ($data['basic_pay'] ?? 0) - ($previousData['details']['basic_pay'] ?? 0) }}
                                                             </td>
-                                                            <td>{{ $data['total_allowance'] - $previousData['total_allowances'] }}
+                                                            <td>{{ ($data['total_allowance'] ?? 0) - ($previousData['total_allowances'] ?? 0) }}
                                                             </td>
-                                                            <td>{{ $data['gross_pay'] - $previousData['details']['gross_pay'] }}
+                                                            <td>{{ ($data['gross_pay'] ?? 0) - ($previousData['details']['gross_pay'] ?? 0) }}
                                                             </td>
                                                         </tr>
                                                     @endforeach

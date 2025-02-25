@@ -27,7 +27,7 @@ class SalarySavingSchemeController extends Controller
         $privileges = $request->instance();
         $employee = employeeList();
 
-        $sss = EmployeeSalarySaving::filter($request)
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->filter($request)
             ->paginate(config('global.pagination'))
             ->withQueryString();
 
@@ -88,7 +88,7 @@ class SalarySavingSchemeController extends Controller
     public function exportSSS(Request $request)
     {
 
-        $sss = EmployeeSalarySaving::filter($request)
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->filter($request)
             ->get();
         $totalAmount = $sss->sum('amount');
 
@@ -112,7 +112,7 @@ class SalarySavingSchemeController extends Controller
     public function printSSS(Request $request)
     {
         // Load all bookings with their dzongkhag names
-        $sss = EmployeeSalarySaving::filter($request)
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->filter($request)
             ->get();
 
         $totalAmount = $sss->sum('amount');
