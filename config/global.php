@@ -187,7 +187,7 @@ return [
             'post_to_sap' => false,
             'email_subject' => 'Leave',
             'approver_mail_content' => 'has applied {no_of_days} day(s) of {type} from {from_date} to {to_date}.',
-            'initiator_mail_content' => 'Your {no_of_days} day(s) of {type} from {from_date} to {to_date} had been'
+            'initiator_mail_content' => 'Your {no_of_days} day(s) of {type} from {from_date} to {to_date} has been'
         ],
         2 => [
             'name' => App\Models\ExpenseApplication::class,
@@ -243,5 +243,3 @@ return [
 
 
 ];
-
-

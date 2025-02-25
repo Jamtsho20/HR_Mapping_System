@@ -79,7 +79,7 @@
                                                             add. work all.
                                                         </th>
                                                         <th>
-                                                            coporate all.
+                                                            corporate all.
                                                         </th>
                                                         <th>
                                                             diff. all.
@@ -98,13 +98,14 @@
                                                             gis
                                                         </th>
 
-                                                        <th>
-                                                            bob loan
-                                                        </th>
-
-                                                        <th>
-                                                            tbank loan
-                                                        </th>
+                                                        <th>BNB</th>
+                                                        <th>NPPF</th>
+                                                        <th>BDFC</th>
+                                                        <th>RICB</th>
+                                                        <th>DPNB</th>
+                                                        <th> BOB </th>
+                                                        <th> Tbank </th>
+                                                        <th>Sifa loan</th>
                                                         <th>
                                                             PF
                                                         </th>
@@ -112,7 +113,7 @@
                                                             sifa
                                                         </th>
                                                         <th>
-                                                            tds
+                                                            TDS
                                                         </th>
                                                         <th>
                                                             H/Tax
@@ -138,7 +139,7 @@
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}
                                                             </td>
-                                                            <td>{{ $salary->details['allowances']['Overtime Allowance'] ?? '0' }}
+                                                            <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}
                                                             </td>
@@ -150,20 +151,36 @@
                                                             <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
+
+                                                            <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan NPPF'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan BDFC'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan RICB'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Loan DPNB'] ?? '0' }}
+                                                            </td>
                                                             <td>{{ $salary->details['deductions']['Loan BOB'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['Loan TBank'] ?? '0' }}
                                                             </td>
-                                                            <td>{{ $salary->details['deductions']['PF'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}
+                                                            </td>
+
                                                             <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
-                                                            <td>{{ $salary->details['deductions']['TDS'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
+                                                            </td>
                                                             <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['net_pay'] }}</td>
 
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="21" class="text-center text-danger">No Salary
+                                                            <td colspan="28" class="text-center text-danger">No Salary
                                                                 Reports found</td>
                                                         </tr>
                                                     @endforelse

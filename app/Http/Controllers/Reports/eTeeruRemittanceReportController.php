@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\EteeruExport;
 use App\Http\Controllers\Controller;
 use App\Models\MasPayGroupDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -144,7 +145,7 @@ class eTeeruRemittanceReportController extends Controller
     }
     public function exportEteeruExcel(Request $request)
     {
-        return Excel::download(new EteeruExport($request), 'employee-report.xlsx');
+        return Excel::download(new EteeruExport($request), 'eTeeru-report.xlsx');
     }
 
     public function printEteeru(Request $request)
