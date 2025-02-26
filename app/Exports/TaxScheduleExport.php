@@ -26,12 +26,13 @@ class TaxScheduleExport implements FromCollection, WithHeadings
         // Access the request data to apply filters
         return FinalPaySlip::filter($this->request)->get()->map(function ($taxSchedules) use (&$serialNo) {
             $hTax = $taxSchedules->details['deductions']['H/Tax'] ?? 0;
-            $tds =                $taxSchedules->details['deductions']['TDS'] ?? '0';
+            $tds =  $taxSchedules->details['deductions']['Salary Tax'] ?? '0';
 
 
             return [
                 $serialNo++,
                 $taxSchedules->employee->name,
+                $taxSchedules->employee->empJob->tpn_number,
                 $taxSchedules->employee->cid_no,
                 $taxSchedules->details['basic_pay'] ?? 0,
                 $taxSchedules->details['allowances']['Critical ALL'] ?? '0',
@@ -40,7 +41,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
                 $taxSchedules->details['allowances']['Corporate ALL'] ?? '0',
                 $taxSchedules->details['allowances']['Cash ALL'] ?? '0',
                 $taxSchedules->details['deductions']['H/Tax'] ?? 0,
-                $taxSchedules->details['deductions']['TDS'] ?? '0',
+                $taxSchedules->details['deductions']['Salary Tax'] ?? 0,
                 $hTax +  $tds,
                 $taxSchedules->for_month,
             ];
@@ -52,6 +53,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
         return [
             'Sl No',
             'Employee Name',
+            'TPN',
             'CID',
             'Basic Pay',
             'Critical ALL',
@@ -60,7 +62,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
             'Coporate ALL',
             'Cash ALL',
             'H/Tax',
-            'TDS',
+            'Salary Tax',
             'Total Tax',
             'Date',
         ];
