@@ -7,11 +7,20 @@
         <div class="block">
             <div class="card-block-header block-header-default ">
                 @component('layouts.includes.filter')
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <input type="text" name="username" class="form-control" value="{{ request()->get('username') }}" placeholder="Username">
+                </div>
+                <div class="col-md-4 form-group">
+                    <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Status" tabindex="-1"
+                        name="is_active">
+                        <option value="" disabled selected hidden>Select Status</option>
+                        <option value="Active" {{ request()->get('is_active') == 'Active' ? 'selected' : '' }}>Active</option>
+                        <option value="Inactive" {{ request()->get('is_active') == 'Inactive' ? 'selected' : '' }}>Inactive
+                        </option>
+                    </select>
                 </div>
                 @endcomponent
             </div>
@@ -38,7 +47,13 @@
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->username }}</td>
                                             <td>{{ $user->email }}</td>
-                                            <td class="text-center">{!! $user->isActive() ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}</td>
+                                            <!-- <td class="text-center">{!! $user->isActive() ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}</td> -->
+                                            <td class="text-center">
+                                                <span
+                                                    class="badge rounded-pill  me-1 mb-1 mt-1 bg-{{ $user->is_active == 'Active' ? 'primary' : 'danger' }}">
+                                                    {{ $user->is_active }}
+                                                </span>
+                                            </td>
                                             <td class="text-center">
                                                 <a href="{{ url('system-setting/users/' . $user->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
                                                 @if ($privileges->edit)

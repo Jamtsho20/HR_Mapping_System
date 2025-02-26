@@ -18,6 +18,7 @@ use App\Http\Controllers\Reports\LeaveEncashmentReportController;
 use App\Http\Controllers\Reports\LoanReportController;
 use App\Http\Controllers\Reports\LTCController;
 use App\Http\Controllers\Reports\PayComparisionReportController;
+use App\Http\Controllers\Reports\PayslipReportController;
 use App\Http\Controllers\Reports\PFReportController;
 use App\Http\Controllers\Reports\SalaryReportController;
 use App\Http\Controllers\Reports\SalarySavingSchemeController;
@@ -290,6 +291,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('pay-comparision-report', 'PayComparisionReportController')->except('create', 'show', 'edit');
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
         Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
+        Route::resource('payslip-report', 'PayslipReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -339,6 +341,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/export-encashment-report', [LeaveEncashmentReportController::class, 'exportEncashment'])->name('encashment-pdf.export');
     Route::get('/export-encashment-excel-report', [LeaveEncashmentReportController::class, 'exportEncashmentExcel'])->name('encashment.export');
+    Route::get('/payslip-report-excel-report', [PayslipReportController::class, 'exportPayslip'])->name('payslip-report-pdf.export');
 
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
