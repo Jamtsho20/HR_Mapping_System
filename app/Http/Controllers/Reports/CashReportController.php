@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FinalPaySlip;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CashReportController extends Controller
@@ -27,10 +28,26 @@ class CashReportController extends Controller
         $employee = employeeList();
 
 
-        $cashes = FinalPaySlip::whereHas('employee.empJob', function ($query) {
-            $query->where('salary_disbursement_mode', 1);
-        })->filter($request)->paginate(config('global.pagination'))->withQueryString();
-
+        $cashes =
+            FinalPaySlip::whereHas('employee.empJob', function ($query) {
+                $query->where('salary_disbursement_mode', 1);
+            })
+            ->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+            ->join('mas_employee_jobs', 'mas_employees.id', '=', 'mas_employee_jobs.mas_employee_id')
+            ->leftJoin('mas_pay_group_details', function ($join) {
+                $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
+                    ->where('mas_pay_group_details.mas_pay_group_id', 4);
+            })
+            ->select(
+                'final_pay_slips.*',
+                'mas_employees.name',
+                'mas_employee_jobs.account_number',
+                'mas_employee_jobs.bank',
+                DB::raw('(JSON_UNQUOTE(JSON_EXTRACT(final_pay_slips.details, "$.net_pay")) - COALESCE(mas_pay_group_details.amount, 0)) as net_pay_after_eteeru')
+            )
+            ->filter($request)
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
 
 
         return view('report.cash-report.index', compact('privileges', 'cashes', 'employee'));
@@ -89,10 +106,24 @@ class CashReportController extends Controller
         // Load all bookings with their dzongkhag names
         $cashes = FinalPaySlip::whereHas('employee.empJob', function ($query) {
             $query->where('salary_disbursement_mode', 1);
-        })->filter($request)->get();
+        })
+            ->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+            ->join('mas_employee_jobs', 'mas_employees.id', '=', 'mas_employee_jobs.mas_employee_id')
+            ->leftJoin('mas_pay_group_details', function ($join) {
+                $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
+                    ->where('mas_pay_group_details.mas_pay_group_id', 4);
+            })
+            ->select(
+                'final_pay_slips.*',
+                'mas_employees.name',
+                'mas_employee_jobs.account_number',
+                'mas_employee_jobs.bank',
+                DB::raw('(JSON_UNQUOTE(JSON_EXTRACT(final_pay_slips.details, "$.net_pay")) - COALESCE(mas_pay_group_details.amount, 0)) as net_pay_after_eteeru')
+            )
+            ->filter($request)->get();
 
         $totalCashes = $cashes->sum(function ($cash) {
-            return $cash->details['net_pay'] ?? 0;
+            return $cash->net_pay_after_eteeru ?? 0;
         });
         $pdf = Pdf::loadView('export-report.cash-report-pdf', compact('cashes', 'totalCashes'))->setPaper('a4', 'landscape');
 
@@ -111,10 +142,24 @@ class CashReportController extends Controller
     {
         $cashes = FinalPaySlip::whereHas('employee.empJob', function ($query) {
             $query->where('salary_disbursement_mode', 1);
-        })->filter($request)->get();
+        })
+            ->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+            ->join('mas_employee_jobs', 'mas_employees.id', '=', 'mas_employee_jobs.mas_employee_id')
+            ->leftJoin('mas_pay_group_details', function ($join) {
+                $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
+                    ->where('mas_pay_group_details.mas_pay_group_id', 4);
+            })
+            ->select(
+                'final_pay_slips.*',
+                'mas_employees.name',
+                'mas_employee_jobs.account_number',
+                'mas_employee_jobs.bank',
+                DB::raw('(JSON_UNQUOTE(JSON_EXTRACT(final_pay_slips.details, "$.net_pay")) - COALESCE(mas_pay_group_details.amount, 0)) as net_pay_after_eteeru')
+            )
+            ->filter($request)->get();
 
         $totalCashes = $cashes->sum(function ($cash) {
-            return $cash->details['net_pay'] ?? 0;
+            return $cash->net_pay_after_eteeru ?? 0;
         });
         $pdf = Pdf::loadView('export-report.cash-report-pdf', compact('cashes', 'totalCashes'))->setPaper('a4', 'landscape');
 
