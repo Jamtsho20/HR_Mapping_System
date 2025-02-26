@@ -129,6 +129,7 @@
                 <th>Sifa Loan</th>
                 <th>PF</th>
                 <th>SIFA</th>
+                <th>SSS</th>
                 <th>TDS</th>
                 <th>H/Tax</th>
                 <th>Net Pay</th>
@@ -163,6 +164,7 @@
                     <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['SSSS'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
                     <td>{{ $salary->details['net_pay'] }}</td>
@@ -195,6 +197,7 @@
                 <td>{{ $totals['deductions']['loans']['sifa'] }}</td>
                 <td>{{ $totals['deductions']['pf'] }}</td>
                 <td>{{ $totals['deductions']['sifa'] }}</td>
+                <td>{{ $totals['deductions']['ssss'] }}</td>
                 <td>{{ $totals['deductions']['salary_tax'] }}</td>
                 <td>{{ $totals['deductions']['health'] }}</td>
                 <td>{{ $totals['net'] }}</td>
