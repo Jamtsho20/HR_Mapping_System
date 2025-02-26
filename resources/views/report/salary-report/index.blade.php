@@ -152,7 +152,7 @@
                                                             <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
-                                                            <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
+                                                            <td>{{ $salary->details['deductions']['Samsung Ded'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
 
