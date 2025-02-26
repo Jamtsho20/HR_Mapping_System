@@ -32,6 +32,7 @@ class SSSExport implements FromCollection, WithHeadings
                 $sss->employee->name,
                 $sss->policy_number ?? '-',
                 $sss->amount,
+                $sss->for_month,
 
             ];
         });

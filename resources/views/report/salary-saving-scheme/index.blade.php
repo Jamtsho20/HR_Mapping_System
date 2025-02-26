@@ -66,6 +66,9 @@
                                                         <th>
                                                             sss amount
                                                         </th>
+                                                        <th>
+                                                            Date
+                                                        </th>
 
 
                                                     </tr>
@@ -80,6 +83,7 @@
                                                             <td>{{ $salary->employee->name }}</td>
                                                             <td>{{ $salary->policy_number }}</td>
                                                             <td>{{ $salary->amount }}</td>
+                                                            <td>{{ $salary->for_month }}</td>
 
                                                         </tr>
                                                     @empty
