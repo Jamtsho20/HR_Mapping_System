@@ -114,6 +114,9 @@
                                                             sifa
                                                         </th>
                                                         <th>
+                                                            SSS
+                                                        </th>
+                                                        <th>
                                                             TDS
                                                         </th>
                                                         <th>
@@ -173,6 +176,7 @@
                                                             </td>
 
                                                             <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['SSSS'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
