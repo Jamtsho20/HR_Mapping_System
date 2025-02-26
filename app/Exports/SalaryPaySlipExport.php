@@ -38,7 +38,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
                 $salaries->details['allowances']['Difficulty Allowance'] ?? '0',
                 $salaries->details['allowances']['Critical Allowance'] ?? '0',
                 $salaries->details['gross_pay'] ?? 0,
-                $salaries->details['deductions']['Device EMI'] ?? '0',
+                $salaries->details['deductions']['Samsung Ded'] ?? '0',
                 $salaries->details['deductions']['GSLI'] ?? '0',
                 $salary->details['deductions']['Loan BNB'] ?? '0',
                 $salaries->details['deductions']['Loan NPPF'] ?? '0',
