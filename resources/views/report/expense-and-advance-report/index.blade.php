@@ -105,6 +105,10 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="col-md-2 form-group">
+                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -144,6 +148,9 @@
                                                                 </th>
                                                                 <th>
                                                                     Expense Type
+                                                                </th>
+                                                                <th>
+                                                                    SAP TRANS NO
                                                                 </th>
                                                                 <th>
                                                                     Vehicle No
@@ -195,12 +202,17 @@
                                                                 <tr>
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>{{ $application->employee->username }}</td>
+                                                                    {{-- <td>@dd(json_decode($application->audit_logs, true))</td> --}}
                                                                     <td>{{ $application->employee->name }}</td>
                                                                     <td>{{ $application->employee->empJob->designation->name }}
                                                                     </td>
                                                                     <td>{{ $application->employee->empJob->department->name }}
                                                                     </td>
                                                                     <td>{{ $application->type->name }}</td>
+                                                                    {{-- <td>{{ json_decode($expenseApplications[0]->audit_logs[0]->sap_response, true)['data']['JdtNum'] ?? config('global.null_value') }}</td> --}}
+                                                                    <td>
+                                                                        {{ optional(json_decode(optional($application->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                                                                    </td>
                                                                     <td>{{ $application->vehicle->vehicle_no ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $application->expense_no }}</td>

@@ -74,6 +74,13 @@ class ExpenseApplication extends Model
         if ($request->has('manager') && $request->query('manager') !== '') {
             $query->where('updated_by', $request->query('manager'));
         }
+        if ($request->has('sap_trans_no') && $request->query('sap_trans_no') !== '') {
+            $sapTransNo = $request->query('sap_trans_no');
+        
+            $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
+                $q->where('status', 3)->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
+            });
+        }
 
         if ($request->get('year')) {
             // Step 1: Split the date range into two parts

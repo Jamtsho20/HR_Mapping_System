@@ -68,6 +68,7 @@ class ApprovalController extends Controller
                 $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
             }
         }
+        
         $holidays;
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')

@@ -111,6 +111,14 @@ class LeaveEncashmentApplication extends Model
             });
         }
 
+        if ($request->has('sap_trans_no') && $request->query('sap_trans_no') !== '') {
+            $sapTransNo = $request->query('sap_trans_no');
+        
+            $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
+                $q->where('status', 3)->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
+            });
+        }
+
         // Add more filters here if needed
         return $query;
     }
