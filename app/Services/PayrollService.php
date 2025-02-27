@@ -633,7 +633,15 @@ class PayrollService
             $monthFriendly = $fileResult['month'];
             $employeeName = $fileResult['employeeName'];
             $email = $fileResult['email'];
-            Mail::to([$email])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                Log::warning("Skipping invalid email: {$email} for employee {$employeeName}");
+                continue;
+            }
+
+            Mail::to($email)->queue(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+
+            // Mail::to([$email])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
         }
 
         return true;
@@ -648,7 +656,13 @@ class PayrollService
         $monthFriendly = $fileResult['month'];
         $employeeName = $fileResult['employeeName'];
         $email = $fileResult['email'];
-        Mail::to([$email])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Log::warning("Skipping invalid email: {$email} for employee {$employeeName}");
+        }
+
+        Mail::to($email)->queue(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+        // Mail::to([$email])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
 
         return true;
     }
