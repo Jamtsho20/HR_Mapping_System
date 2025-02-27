@@ -67,6 +67,9 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
+                                                            @php
+                                                                $latestRecordId = \App\Models\PaySlip::latest()->value('id');
+                                                            @endphp
                                                             @forelse($paySlips as $record)
                                                                 <tr>
                                                                     <td>{{ \Carbon\Carbon::parse($record->for_month)->format('M, Y') }}
@@ -79,11 +82,13 @@
                                                                     </td>
                                                                     <td class="text-center">
                                                                         @if ($privileges->edit)
-                                                                            <a href="{{ route('pay-slips.show', $record->id) }}"
-                                                                                class="btn btn-sm btn-rounded btn-outline-info">
-                                                                                <i class="fa fa-list"></i>
-                                                                                DETAILS
-                                                                            </a>
+                                                                            @if ($record->id == $latestRecordId)
+                                                                                <a href="{{ route('pay-slips.show', $record->id) }}"
+                                                                                    class="btn btn-sm btn-rounded btn-outline-info">
+                                                                                    <i class="fa fa-list"></i>
+                                                                                    DETAILS
+                                                                                </a>
+                                                                            @endif
                                                                             @if ($record->status['key'] == 1)
                                                                                 <a href="{{ route('pay-slips.process', ['id' => $record->id, 'status' => 2]) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-success"

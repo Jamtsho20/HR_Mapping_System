@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIFA COntribution Report</title>
+    <title>SIFA Contribution Report</title>
     <style>
         body {
             font-size: 12px;
@@ -55,7 +55,7 @@
         @include('layouts.includes.letter-head')
     </div>
     <hr>
-    <h1 class="title">SIFA COntribution Report</h1>
+    <h1 class="title">SIFA Contribution Report</h1>
     <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
         <thead class="thead-light">
             <tr role="row">

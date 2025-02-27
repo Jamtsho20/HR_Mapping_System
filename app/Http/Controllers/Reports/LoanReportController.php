@@ -43,6 +43,7 @@ class LoanReportController extends Controller
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
             ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
+            ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type') // Select the columns you need, including pay_head name
             ->paginate(config('global.pagination')) // Paginate the results
@@ -106,18 +107,22 @@ class LoanReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $loans =
-            FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+        $loans =      FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
             ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
+            ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
 
 
 
+        $totalLoans = $loans->sum(function ($loan) {
+            return $loan->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans', 'totalLoans'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Loan-Report.pdf');
@@ -134,10 +139,18 @@ class LoanReportController extends Controller
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
             ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
+            ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->filter($request) // Apply the filters
             ->select('final_pay_slips.*', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name', 'mas_loan_types.name as loan_type')->get();
+
+        $totalLoans = $loans->sum(function ($loan) {
+            return $loan->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans'))->setPaper('a4', 'landscape');;
+        $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans', 'totalLoans'))->setPaper('a4', 'landscape');
+
+
 
 
         // Return the PDF as a stream to display it in the browser

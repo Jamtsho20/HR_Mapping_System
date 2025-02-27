@@ -4,12 +4,10 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('salary-report-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
-                title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('salary-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+
+            <a href="{{ route('payslip-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('salary-report-print', Request::query()) }}" target="_blank"
-                onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
+
         </div>
     </div>
 
@@ -37,7 +35,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Salary Report</h3>
+                        <h3 class="card-title">Payslip Report</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -59,91 +57,108 @@
                                                             Employee Name
                                                         </th>
                                                         <th>
-                                                            Job title
+                                                            Department
                                                         </th>
                                                         <th>
-                                                            job nature
+                                                            job Title
                                                         </th>
                                                         <th>
-                                                            Salary month
+                                                            Grade </th>
+                                                        <th>
+                                                            Bank Name
                                                         </th>
                                                         <th>
-                                                            basic pay
+                                                            Bank A/C
                                                         </th>
                                                         <th>
-                                                            house all.
+                                                            Basic Pay
                                                         </th>
                                                         <th>
-                                                            medical all.
+                                                            House Allowance
                                                         </th>
                                                         <th>
-                                                            add. work all.
+                                                            Medical Allowance
                                                         </th>
                                                         <th>
-                                                            corporate all.
+                                                            Add. Work Allowance
                                                         </th>
                                                         <th>
-                                                            diff. all.
+                                                            Cash Allowance
                                                         </th>
                                                         <th>
-                                                            critical all.
+                                                            Corporate Allowance
                                                         </th>
                                                         <th>
-                                                            gross earning
+                                                            Difficulty Allowance
+                                                        </th>
+                                                        <th>
+                                                            Critical Allowance
+                                                        </th>
+                                                        <th>
+                                                            Gross Pay
                                                         </th>
 
                                                         <th>
-                                                            samsung
+                                                            Adv. Salary
                                                         </th>
                                                         <th>
-                                                            gis
-                                                        </th>
-
-                                                        <th>BNB</th>
-                                                        <th>NPPF</th>
-                                                        <th>BDFC</th>
-                                                        <th>RICB</th>
-                                                        <th>DPNB</th>
-                                                        <th> BOB </th>
-                                                        <th> Tbank </th>
-                                                        <th>Sifa loan</th>
-                                                        <th>
-                                                            PF
+                                                            Adv. Staff
                                                         </th>
                                                         <th>
-                                                            sifa
+                                                            PF Contr.
                                                         </th>
                                                         <th>
                                                             SSS
                                                         </th>
                                                         <th>
-                                                            TDS
+                                                            SIFA
                                                         </th>
                                                         <th>
                                                             H/Tax
                                                         </th>
                                                         <th>
-                                                            Net Pay
+                                                            Salary Tax
                                                         </th>
+                                                        <th>
+                                                            GSLI
+                                                        </th>
+                                                        <th>
+                                                            Samsung Ded
+                                                        </th>
+                                                        <th>Loan BNB</th>
+                                                        <th>Loan NPPF</th>
+                                                        <th>Loan BDFC</th>
+                                                        <th>Loan RICB</th>
+                                                        <th>Loan DPNB</th>
+                                                        <th>Loan BOB </th>
+                                                        <th>Loan Tbank </th>
+                                                        <th>Loan SIFA</th>
+                                                        <th> Net Pay </th>
 
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
-                                                    @forelse($salaries as $salary)
+                                                    @forelse($payslips as $salary)
                                                         <tr>
-                                                            <td>{{ ($salaries->currentPage() - 1) * $salaries->perPage() + $loop->iteration }}
+                                                            <td>{{ ($payslips->currentPage() - 1) * $payslips->perPage() + $loop->iteration }}
                                                             </td>
                                                             <td>{{ $salary->employee->name }}</td>
+                                                            <td>{{ $salary->employee->empJob->department->name }}</td>
                                                             <td>{{ $salary->employee->empJob->designation->name }}</td>
-                                                            <td>{{ $salary->employee->empJob->empType->name }}</td>
-                                                            <td>{{ $salary->for_month }}</td>
+                                                            <td>{{ $salary->employee->empJob->gradeStep->name }}</td>
+                                                            <td>{{ $salary->employee->empJob->bank ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $salary->employee->empJob->account_number ?? config('global.null_value') }}
+                                                            </td>
                                                             <td>{{ $salary->employee->empJob->basic_pay }}</td>
                                                             <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['allowances']['Cash Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Corporate Allowance'] ?? '0' }}
                                                             </td>
@@ -152,9 +167,23 @@
                                                             <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
-                                                            <td>{{ $salary->details['deductions']['Samsung Ded'] ?? '0' }}
+                                                            <td>{{ $salary->details['deductions']['Adv. Salary'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['Adv. Staff'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['SSSS'] ?? '0' }}
+                                                            </td>
+                                                            <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
+
+                                                            <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
+                                                            </td>
+
 
                                                             <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}
                                                             </td>
@@ -172,20 +201,13 @@
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['Loan SIFA'] ?? '0' }}
                                                             </td>
-                                                            <td>{{ $salary->details['deductions']['PF Contr'] ?? '0' }}
-                                                            </td>
 
-                                                            <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
-                                                            <td>{{ $salary->details['deductions']['SSSS'] ?? '0' }}</td>
-                                                            <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
-                                                            </td>
-                                                            <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['net_pay'] }}</td>
 
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="28" class="text-center text-danger">No Salary
+                                                            <td colspan="28" class="text-center text-danger">No Payslip
                                                                 Reports found</td>
                                                         </tr>
                                                     @endforelse
@@ -197,9 +219,9 @@
                             </div>
                         </div>
                     </div>
-                    @if ($salaries->hasPages())
+                    @if ($payslips->hasPages())
                         <div class="card-footer">
-                            {{ $salaries->links() }}
+                            {{ $payslips->links() }}
                         </div>
                     @endif
                 </div>

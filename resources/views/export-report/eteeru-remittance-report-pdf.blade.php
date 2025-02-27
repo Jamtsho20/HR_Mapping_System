@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Availed Report</title>
+    <title>eTeeru Remittance Report</title>
     <style>
         body {
             font-size: 12px;
@@ -95,6 +95,11 @@
                         Remittance Reports found</td>
                 </tr>
             @endforelse
+            <tr>
+                <td colspan="3" style="text-align: right">Total:</td>
+                <td>{{ $totaleTeeru }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

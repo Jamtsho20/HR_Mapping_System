@@ -632,7 +632,8 @@ class PayrollService
             $paySlipFile = $fileResult['file'];
             $monthFriendly = $fileResult['month'];
             $employeeName = $fileResult['employeeName'];
-            Mail::to(["sw_engineer11.sas@tashicell.com"])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+            $email = $fileResult['email'];
+            Mail::to([$email])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
         }
 
         return true;
@@ -646,7 +647,8 @@ class PayrollService
         $paySlipFile = $fileResult['file'];
         $monthFriendly = $fileResult['month'];
         $employeeName = $fileResult['employeeName'];
-        Mail::to(["sw_engineer11.sas@tashicell.com"])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
+        $email = $fileResult['email'];
+        Mail::to([$email])->send(new PaySlipMail($paySlipFile, $employeeName, $monthFriendly));
 
         return true;
     }
@@ -665,6 +667,7 @@ class PayrollService
 
         $employeeName = $employee->first_name . " " . $employee->middle_name . " " . $employee->last_name;
         $employeeName = str_replace("  ", " ", $employeeName);
+        $email = $employee->email;
 
         $data = compact('paySlip', 'employee', 'allowances', 'deductions', 'deductions1');
         $pdf = PDF::loadView('pdf_templates.payslip', $data)->setPaper('letter', 'portrait');
@@ -678,6 +681,6 @@ class PayrollService
 
         $paySlipFile = $directory . '/' . str_replace(" ", "_", $employeeName . "_(" . $employee->employee_id . ")" . "_" . $paySlipMonth) . ".pdf";
         $pdf->save($paySlipFile);
-        return ['file' => $paySlipFile, 'month' => $friendlyMonth, 'employeeName' => $employeeName];
+        return ['file' => $paySlipFile, 'month' => $friendlyMonth, 'employeeName' => $employeeName, 'email' => $email];
     }
 }

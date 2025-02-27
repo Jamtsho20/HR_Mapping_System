@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\EteeruExport;
 use App\Http\Controllers\Controller;
 use App\Models\MasPayGroupDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -136,15 +137,20 @@ class eTeeruRemittanceReportController extends Controller
             })
             ->get();
 
+        $totaleTeeru = $eTeeru->sum(function ($pf) {
+            return $pf->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru', 'totaleTeeru'))->setPaper('a4', 'landscape');
+
 
         // Return the PDF download
         return $pdf->download('eTeeru-Remittance-Report.pdf');
     }
     public function exportEteeruExcel(Request $request)
     {
-        return Excel::download(new EteeruExport($request), 'employee-report.xlsx');
+        return Excel::download(new EteeruExport($request), 'eTeeru-report.xlsx');
     }
 
     public function printEteeru(Request $request)
@@ -176,8 +182,13 @@ class eTeeruRemittanceReportController extends Controller
             })
             ->get();
 
+
+        $totaleTeeru = $eTeeru->sum(function ($pf) {
+            return $pf->amount ?? 0;
+        });
+
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.eteeru-remittance-report-pdf', compact('eTeeru', 'totaleTeeru'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser
