@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FinalPaySlip;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ChequeReportController extends Controller
@@ -27,11 +28,30 @@ class ChequeReportController extends Controller
         $employee = employeeList();
 
 
-        $cheques = FinalPaySlip::whereHas('employee.empJob', function ($query) {
-            $query->where('salary_disbursement_mode', 2);
-        })->filter($request)->paginate(config('global.pagination'))->withQueryString();
+            // $cheques = FinalPaySlip::whereHas('employee.empJob', function ($query) {
+            //     $query->where('salary_disbursement_mode', 2);
+            // })->filter($request)->paginate(config('global.pagination'))->withQueryString();
 
-
+            $cheques = FinalPaySlip::whereHas('employee.empJob', function ($query) {
+                $query->where('salary_disbursement_mode', 2);
+            })
+            ->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+            ->join('mas_employee_jobs', 'mas_employees.id', '=', 'mas_employee_jobs.mas_employee_id')
+            ->leftJoin('mas_pay_group_details', function ($join) {
+                $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
+                     ->where('mas_pay_group_details.mas_pay_group_id', 4);
+            })
+            ->select(
+                'final_pay_slips.*',
+                'mas_employees.name',
+                'mas_employee_jobs.account_number',
+                'mas_employee_jobs.bank',
+                DB::raw('(JSON_UNQUOTE(JSON_EXTRACT(final_pay_slips.details, "$.net_pay")) - COALESCE(mas_pay_group_details.amount, 0)) as net_pay_after_eteeru')
+                )
+            ->filter($request)
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+        
 
         return view('report.cheque-report.index', compact('privileges', 'cheques', 'employee'));
     }

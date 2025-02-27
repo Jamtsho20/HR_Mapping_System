@@ -58,6 +58,9 @@
                                                             Employee Name
                                                         </th>
                                                         <th>
+                                                            EMP ID
+                                                        </th>
+                                                        <th>
                                                             loan type
                                                         </th>
                                                         <th>
@@ -79,6 +82,7 @@
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $loan->employee->name }}</td>
+                                                            <td>{{ $loan->employee->employee_id }}</td>
                                                             <td>{{ $loan->pay_head_name }}</td>
                                                             <td>{{ $loan->loan_number }}</td>
                                                             <td>{{ $loan->amount }}</td>
