@@ -7,14 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class GrnItemMapping extends Model
 {
+    protected $fillable = [
+        'grn_no',
+        'item_id',
+        'item_description',
+        'store_id',
+        'uom',
+        'current_stock',
+        'changed_quantity',
+        'status'
+    ];
     use HasFactory;
 
-   public function store() 
+   public function store()
    {
         return $this->belongsTo(MasStore::class, 'store_id');
    }
 
-   public function item() 
+   public function item()
    {
         return $this->belongsTo(MasItem::class, 'item_id');
    }

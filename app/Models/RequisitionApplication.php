@@ -16,6 +16,7 @@ class RequisitionApplication extends Model
         'requisition_type_id',
         'requisition_no',
         'requisition_date',
+        'total_quantity_required',
         'asset_type',
         'need_by_date',
         'employee_id',
@@ -28,7 +29,7 @@ class RequisitionApplication extends Model
     {
         return $this->belongsTo(MasRequisitionType::class, 'type_id');
     }
-    
+
     public function audit_logs()
     {
         return $this->morphMany(ApplicationAuditLog::class, 'application');
@@ -38,7 +39,7 @@ class RequisitionApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
-    
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -52,6 +53,11 @@ class RequisitionApplication extends Model
     public function goodReceivedByUser()
     {
         return $this->hasOne(GoodReceiptApplication::class, 'requisition_application_id');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(MasRequisitionType::class, 'type_id');
     }
 
     //scope filter
@@ -81,4 +87,41 @@ class RequisitionApplication extends Model
                 ->whereMonth('created_at', $month);
         }
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($requisition) {
+            if ($requisition->isDirty('status') && $requisition->status == -1) {
+                $requisition->restoreStock();
+            }
+        });
+    }
+
+    public function restoreStock()
+{
+    // Ensure details relationship is loaded
+    $this->loadMissing('details');
+
+    foreach ($this->details as $detail) {
+
+        if (!$detail->grn_item_mapping_id) {
+            \Log::warning("Invalid GRN data for detail ID: {$detail->id}", ['grn_no' => $detail->grn_no]);
+            continue; // Skip if data is invalid
+        }
+
+        // Find the GRN item mapping entry
+        $grnItem = GrnItemMapping::find($detail->grn_item_mapping_id);
+
+        if (!$grnItem) {
+            \Log::warning("GRN Item Mapping not found for ID: {$detail->grn_item_mapping_id}");
+            continue;
+        }
+
+        // Restore the stock
+        $grnItem->increment('current_stock', $detail->quantity_required);
+        $grnItem->decrement('changed_quantity', $detail->quantity_required);
+    }
+}
+
+
 }

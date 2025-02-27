@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class MasItem extends Model
 {
     use HasFactory, CreatedByTrait;
-    
+
     protected $fillable = [
         'store_id', 'item_category', 'item_number', 'item_description', 'uom', 'quantity', 'status'
     ];
@@ -23,6 +23,7 @@ class MasItem extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
 
     public function scopeFilter($query, $request)
      {

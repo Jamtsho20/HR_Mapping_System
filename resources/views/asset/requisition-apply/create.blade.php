@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Requisition')
 @section('content')
-
-<form action="{{ route('requisition.store') }}" method="POST" enctype="multipart/form-data">
+@include('layouts.includes.loader')
+<form action="{{ route('requisition.store') }}" method="POST" id="requisitionForm" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-body">
@@ -10,7 +10,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="requisition_no">Requisition No. <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="requisition_no" name="requisition_no" value="{{ old('requisition_no') }}" readonly>
+                        <input type="text" class="form-control" id="requisition_no" name="requisition_no" value="{{ old('requisition_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -32,6 +32,9 @@
                         <label for="requisition_date">Requisition Date <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="requisition_date"
                             value="{{ old('requisition_date', date('Y-m-d')) }}">
+
+                            <input type="hidden" name="total_quantity_required" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
+
                     </div>
                 </div>
                 <div class="row">
@@ -42,7 +45,7 @@
                                 value="{{ old('need_by_date') }}">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    {{-- <div class="col-md-4">
                         <div class="form-group">
                             <label for="requisition_type">Item Category <span class="text-danger">*</span></label>
                             <select class="form-control" name="item_category">
@@ -50,7 +53,7 @@
                                 <option value="FA.MISC">FA.MISC</option>
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="table-responsive">
@@ -58,7 +61,7 @@
                         <thead>
                             <tr>
                                 <th width="3%" class="text-center">#</th>
-                                <th>PO*</th>
+                                <th>GRN*</th>
                                 <th>Item Description*</th>
                                 <th>UOM*</th>
                                 <th>Store*</th>
@@ -77,15 +80,19 @@
                                             class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][purchase_order_no]" required />
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]" required />
                                         <option value="" disabled selected hidden>Select</option>
-                                        <option value="122">1212</option>
+                                        @foreach ($grnNos as $grn)
+                                            <option value="{{ $grn }}"
+                                                {{ old('requisition_type') == $grn->grn_no ? 'selected' : '' }}>{{ $grn->grn_no }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][item_description]" required />
                                         <option value="" disabled selected hidden>Select</option>
-                                        <option value="Item A">Item A</option>
+
                                     </select>
                                 </td>
                                 <td>
@@ -94,29 +101,24 @@
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
                                         <option value="" disabled selected hidden>Select</option>
-                                        <option value="Store A">Store A</option>
+
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][stock_status]" value="4" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
-
-                                </td>
+                                    <input type="text" name="details[AAAAA][stock_status]" value="" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
+                                        </td>
                                 <td>
                                     <input type="number" name="details[AAAAA][quantity_required]" class="form-control form-control-sm resetKeyForNew quantity-input" required />
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][dzongkhag]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="Thimphu">Thimphu</option>
-                                        {{-- @foreach ($dzongkhags as $dzongkhag)
-                                            <option value="{{$dzongkhag->id}}">{{$dzongkhag->dzongkhag}}</option>
-                                            @endforeach --}}
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][dzongkhag]" required>
+                                        <option value="" disabled selected hidden>Select Dzongkhag</option>
                                     </select>
+
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][site_name]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="Site A">Site A</option>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][site_name]" required />
+                                        <option value="" disabled selected hidden>Select Site</option>
                                     </select>
                                 </td>
                                 <td>
@@ -138,7 +140,7 @@
         </div>
         <div class="card-footer">
             @include('layouts.includes.buttons', [
-                'buttonName' => 'Create Requisition',
+                'buttonName' => 'Submit',
                 'cancelUrl' => url('asset/requisition'),
                 'cancelName' => 'CANCEL',
             ])
@@ -151,38 +153,105 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
-            $(document).on('change', '#requisition_type', function () {
-                const requisitionType = $(this).val();
-                if(requisitionType != ''){
-                    $.ajax({
-                        url: "/getrequisitionnobyrequisitiontype/" + requisitionType,
-                        dataType: "JSON",
-                        type: "GET",
 
-                        success: function (response) {
-                            if(response.data.requisition_no){
-                                $('#requisition_no').val(response.data.requisition_no)
-                            }
-                        },
-                        error: function (error) {
-                            alert(error.responseJSON.message);
-                        }
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('requisitionForm');
+            form.addEventListener('submit', function(e) {
+                // Show loader
+                loader.style.display = 'flex';
+            });
+
+            let grnDatas = @json($grnNos); // Ensure backend passes this as JSON
+            let siteData = @json($sites);
+            let dzongkhagData = @json($dzongkhags);
+
+            $(document).on('change', 'select[name^="details"][name$="[grn_no]"]', function () {
+                let grnData = $(this).val();
+                let selectedGRN = JSON.parse(grnData);
+                let row = $(this).closest('tr');
+
+                let grnDetails = grnDatas.find(grn => grn.id == selectedGRN.id);
+                if (grnDetails) {
+                    row.find('select[name^="details"][name$="[item_description]"]').empty().append(`<option value="${grnDetails.item_description}" selected>${grnDetails.item_description}</option>`).trigger('change');
+                    row.find('input[name^="details"][name$="[uom]"]').val(grnDetails.uom);
+                    row.find('select[name^="details"][name$="[store]"]').empty().append(`<option value="${grnDetails.store.id}" selected>${grnDetails.store.name}</option>`).trigger('change');
+                    row.find('input[name^="details"][name$="[stock_status]"]').val(grnDetails.current_stock);
+                    let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
+                    dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+
+                    dzongkhagData.forEach(dzongkhag => {
+                        dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
                     });
+
+                    dzongkhagDropdown.on('change', function () {
+                    let selectedDzongkhagId = $(this).val();
+                    let siteDropdown = row.find('select[name^="details"][name$="[site_name]"]');
+
+                    // Clear and set default option
+                    siteDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+
+                    // Filter and populate sites based on selected dzongkhag
+                    let filteredSites = siteData.filter(site => site.dzongkhag_id == selectedDzongkhagId);
+
+                    filteredSites.forEach(site => {
+                        siteDropdown.append(`<option value="${site.id}">${site.name}</option>`);
+                    });
+
+                    siteDropdown.trigger('change');
+                });
                 }
-            })
+            });
+            // $(document).on('change', '#requisition_type', function () {
+            //     const requisitionType = $(this).val();
+            //     if(requisitionType != ''){
+            //         $.ajax({
+            //             url: "/getrequisitionnobyrequisitiontype/" + requisitionType,
+            //             dataType: "JSON",
+            //             type: "GET",
+
+            //             success: function (response) {
+            //                 if(response.data.requisition_no){
+            //                     $('#requisition_no').val(response.data.requisition_no)
+            //                 }
+            //             },
+            //             error: function (error) {
+            //                 alert(error.responseJSON.message);
+            //             }
+            //         });
+            //     }
+            // })
         })
+        $('.select2').select2({
+            placeholder: "Select a dzongkhag",
+            allowClear: true
+        });
+
+        function updateTotalQuantity() {
+            let total = 0;
+            $(".quantity-input").each(function () {
+                let value = $(this).val();
+                total += value ? parseFloat(value) : 0;
+            });
+            $("#total-quantity-id").val(total);
+        }
+
 
         $(document).on('change', '.quantity-input', function () {
             const $row = $(this).closest('tr'); // Get the row of the input
             const quantity = parseInt($(this).val()) || 0; // Get the quantity entered
             const stockStatus = parseInt($row.find('.stock-status').val()) || 0; // Parse the stock status value
             // Check if quantity exceeds stock status
+            updateTotalQuantity();
             if (quantity <= stockStatus) {
                 return;
             }else{
-                alert('Quantity required cannot be greater than stock status.');
+                showErrorMessage('Quantity required cannot be greater than stock status.');
                 $(this).val(''); // Reset the value of the quantity field
             }
+
         });
+
+        updateTotalQuantity();
     </script>
 @endpush

@@ -210,6 +210,13 @@ return [
             'approver_mail_content' => 'has applied Leave Encashment for your endorsement.',
             'initiator_mail_content' => 'Your Leave Encashment has been'
         ],
+        5 => [
+            'name' => App\Models\RequisitionApplication::class,
+            'post_to_sap' => true,
+            'email_subject' => 'Requisition',
+            'approver_mail_content' => 'has applied Requisition of {type} for your endorsement.',
+            'initiator_mail_content' => 'Your Requisition has been'
+        ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,
             'post_to_sap' => true,
@@ -237,7 +244,7 @@ return [
             'email_subject' => 'DSA Claim',
             'approver_mail_content' => 'has applied DSA Claim of {type} for your endorsement.',
             'initiator_mail_content' => 'Your DSA Claim has been'
-        ],
+        ]
     ],
 
 

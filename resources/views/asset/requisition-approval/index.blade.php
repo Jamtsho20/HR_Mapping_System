@@ -25,10 +25,10 @@
             <div class="col-sm-6">
                 <input class="btn-sm btn-success buttonsubmit" type="button" id="btn_approved" data-value="approve"
                     data-route="{{ route('approverejectbulk') }}" data-item-class="requisition_checkbox"
-                    data-item-name="requisition" data-item-type="5" value="Approve">
+                    data-item-name="requisition" data-item-type="10" value="Approve">
                 <input class="btn-sm btn-danger buttonsubmit" type="button" id="btn_reject" data-value="reject"
                     data-route="{{ route('approverejectbulk') }}" data-item-class="requisition_checkbox"
-                    data-item-name="requisition"  data-item-type="5" value="Reject">
+                    data-item-name="requisition"  data-item-type="10" value="Reject">
             </div>
             @endif
         </div>
