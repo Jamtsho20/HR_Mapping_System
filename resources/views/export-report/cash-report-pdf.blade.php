@@ -66,6 +66,9 @@
                     Employee Name
                 </th>
                 <th>
+                    Employee ID
+                </th>
+                <th>
                     Job Title
                 </th>
                 <th>
@@ -85,9 +88,10 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $cash->employee->name }}</td>
+                    <td>{{ $cash->employee->username }}</td>
                     <td>{{ $cash->employee->empJob->designation->name }}</td>
                     <td>{{ $cash->employee->empJob->office->name }}</td>
-                    <td>{{ $cash->details['net_pay'] }}</td>
+                    <td>{{ $cash->net_pay_after_eteeru }}</td>
                     <td>{{ $cash->for_month }}</td>
                 </tr>
             @empty
@@ -97,7 +101,7 @@
                 </tr>
             @endforelse
             <tr>
-                <td colspan="4" style="text-align: right">Total</td>
+                <td colspan="5" style="text-align: right">Total</td>
                 <td>{{ $totalCashes }}</td>
                 <td></td>
             </tr>

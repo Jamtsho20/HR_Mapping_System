@@ -35,6 +35,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
                 return [
                     $serialNo++,
                     $loans->employee->name,
+                    $loans->employee->username,
                     $loans->pay_head_name,
                     $loans->loan_number,
                     $loans->amount,
@@ -47,6 +48,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
         return [
             'Sl No',
             'Employee Name',
+            'Employee ID',
             'Loan Type',
             'Loan Number',
             'Monthly Installment',

@@ -66,6 +66,9 @@
                     Employee Name
                 </th>
                 <th>
+                    Employee ID
+                </th>
+                <th>
                     Bank account number
                 </th>
                 <th>
@@ -85,9 +88,10 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $cheque->employee->name }}</td>
+                    <td>{{ $cheque->employee->username }}</td>
                     <td>{{ $cheque->employee->empJob->account_number }}</td>
                     <td>{{ $cheque->employee->empJob->bank }}</td>
-                    <td>{{ $cheque->details['net_pay'] }}</td>
+                    <td>{{ $cheque->net_pay_after_eteeru }}</td>
                     <td>{{ $cheque->for_month }}</td>
                 </tr>
             @empty
@@ -97,7 +101,7 @@
                 </tr>
             @endforelse
             <tr>
-                <td colspan="4" style="text-align: right">Total</td>
+                <td colspan="5" style="text-align: right">Total</td>
                 <td>{{ $totalCheques }}</td>
                 <td></td>
             </tr>

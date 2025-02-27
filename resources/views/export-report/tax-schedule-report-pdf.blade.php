@@ -65,6 +65,9 @@
                 <th>
                     Employee Name
                 </th>
+                <th>
+                    TPN
+                </th>
 
                 <th>
                     CID
@@ -112,6 +115,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $pf->employee->name }}</td>
+                    <td>{{ $pf->employee->empJob->tpn_number }}</td>
                     <td>{{ $pf->employee->cid_no }}</td>
                     <td>{{ $pf->details['basic_pay'] ?? '0' }}</td>
                     <td>{{ $pf->details['allowances']['Critical Allowance'] ?? '0' }}
