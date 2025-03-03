@@ -126,19 +126,6 @@
                                                         </th>
                                                         <th>
                                                             DSA Settlement Number
-
-                                                        {{-- <th>
-                                                            from location
-                                                        </th>
-                                                        <th>
-                                                            to location
-                                                        </th>
-                                                        <th>
-                                                            from Date
-                                                        </th>
-                                                        <th>
-                                                            To Date
-                                                        </th> --}}
                                                         <th>
                                                             Total days
                                                         </th>
