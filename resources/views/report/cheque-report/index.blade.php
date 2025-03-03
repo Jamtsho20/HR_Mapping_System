@@ -90,7 +90,7 @@
                                                             <td>{{ $cheque->employee->name }}</td>
                                                             <td>{{ $cheque->employee->empJob->account_number }}</td>
                                                             <td>{{ $cheque->employee->empJob->bank }}</td>
-                                                            <td>{{ $cheque->details['net_pay'] }}</td>
+                                                            <td>{{ $cheque->net_pay_after_eteeru }}</td>
                                                             <td>{{ $cheque->for_month }}</td>
                                                         </tr>
                                                     @empty

@@ -114,6 +114,9 @@
                                                             sifa
                                                         </th>
                                                         <th>
+                                                            SSS
+                                                        </th>
+                                                        <th>
                                                             TDS
                                                         </th>
                                                         <th>
@@ -149,7 +152,7 @@
                                                             <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
-                                                            <td>{{ $salary->details['deductions']['Device EMI'] ?? '0' }}
+                                                            <td>{{ $salary->details['deductions']['Samsung Ded'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
 
@@ -173,6 +176,7 @@
                                                             </td>
 
                                                             <td>{{ $salary->details['deductions']['SIFA'] ?? '0' }}</td>
+                                                            <td>{{ $salary->details['deductions']['SSSS'] ?? '0' }}</td>
                                                             <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
