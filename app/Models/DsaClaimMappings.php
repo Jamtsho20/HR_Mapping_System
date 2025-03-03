@@ -12,10 +12,14 @@ class DsaClaimMappings extends Model
 
     protected $guarded = [];
 
-    protected $cast = [
-        'attachment' => 'array'
+    protected $fillable = [
+        'travel_authorization_id','dsa_claim_id',
+        'advance_application_id',
+        'ta_amount',
+        'advance_amount',
+        'attachment',
+        'number_of_days'
     ];
-
 
     public function dsaDetails()
     {

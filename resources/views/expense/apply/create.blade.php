@@ -463,7 +463,7 @@
                                 <div class="card-footer">
                                     @include('layouts.includes.buttons', [
                                         'buttonName' => 'SUBMIT',
-                                        'cancelUrl' => url('/expense/dsa-claim-settlement'),
+                                        'cancelUrl' => url('/expense/apply-expense'),
                                         'cancelName' => 'CANCEL',
                                     ])
 
