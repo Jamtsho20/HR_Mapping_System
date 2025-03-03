@@ -76,6 +76,20 @@ class ApplicationHistory extends Model
                     'sap_response' => $application->sap_response,
                 ]
             );
+
+            if (
+                $application->application_type === \App\Models\RequisitionApplication::class &&
+                $application->isDirty('sap_response') // Ensures sap_response is updated
+            ) {
+                // Decode sap_response to extract DocNum (assuming JSON format)
+                $sapResponse = json_decode($application->sap_response, true);
+             
+                $docNum = $sapResponse['data']['DocNum'] ?? null;// Get DocNum if it exists
+
+                // Log the extracted DocNum (for debugging)
+                \Log::info('Extracted DocNum from SAP response', ['DocNum' => $docNum]);
+                RequisitionApplication::where('id', $application->application_id)->update(['doc_no' => $docNum]);
+            }
         });
     }
 }

@@ -27,7 +27,15 @@ class SalarySavingSchemeController extends Controller
         $privileges = $request->instance();
         $employee = employeeList();
 
-        $sss = EmployeeSalarySaving::filter($request)
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')
+            ->when($request->employee, function ($query, $name) {
+                return $query->where('employee_salary_savings.employee_id', '=', $name);
+            })
+
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })
             ->paginate(config('global.pagination'))
             ->withQueryString();
 
@@ -88,7 +96,15 @@ class SalarySavingSchemeController extends Controller
     public function exportSSS(Request $request)
     {
 
-        $sss = EmployeeSalarySaving::filter($request)
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')
+            ->when($request->employee, function ($query, $name) {
+                return $query->where('employee_salary_savings.employee_id', '=', $name);
+            })
+
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })
             ->get();
         $totalAmount = $sss->sum('amount');
 
@@ -112,7 +128,14 @@ class SalarySavingSchemeController extends Controller
     public function printSSS(Request $request)
     {
         // Load all bookings with their dzongkhag names
-        $sss = EmployeeSalarySaving::filter($request)
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->when($request->employee, function ($query, $name) {
+            return $query->where('employee_salary_savings.employee_id', '=', $name);
+        })
+
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })
             ->get();
 
         $totalAmount = $sss->sum('amount');

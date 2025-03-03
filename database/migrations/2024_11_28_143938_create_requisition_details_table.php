@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('store_id')->index()->constrained('mas_stores');
             // $table->decimal('stock_status')->comment('quantity availaible in warehouse');
             $table->integer('quantity_required')->default(0);
-            $table->string('dzongkhag');
+            $table->foreignId('dzongkhag_id')->index()->nullable()->constrained('mas_dzongkhags');
             // $table->string('site_name');
             $table->foreignId('office_id')->index()->nullable()->constrained('mas_offices')->comment('for now no need to make use of this only for future purpose');
             $table->foreignId('site_id')->index()->nullable()->constrained('mas_sites');

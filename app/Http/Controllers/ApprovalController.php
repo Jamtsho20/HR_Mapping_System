@@ -46,7 +46,6 @@ class ApprovalController extends Controller
 
 
 
-
         $results = collect();
 
 
@@ -69,6 +68,7 @@ class ApprovalController extends Controller
             }
         }
         $holidays;
+
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')
                 ->select('start_date', 'end_date')
@@ -94,6 +94,7 @@ class ApprovalController extends Controller
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
@@ -148,6 +149,19 @@ class ApprovalController extends Controller
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
                         $tax_amount = $application->tax_amount ?? null;
+
+                        $item_code = $application->details ?? null;
+                        $required_date = null;
+                        $grn_mappings = null;
+                        $assetFlag = false;
+                        if($item_code){
+                        $assetFlag = true;
+                        $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
+                        $grn_mappings = $application->details->map(function ($detail) {
+                            return optional($detail->grnMapping);
+                        })->filter()->toArray();
+                    }
+
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = $application->employee?->empJob?->department?->code; // department code
 
@@ -159,10 +173,12 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
 
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application);
+
+                            //dd($postFields, $assetFlag);
                             Log::info($postFields);
-                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
@@ -234,8 +250,9 @@ class ApprovalController extends Controller
         }
     }
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null)
     {
+
         if ($tax_amount) {
             return $postFields = '{
                 "ReferenceDate":"' . date('Y-m-d') . '",
@@ -268,6 +285,23 @@ class ApprovalController extends Controller
 
                 ]
             }';
+        } elseif ($item_code){
+            $postFields = [
+                "DocDate" => date('Y-m-d'),
+                "DocumentLines" => $application->details->map(function ($detail) {
+                    return [
+                        "ItemCode"=> (string) $detail->grnMapping->item->item_no ?? 'N/A', // Fetch from related `MasItem`
+                        "ItemDescription"=> (string) $detail->item_description ?? 'N/A',
+                        "Quantity"=> (string) ($detail->quantity_required ?? 1),
+                        "WarehouseCode"=> (string) $detail->grnMapping->store->code?? 'DefaultWH',
+                        "ProjectCode"=> (string) $detail->site->code?? 'Unknown'
+                    ];
+                })->toArray(),
+                "RequriedDate" => $required_date
+                       ];
+
+            return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+
         } else {
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
@@ -507,7 +541,7 @@ class ApprovalController extends Controller
                                 'travel_allowance' => $detail['travel_allowance']
                             ]
                         );
-                  
+
                         $incomingDetailIds[] = (int) $detail['id']; // Store ID of updated/created records
                     }
                 }

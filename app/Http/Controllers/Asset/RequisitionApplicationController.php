@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\MasSite;
+use App\Models\MasDzongkhag;
 
 class RequisitionApplicationController extends Controller
 {
@@ -41,19 +43,19 @@ class RequisitionApplicationController extends Controller
         // 'details.*.stock_status' => 'required',
         'details.*.quantity_required' => 'required',
         'details.*.dzongkhag' => 'required',
-        'details.*.office_name' => 'required',
+        // 'details.*.office_name' => 'required',
         'details.*.site_name' => 'required',
      ];
 
      protected $messages = [
-        'details.*.grn_no.required' => 'The purchase order number is required for each detail item.',
+        'details.*.grn_no.required' => 'The GRN is required for each detail item.',
         'details.*.item_description.required' => 'The item description is required for each detail item.',
         'details.*.uom.required' => 'The unit of measure is required for each detail item.',
         'details.*.store.required' => 'The store is required for each detail item.',
         // 'details.*.stock_status.required' => 'The stock status is required for each detail item.',
         'details.*.quantity_required.required' => 'The quantity is required for each detail item.',
         'details.*.dzongkhag.required' => 'The dzongkhag is required for each detail item.',
-        'details.*.office_name.required' => 'The office name is required for each detail item.',
+        // 'details.*.office_name.required' => 'The office name is required for each detail item.',
         'details.*.site_name.required' => 'The site name is required for each detail item.',
     ];
 
@@ -71,8 +73,10 @@ class RequisitionApplicationController extends Controller
      public function create()
      {
         $reqTypes = MasRequisitionType::get();
-        $grnNos = GrnItemMapping::whereStatus(1)->pluck('grn_no')->toArray();
-        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos'));
+        $grnNos = GrnItemMapping::with('store:id,name')->whereStatus(1)->get();
+        $dzongkhags = MasDzongkhag::all();
+        $sites = MasSite::with('dzongkhag')->get();
+        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags'));
      }
 
      /**
@@ -83,18 +87,23 @@ class RequisitionApplicationController extends Controller
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
-        $reqType = MasRequisitionType::where('type_id', $request->type_id)->first();
+
+        $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $lastTransaction = RequisitionApplication::latest('id')->first();
         $reqNumber = generateTransactionNumber1($reqType, $lastTransaction, 'requisition_no');
+
+
         try {
             DB::beginTransaction();
             $requisition->requisition_no = $reqNumber;
             $requisition->type_id = $request->type_id;
             $requisition->requisition_date = $request->requisition_date;
             $requisition->need_by_date = $request->need_by_date;
-            $requisition->item_category = $request->item_category;
+            $requisition->total_quantity_required = $request->total_quantity_required;
+            //$requisition->item_category = $request->item_category;
             $requisition->status = $approverByHierarchy['application_status'];
             $requisition->save();
 
@@ -115,6 +124,7 @@ class RequisitionApplicationController extends Controller
                 $emailSubject = 'Requisition Application';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
             }
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -128,7 +138,8 @@ class RequisitionApplicationController extends Controller
       */
      public function show(string $id)
      {
-         //
+        $requisition = RequisitionApplication::with('histories')->find($id);
+        return view('asset.requisition-apply.show', compact('requisition'));
      }
 
      /**
@@ -155,25 +166,37 @@ class RequisitionApplicationController extends Controller
          //
      }
 
+
      private function saveDetails ($details, $requisitionId) {
         // Track existing IDs to avoid deleting records that are updated
         $existingIds = [];
-
+        $grn_item_mapping = GrnItemMapping::where('status', 1)->get();
         foreach ($details as $detail) {
+            
+            $grnData = json_decode($detail['grn_no'], true);
+            $grn_item_mapping = GrnItemMapping::where('id', $grnData['id'])->first();
+            if ($grn_item_mapping) {
+                // Ensure stock doesn't go negative
+                $newStock = max(0, $grn_item_mapping->current_stock - $detail['quantity_required']);
+                $change = $grn_item_mapping->changed_quantity + $detail['quantity_required'];
+                // Update stock in database
+                $grn_item_mapping->update(['current_stock' => $newStock, 'changed_quantity' => $change]);
+            }
+
             // Check if the detail has an 'id' (indicating an existing record)
             if (isset($detail['id']) && !empty($detail['id'])) {
                 // Update the existing record
                 $existingDetail = RequisitionDetail::find($detail['id']);
                 if ($existingDetail) {
                     $existingDetail->update([
-                        'purchase_order_no' => $detail['purchase_order_no'],
+                        'grn_item_mapping_id' => $grnData['id'],
+                        'grn_no' => $grnData['grn_no'],
                         'item_description' => $detail['item_description'],
                         'uom' => $detail['uom'],
-                        'store' => $detail['store'],
-                        'stock_status' => $detail['stock_status'],
+                        'store_id' => $detail['store'],
                         'quantity_required' => $detail['quantity_required'],
-                        'dzongkhag' => $detail['dzongkhag'],
-                        'site_name' => $detail['site_name'],
+                        'dzongkhag_id' => $detail['dzongkhag'],
+                        'site_id' => $detail['site_name'],
                         'remark' => $detail['remark'],
                     ]);
 
@@ -182,15 +205,16 @@ class RequisitionApplicationController extends Controller
             } else {
                 // Insert new record
                 $newDetail = RequisitionDetail::create([
+                    'grn_item_mapping_id' => $grnData['id'],
                     'requisition_id' => $requisitionId,
-                    'purchase_order_no' => $detail['purchase_order_no'],
+                    'grn_no' => $grnData['grn_no'],
                     'item_description' => $detail['item_description'],
                     'uom' => $detail['uom'],
-                    'store' => $detail['store'],
+                    'store_id' => $detail['store'],
                     'stock_status' => $detail['stock_status'],
                     'quantity_required' => $detail['quantity_required'],
-                    'dzongkhag' => $detail['dzongkhag'],
-                    'site_name' => $detail['site_name'],
+                    'dzongkhag_id' => $detail['dzongkhag'],
+                    'site_id' => $detail['site_name'],
                     'remark' => $detail['remark'],
                 ]);
 

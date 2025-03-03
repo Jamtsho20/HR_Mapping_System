@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->nullable();
             $table->string('name');
+            $table->foreignId('dzongkhag_id')->index()->nullable()->constrained('mas_dzongkhags');
             $table->text('description')->nullable();
             $table->timestamps();
         });

@@ -225,8 +225,12 @@ class ApiController extends BaseController
             foreach ($request->details as $detail) {
 
                 $reqDetail = $reqApplication->details->where('grn_no', $detail['grn_no'])->first();
-
+                $item_id = MasItem::where('item_no', $detail['item_code'])->value('id');
+                if(!$item_id){
+                    return $this->errorResponse("Item code {$detail['item_code']} not found in HRMS system.");
+                }
                 $goodsReceivedDetails[] = [
+                    'item_id' => $item_id,
                     'goods_received_by_user_id' => $goodsReceived->id,
                     'req_detail_id' => $reqDetail->id,
                     'grn_no' => $detail['grn_no'],
@@ -377,7 +381,7 @@ class ApiController extends BaseController
     }
 
     // public function postJournalEntries($accountCode, $shortName, $memo, $amount, $costingCode = null, $costingCode2 = null)
-    public function postJournalEntries($postFields)
+    public function postJournalEntries($postFields, $assetFlag)
     {
         // Start SAP session and retrieve session ID
         $response = $this->startSession();
@@ -396,7 +400,7 @@ class ApiController extends BaseController
 
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . '/b1s/v1/JournalEntries',
+            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . ($assetFlag ? '/b1s/v1/PurchaseRequests' : '/b1s/v1/JournalEntries'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,

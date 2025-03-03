@@ -105,6 +105,8 @@
                                         @include('approval.approvals.sifa_registration')
                                     @elseif ($id == 9)
                                         @include('approval.approvals.dsaclaim_approval')
+                                    @elseif ($id == 5)
+                                        @include('approval.approvals.requisition_approval')
                                     @endif
 
                                 </div>
@@ -271,7 +273,7 @@
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 try {
-                                    
+
                                     var errorResponse = JSON.parse(jqXHR.responseText);
                                     // alert(errorResponse.msg_error ||
                                     //     'An unexpected error occurred.');
