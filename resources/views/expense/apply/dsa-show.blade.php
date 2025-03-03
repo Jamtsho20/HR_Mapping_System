@@ -244,18 +244,12 @@
                                     </td>
 
                                     <td colspan="4" style="padding-left:25px;">
-                                        @php
-                                        $attachments = json_decode($detail->attachment, true); // Decode JSON to array
-                                        @endphp
-
-                                        @if (!empty($attachments) && is_array($attachments))
-                                        @foreach ($attachments as $attachment)
-                                        <a href="{{ asset($attachment) }}" class="btn btn-sm btn-primary mb-1" target="_blank">
-                                            <i class="fas fa-file-alt"></i> View Attachment
-                                        </a><br>
-                                        @endforeach
+                                        @if ($detail->attachment)
+                                            <a href="{{ asset(normalizePathForDisplay($detail->attachment))}}" class="btn btn-sm btn-primary mb-1" target="_blank">
+                                                <i class="fas fa-file-alt"></i> View Attachment
+                                            </a><br>
                                         @else
-                                        <span class="text-danger">No attachment available.</span>
+                                            <span class="text-danger">No attachment available.</span>
                                         @endif
                                     </td>
 
@@ -350,14 +344,14 @@
             </div>
         </div>
         <div class="row">
-                    <div class="col-md-12">
-                        @include('layouts.includes.approval-details', [
-                            'approvalDetail' => $approvalDetail,
-                            'applicationStatus' => $dsa->status
-                        ])
+            <div class="col-md-12">
+                @include('layouts.includes.approval-details', [
+                'approvalDetail' => $approvalDetail,
+                'applicationStatus' => $dsa->status
+                ])
 
-                    </div>
-                </div>
+            </div>
+        </div>
     </div>
 </div>
 </div>
