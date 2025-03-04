@@ -148,6 +148,9 @@ class ApprovalController extends Controller
                         $shortName = $application->employee->username;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
+                        if ($accountCode == 501152){
+                            $amount = $application->net_payable_;
+                        }
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = $application->employee?->empJob?->department?->code; // department code
@@ -161,7 +164,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-
+// dd($postFields);
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
