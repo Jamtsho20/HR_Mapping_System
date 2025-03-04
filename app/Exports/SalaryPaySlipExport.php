@@ -40,7 +40,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
                 $salaries->employee->empJob->account_number ?? '-',
                 $salaries->employee->empJob->salary_disbursement_mode == 1 ? 'Cash' : 'Cheque' ?? '-',
                 $salaries->employee->empJob->bank ?? '-',
-                $salaries->for_month ?? '-',
+                $salaries->for_month ? \Carbon\Carbon::parse($salaries->for_month)->format('F Y') : '-',
                 $salaries->details['basic_pay'] ?? '0',
                 $salaries->details['allowances']['House Allowance'] ?? '0',
                 $salaries->details['allowances']['Medical Allowance'] ?? '0',
