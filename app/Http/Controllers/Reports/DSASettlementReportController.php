@@ -28,7 +28,6 @@ class DSASettlementReportController extends Controller
     }
     public function index(Request $request)
     {
-
         $privileges = $request->instance();
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
@@ -40,14 +39,17 @@ class DSASettlementReportController extends Controller
         $sections = MasSection::select('name', 'id')->get();
 
         $dsaClaim = DsaClaimApplication::with([
+            'audit_logs' => function ($query) {
+                $query->where('status', 3);
+            },
             'dsaClaimDetails',
             'dsaClaimMappings.dsaDetails',
             'dsaClaimMappings.travelAuthorization',
             'dsaClaimMappings.advanceApplication',
             'dsaClaimMappings.dsaClaimApplication'
         ])->filter($request, false)
-          ->paginate(config('global.pagination'))
-          ->withQueryString();
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
 
         return view('report.dsa-settlement-report.index', compact('privileges', 'dsaClaim', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
     }
@@ -73,7 +75,59 @@ class DSASettlementReportController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $oldDataFlag = true;
+        $travelNosString = "";
+        $advanceNosString = "";
+        $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
+        if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+            $dsa = DsaClaimApplication::findOrFail($id);
+        } else {
+            $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
+
+            // Extract Travel Authorization IDs
+            $travelNumbers = $dsa->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
+
+            // Extract Advance Application IDs (if they exist)
+            $advanceNumbers = $dsa->dsaClaimMappings->pluck('advance_application_id')->filter()->toArray();
+
+            // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
+            $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
+                ->pluck('travel_authorization_no', 'id');
+
+            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
+                ->pluck('advance_no', 'id');
+
+
+            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+
+                $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                // Replace with actual daily allowance from config or DB
+                $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                if ($newDays <= 15) {
+                    $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
+                } else {
+                    $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                }
+                return $mapping;
+            });
+
+            // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+
+            $travelNosString = $travelNos->implode(', ');
+            $advanceNosString = $advanceNos->implode(', ');
+
+            $oldDataFlag = false;
+            $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
+        }
+
+
+        $empDetails = empDetails($dsa->created_by);
+
+        return view('report.dsa-settlement-report.show', compact('dsa', 'empDetails', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'approvalDetail'));
     }
 
     /**

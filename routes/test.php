@@ -9,6 +9,7 @@ use App\Models\EmployeeAttendance;
 use App\Models\EmployeeSalarySaving;
 use App\Models\EmployeeAttendanceDetail;
 use App\Http\Controllers\Api\SAP\ApiController;
+use App\Models\MasPayGroupDetail;
 use Illuminate\Support\Facades\Hash;
 
 /*
@@ -26,6 +27,55 @@ Route::get('debug', function () {
     $sap = new ApiController();
     $pay = new PayrollService();
     $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
+
+
+
+
+    $eTeeru = MasPayGroupDetail::where('mas_pay_group_id', 4)
+            ->join(
+                'mas_employee_jobs',
+                'mas_pay_group_details.mas_grade_id',
+                '=',
+                'mas_employee_jobs.mas_grade_id'
+            )
+            ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
+            ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
+            
+            // Select the required fields
+            ->select(
+                'mas_employees.name',
+                'mas_employees.contact_number',
+                'mas_pay_group_details.amount',
+                'final_pay_slips.for_month'
+            );
+
+    dd($pay->checkFormulaValidity(
+        "IF ([SIFA_MEMBER] == 1)
+IF ([GRADE] == 'E0')
+THEN (400)
+ENDIF
+IF ([GRADE] == 'P')
+THEN (325)
+ENDIF
+IF ([GRADE] == 'S')
+THEN (125)
+ENDIF
+IF ([GRADE] == 'T1')
+THEN (225)
+ENDIF
+IF ([GRADE] == 'T2')
+THEN (225)
+ENDIF
+IF ([GRADE] == 'GSSG')
+THEN (125)
+ENDIF
+IF ([GRADE] == 'T')
+THEN (225)
+ENDIF
+ELSE
+THEN (0)
+ENDIF"
+    ));
 
     $employee = User::find(182);
     $employeeAttendance = EmployeeAttendanceDetail::whereEmployeeId($employee->id)->whereAttendanceId($attendance->id)->first();
