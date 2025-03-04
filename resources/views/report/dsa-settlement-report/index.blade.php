@@ -92,6 +92,18 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="col-md-2 form-group">
+                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
+            </div>
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select" data-placeholder="Select Status" name="status">
+                    <option value="" disabled selected hidden>Select Status</option>
+                    <option value="3" {{ request()->get('status') == 3 ? 'selected' : '' }}>Approved</option>
+                    <option value="-1" {{ request()->get('status') == -1 ? 'selected' : '' }}>Rejected</option>
+                </select>
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -125,6 +137,9 @@
                                                             department
                                                         </th>
                                                         <th>
+                                                            SAP TRANS NO
+                                                        </th>
+                                                        <th>
                                                             DSA Settlement Number
                                                         <th>
                                                             Total days
@@ -155,15 +170,12 @@
                                                         </th>
                                                         <th>
                                                             Status </th>
-
                                                         <th>
                                                             approved by
                                                         </th>
                                                         <th>
                                                             approved date
                                                         </th>
-
-
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -176,6 +188,9 @@
                                                                 <td>{{ $claim->employee->name }}</td>
                                                                 <td>{{ $claim->employee->empJob->designation->name }}</td>
                                                                 <td>{{ $claim->employee->empJob->department->name }}</td>
+                                                                <td>
+                                                                    {{ optional(json_decode(optional($claim->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                                                                </td>
                                                                 <td>{{ $claim->dsa_claim_no}}</td>
                                                                 {{-- <td>{{ $dsa->from_location }}</td>
                                                                 <td>{{ $dsa->to_location }}</td>

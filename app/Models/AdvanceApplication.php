@@ -95,6 +95,10 @@ class AdvanceApplication extends Model
             $query->where('type_id', $request->query('advance_type'));
         }
 
+        if ($request->has('status') && $request->query('status') != '') {
+            $query->where('status', $request->query('status'));
+        }
+
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }

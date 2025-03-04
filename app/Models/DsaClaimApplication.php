@@ -58,7 +58,9 @@ class DsaClaimApplication extends Model
 
             $query->where('type_id', $request->query('expense_type'));
         }
-
+        if ($request->has('status') && $request->query('status') !== '') {
+            $query->where('status', $request->query('status'));
+        }
         if ($request->has('employee') && $request->query('employee') !== '') {
             $query->where('created_by', $request->query('employee'));
         }
