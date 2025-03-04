@@ -88,7 +88,7 @@ class DSAClaimApplicationController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $this->validate($request, $this->rules, $this->messages);
 
         $conditionFields = approvalHeadConditionFields(DSA_CLAIM_SETTLEMENT_APPVL_HEAD, $request); // fetching condition field for particular approval head
