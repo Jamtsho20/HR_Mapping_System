@@ -28,7 +28,6 @@ class DSASettlementReportController extends Controller
     }
     public function index(Request $request)
     {
-
         $privileges = $request->instance();
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
@@ -40,6 +39,9 @@ class DSASettlementReportController extends Controller
         $sections = MasSection::select('name', 'id')->get();
 
         $dsaClaim = DsaClaimApplication::with([
+            'audit_logs' => function($query){
+                $query->where('status', 3); 
+            },
             'dsaClaimDetails',
             'dsaClaimMappings.dsaDetails',
             'dsaClaimMappings.travelAuthorization',

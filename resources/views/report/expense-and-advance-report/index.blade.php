@@ -250,7 +250,6 @@
                                                                             'badge bg-secondary';
                                                                     @endphp
                                                                     <td>
-
                                                                         {{ $statusText }}
                                                                     </td>
                                                                     <td>{{ $application->expense_approved_by->name ?? '-' }}
