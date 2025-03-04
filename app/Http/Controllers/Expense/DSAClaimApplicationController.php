@@ -116,13 +116,13 @@ class DSAClaimApplicationController extends Controller
                 if ($request->hasFile('files')) {
                     foreach ($request->file('files') as $travelAuthId => $file) {
                         if ($file->isValid()) {
-                            // Upload each file and store the path
                             try {
-                                $attachmentPath = uploadImageToDirectory($file, $this->attachmentPath);
+                                // Store the uploaded file and get its path
+                                $attachments[$travelAuthId] = uploadImageToDirectory($file, $this->attachmentPath);
                             } catch (\Exception $e) {
-                                throw $e;
+                                \Log::error("File upload failed for Travel Auth ID: {$travelAuthId}, Error: " . $e->getMessage());
+                                return back()->withInput()->with('msg_error', 'File upload failed. Please try again.');
                             }
-                            $attachments[$travelAuthId] = $attachmentPath;
                         }
                     }
                 }
@@ -154,18 +154,18 @@ class DSAClaimApplicationController extends Controller
                     $days =  $request->total_days;
                     $total_days = $days[$travel_auth['id']] ?? 0;
 
-                    $attachment = isset($attachments[$travel_auth['id']]) ? json_encode($attachments[$travel_auth['id']]) : json_encode([]);
-
-                    $dsaMapping = DsaClaimMappings::create([
-                        'travel_authorization_id' => $travel_auth['id'],
-                        'dsa_claim_id' => $dsaClaimApplication->id,
-                        'advance_application_id' => $travel_auth['advance_id'] ?? null,
-                        'ta_amount' => $taAmount,
-                        'advance_amount' => $advanceAmount,
-                        'attachment' => $attachment,
-                        'number_of_days' => $total_days
+                    // $attachment = isset($attachments[$travel_auth['id']]) ? json_encode($attachments[$travel_auth['id']]) : json_encode([]);
+                    $attachment = isset($attachments[$travel_auth['id']]) ? $attachments[$travel_auth['id']] : null;
+                    // dd($attachment);
+                        $dsaMapping = DsaClaimMappings::create([
+                            'travel_authorization_id' => $travel_auth['id'],
+                            'dsa_claim_id' => $dsaClaimApplication->id,
+                            'advance_application_id' => $travel_auth['advance_id'] ?? null,
+                            'ta_amount' => $taAmount,
+                            'advance_amount' => $advanceAmount,
+                            'attachment' => $attachment ,
+                            'number_of_days' => $total_days
                     ]);
-
                 }
                 if (isset($request->dsa_claim_detail)) {
                     foreach ($request->dsa_claim_detail as $detail) {
