@@ -286,7 +286,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('salary-saving-scheme', 'SalarySavingSchemeController')->except('create', 'show', 'edit');
         Route::resource('employee-report', 'EmployeeReportController')->except('create', 'show', 'edit');
         Route::resource('transfer-claim-report', 'TransferClaimReportController')->except('create', 'show', 'edit');
-        Route::resource('dsa-settlement-report', 'DSASettlementReportController')->except('create', 'show', 'edit');
+        Route::resource('dsa-settlement-report', 'DSASettlementReportController')->except('create', 'edit');
         Route::resource('samsung-deduction-report', 'SamsungDeductionReportController')->except('create', 'show', 'edit');
         Route::resource('pay-comparision-report', 'PayComparisionReportController')->except('create', 'show', 'edit');
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');

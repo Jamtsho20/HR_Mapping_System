@@ -94,7 +94,8 @@
             </div>
 
             <div class="col-md-2 form-group">
-                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
+                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No"
+                    value="{{ request()->get('sap_trans_no') }}" />
             </div>
 
             {{-- <div class="col-md-2 form-group">
@@ -176,83 +177,93 @@
                                                         <th>
                                                             approved date
                                                         </th>
+                                                        <th>
+                                                            Action
+                                                        </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @php $serialNumber = 1; @endphp
 
                                                     @forelse ($dsaClaim as $claim)
-
-                                                            <tr>
-                                                                <td>{{ $serialNumber++ }}</td>
-                                                                <td>{{ $claim->employee->name }}</td>
-                                                                <td>{{ $claim->employee->empJob->designation->name }}</td>
-                                                                <td>{{ $claim->employee->empJob->department->name }}</td>
-                                                                <td>
-                                                                    {{ optional(json_decode(optional($claim->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
-                                                                </td>
-                                                                <td>{{ $claim->dsa_claim_no}}</td>
-                                                                <td>{{ $claim->total_number_of_days ?? config("global.null_value")}}</td>
-                                                                <td>
-                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
-                                                                        {{ $claim->dsaClaimMappings->first()->dsaDetails->first()->daily_allowance }}
-                                                                    @else
-                                                                        {{ $claim->dsaClaimDetails->first()->daily_allowance ?? '-' }}
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
+                                                        <tr>
+                                                            <td>{{ $serialNumber++ }}</td>
+                                                            <td>{{ $claim->employee->name }}</td>
+                                                            <td>{{ $claim->employee->empJob->designation->name }}</td>
+                                                            <td>{{ $claim->employee->empJob->department->name }}</td>
+                                                            <td>
+                                                                {{ optional(json_decode(optional($claim->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $claim->dsa_claim_no }}</td>
+                                                            <td>{{ $claim->total_number_of_days ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>
+                                                                @if ($claim->dsaClaimMappings->isNotEmpty())
+                                                                    {{ $claim->dsaClaimMappings->first()->dsaDetails->first()->daily_allowance }}
+                                                                @else
+                                                                    {{ $claim->dsaClaimDetails->first()->daily_allowance ?? '-' }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if ($claim->dsaClaimMappings->isNotEmpty())
                                                                     {{ $claim->dsaClaimMappings->pluck('dsaDetails')->flatten()->sum('travel_allowance') }}
+                                                                @else
+                                                                    {{ $claim->dsaClaimDetails->sum('travel_allowance') ?? '-' }}
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $claim->amount }}</td>
+                                                            <td>
+                                                                @if ($claim->dsaClaimMappings->isNotEmpty())
+                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.travel_authorization_no')->filter()->toArray()) }}
+                                                                @else
+                                                                    {{ $claim->travel->travel_authorization_no ?? '-' }}
+                                                                @endif
+                                                            </td>
 
-                                                                    @else
-                                                                        {{ $claim->dsaClaimDetails->sum('travel_allowance') ?? '-' }}
-                                                                    @endif
-                                                                </td>
-                                                                <td>{{ $claim->amount }}</td>
-                                                                <td>
-                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
-                                                                        {{ implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.travel_authorization_no')->filter()->toArray()) }}
-                                                                    @else
-                                                                        {{ $claim->travel->travel_authorization_no ?? '-' }}
-                                                                    @endif
-                                                                </td>
+                                                            </td>
+                                                            <td>
+                                                                @if ($claim->dsaClaimMappings->isNotEmpty())
+                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.advance_no')->filter()->toArray()) }}
+                                                                @else
+                                                                    {{ $claim->dsaadvance->advance_no ?? '-' }}
+                                                                @endif
+                                                            </td>
 
-                                                                </td>
-                                                                <td>
-                                                                    @if($claim->dsaClaimMappings->isNotEmpty())
-                                                                        {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.advance_no')->filter()->toArray()) }}
-                                                                    @else
-                                                                        {{ $claim->dsaadvance->advance_no ?? '-' }}
-                                                                    @endif
-                                                                </td>
-
-                                                                <td>{{ $claim->advance_amount ?? '-' }}</td>
-                                                                <td>{{ $claim->net_payable_amount }}</td>
-                                                                @php
-                                                                    $statusClasses = [
-                                                                        -1 => 'Rejected',
-                                                                        0 => 'Cancelled',
-                                                                        1 => 'Submitted',
-                                                                        2 => 'Verified',
-                                                                        3 => 'Approved',
-                                                                    ];
-                                                                    $statusText = config(
-                                                                        "global.application_status.{$claim->status}",
-                                                                        'Unknown Status',
-                                                                    );
-                                                                    $statusClass =
-                                                                        $statusClasses[$claim->status] ??
-                                                                        'badge bg-secondary';
-                                                                @endphp
-                                                                <td>{{ $statusText }}</td>
-                                                                <td>{{ $claim->expense_approved_by->name ?? config("global.null_value") }}</td>
-                                                                <td>{{ $claim->updated_at->format('m-d-y') }}</td>
-                                                            </tr>
-                                                        @empty
-                                                            <tr>
-                                                                <td colspan="17" class="text-center text-danger">No DSA
-                                                                    Settlement Details found for this claim</td>
-                                                            </tr>
+                                                            <td>{{ $claim->advance_amount ?? '-' }}</td>
+                                                            <td>{{ $claim->net_payable_amount }}</td>
+                                                            @php
+                                                                $statusClasses = [
+                                                                    -1 => 'Rejected',
+                                                                    0 => 'Cancelled',
+                                                                    1 => 'Submitted',
+                                                                    2 => 'Verified',
+                                                                    3 => 'Approved',
+                                                                ];
+                                                                $statusText = config(
+                                                                    "global.application_status.{$claim->status}",
+                                                                    'Unknown Status',
+                                                                );
+                                                                $statusClass =
+                                                                    $statusClasses[$claim->status] ??
+                                                                    'badge bg-secondary';
+                                                            @endphp
+                                                            <td>{{ $statusText }}</td>
+                                                            <td>{{ $claim->expense_approved_by->name ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $claim->updated_at->format('m-d-y') }}</td>
+                                                            <td>
+                                                                @if ($privileges->view)
+                                                                    <a href="{{ url('report/dsa-settlement-report/' . $claim->id) }}"
+                                                                        class="btn btn-sm btn-outline-secondary"><i
+                                                                            class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="17" class="text-center text-danger">No DSA
+                                                                Settlement Details found for this claim</td>
+                                                        </tr>
                                                     @endforelse
                                                 </tbody>
                                             </table>
