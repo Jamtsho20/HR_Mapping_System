@@ -149,7 +149,7 @@ class ApprovalController extends Controller
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
                         if ($accountCode == 501152){
-                            $amount = $application->net_payable_;
+                            $amount = $application->net_payable_amount;
                         }
                         $tax_amount = $application->tax_amount ?? null;
                         $postToSap = $type->post_to_sap;
@@ -340,7 +340,7 @@ class ApprovalController extends Controller
                     $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                     $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
-                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
                     if ($newDays <= 15) {
                         $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                     } else {

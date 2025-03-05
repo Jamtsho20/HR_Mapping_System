@@ -263,7 +263,7 @@ class DSAClaimApplicationController extends Controller
 
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                  // Replace with actual daily allowance from config or DB
-                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
                 if ($newDays <= 15) {
                     $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                 } else {
