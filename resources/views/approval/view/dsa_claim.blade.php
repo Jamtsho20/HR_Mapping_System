@@ -197,9 +197,7 @@
                     <br>
                     <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                         <span>*</span>
-                        For each travel authorization application, the total number of days,
-                        the formula used for calculating the amount, and the final amount will be
-                        displayed at the end of each application.
+                        The "0.5" in the number of days represents either a half-day duration or a half-day allowance.
                     </p>
                     <div class="dataTables_scroll">
                         <div class="dataTables_scrollHead"
@@ -224,7 +222,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-
                                         @foreach ($data->dsaClaimMappings as $index => $detail)
                                         <tr class="travel-auth-${travelAuthGroupClass} bg-light">
 
@@ -304,10 +301,10 @@
                                                 <input type="hidden" id="total_days" name="total_days[{{$detail->travel_authorization_id}}]" value="{{$detail->number_of_days}}">
                                             </td>
                                             <td colspan="5" class="text-center" style="color: black; ">
-                                                <span style="font-weight: bold;">Formula:</span>
+                                                {{-- <span style="font-weight: bold;">Formula:</span>
                                                 <span class="formula-span">
                                                      {{$detail->formula}}
-                                                </span>
+                                                </span> --}}
                                             </td>
                                             <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
                                                 <span>

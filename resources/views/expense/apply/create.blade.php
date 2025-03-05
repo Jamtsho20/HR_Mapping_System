@@ -344,9 +344,7 @@
                                 </div>
                                 <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                                     <span style="">*</span>
-                                    For each travel authorization application, the total number of days,
-                                    the formula used for calculating the amount, and the final amount will be
-                                    displayed at the end of each application.
+                                    The "0.5" in the number of days represents either a half-day duration or a half-day allowance.
                                 </p>
                                 <div class="tab-pane">
                                     <div class="card">
@@ -619,6 +617,20 @@
             allowClear: true
         });
 
+       // Bind the change event so that your function is called whenever the selection changes.
+    $('#travel_authorization').on('change', function() {
+        getTravelAuthorizationDetailsMultiple();
+    });
+
+    // Gather all option values for auto-selection.
+    var allValues = [];
+    $('#travel_authorization option').each(function() {
+        allValues.push($(this).val());
+    });
+
+    // Select all options on load, which triggers the change event.
+    $('#travel_authorization').val(allValues).trigger('change');
+
 
             const form = document.getElementById('apply_expense');
             const dsaForm = document.getElementById('apply_dsa');
@@ -882,17 +894,7 @@
                 const daysSpan = row.find('span.days-span');
                 daysSpan.text(newDays);
 
-                $formula='';
-                            if(newDays <= 15){
 
-                                        formula= DAILY_ALLOWANCE + " * " + newDays + "day(s)";
-                                    }else{
-
-                                        formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (newDays-15) + "day(s)) ="  ;
-                                    };
-
-                const formulaSpan = row.find('span.formula-span');
-                formulaSpan.text(formula);
                 // Find and update the advance_amount input field
                 const advanceAmountInput = row.find(`input[name='advance_amount[${travelAuthorizationId}]']`);
                 if (advanceAmountInput.length > 0) {
@@ -1106,6 +1108,7 @@ function updateAllRowDateConstraints(travelAuthGroupClass) {
         // Also ensure each row's to_date min is its own from_date value
         let fromDateValue = $row.find("input[name^='dsa_claim_detail'][name$='[from_date]']").val();
         if (fromDateValue) {
+            $row.find("input[name^='dsa_claim_detail'][name$='[to_date]']").removeAttr("disabled");
             $row.find("input[name^='dsa_claim_detail'][name$='[to_date]']").attr("min", fromDateValue);
         }
     });
@@ -1121,6 +1124,7 @@ $(document).on("change", "input[name^='dsa_claim_detail'][name$='[from_date]']",
     const changedRow = $(this).closest('tr');
     let changedRowFromDate = changedRow.find("input[name^='dsa_claim_detail'][name$='[from_date]']").val();
     changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").attr("min", changedRowFromDate);
+    changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").removeAttr("disabled");
     console.log("changedRow", changedRowFromDate);
 });
 
@@ -1200,7 +1204,7 @@ console.log("addnrwMax Date:", maxDate, "Min Date:", minDate, "Travel Auth Group
                 <input type="text" name="dsa_claim_detail[${newRowId}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
             </td>
             <td class="text-center">
-                <input type="date" name="dsa_claim_detail[${newRowId}][to_date]" max=${maxDate} class="form-control form-control-sm resetKeyForNew" required />
+                <input type="date" name="dsa_claim_detail[${newRowId}][to_date]" max=${maxDate} class="form-control form-control-sm resetKeyForNew" required disabled />
             </td>
             <td class="text-center">
                 <input type="text" name="dsa_claim_detail[${newRowId}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
@@ -1350,14 +1354,11 @@ document.addEventListener("click", function (event) {
 
                                 tbody.append(row); // Append the row to the table body
                             });
-                            $formula='';
-                            if(days <= 15){
+
+
                                         taAmount+=DAILY_ALLOWANCE * days;
-                                        formula= DAILY_ALLOWANCE + " * " + days + "day(s)";
-                                    }else{
-                                        taAmount+=(DAILY_ALLOWANCE/2)*(days-15) + DAILY_ALLOWANCE * 15;
-                                        formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (days-15) + "day(s)) ="  ;
-                                    };
+
+
                                     grandTotal+=taAmount;
 
                             tbody.append(`
@@ -1374,10 +1375,7 @@ document.addEventListener("click", function (event) {
                                         <input type="hidden" id="total_days" name="total_days[${travel_authorizations.travelAuthorization.id}]" value="${days}">
                                     </td>
                                     <td colspan="5" class="text-center" style="color: black; ">
-                                        <span style="font-weight: bold;">Formula:</span>
-                                        <span class="formula-span">
-                                            ${formula}
-                                        </span>
+
                                     </td>
                                     <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
                                         <span>
