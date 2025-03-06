@@ -155,7 +155,7 @@ class DSAClaimApplicationController extends Controller
                     $total_days = $days[$travel_auth['id']] ?? 0;
 
                     // $attachment = isset($attachments[$travel_auth['id']]) ? json_encode($attachments[$travel_auth['id']]) : json_encode([]);
-                    $attachment = isset($attachments[$travel_auth['id']]) ? $attachments[$travel_auth['id']] : [];
+                    $attachment = isset($attachments[$travel_auth['id']]) ? $attachments[$travel_auth['id']] : null;
                     // dd($attachment);
                         $dsaMapping = DsaClaimMappings::create([
                             'travel_authorization_id' => $travel_auth['id'],
@@ -163,7 +163,7 @@ class DSAClaimApplicationController extends Controller
                             'advance_application_id' => $travel_auth['advance_id'] ?? null,
                             'ta_amount' => $taAmount,
                             'advance_amount' => $advanceAmount,
-                            'attachment' => $attachment ?? null,
+                            'attachment' => $attachment ,
                             'number_of_days' => $total_days
                     ]);
                 }
@@ -263,7 +263,7 @@ class DSAClaimApplicationController extends Controller
 
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                  // Replace with actual daily allowance from config or DB
-                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
                 if ($newDays <= 15) {
                     $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                 } else {

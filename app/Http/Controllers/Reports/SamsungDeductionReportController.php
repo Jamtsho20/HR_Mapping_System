@@ -9,6 +9,7 @@ use App\Models\MasPayHead;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
 
 class SamsungDeductionReportController extends Controller
 {
@@ -147,4 +148,5 @@ class SamsungDeductionReportController extends Controller
         // Return the PDF as a stream to display it in the browser
         return $pdf->stream('SamsungDeduction-Report.pdf');
     }
+
 }

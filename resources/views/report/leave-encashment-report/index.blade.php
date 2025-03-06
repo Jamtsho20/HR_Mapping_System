@@ -43,6 +43,10 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="col-md-2 form-group">
+                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -82,6 +86,9 @@
                                                             LOCATION
                                                         </th>
                                                         <th>
+                                                            SAP TRANS NO
+                                                        </th>
+                                                        <th>
                                                             Leave encashed
                                                         </th>
                                                         <th>
@@ -105,6 +112,9 @@
                                                             <td>{{ $leave->employee->empJob->designation->name }}</td>
                                                             <td>{{ $leave->employee->empJob->department->name }}</td>
                                                             <td>{{ $leave->employee->empJob->office->name }}</td>
+                                                            <td>
+                                                                {{ optional(json_decode(optional($leave->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                                                            </td>
                                                             <td>{{ $leave->leave_applied_for_encashment }}</td>
                                                             <td>{{ $leave->employeeLeave->closing_balance }}</td>
                                                             <td>{{ $leave->amount }}</td>

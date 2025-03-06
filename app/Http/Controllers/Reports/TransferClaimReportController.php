@@ -8,6 +8,8 @@ use App\Models\MasDepartment;
 use App\Models\MasOffice;
 use App\Models\MasRegion;
 use App\Models\MasSection;
+use App\Models\MasTransferClaim;
+use App\Models\MasTransferType;
 use App\Models\TransferClaimApplication;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -28,6 +30,7 @@ class TransferClaimReportController extends Controller
     }
     public function index(Request $request)
     {
+        // dd($request->all());
         $privileges = $request->instance();
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
@@ -37,10 +40,12 @@ class TransferClaimReportController extends Controller
             $query->whereIn('roles.id', [7, 8]);  // Fetch users with roles 6 or 7
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
+        $claimTypes = MasTransferClaim::whereStatus(1)->get(['id', 'name']);
+        $trasferClaims = TransferClaimApplication::with(['audit_logs' => function($query){
+            $query->where('status', 3); 
+        }])->filter($request, false)->paginate(config('global.pagination'))->withQueryString();
 
-        $trasferClaims = TransferClaimApplication::filter($request, false)->paginate(config('global.pagination'))->withQueryString();
-
-        return view('report.transfer-claim-report.index', compact('privileges', 'trasferClaims', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
+        return view('report.transfer-claim-report.index', compact('privileges', 'trasferClaims', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers', 'claimTypes'));
     }
 
     /**
