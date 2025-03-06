@@ -1173,7 +1173,10 @@ const travelAuthGroupClass = travelAuthClassMatch[1];
 let lastToDateInput = $(`.travel-auth-${travelAuthGroupClass} input[name^='dsa_claim_detail'][name$='[to_date]']`).last();
 let maxDate = lastToDateInput.attr("max") || lastToDateInput.val();
 let minDate = lastToDateInput.val();
-
+if (minDate == maxDate) {
+    showErrorMessage("Please decrease the current row's To Date before adding a new one.");
+    return;
+}
 if (minDate) {
     let minDateObj = new Date(minDate);
     minDateObj.setDate(minDateObj.getDate() + 1); // Add 1 day
