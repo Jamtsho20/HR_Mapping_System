@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('received_quantity');
             $table->integer('comissioned_quantity');
             $table->json('file')->nullable();
+            // $table->timestamp()
             $table->unsignedTinyInteger('status')->comment('1 => New, 2 =>verified 3 => Approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');

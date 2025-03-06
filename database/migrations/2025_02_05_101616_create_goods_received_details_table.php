@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('goods_received_by_user_id')->index()->constrained('mas_goods_received_by_users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('req_detail_id')->index()->constrained('requisition_details');
+            //add item no can keep item_id
             $table->string('grn_no')->nullable();
             $table->string('uom')->nullable();
             $table->string('item_description')->nullable();

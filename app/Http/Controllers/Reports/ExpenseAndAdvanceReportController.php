@@ -40,8 +40,10 @@ class ExpenseAndAdvanceReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $expenseApplications = ExpenseApplication::filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
-
+        $expenseApplications = ExpenseApplication::with(['audit_logs' => function($query){
+            $query->where('status', 3); 
+        }])->filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
+        
         return view('report.expense-and-advance-report.index', compact('privileges', 'expenseApplications', 'regions', 'departments', 'sections', 'expenses', 'employeeLists', 'offices', 'managers'));
     }
 

@@ -13,9 +13,7 @@ class DsaClaimApplication extends Model
 
     protected $guarded = [];
 
-    protected $cast = [
-        'attachment' => 'array'
-    ];
+    protected $fillable = ['dsa_claim_no', 'advance_application_id', 'travel_authorization_id', 'type_id', 'attachment', 'amount', 'net_payable_amount', 'balance_amount', 'status', 'advance_amount', 'total_number_of_days'];
 
     public function employee()
     {
@@ -60,12 +58,21 @@ class DsaClaimApplication extends Model
 
             $query->where('type_id', $request->query('expense_type'));
         }
-
+        // if ($request->has('status') && $request->query('status') !== '') {
+        //     $query->where('status', (int)$request->query('status'));
+        // }
         if ($request->has('employee') && $request->query('employee') !== '') {
             $query->where('created_by', $request->query('employee'));
         }
         if ($request->has('manager') && $request->query('manager') !== '') {
             $query->where('updated_by', $request->query('manager'));
+        }
+        if ($request->has('sap_trans_no') && $request->query('sap_trans_no') !== '') {
+            $sapTransNo = $request->query('sap_trans_no');
+        
+            $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
+                $q->where('status', 3)->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
+            });
         }
 
         if ($request->get('year')) {

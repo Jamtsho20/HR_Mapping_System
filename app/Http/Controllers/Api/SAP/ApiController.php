@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\GoodsReceivedDetail;
 use App\Models\GoodsReceivedDetailSerial;
 use App\Models\GrnItemMapping;
+use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
 use App\Models\RequisitionApplication;
@@ -13,7 +14,6 @@ use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\MasGoodsReceivedByUser;
 class ApiController extends BaseController
 {
 

@@ -195,9 +195,7 @@
             <br>
             <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                 <span style="">*</span>
-                For each travel authorization application, the total number of days,
-                the formula used for calculating the amount, and the final amount will be
-                displayed at the end of each application.
+                The "0.5" in the number of days represents either a half-day duration or a half-day allowance.
             </p>
             <div class="dataTables_scroll">
                 <div class="dataTables_scrollHead"
@@ -244,18 +242,12 @@
                                     </td>
 
                                     <td colspan="4" style="padding-left:25px;">
-                                        @php
-                                        $attachments = json_decode($detail->attachment, true); // Decode JSON to array
-                                        @endphp
-
-                                        @if (!empty($attachments) && is_array($attachments))
-                                        @foreach ($attachments as $attachment)
-                                        <a href="{{ asset($attachment) }}" class="btn btn-sm btn-primary mb-1" target="_blank">
-                                            <i class="fas fa-file-alt"></i> View Attachment
-                                        </a><br>
-                                        @endforeach
+                                        @if ($detail->attachment)
+                                            <a href="{{ asset(normalizePathForDisplay($detail->attachment))}}" class="btn btn-sm btn-primary mb-1" target="_blank">
+                                                <i class="fas fa-file-alt"></i> View Attachment
+                                            </a><br>
                                         @else
-                                        <span class="text-danger">No attachment available.</span>
+                                            <span class="text-danger">No attachment available.</span>
                                         @endif
                                     </td>
 
@@ -310,10 +302,10 @@
                                         <input type="hidden" id="total_days" name="total_days[{{$detail->travel_authorization_id}}]" value="{{$detail->number_of_days}}">
                                     </td>
                                     <td colspan="5" class="text-center" style="color: black; ">
-                                        <span style="font-weight: bold;">Formula:</span>
+                                        {{-- <span style="font-weight: bold;">Formula:</span>
                                         <span class="formula-span">
                                             {{$detail->formula}}
-                                        </span>
+                                        </span> --}}
                                     </td>
                                     <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
                                         <span>
@@ -350,14 +342,14 @@
             </div>
         </div>
         <div class="row">
-                    <div class="col-md-12">
-                        @include('layouts.includes.approval-details', [
-                            'approvalDetail' => $approvalDetail,
-                            'applicationStatus' => $dsa->status
-                        ])
+            <div class="col-md-12">
+                @include('layouts.includes.approval-details', [
+                'approvalDetail' => $approvalDetail,
+                'applicationStatus' => $dsa->status
+                ])
 
-                    </div>
-                </div>
+            </div>
+        </div>
     </div>
 </div>
 </div>

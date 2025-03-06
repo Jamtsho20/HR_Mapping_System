@@ -59,6 +59,14 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select" data-placeholder="Select Status" name="status">
+                    <option value="" disabled selected hidden>Select Status</option>
+                    <option value="3" {{ request()->get('status') == 3 ? 'selected' : '' }}>Approved</option>
+                    <option value="-1" {{ request()->get('status') == -1 ? 'selected' : '' }}>Rejected</option>
+                </select>
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -124,7 +132,9 @@
                                                                 <th>
                                                                     EMI Amount
                                                                 </th>
-
+                                                                <th>
+                                                                    Status
+                                                                </th>
                                                                 <th>
                                                                     APPROVED BY
                                                                 </th>
@@ -159,6 +169,27 @@
                                                                     <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi)->format('d-F-Y') }}
                                                                     </td>
                                                                     <td>{{ $reports->monthly_emi_amount }}</td>
+                                                                    </td>
+                                                                    @php
+                                                                        $statusClasses = [
+                                                                            -1 => 'Rejected',
+                                                                            0 => 'Cancelled',
+                                                                            1 => 'Submitted',
+                                                                            2 => 'Verified',
+                                                                            3 => 'Approved',
+                                                                        ];
+                                                                        $statusText = config(
+                                                                            "global.application_status.{$reports->status}",
+                                                                            'Unknown Status',
+                                                                        );
+                                                                        $statusClass =
+                                                                            $statusClasses[$reports->status] ??
+                                                                            'badge bg-secondary';
+                                                                    @endphp
+                                                                    <td>
+
+                                                                        {{ $statusText }}
+                                                                    </td>
                                                                     <td>{{ $reports->advance_approved_by->name ?? '-' }}
                                                                     </td>
                                                                     <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}

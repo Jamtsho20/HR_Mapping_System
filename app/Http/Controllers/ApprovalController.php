@@ -67,6 +67,7 @@ class ApprovalController extends Controller
                 $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
             }
         }
+
         $holidays;
 
         if ($results->get(7)) {
@@ -148,6 +149,9 @@ class ApprovalController extends Controller
                         $shortName = $application->employee->username;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
+                        if ($accountCode == 501152){
+                            $amount = $application->net_payable_amount;
+                        }
                         $tax_amount = $application->tax_amount ?? null;
 
                         $item_code = $application->details ?? null;
@@ -173,10 +177,8 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application);
-
-                            //dd($postFields, $assetFlag);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
+// dd($postFields);
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -370,7 +372,7 @@ class ApprovalController extends Controller
                     $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                     $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
-                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
                     if ($newDays <= 15) {
                         $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                     } else {
