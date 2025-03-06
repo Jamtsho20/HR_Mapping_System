@@ -138,20 +138,22 @@ enctype="multipart/form-data" id="apply_dsa">
                                             Advance Number: {{$mapping->advance_application_id ?? 'N/A'}}, Advance Amount: {{$mapping->advance_amount ?? 'N/A'}}
                                         </span>
                                     </td>
-                                    <td colspan="4" class="text-center" style="color: black;">
-                                        @php
-                                        $attachments = json_decode($mapping->attachment, true); // Decode JSON to array
+                                    <td style="padding-left:25px;"> @php
+                                        $attachments = $mapping->attachment ?? NULL; // Decode JSON to array
+                                    
                                         @endphp
 
-                                        @if (isset($attachments) && !empty($attachments))
-
-                                        <a href="{{ asset($mapping->attachments)}}" class="btn btn-sm btn-primary mb-1"
+                                        @if ($attachments)
+                                        
+                                        <a href="{{ asset($attachments) }}" class="btn btn-sm btn-primary mb-1"
                                             target="_blank">
                                             <i class="fas fa-file-alt"></i> View Attachment
                                         </a><br>
+                                        
                                         @else
                                         <span class="text-danger">No attachment available.</span>
                                         @endif
+
                                     </td>
                                 </tr>
                                 @foreach ( $mapping->dsaDetails as $detail )
@@ -255,7 +257,7 @@ enctype="multipart/form-data" id="apply_dsa">
 @endsection
 @push('page_scripts')
 <script>
-    window.DAILY_ALLOWANCE = {{$da}}
+    window.DAILY_ALLOWANCE = {{$da}};
 $(document).ready(function() {
 
     $('#travel_authorization').select2({
@@ -292,7 +294,8 @@ if (minDate) {
 
 
     // Generate a new unique row ID (You may need a better way to generate unique IDs)
-    const newRowId = `new_${Date.now()}`;
+    const newRowId = `${Date.now()}${Math.floor(Math.random() * 100)}`;
+
 
     // Define the structure of the new row
     const newRow = `
