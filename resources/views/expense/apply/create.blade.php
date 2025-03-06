@@ -1048,13 +1048,13 @@ $(document).on("click", ".add-table-row", function () {
             function updateDateConstraints(travelAuthGroupClass) {
     let lastToDateInput = $(`.travel-auth-${travelAuthGroupClass} input[name^='dsa_claim_detail'][name$='[to_date]']`).last();
     let prevToDateInput = lastToDateInput.closest('tr').prev('tr').find("input[name^='dsa_claim_detail'][name$='[to_date]']");
-                console.log(prevToDateInput);
+
 // Check if the previous input was found
 let maxDate, minDate; // Declare outside the if block
 if (prevToDateInput.length) {
     maxDate = prevToDateInput.attr("max") || prevToDateInput.val();
     minDate = prevToDateInput.val();
-    console.log("sssMax Date:", maxDate, "Min Date:", minDate, "Travel Auth Group:", travelAuthGroupClass);
+
 } else {
     console.error("Previous to_date input not found");
 }
@@ -1067,7 +1067,7 @@ if (prevToDateInput.length) {
         return;
     }
 
-    console.log("minDateMax Date:", maxDate, "Min Date:", minDate, "Travel Auth Group:", travelAuthGroupClass);
+
 }
 
 function updateNextRowMinDate(changedRow) {
@@ -1085,7 +1085,7 @@ function updateNextRowMinDate(changedRow) {
     if (nextRow.length) {
         let fromDateField = nextRow.find("input[name^='dsa_claim_detail'][name$='[from_date]']");
         fromDateField.attr("min", nextMinDate);
-        console.log("Set next row's from_date min to:", nextMinDate);
+
     }
 }
 
@@ -1125,7 +1125,7 @@ $(document).on("change", "input[name^='dsa_claim_detail'][name$='[from_date]']",
     let changedRowFromDate = changedRow.find("input[name^='dsa_claim_detail'][name$='[from_date]']").val();
     changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").attr("min", changedRowFromDate);
     changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").removeAttr("disabled");
-    console.log("changedRow", changedRowFromDate);
+
 });
 
 // When a row is deleted, update the entire group's constraints
@@ -1138,7 +1138,7 @@ $(document).on("click", ".delete-table-row", function () {
     if (travelAuthClassMatch) {
         const travelAuthGroupClass = travelAuthClassMatch[1];
         updateAllRowDateConstraints(travelAuthGroupClass);
-        console.log("Updated date constraints for travel auth group:", travelAuthGroupClass);
+
     }
 });
 
@@ -1147,11 +1147,11 @@ $(document).on("click", ".add-table-row", function () {
     // Assume your row cloning or creation logic here
     // After adding the new row, update constraints for the group:
     const travelAuthClassMatch = $(this).closest("[class*='travel-auth-']").attr('class')?.match(/travel-auth-(\d+)/);
-    console.log("travelAuthClassMatch:", travelAuthClassMatch);
+
     if (travelAuthClassMatch) {
         const travelAuthGroupClass = travelAuthClassMatch[1];
         updateAllRowDateConstraints(travelAuthGroupClass);
-        console.log("Added row and updated constraints for travel auth group:", travelAuthGroupClass);
+
     }
 });
 
@@ -1161,7 +1161,7 @@ $(document).on("click", ".add-table-row", function () {
     // Find the closest travel authorization row
     const travelAuthRow = $(button).closest('tr');
 const travelAuthClassMatch = travelAuthRow.attr('class')?.match(/travel-auth-(\d+)/);
-console.log("travelAuthClassMatch:", travelAuthClassMatch[1]);
+
 updateAllRowDateConstraints(travelAuthClassMatch[1]);
 if (!travelAuthClassMatch) {
     showErrorMessage("Invalid travel authorization row.");
@@ -1183,10 +1183,10 @@ if (minDate) {
     return;
 }
 
-console.log("addnrwMax Date:", maxDate, "Min Date:", minDate, "Travel Auth Group:", travelAuthGroupClass);
 
-    // Generate a new unique row ID (You may need a better way to generate unique IDs)
-    const newRowId = `new_${Date.now()}`;
+
+    // Generate a new unique row ID
+    const newRowId = `${Date.now()}${Math.floor(Math.random() * 10)}`;
 
     // Define the structure of the new row
     const newRow = `
@@ -1704,7 +1704,7 @@ $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', f
                         $('input[name="fuel_claim_details[AAAAA][mileage]"]').val(mileage);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        console.log('Error: ' + textStatus + ' - ' + errorThrown);
+
                         showErrorMessage('An error occurred while fetching vehicle details.');
                     }
                 });
@@ -1803,7 +1803,7 @@ $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', f
 
         if (thirdLastRow.length) {
             let maxDate = thirdLastRow.find("input[name$='[to_date]']").val(); // Get its to_date
-            console.log("allrows", allRows, "maxDate", maxDate);
+
             if (maxDate) {
                 // Apply maxDate to all rows except the last two
                 allRows.slice(0, -2).each(function () {
