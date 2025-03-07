@@ -25,7 +25,7 @@ class SSSExport implements FromCollection, WithHeadings
         $serialNo = 1;
 
         // Access the request data to apply filters
-        return EmployeeSalarySaving::filter($this->request)->get()->map(function ($sss) use (&$serialNo) {
+        return EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->filter($this->request)->get()->map(function ($sss) use (&$serialNo) {
             return [
                 $serialNo++,
                 $sss->employee->username,
