@@ -28,7 +28,10 @@ class LeaveEncashmentReportController extends Controller
         $privileges = $request->instance();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
-        $leaveEncashments = LeaveEncashmentApplication::filter($request, false)
+        $leaveEncashments = LeaveEncashmentApplication::with(['audit_logs' => function($query){
+                $query->where('status', 3); 
+            }])
+            ->filter($request, false)
             ->where('status', 3)
             ->with('employeeLeave') // Eager load leave details
             ->paginate(config('global.pagination'));

@@ -9,6 +9,7 @@ use App\Models\EmployeeAttendance;
 use App\Models\EmployeeSalarySaving;
 use App\Models\EmployeeAttendanceDetail;
 use App\Http\Controllers\Api\SAP\ApiController;
+use App\Models\MasPayGroupDetail;
 use Illuminate\Support\Facades\Hash;
 
 /*
@@ -27,6 +28,26 @@ Route::get('debug', function () {
     $pay = new PayrollService();
     $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
 
+
+
+
+    $eTeeru = MasPayGroupDetail::where('mas_pay_group_id', 4)
+            ->join(
+                'mas_employee_jobs',
+                'mas_pay_group_details.mas_grade_id',
+                '=',
+                'mas_employee_jobs.mas_grade_id'
+            )
+            ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
+            ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
+            
+            // Select the required fields
+            ->select(
+                'mas_employees.name',
+                'mas_employees.contact_number',
+                'mas_pay_group_details.amount',
+                'final_pay_slips.for_month'
+            );
 
     dd($pay->checkFormulaValidity(
         "IF ([SIFA_MEMBER] == 1)

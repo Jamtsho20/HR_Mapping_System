@@ -91,6 +91,19 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Claim Type" name="type_id">
+                    <option value="" disabled selected hidden>Select Claim Type</option>
+                    @foreach ($claimTypes as $type)
+                        <option value="{{ $type->id }}" {{ request()->get('type_id') == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2 form-group">
+                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -125,6 +138,9 @@
                                                         </th>
                                                         <th>
                                                             Transfer Claim type
+                                                        </th>
+                                                        <th>
+                                                            sap trans no
                                                         </th>
                                                         <th>
                                                             from location
@@ -162,6 +178,9 @@
                                                             <td>{{ $transfer->employee->empJob->designation->name }}</td>
                                                             <td>{{ $transfer->employee->empJob->department->name }}</td>
                                                             <td>{{ $transfer->type->name }}</td>
+                                                            <td>
+                                                                {{ optional(json_decode(optional($transfer->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                                                            </td>
                                                             <td>{{ $transfer->current_location }}</td>
                                                             <td>{{ $transfer->distance_travelled }}</td>
                                                             <td>{{ $transfer->new_location }}</td>

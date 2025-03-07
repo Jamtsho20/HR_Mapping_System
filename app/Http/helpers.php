@@ -405,3 +405,12 @@ if(!function_exists('prepareMailContent')) {
         return $finalContent;
     }
 }
+
+if(!function_exists('normalizePathForDisplay') ) {
+    function normalizePathForDisplay($path) {
+        $path = stripslashes($path); // Removes escape slashes
+        $path = preg_replace('/"+/', '', $path); // Removes any quotes
+        $path = preg_replace('/\/+/', '/', $path); // Normalizes multiple slashes
+        return $path;
+    }
+}
