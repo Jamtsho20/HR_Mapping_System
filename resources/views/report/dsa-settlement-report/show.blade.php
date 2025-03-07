@@ -17,7 +17,6 @@
                     </div>
                 </div>
 
-
                 @if ($oldDataFlag)
                     <div class="row">
                         <div class="col-md-12">
