@@ -149,6 +149,7 @@
                                                         </table>
                                                     </div>
                                                 </div>
+                                                <div>{{ $expenseApplications->links() }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -258,6 +259,7 @@
                                                         </table>
                                                     </div>
                                                 </div>
+                                                <div>{{ $dsaClaimApplications->links() }}</div>
                                             </div>
                                         </div>
                                     </div>

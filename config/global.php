@@ -7,7 +7,7 @@ return [
 
     'null_value' => '-',
 
-    'pagination' => 30,
+    'pagination' => 50,
 
     'holiday_types' => ['Government', 'Private'],
 

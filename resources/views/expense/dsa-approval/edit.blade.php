@@ -97,9 +97,7 @@ enctype="multipart/form-data" id="apply_dsa">
     </div>
     <p class="info-green p-3 pt-0" style=" text-indent: -.01em; padding-left: 1em;">
         <span style="">*</span>
-        For each travel authorization application, the total number of days,
-        the formula used for calculating the amount, and the final amount will be
-        displayed at the end of each application.
+        The "0.5" in the number of days represents either a half-day duration or a half-day allowance.
     </p>
     <div class="tab-pane">
         <div class="card">
@@ -140,20 +138,22 @@ enctype="multipart/form-data" id="apply_dsa">
                                             Advance Number: {{$mapping->advance_application_id ?? 'N/A'}}, Advance Amount: {{$mapping->advance_amount ?? 'N/A'}}
                                         </span>
                                     </td>
-                                    <td colspan="4" class="text-center" style="color: black;">
-                                        @php
-                                        $attachments = json_decode($mapping->attachment, true); // Decode JSON to array
+                                    <td style="padding-left:25px;"> @php
+                                        $attachments = $mapping->attachment ?? NULL; // Decode JSON to array
+                                    
                                         @endphp
 
-                                        @if (isset($attachments) && !empty($attachments))
-
-                                        <a href="{{ asset($mapping->attachments)}}" class="btn btn-sm btn-primary mb-1"
+                                        @if ($attachments)
+                                        
+                                        <a href="{{ asset($attachments) }}" class="btn btn-sm btn-primary mb-1"
                                             target="_blank">
                                             <i class="fas fa-file-alt"></i> View Attachment
                                         </a><br>
+                                        
                                         @else
                                         <span class="text-danger">No attachment available.</span>
                                         @endif
+
                                     </td>
                                 </tr>
                                 @foreach ( $mapping->dsaDetails as $detail )
@@ -207,10 +207,7 @@ enctype="multipart/form-data" id="apply_dsa">
                                         <input type="hidden" id="total_days" name="total_days[{{$mapping->travel_authorization_id}}]" value="{{$mapping->number_of_days}}">
                                     </td>
                                     <td colspan="5" class="text-center" style="color: black; ">
-                                        <span style="font-weight: bold;">Formula:</span>
-                                        <span class="formula-span">
-                                             {{$mapping->formula}}
-                                        </span>
+
                                     </td>
                                     <td colspan="2" class="text-center" style="color: black;  font-weight: bold;">
                                         <span>
@@ -225,8 +222,15 @@ enctype="multipart/form-data" id="apply_dsa">
 
                                     </td>
                                 </tr>
+                                <tr class=" travel-auth-{{$mapping->travel_authorization_id}} notremovefornew">
+                                    <td colspan="9"></td>
+                                    <td class="text-right">
+                                       <a href="#" class=" add-row-btn btn btn-sm btn-info "  style="font-size: 12px">
+                                            <i class="fa fa-plus"></i> Add New Row
+                                        </a>
 
-
+                                    </td>
+                                </tr>
                             @endforeach
 
                         </tbody>
@@ -253,7 +257,7 @@ enctype="multipart/form-data" id="apply_dsa">
 @endsection
 @push('page_scripts')
 <script>
-    window.DAILY_ALLOWANCE = {{$da}}
+    window.DAILY_ALLOWANCE = {{$da}};
 $(document).ready(function() {
 
     $('#travel_authorization').select2({
@@ -261,6 +265,181 @@ $(document).ready(function() {
     allowClear: true
 }).hide();
 let selectedTexts = [];
+
+
+function addNewRow(button) {
+    // Find the closest travel authorization row
+    const travelAuthRow = $(button).closest('tr');
+const travelAuthClassMatch = travelAuthRow.attr('class')?.match(/travel-auth-(\d+)/);
+updateAllRowDateConstraints(travelAuthClassMatch[1]);
+if (!travelAuthClassMatch) {
+    showErrorMessage("Invalid travel authorization row.");
+    return;
+}
+
+const travelAuthGroupClass = travelAuthClassMatch[1];
+
+let lastToDateInput = $(`.travel-auth-${travelAuthGroupClass} input[name^='dsa_claim_detail'][name$='[to_date]']`).last();
+let maxDate = lastToDateInput.attr("max") || lastToDateInput.val();
+let minDate = lastToDateInput.val();
+
+if (minDate) {
+    let minDateObj = new Date(minDate);
+    minDateObj.setDate(minDateObj.getDate() + 1); // Add 1 day
+    minDate = minDateObj.toISOString().split("T")[0]; // Format back to YYYY-MM-DD
+} else {
+    showErrorMessage("Please complete filling out the current row before adding a new one.");
+    return;
+}
+
+
+    // Generate a new unique row ID (You may need a better way to generate unique IDs)
+    const newRowId = `${Date.now()}${Math.floor(Math.random() * 100)}`;
+
+
+    // Define the structure of the new row
+    const newRow = `
+        <tr class="data-row travel-auth-${travelAuthGroupClass}">
+            <td>
+                <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                <input type="hidden" name="dsa_claim_detail[${newRowId}][id]" class="resetKeyForNew" value="${newRowId}">
+
+                <input type="hidden" name="dsa_claim_detail[${newRowId}][travel_authorization_id]" class="resetKeyForNew" value="${travelAuthGroupClass}">
+            </td>
+            <td class="text-center">
+                <input type="date" name="dsa_claim_detail[${newRowId}][from_date]" min=${minDate} max=${maxDate} class="form-control form-control-sm resetKeyForNew" required />
+            </td>
+            <td class="text-center">
+                <input type="text" name="dsa_claim_detail[${newRowId}][from_location]" class="form-control form-control-sm resetKeyForNew" required />
+            </td>
+            <td class="text-center">
+                <input type="date" name="dsa_claim_detail[${newRowId}][to_date]" max=${maxDate} class="form-control form-control-sm resetKeyForNew" required disabled />
+            </td>
+            <td class="text-center">
+                <input type="text" name="dsa_claim_detail[${newRowId}][to_location]" class="form-control form-control-sm resetKeyForNew" required />
+            </td>
+            <td class="text-center">
+                <input type="number" min="0" step="0.5" name="dsa_claim_detail[${newRowId}][total_days]" class="form-control form-control-sm resetKeyForNew" />
+            </td>
+            <td class="text-center">
+                <input type="number" name="dsa_claim_detail[${newRowId}][daily_allowance]" value="${DAILY_ALLOWANCE}" class="form-control form-control-sm resetKeyForNew notclearfornew" readonly />
+            </td>
+            <td class="text-center">
+                <input type="number" min="0" name="dsa_claim_detail[${newRowId}][travel_allowance]" class="form-control form-control-sm resetKeyForNew" />
+            </td>
+            <td class="text-center">
+                <input type="number" name="dsa_claim_detail[${newRowId}][total_amount]" class="form-control form-control-sm resetKeyForNew" readonly>
+            </td>
+            <td class="text-center">
+                <textarea name="dsa_claim_detail[${newRowId}][remark]" class="form-control form-control-sm resetKeyForNew" rows="2"></textarea>
+            </td>
+        </tr>`;
+
+    // Insert the new row immediately after the calling travel authorization row
+    $(`.travel-auth-${travelAuthGroupClass}.last-row`).before(newRow);
+
+
+};
+
+function updateDateConstraints(travelAuthGroupClass) {
+    let lastToDateInput = $(`.travel-auth-${travelAuthGroupClass} input[name^='dsa_claim_detail'][name$='[to_date]']`).last();
+    let prevToDateInput = lastToDateInput.closest('tr').prev('tr').find("input[name^='dsa_claim_detail'][name$='[to_date]']");
+// Check if the previous input was found
+let maxDate, minDate; // Declare outside the if block
+if (prevToDateInput.length) {
+    maxDate = prevToDateInput.attr("max") || prevToDateInput.val();
+    minDate = prevToDateInput.val();
+
+} else {
+    console.error("Previous to_date input not found");
+}
+    if (minDate) {
+        let minDateObj = new Date(minDate);
+        minDateObj.setDate(minDateObj.getDate() + 1); // Add 1 day
+        minDate = minDateObj.toISOString().split("T")[0]; // Format back to YYYY-MM-DD
+    } else {
+        showErrorMessage("Please complete filling out the current row before adding a new one.");
+        return;
+    }
+
+}
+
+function updateNextRowMinDate(changedRow) {
+    // Get the changed row's to_date value
+    let currentToDate = changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").val();
+    if (!currentToDate) return; // nothing to update if current to_date is empty
+
+    // Calculate the new minimum date for the next row
+    let nextMinDate = new Date(currentToDate);
+    nextMinDate.setDate(nextMinDate.getDate() + 1);
+    nextMinDate = nextMinDate.toISOString().split("T")[0];
+
+    // Find the next row (if it exists) within the same travel auth group
+    let nextRow = changedRow.next("tr");
+    if (nextRow.length) {
+        let fromDateField = nextRow.find("input[name^='dsa_claim_detail'][name$='[from_date]']");
+        fromDateField.attr("min", nextMinDate);
+    }
+}
+
+function updateAllRowDateConstraints(travelAuthGroupClass) {
+    // Select all rows within the travel auth group
+    const rows = $(`tr.travel-auth-${travelAuthGroupClass}`);
+    rows.each(function(index, row) {
+        let $row = $(row);
+        // For rows beyond the first, update the from_date min based on the previous row's to_date
+        if (index > 0) {
+            let $prevRow = $row.prev("tr");
+            let prevToDate = $prevRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").val();
+            if (prevToDate) {
+                let newMin = new Date(prevToDate);
+                newMin.setDate(newMin.getDate() + 1);
+                newMin = newMin.toISOString().split("T")[0];
+                $row.find("input[name^='dsa_claim_detail'][name$='[from_date]']").attr("min", newMin);
+            }
+        }
+        // Also ensure each row's to_date min is its own from_date value
+        let fromDateValue = $row.find("input[name^='dsa_claim_detail'][name$='[from_date]']").val();
+        if (fromDateValue) {
+            $row.find("input[name^='dsa_claim_detail'][name$='[to_date]']").removeAttr("disabled");
+            $row.find("input[name^='dsa_claim_detail'][name$='[to_date]']").attr("min", fromDateValue);
+        }
+    });
+}
+
+// When a to_date field changes, update the next row's from_date min
+$(document).on("change", "input[name^='dsa_claim_detail'][name$='[to_date]']", function () {
+    const changedRow = $(this).closest('tr');
+    updateNextRowMinDate(changedRow);
+});
+
+$(document).on("change", "input[name^='dsa_claim_detail'][name$='[from_date]']", function () {
+    const changedRow = $(this).closest('tr');
+    let changedRowFromDate = changedRow.find("input[name^='dsa_claim_detail'][name$='[from_date]']").val();
+    changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").attr("min", changedRowFromDate);
+    changedRow.find("input[name^='dsa_claim_detail'][name$='[to_date]']").removeAttr("disabled");
+});
+
+// When a row is deleted, update the entire group's constraints
+$(document).on("click", ".delete-table-row", function () {
+    const row = $(this).closest('tr');
+    // Find the travel auth group from the closest parent that has a class matching travel-auth-*
+    const travelAuthClassMatch = row.closest("[class*='travel-auth-']").attr('class')?.match(/travel-auth-(\d+)/);
+    row.remove(); // Remove the row
+
+    if (travelAuthClassMatch) {
+        const travelAuthGroupClass = travelAuthClassMatch[1];
+        updateAllRowDateConstraints(travelAuthGroupClass);
+
+    }
+});
+
+document.addEventListener("click", function (event) {
+    if (event.target.closest(".add-row-btn")) {
+        event.preventDefault();
+        addNewRow(event.target);
+    }
+});
 
     $('#travel_authorization option:selected').each(function() {
         selectedTexts.push($(this).text().trim());
@@ -349,17 +528,8 @@ taAmountInput.attr('readonly', true);  // Set it back to readonly
 const daysSpan = row.find('span.days-span');
 daysSpan.text(newDays);
 
-$formula='';
-        if(newDays <= 15){
 
-                    formula= DAILY_ALLOWANCE + " * " + newDays + "day(s)";
-                }else{
 
-                    formula= "(" + DAILY_ALLOWANCE + " * 15day(s))"+"+"+"(" + DAILY_ALLOWANCE/2 + " * " + (newDays-15) + "day(s)) ="  ;
-                };
-
-const formulaSpan = row.find('span.formula-span');
-formulaSpan.text(formula);
 // Find and update the advance_amount input field
 const advanceAmountInput = row.find(`input[name='advance_amount[${travelAuthorizationId}]']`);
 if (advanceAmountInput.length > 0) {
@@ -457,12 +627,8 @@ advanceAmountInput.val(newAdvanceAmount);  // Update the advance amount
             }
 
             // Calculate the total amount for the current row
-            let totalAmount = 0;
-            if(totalDays > 15){
-                totalAmount = (dailyAllowance * 15) + (totalDays - 15) * (dailyAllowance / 2) + travelAllowance;
-            }else{
-                totalAmount = (dailyAllowance * totalDays) + travelAllowance;
-            }
+            let totalAmount  = (dailyAllowance * totalDays) + travelAllowance;
+
             // grandTotal += totalAmount;
             // const totalAmount = (dailyAllowance * totalDays) + travelAllowance;
 

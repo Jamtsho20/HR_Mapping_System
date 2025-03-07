@@ -116,12 +116,12 @@
                                                 </a>
                                                 @endif
                                                 @endif
-                                                @if ($privileges->edit && $routeName=='approval.index')
+                                                <!-- @if ($privileges->edit && $routeName=='approval.index')
                                                 <a href="{{ url('approval/applications/'.$dsaclaim->id.'/edit') }}"
                                                     class="btn btn-sm btn-rounded btn-outline-success">
                                                      <i class="fa fa-edit"></i>EDIT
                                                 </a>
-                                                @endif
+                                                @endif -->
                                             </td>
                                             </td>
                                         </tr>
