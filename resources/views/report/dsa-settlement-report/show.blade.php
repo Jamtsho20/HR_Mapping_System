@@ -111,7 +111,7 @@
                                                 @foreach ($dsa->dsaClaimDetails as $detail)
                                                     <tr>
                                                         <td class="text-center">
-                                                            {{ $detail->id }}
+                                                            {{ $loop->iteration }}
                                                         </td>
                                                         <td>
                                                             {{ \Carbon\Carbon::parse($detail->from_date)->format('d-M-Y') }}
