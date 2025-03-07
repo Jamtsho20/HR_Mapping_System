@@ -69,7 +69,7 @@ class DashboardController extends Controller
                 'count' => $alert->count,
             ];
         })->merge(collect($notifications));
-        
+
 
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
@@ -171,26 +171,36 @@ class DashboardController extends Controller
      */
     private function getLeaveData($currentYear, $leaveTypeId = null)
     {
-        $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-            ->createdBy()
-            ->whereYear('created_at', $currentYear)
-            ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId))
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        // Calculate the total leave days for each status
+        $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
+            ->createdBy() // Scope for the logged-in user
+            ->whereYear('created_at', $currentYear) // Filter by current year
+            ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId)) // Filter by leave type if provided
+            ->groupBy('status') // Group by status (approved, in-progress, etc.)
+            ->pluck('total_days', 'status');
+
+        // Get the employee's closing leave balance
         $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
             ->when($leaveTypeId, fn($query) => $query->where('mas_leave_type_id', $leaveTypeId))
             ->value('closing_balance') ?? 0;
 
+        // Calculate leave days for each status
+        $approvedLeave = $statusCounts[3] ?? 0; // Approved status (assuming 3 is the status code for approved)
+        $inProgressLeave = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress status (Pending = 1, Rejected = 2)
+
+        // Calculate remaining balance after deducting approved and in-progress leave days
+        $remainingBalance = $balance - $approvedLeave - $inProgressLeave;
+
         return [
             [
-                'Approved (' . ($statusCounts[3] ?? 0) . ')',
-                'Balance (' . $balance . ')',
-                'In-Progress (' . (($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0)) . ')',
+                'Approved (' . $approvedLeave . ')',
+               'Balance (' . $balance . ')',
+                'In-Progress (' . $inProgressLeave . ')',
             ],
             [
-                $statusCounts[3] ?? 0,  // Approved
-                $balance,              // Balance
-                ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0),  // In-Progress
+                $approvedLeave,      // Approved leave days
+                $remainingBalance,    // Remaining balance after deducting approved and in-progress
+                $inProgressLeave,     // In-progress leave days (pending/rejected)
             ]
         ];
     }
