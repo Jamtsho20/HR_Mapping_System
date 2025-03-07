@@ -23,19 +23,27 @@ class SSSExport implements FromCollection, WithHeadings
     public function collection()
     {
         $serialNo = 1;
+        dd('d');
 
         // Access the request data to apply filters
-        return EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->filter($this->request)->get()->map(function ($sss) use (&$serialNo) {
-            return [
-                $serialNo++,
-                $sss->employee->username,
-                $sss->employee->name,
-                $sss->policy_number ?? '-',
-                $sss->amount,
-                $sss->for_month,
+        return EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->when($this->request->employee, function ($query, $name) {
+            return $query->where('employee_salary_savings.employee_id', '=', $name);
+        })
 
-            ];
-        });
+            // Filter `final_pay_slips` table (e.g., for specific month)
+            ->when($this->request->year, function ($query, $month) {
+                return $query->where('final_pay_slips.for_month', 'like', "{$month}%");
+            })->get()->map(function ($sss) use (&$serialNo) {
+                return [
+                    $serialNo++,
+                    $sss->employee->username,
+                    $sss->employee->name,
+                    $sss->policy_number ?? '-',
+                    $sss->amount,
+                    $sss->for_month,
+
+                ];
+            });
     }
     public function headings(): array
     {
