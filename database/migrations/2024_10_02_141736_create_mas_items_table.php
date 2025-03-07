@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             // $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('item_no')->unique()->index();
-            $table->string('item_no_old')->unique();
+            $table->string('previous_item_no')->unique();
             $table->string('item_description');
             // $table->string('item_type')->index()->nullable();
             $table->string('item_group')->index()->nullable()->comment('consumable & fixed asset');

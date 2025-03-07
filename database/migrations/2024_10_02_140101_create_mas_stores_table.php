@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('parent_store_id')->index()->nullable()->constrained('mas_stores')->cascadeOnDelete();
             $table->string('name')->index();
-            $table->string('code')->nullable();
+            $table->string('code')->index()->nullable();
             $table->string('country')->default('Bhutan');
             $table->string('dzongkhag')->index()->nullable();
             $table->string('region')->index()->nullable();
             // $table->string('store_location')->nullable();
             $table->string('store_email')->nullable();
-            $table->string('phone_number')->nullable();
+            $table->string('store_phone')->nullable();
             $table->string('contact_person')->nullable();
             $table->string('contact_email')->nullable();
             $table->string('contact_number')->nullable();

@@ -329,7 +329,7 @@ if(!function_exists('prepareLeaveCombination')) {
     function prepareLeaveCombination($fromDate)
     {
         $leaveApplications = LeaveApplication::where('created_by', loggedInUser())
-            ->where('status', 1)
+            // ->where('status', 1)
             ->orderBy('to_date', 'desc')
             ->get();
 
