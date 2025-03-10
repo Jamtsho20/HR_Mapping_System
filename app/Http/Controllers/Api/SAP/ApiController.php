@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\GoodsReceivedDetail;
 use App\Models\GoodsReceivedDetailSerial;
 use App\Models\GrnItemMapping;
+use App\Models\ItemMappingDetail;
 use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
@@ -142,13 +143,11 @@ class ApiController extends BaseController
     public function saveGrnItemMapping(Request $request)
     {
         $rules = [
-            'store_code' => 'required',
-            'item_no' => 'required', // Single item_no
-            // 'items' => 'required|array',
-            'items.*.uom' => 'required',
+            'items.*.details.*.item_no' => 'required',
             'items.*.grn_no' => 'required',
-            'items.*.current_stock' => 'required|numeric',
-            // 'items.*.received_quantity' => 'required|numeric',
+            'items.*.details' => 'required|array',
+            'items.*.details.*.store' => 'required',
+            'items.*.details.*.quantity' => 'required|numeric',
         ];
 
         $validator = \Validator::make($request->all(), $rules);
@@ -156,39 +155,72 @@ class ApiController extends BaseController
             return $this->validationErrorResponse($validator->errors());
         }
 
-        $storeId = MasStore::where('code', $request->store_code)->value('id');
-        if (!$storeId) {
-            return $this->errorResponse("Store code {$request->store_code} not found in HRMS system.");
-        }
-
-        $item = MasItem::where('item_no', $request->item_no)->first();
-        if (!$item) {
-            return $this->errorResponse("Item no. {$request->item_no} not available for the given store.");
-        }
-
+        \DB::beginTransaction();
         try {
             $createdMappings = [];
 
             foreach ($request->items as $itemData) {
-                $itemMapping = new GrnItemMapping();
-                $itemMapping->store_id = $storeId;
-                $itemMapping->item_id = $item->id;
-                $itemMapping->item_description = $itemData['item_description'] ?? $item->item_description;
-                $itemMapping->grn_no = $itemData['grn_no'];
-                $itemMapping->uom = $itemData['uom'];
-                $itemMapping->current_stock = $itemData['current_stock'];
-                $itemMapping->received_quantity = $itemData['current_stock'];
-                $itemMapping->last_synced_at = now();
-                $itemMapping->status = $itemData['status'] ?? 1;
-                $itemMapping->save();
+                // Check if GRN already exists in grn_item_mappings
+                $itemMapping = GrnItemMapping::where('grn_no', $itemData['grn_no'])->first();
 
-                $createdMappings[] = $itemMapping;
+                if (!$itemMapping) {
+                    // Create new GRN entry if it does not exist
+                    $itemMapping = new GrnItemMapping();
+                    $itemMapping->grn_no = $itemData['grn_no'];
+                    $itemMapping->last_synced_at = now();
+                    $itemMapping->status = $itemData['status'] ?? 1;
+                    $itemMapping->save();
+                }
+
+                foreach ($itemData['details'] as $detail) {
+                    $storeId = MasStore::where('code', $detail['store'])->value('id');
+                    if (!$storeId) {
+                        \DB::rollBack();
+                        return $this->errorResponse("Store code {$detail['store']} not found in HRMS system.");
+                    }
+
+                    $item = MasItem::where('item_no', $detail['item_no'])->first();
+                    if (!$item) {
+                        \DB::rollBack();
+                        return $this->errorResponse("Item no. {$detail['item_no']} not available for the given store.");
+                    }
+                    // Check if item already exists in item_mapping_details for the same GRN and store
+                    $existingItemDetail = ItemMappingDetail::where([
+                        'store_id' => $storeId,
+                        'item_id' => $item->id,
+                        'mapping_id' => $itemMapping->id,
+                        'code' => $detail['code']
+                    ])->first();
+
+                    if ($existingItemDetail) {
+                        // Update stock if item already exists
+                        $existingItemDetail->quantity += $detail['quantity'];
+                        $existingItemDetail->save();
+                    } else {
+                        // Create a new record if item does not exist
+                        $itemDetails = new ItemMappingDetail();
+                        $itemDetails->store_id = $storeId;
+                        $itemDetails->item_id = $item->id;
+                        $itemDetails->mapping_id = $itemMapping->id; // Foreign key to grn_item_mappings
+                        $itemDetails->code = $detail['code'];
+                        $itemDetails->quantity = $detail['quantity'];
+                        $itemDetails->save();
+                    }
+
+                    $createdMappings[] = [
+                        'grn_mapping' => $itemMapping,
+                        'item_detail' => $existingItemDetail ?? $itemDetails
+                    ];
+                }
             }
+
+            \DB::commit();
+            return $this->successResponse($createdMappings, 'GRN item mappings created/updated successfully.');
+
         } catch (\Exception $e) {
+            \DB::rollBack();
             return $this->errorResponse($e->getMessage());
         }
-
-        return $this->successResponse($createdMappings, 'GRN item mappings created successfully.');
     }
 
     public function saveGoodsIssued(Request $request)
