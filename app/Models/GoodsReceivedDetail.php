@@ -11,7 +11,13 @@ class GoodsReceivedDetail extends Model
 
     public function itemSerials()
     {
-        return $this->hasMany(GoodsReceivedItemSerial::class, 'received_detail_id');
+        return $this->hasMany(GoodsReceivedDetailSerial::class, 'received_detail_id');
     }
+
+    public function commissions()
+    {
+        return $this->hasMany(GoodsReceivedDetail::class, 'goods_received_detail_id');
+    }
+
 
 }

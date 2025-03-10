@@ -89,3 +89,7 @@ const DEDUCTION = 2;
 //Encashment Tax GL code
 const TAX_GL_CODE = 205116; //for live
 // const TAX_GL_CODE = 23173;
+
+//Asset constant
+const FIXED_ASSET = 1;
+const CONSUMEABLE_ASSET = 2;

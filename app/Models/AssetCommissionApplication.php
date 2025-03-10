@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\CreatedByTrait;
 
 
-class GoodCommissionApplication extends Model
+class AssetCommissionApplication extends Model
 {
     use HasFactory, CreatedByTrait;
 
@@ -26,7 +26,7 @@ class GoodCommissionApplication extends Model
     }
     public function details ()
     {
-        return $this->hasMany(GoodCommissionApplicationDetail::class, 'good_commission_id');
+        return $this->hasMany(AssetCommissionDetail::class, 'commission_id');
     }
 
     public function employee()

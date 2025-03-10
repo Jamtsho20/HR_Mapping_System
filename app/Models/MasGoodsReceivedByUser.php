@@ -19,18 +19,21 @@ class MasGoodsReceivedByUser extends Model
     
     use HasFactory, CreatedByTrait;
 
-    // public function histories()
-    // {
-    //     return $this->morphMany(ApplicationHistory::class, 'application');
-    // }
-
-    // public function receiptType ()
-    // {
-    //     return $this->belongsTo(MasGoodReceiptType::class, 'receipt_type_id');
-    // }
     public function receivedDetail ()
     {
-        return $this->hasMany(GoodsReceivedDetail::class, 'good_receipt_id');
+        return $this->hasMany(GoodsReceivedDetail::class, 'good_received_id');
+    }
+
+    public function itemSerials()
+    {
+        return $this->hasManyThrough(
+            GoodsReceivedDetailSerial::class, //final model
+            GoodsReceivedDetail::class, //intermediate model
+            'goods_received_by_user_id', //Foreign key on GoodsReceivedDetail (links to this model)
+            'goods_received_detail_id', // Foreign key on GoodsReceivedDetailSerial
+            'id', // Local key on MasGoodsReceivedByUser
+            'id' // Local key on GoodsReceivedDetail
+        );
     }
 
 }
