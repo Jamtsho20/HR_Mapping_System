@@ -176,13 +176,13 @@ class ApiController extends BaseController
                     $storeId = MasStore::where('code', $detail['store'])->value('id');
                     if (!$storeId) {
                         \DB::rollBack();
-                        return $this->errorResponse("Store code {$detail['store']} not found in HRMS system.");
+                        return $this->errorResponse("Store code {$detail['store']} not found in HRMS.");
                     }
 
                     $item = MasItem::where('item_no', $detail['item_no'])->first();
                     if (!$item) {
                         \DB::rollBack();
-                        return $this->errorResponse("Item no. {$detail['item_no']} not available for the given store.");
+                        return $this->errorResponse("Item no. {$detail['item_no']} not found in HRMS.");
                     }
                     // Check if item already exists in item_mapping_details for the same GRN and store
                     $existingItemDetail = ItemMappingDetail::where([
@@ -201,6 +201,7 @@ class ApiController extends BaseController
                         $itemDetails = new ItemMappingDetail();
                         $itemDetails->store_id = $storeId;
                         $itemDetails->item_id = $item->id;
+                        $itemDetails->description = $detail['description'] ?? null;
                         $itemDetails->mapping_id = $itemMapping->id; // Foreign key to grn_item_mappings
                         $itemDetails->code = $detail['code'];
                         $itemDetails->quantity = $detail['quantity'];
