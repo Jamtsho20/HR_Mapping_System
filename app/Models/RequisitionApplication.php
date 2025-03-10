@@ -52,7 +52,7 @@ class RequisitionApplication extends Model
 
     public function goodsReceivedByUser()
     {
-        return $this->hasOne(MasGoodsReceivedByUser::class, 'requisition_application_id');
+        return $this->hasOne(MasGoodsReceivedByUser::class, 'requisition_id');
     }
 
     public function type()

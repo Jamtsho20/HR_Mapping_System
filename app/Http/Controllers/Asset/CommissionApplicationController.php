@@ -44,16 +44,21 @@ class CommissionApplicationController extends Controller
      */
     public function create()
     {
-        // $receipts = GoodReceiptApplication::where('status',0)->get();
         $faItems = RequisitionApplication::whereStatus(3)
             ->where('type_id', FIXED_ASSET)
-            ->with(['goodsReceivedByUser' => function ($query) {
+            ->whereHas('goodsReceivedByUser', function ($query) {
                 $query->where('is_confirmed', 1);
-            }])
+            })
+            ->with([
+                'goodsReceivedByUser' => function ($query) {
+                    $query->where('is_confirmed', 1);
+                },
+                'goodsReceivedByUser.details' // Fetch only details, no serials
+            ])
             ->get();
-        dd($faItems);
+        // dd($faItems);
         $empDetails = empDetails(auth()->user()->id);
-        return view('asset.commission.create',compact('empDetails'));
+        return view('asset.commission.create',compact('empDetails', 'faItems'));
     }
 
     /**

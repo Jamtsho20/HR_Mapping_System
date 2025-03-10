@@ -24,20 +24,6 @@
                             <input type="date" class="form-control" name="commission_date" id="commission_date" readonly>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="grn">GRN<span class="text-danger">*</span></label>
-
-                            <select class="form-control" name="grn" id="grn">
-                                {{-- <option value="" disabled selected hidden>Select your option</option>
-                                @foreach ($receipts as $receipt)
-
-                                <option value="{{ $receipt->id }}">{{ $receipt->receipt_no }}</option>
-                            @endforeach --}}
-
-                            </select>
-                        </div>
-                    </div>
 
                     <div class="col-md-3">
                         <div class="form-group">
@@ -67,7 +53,7 @@
                                 <tr>
                                     <th width="3%" class="text-center">#</th>
                                     <th>
-                                        PO
+                                        GRN NO
                                     </th>
                                     <th>
                                         Item Description

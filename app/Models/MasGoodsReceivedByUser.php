@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class MasGoodsReceivedByUser extends Model
 {
     protected $fillable = [
-        'requisition_application_id',
+        'requisition_id',
         'total_requested_quantity',
         'total_received_quantity',
         'received_from',
@@ -19,9 +19,14 @@ class MasGoodsReceivedByUser extends Model
     
     use HasFactory, CreatedByTrait;
 
-    public function receivedDetail ()
+    public function details ()
     {
-        return $this->hasMany(GoodsReceivedDetail::class, 'good_received_id');
+        return $this->hasMany(GoodsReceivedDetail::class, 'goods_received_by_user_id');
+    }
+
+    public function requisition () 
+    {
+        return $this->belongsTo(RequisitionApplication::class, 'requisition_id');
     }
 
     public function itemSerials()

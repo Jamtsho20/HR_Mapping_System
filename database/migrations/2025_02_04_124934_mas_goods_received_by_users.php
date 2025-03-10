@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mas_goods_received_by_users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('requisition_application_id')->index()->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('requisition_id')->index()->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->integer('total_requested_quantity')->default(0);
             $table->integer('total_received_quantity')->default(0);
             $table->foreignId('received_from')->index()->constrained('mas_employees')->comment('here it will be sap user');
