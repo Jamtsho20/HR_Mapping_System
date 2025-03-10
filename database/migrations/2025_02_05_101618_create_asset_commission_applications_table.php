@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('asset_commission_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('type_id')->index()->constrained('mas_comission_types');
+            $table->foreignId('type_id')->index()->constrained('mas_requisition_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('transaction_no')->unique()->index();
             // $table->foreignId('goods_received_by_user_id')->index()->constrained('mas_goods_received_by_users');
             $table->foreignId('goods_received_detail_id')->index()->constrained('goods_received_details')->comment('do commission against goods received detail as it has to be done against each GRN');

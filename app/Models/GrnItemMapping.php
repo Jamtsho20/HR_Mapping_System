@@ -15,11 +15,23 @@ class GrnItemMapping extends Model
     use HasFactory;
 
 
+    public function detail()
+    {
+        return $this->hasMany(ItemMappingDetail::class, 'mapping_id'); 
+    }
+
 
    public function employee()
    {
         return $this->belongsTo(User::class, 'created_by');
    }
 
-   
+   public function scopeFilter($query, $request)
+   {
+        if ($request->has('grn_no') && $request->query('grn_no') != '') {
+            $query->where('grn_no', $request->query('grn_no'));
+        }
+   }
+
+
 }
