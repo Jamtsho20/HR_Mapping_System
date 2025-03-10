@@ -13,13 +13,8 @@ return new class extends Migration
     {
         Schema::create('asset_commission_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asset_commission_id')->index()->constrained('asset_commission_applications')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('commission_id')->index()->constrained('asset_commission_applications')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('received_detail_serial_id')->index()->constrained('goods_received_detail_serials')->cascadeOnUpdate()->cascadeOnDelete();
-            // $table->string('grn_no')->comment('Goods Receipt Number');
-            $table->string('asset_no');
-            // $table->string('item_description');
-            // $table->string('uom');
-            // $table->integer('quantity');
             $table->date('date_placed_in_service');
             $table->string('dzongkhag');
             $table->string('site_name');

@@ -14,8 +14,8 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <input type='hidden' name='type_id' value='1'>
-                            <label for="commission">Commission No</label>
-                            <input type="text" class="form-control" id="commission_no" name="commission_no" value="Generating..." readonly>
+                            <label for="commission">Comission No</label>
+                            <input type="text" class="form-control" id="commission_no" name="comission_no" value="Generating..." readonly>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -29,11 +29,11 @@
                             <label for="grn">GRN<span class="text-danger">*</span></label>
 
                             <select class="form-control" name="grn" id="grn">
-                                <option value="" disabled selected hidden>Select your option</option>
+                                {{-- <option value="" disabled selected hidden>Select your option</option>
                                 @foreach ($receipts as $receipt)
 
                                 <option value="{{ $receipt->id }}">{{ $receipt->receipt_no }}</option>
-                            @endforeach
+                            @endforeach --}}
 
                             </select>
                         </div>
@@ -42,7 +42,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="employee">Employee Name</label>
-                            <input type="text" class="form-control" name="employee" value="{{ Auth::user()->name }}" readonly>
+                            <input type="text" class="form-control" name="employee" value="{{ $empDetails->name }}" readonly>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="department">Department</label>
-                            <input type="text" class="form-control" name="department" value="{{ $department->name }}" readonly>
+                            <input type="text" class="form-control" name="department" value="{{ $empDetails->empJob->department->name ?? config('global.null_value') }}" readonly>
                         </div>
                     </div>
                     <div class="col-md-3">

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('item_id')->index()->constrained('mas_items')->onDelete('cascade')->onUpdate('cascade');
             // $table->string('item_description')->nullable();
-            $table->string('grn_no', 50)->index();
+            $table->string('grn_no', 50)->index();        
             // $table->string('uom')->nullable();
             $table->integer('current_stock')->default(0)->comment('Total stocks availaible in store or live stock available in the system (CStock + RQty - CQty).');
             $table->integer('received_quantity')->default(0);

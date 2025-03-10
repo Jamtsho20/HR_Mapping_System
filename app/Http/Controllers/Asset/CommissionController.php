@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\GoodCommissionApplication;
 use App\Models\GoodReceiptApplication;
 use App\Models\User;
-use App\Models\MasDepartment;
 use App\Models\MasCommissionTypes;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
@@ -28,7 +27,7 @@ class CommissionController extends Controller
         $this->middleware('permission:asset/commission,delete')->only('destroy');
     }
 
-    private $attachmentPath = 'images/commissions/';
+    private $attachmentPath = 'images/asset-comm/';
 
     public function index(Request $request)
     {
@@ -42,11 +41,9 @@ class CommissionController extends Controller
      */
     public function create()
     {
-        $receipts = GoodReceiptApplication::where('status',0)->get();
-        $user = User::where('id', auth()->user()->id)->with('empJob')->first();
-        $department = MasDepartment::where('id', $user->empJob->mas_department_id)->first('name');
-        $types = MasCommissionTypes::all();
-        return view('asset.commission.create',compact('receipts', 'user', 'department', 'types'));
+        // $receipts = GoodReceiptApplication::where('status',0)->get();
+        $empDetails = empDetails(auth()->user()->id);
+        return view('asset.commission.create',compact('empDetails'));
     }
 
     /**
