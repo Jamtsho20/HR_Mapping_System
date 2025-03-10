@@ -71,6 +71,7 @@ class DashboardController extends Controller
         })->merge(collect($notifications));
 
 
+
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
         if ($leaveEncashmentMessage) {
@@ -171,6 +172,15 @@ class DashboardController extends Controller
      */
     private function getLeaveData($currentYear, $leaveTypeId = null)
     {
+        // Calculate the total leave days for each status
+        $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
+            ->createdBy() // Scope for the logged-in user
+            ->whereYear('created_at', $currentYear) // Filter by current year
+            ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId)) // Filter by leave type if provided
+            ->groupBy('status') // Group by status (approved, in-progress, etc.)
+            ->pluck('total_days', 'status');
+
+        // Get the employee's closing leave balance
         // Calculate the total leave days for each status
         $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
             ->createdBy() // Scope for the logged-in user
