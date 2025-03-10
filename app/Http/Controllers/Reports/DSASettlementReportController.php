@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Reports;
 
 use App\Exports\DSASettlementExport;
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
 use App\Models\DsaClaimApplication;
 use App\Models\MasDepartment;
 use App\Models\MasOffice;
 use App\Models\MasRegion;
 use App\Models\MasSection;
+use App\Models\TravelAuthorizationApplication;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;

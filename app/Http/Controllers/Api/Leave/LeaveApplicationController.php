@@ -315,13 +315,26 @@ class LeaveApplicationController extends Controller
 
 
         $response = $leaveTypes->map(function ($leaveType) use ($currentYear) {
-            $statusCounts = LeaveApplication::select(DB::raw('status, count(*) as total'))
-                ->createdBy()
-                ->whereYear('created_at', $currentYear)
-                ->where('type_id', $leaveType->mas_leave_type_id)
-                ->groupBy('status')
-                ->pluck('total', 'status');
-            $balance = $leaveType->closing_balance ?? 0;
+            // Calculate the total leave days for each status
+            $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
+                ->createdBy() // Scope for the logged-in user
+                ->whereYear('created_at', $currentYear) // Filter by current year
+                ->whereIn('type_id', [1,2])
+                // ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId)) // Filter by leave type if provided
+                ->groupBy('status') // Group by status (approved, in-progress, etc.)
+                ->pluck('total_days', 'status');
+
+            // Get the employee's closing leave balance
+            $balance = EmployeeLeave::where('mas_employee_id', auth()->id())
+            ->whereIn('mas_leave_type_id', [1,2])
+                ->value('closing_balance') ?? 0;
+
+            // Calculate leave days for each status
+            $approvedLeave = $statusCounts[3] ?? 0; // Approved status (assuming 3 is the status code for approved)
+            $inProgressLeave = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress status (Pending = 1, Rejected = 2)
+
+            // Calculate remaining balance after deducting approved and in-progress leave days
+            $remainingBalance = $balance - $approvedLeave - $inProgressLeave;
             return [
                 'leaveTypeId' => $leaveType->mas_leave_type_id,
                 'leaveTypeName' => $leaveType->leaveType->name ?? 'Unknown',
@@ -329,7 +342,6 @@ class LeaveApplicationController extends Controller
                 'Balance' => $balance,
                 'In-Progress' => ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0),
             ];
-
         });
         return response()->json($response);
     }
