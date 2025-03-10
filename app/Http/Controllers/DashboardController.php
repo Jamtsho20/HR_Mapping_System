@@ -71,6 +71,7 @@ class DashboardController extends Controller
         })->merge(collect($notifications));
 
 
+
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
         if ($leaveEncashmentMessage) {
@@ -112,57 +113,57 @@ class DashboardController extends Controller
      */
 
 
-     private function sendEncashmentNotification($employeeId, $currentYear)
-     {
-         // Fetch closing balance for the employee's leave type
-         $closingBalance = EmployeeLeave::where('mas_employee_id', $employeeId)
-             ->where('mas_leave_type_id', 2)
-             ->value('closing_balance');
+    private function sendEncashmentNotification($employeeId, $currentYear)
+    {
+        // Fetch closing balance for the employee's leave type
+        $closingBalance = EmployeeLeave::where('mas_employee_id', $employeeId)
+            ->where('mas_leave_type_id', 2)
+            ->value('closing_balance');
 
-         // Check if an encashment application exists for the current year
-         $hasEncashed = LeaveEncashmentApplication::where('mas_employee_id', $employeeId)
-             ->whereYear('created_at', $currentYear)
-             ->exists();
+        // Check if an encashment application exists for the current year
+        $hasEncashed = LeaveEncashmentApplication::where('mas_employee_id', $employeeId)
+            ->whereYear('created_at', $currentYear)
+            ->exists();
 
-         // If closing balance is more than or equal to 37 and no encashment exists for the current year
-         if ($closingBalance >= 37 && !$hasEncashed) {
-             // Fetch the leave encashment record for the employee
-             $notification = LeaveEncashment::where('mas_employee_id', $employeeId)->first();
+        // If closing balance is more than or equal to 37 and no encashment exists for the current year
+        if ($closingBalance >= 37 && !$hasEncashed) {
+            // Fetch the leave encashment record for the employee
+            $notification = LeaveEncashment::where('mas_employee_id', $employeeId)->first();
 
-             // If no notification exists or if email has not been sent
-             if (!$notification || !$notification->email_sent) {
-                 try {
-                     // Fetch the user to send the email
-                     $user = User::find($employeeId);
+            // If no notification exists or if email has not been sent
+            if (!$notification || !$notification->email_sent) {
+                try {
+                    // Fetch the user to send the email
+                    $user = User::find($employeeId);
 
-                     // If user exists and email is valid, send the email and update the database
-                     if ($user && $user->email) {
-                         // Update or create the notification record
-                         LeaveEncashment::updateOrCreate(
-                             ['mas_employee_id' => $employeeId],
-                             [
-                                 'email_sent' => true,
-                                 'sent_at' => now(),
-                             ]
-                         );
+                    // If user exists and email is valid, send the email and update the database
+                    if ($user && $user->email) {
+                        // Update or create the notification record
+                        LeaveEncashment::updateOrCreate(
+                            ['mas_employee_id' => $employeeId],
+                            [
+                                'email_sent' => true,
+                                'sent_at' => now(),
+                            ]
+                        );
 
-                         // Send the leave encashment email
-                         Mail::to($user->email)->send(new LeaveEncashmentMail($user));
+                        // Send the leave encashment email
+                        Mail::to($user->email)->send(new LeaveEncashmentMail($user));
 
-                         return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
-                     }
-                 } catch (\Exception $e) {
-                     // Log the exception if email fails
-                     Log::error('Failed to send leave encashment email: ' . $e->getMessage());
-                     return 'You are eligible for leave encashment.';
-                 }
-             }
+                        return 'You are eligible for leave encashment. Please apply to encash your leave balance.';
+                    }
+                } catch (\Exception $e) {
+                    // Log the exception if email fails
+                    Log::error('Failed to send leave encashment email: ' . $e->getMessage());
+                    return 'You are eligible for leave encashment.';
+                }
+            }
 
-             return 'You are eligible for leave encashment.';
-         }
+            return 'You are eligible for leave encashment.';
+        }
 
-         return '';  // Return empty if the conditions are not met
-     }
+        return '';  // Return empty if the conditions are not met
+    }
 
 
 
@@ -171,6 +172,15 @@ class DashboardController extends Controller
      */
     private function getLeaveData($currentYear, $leaveTypeId = null)
     {
+        // Calculate the total leave days for each status
+        $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
+            ->createdBy() // Scope for the logged-in user
+            ->whereYear('created_at', $currentYear) // Filter by current year
+            ->when($leaveTypeId, fn($query) => $query->where('type_id', $leaveTypeId)) // Filter by leave type if provided
+            ->groupBy('status') // Group by status (approved, in-progress, etc.)
+            ->pluck('total_days', 'status');
+
+        // Get the employee's closing leave balance
         // Calculate the total leave days for each status
         $statusCounts = LeaveApplication::select(DB::raw('status, SUM(no_of_days) as total_days'))
             ->createdBy() // Scope for the logged-in user
@@ -189,17 +199,17 @@ class DashboardController extends Controller
         $inProgressLeave = ($statusCounts[1] ?? 0) + ($statusCounts[2] ?? 0); // In-Progress status (Pending = 1, Rejected = 2)
 
         // Calculate remaining balance after deducting approved and in-progress leave days
-        $remainingBalance = $balance - $approvedLeave - $inProgressLeave;
+        // $remainingBalance = $balance - $approvedLeave - $inProgressLeave;
 
         return [
             [
                 'Approved (' . $approvedLeave . ')',
-               'Balance (' . $balance . ')',
+                'Balance (' . $balance . ')',
                 'In-Progress (' . $inProgressLeave . ')',
             ],
             [
                 $approvedLeave,      // Approved leave days
-                $remainingBalance,    // Remaining balance after deducting approved and in-progress
+                $balance,    // Remaining balance after deducting approved and in-progress
                 $inProgressLeave,     // In-progress leave days (pending/rejected)
             ]
         ];
