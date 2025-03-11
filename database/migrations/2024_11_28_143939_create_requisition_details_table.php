@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('requisition_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('requisition_id')->index()->constrained('requisition_applications')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('grn_item_mapping_id')->index()->constrained('grn_item_mappings')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('item_mapping_detail_id')->index()->constrained('item_mapping_details')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('requesition_mapping_id')->index()->constrained('requisition_mappings')->cascadeOnUpdate()->cascadeOnDelete();
+            //$table->foreignId('item_id')->index()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('requested_quantity')->default(0);
+            $table->foreignId('item_mapping_detail_id')->index()->constrained('item_mapping_details')->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('approved_quantity')->nullable();
             $table->foreignId('dzongkhag_id')->index()->nullable()->constrained('mas_dzongkhags');
             // $table->string('site_name');

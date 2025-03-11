@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('item_id')->index()->constrained('mas_items')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('mapping_id')->index()->constrained('grn_item_mappings')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('code', 50)->index()->comment('item code corresponding to grn_no');
+            // $table->string('code', 50)->index()->comment('item code corresponding to grn_no');
             $table->string('description')->index()->nullable()->comment('description of grn items corresponding to grn_no.');
             $table->integer('quantity')->default(0)->comment('to keep record of initially received quantity for report and audit purpose.');
             $table->timestamps();

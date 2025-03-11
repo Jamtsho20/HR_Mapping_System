@@ -50,9 +50,9 @@ class RequisitionApplication extends Model
         return $this->hasMany(RequisitionDetail::class, 'requisition_id');
     }
 
-    public function goodReceivedByUser()
+    public function goodsReceivedByUser()
     {
-        return $this->hasOne(GoodReceiptApplication::class, 'requisition_application_id');
+        return $this->hasOne(MasGoodsReceivedByUser::class, 'requisition_id');
     }
 
     public function type()

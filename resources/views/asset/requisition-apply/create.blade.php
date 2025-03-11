@@ -169,14 +169,46 @@
             $(document).on('change', 'select[name^="details"][name$="[grn_no]"]', function () {
                 let grnData = $(this).val();
                 let selectedGRN = JSON.parse(grnData);
+
                 let row = $(this).closest('tr');
 
                 let grnDetails = grnDatas.find(grn => grn.id == selectedGRN.id);
+                row.find('select[name^="details"][name$="[item_description]"]').empty();
                 if (grnDetails) {
-                    row.find('select[name^="details"][name$="[item_description]"]').empty().append(`<option value="${grnDetails.item_description}" selected>${grnDetails.item_description}</option>`).trigger('change');
-                    row.find('input[name^="details"][name$="[uom]"]').val(grnDetails.uom);
-                    row.find('select[name^="details"][name$="[store]"]').empty().append(`<option value="${grnDetails.store.id}" selected>${grnDetails.store.name}</option>`).trigger('change');
-                    row.find('input[name^="details"][name$="[stock_status]"]').val(grnDetails.current_stock);
+                    grnDetails.detail.forEach(detail => {
+                    if (detail.item) {
+
+                        row.find('select[name^="details"][name$="[item_description]"]').append(`<option value="${detail.item.id}" class="grn_${selectedGRN.id}_detail_${detail.id}">${detail.item.item_description}</option>`);
+                    }
+                });
+
+            $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
+                let optionValue = $(this).val(); // Extracts value="2"
+                let selectedOption = $(this).find('option:selected');  // Extracts the value of the selected option
+
+                // Extract the grn_id from the class of the selected option
+                let classList = selectedOption.attr('class').split('_');  // Split the class string by '_'
+                let grnId = classList[1];  // grn_<grn_id>_detail_<grn_detail_id>, so [1] is grn_id
+                let grnDetailId = classList[3];  // [3] is the detail_id (since detail ID comes after 'grn_3' and 'detail')
+
+                console.log('GRN ID:', grnId);  // Logs the GRN ID (e.g., 3)
+                console.log('GRN Detail ID:', grnDetailId);
+                console.log('Option Value:', optionValue);
+                let row = $(this).closest('tr');
+                console.log(grnDatas);
+                let grnDetail = grnDatas.find(grn => grn.id == grnId );
+                if (grnDetail) {
+                    let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
+                    console.log(detail);
+                    row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
+                    row.find('select[name^="details"][name$="[store]"]').empty().append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`).trigger('change');
+                    row.find('input[name^="details"][name$="[stock_status]"]').val(detail.quantity);
+                }
+                console.log(grnDetail);
+
+
+                 //row.find('select[name^="details"][name$="[item_description]"]').empty().append(`<option value="${grnDetails.item_description}" selected>${grnDetails.item_description}</option>`).trigger('change');
+
                     let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
                     dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
 
@@ -200,8 +232,11 @@
 
                     siteDropdown.trigger('change');
                 });
+            })
+
                 }
             });
+
             // $(document).on('change', '#requisition_type', function () {
             //     const requisitionType = $(this).val();
             //     if(requisitionType != ''){

@@ -188,8 +188,7 @@ class ApiController extends BaseController
                     $existingItemDetail = ItemMappingDetail::where([
                         'store_id' => $storeId,
                         'item_id' => $item->id,
-                        'mapping_id' => $itemMapping->id,
-                        'code' => $detail['code']
+                        'mapping_id' => $itemMapping->id
                     ])->first();
 
                     if ($existingItemDetail) {
@@ -203,7 +202,6 @@ class ApiController extends BaseController
                         $itemDetails->item_id = $item->id;
                         $itemDetails->description = $detail['description'] ?? null;
                         $itemDetails->mapping_id = $itemMapping->id; // Foreign key to grn_item_mappings
-                        $itemDetails->code = $detail['code'];
                         $itemDetails->quantity = $detail['quantity'];
                         $itemDetails->save();
                     }

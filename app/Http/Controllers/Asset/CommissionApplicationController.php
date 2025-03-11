@@ -11,10 +11,13 @@ use App\Models\MasCommissionTypes;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
+use App\Models\AssetCommissionApplication;
+use App\Models\GoodsReceivedDetail;
+use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 
-class CommissionController extends Controller
+class CommissionApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -32,7 +35,7 @@ class CommissionController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $goods_commissions = GoodCommissionApplication::where('created_by', auth()->user()->id)->get();
+        $goods_commissions = AssetCommissionApplication::where('created_by', auth()->user()->id)->get();
 
         return view('asset.commission.index',compact('privileges', 'goods_commissions'));
     }
@@ -41,9 +44,21 @@ class CommissionController extends Controller
      */
     public function create()
     {
-        // $receipts = GoodReceiptApplication::where('status',0)->get();
+        $faItems = RequisitionApplication::whereStatus(3)
+            ->where('type_id', FIXED_ASSET)
+            ->whereHas('goodsReceivedByUser', function ($query) {
+                $query->where('is_confirmed', 1);
+            })
+            ->with([
+                'goodsReceivedByUser' => function ($query) {
+                    $query->where('is_confirmed', 1);
+                },
+                'goodsReceivedByUser.details' // Fetch only details, no serials
+            ])
+            ->get();
+        // dd($faItems);
         $empDetails = empDetails(auth()->user()->id);
-        return view('asset.commission.create',compact('empDetails'));
+        return view('asset.commission.create',compact('empDetails', 'faItems'));
     }
 
     /**

@@ -73,9 +73,7 @@ class RequisitionApplicationController extends Controller
      public function create()
      {
         $reqTypes = MasRequisitionType::get();
-        $grnNos = GrnItemMapping::with(['detail.store:id,name', 'detail.item:id,item_description', 'detail'])->whereStatus(1)->get();
-
-dd($grnNos);
+        $grnNos = GrnItemMapping::with(['detail.store:id,name', 'detail.item:id,item_description,uom', 'detail'])->whereStatus(1)->get();
         $dzongkhags = MasDzongkhag::all();
         $sites = MasSite::with('dzongkhag')->get();
         return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags'));

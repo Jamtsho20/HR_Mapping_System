@@ -295,8 +295,8 @@ class ApprovalController extends Controller
                         "ItemCode"=> (string) $detail->grnMapping->item->item_no ?? 'N/A', // Fetch from related `MasItem`
                         "ItemDescription"=> (string) $detail->item_description ?? 'N/A',
                         "Quantity"=> (string) ($detail->quantity_required ?? 1),
-                        "WarehouseCode"=> (string) $detail->grnMapping->store->code?? 'DefaultWH',
-                        "ProjectCode"=> (string) $detail->site->code?? 'Unknown'
+                        "WarehouseCode"=> (string) $detail->grnMapping->store->code ?? 'DefaultWH',
+                        "ProjectCode"=> (string) $detail->site->code ?? 'Unknown'
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date

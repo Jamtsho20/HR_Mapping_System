@@ -16,4 +16,10 @@ class GoodsReceivedDetailSerial extends Model
         'uom',
         'serial_number',
     ];
+
+    public function receivedDetail()
+    {
+        return $this->belongsTo(GoodsReceivedDetail::class, 'received_detail_id');
+    }
+
 }
