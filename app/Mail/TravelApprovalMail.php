@@ -31,18 +31,18 @@ class TravelApprovalMail extends Mailable implements ShouldQueue
         $this->initiator = $initiatorDetails
     ? (
         $initiatorDetails->title . ' ' . $initiatorDetails->name . ', '
-        . ($initiatorDetails->empJob->designation->name ?? 'Unknown Designation') . ', '
-        . ($initiatorDetails->empJob->section->name ?? 'Unknown Section') . ', '
-        . ($initiatorDetails->empJob->department->name ?? 'Unknown Department')
+        . ($initiatorDetails->empJob->designation->name ?? '') . ', '
+        . ($initiatorDetails->empJob->section->name ?? '') . ', '
+        . ($initiatorDetails->empJob->department->name ?? '')
     )
-    : 'Unknown Initiator';
+    : '';
 
         // Get details of the GM (General Manager)
         $gmDetails = User::with('empJob')->where('id', $gm['id'] ?? null)->first();
 
         $this->gm = $gmDetails
             ? ($gmDetails->title . ' ' . $gmDetails->name . ', ')
-            : 'Unknown GM';
+            : '';
 
         // Get details of the approver (approving user)
         $this->approver = User::where('id', $approvingUserId)->first();
@@ -54,9 +54,9 @@ class TravelApprovalMail extends Mailable implements ShouldQueue
         if ($this->approver) {
             $this->emailContent = 'The travel authorization application applied by ' . $this->initiator
                 . ' has been approved by ' . $this->approver->title . ' ' . $this->approver->name . ', '
-                . ($this->approver->empJob->designation->name ?? 'Unknown Designation') . ', '
-                . ($this->approver->empJob->section->name ?? 'Unknown Section') . ', '
-                . ($this->approver->empJob->department->name ?? 'Unknown Department') . '.';
+                . ($this->approver->empJob->designation->name ?? '') . ', '
+                . ($this->approver->empJob->section->name ?? '') . ', '
+                . ($this->approver->empJob->department->name ?? '') . '.';
        
         } else {
             $this->emailContent = 'Approver details are missing.';
