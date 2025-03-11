@@ -55,7 +55,7 @@ class TravelApprovalMail extends Mailable implements ShouldQueue
             $this->emailContent = 'The travel authorization application applied by ' . $this->initiator
                 . ' has been approved by ' . $this->approver->title . ' ' . $this->approver->name . ', '
                 . ($this->approver->empJob->designation->name ?? '') . ', '
-                . ($this->approver->empJob->section->name ?? '') . ', '
+                . ($this->approver->empJob->section->name ?? '') 
                 . ($this->approver->empJob->department->name ?? '') . '.';
        
         } else {
