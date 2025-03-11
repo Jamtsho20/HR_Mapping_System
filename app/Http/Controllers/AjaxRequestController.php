@@ -115,13 +115,18 @@ class AjaxRequestController extends Controller
 
     public function getLeaveBalance($id) //was done for json message purpose
     {
+        // need to implement sandwich features
+        $prevLeave = LeaveApplication::where('type_id', '<>', CASUAL_LEAVE)->latest()->first();
+        dd($prevLeave);
         try {
             $empGender = auth()->user()->gender;
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('type_id', $id)->whereStatus(1)->first();
-
             $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
             $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
             $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+            if($prevLeave){
+
+            }
             if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
                 return $this->errorResponse('You are not eligible to apply ' . $leaveType . ', based on your employment type.');
             }
