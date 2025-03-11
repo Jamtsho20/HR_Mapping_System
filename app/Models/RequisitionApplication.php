@@ -13,22 +13,19 @@ class RequisitionApplication extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'requisition_type_id',
-        'requisition_no',
-        'requisition_date',
-        'total_quantity_required',
-        'asset_type',
+        'type_id',
+        'transaction_no',
+        'tansaction_date',
         'need_by_date',
-        'employee_id',
-        'item_category',
+        'requested_by',
         'status',
+        'doc_no',
+        'good_issue_doc_no',
+        'is_received',
+        'received_at',
+        'received_by'
 
     ];
-
-    public function requisitionType()
-    {
-        return $this->belongsTo(MasRequisitionType::class, 'type_id');
-    }
 
     public function audit_logs()
     {
@@ -49,6 +46,12 @@ class RequisitionApplication extends Model
     {
         return $this->hasMany(RequisitionDetail::class, 'requisition_id');
     }
+
+    public function grnMapping()
+        {
+            return $this->hasMany(GrnItemMapping::class, 'requisition_id');
+        }
+
 
     public function goodsReceivedByUser()
     {

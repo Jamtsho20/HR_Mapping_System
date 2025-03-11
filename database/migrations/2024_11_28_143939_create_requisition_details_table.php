@@ -16,8 +16,11 @@ return new class extends Migration
             $table->foreignId('requesition_mapping_id')->index()->constrained('requisition_mappings')->cascadeOnUpdate()->cascadeOnDelete();
             //$table->foreignId('item_id')->index()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('requested_quantity')->default(0);
+            $table->integer('received_quantity')->default(0);
+            $table->integer('commissioned_quantity')->default(0);
+            $table->tinyInteger('status')->index();
             $table->foreignId('item_mapping_detail_id')->index()->constrained('item_mapping_details')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->integer('approved_quantity')->nullable();
+            //$table->integer('approved_quantity')->nullable();
             $table->foreignId('dzongkhag_id')->index()->nullable()->constrained('mas_dzongkhags');
             // $table->string('site_name');
             $table->foreignId('office_id')->index()->nullable()->constrained('mas_offices')->comment('for now no need to make use of this only for future purpose');
