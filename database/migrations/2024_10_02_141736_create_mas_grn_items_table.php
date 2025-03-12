@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grn_item_mappings', function (Blueprint $table) {
+        Schema::create('mas_grn_items', function (Blueprint $table) {
             $table->id();
 
             // $table->string('item_description')->nullable();
-            $table->string('grn_no', 50)->index();        
+            $table->string('grn_no', 50)->index();
             // $table->string('uom')->nullable();
             $table->timestamp('last_synced_at')->nullable()->comment('Tracks last sync with SAP');
             $table->boolean('status')->default(1)->comment('1 => Active, 0 =>Inactive; make it in-active once changed quantity becomes 0');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grn_item_mappings');
+        Schema::dropIfExists('grn_items');
     }
 };

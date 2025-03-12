@@ -81,22 +81,17 @@
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        @foreach ($grnNos as $grn)
-                                            <option value="{{ $grn }}"
-                                                {{ old('requisition_type') == $grn->grn_no ? 'selected' : '' }}>{{ $grn->grn_no }}
-                                            </option>
-                                        @endforeach
+                                        <option value="" disabled selected hidden>Select Grn</option>
                                     </select>
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][item_description]" required />
-                                        <option value="" disabled selected hidden>Select</option>
+                                        <option value="" disabled selected hidden>Select Item</option>
 
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][uom]" value="No" class="form-control form-control-sm resetKeyForNew" readonly required />
+                                    <input type="text" name="details[AAAAA][uom]" value="" class="form-control form-control-sm resetKeyForNew" readonly required />
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
@@ -157,10 +152,52 @@
             const loader = document.getElementById('loader');
             const submitBtn = document.getElementById('submitBtn');
             const form = document.getElementById('requisitionForm');
+            const type = document.getElementById('requisition_type');
+            const itemDropdown = document.querySelector('select[name^="details"][name$="[item_description]"]');
+            const grnItemDropdown = document.querySelector('select[name^="details"][name$="[grn_no]"]');
+
+
+                    type.addEventListener('change', function(e) {
+                        const selectedType = e.target.value;
+                        const grnItemAll = document.querySelectorAll('select[name^="details"][name$="[grn_no]"]');
+                        const ItemAll = document.querySelectorAll('select[name^="details"][name$="[item_description]"]')
+                        grnItemAll.forEach(select => {
+                            select.innerHTML = '<option value="">Select GRN</option>'; // Reset each dropdown
+                        });
+                        ItemAll.forEach(select => {
+                            select.innerHTML = '<option value="">Select Item</option>'; // Reset each dropdown
+                        });
+
+                        let grnDatas = @json($grnNos);
+
+                        if (Array.isArray(grnDatas)) {
+                            grnDatas.forEach(grn => {
+                                if (grn.detail) {
+                                    const filteredDetails = grn.detail.filter(detail =>
+                                        detail.item &&
+                                        ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
+                                        (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
+                                    );
+
+                                    if (filteredDetails.length > 0) {
+                                        // Add the GRN option if it contains filtered items
+                                        let grnOption = document.createElement('option');
+                                        grnOption.value = JSON.stringify(grn);
+                                        grnOption.textContent = grn.grn_no;
+                                        grnItemDropdown.appendChild(grnOption);
+                                    }
+                                }
+                            });
+                        } else {
+
+                        }
+                    });
+
+
             form.addEventListener('submit', function(e) {
-                // Show loader
-                loader.style.display = 'flex';
-            });
+                                    // Show loader
+                                    loader.style.display = 'flex';
+                                });
 
             let grnDatas = @json($grnNos); // Ensure backend passes this as JSON
             let siteData = @json($sites);
@@ -168,62 +205,79 @@
 
             $(document).on('change', 'select[name^="details"][name$="[grn_no]"]', function () {
                 let grnData = $(this).val();
-                let selectedGRN = JSON.parse(grnData);
+                    if (!grnData) return;
 
-                let row = $(this).closest('tr');
+                    let selectedGRN = JSON.parse(grnData);
+                    let row = $(this).closest('tr');
+                    let grnDetails = grnDatas.find(grn => grn.id == selectedGRN.id);
 
-                let grnDetails = grnDatas.find(grn => grn.id == selectedGRN.id);
-                row.find('select[name^="details"][name$="[item_description]"]').empty();
-                if (grnDetails) {
-                    grnDetails.detail.forEach(detail => {
-                    if (detail.item) {
+                    row.find('select[name^="details"][name$="[item_description]"]').empty();
 
-                        row.find('select[name^="details"][name$="[item_description]"]').append(`<option value="${detail.item.id}" class="grn_${selectedGRN.id}_detail_${detail.id}">${detail.item.item_description}</option>`);
+                    if (grnDetails) {
+                        const selectedType = type.value; // Get the selected requisition type again
+                        grnDetails.detail.forEach(detail => {
+                            if (detail.item &&
+                                ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
+                                (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
+                            ) {
+                                row.find('select[name^="details"][name$="[item_description]"]').append(
+                                    `<option value="${detail.item.id}" class="grn_${selectedGRN.id}_detail_${detail.id}">${detail.item.item_description}</option>`
+                                );
+                            }
+                        });
                     }
                 });
 
-            $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
-                let optionValue = $(this).val(); // Extracts value="2"
-                let selectedOption = $(this).find('option:selected');  // Extracts the value of the selected option
+                $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
+                let optionValue = $(this).val();
+                let selectedOption = $(this).find('option:selected');
+                let classList = selectedOption.attr('class').split('_');
 
-                // Extract the grn_id from the class of the selected option
-                let classList = selectedOption.attr('class').split('_');  // Split the class string by '_'
-                let grnId = classList[1];  // grn_<grn_id>_detail_<grn_detail_id>, so [1] is grn_id
-                let grnDetailId = classList[3];  // [3] is the detail_id (since detail ID comes after 'grn_3' and 'detail')
+                let grnId = classList[1];
+                let grnDetailId = classList[3];
+                let row = $(this).closest('tr');
 
-                console.log('GRN ID:', grnId);  // Logs the GRN ID (e.g., 3)
+                console.log('GRN ID:', grnId);
                 console.log('GRN Detail ID:', grnDetailId);
                 console.log('Option Value:', optionValue);
-                let row = $(this).closest('tr');
-                console.log(grnDatas);
-                let grnDetail = grnDatas.find(grn => grn.id == grnId );
-                if (grnDetail) {
-                    let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
-                    console.log(detail);
-                    row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
-                    row.find('select[name^="details"][name$="[store]"]').empty().append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`).trigger('change');
-                    row.find('input[name^="details"][name$="[stock_status]"]').val(detail.quantity);
+
+                if (typeof grnDatas === 'undefined' || !Array.isArray(grnDatas)) {
+                    console.error("grnDatas is not defined or is not an array.");
+                    return;
                 }
-                console.log(grnDetail);
 
+                let grnDetail = grnDatas.find(grn => grn.id == grnId);
+                if (!grnDetail) {
+                    console.error("GRN ID not found in grnDatas:", grnId);
+                    return;
+                }
 
-                 //row.find('select[name^="details"][name$="[item_description]"]').empty().append(`<option value="${grnDetails.item_description}" selected>${grnDetails.item_description}</option>`).trigger('change');
+                let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
+                if (!detail) {
+                    console.error("GRN Detail ID not found in details:", grnDetailId);
+                    return;
+                }
 
-                    let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
-                    dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+                console.log("Detail Found:", detail);
 
-                    dzongkhagData.forEach(dzongkhag => {
-                        dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
-                    });
+                row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
+                row.find('select[name^="details"][name$="[store]"]').empty()
+                    .append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`)
+                    .trigger('change');
+                row.find('input[name^="details"][name$="[stock_status]"]').val(detail.quantity);
 
-                    dzongkhagDropdown.on('change', function () {
+                let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
+                dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+
+                dzongkhagData.forEach(dzongkhag => {
+                    dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
+                });
+
+                dzongkhagDropdown.on('change', function () {
                     let selectedDzongkhagId = $(this).val();
                     let siteDropdown = row.find('select[name^="details"][name$="[site_name]"]');
 
-                    // Clear and set default option
                     siteDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
-
-                    // Filter and populate sites based on selected dzongkhag
                     let filteredSites = siteData.filter(site => site.dzongkhag_id == selectedDzongkhagId);
 
                     filteredSites.forEach(site => {
@@ -232,9 +286,6 @@
 
                     siteDropdown.trigger('change');
                 });
-            })
-
-                }
             });
 
             // $(document).on('change', '#requisition_type', function () {

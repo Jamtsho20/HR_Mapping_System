@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller as BaseController;
-use App\Models\GoodsReceivedDetail;
-use App\Models\GoodsReceivedDetailSerial;
-use App\Models\GrnItemMapping;
-use App\Models\ItemMappingDetail;
+use App\Models\ReceivedSerial;
+use App\Models\MasGrnItems;
+use App\Models\MasGrnItemDetail;
 use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
@@ -224,92 +223,91 @@ class ApiController extends BaseController
 
     public function saveGoodsIssued(Request $request)
     {
-        $reqApplication = RequisitionApplication::with('details')->where('doc_no', $request->purchase_req_doc_no)->first();
-        if(!$reqApplication){
-            \Log::info("Purchase requisition doc no. {$request->purchase_req_doc_no} not found in HRMS system.");
-            return $this->errorResponse("Purchase requisition doc no. {$request->purchase_req_doc_no} not found in HRMS system.");
-        }
-        // $reqDetails = RequisitionDetail::where('requisition_id', $reqApplication['id'])->collect();
+
+        $validated = $request->validate([
+            'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
+            'doc_no' => 'required|string',
+            'details' => 'required|array|min:1',
+            'details.*.grn_no' => 'required|string|exists:mas_grn_items,grn_no',
+            'details.*.line_item' => 'required|array|min:1',
+            'details.*.line_item.*.item_code' => 'required|string|exists:mas_items,item_no',
+            'details.*.line_item.*.store_code' => 'required|string|exists:mas_stores,code',
+            'details.*.line_item.*.received_quantity' => 'required|integer|min:1',
+            'details.*.line_item.*.serials' => 'sometimes|array',
+            'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
+            'details.*.line_item.*.serials.*.asset_description' => 'required|string',
+        ]
+        , [
+            'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
+            'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
+            'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
+            'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
+        ]);
+
         DB::beginTransaction();
         try {
-            // Save the Goods Received by User
-            $goodsReceived = MasGoodsReceivedByUser::create([
-                'requisition_application_id' => $reqApplication['id'],
-                'total_requested_quantity' => $reqApplication['total_quantity_required'],
-                'total_received_quantity' => $request->received_quantity,
-                'received_from' => $this->sapUser,
-                'received_by' => $reqApplication['created_by'],
-                'doc_no' => $request->doc_no, //issued sap doc no
-                // 'received_at' => now(),
-                // 'is_confirmed' => $request->is_confirmed ?? 0,
-            ]);
 
-            // Validate Details
-            if (!isset($request->details) || !is_array($request->details)) {
-                \Log::info("Invalid or missing goods received details for {$request->doc_no}.");
-                return $this->errorResponse("Invalid or missing goods received details for {$request->doc_no}.");
-            }
+            $reqApplication = RequisitionApplication::where('doc_no', $validated['purchase_req_doc_no'])->firstOrFail();
+            $reqApplication->good_issue_doc_no = $validated['doc_no'];
+            $reqApplication->save();
 
-            $goodsReceivedDetails = [];
-            $serialNumbers = [];
+            foreach ($validated['details'] as $detail) {
+                $grn_id = MasGrnItems::where('grn_no', $detail['grn_no'])->value('id');
 
-            foreach ($request->details as $detail) {
+                foreach ($detail['line_item'] as $line) {
 
-                $reqDetail = $reqApplication->details->where('grn_no', $detail['grn_no'])->first();
-                $item_id = MasItem::where('item_no', $detail['item_code'])->value('id');
-                if(!$item_id){
-                    return $this->errorResponse("Item code {$detail['item_code']} not found in HRMS system.");
-                }
-                $goodsReceivedDetails[] = [
-                    'item_id' => $item_id,
-                    'goods_received_by_user_id' => $goodsReceived->id,
-                    'req_detail_id' => $reqDetail->id,
-                    'grn_no' => $detail['grn_no'],
-                    'uom' => $detail['uom'] ?? $reqDetail->uom,
-                    'item_description' => $detail['item_description'] ?? $reqDetail->item_description,
-                    'asset_type' => $detail['asset_type'],
-                    'asset_class' => $detail['asset_class'],
-                    'requested_quantity' => $detail['requested_quantity'] ?? $reqDetail->requested_quantity,
-                    'received_quantity' => $detail['received_quantity'],
-                    // 'comissioned_quantity' => $detail['comissioned_quantity'],
-                    // 'commissioned_status' => $detail['commissioned_status'],
-                    // 'created_at' => now(),
-                    // 'updated_at' => now(),
-                ];
-                // Bulk insert
-                $goodsReceivedDetails = GoodsReceivedDetail::insert($goodsReceivedDetails);
+                    $item_id = MasItem::where('item_no', $line['item_code'])->value('id');
+                    $store_id = MasStore::where('code', $line['store_code'])->value('id');
+                    $grn_item_detail_id = MasGrnItemDetail::where('item_id', $item_id)
+                        ->where('store_id', $store_id)
+                        ->where('grn_id', $grn_id)
+                        ->value('id');
 
-                if (!empty($serialNumbers)) {
+                    if (!$grn_item_detail_id) {
+                        DB::rollBack();
+                        return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
+                    }
 
 
-                if (!empty($detail['serials'])) {
-                    foreach ($detail['serials'] as $serial) {
-                        $serialNumbers[] = [
-                            'goods_received_detail_id' => $goodsReceivedDetails->id,
-                            'asset_serial_no' => $serial['asset_serial_no'],
-                            'asset_description' => $serial['asset_description'] ?? $detail['item_description'],
-                            // 'is_commissioned' => $serial['is_commissioned'] ?? 0,
-                            // 'created_at' => now(),
-                            // 'updated_at' => now(),
-                        ];
+                    $requisition_detail = RequisitionDetail::where('requisition_id', $reqApplication->id)
+                        ->where('grn_item_id', $grn_id)
+                        ->where('grn_item_detail_id', $grn_item_detail_id)
+                        ->first();
+
+                    if (!$requisition_detail) {
+                        DB::rollBack();
+                        return $this->errorResponse("Requisition application details not found for item_code: {$line['item_code']} and grn_no: {$detail['grn_no']}");
+                    }
+
+                    $requisition_detail->received_quantity = $line['received_quantity'];
+                    $requisition_detail->save();
+
+                    // ✅ Step 5: Store serials if available
+                    if (!empty($line['serials'])) {
+                        $serialsData = [];
+                        foreach ($line['serials'] as $serial) {
+                            $serialsData[] = [
+                                'requisition_detail_id' => $requisition_detail->id,
+                                'asset_serial_no' => $serial['asset_serial_no'],
+                                'asset_description' => $serial['asset_description'],
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+                        }
+                        ReceivedSerial::insert($serialsData);
                     }
                 }
             }
 
-                GoodsReceivedDetailSerial::insert($serialNumbers);
-            }
-
             DB::commit();
-            // return response()->json(['message' => 'Goods issued and received successfully!', 'data' => $goodsReceived], 201);
-            return $this->successResponse($goodsReceived, 'Goods issued and received successfully.');
+            return $this->successResponse($reqApplication, 'Goods issued and received successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::info("Failed to save data for {$request->doc_no} " . $e->getMessage());
-            return $this->errorResponse("Failed to save data for {$request->doc_no} " . $e->getMessage());
-            // return response()->json(['error' => "Failed to save data for {$request->doc_no}", 'message' => $e->getMessage()], 500);
+            \Log::error("Failed to save data for {$request->doc_no}: " . $e->getMessage());
+            return $this->errorResponse("Failed to save data for {$request->doc_no}: " . $e->getMessage());
         }
-
     }
+
 
     public function startSession()
     {

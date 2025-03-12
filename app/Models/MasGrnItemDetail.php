@@ -5,17 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ItemMappingDetail extends Model
+class MasGrnItemDetail extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'item_id',
         'store_id',
-        'item_description',
-        'grn_no',
+        'grn_id',
+        'quantity',
+        'description',
         'status'
     ];
+
+    public function grn()
+   {
+        return $this->belongsTo(MasGrnItem::class, 'grn_id');
+   }
     public function store()
    {
         return $this->belongsTo(MasStore::class, 'store_id');

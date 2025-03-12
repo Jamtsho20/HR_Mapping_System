@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class GrnItemMapping extends Model
+class MasGrnItems extends Model
 {
     protected $fillable = [
         'grn_no',
@@ -17,7 +17,7 @@ class GrnItemMapping extends Model
 
     public function detail()
     {
-        return $this->hasMany(ItemMappingDetail::class, 'mapping_id'); 
+        return $this->hasMany(MasGrnItemDetail::class, 'grn_id');
     }
 
 

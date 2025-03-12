@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_mapping_details', function (Blueprint $table) {
+        Schema::create('mas_grn_item_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('item_id')->index()->constrained('mas_items')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('mapping_id')->index()->constrained('grn_item_mappings')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('grn_id')->index()->constrained('mas_grn_items')->cascadeOnUpdate()->cascadeOnDelete();
             // $table->string('code', 50)->index()->comment('item code corresponding to grn_no');
             $table->string('description')->index()->nullable()->comment('description of grn items corresponding to grn_no.');
             $table->integer('quantity')->default(0)->comment('to keep record of initially received quantity for report and audit purpose.');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_mapping_details');
+        Schema::dropIfExists('mas_grn_item_details');
     }
 };
