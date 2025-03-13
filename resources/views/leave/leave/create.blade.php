@@ -66,6 +66,7 @@
                     <div class="form-group">
                         <label for="no_of_days">No of Days <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="no_of_days_leave" name="no_of_days" value="{{ old('no_of_days') }}" placeholder="0.00" required readonly>
+                        {{-- <input type="number" class="form-control" id="no_of_days_leave" name="no_of_days" value="5" placeholder="0.00" required readonly> --}}
                         <small class="form-text" style="color: #28a745;">No of days cannot exceed more than leave balance.</small>
                     </div>
                 </div>
@@ -153,7 +154,10 @@
                     $('#no_of_days_leave').val(response.data.total_days);
                 },
                 error: function(error) {
-                    alert(error.responseJSON.message || 'Error calculating leave days.');
+                    showErrorMessage(error.responseJSON.message || 'Error calculating leave days.');
+                    $('#leave_type').val('');
+                    $('#from_date').val('');
+                    $('#to_date').val('');
                 }
             });
         } else {
@@ -177,67 +181,13 @@
         }
     };
 
-    // const selectHalfDayOptionIfSatuarday = () => {
-    //     const fromDate = $('#from_date').val();
-    //     const toDate = $('#to_date').val();
-    //     // Helper function to check if a date is Saturday
-    //     const isSaturday = (date) => {
-    //         const day = new Date(date).getDay();
-    //         return day === 6; // 6 represents Saturday
-    //     };
-
-    //     // Disable First Half and Second Half if either date is Saturday
-    //     if (fromDate && isSaturday(fromDate)) {
-    //         $('#ddl_from_day option[value="2"], #ddl_from_day option[value="3"]').prop('disabled', true);
-    //     }
-    //     if (toDate && isSaturday(toDate)) {
-    //         $('#ddl_to_day option[value="2"], #ddl_to_day option[value="3"]').prop('disabled', true);
-    //     }
-
-    // }
-
     $('#ddl_from_day, #ddl_to_day, #from_date, #to_date').on('change', () => {
         calculateLeaveDays();
         disableHalfDayOption();
         // selectHalfDayOptionIfSatuarday();
     });
-    //validating leave combination
-    // const validateLeaveCombination = () => {
-    //     const leaveType = $('#leave_type').val();
-    //     const leaveBalance = $('#leave_balance').val();
-    //     const fromDate = $('#from_date').val();
-    //     if (leaveBalance != 0 && fromDate) {
-    //         $.ajax({
-    //             url: '/validateleavecombination',
-    //             method: 'GET',
-    //             data: {
-    //                 leave_type: leaveType,
-    //                 from_date: fromDate
-    //             },
-    //             success: function(response) {
-    //                 // $('#no_of_days_leave').val(response.data.total_days);
-    //                 return;
-    //             },
-    //             error: function(error) {
-    //                 alert(error.responseJSON.message);
-    //                 if (leaveType == 2 && error.responseJSON.data) {
-    //                     const container = document.querySelector('.show-leave');
-    //                     container.style.display = 'block';
-    //                     container.innerHTML = `
-    //                         <b>#</b> <span style="color: #28a745; font-weight: bold;">Please note, previous CL for <u>${error.responseJSON.data.no_of_days} day(s) from ${error.responseJSON.data.from_date} to ${error.responseJSON.data.to_date}</u> will be converted to EL since cannot have combination of EL + CL + EL in a row.</span>
-    //                     `;
-    //                 }
-    //                 if (leaveType == 1) {
-    //                     $("#from_date").val('');
-    //                     $("#to_date").val('');
-    //                 }
-    //             }
-    //         });
-    //     } else {
-    //         return;
-    //     }
-    // }
 
+    // to make date selectable if only it is equal to or more than from date
     $('#from_date').on('change', () => {
         const fromDateField = document.getElementById('from_date');
         const toDateField = document.getElementById('to_date');
@@ -252,7 +202,6 @@
             toDateField.value = ''; // Clear to_date if from_date is not set
 
         }
-        validateLeaveCombination();
     });
 </script>
 @endpush
