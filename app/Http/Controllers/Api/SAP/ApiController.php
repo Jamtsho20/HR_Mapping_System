@@ -282,7 +282,7 @@ class ApiController extends BaseController
                     $requisition_detail->received_quantity = $line['received_quantity'];
                     $requisition_detail->save();
 
-                    // ✅ Step 5: Store serials if available
+                 
                     if (!empty($line['serials'])) {
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
