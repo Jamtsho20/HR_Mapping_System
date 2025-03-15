@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asset_return_details', function (Blueprint $table) {
+        Schema::create('transfer_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('asset_transfer_id')->index()->constrained('asset_transfer_applications')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('received_detail_serial_id')->index()->constrained('goods_received_detail_serials')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('asset_return_details');
+        Schema::dropIfExists('transfer_details');
     }
 };

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asset_commission_details', function (Blueprint $table) {
+        Schema::create('commission_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('commission_id')->index()->constrained('asset_commission_applications')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('received_detail_serial_id')->index()->constrained('goods_received_detail_serials')->cascadeOnUpdate()->cascadeOnDelete();
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('asset_commission_details');
+        Schema::dropIfExists('commission_details');
     }
 };

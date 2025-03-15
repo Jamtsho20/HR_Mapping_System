@@ -6,13 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GoodCommissionApplication;
 use App\Models\GoodReceiptApplication;
-use App\Models\User;
-use App\Models\MasCommissionTypes;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
-use App\Models\GoodsReceivedDetail;
 use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -78,7 +75,7 @@ class CommissionApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
-        $receipt_no = GoodReceiptApplication::where('id', $request->grn)->first();
+        $receipt_no = GoodReceiptApplication::where('id', $request->grn)->first(); 
 
         try {
             DB::beginTransaction();

@@ -247,6 +247,10 @@ return [
         ]
     ],
 
-
+    'asset_condition_codes' => [
+        1 => 'Beyond Economic Repair',
+        2 => 'Absolete',
+        3 => 'Working',
+    ],
 
 ];
