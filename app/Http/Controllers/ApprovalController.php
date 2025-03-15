@@ -232,9 +232,9 @@ class ApprovalController extends Controller
                 );
 
                 try {
-                    if ($updateData['status'] == 3 || $updateData['status'] == -1) {
-                        $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
-                    }
+                    // if ($updateData['status'] == 3 || $updateData['status'] == -1) {
+                    //     $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
+                    // }
                     $this->sendMail($applicationModel, $application, $type, $updateData['status'], $applicationForwardedTo);
                 } catch (\Exception $e) {
                     \Log::error('Error sending mail for application ID ' . $id . ': ' . $e->getMessage());

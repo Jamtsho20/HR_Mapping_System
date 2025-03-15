@@ -204,24 +204,6 @@ var hrms = function () {
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
                 var formId = $("#apply_leave");
-                var submitButton = $("button[type='submit']");
-
-                // Function to check for errors and disable the submit button if errors are found
-                function checkForErrors(errorMsg) {
-                    if (errorMsg) {
-                        submitButton.prop("disabled", true); // Disable submit button if error is found
-                    } else {
-                        submitButton.prop("disabled", false); // Enable submit button if no errors
-                    }
-                }
-
-                // Reset the leave balance and errors when leaveType is empty
-                if (leaveType === '') {
-                    $("#leave_balance").val('');
-                    checkForErrors();
-                    return; // Exit the function if leaveType is empty
-                }
-
                 // AJAX call to fetch leave balance based on leaveType
                 $.ajax({
                     url: "/getleavebalancebyleavetype/" + leaveType,
@@ -248,16 +230,10 @@ var hrms = function () {
                             $("#attachment").removeAttr("required");
                             $("#attachment_required").hide();
                         }
-
-                        // After all processing, check for errors and disable/enable the submit button
-                        checkForErrors(error.responseJSON.message);
                     },
                     error: function (error) {
-                        // Handle error response
-                        alert(error.responseJSON.message);
-                        formId.find("input, select, textarea").prop("disabled", true); // Disable form fields in case of error
-                        $("#leave_type").prop("disabled", false);
-                        checkForErrors(error.responseJSON.message); // Check for errors after AJAX failure
+                        showErrorMessage(error.responseJSON.message);
+                        formId[0].reset();
                     }
                 });
             }
