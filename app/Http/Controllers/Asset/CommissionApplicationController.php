@@ -58,11 +58,12 @@ class CommissionApplicationController extends Controller
 
         // $attachment = "";
 
-        // if ($request->hasFile('file')) {
-        //     $file = $request->file('file');
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
 
-        //     $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-        // }
+            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+        }
+
         // dd($attachment);
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
@@ -85,19 +86,14 @@ class CommissionApplicationController extends Controller
 
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
-                    if (isset($detail['is_active'])){
-                        $commissionApplication->details()->create([
-                            'received_serial_id' => $detail['asset_no'],
-                            'item_description' => $detail['item_description'],
-                            'uom' => $detail['uom'],
-                            'dzongkhag' => $detail['dzongkhag'],
-                            'site_name' => $detail['site_name'],
-                            'quantity' => $detail['quantity'],
-                            'remark' => $detail['remark'],
-                            'status' => 0
-
-                        ]);
-                    }
+                    $commissionApplication->details()->create([
+                        'received_serial_id' => $detail['asset_no'],
+                        'date_placed_in_service' => $detail['date_placed_in_service'],
+                        'dzongkhag_id' => $detail['dzongkhag'],
+                        'office_id' => $detail['office'],
+                        'site_id' => $detail['site'],
+                        'remark' => $detail['remark'],
+                    ]);
                 }
             }
 
@@ -117,6 +113,8 @@ class CommissionApplicationController extends Controller
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
+
+        return redirect('asset/commission')->with('msg_success', 'Asset commissioned successfully!');
 
     }
 

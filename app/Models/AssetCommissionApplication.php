@@ -22,6 +22,10 @@ class AssetCommissionApplication extends Model
         'status'
     ];
 
+    protected $cast = [
+        'file' => 'array'
+    ];
+
     public function commisionType()
     {
         return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
