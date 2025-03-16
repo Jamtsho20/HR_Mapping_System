@@ -4,13 +4,10 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\GoodCommissionApplication;
-use App\Models\GoodReceiptApplication;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
-use App\Models\AssetCommissionDetail;
 use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +24,21 @@ class CommissionApplicationController extends Controller
         $this->middleware('permission:asset/commission,edit')->only('update');
         $this->middleware('permission:asset/commission,delete')->only('destroy');
     }
+
+    protected $rules = [
+        'commission_date' => 'required',
+        'grn' => 'required',
+        'attachment' => 'file|mimes:pdf,jpg,png,docx|max:2048',
+        'details.*.asset_no' => 'required',
+        'details.*.date_placed_in_service' => 'required',
+        'details.*.site' => 'required',
+     ];
+
+     protected $messages = [
+        'details.*.asset_no.required' => 'The asset no is required for each detail item.',
+        'details.*.date_placed_in_service.required' => 'The date placed in service is required for each detail item.',
+        'details.*.site.required' => 'The site is required for each detail item.',
+    ];
 
     private $attachmentPath = 'images/asset-comm/';
 
@@ -55,13 +67,20 @@ class CommissionApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $attachments = []; // Initialize an array to store uploaded file names
 
-        // $attachment = "";
+        if ($request->file('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                // If an old attachment exists, delete it
+                // if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                //     delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+                // }
+                // Upload the new file and store its name in the array
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
 
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-
-            $attachment = uploadImageToDirectory($file, $this->attachmentPath);
+                // Add the uploaded file name to the attachments array
+                $attachments[] = $attachment;
+            }
         }
 
         // dd($attachment);
@@ -79,8 +98,7 @@ class CommissionApplicationController extends Controller
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'transaction_date' => $request->commission_date,
-                'file' => $attachment ?? null,
+                'file' => $attachments ?? null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
 

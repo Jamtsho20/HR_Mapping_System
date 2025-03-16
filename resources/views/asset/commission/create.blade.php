@@ -58,10 +58,24 @@
                                         readonly>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="file">File</label>
-                                    <input type="file" class="form-control" name="file" value="">
+                                    <div class="file-uploader">
+                                        <label for="file">Upload File</label>
+                                        <div class="file-upload-box">
+                                            <div class="box-title">
+                                                <!-- <span class="file-instruction">Drag files here or</span> -->
+                                                <span class="file-browse-button">Upload Files</span>
+                                            </div>
+                                            <input class="file-browse-input" type="file" multiple hidden
+                                                name="attachments[]" id="attachment" class="form-control"
+                                                accept="image/*,.pdf,.doc,.docx">
+
+                                        </div>
+                                        <ul class="file-list">
+
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
