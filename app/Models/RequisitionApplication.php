@@ -42,17 +42,9 @@ class RequisitionApplication extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-
-
     public function details()
     {
-        return $this->hasMany(RequisitionDetail::class, 'requisition_mapping_id');
-    }
-
-
-    public function goodsReceivedByUser()
-    {
-        return $this->hasOne(MasGoodsReceivedByUser::class, 'requisition_id');
+        return $this->hasMany(RequisitionDetail::class, 'requisition_id');
     }
 
     public function type()

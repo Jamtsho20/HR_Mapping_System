@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('transaction_no')->index();
             $table->foreignId('type_id')->index()->constrained('mas_transfer_types')->restrictOnDelete()->cascadeOnUpdate();
             $table->date('transaction_date')->index();
-            $table->foreignId('goods_received_detail_id')->index()->constrained('goods_received_details')->comment('do transfer against goods received detail as it has to be done against each GRN');
+            $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->comment('do transfer against goods received detail as it has to be done against each GRN');
             $table->text('reason_of_transfer');
             $table->foreignId('from_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('to_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('from_site_id')->index()->constrained('mas_sites')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('to_site_id')->index()->constrained('mas_sites')->restrictOnDelete()->cascadeOnUpdate();
             $table->json('attachment')->nullable();
+            $table->string('doc_no')->index()->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

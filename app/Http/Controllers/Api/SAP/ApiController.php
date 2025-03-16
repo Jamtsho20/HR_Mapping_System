@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\ReceivedSerial;
-use App\Models\MasGrnItems;
+use App\Models\MasGrnItem;
 use App\Models\MasGrnItemDetail;
 use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
@@ -252,7 +252,7 @@ class ApiController extends BaseController
             $reqApplication->save();
 
             foreach ($validated['details'] as $detail) {
-                $grn_id = MasGrnItems::where('grn_no', $detail['grn_no'])->value('id');
+                $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
                 foreach ($detail['line_item'] as $line) {
 

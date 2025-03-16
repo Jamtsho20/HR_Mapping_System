@@ -15,4 +15,8 @@ class AssetReturnDetail extends Model
     {
         return $this->belongsTo(AssetReturnApplication::class, 'asset_return_id');
     }
+
+    public function receivedSerial(){
+        return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
+    }
 }

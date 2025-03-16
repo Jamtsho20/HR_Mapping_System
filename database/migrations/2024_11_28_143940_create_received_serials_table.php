@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('asset_serial_no')->unique()->index()->comment('Unique serial number for each item.');
             $table->string('asset_description')->nullable();
             $table->boolean('is_commissioned')->default(0)->comment('1 => commissioned, 0 => not commissioned');
-            // $table->string('asset_class')->nullable();
+            $table->boolean('is_transfered')->default(0)->comment('1 => commissioned, 0 => not commissioned');
+            $table->boolean('is_returned')->default(0)->comment('1 => commissioned, 0 => not commissioned');
             $table->timestamps();
         });
     }

@@ -32,28 +32,19 @@ class CommissionApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $goods_commissions = AssetCommissionApplication::where('created_by', auth()->user()->id)->get();
-
-        return view('asset.commission.index',compact('privileges', 'goods_commissions'));
+        $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->paginate(config('global.pagination'))->withQueryString();
+        return view('asset.commission.index',compact('privileges', 'commissions'));
     }
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $faItems = RequisitionApplication::whereStatus(3)
-            ->where('type_id', FIXED_ASSET)
-            ->whereHas('goodsReceivedByUser', function ($query) {
-                $query->where('is_confirmed', 1);
-            })
-            ->with([
-                'goodsReceivedByUser' => function ($query) {
-                    $query->where('is_confirmed', 1);
-                },
-                'goodsReceivedByUser.details' // Fetch only details, no serials
-            ])
+        // only fixed asset can be commissioned
+        $faItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+            ->where('is_received', 1)
             ->get();
-        // dd($faItems);
+
         $empDetails = empDetails(auth()->user()->id);
         return view('asset.commission.create',compact('empDetails', 'faItems'));
     }
@@ -79,7 +70,7 @@ class CommissionApplicationController extends Controller
 
         try {
             DB::beginTransaction();
-            $commissionApplication = GoodCommissionApplication::create([
+            $commissionApplication = AssetCommissionApplication::create([
                 'commission_no' => $request->commission_no,
                 'receipt_no' => $request->grn,
                 'commission_date' => $request->commission_date,

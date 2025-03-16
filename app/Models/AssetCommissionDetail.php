@@ -12,11 +12,21 @@ class AssetCommissionDetail extends Model
     protected $table = 'commission_details';
     
     protected $fillable = [
-        'commission_id', 'purchase_order_no', 'item_description', 'uom',  'quantity', 'date_placed_in_service', 'dzongkhag', 'site_name','remark', 'status'
+        'commission_id', 
+        'received_serial_id', 
+        'date_placed_in_service', 
+        'dzongkhag_id', 
+        'office_id',
+        'site_id',
+        'remark',
     ];
 
     public function assetCommission()
     {
         return $this->belongsTo(AssetCommissionApplication::class, 'commission_id');
+    }
+
+    public function receivedSerial(){
+        return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
     }
 }

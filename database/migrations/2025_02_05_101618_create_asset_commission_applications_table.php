@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId('type_id')->index()->constrained('mas_requisition_types')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('transaction_no')->unique()->index();
             $table->date('transaction_date')->index();
-            $table->foreignId('goods_received_detail_id')->index()->constrained('goods_received_details')->comment('do commission against goods received detail as it has to be done against each GRN');
+            $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->comment('do commission against goods received detail as it has to be done against each GRN');
             $table->json('file')->nullable();
+            $table->string('doc_no')->index()->nullable();
             $table->unsignedTinyInteger('status')->index()->comment('-1 = Rejected,1 => New, 2 =>Verified 3 => Approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
