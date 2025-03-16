@@ -122,8 +122,8 @@ class CommissionApplicationController extends Controller
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a commission request and is awaiting your approval.';
-                $emailSubject = 'Commission Application';
+                $emailContent = 'has submitted a asset commission request and is awaiting your approval.';
+                $emailSubject = 'Asset Commission Application';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
