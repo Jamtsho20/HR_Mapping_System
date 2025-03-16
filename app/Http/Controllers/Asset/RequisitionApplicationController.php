@@ -96,12 +96,12 @@ class RequisitionApplicationController extends Controller
         $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $lastTransaction = RequisitionApplication::latest('id')->first();
 
-        $reqNumber = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
+        $transactionNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
 
 
         try {
             DB::beginTransaction();
-            $requisition->transaction_no = $reqNumber;
+            $requisition->transaction_no = $transactionNo;
             $requisition->type_id = $request->type_id;
             $requisition->transaction_date = $request->requisition_date;
             $requisition->need_by_date = $request->need_by_date;

@@ -10,6 +10,7 @@ use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
+use App\Models\AssetCommissionDetail;
 use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -65,15 +66,19 @@ class CommissionApplicationController extends Controller
         // dd($attachment);
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
-        $receipt_no = GoodReceiptApplication::where('id', $request->grn)->first(); 
+        $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
+        // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
+        $lastTransaction = AssetCommissionApplication::latest('id')->first();
+
+        $transactionNo = generateTransactionNumber1(COMMISSION_TYPE, $lastTransaction, 'transaction_no');
 
         try {
             DB::beginTransaction();
             $commissionApplication = AssetCommissionApplication::create([
-                'commission_no' => $request->commission_no,
-                'receipt_no' => $request->grn,
-                'commission_date' => $request->commission_date,
+                'transaction_no' => $transactionNo,
+                'transaction_date' => $request->commission_date,
+                'requisition_detail_id' => $request->grn,
+                'transaction_date' => $request->commission_date,
                 'file' => $attachment ?? null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
@@ -81,19 +86,18 @@ class CommissionApplicationController extends Controller
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
                     if (isset($detail['is_active'])){
-                    $commissionApplication->details()->create([
-                        'purchase_order_no' => $detail['purchase_order_no'],
-                        'asset_no' => $detail['asset_no'] ?? null,
-                        'item_description' => $detail['item_description'],
-                        'uom' => $detail['uom'],
-                        'dzongkhag' => $detail['dzongkhag'],
-                        'site_name' => $detail['site_name'],
-                        'quantity' => $detail['quantity'],
-                        'remark' => $detail['remark'],
-                        'status' => 0
+                        $commissionApplication->details()->create([
+                            'received_serial_id' => $detail['asset_no'],
+                            'item_description' => $detail['item_description'],
+                            'uom' => $detail['uom'],
+                            'dzongkhag' => $detail['dzongkhag'],
+                            'site_name' => $detail['site_name'],
+                            'quantity' => $detail['quantity'],
+                            'remark' => $detail['remark'],
+                            'status' => 0
 
-                    ]);
-                }
+                        ]);
+                    }
                 }
             }
 
