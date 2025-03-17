@@ -160,11 +160,11 @@ class ApiController extends BaseController
 
             foreach ($request->items as $itemData) {
                 // Check if GRN already exists in grn_item_mappings
-                $itemMapping = GrnItemMapping::where('grn_no', $itemData['grn_no'])->first();
+                $itemMapping = MasGrnItem::where('grn_no', $itemData['grn_no'])->first();
 
                 if (!$itemMapping) {
                     // Create new GRN entry if it does not exist
-                    $itemMapping = new GrnItemMapping();
+                    $itemMapping = new MasGrnItem();
                     $itemMapping->grn_no = $itemData['grn_no'];
                     $itemMapping->last_synced_at = now();
                     $itemMapping->status = $itemData['status'] ?? 1;
@@ -184,10 +184,10 @@ class ApiController extends BaseController
                         return $this->errorResponse("Item no. {$detail['item_no']} not found in HRMS.");
                     }
                     // Check if item already exists in item_mapping_details for the same GRN and store
-                    $existingItemDetail = ItemMappingDetail::where([
+                    $existingItemDetail = MasGrnItemDetail::where([
                         'store_id' => $storeId,
                         'item_id' => $item->id,
-                        'mapping_id' => $itemMapping->id
+                        'grn_id' => $itemMapping->id
                     ])->first();
 
                     if ($existingItemDetail) {
@@ -196,11 +196,11 @@ class ApiController extends BaseController
                         $existingItemDetail->save();
                     } else {
                         // Create a new record if item does not exist
-                        $itemDetails = new ItemMappingDetail();
+                        $itemDetails = new MasGrnItemDetail();
                         $itemDetails->store_id = $storeId;
                         $itemDetails->item_id = $item->id;
                         $itemDetails->description = $detail['description'] ?? null;
-                        $itemDetails->mapping_id = $itemMapping->id; // Foreign key to grn_item_mappings
+                        $itemDetails->grn_id = $itemMapping->id; // Foreign key to grn_item_mappings
                         $itemDetails->quantity = $detail['quantity'];
                         $itemDetails->save();
                     }

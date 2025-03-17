@@ -177,7 +177,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application);
-dd($postFields);
+
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -319,11 +319,11 @@ private function groupDocumentLinesByGRN($documentLines)
                 "DocumentLines" => $application->details->map(function ($detail) {
 // dd($detail);
                     return [
-                        "GrnNumber"=> (string) $detail->grnItemMapping->grn_no,
-                        "ItemCode" => (string) $detail->itemMappingDetail->item->item_no,
-                        "ItemDescription" => $detail->itemMappingDetail->item->item_description,
-                        "Quantity" => $detail->itemMappingDetail->quantity,
-                        "WarehouseCode" => (string) $detail->itemMappingDetail->store->code,
+                        "GrnNumber"=> (string) $detail->grnItemDetail->grn_no,
+                        "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
+                        "ItemDescription" => $detail->grnItemDetail->item->item_description,
+                        "Quantity" => $detail->grnItemDetail->quantity,
+                        "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
                         "Project" => (string) $detail->site->code
                     ];
                 })->toArray(),
