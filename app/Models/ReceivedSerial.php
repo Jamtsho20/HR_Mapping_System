@@ -22,4 +22,18 @@ class ReceivedSerial extends Model
         return $this->belongsTo(RequisitionDetail::class);
     }
 
+    public function commissionDetail()
+    {
+        return $this->hasOne(AssetCommissionDetail::class, 'received_serial_id');
+    }
+
+    public function transferDetail()
+    {
+        return $this->hasOne(AssetTransferDetail::class, 'received_serial_id');
+    }
+
+    public function returnDetailsDetail()
+    {
+        return $this->hasOne(AssetReturnDetail::class, 'received_serial_id');
+    }
 }

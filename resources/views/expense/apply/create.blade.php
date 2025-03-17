@@ -1460,6 +1460,7 @@ $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', f
     if (currentVal > maxVal) {
         showErrorMessage(`Value cannot be more than the number of days`);
         $(this).val(maxVal); // Reset to max value
+        $(this).trigger("change");
     }
 });
             function getTravelAuthorizationDetails() {

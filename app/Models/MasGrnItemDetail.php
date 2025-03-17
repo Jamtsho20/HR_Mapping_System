@@ -19,20 +19,27 @@ class MasGrnItemDetail extends Model
     ];
 
     public function grn()
-   {
+    {
         return $this->belongsTo(MasGrnItem::class, 'grn_id');
-   }
-    public function store()
-   {
-        return $this->belongsTo(MasStore::class, 'store_id');
-   }
+    }
 
-   public function item()
-   {
+    public function store()
+    {
+        return $this->belongsTo(MasStore::class, 'store_id');
+    }
+
+    public function item()
+    {
         return $this->belongsTo(MasItem::class, 'item_id');
-   }
-   public function scopeFilter($query, $request)
-   {
+    }
+
+    public function requisitionDetails()
+    {
+        return $this->hasMany(RequisitionDetail::class, 'grn_item_detail_id');
+    }
+
+    public function scopeFilter($query, $request)
+    {
         if ($request->has('item_id') && $request->query('item_id') != '') {
             $query->where('item_id', $request->query('item_id'));
         }
@@ -48,5 +55,5 @@ class MasGrnItemDetail extends Model
         if ($request->has('grn_no') && $request->query('grn_no') != '') {
             $query->where('grn_no', $request->query('grn_no'));
         }
-   }
+    }
 }

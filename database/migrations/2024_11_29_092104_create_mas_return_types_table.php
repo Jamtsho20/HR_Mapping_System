@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_commission_types', function (Blueprint $table) {
+        Schema::create('mas_return_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->boolean('post_to_sap')->default(0);
             $table->boolean('status')->comment('1 => active, 0 => inactive');
+            $table->boolean('post_to_sap')->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_commission_types');
+        Schema::dropIfExists('mas_return_types');
     }
 };

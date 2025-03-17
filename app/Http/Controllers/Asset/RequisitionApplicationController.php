@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ApplicationForwardedMail;
-use App\Models\MasGrnItems;
+use App\Models\MasGrnItem;
 use App\Models\MasGrnItemDetail;
 use App\Models\MasRequisitionType;
 use App\Models\RequisitionApplication;
@@ -74,7 +74,7 @@ class RequisitionApplicationController extends Controller
      public function create()
      {
         $reqTypes = MasRequisitionType::get();
-        $grnNos = MasGrnItems::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])->whereStatus(1)->get();
+        $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])->whereStatus(1)->get();
         $dzongkhags = MasDzongkhag::all();
         $sites = MasSite::with('dzongkhag')->get();
         return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags'));
@@ -96,12 +96,12 @@ class RequisitionApplicationController extends Controller
         $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $lastTransaction = RequisitionApplication::latest('id')->first();
 
-        $reqNumber = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
+        $transactionNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
 
 
         try {
             DB::beginTransaction();
-            $requisition->transaction_no = $reqNumber;
+            $requisition->transaction_no = $transactionNo;
             $requisition->type_id = $request->type_id;
             $requisition->transaction_date = $request->requisition_date;
             $requisition->need_by_date = $request->need_by_date;

@@ -4,15 +4,10 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\GoodCommissionApplication;
-use App\Models\GoodReceiptApplication;
-use App\Models\User;
-use App\Models\MasCommissionTypes;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
-use App\Models\GoodsReceivedDetail;
 use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -30,33 +25,39 @@ class CommissionApplicationController extends Controller
         $this->middleware('permission:asset/commission,delete')->only('destroy');
     }
 
+    protected $rules = [
+        'commission_date' => 'required',
+        'grn' => 'required',
+        'attachment' => 'file|mimes:pdf,jpg,png,docx|max:2048',
+        'details.*.asset_no' => 'required',
+        'details.*.date_placed_in_service' => 'required',
+        'details.*.site' => 'required',
+     ];
+
+     protected $messages = [
+        'details.*.asset_no.required' => 'The asset no is required for each detail item.',
+        'details.*.date_placed_in_service.required' => 'The date placed in service is required for each detail item.',
+        'details.*.site.required' => 'The site is required for each detail item.',
+    ];
+
     private $attachmentPath = 'images/asset-comm/';
 
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $goods_commissions = AssetCommissionApplication::where('created_by', auth()->user()->id)->get();
-
-        return view('asset.commission.index',compact('privileges', 'goods_commissions'));
+        $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->paginate(config('global.pagination'))->withQueryString();
+        return view('asset.commission.index',compact('privileges', 'commissions'));
     }
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $faItems = RequisitionApplication::whereStatus(3)
-            ->where('type_id', FIXED_ASSET)
-            ->whereHas('goodsReceivedByUser', function ($query) {
-                $query->where('is_confirmed', 1);
-            })
-            ->with([
-                'goodsReceivedByUser' => function ($query) {
-                    $query->where('is_confirmed', 1);
-                },
-                'goodsReceivedByUser.details' // Fetch only details, no serials
-            ])
+        // only fixed asset can be commissioned
+        $faItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+            ->where('is_received', 1)
             ->get();
-        // dd($faItems);
+
         $empDetails = empDetails(auth()->user()->id);
         return view('asset.commission.create',compact('empDetails', 'faItems'));
     }
@@ -66,46 +67,51 @@ class CommissionApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $attachments = []; // Initialize an array to store uploaded file names
 
-        // $attachment = "";
+        if ($request->file('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                // If an old attachment exists, delete it
+                // if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
+                //     delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
+                // }
+                // Upload the new file and store its name in the array
+                $attachment = uploadImageToDirectory($file, $this->attachmentPath);
 
-        // if ($request->hasFile('file')) {
-        //     $file = $request->file('file');
+                // Add the uploaded file name to the attachments array
+                $attachments[] = $attachment;
+            }
+        }
 
-        //     $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-        // }
         // dd($attachment);
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
-        $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
-        $receipt_no = GoodReceiptApplication::where('id', $request->grn)->first();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
+        // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
+        $lastTransaction = AssetCommissionApplication::latest('id')->first();
+
+        $transactionNo = generateTransactionNumber1(COMMISSION_TYPE, $lastTransaction, 'transaction_no');
 
         try {
             DB::beginTransaction();
-            $commissionApplication = GoodCommissionApplication::create([
-                'commission_no' => $request->commission_no,
-                'receipt_no' => $request->grn,
-                'commission_date' => $request->commission_date,
-                'file' => $attachment ?? null,
+            $commissionApplication = AssetCommissionApplication::create([
+                'transaction_no' => $transactionNo,
+                'transaction_date' => $request->commission_date,
+                'requisition_detail_id' => $request->grn,
+                'file' => $attachments ?? null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
-                    if (isset($detail['is_active'])){
                     $commissionApplication->details()->create([
-                        'purchase_order_no' => $detail['purchase_order_no'],
-                        'asset_no' => $detail['asset_no'] ?? null,
-                        'item_description' => $detail['item_description'],
-                        'uom' => $detail['uom'],
-                        'dzongkhag' => $detail['dzongkhag'],
-                        'site_name' => $detail['site_name'],
-                        'quantity' => $detail['quantity'],
+                        'received_serial_id' => $detail['asset_no'],
+                        'date_placed_in_service' => $detail['date_placed_in_service'],
+                        'dzongkhag_id' => $detail['dzongkhag'],
+                        'office_id' => $detail['office'],
+                        'site_id' => $detail['site'],
                         'remark' => $detail['remark'],
-                        'status' => 0
-
                     ]);
-                }
                 }
             }
 
@@ -116,8 +122,8 @@ class CommissionApplicationController extends Controller
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
             if(isset($approverByHierarchy['approver_details'])){
-                $emailContent = 'has submitted a commission request and is awaiting your approval.';
-                $emailSubject = 'Commission Application';
+                $emailContent = 'has submitted a asset commission request and is awaiting your approval.';
+                $emailSubject = 'Asset Commission Application';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
@@ -125,6 +131,8 @@ class CommissionApplicationController extends Controller
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
+
+        return redirect('asset/commission')->with('msg_success', 'Asset commissioned successfully!');
 
     }
 

@@ -93,3 +93,4 @@ const TAX_GL_CODE = 205116; //for live
 //Asset constant
 const FIXED_ASSET = 1;
 const CONSUMEABLE_ASSET = 2;
+const COMMISSION_TYPE = 1;

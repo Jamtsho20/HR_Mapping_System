@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Goods Commission')
+@section('page-title', 'Asset Commission')
 @section('content')
 
     @if ($privileges->create)
@@ -39,30 +39,30 @@
                                                 <thead class="thead-light" >
                                                     <tr role="row">
                                                         <th>#</th>
-                                                        <th>COMMISSION NUMBER</th>
-                                                        <th>COMMISSION DATE</th>
-                                                        <th>RECEIPT NUMBER</th>
-                                                        <th>STATUS</th>
-                                                        <th>ACTION</th>
+                                                        <th>Comission Number</th>
+                                                        <th>Comission Date</th>
+                                                        <th>Issued Number</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @forelse($goods_commissions as $goods_commission)
+                                                    @forelse($commissions as $commission)
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
-                                                            <td>{{$goods_commission->commission_no}}</td>
-                                                            <td>{{$goods_commission->commission_date}}</td>
-                                                            <td>{{$goods_commission->receipt_no}}</td>
-                                                            <td>{{$goods_commission->status}}</td>
+                                                            <td>{{$commission->commission_no}}</td>
+                                                            <td>{{$commission->commission_date}}</td>
+                                                            <td>{{$commission->issued_no}}</td>
+                                                            <td>{{$commission->status}}</td>
                                                             <td> @if ($privileges->edit)
-                                                                <a href="{{ url('asset/commission/' . $goods_commission->id . '/edit') }}"
+                                                                <a href="{{ url('asset/commission/' . $commission->id . '/edit') }}"
                                                                     class="btn btn-sm btn-rounded btn-outline-success"><i
                                                                         class="fa fa-edit"></i> EDIT</a>
                                                             @endif
                                                             @if ($privileges->delete)
                                                                 <a href="#"
                                                                     class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                    data-url="{{ url('asset/commission/' . $goods_commission->id) }}"><i
+                                                                    data-url="{{ url('asset/commission/' . $commission->id) }}"><i
                                                                         class="fa fa-trash"></i> DELETE</a>
                                                             @endif</td>
                                                         </tr>
