@@ -236,6 +236,7 @@ class ApiController extends BaseController
             'details.*.line_item.*.serials' => 'sometimes|array',
             'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
             'details.*.line_item.*.serials.*.asset_description' => 'required|string',
+            'details.*.line_item.*.serials.*.amount' => 'required|string'
         ]
         , [
             'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
@@ -282,14 +283,22 @@ class ApiController extends BaseController
                     $requisition_detail->received_quantity = $line['received_quantity'];
                     $requisition_detail->save();
 
-                 
+
                     if (!empty($line['serials'])) {
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
+
+                            $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
+                            if ($exists) {
+                                DB::rollBack();
+                                return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                            }
+
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,
                                 'asset_serial_no' => $serial['asset_serial_no'],
                                 'asset_description' => $serial['asset_description'],
+                                'amount' => $serial['amount'],
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ];

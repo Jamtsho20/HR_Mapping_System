@@ -13,7 +13,8 @@ class ReceivedSerial extends Model
         'requisition_detail_id',
         'asset_serial_no',
         'asset_description',
-        'is_commissioned'
+        'is_commissioned',
+        'amount',
     ];
 
     public function requisitionDetail()

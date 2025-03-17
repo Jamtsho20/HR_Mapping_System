@@ -36,9 +36,9 @@
                                             </td>
                                             @endif
                                             <td>{{ $requisition->employee->emp_id_name }}</td>
-                                            <td>{{ $requisition->requisition_no }}</td>
-                                            <td>{{ $requisition->requisitionType->name }}</td>
-                                            <td>{{ $requisition->requisition_date }}</td>
+                                            <td>{{ $requisition->transaction_no }}</td>
+                                            <td>{{ $requisition->type->name }}</td>
+                                            <td>{{ $requisition->transaction_date }}</td>
                                             <td>{{ $requisition->employee->empJob->department->name }}</td>
                                             <td>{{ $requisition->employee->empJob->section->name }}</td>
                                             <td>{{ $requisition->need_by_date }}</td>

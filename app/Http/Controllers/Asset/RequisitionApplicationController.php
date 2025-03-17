@@ -173,6 +173,7 @@ class RequisitionApplicationController extends Controller
         // Track existing IDs to avoid deleting records that are updated
         $existingIds = [];
 
+
         foreach ($details as $detail) {
             $grnData = json_decode($detail['grn_no'], true);
             $grn_item = MasGrnItemDetail::where('grn_id', $grnData['id'])
@@ -182,10 +183,9 @@ class RequisitionApplicationController extends Controller
 
             if ($grn_item) {
                 // Ensure stock doesn't go negative
-                $newStock = max(0, $grn_item->current_stock - $detail['quantity_required']);
-                $change = $grn_item->changed_quantity + $detail['quantity_required'];
+                $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
                 // Update stock in database
-                $grn_item->update(['current_stock' => $newStock, 'changed_quantity' => $change]);
+                $grn_item->update(['quantity' => $newStock]);
             }
 
             // Check if the detail has an 'id' (indicating an existing record)
