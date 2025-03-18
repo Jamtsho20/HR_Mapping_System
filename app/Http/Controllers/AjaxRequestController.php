@@ -52,6 +52,7 @@ use App\Models\GoodReceiptApplicationDetail;
 use App\Models\LeaveApplication;
 use DateTime;
 use App\Models\DsaClaimMappings;
+use App\Models\RequisitionDetail;
 
 class AjaxRequestController extends Controller
 {
@@ -673,48 +674,6 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function getIssueNumber($id)
-    {
-        try {
-            $issueType = MasGoodIssueType::findOrFail($id);
-            $latestTransaction = GoodIssueApplication::latest('id')->first();
-            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
-            $issueNo = generateTransactionNumber($issueType->code, $nextSequence);
-            return $this->successResponse(['issue_no' => $issueNo]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
-        }
-    }
-
-    public function getReceiptNumber($id)
-    {
-        try {
-            $receiptType = MasGoodReceiptType::findOrFail($id);
-            $latestTransaction = GoodReceiptApplication::latest('id')->first();
-            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->receipt_no, -4) + 1 : 1;
-            $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
-            return $this->successResponse(['receipt_no' => $receiptNo]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
-        }
-    }
-
-    public function getCommissionNumber($id)
-    {
-        try {
-            $receiptType = MasCommissionTypes::findOrFail($id);
-            $latestTransaction = GoodCommissionApplication::latest('id')->first();
-            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->commission_no, -4) + 1 : 1;
-            $commissionNo = generateTransactionNumber($receiptType->code, $nextSequence);
-            return $this->successResponse(['commission_no' => $commissionNo]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something went wront while trying to generate commission no, please try again.');
-        }
-    }
-
     public function getRequisitionDetails($id)
     {
         try {
@@ -739,24 +698,26 @@ class AjaxRequestController extends Controller
         return response()->json($vehicleDetailType);
     }
 
-    public function getDetailsByIssue($issue_no)
+    public function getAssetNoByGrnId($grnId)
     {
-        // Fetch the data based on the issue_no, e.g. using Eloquent
-        $goodsDetails = GoodIssueApplication::where('issue_no', $issue_no)->with('detail')->get();
-        $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
+        try{
+            $assetNos = RequisitionDetail::where('grn_item_id', $grnId)
+                ->whereHas('serials', function ($query) {
+                    $query->where('is_commissioned', '<>', 1);
+                })
+                ->with(['serials' => function ($query) {
+                    $query->select('id', 'requisition_detail_id', 'serial_no'); // Select only required fields
+                }])
+                ->select('id', 'asset_no', 'grn_item_id')
+                ->get();
 
-        return response()->json([
-            'data' => $goodsDetails
-        ]);
-    }
-
-    public function getDetailsByReceipt($receipt_no)
-    {
-        // Fetch the data based on the issue_no, e.g. using Eloquent
-        $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status', 0)->get();
-
-        return response()->json([
-            'data' => $goodsDetails
-        ]);
+            if ($assetNos->isEmpty()) {
+                return $this->errorResponse('No asset numbers found for the provided GRN ID.', 404);
+            }
+            
+            return $this->successResponse(['asset_nos' => $assetNos]);
+        }catch(\Exception $e){
+            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.');
+        }   
     }
 }

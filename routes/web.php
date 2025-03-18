@@ -457,6 +457,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getcommissionnobycommissiontype/{id}', 'AjaxRequestController@getCommissionNumber');
     Route::get('getdetailsbyreceipt/{receipt_no}', 'AjaxRequestController@getDetailsByReceipt')->name('get.details.by.receipt');
     Route::get('getvehicledetailtypebyid/{id}', 'AjaxRequestController@getVehicleDetailTypeById');
+    Route::get('getassetnobygrnid/{grnId}', 'AjaxRequestController@getAssetNoByGrnId');
 });
 
 

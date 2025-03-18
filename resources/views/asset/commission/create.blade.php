@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Commission')
 @section('content')
+<link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+<link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <form action="{{ route('commission.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="block-header block-header-default">
@@ -13,7 +15,7 @@
 
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="commission_no">Requisition No. <span class="text-danger">*</span></label>
+                                    <label for="commission_no">Commission No. <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="commission_no" name="commission_no" value="{{ old('commission_no') }}" placeholder="Generating..." readonly>
                                 </div>
                             </div>
@@ -36,8 +38,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="commission_date">Commission Date <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" name="commission_date" id="commission_date"
-                                        readonly>
+                                    <input type="date" class="form-control" name="commission_date" id="commission_date" value="{{ old('commission_date', date('Y-m-d')) }}">
                                 </div>
                             </div>
 
@@ -69,7 +70,7 @@
                                             </div>
                                             <input class="file-browse-input" type="file" multiple hidden
                                                 name="attachments[]" id="attachment" class="form-control"
-                                                accept="image/*,.pdf,.doc,.docx">
+                                                accept="image/*,.pdf,.doc,.docx" />
 
                                         </div>
                                         <ul class="file-list">
@@ -159,7 +160,7 @@
                         'cancelName' => 'CANCEL',
                     ])
 
-                    <input class="btn btn-info" type="reset" value="Reset">
+                    {{-- <input class="btn btn-info" type="reset" value="Reset"> --}}
 
                 </div>
 
@@ -171,6 +172,66 @@
 @endsection
 @push('page_scripts')
     <script>
-        
+        $(document).ready(function () {
+            $('#grn').change(function () {
+                let grnId = $(this).val(); // Get selected GRN ID
+                if (grnId) {
+                    $.ajax({
+                        url: "/getassetnobygrnid/" + grnId, 
+                        dataType: "JSON",
+                        type: "GET",
+                        success: function (response) {
+                            if (response.success) {
+                                populateAssetDetails(response.data);
+                            } 
+                            else {
+                                showErrorMessage('No asset no found for the associated grn.');
+                            }
+                        },
+                        error: function () {
+                            showErrorMessage(error.responseJSON.message);
+                        }
+                    });
+                }
+            });
+
+            function populateAssetDetails(data) {
+                let tableBody = $("#details tbody");
+                tableBody.find("tr:not(.notremovefornew)").remove(); // Clear existing rows except "Add New Row"
+
+                $.each(data, function (index, item) {
+                    let newRow = `<tr>
+                        <td class="text-center">
+                            <a href="#" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" name="details[${index}][asset_no]" value="${item.asset_no}" readonly required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" name="details[${index}][item_description]" value="${item.item_description}" readonly required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" name="details[${index}][uom]" value="${item.uom}" readonly required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" name="details[${index}][dzongkhag]" value="${item.dzongkhag}" readonly required>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" name="details[${index}][quantity]" value="${item.quantity}" required>
+                        </td>
+                        <td>
+                            <input type="date" class="form-control form-control-sm" name="details[${index}][date_placed_in_service]" value="${item.date_placed_in_service}" required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" name="details[${index}][site]" value="${item.site}" required>
+                        </td>
+                        <td>
+                            <textarea class="form-control form-control-sm" name="details[${index}][remark]">${item.remark}</textarea>
+                        </td>
+                    </tr>`;
+                    tableBody.append(newRow);
+                });
+            }
+        });
     </script>
 @endpush
