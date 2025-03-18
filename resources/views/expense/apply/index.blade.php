@@ -114,7 +114,7 @@
                                                                         -1 => 'badge bg-danger',
                                                                         0 => 'badge bg-warning',
                                                                         1 => 'badge bg-primary',
-                                                                        2 => 'badge bg-success',
+                                                                        2 => 'badge bg-primary',
                                                                         3 => 'badge bg-success',
                                                                         ];
                                                                         $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
@@ -229,7 +229,7 @@
                                                                         -1 => 'badge bg-danger',
                                                                         0 => 'badge bg-warning',
                                                                         1 => 'badge bg-primary',
-                                                                        2 => 'badge bg-success',
+                                                                        2 => 'badge bg-primary',
                                                                         3 => 'badge bg-success',
                                                                         ];
                                                                         $statusText = config("global.application_status.{$dsaClaim->status}", 'Unknown Status');
@@ -350,7 +350,7 @@
                                                                         -1 => 'badge bg-danger',
                                                                         0 => 'badge bg-warning',
                                                                         1 => 'badge bg-primary',
-                                                                        2 => 'badge bg-success',
+                                                                        2 => 'badge bg-primary',
                                                                         3 => 'badge bg-success',
                                                                         ];
                                                                         $statusText = config("global.application_status.{$transfer->status}", 'Unknown Status');
