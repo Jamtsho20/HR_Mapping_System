@@ -101,7 +101,7 @@ class ApprovalController extends Controller
             $approvalService = new ApprovalService();
 
             foreach ($itemIds as $id) {
-                $application = $model::with('details')->findOrFail($id);
+                $application = $model::findOrFail($id);
 
                 if (!$application) {
                     continue;
@@ -160,6 +160,7 @@ class ApprovalController extends Controller
                         $assetFlag = false;
                         if($item_code){
                         $assetFlag = true;
+                        $application->load('details');
                         $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
 
                     }
