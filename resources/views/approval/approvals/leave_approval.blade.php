@@ -49,7 +49,7 @@
                                                     value="{{ $leave->id }}">
                                             </td>
                                         @endif
-                                        <td>{{ $leave->created_at->format('d-M-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($leave->created_at)->format('h:i A') }}</td>
                                         <td>{{ $leave->employee->emp_id_name }}</td>
                                         <td>{{ $leave->leaveType->name }}</td>
                                         <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-M-Y') }}</td>

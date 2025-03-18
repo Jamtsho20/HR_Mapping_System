@@ -232,7 +232,8 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fa fa-check"></i> Update
                     </button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
                 </div>
             </form>
         </div>
@@ -241,27 +242,40 @@
 @include('layouts.includes.delete-modal')
 @endsection
 @push('page_scripts')
-<script>
-    $(document).ready(function() {
-        $('.edit-btn').click(function(e) {
-            e.preventDefault();
-            var url = $(this).attr('href');
-            var holidayname = $(this).data('holiday');
-            var holidaytype = $(this).data('type');
-            var selectedRegions = $(this).data('regions');
-            var start_date = $(this).data('start');
-            var end_date = $(this).data('end');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 
-            var modal = $('#edit-modal');
-            modal.find('form').attr('action', url);
-            modal.find('input[name=holiday_name]').val(holidayname);
-            modal.find('select[name=holiday_type]').val(holidaytype);
-            modal.find('.region-dropdown').val(selectedRegions).trigger('change');
-            modal.find('input[name=start_date]').val(start_date);
-            modal.find('input[name=end_date]').val(end_date);
-            modal.modal('show');
-        });
+<script>
+    
+$(document).ready(function() {
+    $('.edit-btn').click(function(e) {
+        e.preventDefault();
+
+        var url = $(this).attr('href');
+        var holidayname = $(this).data('holiday');
+        var holidaytype = $(this).data('type');
+        var selectedRegions = $(this).data('regions');
+        var start_date = $(this).data('start');
+        var end_date = $(this).data('end');
+
+        // Reference to the modal
+        var modal = $('#edit-modal');
+        
+        // Set the action URL for the form
+        modal.find('form').attr('action', url);
+        
+        // Populate the fields inside the modal
+        modal.find('input[name=holiday_name]').val(holidayname);
+        modal.find('select[name=holiday_type]').val(holidaytype);
+        modal.find('.region-dropdown').val(selectedRegions).trigger('change');
+        modal.find('input[name=start_date]').val(start_date);
+        modal.find('input[name=end_date]').val(end_date);
+        
+        // Initialize the modal and show it
+        var myModal = new bootstrap.Modal(modal[0]);
+        myModal.show();
     });
+});
+
 
     $(function() {
         $('.js-select2').select2();

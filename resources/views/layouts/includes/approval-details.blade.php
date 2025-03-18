@@ -9,7 +9,8 @@
                                 {{ $log->approver->title }}
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
-                                {{ $log->created_at->format('d-m-y') }}</strong>
+                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+</strong>
                         @endif
 
                     @endforeach
@@ -24,7 +25,8 @@
                                 {{ $log->approver->title }}
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
-                                {{ $log->created_at->format('d-m-y') }}</strong>
+                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+</strong>
                                 </td>
             </tr>
             <tr>
@@ -45,7 +47,8 @@
                                 {{ $log->approver->title }}
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
-                                {{ $log->created_at->format('d-m-y') }}</strong>
+                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                                </strong>
 
                         @endif
                     @endforeach

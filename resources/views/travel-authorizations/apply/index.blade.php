@@ -42,7 +42,8 @@
                                         <thead>
                                             <tr role="row" class="thead-light">
                                                 <th>#</th>
-                                                <th>Travel Authorizaiton number</th>
+                                                <th>APPLIED ON</th>
+                                                <th>Travel Authorization number</th>
                                                 <th>Travel Type</th>
                                                 <th>Date</th>
                                                 <th>ESTIMATED EXPENSES</th>
@@ -56,6 +57,9 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td class="text-center">
+                                                    {{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('h:i A') }}
+                                                </td>
                                                 <td>{{ $travelAuthorization->travel_authorization_no }}</td>
                                                 <td>{{ $travelAuthorization->travelType->name }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-M-Y') }}</td>
