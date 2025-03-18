@@ -307,18 +307,6 @@
                                         </span>
                                         <input type="hidden" id="total_days" name="total_days[{{$detail->travel_authorization_id}}]" value="{{$detail->number_of_days}}">
                                     </td>
-                                    <td colspan="5" class="text-center" style="color: black; ">
-    {{-- Check if the travel has a parent_id (indicating it's an extension) --}}
-    @if ($detail->travelAuthorization && $detail->travelAuthorization->parent_id)
-        <div class="info-green">
-            <span>* This travel is an extension of another travel with number: </span>
-            <span class="parent-travel-no">
-                {{-- Get the parent travel authorization number --}}
-                {{ $detail->travelAuthorization->parentTravelAuthorization->travel_authorization_no ?? 'N/A' }}
-            </span>
-        </div>
-    @endif
-</td>
                                     <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
                                         <span>
                                             Travel Authorization Amount:
