@@ -189,6 +189,12 @@
                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                         <td style="padding-left:25px;"> {{ $dsa->total_number_of_days ?? '-' }}</td>
                     </tr>
+                    <tr>
+                        <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                        <td style="padding-left:25px;">
+                            {{ \Carbon\Carbon::parse($dsa->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsa->created_at)->format('h:i A') }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -243,11 +249,11 @@
 
                                     <td colspan="4" style="padding-left:25px;">
                                         @if ($detail->attachment)
-                                            <a href="{{ asset(normalizePathForDisplay($detail->attachment))}}" class="btn btn-sm btn-primary mb-1" target="_blank">
-                                                <i class="fas fa-file-alt"></i> View Attachment
-                                            </a><br>
+                                        <a href="{{ asset(normalizePathForDisplay($detail->attachment))}}" class="btn btn-sm btn-primary mb-1" target="_blank">
+                                            <i class="fas fa-file-alt"></i> View Attachment
+                                        </a><br>
                                         @else
-                                            <span class="text-danger">No attachment available.</span>
+                                        <span class="text-danger">No attachment available.</span>
                                         @endif
                                     </td>
 
@@ -302,11 +308,17 @@
                                         <input type="hidden" id="total_days" name="total_days[{{$detail->travel_authorization_id}}]" value="{{$detail->number_of_days}}">
                                     </td>
                                     <td colspan="5" class="text-center" style="color: black; ">
-                                        {{-- <span style="font-weight: bold;">Formula:</span>
-                                        <span class="formula-span">
-                                            {{$detail->formula}}
-                                        </span> --}}
-                                    </td>
+    {{-- Check if the travel has a parent_id (indicating it's an extension) --}}
+    @if ($detail->travelAuthorization && $detail->travelAuthorization->parent_id)
+        <div class="info-green">
+            <span>* This travel is an extension of another travel with number: </span>
+            <span class="parent-travel-no">
+                {{-- Get the parent travel authorization number --}}
+                {{ $detail->travelAuthorization->parentTravelAuthorization->travel_authorization_no ?? 'N/A' }}
+            </span>
+        </div>
+    @endif
+</td>
                                     <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
                                         <span>
                                             Travel Authorization Amount:

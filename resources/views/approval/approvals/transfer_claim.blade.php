@@ -14,7 +14,7 @@
                                     id="basic-datatable table-responsive">
                                     <thead>
                                         <tr role="row" class="thead-light">
-                                        @if ($privileges->edit)
+                                            @if ($privileges->edit)
                                             <th>
                                                 <input type="checkbox"
                                                     id="select_all"
@@ -23,6 +23,9 @@
                                                     title="select all">
                                             </th>
                                             @endif
+                                            <th>
+                                                APPLIED ON
+                                            </th>
                                             <th>
                                                 EMPLOYEE
                                             </th>
@@ -51,13 +54,16 @@
                                     <tbody>
                                         @forelse ($results->get(6) as $transferclaim)
                                         <tr>
-                                        @if ($privileges->edit)
+                                            @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox"
                                                     class="bulk_checkbox"
                                                     value="{{ $transferclaim->id }}">
                                             </td>
                                             @endif
+                                            <td class="text-center">
+                                                {{ \Carbon\Carbon::parse($transferclaim->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($transferclaim->created_at)->format('h:i A') }}
+                                            </td>
                                             <td>{{ $transferclaim->employee->name }}
                                             </td>
                                             <td>{{ $transferclaim->created_at->format('d-M-Y') }}

@@ -45,6 +45,17 @@
                                 <td style="padding-left:25px;"> {{ $leave->no_of_days }}</td>
                             </tr>
                             <tr>
+                                <th style="width:35%;">No. of Days <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $leave->no_of_days }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                {{ \Carbon\Carbon::parse($leave->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($leave->created_at)->format('h:i A') }}
+                                </td>
+                            </tr>
+                            <tr>
                                 <th style="width:35%;">Remarks <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $leave->remarks ?? '-' }}</td>

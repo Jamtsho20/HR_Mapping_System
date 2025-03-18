@@ -40,7 +40,7 @@
                                                     value="{{ $travelAuthorization->id }}">
                                             </td>
                                         @endif
-                                        <td>{{ $travelAuthorization->created_at->format('d-M-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('h:i A') }}</td>
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>

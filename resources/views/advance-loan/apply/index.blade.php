@@ -46,6 +46,7 @@
                                                     <th>ADVANCE/LOAN TYPE</th>
                                                     <th>DATE</th>
                                                     <th>AMOUNT</th>
+                                                    <th>APPLIED ON</th>
                                                     <th>STATUS</th>
                                                     <th>ACTION</th>
                                                 </tr>
@@ -60,16 +61,19 @@
                                                     </td>
                                                     <td>{{ number_format($advance->amount, 2) }}</td>
                                                     <td class="text-center">
+                                                        {{ \Carbon\Carbon::parse($advance->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($advance->created_at)->format('h:i A') }}
+                                                    </td>
+                                                    <td class="text-center">
                                                         @php
-                                                            $statusClasses = [
-                                                                -1 => 'badge bg-danger',
-                                                                0 => 'badge bg-warning',
-                                                                1 => 'badge bg-primary',
-                                                                2 => 'badge bg-success',
-                                                                3 => 'badge bg-success',
-                                                            ];
-                                                            $statusText = config("global.application_status.{$advance->status}", 'Unknown Status');
-                                                            $statusClass = $statusClasses[$advance->status] ?? 'badge bg-secondary';
+                                                        $statusClasses = [
+                                                        -1 => 'badge bg-danger',
+                                                        0 => 'badge bg-warning',
+                                                        1 => 'badge bg-primary',
+                                                        2 => 'badge bg-success',
+                                                        3 => 'badge bg-success',
+                                                        ];
+                                                        $statusText = config("global.application_status.{$advance->status}", 'Unknown Status');
+                                                        $statusClass = $statusClasses[$advance->status] ?? 'badge bg-secondary';
                                                         @endphp
 
                                                         <span class="{{ $statusClass }}">{{ $statusText }}</span>

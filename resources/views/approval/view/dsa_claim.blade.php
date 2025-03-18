@@ -191,6 +191,11 @@
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $dsa->total_number_of_days ?? config('global.null_value') }}</td>
                             </tr>
+                            <tr>
+                                <th style="width:35%;">Applied On <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($dsa->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsa->created_at)->format('h:i A') }}</td>
+                            </tr>
                         </tbody>
                     </table>
 
