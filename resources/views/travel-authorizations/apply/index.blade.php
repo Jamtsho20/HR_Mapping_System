@@ -49,7 +49,7 @@
                                                 <th>ESTIMATED EXPENSES</th>
                                                 <!-- <th>ADVANCE REQUIRED</th> -->
                                                 <th>STATUS</th>
-                                                <th>ACTION</th>
+                                                <th>VIEW</th>
                                             </tr>
                                         </thead>
                                         <tbody>
