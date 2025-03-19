@@ -48,7 +48,7 @@
                                                     <th>AMOUNT</th>
                                                     <th>APPLIED ON</th>
                                                     <th>STATUS</th>
-                                                    <th>ACTION</th>
+                                                    <th>VIEW</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

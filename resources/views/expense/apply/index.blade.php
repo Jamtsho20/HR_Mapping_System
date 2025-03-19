@@ -323,7 +323,7 @@
                                                                         STATUS
                                                                     </th>
                                                                     <th>
-                                                                        Action
+                                                                        VIEW
                                                                     </th>
                                                                 </tr>
                                                             <tbody>
