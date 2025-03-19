@@ -60,8 +60,10 @@
                                                 "global.application_status.{$travelAuthorization->status}",
                                                 'Unknown Status',
                                             );
-                                            $statusClass =
-                                                $statusClasses[$travelAuthorization->status] ?? 'badge bg-secondary';
+                                            $statusClass = config(
+                                            "global.status_classes.{$travelAuthorization->status}",
+                                            'badge bg-secondary',
+                                            );
                                         @endphp
 
                                             <span class="{{ $statusClass }}">{{ $statusText }}</span>
