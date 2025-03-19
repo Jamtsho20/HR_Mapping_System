@@ -45,7 +45,7 @@
                                                 STATUS
                                             </th>
                                             <th>
-                                                ACTION
+                                                VIEW
                                             </th>
                                         </tr>
                                     </thead>

@@ -5,7 +5,7 @@
 @if ($privileges->create)
 @section('buttons')
 <a href="{{ route('apply.create') }}" class="btn btn-sm btn-primary">
-    <i class="fa fa-plus"></i> Apply Advance
+    <i class="fa fa-plus"></i> Advance & EMI Options
 </a>
 @endsection
 @endif

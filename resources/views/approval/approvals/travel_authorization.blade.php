@@ -28,7 +28,7 @@
                                         <th>TIME LEFT FOR APPROVAL</th>
                                     @endif
                                     <th>STATUS</th>
-                                    <th>ACTION</th>
+                                    <th>VIEW</th>
                                 </tr>
                             </thead>
                             <tbody>

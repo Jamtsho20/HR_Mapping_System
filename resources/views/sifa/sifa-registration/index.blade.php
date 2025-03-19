@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Sifa Registration')
+@section('page-title', 'SIFA Registration')
 @section('content')
 @if ($privileges->create && !$sifaRegistration)
 <!-- Check if the user has privileges to create and hasn't registered yet -->

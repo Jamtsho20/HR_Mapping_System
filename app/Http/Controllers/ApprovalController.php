@@ -13,6 +13,7 @@ use App\Mail\ApprovalNotificationMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Mail\TravelApprovalMail;
 use App\Models\User;
+use App\Models\EmployeeLeave;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationHistory;
@@ -68,7 +69,7 @@ class ApprovalController extends Controller
                 $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
             }
         }
-        
+
         $holidays;
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')
@@ -148,7 +149,7 @@ class ApprovalController extends Controller
                         $shortName = $application->employee->username;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
-                        if ($accountCode == 501152){
+                        if ($accountCode == 501152) {
                             $amount = $application->net_payable_amount;
                         }
                         $tax_amount = $application->tax_amount ?? null;
@@ -164,7 +165,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-// dd($postFields);
+                            // dd($postFields);
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -355,6 +356,13 @@ class ApprovalController extends Controller
                 $oldDataFlag = false;
             }
         }
+        if ($tab == 1) {
+            // Fetch the leave type balance for the employee
+            $leaveBalance = EmployeeLeave::where('mas_employee_id', $data->created_by) // Get employee's leave balance
+                ->where('mas_leave_type_id', $data->type_id) // Match leave type from the leave application
+                ->pluck('closing_balance')
+                ->first();
+        }
 
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
@@ -364,22 +372,23 @@ class ApprovalController extends Controller
             ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
         // Pass the reject remarks to the view
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance'));
     }
 
-    public function edit(Request $request, $id){
+    public function edit(Request $request, $id)
+    {
 
         $oldDataFlag = true;
-        $travelNosString="";
-        $advanceNosString="";
-        $travelNumbers=[];
-        $da=0;
+        $travelNosString = "";
+        $advanceNosString = "";
+        $travelNumbers = [];
+        $da = 0;
 
-        if(DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+        if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
             $dsa = DsaClaimApplication::findOrFail($id);
             $userId = $dsa->created_by;
             return redirect()->back()->with("msg_error", "The old DSA claim applicaitons cannot be edited");
-        }else{
+        } else {
 
             $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
 
@@ -399,14 +408,14 @@ class ApprovalController extends Controller
                 ->pluck('advance_no', 'id');
 
 
-                // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
-                $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                    $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
-                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
-                    $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
-                 // Replace with actual daily allowance from config or DB
+                $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                // Replace with actual daily allowance from config or DB
                 if ($newDays <= 15) {
                     $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                 } else {
@@ -430,7 +439,7 @@ class ApprovalController extends Controller
         }
 
         $empIdName = $job->name;
-    return view('expense.dsa-approval.edit', compact('empIdName', 'da', 'dsa', 'oldDataFlag','travelNumbers', 'travelNosString', 'advanceNosString'));
+        return view('expense.dsa-approval.edit', compact('empIdName', 'da', 'dsa', 'oldDataFlag', 'travelNumbers', 'travelNosString', 'advanceNosString'));
     }
 
     public function update(Request $request, $id)
@@ -485,21 +494,21 @@ class ApprovalController extends Controller
                 // Get all existing DsaClaimDetail records for the current claim
                 $existingDetails = DsaClaimDetail::whereIn('dsa_map_id', function ($query) use ($dsaClaimApplication) {
                     $query->select('id')
-                          ->from('dsa_claim_mappings')
-                          ->where('dsa_claim_id', $dsaClaimApplication->id);
+                        ->from('dsa_claim_mappings')
+                        ->where('dsa_claim_id', $dsaClaimApplication->id);
                 })->get();
 
                 // Collect incoming `dsa_map_id`s from the request
                 $incomingDetailIds = [];
-//dd($request->all());
+                //dd($request->all());
                 foreach ($request->dsa_claim_detail as $detail) {
                     $dsaMapping = DsaClaimMappings::where('travel_authorization_id', $detail['travel_authorization_id'])
-                                                  ->where('dsa_claim_id', $dsaClaimApplication->id)
-                                                  ->first();
+                        ->where('dsa_claim_id', $dsaClaimApplication->id)
+                        ->first();
 
                     if ($dsaMapping) {
                         $dsaClaimDetail = DsaClaimDetail::updateOrCreate(
-                            ['dsa_map_id' => $dsaMapping->id , 'id' => (int) $detail['id']],
+                            ['dsa_map_id' => $dsaMapping->id, 'id' => (int) $detail['id']],
                             [
                                 'from_date' => $detail['from_date'],
                                 'from_location' => $detail['from_location'],
@@ -511,15 +520,15 @@ class ApprovalController extends Controller
                                 'travel_allowance' => $detail['travel_allowance']
                             ]
                         );
-                  
+
                         $incomingDetailIds[] = (int) $detail['id']; // Store ID of updated/created records
                     }
                 }
 
                 // Delete records that are no longer in the request
                 DsaClaimDetail::whereIn('dsa_map_id', $existingDetails->pluck('dsa_map_id'))
-                              ->whereNotIn('id', $incomingDetailIds)
-                              ->delete();
+                    ->whereNotIn('id', $incomingDetailIds)
+                    ->delete();
             }
 
 
@@ -570,32 +579,32 @@ class ApprovalController extends Controller
             $initiatorMailContent .= ' approved.';
 
 
-        if ($appType['name'] == 'In Country') {
+            if ($appType['name'] == 'In Country') {
 
-            $applierId= $applicationData->created_by;
-            $applier = User::where('id', $applierId)->with('empJob')->first();
-            $updatedBy = User::where('id', $applicationData->updated_by)->first();
-            $department = $applier->empJob->department->id;
-            $roleId = 7;
-            $gm = User::whereHas('empJob.department', function($query) use ($department) {
-                $query->where('id', $department); // Replace with your specific department ID
-            })
-            ->whereHas('roles', function($query) use ($roleId) {
-                $query->where('roles.id', $roleId); // Replace with your specific role ID
-            })
-            ->get()->first();
+                $applierId = $applicationData->created_by;
+                $applier = User::where('id', $applierId)->with('empJob')->first();
+                $updatedBy = User::where('id', $applicationData->updated_by)->first();
+                $department = $applier->empJob->department->id;
+                $roleId = 7;
+                $gm = User::whereHas('empJob.department', function ($query) use ($department) {
+                    $query->where('id', $department); // Replace with your specific department ID
+                })
+                    ->whereHas('roles', function ($query) use ($roleId) {
+                        $query->where('roles.id', $roleId); // Replace with your specific role ID
+                    })
+                    ->get()->first();
 
-            $requestingUserId = $applicationData->created_by; // ID of the user who applied for the travel authorization
-            $approvingUserId = $applicationData->updated_by; // ID of the user who approved the application
-            $emailSubject = 'Travel Authorization Application';
+                $requestingUserId = $applicationData->created_by; // ID of the user who applied for the travel authorization
+                $approvingUserId = $applicationData->updated_by; // ID of the user who approved the application
+                $emailSubject = 'Travel Authorization Application';
 
-            // Send the email
-            try {
-                Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
-
-            } catch (\Exception $e) {
-                log::error('Failed to send email: ' . $e->getMessage());
-            }}
+                // Send the email
+                try {
+                    Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
+                } catch (\Exception $e) {
+                    log::error('Failed to send email: ' . $e->getMessage());
+                }
+            }
         } else if ($status == -1) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' rejected.';
