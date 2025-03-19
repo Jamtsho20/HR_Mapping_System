@@ -93,8 +93,10 @@
                                             "global.application_status.{$application->status}",
                                             'Unknown Status',
                                             );
-                                            $statusClass =
-                                            $statusClasses[$application->status] ?? 'badge bg-secondary';
+                                            $statusClass = config(
+                                            "global.status_classes.{$application->status}",
+                                            'badge bg-secondary',
+                                            );
                                             @endphp
 
                                             <span class="{{ $statusClass }}">{{ $statusText }}</span>

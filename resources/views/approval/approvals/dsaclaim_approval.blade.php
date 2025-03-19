@@ -84,12 +84,10 @@
                                                 "global.application_status.{$dsaclaim->status}",
                                                 'Unknown Status',
                                                 );
-                                                $statusClass =
-                                                $statusClasses[
-                                                $dsaclaim
-                                                ->status
-                                                ] ??
-                                                'badge bg-secondary';
+                                                $statusClass = config(
+                                            "global.status_classes.{$dsaclaim->status}",
+                                            'badge bg-secondary',
+                                            );
                                                 @endphp
 
                                                 <span
