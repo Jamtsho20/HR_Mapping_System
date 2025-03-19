@@ -32,7 +32,7 @@
                                             STATUS
                                         </th>
                                         <th>
-                                            Action
+                                            VIEW
                                         </th>
                                     </tr>
                                 </thead>

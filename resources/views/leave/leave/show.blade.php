@@ -24,6 +24,12 @@
                                 <td style="padding-left:25px;"> {{ $leave->leaveType->name }}</td>
                             </tr>
                             <tr>
+                                <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                {{ \Carbon\Carbon::parse($leave->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($leave->created_at)->format('h:i A') }}
+                                </td>
+                            </tr>
+                            <tr>
                                 <th style="width:35%;">From Date <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
@@ -40,20 +46,17 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th style="width:35%;">No. of Days <span class="pull-right d-none d-sm-block">:</span>
+                                <th style="width:35%;">Leave Balance <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $leave->no_of_days }}</td>
-                            </tr>
-                            <tr>
-                                <th style="width:35%;">No. of Days <span class="pull-right d-none d-sm-block">:</span>
-                                    &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $leave->no_of_days }}</td>
-                            </tr>
-                            <tr>
-                                <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
-                                {{ \Carbon\Carbon::parse($leave->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($leave->created_at)->format('h:i A') }}
+                                    {{-- Display the balance based on the leave type --}}
+                                    {{ $leaveBalance ?? 'N/A' }}
                                 </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">No. of Days Applied <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $leave->no_of_days }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Remarks <span class="pull-right d-none d-sm-block">:</span>
@@ -75,7 +78,6 @@
                                 </td>
                             </tr>
                         </tbody>
-
                     </table>
                 </div>
             </div>
@@ -94,7 +96,6 @@
                     'approvalDetail' => $approvalDetail,
                     'applicationStatus' => $leave->status,
                     ])
-
                 </div>
             </div>
         </div>
