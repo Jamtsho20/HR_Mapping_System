@@ -314,6 +314,7 @@ class ApprovalController extends Controller
         $oldDataFlag = true;
         $travelNosString = "";
         $advanceNosString = "";
+        $leaveBalance = NUll;
         $approvalDetail = getApplicationLogs($mappedModel['name'], $id);
         if ($tab == 9) {
             if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
