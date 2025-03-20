@@ -291,6 +291,13 @@ if (!function_exists('loadApplicationDetails')) {
             ->with('performedBy:id,name')
             ->first();
 
+        $expenseApplication->rejected_by = ApplicationAuditLog::where('application_type', $mappedModel)
+        ->where('application_id', $expenseApplication->id)
+        ->where('status', '-1')
+        ->select(['id', 'action_performed_by', 'created_at'])
+        ->with('performedBy:id,name')
+        ->first();
+
         $expenseApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
             ->where('application_id', $expenseApplication->id)
             ->value('remarks');
