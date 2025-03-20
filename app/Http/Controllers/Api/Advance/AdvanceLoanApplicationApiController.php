@@ -35,7 +35,6 @@ class AdvanceLoanApplicationApiController extends Controller
 
         'date' => 'required|date',
         'advance_type' => 'required',
-        'transaction_no' => 'required_if:advance_type,' . DSA_ADVANCE,
         'advance_settlement_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF,
         'item_type' => 'required_if:advance_type,' . GADGET_EMI,
         'amount' => '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ADVANCE_TO_STAFF .
@@ -48,8 +47,7 @@ class AdvanceLoanApplicationApiController extends Controller
     ];
 
     protected $messages = [
-        'transaction_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
-        'transaction_no.required_if' => 'Travel authorization no is required for the selected advance type.',
+
         'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
         'amount.required_if' => 'Amount is required for the selected advance type.',
@@ -75,10 +73,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $applications = AdvanceApplication::with('advanceType', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->createdBy()->orderBy('created_at', 'desc')->get();
             $mappedModel = AdvanceApplication::class;
             $applications = $applications->map(function ($advance) use ($mappedModel) {
-                $advance->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $advance->id)
-                    ->value('remarks');
-                return $advance;
+                return loadApplicationDetails($advance, $mappedModel);
             });
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
@@ -124,7 +119,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
             $lastTransaction = AdvanceApplication::latest('id')->first();
             $advanceNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
-            
+
             if (AdvanceApplication::where('transaction_no', $advanceNo)->exists()) {
                 // If the travel number already exists, throw an exception or return an error
                 return $this->errorResponse('Advance Loan Application Number already exists. Please try again.', 500);

@@ -168,18 +168,18 @@ class ApprovalController extends Controller
                             $postFields = $this->preparePostFields($transactionNumber, $memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
                             //dd($postFields);
                             Log::info($postFields);
-                            // $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
-                            // $statusCode = $postJournalEntriesResponse->getStatusCode();
-                            // $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
+                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                            $statusCode = $postJournalEntriesResponse->getStatusCode();
+                            $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
-                            // if ($statusCode != 201) {
-                            //     throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
-                            // }
+                            if ($statusCode != 201) {
+                                throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                            }
 
 
-                            // //update the updateData array and update ApplicationHistory once it is done
-                            // $updateData['is_posted_to_sap'] = 1;
-                            // $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+                            //update the updateData array and update ApplicationHistory once it is done
+                            $updateData['is_posted_to_sap'] = 1;
+                            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
                         }
 
                         // Finalize approval if it's at the maximum level

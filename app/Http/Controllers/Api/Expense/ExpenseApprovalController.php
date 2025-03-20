@@ -93,10 +93,7 @@ class ExpenseApprovalController extends Controller
 
                 $mappedModel = ExpenseApplication::class;
             $expenseApplications = $expenseApplications->map(function ($expense) use ($mappedModel) {
-                $expense->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $expense->id)
-                    ->value('remarks');
-                return $expense;
+                return loadApplicationDetails($expense, $mappedModel);
             });
             return response()->json([
                 'success' => true,
