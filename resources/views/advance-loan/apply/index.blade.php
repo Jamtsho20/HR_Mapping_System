@@ -55,7 +55,7 @@
                                                 @forelse($advances as $advance)
                                                 <tr>
                                                     <td>{{ $advances->firstItem() + ($loop->iteration - 1) }}</td>
-                                                    <td>{{ $advance->advance_no }}</td>
+                                                    <td>{{ $advance->transaction_no }}</td>
                                                     <td>{{ $advance->advanceType->name }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
                                                     </td>

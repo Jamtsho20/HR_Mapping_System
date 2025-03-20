@@ -21,12 +21,12 @@
                             <tr>
                                 <th style="width:35%;">Claim No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->dsa_claim_no }}</td>
+                                <td style="padding-left:25px;"> {{ $dsa->transaction_no }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Travel No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->travel->travel_authorization_no }}</td>
+                                <td style="padding-left:25px;"> {{ $dsa->travel->transaction_no }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
@@ -150,7 +150,7 @@
                     <tr>
                         <th style="width:35%;">Claim No <span class="pull-right d-none d-sm-block">:</span>
                             &nbsp;&nbsp;</th>
-                        <td style="padding-left:25px;"> {{ $dsa->dsa_claim_no }}</td>
+                        <td style="padding-left:25px;"> {{ $dsa->transaction_no }}</td>
                     </tr>
                     <tr>
                         <th style="width:35%;">Travel No(s) <span class="pull-right d-none d-sm-block">:</span>
@@ -233,15 +233,15 @@
 
                                     <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
                                         <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                            Travel Authorization Number: {{$detail->travel_authorization_no}}
+                                            Travel Authorization Number: {{$detail->transaction_no}}
                                         </span>
                                     </td>
                                     <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
                                         <span
                                             name="dsa_claim_detail[{{ $detail->travel_authorization_id ?? '' }}][advance_detail_id]"
-                                            data-value="{{ $detail->advance_no ? $detail->advance_no : '' }}">
-                                            {{ $detail->advance_no
-                                                    ? "Advance Number: {$detail->advance_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
+                                            data-value="{{ $detail->transaction_no ? $detail->transaction_no : '' }}">
+                                            {{ $detail->transaction_no
+                                                    ? "Advance Number: {$detail->transaction_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
                                                     : 'Advance Number: N/A, Advance Amount: N/A'
                                                 }}
                                         </span>

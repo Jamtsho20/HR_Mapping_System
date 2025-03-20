@@ -12,10 +12,10 @@ class ExpenseApplication extends Model
     use HasFactory, CreatedByTrait;
     protected $fillable = [
         // 'mas_employee_id',
-        'expense_no',
+        'transaction_no',
         'type_id',
         'mas_vehicle_id',
-        'date',
+        'transaction_date',
         'amount',
         'description',
         'file',

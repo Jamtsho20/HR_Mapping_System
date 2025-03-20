@@ -18,6 +18,7 @@ use App\Services\ApplicationHistoriesService;
 use App\Models\MasEmployeeJob;
 use App\Models\MasPaySlabDetails;
 use App\Models\ApplicationHistory;
+use App\Models\LeaveEncashment;
 
 class LeaveEncashmentApplicationController extends Controller
 {
@@ -124,16 +125,24 @@ class LeaveEncashmentApplicationController extends Controller
         if (!$tax_amount ) {
              return response()->json(['message' => 'Tax amount has not been intialized, contact admin!']);
         }
-        $encashmentType = LeaveEncashmentType::first()?->id;
-        $approverByHierarchy = $approvalService->getApproverByHierarchy($encashmentType, \App\Models\LeaveEncashmentType::class, $conditionFields ?? []);
+        $encashmentType = LeaveEncashmentType::first();
+        $approverByHierarchy = $approvalService->getApproverByHierarchy($encashmentType->id, \App\Models\LeaveEncashmentType::class, $conditionFields ?? []);
+
+
+        $lastTransaction = LeaveEncashmentApplication::latest()->first();
+        $encashmentNo = generateTransactionNumber1($encashmentType, $lastTransaction, 'transaction_no');
+      
+      
         try {
             DB::beginTransaction();
 
             $leaveEncashment->mas_employee_id = Auth::id();
+            $leaveEncashment->transaction_no = $encashmentNo;
+            $leaveEncashment->transaction_date = Carbon::now();
             $leaveEncashment->type_id = 1;
             $leaveEncashment->tax_amount=$tax_amount;
             $leaveEncashment->leave_applied_for_encashment = $request->leave_applied_for_encashment;
-            $leaveEncashment->encashment_amount = $request->encashment_amount;
+            $leaveEncashment->amount = $request->encashment_amount;
             $leaveEncashment->created_by = Auth::id();
             $leaveEncashment->status = 1;
             $leaveEncashment->save();

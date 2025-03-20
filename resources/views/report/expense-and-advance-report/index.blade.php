@@ -215,7 +215,7 @@
                                                                     </td>
                                                                     <td>{{ $application->vehicle->vehicle_no ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $application->expense_no }}</td>
+                                                                    <td>{{ $application->transaction_no }}</td>
                                                                     <td>{{ $application->amount }}</td>
                                                                     <td>{{ $application->travel_type ?? config('global.null_value') }}
                                                                     </td>

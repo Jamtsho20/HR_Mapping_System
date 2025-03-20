@@ -22,7 +22,7 @@ class AdvanceLoanGadgetEmiController extends Controller
     
         try {
 
-        $expenseApplications = AdvanceApplication::where('created_by', $id)->where('type_id', GADGET_EMI)->get(['advance_no']);
+        $expenseApplications = AdvanceApplication::where('created_by', $id)->where('type_id', GADGET_EMI)->get(['transaction_no']);
 
 
             return $this->successResponse($expenseApplications, 'Gadget EMI applications retrieved successfully');
@@ -42,11 +42,11 @@ class AdvanceLoanGadgetEmiController extends Controller
         }
     }
 
-    public function getDetailsByAdvance( $advance_no){
+    public function getDetailsByAdvance( $transaction_no){
         {
              try {
 
-             $expenseApplications = AdvanceApplication::where('advance_no', $advance_no)->get([ 'total_amount', 'item_type', 'interest_rate']);
+             $expenseApplications = AdvanceApplication::where('transaction_no', $transaction_no)->get([ 'total_amount', 'item_type', 'interest_rate']);
 
                  return $this->successResponse($expenseApplications, 'Gadjet EMI applications retrieved successfully');
 

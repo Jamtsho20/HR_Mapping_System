@@ -13,8 +13,8 @@ class AdvanceApplication extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'advance_no',
-        'date',
+        'transaction_no',
+        'transaction_date',
         'type_id',
         'travel_authorization_id',
         'mas_employee_id',
@@ -180,7 +180,7 @@ class AdvanceApplication extends Model
             'start_date' => $this->deduction_from_period,
             'end_date' => $endDate,
             'amount' => $this->monthly_emi_amount,
-            'loan_number' => $this->advance_no,
+            'loan_number' => $this->transaction_no,
             'loan_type_id' => 4,
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,

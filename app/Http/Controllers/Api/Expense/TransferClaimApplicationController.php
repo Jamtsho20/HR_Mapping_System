@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\Api\Expense;
 
 
+use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Controller;
+use App\Models\ApplicationHistory;
+use App\Models\MasExpenseType;
 use App\Models\MasTransferClaim;
+use App\Models\MasTransferType;
 use App\Models\TransferClaimApplication;
+use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
+use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Traits\JsonResponseTrait;
-use App\Models\MasExpenseType;
-use App\Services\ApplicationHistoriesService;
-use App\Http\Controllers\AjaxRequestController;
-use App\Models\ApplicationHistory;
 
 class TransferClaimApplicationController extends Controller
 {
@@ -99,11 +100,13 @@ class TransferClaimApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
-        $transferClaimNo = $this->ajax->getTransferClaimNumber($request->transfer_claim);
-
+        $transferClaimType = MasTransferType::where('id', $request->expense_type)->first();
+        $lastTransaction = TransferClaimApplication::latest('id')->first();
+        $transferClaimNo = generateTransactionNumber1($transferClaimType, $lastTransaction, 'transaction_no');
+      
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
-        if (TransferClaimApplication::where('transfer_claim_no', $transferClaimNo)->exists()) {
+        if (TransferClaimApplication::where('transaction_no', $transferClaimNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return $this->errorResponse('Transfer Claim Application Number already exists. Please try again.', 500);
             }
@@ -124,7 +127,7 @@ class TransferClaimApplicationController extends Controller
                 }
 
                 $transferClaimApplication = TransferClaimApplication::create([
-                    'transfer_claim_no' => $transferClaimNo,
+                    'transaction_no' => $transferClaimNo,
                     'type_id' => $request->transfer_claim,
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,
@@ -250,18 +253,5 @@ class TransferClaimApplicationController extends Controller
         }
     }
 
-    public function getTransferClaimNumber()
-    {
-        $claimCode = MasExpenseType::where('id', 4)->pluck('code')[0];
-
-        $latestTransaction = TransferClaimApplication::latest('id')->first();
-
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        $nextSequence = $latestTransaction ? (int) substr($latestTransaction->transfer_claim_no, -4) + 1 : 1;
-
-        // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $nextSequence);
-
-        return $this->successResponse($claimNo, 'Transfer Claim Number');
-    }
+  
 }

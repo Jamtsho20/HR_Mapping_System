@@ -338,7 +338,7 @@ var hrms = function () {
                 //     type: "GET",
 
                 //     success: function (response) {
-                //         //$('#advance_no').val(response.advance_no)
+                //         //$('#transaction_no').val(response.transaction_no)
                 //         if (response.sifa_interest_rate != 0) {
                 //             $('#interest_rate_sifa').val(response.sifa_interest_rate);
                 //         }
@@ -452,24 +452,7 @@ var hrms = function () {
             }
         });
 
-        //generating advance no based on advance types
-        // $(document).on('change', '#expense_type', function () {
-        //     var expenseTypeId = $(this).val();
-        //     if (expenseTypeId !== '') {
-        //         $.ajax({
-        //             url: "/getexpensenobyexpensetype/" + expenseTypeId,
-        //             dataType: "JSON",
-        //             type: "GET",
-
-        //             success: function (response) {
-        //                 $('#expense_no').val(response.expense_no)
-        //             },
-        //             error: function (response) {
-        //                 alert('Something went wrong, please contact system admin for further information!');
-        //             }
-        //         });
-        //     }
-        // })
+    
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
@@ -519,7 +502,7 @@ var hrms = function () {
         //get dsa advance details based on select of dsa advance id
         $(document).ready(function () {
             function getDsaAdvanceDetails() {
-                const advanceId = $("#advance_no").val();
+                const advanceId = $("#transaction_no").val();
 
                 if (advanceId !== '') {
                     $.ajax({
@@ -578,8 +561,8 @@ var hrms = function () {
 
             }
 
-            // Trigger on change of advance_no
-            $(document).on("change", "#advance_no", getDsaAdvanceDetails);
+            // Trigger on change of transaction_no
+            $(document).on("change", "#transaction_no", getDsaAdvanceDetails);
 
             // Trigger calculation only on travel_allowance change
             $(document).on("input", "input[name='dsa_claim_detail[AAAAA][travel_allowance]'], input[name='dsa_claim_detail[AAAAA][total_days]']", calculateTotalAmount);

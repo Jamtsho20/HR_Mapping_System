@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('advance_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('advance_no')->index();
-            $table->date('date')->index();
+            $table->string('transaction_no')->index();
+            $table->date('transaction_date')->index();
             $table->foreignId('mas_employee_id')->nullable()->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate()->comment('if advance is applied on behalf of someone');
             $table->foreignId('type_id')->constrained('mas_advance_types')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('travel_authorization_id')->nullable()->constrained('travel_authorization_applications')->cascadeOnDelete()->cascadeOnUpdate()->restrictOnDelete()->comment('required only if advance_type is dsa advance');

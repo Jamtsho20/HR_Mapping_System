@@ -24,7 +24,7 @@
                             <tbody>
                                 <tr>
                                     <th style="width:35%;">Travel Authorization Number<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $travelAuthorization->travel_authorization_no }}</td>
+                                    <td style="padding-left:25px;"> {{ $travelAuthorization->transaction_no }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
