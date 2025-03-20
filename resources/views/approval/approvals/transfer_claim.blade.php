@@ -82,19 +82,17 @@
                                                 -1 => 'badge bg-danger',
                                                 0 => 'badge bg-warning',
                                                 1 => 'badge bg-primary',
-                                                2 => 'badge bg-success',
+                                                2 => 'badge bg-primary',
                                                 3 => 'badge bg-info',
                                                 ];
                                                 $statusText = config(
                                                 "global.application_status.{$transferclaim->status}",
                                                 'Unknown Status',
                                                 );
-                                                $statusClass =
-                                                $statusClasses[
-                                                $transferclaim
-                                                ->status
-                                                ] ??
-                                                'badge bg-secondary';
+                                                $statusClass = config(
+                                            "global.status_classes.{$transferclaim->status}",
+                                            'badge bg-secondary',
+                                            );
                                                 @endphp
 
                                                 <span
