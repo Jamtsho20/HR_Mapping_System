@@ -54,12 +54,12 @@ class CommissionApplicationController extends Controller
     public function create()
     {
         // only fixed asset can be commissioned
-        $faItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+        $grnItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
             ->where('is_received', 1)
             ->get();
-
+            
         $empDetails = empDetails(auth()->user()->id);
-        return view('asset.commission.create',compact('empDetails', 'faItems'));
+        return view('asset.commission.create',compact('empDetails', 'grnItems'));
     }
 
     /**

@@ -52,6 +52,9 @@ use App\Models\GoodReceiptApplicationDetail;
 use App\Models\LeaveApplication;
 use DateTime;
 use App\Models\DsaClaimMappings;
+use App\Models\MasDzongkhag;
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
 use App\Models\RequisitionDetail;
 
 class AjaxRequestController extends Controller
@@ -700,24 +703,36 @@ class AjaxRequestController extends Controller
 
     public function getAssetNoByGrnId($grnId)
     {
+        $uomValue = "";
+        $itemDescription = ""; //default item description if asset description null
+        $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
         try{
+            $uom = MasGrnItemDetail::where('grn_id', $grnId)
+                ->with(['item' => function ($query) {
+                    $query->select('id', 'uom', 'item_description'); // Only fetch the 'uom' field
+                }])
+                ->first();
+            $uomValue = $uom->item->uom;
+            $itemDescription = $uom->item->item_description;
+
             $assetNos = RequisitionDetail::where('grn_item_id', $grnId)
                 ->whereHas('serials', function ($query) {
-                    $query->where('is_commissioned', '<>', 1);
+                    $query->where('is_commissioned', 0);
                 })
-                ->with(['serials' => function ($query) {
-                    $query->select('id', 'requisition_detail_id', 'serial_no'); // Select only required fields
+                ->with(['serials' => function ($query) use($itemDescription) {
+                    $query->where('is_commissioned', 0)->selectRaw("id, requisition_detail_id, asset_serial_no, IFNULL(asset_description, '$itemDescription') AS asset_description"); //incase if description is null in received serials the sent default item description
                 }])
-                ->select('id', 'asset_no', 'grn_item_id')
+                ->selectRaw("id, requisition_id, grn_item_id, CONCAT(GREATEST(0, received_quantity - commissioned_quantity - transferred_quantity - returned_quantity), ' $uomValue') AS qty_at_hand")
                 ->get();
-
+            //   dd($assetNos);
             if ($assetNos->isEmpty()) {
-                return $this->errorResponse('No asset numbers found for the provided GRN ID.', 404);
+                return $this->errorResponse('No asset numbers found for the provided GRN number.');
             }
-            
-            return $this->successResponse(['asset_nos' => $assetNos]);
+            // dd($assetNos);
+            return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
         }catch(\Exception $e){
-            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.');
+            \Log::info("asset commission: " . $e->getMessage());
+            return $this->internalServerErrorResponse('Something went wrong while fetching asset numbers. Please try again.');
         }   
     }
 }

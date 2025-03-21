@@ -18,7 +18,7 @@ class ReceivedSerial extends Model
 
     public function requisitionDetail()
     {
-        return $this->belongsTo(RequisitionDetail::class);
+        return $this->belongsTo(RequisitionDetail::class, 'requisition_detail_id');
     }
 
     public function commissionDetail()
