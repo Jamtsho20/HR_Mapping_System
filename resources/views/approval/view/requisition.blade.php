@@ -28,7 +28,7 @@
                                 <tr>
                                     <th style="width:35%;">Requisition Type <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $requisition->requisitionType->name }}</td>
+                                    <td style="padding-left:25px;"> {{ $requisition->requisitionType->name ?? config('global.null_value') }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Requisition Date<span class="pull-right d-none d-sm-block">:</span>
@@ -78,8 +78,8 @@
                                                             <td>{{ $detail->grn_no }}</td>
                                                             <td>{{ $detail->item_description }}</td>
                                                             <td>{{ $detail->uom }}</td>
-                                                            <td>{{ $detail->grnMapping->store->name }}</td>
-                                                            <td>{{ $detail->grnMapping->current_stock }}</td>
+                                                            <td>{{ $detail->grnMapping->store->name ?? config('global.null_value') }}</td>
+                                                            <td>{{ $detail->grnMapping->current_stock  ?? config('global.null_value')}}</td>
                                                             <td>{{ $detail->quantity_required }}</td>
                                                             <td>{{ $detail->dzongkhag->dzongkhag }}</td>
                                                             <td>{{ $detail->site->name }}</td>
