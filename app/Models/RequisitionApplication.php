@@ -102,16 +102,16 @@ class RequisitionApplication extends Model
         }
 
         // Find the GRN item mapping entry
-        $grnItem = GrnItemMapping::find($detail->grn_item_mapping_id);
+        $grnItem = MasGrnItems::find($detail->grn_item_id);
 
         if (!$grnItem) {
-            \Log::warning("GRN Item Mapping not found for ID: {$detail->grn_item_mapping_id}");
+            \Log::warning("GRN Item Mapping not found for ID: {$detail->grn_item_id}");
             continue;
         }
 
         // Restore the stock
-        $grnItem->increment('current_stock', $detail->quantity_required);
-        $grnItem->decrement('changed_quantity', $detail->quantity_required);
+        $grnItem->increment('quantity', $detail->requested_required);
+
     }
 }
 

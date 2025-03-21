@@ -17,7 +17,7 @@
                     <div class="form-group">
                         <label for="requisition_type">Requisition Type <span class="text-danger">*</span></label>
                         <select class="form-control" name="type_id" id="requisition_type">
-                            <option value="" disabled selected hidden>Select your option</option>
+                            <option value="" disabled selected hidden>Select requisition type</option>
                             @foreach ($reqTypes as $type)
                                 <option value="{{ $type->id }}"
                                     {{ old('requisition_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}
@@ -42,7 +42,7 @@
                         <div class="form-group">
                             <label for="need_by_date">Need By Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="need_by_date"
-                                value="{{ old('need_by_date') }}">
+                                value="{{ old('need_by_date') }}" required>
                         </div>
                     </div>
                     {{-- <div class="col-md-4">
@@ -80,12 +80,12 @@
                                             class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]" required />
-                                        <option value="" disabled selected hidden>Select Grn</option>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]"  required />
+                                        <option value="" disabled selected hidden>Select GRN</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][item_description]" required />
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][item_description]" required />
                                         <option value="" disabled selected hidden>Select Item</option>
 
                                     </select>
@@ -95,7 +95,7 @@
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
-                                        <option value="" disabled selected hidden>Select</option>
+                                        <option value="" disabled selected hidden>Select Store</option>
 
                                     </select>
                                 </td>
@@ -157,15 +157,27 @@
             const grnItemDropdown = document.querySelector('select[name^="details"][name$="[grn_no]"]');
 
 
-                    type.addEventListener('change', function(e) {
+            type.addEventListener('change', function(e) {
                         const selectedType = e.target.value;
                         const grnItemAll = document.querySelectorAll('select[name^="details"][name$="[grn_no]"]');
-                        const ItemAll = document.querySelectorAll('select[name^="details"][name$="[item_description]"]')
+                        const itemAll = document.querySelectorAll('select[name^="details"][name$="[item_description]"]');
+
                         grnItemAll.forEach(select => {
-                            select.innerHTML = '<option value="">Select GRN</option>'; // Reset each dropdown
+                            select.innerHTML = ''; // Clear existing options
+                            const placeholderOption = document.createElement('option');
+                            placeholderOption.textContent = 'Select GRN';
+                            placeholderOption.disabled = true;
+                            placeholderOption.selected = true;
+                            select.appendChild(placeholderOption); // Add placeholder
                         });
-                        ItemAll.forEach(select => {
-                            select.innerHTML = '<option value="">Select Item</option>'; // Reset each dropdown
+
+                        itemAll.forEach(select => {
+                            select.innerHTML = ''; // Clear existing options
+                            const placeholderOption = document.createElement('option');
+                            placeholderOption.textContent = 'Select Item';
+                            placeholderOption.disabled = true;
+                            placeholderOption.selected = true;
+                            select.appendChild(placeholderOption); // Add placeholder
                         });
 
                         let grnDatas = @json($grnNos);
@@ -215,13 +227,28 @@
 
                     if (grnDetails) {
                         const selectedType = type.value; // Get the selected requisition type again
+                        const itemDropdown = row.find('select[name^="details"][name$="[item_description]"]');
+
+                        // Clear existing options before appending new ones
+                        itemDropdown.html('');
+
+                        // Add the placeholder as the first option
+                        const placeholderOption = $('<option>', {
+                            text: 'Select Item',
+                            disabled: true,
+                            selected: true
+                        });
+                        itemDropdown.append(placeholderOption);
+
                         grnDetails.detail.forEach(detail => {
                             if (detail.item &&
                                 ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
                                 (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
                             ) {
-                                row.find('select[name^="details"][name$="[item_description]"]').append(
-                                    `<option value="${detail.item.id}" class="grn_${selectedGRN.id}_detail_${detail.id}">${detail.item.item_description}</option>`
+                                itemDropdown.append(
+                                    `<option value="${detail.item.id}" class="grn_${selectedGRN.id}_detail_${detail.id}">
+                                        ${detail.item.item_description}
+                                    </option>`
                                 );
                             }
                         });
@@ -231,6 +258,24 @@
                 $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
                 let optionValue = $(this).val();
                 let selectedOption = $(this).find('option:selected');
+                if (!selectedOption.length || !optionValue) return;
+                 let isDuplicate = false;
+
+    $('select[name^="details"][name$="[item_description]"]').not(this).each(function () {
+        let outerOptionValue = $(this).val(); // Get the selected value of other rows
+
+        console.log("Outer Selected Value:", outerOptionValue, "| Current Selected Value:", optionValue);
+
+        if (optionValue && optionValue == outerOptionValue) {
+            isDuplicate = true;
+            return false; // Exit the loop early if a duplicate is found
+        }
+    });
+
+    if (isDuplicate) {
+        showErrorMessage('Item already selected.');
+        $(this).val('').trigger('change'); // Clear the current selection
+    }
                 let classList = selectedOption.attr('class').split('_');
 
                 let grnId = classList[1];

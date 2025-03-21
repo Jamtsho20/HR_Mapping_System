@@ -41,8 +41,8 @@
                                                         <th>#</th>
                                                         <th>EMPLOYEE</th>
                                                         <th>RREQUISITION NUMBER</th>
-                                                        <th>REQUISITION TYPE</th>
                                                         <th>REQUISITION DATE</th>
+                                                        <th>REQUISITION TYPE</th>
                                                         <th>NEED BY DATE</th>
                                                         <th>ITEM CATEGORY</th>
                                                         <th>STATUS</th>
@@ -54,9 +54,9 @@
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $requisition->employee->emp_id_name }}</td>
-                                                            <td>{{ $requisition->requisition_no }}</td>
-                                                            <td>{{ $requisition->requisition_date }}</td>
-                                                            <td>{{ $requisition->requisitionType->name }}</td>
+                                                            <td>{{ $requisition->transaction_no }}</td>
+                                                            <td>{{ $requisition->transaction_date }}</td>
+                                                            <td>{{ $requisition->type->name ?? '' }}</td>
                                                             <td>{{ $requisition->need_by_date }}</td>
                                                             <td>{{ $requisition->item_category }}</td>
                                                             <td class ="text-center">

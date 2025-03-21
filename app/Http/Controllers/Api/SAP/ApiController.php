@@ -160,11 +160,11 @@ class ApiController extends BaseController
 
             foreach ($request->items as $itemData) {
                 // Check if GRN already exists in grn_item_mappings
-                $itemMapping = GrnItemMapping::where('grn_no', $itemData['grn_no'])->first();
+                $itemMapping = MasGrnItem::where('grn_no', $itemData['grn_no'])->first();
 
                 if (!$itemMapping) {
                     // Create new GRN entry if it does not exist
-                    $itemMapping = new GrnItemMapping();
+                    $itemMapping = new MasGrnItem();
                     $itemMapping->grn_no = $itemData['grn_no'];
                     $itemMapping->last_synced_at = now();
                     $itemMapping->status = $itemData['status'] ?? 1;
@@ -184,10 +184,10 @@ class ApiController extends BaseController
                         return $this->errorResponse("Item no. {$detail['item_no']} not found in HRMS.");
                     }
                     // Check if item already exists in item_mapping_details for the same GRN and store
-                    $existingItemDetail = ItemMappingDetail::where([
+                    $existingItemDetail = MasGrnItemDetail::where([
                         'store_id' => $storeId,
                         'item_id' => $item->id,
-                        'mapping_id' => $itemMapping->id
+                        'grn_id' => $itemMapping->id
                     ])->first();
 
                     if ($existingItemDetail) {
@@ -196,11 +196,11 @@ class ApiController extends BaseController
                         $existingItemDetail->save();
                     } else {
                         // Create a new record if item does not exist
-                        $itemDetails = new ItemMappingDetail();
+                        $itemDetails = new MasGrnItemDetail();
                         $itemDetails->store_id = $storeId;
                         $itemDetails->item_id = $item->id;
                         $itemDetails->description = $detail['description'] ?? null;
-                        $itemDetails->mapping_id = $itemMapping->id; // Foreign key to grn_item_mappings
+                        $itemDetails->grn_id = $itemMapping->id; // Foreign key to grn_item_mappings
                         $itemDetails->quantity = $detail['quantity'];
                         $itemDetails->save();
                     }
@@ -236,6 +236,7 @@ class ApiController extends BaseController
             'details.*.line_item.*.serials' => 'sometimes|array',
             'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
             'details.*.line_item.*.serials.*.asset_description' => 'required|string',
+            'details.*.line_item.*.serials.*.amount' => 'required|string'
         ]
         , [
             'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
@@ -282,14 +283,22 @@ class ApiController extends BaseController
                     $requisition_detail->received_quantity = $line['received_quantity'];
                     $requisition_detail->save();
 
-                    // ✅ Step 5: Store serials if available
+
                     if (!empty($line['serials'])) {
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
+
+                            $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
+                            if ($exists) {
+                                DB::rollBack();
+                                return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                            }
+
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,
                                 'asset_serial_no' => $serial['asset_serial_no'],
                                 'asset_description' => $serial['asset_description'],
+                                'amount' => $serial['amount'],
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ];

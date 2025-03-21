@@ -156,14 +156,13 @@ class ApprovalController extends Controller
 
                         $item_code = $application->details ?? null;
                         $required_date = null;
-                        $grn_mappings = null;
+
                         $assetFlag = false;
                         if($item_code){
                         $assetFlag = true;
+                        $application->load('details');
                         $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
-                        $grn_mappings = $application->details->map(function ($detail) {
-                            return optional($detail->grnMapping);
-                        })->filter()->toArray();
+
                     }
 
                         $postToSap = $type->post_to_sap;
@@ -175,10 +174,11 @@ class ApprovalController extends Controller
                                 continue;
                             }
 
+
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-// dd($postFields);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application);
+
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -251,6 +251,32 @@ class ApprovalController extends Controller
             return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
         }
     }
+private function groupDocumentLinesByGRN($documentLines)
+            {
+                $groupedData = [];
+
+                foreach ($documentLines as $line) {
+                    $grnNumber = $line['GrnNumber'];
+
+                    if (!isset($groupedData[$grnNumber])) {
+                        $groupedData[$grnNumber] = [
+                            "GrnNumber" => $grnNumber,
+                            "LineItems" => []
+                        ];
+                    }
+
+                    // Add items under the respective GRN
+                    $groupedData[$grnNumber]["LineItems"][] = [
+                        "ItemCode"        => $line["ItemCode"],
+                        "ItemDescription" => $line["ItemDescription"],
+                        "Quantity"        => $line["Quantity"],
+                        "WarehouseCode"   => $line["WarehouseCode"],
+                        "Project"         => $line["Project"]
+                    ];
+                }
+
+                return array_values($groupedData);
+            }
 
     private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null)
     {
@@ -287,21 +313,30 @@ class ApprovalController extends Controller
 
                 ]
             }';
+
         } elseif ($item_code){
-            $postFields = [
+            $data = [
                 "DocDate" => date('Y-m-d'),
                 "DocumentLines" => $application->details->map(function ($detail) {
+// dd($detail);
                     return [
-                        "ItemCode"=> (string) $detail->grnMapping->item->item_no ?? 'N/A', // Fetch from related `MasItem`
-                        "ItemDescription"=> (string) $detail->item_description ?? 'N/A',
-                        "Quantity"=> (string) ($detail->quantity_required ?? 1),
-                        "WarehouseCode"=> (string) $detail->grnMapping->store->code ?? 'DefaultWH',
-                        "ProjectCode"=> (string) $detail->site->code ?? 'Unknown'
+                        "GrnNumber"=> (string) $detail->grnItemDetail->grn_no,
+                        "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
+                        "ItemDescription" => $detail->grnItemDetail->item->item_description,
+                        "Quantity" => $detail->grnItemDetail->quantity,
+                        "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
+                        "Project" => (string) $detail->site->code
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date
                        ];
 
+
+            $postFields = [
+                "DocDate" => $data["DocDate"],
+                "DocumentLines" => $this->groupDocumentLinesByGRN($data['DocumentLines']), // Convert grouped data into a proper array
+                "RequriedDate" => $data["RequriedDate"]
+            ];
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
         } else {

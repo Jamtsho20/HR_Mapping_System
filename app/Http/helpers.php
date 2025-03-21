@@ -257,7 +257,7 @@ if(!function_exists('generateTransactionNumber')){
 if(!function_exists('generateTransactionNumber1')){
     // type => respective modelType(eg: MasRequisitionType, lastTransaction is latest transaction from application model(eg: RequisitionApplication),
     // columnName is coulumn name in application table that holds transaction_number(eg:requisition_no)
-    function generateTransactionNumber1($type, $lastTransaction, $columnName){ 
+    function generateTransactionNumber1($type, $lastTransaction, $columnName){
         //include cureent Ymd in while generating transaction number
         if ($lastTransaction) {
             // Extract the sequence part (last part after the last slash)
