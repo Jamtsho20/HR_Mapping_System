@@ -21,7 +21,7 @@
                             <tr>
                                 <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $advance->advance_no }}</td>
+                                <td style="padding-left:25px;"> {{ $advance->transaction_no }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Advance Type <span class="pull-right d-none d-sm-block">:</span>

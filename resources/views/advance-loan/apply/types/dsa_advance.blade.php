@@ -4,10 +4,10 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="amount"> Travel Authorization No.<span class="text-danger">*</span></label>
-                <select class="form-control" id="travel_authorization_id" name="travel_authorization_no">
+                <select class="form-control" id="travel_authorization_id" name="transaction_no">
                     <option value="" disabled selected hidden>Select your option</option>
                     @foreach ($travelAuthorizations as $authorization)
-                        <option value="{{ $authorization->id }}" {{ old('travel_authorization_no') == $authorization->id ? 'selected' : '' }}>{{ $authorization->travel_authorization_no }}</option>
+                        <option value="{{ $authorization->id }}" {{ old('transaction_no') == $authorization->id ? 'selected' : '' }}>{{ $authorization->transaction_no }}</option>
                     @endforeach
                 </select>
             </div>

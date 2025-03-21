@@ -147,6 +147,7 @@ class ApprovalController extends Controller
                         $accountCode = $type->code ?? null;
                         $memo = $type->name ?? null;
                         $shortName = $application->employee->username;
+                        $transactionNumber = $application->transaction_no;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
                         if ($accountCode == 501152) {
@@ -164,8 +165,8 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-                            // dd($postFields);
+                            $postFields = $this->preparePostFields($transactionNumber, $memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
+                            //dd($postFields);
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
@@ -239,12 +240,13 @@ class ApprovalController extends Controller
         }
     }
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null)
+    private function preparePostFields($transactionNo, $memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null)
     {
         if ($tax_amount) {
             return $postFields = '{
                 "ReferenceDate":"' . date('Y-m-d') . '",
                 "Memo": "' . $memo . '",
+                "U_HRMS_No": "' . $transactionNo . '",
                 "JournalEntryLines": [
                     {
                         "AccountCode": "' . $accountCode . '",
@@ -277,6 +279,7 @@ class ApprovalController extends Controller
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
                             "Memo": "' . $memo . '",
+                            "U_HRMS_No": "' . $transactionNo . '",
                             "JournalEntryLines": [
                                 {
                                     "ShortName": "' . $shortName . '",
@@ -314,7 +317,7 @@ class ApprovalController extends Controller
         $oldDataFlag = true;
         $travelNosString = "";
         $advanceNosString = "";
-        $leaveBalance = NUll;
+        $leaveBalance = "";
         $approvalDetail = getApplicationLogs($mappedModel['name'], $id);
         if ($tab == 9) {
             if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
@@ -330,16 +333,16 @@ class ApprovalController extends Controller
 
                 // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
                 $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
-                    ->pluck('travel_authorization_no', 'id');
+                    ->pluck('transaction_no', 'id');
 
-                // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+                // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
                 $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
-                    ->pluck('advance_no', 'id');
+                    ->pluck('transaction_no', 'id');
 
-                // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+                // Attach both transaction_no and transaction_no to each dsaClaimMapping
                 $data->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                    $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                    $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                    $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                     $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                     $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
@@ -351,7 +354,7 @@ class ApprovalController extends Controller
                     return $mapping;
                 });
 
-                // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+                // Now, $dsa->dsaClaimMappings contains 'transaction_no' and 'transaction_no' for each mapping
                 $travelNosString = $travelNos->implode(', ');
                 $advanceNosString = $advanceNos->implode(', ');
                 $oldDataFlag = false;
@@ -402,17 +405,17 @@ class ApprovalController extends Controller
 
             // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
             $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
-                ->pluck('travel_authorization_no', 'id');
+                ->pluck('transaction_no', 'id');
 
-            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
             $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
-                ->pluck('advance_no', 'id');
+                ->pluck('transaction_no', 'id');
 
 
-            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            // Attach both transaction_no and transaction_no to each dsaClaimMapping
             $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping

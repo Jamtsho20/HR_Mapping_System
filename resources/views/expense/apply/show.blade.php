@@ -20,7 +20,7 @@
                             <tr>
                                 <th style="width:35%;">Expense No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $expense->expense_no }}</td>
+                                <td style="padding-left:25px;"> {{ $expense->transaction_no }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Expense Type <span class="pull-right d-none d-sm-block">:</span>

@@ -75,7 +75,7 @@ class DSAClaimApplicationController extends Controller
             ->where('created_by', loggedInUser())
             ->where('status', 3)
             ->whereNotIn('id', $excludedAdvanceIds)
-            ->get(['id', 'advance_no'])
+            ->get(['id', 'transaction_no'])
             ->toArray();
         return view('expense.dsa-claim.create', compact('empIdName', 'advances'));
     }
@@ -98,9 +98,13 @@ class DSAClaimApplicationController extends Controller
 
         $dsaClaimNo = $this->ajax->getDsaClaimNumber($request->dsa_claim_type_id);
 
+        $dsaType = DsaClaimType::where('id', $request->advance_type)->first();
+        $lastTransaction = DsaClaimApplication::latest('id')->first();
+        $dsaClaimNo = generateTransactionNumber1($dsaType, $lastTransaction, 'transaction_no');
+            
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
-        if (DsaClaimApplication::where('dsa_claim_no', $dsaClaimNo)->exists()) {
+        if (DsaClaimApplication::where('transaction_no', $dsaClaimNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return back()->withInput()->with('msg_error', 'DSA Claim Application Number already exists. Please try again.');
         }
@@ -129,7 +133,7 @@ class DSAClaimApplicationController extends Controller
 
 
                 $dsaClaimApplication = DsaClaimApplication::create([
-                    'dsa_claim_no' => $dsaClaimNo,
+                    'transaction_no' => $dsaClaimNo,
                     'type_id' => $request->dsa_claim_type_id,
                     'travel_authorization_id' => $travel_id_json ?? null,
                     'advance_application_id' => $advanceIdsJson ?? null,
@@ -249,17 +253,17 @@ class DSAClaimApplicationController extends Controller
 
             // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
             $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
-                ->pluck('travel_authorization_no', 'id');
+                ->pluck('transaction_no', 'id');
 
-            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
             $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
-                ->pluck('advance_no', 'id');
+                ->pluck('transaction_no', 'id');
 
 
-            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            // Attach both transaction_no and transaction_no to each dsaClaimMapping
             $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                  // Replace with actual daily allowance from config or DB
@@ -272,7 +276,7 @@ class DSAClaimApplicationController extends Controller
                 return $mapping;
             });
 
-            // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+            // Now, $dsa->dsaClaimMappings contains 'transaction_no' and 'transaction_no' for each mapping
 
             $travelNosString = $travelNos->implode(', ');
             $advanceNosString = $advanceNos->implode(', ');
@@ -310,7 +314,7 @@ class DSAClaimApplicationController extends Controller
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
-            ->get(['id', 'advance_no'])
+            ->get(['id', 'transaction_no'])
             ->toArray();
 
         return view('expense.dsa-claim.edit', compact('dsaClaimApplication', 'empIdName', 'travels', 'dailyAllowance', 'gradeId', 'advances'));
@@ -331,9 +335,9 @@ class DSAClaimApplicationController extends Controller
             $dsaClaimApplication = DsaClaimApplication::whereId($id)->first();
 
             $dsaClaimApplication->travel_authorization_id = $request->travel_authorization_id;
-            $dsaClaimApplication->advance_application_id = $request->advance_no ?? null;
+            $dsaClaimApplication->advance_application_id = $request->transaction_no ?? null;
             $dsaClaimApplication->amount = $request->amount;
-            $dsaClaimApplication->net_payable_amount = !is_null($request->advance_no) ? $request->net_payable_amount : $request->amount;
+            $dsaClaimApplication->net_payable_amount = !is_null($request->transaction_no) ? $request->net_payable_amount : $request->amount;
             $dsaClaimApplication->balance_amount = $request->balance_amount;
             $dsaClaimApplication->save();
 
