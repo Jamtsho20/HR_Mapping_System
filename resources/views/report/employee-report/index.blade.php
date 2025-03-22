@@ -54,6 +54,15 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Gender" name="gender">
+                    <option value="" disabled selected hidden>Select Gender</option>
+                    @foreach (config('global.gender') as $key => $value)
+                        <option value="{{ $key }}" {{ request()->get('gender') == $key ? 'selected' : '' }}>
+                            {{ $value }}</option>
+                    @endforeach
+                </select>
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
