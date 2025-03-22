@@ -56,6 +56,7 @@
                                                             <th> Employee ID </th>
                                                             <th> Pay Head </th>
                                                             <th> Loan Type </th>
+                                                            <th> Branch Code </th>
                                                             <th> Amount </th>
                                                             <th> Loan No. </th>
                                                             <th> Start Date </th>
@@ -76,6 +77,7 @@
                                                                 <td>{{ $record->employee->employee_id }} </td>
                                                                 <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->loanType?->name }} </td>
+                                                                <td>{{ $record->branch_code ?? config('global.null_value') }} </td>
                                                                 <td>{{ $record->amount }} </td>
                                                                 <td>{{ $record->loan_number }} </td>
                                                                 <td> {{ $record->start_date ? \Carbon\Carbon::parse($record->start_date)->format('M d, Y') : '-' }}
