@@ -57,6 +57,11 @@ class AdvanceApplication extends Model
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
+    public function verified_by()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application')->where('status', '2');
+    }
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -66,6 +71,9 @@ class AdvanceApplication extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+
+
 
     public function advanceType()
     {
@@ -81,7 +89,7 @@ class AdvanceApplication extends Model
     {
         return $this->hasMany(AdvanceDetail::class, 'advance_application_id');
     }
-    
+
     public function travelAuthorization()
     {
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');

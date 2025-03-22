@@ -79,10 +79,10 @@ class TransferClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
 
-        $transferClaimType = MasTransferType::where('id', $request->expense_type)->first();
-        $lastTransaction = TransferClaimApplication::latest('id')->first();
+        $transferClaimType = MasTransferClaim::where('id', $request->expense_type)->first();
+        $lastTransaction = TransferClaimApplication::latest()->first();
         $transferClaimNo = generateTransactionNumber1($transferClaimType, $lastTransaction, 'transaction_no');
-      
+
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
         if (TransferClaimApplication::where('transaction_no', $transferClaimNo)->exists()) {

@@ -45,6 +45,11 @@ class ExpenseApplication extends Model
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
+
+    public function performedBy()
+    {
+        return $this->belongsTo(User::class, 'action_performed_by');
+    }
     public function type()
     {
         return $this->belongsTo(MasExpenseType::class, 'type_id');
@@ -76,7 +81,7 @@ class ExpenseApplication extends Model
         }
         if ($request->has('sap_trans_no') && $request->query('sap_trans_no') !== '') {
             $sapTransNo = $request->query('sap_trans_no');
-        
+
             $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
                 $q->where('status', 3)->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
             });

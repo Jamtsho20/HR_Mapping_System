@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationHistory;
+use App\Models\ApplicationAuditLog;
 
 
 class ExpenseApplicationController extends Controller
@@ -82,13 +83,10 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username', 'vehicle.vehicleType:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name',  'travelType:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username', 'vehicle.vehicleType:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
             $mappedModel = ExpenseApplication::class;
             $expenseApplications = $expenseApplications->map(function ($expenseApplication) use ($mappedModel) {
-                $expenseApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $expenseApplication->id)
-                    ->value('remarks');
-                return $expenseApplication;
+                return loadApplicationDetails($expenseApplication, $mappedModel);
             });
             return response()->json([
                 'expenseApplications' => $expenseApplications,
@@ -208,7 +206,7 @@ class ExpenseApplicationController extends Controller
         $expenseType = MasExpenseType::where('id', $request->expense_type)->first();
         $lastTransaction = ExpenseApplication::latest('id')->first();
         $expenseApplicationNo = generateTransactionNumber1($expenseType, $lastTransaction, 'transaction_no');
-      
+
 
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
@@ -492,4 +490,3 @@ public function update(Request $request, $id)
     }
 
 }
- 

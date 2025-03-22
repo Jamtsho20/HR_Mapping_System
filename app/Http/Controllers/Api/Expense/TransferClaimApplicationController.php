@@ -54,10 +54,7 @@ class TransferClaimApplicationController extends Controller
             $transferClaims = TransferClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
             $mappedModel = TransferClaimApplication::class;
             $transferClaims = $transferClaims->map(function ($transferClaim) use ($mappedModel) {
-                $transferClaim->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $transferClaim->id)
-                    ->value('remarks');
-                return $transferClaim;
+                return loadApplicationDetails($transferClaim, $mappedModel);
             });
             return $this->successResponse($transferClaims, 'Transfer claims retrieved successfully');
 
@@ -100,10 +97,10 @@ class TransferClaimApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(TRANSFER_CLAIM_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
-        $transferClaimType = MasTransferType::where('id', $request->expense_type)->first();
-        $lastTransaction = TransferClaimApplication::latest('id')->first();
+        $transferClaimType = MasTransferClaim::where('id', $request->transfer_claim)->first();
+        $lastTransaction = TransferClaimApplication::latest()->first();
         $transferClaimNo = generateTransactionNumber1($transferClaimType, $lastTransaction, 'transaction_no');
-      
+
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
         if (TransferClaimApplication::where('transaction_no', $transferClaimNo)->exists()) {
@@ -253,5 +250,5 @@ class TransferClaimApplicationController extends Controller
         }
     }
 
-  
+
 }

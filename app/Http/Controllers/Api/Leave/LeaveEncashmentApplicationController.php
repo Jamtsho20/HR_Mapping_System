@@ -46,10 +46,7 @@ class LeaveEncashmentApplicationController extends Controller
         $leaveEncashment = LeaveEncashmentApplication::where('mas_employee_id', auth()->user()->id)->with( 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
         $mappedModel = LeaveEncashmentApplication::class;
         $leaveEncashment = $leaveEncashment->map(function ($leaveApplication) use ($mappedModel) {
-            $leaveApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                ->where('application_id', $leaveApplication->id)
-                ->value('remarks');
-            return $leaveApplication;
+            return loadApplicationDetails($leaveApplication, $mappedModel);
         });
         return $this->successResponse($leaveEncashment, 'Leave encashment applications retrieved successfully');
     }catch (\Exception $e) {
@@ -131,8 +128,8 @@ class LeaveEncashmentApplicationController extends Controller
 
         $lastTransaction = LeaveEncashmentApplication::latest()->first();
         $encashmentNo = generateTransactionNumber1($encashmentType, $lastTransaction, 'transaction_no');
-      
-      
+
+
         try {
             DB::beginTransaction();
 
