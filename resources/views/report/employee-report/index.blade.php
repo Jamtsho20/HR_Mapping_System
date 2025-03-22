@@ -89,6 +89,9 @@
                                                     Name
                                                 </th>
                                                 <th>
+                                                    Gender
+                                                </th>
+                                                <th>
                                                     Department
                                                 </th>
                                                 <th>
@@ -127,6 +130,7 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $employee->username }}</td>
                                                     <td>{{ $employee->name }}</td>
+                                                    <td>{{ $employee->gender_name }}</td>
                                                     <td>{{ $employee->empJob->department->name }}</td>
                                                     <td>{{ $employee->empJob->section->name ?? '-' }}</td>
                                                     <td>{{ $employee->empJob->designation->name }}</td>
