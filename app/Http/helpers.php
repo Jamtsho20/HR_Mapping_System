@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ApplicationAuditLog;
+use App\Models\ApplicationHistory;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
@@ -257,7 +258,7 @@ if(!function_exists('generateTransactionNumber')){
 if(!function_exists('generateTransactionNumber1')){
     // type => respective modelType(eg: MasRequisitionType, lastTransaction is latest transaction from application model(eg: RequisitionApplication),
     // columnName is coulumn name in application table that holds transaction_number(eg:requisition_no)
-    function generateTransactionNumber1($type, $lastTransaction, $columnName){ 
+    function generateTransactionNumber1($type, $lastTransaction, $columnName){
         //include cureent Ymd in while generating transaction number
         if ($lastTransaction) {
             // Extract the sequence part (last part after the last slash)
@@ -271,6 +272,37 @@ if(!function_exists('generateTransactionNumber1')){
         $datePart = now()->format('Ymd');
         // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
         return $type['code'] . '/' . $datePart . '/' . $currentSequence + 1;
+    }
+}
+if (!function_exists('loadApplicationDetails')) {
+    function loadApplicationDetails($expenseApplication, $mappedModel)
+    {
+        $expenseApplication->verified_by = ApplicationAuditLog::where('application_type', $mappedModel)
+            ->where('application_id', $expenseApplication->id)
+            ->where('status', '2')
+            ->select(['id', 'action_performed_by', 'created_at'])
+            ->with('performedBy:id,name')
+            ->first();
+
+        $expenseApplication->approved_by = ApplicationAuditLog::where('application_type', $mappedModel)
+            ->where('application_id', $expenseApplication->id)
+            ->where('status', '3')
+            ->select(['id', 'action_performed_by', 'created_at'])
+            ->with('performedBy:id,name')
+            ->first();
+
+        $expenseApplication->rejected_by = ApplicationAuditLog::where('application_type', $mappedModel)
+        ->where('application_id', $expenseApplication->id)
+        ->where('status', '-1')
+        ->select(['id', 'action_performed_by', 'created_at'])
+        ->with('performedBy:id,name')
+        ->first();
+
+        $expenseApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+            ->where('application_id', $expenseApplication->id)
+            ->value('remarks');
+
+        return $expenseApplication;
     }
 }
 
@@ -412,5 +444,12 @@ if(!function_exists('normalizePathForDisplay') ) {
         $path = preg_replace('/"+/', '', $path); // Removes any quotes
         $path = preg_replace('/\/+/', '/', $path); // Normalizes multiple slashes
         return $path;
+    }
+}
+
+if (!function_exists('formatAmount')) {
+    function formatAmount($amount)
+    {
+        return 'Nu. ' . number_format($amount, 2);
     }
 }

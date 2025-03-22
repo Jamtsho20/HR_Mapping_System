@@ -1,360 +1,329 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Expense Details')
 @section('buttons')
-    <a href="{{ url('expense/approval/') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Expense
-        List</a>
+<a href="{{ url('expense/approval/') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Expense
+    List</a>
 @endsection
 @section('content')
 
-    <div class="row">
-        @include('components.employee-details', ['empDetails' => $empDetails])
+<div class="row">
+    @include('components.employee-details', ['empDetails' => $empDetails])
 
-        <div class="col-lg-12">
-            <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h6>Expense Details</h6>
-                    </div>
+    <div class="col-lg-12">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>Expense Details</h6>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <table style="width:100%;" class="simple-table">
-                            <tbody>
-                                <tr>
-                                    <th style="width:35%;">Expense No <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $expense->expense_no }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Expense Type <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->type->name ?? config('global.null_value') }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Vehicle Name <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->vehicle->vehicleType->name ?? config('global.null_value') }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Vehicle No <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->vehicle->vehicle_no ?? config('global.null_value') }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Location <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->vehicle->location ?? config('global.null_value') }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Expense Amount <span
-                                            class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $expense->amount }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Description<span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ $expense->description }}
-                                    </td>
-                                </tr>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table style="width:100%;" class="simple-table">
+                        <tbody>
+                            <tr>
+                                <th style="width:35%;">Expense No <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->transaction_no }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Expense Type <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ $expense->type->name ?? config('global.null_value') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Vehicle Name <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ $expense->vehicle->vehicleType->name ?? config('global.null_value') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Vehicle No <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ $expense->vehicle->vehicle_no ?? config('global.null_value') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Location <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ $expense->vehicle->location ?? config('global.null_value') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Date<span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Expense Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ formatAmount( $expense->amount )}}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Description<span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ $expense->description }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ \Carbon\Carbon::parse($expense->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($expense->created_at)->format('h:i A') }}
+                                </td>
+                            </tr>
 
+                            <tr>
+                                <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->remarks ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    @if ($expense->file)
+                                    @php
+                                    $files = json_decode($expense->file, true); // Decode JSON string to an array
+                                    $file = $files[0] ?? null; // Get the first file if it exists
+                                    @endphp
 
-                                <tr>
-                                    <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $expense->remarks ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        @if ($expense->file)
-                                            @php
-                                                $files = json_decode($expense->file, true); // Decode JSON string to an array
-                                                $file = $files[0] ?? null; // Get the first file if it exists
-                                            @endphp
+                                    @if ($file)
+                                    <a href="{{ asset($file) }}" class="btn btn-sm btn-primary"
+                                        target="_blank">
+                                        <i class="fas fa-file-alt"></i> View Attachment
+                                    </a>
+                                    @else
+                                    <p>No attachment available.</p>
+                                    @endif
+                                    @else
+                                    <span class="text-danger">No attachment available.</span>
+                                    @endif
+                                </td>
+                            </tr>
 
-                                            @if ($file)
-                                                <a href="{{ asset($file) }}" class="btn btn-sm btn-primary"
-                                                    target="_blank">
-                                                    <i class="fas fa-file-alt"></i> View Attachment
-                                                </a>
-                                            @else
-                                                <p>No attachment available.</p>
-                                            @endif
-                                        @else
-                                            <span class="text-danger">No attachment available.</span>
-                                        @endif
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        @if ($expense->type_id == 5)
-            <div class="tab-pane" id="vehiclefuelclaimsection">
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table id="vehiclefuelclaimtable"
-                                class="table table-condensed table-bordered table-striped table-sm basic-datatable">
-                                <thead>
-                                    <tr role="row">
-                                        <th>#</th>
-                                        <th>Date</th>
-                                        <th>Initial (KM) Reading</th>
-                                        <th>Final (KM) Reading</th>
-                                        <th>Qty.(Ltrs.)</th>
-                                        <th>Mileage</th>
-                                        <th>Rate</th>
-                                        <th>Amount (NU.)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    @forelse (($expense->details) as $detail)
-                                        <tr>
-                                            <td class="text-center">
-                                                {{ $loop->iteration }}
-                                            </td>
-                                            <td class="text-center">
-                                                <input type="hidden"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][id]"
-                                                    class="form-control form-control-sm resetKeyForNew"
-                                                    value="{{ $detail->id }}" />
-
-                                                <input type="date"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][date]"
-                                                    class="form-control form-control-sm resetKeyForNew"
-                                                    value="{{ $detail->date }}" readonly />
-                                            </td>
-                                            <td class="text-center">
-                                                <input type="number"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][initial_reading]"
-                                                    class="form-control form-control-sm resetKeyForNew"
-                                                    value="{{ $detail->initial_reading }}" readonly />
-                                            </td>
-
-                                            <td class="text-center">
-                                                <input type="number"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][final_reading]"
-                                                    class="form-control form-control-sm resetKeyForNew"
-                                                    value="{{ $detail->final_reading }}" readonly />
-                                            </td>
-                                            <td class="text-center">
-                                                <input type="text"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][quantity]"
-                                                    class="form-control form-control-sm resetKeyForNew"
-                                                    value="{{ $detail->quantity }}" readonly />
-                                            </td>
-                                            <td class="text-center">
-                                                <input type="number"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][mileage]"
-                                                    class="form-control form-control-sm resetKeyForNew"
-                                                    value="{{ $detail->mileage }}" readonly />
-                                            </td>
-
-                                            <td class="text-center">
-                                                <input type="number" min="0"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][rate]"
-                                                    class="form-control form-control-sm resetKeyForNew notclearfornew"
-                                                    value="{{ $detail->rate }}" readonly />
-                                            </td>
-                                            <td class="text-center">
-                                                <input type="number" min="0"
-                                                    name="fuel_claim_details[AAAAA{{ $detail->id }}][amount]"
-                                                    value="{{ $detail->amount }}"
-                                                    class="form-control form-control-sm resetKeyForNew" readonly />
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr class="notremovefornew">
-                                            <td colspan="7"></td>
-                                            <td class="text-right">
-                                                No Data Found
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if ($expense->mas_expense_type_id == 1)
-            <div class="col-lg-12">
-                <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <table style="width:100%;" class="simple-table">
-                                <tbody>
-
-
-                                    <tr>
-                                        <th style="width:35%;">Travel Type <span
-                                                class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $expense->travelType->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:35%;">Travel Mode <span
-                                                class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;">
-                                            {{ config('global.travel_modes.' . $expense->travel_mode, 'Unknown') }} </td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:35%;">Travel From Date<span
-                                                class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($expense->travel_from_date)->format('d-M-Y') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:35%;">Travel To Date<span
-                                                class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $expense->travel_to_date }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:35%;">Travel From<span
-                                                class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $expense->travel_from }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:35%;">Travel To<span
-                                                class="pull-right d-none d-sm-block">:</span>
-                                            &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $expense->travel_to }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:35%;">Travel Distance<span
-                                                class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $expense->travel_distance }}</td>
-                                    </tr>
-
-
-
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        <div class="col-lg-12">
-            <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h6>Document History</h6>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-         
-                        @include('layouts.includes.approval-details', [
-                            'approvalDetail' => $approvalDetail,
-                            'applicationStatus' => $expense->status,
-                           
-                        ])
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        @include('components.approval-buttons')
-
     </div>
+    @if ($expense->type_id == 5)
+    <div class="tab-pane" id="vehiclefuelclaimsection">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="vehiclefuelclaimtable"
+                        class="table table-condensed table-bordered table-striped table-sm basic-datatable">
+                        <thead>
+                            <tr role="row">
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Initial (KM) Reading</th>
+                                <th>Final (KM) Reading</th>
+                                <th>Qty.(Ltrs.)</th>
+                                <th>Mileage</th>
+                                <th>Rate</th>
+                                <th>Amount (NU.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @forelse (($expense->details) as $detail)
+                            <tr>
+                                <td class="text-center">
+                                    {{ $loop->iteration }}
+                                </td>
+                                <td class="text-center">
+                                    <input type="hidden"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][id]"
+                                        class="form-control form-control-sm resetKeyForNew"
+                                        value="{{ $detail->id }}" />
+
+                                    <input type="date"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][date]"
+                                        class="form-control form-control-sm resetKeyForNew"
+                                        value="{{ $detail->date }}" readonly />
+                                </td>
+                                <td class="text-center">
+                                    <input type="number"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][initial_reading]"
+                                        class="form-control form-control-sm resetKeyForNew"
+                                        value="{{ $detail->initial_reading }}" readonly />
+                                </td>
+
+                                <td class="text-center">
+                                    <input type="number"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][final_reading]"
+                                        class="form-control form-control-sm resetKeyForNew"
+                                        value="{{ $detail->final_reading }}" readonly />
+                                </td>
+                                <td class="text-center">
+                                    <input type="text"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][quantity]"
+                                        class="form-control form-control-sm resetKeyForNew"
+                                        value="{{ $detail->quantity }}" readonly />
+                                </td>
+                                <td class="text-center">
+                                    <input type="number"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][mileage]"
+                                        class="form-control form-control-sm resetKeyForNew"
+                                        value="{{ $detail->mileage }}" readonly />
+                                </td>
+
+                                <td class="text-center">
+                                    <input type="number" min="0"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][rate]"
+                                        class="form-control form-control-sm resetKeyForNew notclearfornew"
+                                        value="{{ $detail->rate }}" readonly />
+                                </td>
+                                <td class="text-center">
+                                    <input type="number" min="0"
+                                        name="fuel_claim_details[AAAAA{{ $detail->id }}][amount]"
+                                        value="{{ $detail->amount }}"
+                                        class="form-control form-control-sm resetKeyForNew" readonly />
+                                </td>
+                            </tr>
+                            @empty
+                            <tr class="notremovefornew">
+                                <td colspan="7"></td>
+                                <td class="text-right">
+                                    No Data Found
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    @if ($expense->mas_expense_type_id == 1)
+    <div class="col-lg-12">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table style="width:100%;" class="simple-table">
+                        <tbody>
+
+
+                            <tr>
+                                <th style="width:35%;">Travel Type <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->travelType->name }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Travel Mode <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ config('global.travel_modes.' . $expense->travel_mode, 'Unknown') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Travel From Date<span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($expense->travel_from_date)->format('d-M-Y') }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Travel To Date<span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->travel_to_date }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Travel From<span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->travel_from }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Travel To<span
+                                        class="pull-right d-none d-sm-block">:</span>
+                                    &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->travel_to }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Travel Distance<span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ $expense->travel_distance }}</td>
+                            </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    <div class="col-lg-12">
+        <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>Document History</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+
+                    @include('layouts.includes.approval-details', [
+                    'approvalDetail' => $approvalDetail,
+                    'applicationStatus' => $expense->status,
+
+                    ])
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('components.approval-buttons')
+
+</div>
 
 
 
 @endsection
 @push('page_scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            $('.buttonsubmit').click(function() {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('.buttonsubmit').click(function() {
 
-                const itemType = 2;
-                var action = $(this).data('value');
-                var selectedItems = [{{ $expense->id }}];
-                var routeUrl = $(this).data('route');
-                var itemClass = $(this).data('item-class');
+            const itemType = 2;
+            var action = $(this).data('value');
+            var selectedItems = [{{$expense->id}}];
+            var routeUrl = $(this).data('route');
+            var itemClass = $(this).data('item-class');
 
-                // Modal close manually
-                $('.close').click(function() {
-                    $('#rejectModal').modal('hide');
-                });
-
-
-                // Check if reject action is clicked
-                if (action === 'reject') {
-                    // Show reject remarks modal
-                    $('#rejectModal').modal('show');
-
-                    // Handle reject confirmation
-                    $('#confirmReject').click(function() {
-                        var rejectRemarks = $('#rejectRemarks').val();
-
-                        if (rejectRemarks.trim() === '') {
-                            alert('Please provide reject remarks.');
-                            return;
-                        }
-
-                       // Send AJAX request to reject
-                       $('#loader').show();
-                        $.ajax({
-                            url: routeUrl,
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                item_ids: selectedItems,
-                                action: action,
-                                reject_remarks: rejectRemarks,
-                                item_type_id: itemType
-                            },
-                            success: function(response) {
-                                // alert(response.msg_success);
-                                // location.reload();
-                                $('#loader').hide();
-                                showSuccessMessage(response.msg_success, true, document.referrer);
+            // Modal close manually
+            $('.close').click(function() {
+                $('#rejectModal').modal('hide');
+            });
 
 
+            // Check if reject action is clicked
+            if (action === 'reject') {
+                // Show reject remarks modal
+                $('#rejectModal').modal('show');
 
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                try {
-                                    var errorResponse = JSON.parse(jqXHR.responseText);
-                                    // alert(errorResponse.msg_error ||
-                                    //     'An unexpected error occurred.');
-                                    $('#loader').hide();
-                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+                // Handle reject confirmation
+                $('#confirmReject').click(function() {
+                    var rejectRemarks = $('#rejectRemarks').val();
 
-                                } catch (e) {
-                                    // alert('An error occurred: ' + errorThrown);
-                                    $('#loader').hide();
-                                    showErrorMessage('An error occurred: ' + errorThrown);
+                    if (rejectRemarks.trim() === '') {
+                        alert('Please provide reject remarks.');
+                        return;
+                    }
 
-                                }}
-                        });
-
-                        // Close the modal
-                        $('#rejectModal').modal('hide');
-                    });
-                } else {
-                    // Proceed with approval if action is approve
+                    // Send AJAX request to reject
                     $('#loader').show();
                     $.ajax({
                         url: routeUrl,
@@ -363,33 +332,75 @@
                             _token: '{{ csrf_token() }}',
                             item_ids: selectedItems,
                             action: action,
+                            reject_remarks: rejectRemarks,
                             item_type_id: itemType
                         },
                         success: function(response) {
                             // alert(response.msg_success);
                             // location.reload();
                             $('#loader').hide();
-                            showSuccessMessage(response.msg_success, true,document.referrer);
+                            showSuccessMessage(response.msg_success, true, document.referrer);
+
 
 
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
-                            $('#loader').hide();
                             try {
                                 var errorResponse = JSON.parse(jqXHR.responseText);
                                 // alert(errorResponse.msg_error ||
                                 //     'An unexpected error occurred.');
+                                $('#loader').hide();
                                 showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
 
                             } catch (e) {
                                 // alert('An error occurred: ' + errorThrown);
+                                $('#loader').hide();
                                 showErrorMessage('An error occurred: ' + errorThrown);
 
                             }
                         }
                     });
-                }
-            });
-        })
-    </script>
+
+                    // Close the modal
+                    $('#rejectModal').modal('hide');
+                });
+            } else {
+                // Proceed with approval if action is approve
+                $('#loader').show();
+                $.ajax({
+                    url: routeUrl,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        item_ids: selectedItems,
+                        action: action,
+                        item_type_id: itemType
+                    },
+                    success: function(response) {
+                        // alert(response.msg_success);
+                        // location.reload();
+                        $('#loader').hide();
+                        showSuccessMessage(response.msg_success, true, document.referrer);
+
+
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#loader').hide();
+                        try {
+                            var errorResponse = JSON.parse(jqXHR.responseText);
+                            // alert(errorResponse.msg_error ||
+                            //     'An unexpected error occurred.');
+                            showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+
+                        } catch (e) {
+                            // alert('An error occurred: ' + errorThrown);
+                            showErrorMessage('An error occurred: ' + errorThrown);
+
+                        }
+                    }
+                });
+            }
+        });
+    })
+</script>
 @endpush

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('transfer_claim_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('transfer_claim_no')->index();
+            $table->string('transaction_no')->index();
             $table->foreignId('type_id')->constrained('mas_transfer_claims')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->string('current_location');
             $table->string('new_location');

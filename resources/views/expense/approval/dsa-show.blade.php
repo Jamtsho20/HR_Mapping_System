@@ -22,12 +22,12 @@
                                 <tr>
                                     <th style="width:35%;">Claim No <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $dsa->dsa_claim_no }}</td>
+                                    <td style="padding-left:25px;"> {{ $dsa->transaction_no }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Travel No <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $dsa->travel->travel_authorization_no }}</td>
+                                    <td style="padding-left:25px;"> {{ $dsa->travel->transaction_no }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>

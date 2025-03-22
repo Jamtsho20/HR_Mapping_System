@@ -96,10 +96,7 @@ class AdvanceLoanApprovalController extends Controller
 
             $mappedModel = AdvanceApplication::class;
             $advances = $advances->map(function ($advance) use ($mappedModel) {
-                $advance->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $advance->id)
-                    ->value('remarks');
-                return $advance;
+                return loadApplicationDetails($advance, $mappedModel);
             });
 
             return response()->json(['advances' => $advances], 200);

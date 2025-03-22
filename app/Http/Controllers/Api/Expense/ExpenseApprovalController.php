@@ -93,10 +93,7 @@ class ExpenseApprovalController extends Controller
 
                 $mappedModel = ExpenseApplication::class;
             $expenseApplications = $expenseApplications->map(function ($expense) use ($mappedModel) {
-                $expense->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $expense->id)
-                    ->value('remarks');
-                return $expense;
+                return loadApplicationDetails($expense, $mappedModel);
             });
             return response()->json([
                 'success' => true,
@@ -148,8 +145,8 @@ class ExpenseApprovalController extends Controller
                     'employee.empjob.designation:id,name',
                     'employee.empjob.department:id,name',
                     'employee.empjob.section:id,name',
-                    'travel:id,travel_authorization_no',
-                    'dsaadvance:id,advance_no',
+                    'travel:id,transaction_no',
+                    'dsaadvance:id,transaction_no',
                     'histories:id,application_id,action_performed_by',
             ])
                 ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {

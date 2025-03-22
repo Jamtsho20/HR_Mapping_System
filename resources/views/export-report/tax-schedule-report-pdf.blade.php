@@ -76,29 +76,20 @@
                     Basic Pay
                 </th>
                 <th>
-                    Critical ALL
-                </th>
-                <th>
-                    House ALL
-                </th>
-                <th>
-                    Medical ALL
-                </th>
-                <th>
-                    Corporate ALL
-                </th>
-                <th>
-                    Cash ALL
-                </th>
-                <th>
-                    Additional Work ALL
+                    Allowance
                 </th>
 
                 <th>
-                    Health Tax
+                    Gross Pay
                 </th>
                 <th>
-                    Salary Tax
+                    GIS
+                </th>
+                <th>
+                    Net Salary
+                </th>
+                <th>
+                    Health Tax
                 </th>
                 <th>
                     Total Tax
@@ -118,38 +109,23 @@
                     <td>{{ $pf->employee->empJob->tpn_number }}</td>
                     <td>{{ $pf->employee->cid_no }}</td>
                     <td>{{ $pf->details['basic_pay'] ?? '0' }}</td>
-                    <td>{{ $pf->details['allowances']['Critical Allowance'] ?? '0' }}
+                    <td>{{ array_sum($pf->details['allowances'] ?? '-') }}
                     </td>
-                    <td>{{ $pf->details['allowances']['House Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $pf->details['allowances']['Medical Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $pf->details['allowances']['Corporate Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $pf->details['allowances']['Cash Allowance'] ?? '0' }}
-                    </td>
-                    <td>{{ $pf->details['allowances']['Add. Work Allowance'] ?? '0' }}
-                    </td>
+                    <td>{{ $pf->details['gross_pay'] ?? '0' }}</td>
+                    <td>{{ $pf->details['deductions']['GSLI'] ?? '0' }}</td>
+                    <td>{{ $pf->details['net_pay'] ?? '0' }}</td>
                     <td>{{ $pf->details['deductions']['H/Tax'] ?? '0' }}</td>
-                    <td>{{ $pf->details['deductions']['Salary Tax'] ?? '0' }}</td>
                     <td>{{ ($pf->details['deductions']['Salary Tax'] ?: 0) + ($pf->details['deductions']['H/Tax'] ?: 0) }}
                     </td>
                     <td>{{ $pf->for_month }}</td>
 
-
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center text-danger">No Tax Schedule Reports found</td>
+                    <td colspan="13" class="text-center text-danger">No Tax
+                        Schedule Reports found</td>
                 </tr>
             @endforelse
-            <tr>
-                <td colspan="10" style="text-align: right">Total:</td>
-                <td>{{ $totalHealth }}</td>
-                <td>{{ $totalSalary }}</td>
-                <td>{{ $totalHealth + $totalSalary }}</td>
-                <td></td>
-            </tr>
         </tbody>
     </table>
     @include('layouts.includes.report-footer')

@@ -93,10 +93,7 @@ class LeaveEncashmentApprovalController extends Controller
 
             $mappedModel = LeaveEncashmentApplication::class;
             $earnedLeave = $earnedLeave->map(function ($leave) use ($mappedModel) {
-                $leave->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $leave->id)
-                    ->value('remarks');
-                return $leave;
+                return loadApplicationDetails($leave, $mappedModel);
             });
             return response()->json([
                 'success' => true,

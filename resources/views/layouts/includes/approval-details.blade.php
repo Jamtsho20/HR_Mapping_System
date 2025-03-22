@@ -1,6 +1,22 @@
 <table style="width:100%;" class="simple-table">
     <tbody>
         @if ($applicationStatus == 3)
+        <tr>
+
+            <td>
+                @foreach ($approvalDetail as $log)
+                    @if ($log->status == 2)
+                        <strong><i class="fa fa-check text-info"></i> Verified By
+                            {{ $log->approver->title }}
+                            {{ $log->approver ? $log->approver->name : 'N/A' }}
+                            on
+                            {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                            </strong>
+
+                    @endif
+                @endforeach
+            </td>
+        </tr>
             <tr>
                 <td>
                     @foreach ($approvalDetail as $log)
@@ -9,7 +25,8 @@
                                 {{ $log->approver->title }}
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
-                                {{ $log->created_at->format('d-m-y') }}</strong>
+                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+</strong>
                         @endif
 
                     @endforeach
@@ -24,7 +41,8 @@
                                 {{ $log->approver->title }}
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
-                                {{ $log->created_at->format('d-m-y') }}</strong>
+                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+</strong>
                                 </td>
             </tr>
             <tr>
@@ -34,7 +52,7 @@
 
                     @endforeach
 
-               
+
         @elseif($applicationStatus == 2)
             <tr>
 
@@ -45,7 +63,8 @@
                                 {{ $log->approver->title }}
                                 {{ $log->approver ? $log->approver->name : 'N/A' }}
                                 on
-                                {{ $log->created_at->format('d-m-y') }}</strong>
+                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                                </strong>
 
                         @endif
                     @endforeach
@@ -61,7 +80,7 @@
             </tr>
 
         @endif
-        
+
 
     </tbody>
 </table>

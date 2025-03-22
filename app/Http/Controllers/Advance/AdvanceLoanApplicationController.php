@@ -40,7 +40,7 @@ class AdvanceLoanApplicationController extends Controller
     protected $rules = [
         'date' => 'required|date',
         'advance_type' => 'required',
-        'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
+        'transaction_no' => 'required_if:advance_type,' . DSA_ADVANCE,
         'advance_settlement_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF,
         'item_type' => 'required_if:advance_type,' . GADGET_EMI,
         'amount' => '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ADVANCE_TO_STAFF .
@@ -53,8 +53,8 @@ class AdvanceLoanApplicationController extends Controller
     ];
 
     protected $messages = [
-        'advance_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
-        'travel_authorization_no.required_if' => 'Travel authorization no is required for the selected advance type.',
+        'transaction_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
+        'transaction_no.required_if' => 'Travel authorization no is required for the selected advance type.',
         'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
         'amount.required_if' => 'Amount is required for the selected advance type.',
@@ -79,12 +79,12 @@ class AdvanceLoanApplicationController extends Controller
         $advances = AdvanceApplication::with('advanceType')
             ->filter($request)
             ->createdBy() // Apply the createdBy scope
-            ->orderBy('date', 'desc')
+            ->orderBy('transaction_date', 'desc')
             ->paginate(10);
         $advanceTypes = MasAdvanceTypes::where('status', 1)->get(['id', 'name']);
 
         foreach ($advances as $advance) {
-            $advance->formatted_date = Carbon::parse($advance->date)->format('Y-m-d');
+            $advance->formatted_date = Carbon::parse($advance->transaction_date)->format('Y-m-d');
         }
 
         return view('advance-loan.apply.index', compact('privileges', 'advances', 'advanceTypes'));
@@ -101,7 +101,7 @@ class AdvanceLoanApplicationController extends Controller
             ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
                 $query->whereNotIn('id', $excludedTravelAuthorizationIds);
             })
-            ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
+            ->get(['id', 'transaction_no']); // Always fetch after conditions are applied
 
         return view('advance-loan.apply.create', compact('advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags'));
     }
@@ -116,11 +116,17 @@ class AdvanceLoanApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
         $attachment = "";
 
-        $advanceNo = $this->ajax->getAdvanceNumber($request->advance_type)->getData()->advance_no;
+ 
+        $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
+        $lastTransaction = AdvanceApplication::latest('id')->first();
+        $advanceNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
+      
+      
+        
 
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
-        if (AdvanceApplication::where('advance_no', $advanceNo)->exists()) {
+        if (AdvanceApplication::where('transaction_no', $advanceNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return back()->withInput()->with('msg_error', 'Advance Loan Application Number already exists. Please try again.');
         }
@@ -131,12 +137,12 @@ class AdvanceLoanApplicationController extends Controller
         }
         try {
             DB::beginTransaction();
-            $advanceApplication->advance_no = $advanceNo;
-            $advanceApplication->date = $request->date;
+            $advanceApplication->transaction_no = $advanceNo;
+            $advanceApplication->transaction_date = $request->date;
             $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
             $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
-            $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
+            $advanceApplication->travel_authorization_id = $request->transaction_no ?? null;
 
             $advanceApplication->amount = $request->amount ?? null;
             $advanceApplication->attachment = $attachment ?? null; // Store attachment path
@@ -254,13 +260,13 @@ class AdvanceLoanApplicationController extends Controller
         try {
             // Start a database transaction to ensure atomicity
             DB::beginTransaction();
-            $advanceApplication->advance_no = $request->advance_no;
+            $advanceApplication->transaction_no = $request->transaction_no;
             $advanceApplication->date = $request->date;
             // $advanceApplication->date = $request->date;
             $advanceApplication->advance_settlement_date = $request->advance_settlement_date ?? null;
             $advanceApplication->type_id = $request->advance_type;
             $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
-            $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
+            $advanceApplication->travel_authorization_id = $request->transaction_no ?? null; // only required if user applies on behalf of someone
 
             $advanceApplication->amount = $request->amount ?? null;
             $advanceApplication->attachment = $attachment ?? null; // Store attachment path

@@ -181,6 +181,7 @@
                                                             <td>{{ $salary->details['deductions']['Salary Tax'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['H/Tax'] ?? '0' }}</td>
+                                                            {{-- eteeru included --}}
                                                             <td>{{ $salary->details['net_pay'] }}</td>
 
                                                         </tr>

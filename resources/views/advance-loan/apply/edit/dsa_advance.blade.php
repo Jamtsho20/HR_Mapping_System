@@ -4,14 +4,14 @@
             <div class="form-group">
                 <label for="amount"> Travel Authorization No.<span class="text-danger">*</span></label>
                 @if($travelAuthorizations)
-                    <select class="form-control" id="travel_authorization_id" name="travel_authorization_no" {{ $advance->advance_type_id != DSA_ADVANCE ? 'disabled' : '' }} disabled>
+                    <select class="form-control" id="travel_authorization_id" name="transaction_no" {{ $advance->advance_type_id != DSA_ADVANCE ? 'disabled' : '' }} disabled>
                         <option value="" disabled selected hidden>Select your option</option>
                         <option value="{{ $travelAuthorizations->id }}" 
-                            {{ old('travel_authorization_no', $advance->travel_authorization_id ?? '') == $travelAuthorizations->id ? 'selected' : '' }}>
-                            {{ $travelAuthorizations->travel_authorization_no }}
+                            {{ old('transaction_no', $advance->travel_authorization_id ?? '') == $travelAuthorizations->id ? 'selected' : '' }}>
+                            {{ $travelAuthorizations->transaction_no }}
                         </option>
                     </select>
-                    <input type="hidden" name="travel_authorization_no" value="{{ $travelAuthorizations->id }}">
+                    <input type="hidden" name="transaction_no" value="{{ $travelAuthorizations->id }}">
                 @else
                     <p class="text-muted">No travel authorization available for this advance type.</p>
                 @endif
