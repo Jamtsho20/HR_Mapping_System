@@ -204,24 +204,6 @@ var hrms = function () {
             function populateLeaveBalance() {
                 var leaveType = $("#leave_type").val();
                 var formId = $("#apply_leave");
-                var submitButton = $("button[type='submit']");
-
-                // Function to check for errors and disable the submit button if errors are found
-                function checkForErrors(errorMsg) {
-                    if (errorMsg) {
-                        submitButton.prop("disabled", true); // Disable submit button if error is found
-                    } else {
-                        submitButton.prop("disabled", false); // Enable submit button if no errors
-                    }
-                }
-
-                // Reset the leave balance and errors when leaveType is empty
-                if (leaveType === '') {
-                    $("#leave_balance").val('');
-                    checkForErrors();
-                    return; // Exit the function if leaveType is empty
-                }
-
                 // AJAX call to fetch leave balance based on leaveType
                 $.ajax({
                     url: "/getleavebalancebyleavetype/" + leaveType,
@@ -248,16 +230,10 @@ var hrms = function () {
                             $("#attachment").removeAttr("required");
                             $("#attachment_required").hide();
                         }
-
-                        // After all processing, check for errors and disable/enable the submit button
-                        checkForErrors(error.responseJSON.message);
                     },
                     error: function (error) {
-                        // Handle error response
-                        alert(error.responseJSON.message);
-                        formId.find("input, select, textarea").prop("disabled", true); // Disable form fields in case of error
-                        $("#leave_type").prop("disabled", false);
-                        checkForErrors(error.responseJSON.message); // Check for errors after AJAX failure
+                        showErrorMessage(error.responseJSON.message);
+                        formId[0].reset();
                     }
                 });
             }
@@ -362,7 +338,7 @@ var hrms = function () {
                 //     type: "GET",
 
                 //     success: function (response) {
-                //         //$('#advance_no').val(response.advance_no)
+                //         //$('#transaction_no').val(response.transaction_no)
                 //         if (response.sifa_interest_rate != 0) {
                 //             $('#interest_rate_sifa').val(response.sifa_interest_rate);
                 //         }
@@ -476,24 +452,7 @@ var hrms = function () {
             }
         });
 
-        //generating advance no based on advance types
-        // $(document).on('change', '#expense_type', function () {
-        //     var expenseTypeId = $(this).val();
-        //     if (expenseTypeId !== '') {
-        //         $.ajax({
-        //             url: "/getexpensenobyexpensetype/" + expenseTypeId,
-        //             dataType: "JSON",
-        //             type: "GET",
-
-        //             success: function (response) {
-        //                 $('#expense_no').val(response.expense_no)
-        //             },
-        //             error: function (response) {
-        //                 alert('Something went wrong, please contact system admin for further information!');
-        //             }
-        //         });
-        //     }
-        // })
+    
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
@@ -543,7 +502,7 @@ var hrms = function () {
         //get dsa advance details based on select of dsa advance id
         $(document).ready(function () {
             function getDsaAdvanceDetails() {
-                const advanceId = $("#advance_no").val();
+                const advanceId = $("#transaction_no").val();
 
                 if (advanceId !== '') {
                     $.ajax({
@@ -602,8 +561,8 @@ var hrms = function () {
 
             }
 
-            // Trigger on change of advance_no
-            $(document).on("change", "#advance_no", getDsaAdvanceDetails);
+            // Trigger on change of transaction_no
+            $(document).on("change", "#transaction_no", getDsaAdvanceDetails);
 
             // Trigger calculation only on travel_allowance change
             $(document).on("input", "input[name='dsa_claim_detail[AAAAA][travel_allowance]'], input[name='dsa_claim_detail[AAAAA][total_days]']", calculateTotalAmount);

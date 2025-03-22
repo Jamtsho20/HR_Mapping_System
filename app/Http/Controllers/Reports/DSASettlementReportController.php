@@ -94,17 +94,17 @@ class DSASettlementReportController extends Controller
 
             // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
             $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
-                ->pluck('travel_authorization_no', 'id');
+                ->pluck('transaction_no', 'id');
 
-            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
             $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
-                ->pluck('advance_no', 'id');
+                ->pluck('transaction_no', 'id');
 
 
-            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            // Attach both transaction_no and transaction_no to each dsaClaimMapping
             $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                 // Replace with actual daily allowance from config or DB
@@ -117,7 +117,7 @@ class DSASettlementReportController extends Controller
                 return $mapping;
             });
 
-            // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+            // Now, $dsa->dsaClaimMappings contains 'transaction_no' and 'transaction_no' for each mapping
 
             $travelNosString = $travelNos->implode(', ');
             $advanceNosString = $advanceNos->implode(', ');

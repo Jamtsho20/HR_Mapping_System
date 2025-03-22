@@ -21,10 +21,10 @@ enctype="multipart/form-data" id="apply_dsa">
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    <label for="dsa_claim_no">Claim No <span
+                    <label for="transaction_no">Claim No <span
                             class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="dsa_claim_no"
-                        id="dsa_claim_no" value="{{ $dsa->dsa_claim_no }}" placeholder="Generating..." readonly>
+                    <input type="text" class="form-control" name="transaction_no"
+                        id="transaction_no" value="{{ $dsa->transaction_no }}" placeholder="Generating..." readonly>
                 </div>
             </div>
 
@@ -37,7 +37,7 @@ enctype="multipart/form-data" id="apply_dsa">
                                 name="travel_authorization_id[]" multiple required>
                             @foreach ($dsa->dsaClaimMappings as $travel)
                                 <option value="{{ json_encode(['id' => $travel->travel_authorization_id, 'advance_id' => $travel->advance_application_id ?? null]) }}" selected>
-                                    {{ $travel->travel_authorization_no }}
+                                    {{ $travel->transaction_no }}
                                 </option>
 
                             @endforeach
@@ -130,7 +130,7 @@ enctype="multipart/form-data" id="apply_dsa">
                                 <tr class="travel-auth-${travelAuthGroupClass}">
                                     <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
                                         <span name="dsa_claim_detail[{{$mapping->travel_authorization_id}}][travel_authorization_id]" data-value="{{$mapping->travel_authorization_id}}">
-                                            Travel Authorization Number: {{$mapping->travel_authorization_no}}
+                                            Travel Authorization Number: {{$mapping->transaction_no }}}}
                                         </span>
                                     </td>
                                     <td colspan="4" class="text-center" style="color: black; font-weight: bold;">

@@ -194,7 +194,7 @@
                                                             <td>
                                                                 {{ optional(json_decode(optional($claim->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
                                                             </td>
-                                                            <td>{{ $claim->dsa_claim_no }}</td>
+                                                            <td>{{ $claim->transaction_no }}</td>
                                                             <td>{{ $claim->total_number_of_days ?? config('global.null_value') }}
                                                             </td>
                                                             <td>
@@ -214,18 +214,18 @@
                                                             <td>{{ $claim->amount }}</td>
                                                             <td>
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
-                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.travel_authorization_no')->filter()->toArray()) }}
+                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.transaction_no')->filter()->toArray()) }}
                                                                 @else
-                                                                    {{ $claim->travel->travel_authorization_no ?? '-' }}
+                                                                    {{ $claim->travel->transaction_no ?? '-' }}
                                                                 @endif
                                                             </td>
 
                                                             </td>
                                                             <td>
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
-                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.advance_no')->filter()->toArray()) }}
+                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.transaction_no')->filter()->toArray()) }}
                                                                 @else
-                                                                    {{ $claim->dsaadvance->advance_no ?? '-' }}
+                                                                    {{ $claim->dsaadvance->transaction_no ?? '-' }}
                                                                 @endif
                                                             </td>
 

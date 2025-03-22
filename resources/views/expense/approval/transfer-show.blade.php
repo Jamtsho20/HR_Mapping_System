@@ -24,7 +24,7 @@
                                 <tr>
                                     <th style="width:35%;">Claim No <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $transfer->transfer_claim_no }}</td>
+                                    <td style="padding-left:25px;"> {{ $transfer->transaction_no }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Transfer Claim <span

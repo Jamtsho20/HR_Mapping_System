@@ -118,10 +118,10 @@ class AjaxRequestController extends Controller
         try {
             $empGender = auth()->user()->gender;
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')->where('type_id', $id)->whereStatus(1)->first();
-
             $allowedEmploymentType = array_values(json_decode($leavePolicy->leavePolicyPlan->can_avail_in, true));
             $empJobDetail = MasEmployeeJob::where('mas_employee_id', loggedInUser())->first();
             $leaveType = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->name : '';
+
             if (!in_array((string)$empJobDetail->mas_employment_type_id, $allowedEmploymentType)) {
                 return $this->errorResponse('You are not eligible to apply ' . $leaveType . ', based on your employment type.');
             }
@@ -160,27 +160,6 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function validateLeaveCombinations(Request $request)
-    {
-        $leaveType = $request->leave_type; // Type of leave in the current request
-        $fromDate = Carbon::parse($request->from_date); // Current 'from_date'
-        $matchingLeaves = prepareLeaveCombination($fromDate); // leave combination logic code in helper class
-        // validation logic (customize based on business rules)
-        if ($leaveType == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
-            if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
-                return $this->errorResponse('Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
-            }
-        }
-
-        if ($leaveType == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
-            if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
-                return $this->errorResponse('During leave combination of EL + CL + EL, middle CL will be converted to EL.', 400, $matchingLeaves[0]);
-            }
-        }
-
-        return;
-    }
-
     public function getNoOfDays(Request $request)
     {
         $leaveTypeId = $request->input('leave_type');
@@ -189,33 +168,91 @@ class AjaxRequestController extends Controller
         $fromDay = (int) $request->input('from_day');
         $toDay = (int) $request->input('to_day');
         $loggedInUserRegion = loggedInUserRegion();
-        $totalDays = 0;
 
+        // Get holidays for the logged-in user's region
+        $holidayDates = $this->getHolidayDates($loggedInUserRegion);
+
+        // Find the last working day before the new leave (skip holidays & weekends)
+        $prevLeaveEndDate = $this->getLastValidLeaveDate($fromDate, $holidayDates);
+        
+        // Fetch previous leave ending exactly one day before the new leave
+        $prevLeave = LeaveApplication::where('type_id', '<>', CASUAL_LEAVE)
+            ->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d'))
+            ->where('created_by', auth()->id())
+            ->latest('to_date')
+            ->first();
+
+        if ($leaveTypeId == CASUAL_LEAVE && $prevLeave) {
+            if ($this->isConsecutiveLeaveViolation($prevLeave->to_date, $holidayDates, $fromDate)) {
+                return $this->errorResponse('Casual Leave is not allowed, please try applying earned leave.');
+            }
+        }
+
+        return $this->calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates);
+    }
+
+        /**
+     * Finds the last working day before the new leave start date by skipping holidays and weekends.
+     */
+    private function getLastValidLeaveDate($fromDate, $holidayDates)
+    {
+        $prevDate = clone $fromDate;
+        $prevDate->modify('-1 day');
+
+        // Keep moving back if the date is a holiday or weekend
+        while (in_array($prevDate->format('Y-m-d'), $holidayDates) || in_array($prevDate->format('l'), ['Saturday', 'Sunday'])) {
+            $prevDate->modify('-1 day');
+        }
+
+        return $prevDate;
+    }
+
+    private function isConsecutiveLeaveViolation($prevLeaveEndDate, $holidayDates, $fromDate)
+    {
+        $prevLeaveEnd = new \DateTime($prevLeaveEndDate);
+        $nextDay = (clone $prevLeaveEnd)->modify('+1 day');
+        // Flag to track if there's a working day in between
+        $hasWorkingDayBetween = false;
+
+        // Check for weekends and holidays between previous leave and new leave
+        while ($nextDay < $fromDate) {
+            if (in_array($nextDay->format('Y-m-d'), $holidayDates) || in_array($nextDay->format('l'), ['Saturday', 'Sunday'])) {
+                $nextDay->modify('+1 day'); // Skip holidays and weekends
+                continue;
+            }
+            
+            // If we find a working day in between, it's **not** a violation
+            $hasWorkingDayBetween = true;
+            break;
+        }
+
+        // If **only holidays/weekends** exist between previous leave and the new leave, it's a violation
+        return !$hasWorkingDayBetween;
+    }
+
+    private function calculateLeaveDays($leaveTypeId, $fromDate, $toDate, $fromDay, $toDay, $holidayDates)
+    {
         try {
             $leavePolicy = MasLeavePolicy::with('leavePolicyPlan')
                 ->where('type_id', $leaveTypeId)
                 ->whereStatus(1)
                 ->first();
-            $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan
+
+            $leaveLimits = $leavePolicy->leavePolicyPlan
                 ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
                 : [];
 
-            // Calculate initial days with adjustments
+            // Calculate initial days
             $dayDifference = $toDate->diff($fromDate)->days;
-            //added new due to issue on date 1/20/25
-            if ($leaveTypeId == 2) {
-                $fromDayAdjustment = 1;
-                $toDayAdjustment = 1;
-            } else {
-                $fromDayAdjustment = ($fromDay === 2 || $fromDay === 3) ? 0.5 : 1;
-                $toDayAdjustment = ($toDay === 2 || $toDay === 3) ? 0.5 : 1;
-            }
+            $fromDayAdjustment = ($leaveTypeId == 2) ? 1 : (($fromDay === 2 || $fromDay === 3) ? 0.5 : 1);
+            $toDayAdjustment = ($leaveTypeId == 2) ? 1 : (($toDay === 2 || $toDay === 3) ? 0.5 : 1);
+
             $totalDays = ($dayDifference === 0)
                 ? $fromDayAdjustment + $toDayAdjustment - 1
                 : $dayDifference + $fromDayAdjustment - 1 + $toDayAdjustment;
 
+            // Adjust total days based on leave policy restrictions
             if (!empty($leaveLimits)) {
-                $holidayDates = $this->getHolidayDates($loggedInUserRegion);
                 $excludeHolidays = in_array(1, $leaveLimits);
                 $excludeWeekends = in_array(3, $leaveLimits);
 
@@ -227,12 +264,22 @@ class AjaxRequestController extends Controller
                     $excludeWeekends
                 );
             }
+
+            $balance = EmployeeLeave::where('mas_leave_type_id', $leaveTypeId)
+                ->where('mas_employee_id', auth()->user()->id)
+                ->value('closing_balance');
+
+            // Check if the leave balance is 0
+            if ($balance != 0 && $totalDays > $balance) {
+                return $this->errorResponse('You are not eligible for this leave type since total no. of days exceed leave balance.');
+            }
+
+            return $this->successResponse(['total_days' => max($totalDays, 0)]);
         } catch (\Exception $e) {
             return $this->errorResponse('An error occurred while calculating total no. of leave days. Please try again.');
         }
-
-        return $this->successResponse(['total_days' => max($totalDays, 0)]);
     }
+
 
     private function getHolidayDates($loggedInUserRegion)
     {
@@ -292,65 +339,9 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getAdvanceNumber($id)
-    {
-        $sifaInterestRate = 0;
-        $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
-
-        $latestTransaction = AdvanceApplication::where('type_id', $id)
-            ->latest('id') // Orders by id in descending order
-            ->first();
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->advance_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Generate the new advance number with the incremented sequence
-        $advanceNo = generateTransactionNumber($advanceCode, $currentSequence);
-
-        // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
-        if ($id == SIFA_LOAN) {
-            $sifaInterestRate = SIFA_INTEREST_RATE;
-        }
-
-        return response()->json([
-            'advance_no' => $advanceNo,
-            'sifa_interest_rate' => $sifaInterestRate,
-        ]);
-    }
-
-    public function getTravelNumber($id)
-    {
-        $code = MasTravelType::where('id', $id)->value('code');
-        $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
-
-        // Check if the latest transaction exists
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->travel_authorization_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Generate the travel authorization number
-        $authorizationNo = generateTransactionNumber($code, $currentSequence);
 
 
-        return response()->json([
-            'travel_no' => $authorizationNo,
-        ]);
-    }
+   
 
     public function getExpenseAmount($id)
     {
@@ -431,82 +422,7 @@ class AjaxRequestController extends Controller
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
 
-    public function getExpenseNumber($id)
-    {
-        $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
-
-        $latestTransaction = ExpenseApplication::where('type_id', $id)
-            ->latest('id') // Orders by id in descending order
-            ->first();
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->expense_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        // $nextSequence = $latestTransaction ? (int) substr($latestTransaction->expense_no, -4) + 1 : 1;
-
-        // // Generate the new advance number with the incremented sequence
-        $expenseNo = generateTransactionNumber($expenseCode, $currentSequence);
-
-        return response()->json([
-            'expense_no' => $expenseNo,
-        ]);
-    }
-
-    public function getDsaClaimNumber()
-    {
-        $claimCode = MasExpenseType::where('id', 3)->pluck('code')[0];
-
-        $latestTransaction = DsaClaimApplication::latest('id')->first();
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->dsa_claim_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $currentSequence);
-
-        return $claimNo;
-    }
-
-    public function getTransferClaimNumber($id)
-    {
-        $claimCode = MasTransferClaim::where('id', $id)->pluck('code')[0];
-
-        $latestTransaction = TransferClaimApplication::latest('id')->first();
-
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->transfer_claim_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-        // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $currentSequence);
-
-        return $claimNo;
-    }
-
+   
     public function getTravelAuthorizationDetails($id)
     {
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
@@ -521,81 +437,81 @@ class AjaxRequestController extends Controller
 
                 if ($detail->number_of_days) {
                     $detail->no_of_days = $detail->number_of_days;
-                }else{ if ($detail->from_date && $detail->to_date) {
-                    $fromDate = new \DateTime($detail->from_date);
-                    $toDate = new \DateTime($detail->to_date);
-                    $interval = $fromDate->diff($toDate);
-                    $detail->no_of_days = $interval->days + 1;
-                }}
-
-
+                } else {
+                    if ($detail->from_date && $detail->to_date) {
+                        $fromDate = new \DateTime($detail->from_date);
+                        $toDate = new \DateTime($detail->to_date);
+                        $interval = $fromDate->diff($toDate);
+                        $detail->no_of_days = $interval->days + 1;
+                    }
+                }
             });
         }
         return response()->json(['travel_authorization_details' => $travelAuthorizationDetails, 'total_days' => $total_days]);
     }
 
     public function getTravelAuthorizationDetailsMultiple(Request $request)
-{
-    // Ensure you get an array of IDs from the request
-    $ids = $request->input('ids');
+    {
+        // Ensure you get an array of IDs from the request
+        $ids = $request->input('ids');
 
-    // Validate the incoming request
-    if (empty($ids) || !is_array($ids)) {
-        return response()->json(['message' => 'Invalid or missing travel authorization IDs'], 400);
-    }
+        // Validate the incoming request
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json(['message' => 'Invalid or missing travel authorization IDs'], 400);
+        }
 
-    // Fetch travel authorizations based on the provided IDs
-    $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')
-        ->whereIn('id', $ids)
-        ->get(); // Get multiple travel authorizations
-    $advanceDetail = AdvanceApplication::whereIn('travel_authorization_id', $ids)->get();
-    // Check if any travel authorizations were found
-    if ($travelAuthorizationDetails->isEmpty()) {
-        return response()->json(['message' => 'No travel authorizations found for the given IDs'], 404);
-    }
+        // Fetch travel authorizations based on the provided IDs
+        $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')
+            ->whereIn('id', $ids)
+            ->get(); // Get multiple travel authorizations
+        $advanceDetail = AdvanceApplication::whereIn('travel_authorization_id', $ids)->get();
+        // Check if any travel authorizations were found
+        if ($travelAuthorizationDetails->isEmpty()) {
+            return response()->json(['message' => 'No travel authorizations found for the given IDs'], 404);
+        }
 
-    $attachments = DsaClaimMappings::whereIn('travel_authorization_id', $ids)->get(['travel_authorization_id', 'attachment']);
+        $attachments = DsaClaimMappings::whereIn('travel_authorization_id', $ids)->get(['travel_authorization_id', 'attachment']);
 
-    // Loop through each travel authorization and process its details
-    $travelAuthorizationDetails->each(function ($travelAuthorization) {
-        // Process the details for each travel authorization
-        $travelAuthorization->details->each(function ($detail) {
-            $detail->mode_of_travel = $detail->travel_name;
+        // Loop through each travel authorization and process its details
+        $travelAuthorizationDetails->each(function ($travelAuthorization) {
+            // Process the details for each travel authorization
+            $travelAuthorization->details->each(function ($detail) {
+                $detail->mode_of_travel = $detail->travel_name;
 
-            // Calculate the number of days if not provided
-            if ($detail->number_of_days) {
-                $detail->no_of_days = $detail->number_of_days;
-            } else {
-                if ($detail->from_date && $detail->to_date) {
-                    $fromDate = new \DateTime($detail->from_date);
-                    $toDate = new \DateTime($detail->to_date);
-                    $interval = $fromDate->diff($toDate);
-                    $detail->no_of_days = $interval->days + 1;
+                // Calculate the number of days if not provided
+                if ($detail->number_of_days) {
+                    $detail->no_of_days = $detail->number_of_days;
+                } else {
+                    if ($detail->from_date && $detail->to_date) {
+                        $fromDate = new \DateTime($detail->from_date);
+                        $toDate = new \DateTime($detail->to_date);
+                        $interval = $fromDate->diff($toDate);
+                        $detail->no_of_days = $interval->days + 1;
+                    }
                 }
-            }
+            });
         });
-    });
 
-    // Prepare the response data
-    $response = [
-        'travel_authorizations' => $travelAuthorizationDetails->map(function ($travelAuthorization) use ($advanceDetail) {
-            return [
-                'travelAuthorization' => $travelAuthorization,
-                'id' => $travelAuthorization->id,
-                'total_days' => $travelAuthorization->total_days,
-                'details' => $travelAuthorization->details,
-                'advance_details' => $advanceDetail->where('travel_authorization_id', $travelAuthorization->id)->first()
-            ];
-        }),
-        'attachments' => $attachments,
-        'advance_ids' => $advanceDetail->pluck('id')
-    ];
+        // Prepare the response data
+        $response = [
+            'travel_authorizations' => $travelAuthorizationDetails->map(function ($travelAuthorization) use ($advanceDetail) {
+                return [
+                    'travelAuthorization' => $travelAuthorization,
+                    'id' => $travelAuthorization->id,
+                    'total_days' => $travelAuthorization->total_days,
+                    'details' => $travelAuthorization->details,
+                    'advance_details' => $advanceDetail->where('travel_authorization_id', $travelAuthorization->id)->first()
+                ];
+            }),
+            'attachments' => $attachments,
+            'advance_ids' => $advanceDetail->pluck('id')
+        ];
 
-    // return response()->json($response);
+        // return response()->json($response);
 
-    // Return the response with the travel authorization details and total days
-    return response()->json(['travel_authorization_details' => $response]);
-}
+        // Return the response with the travel authorization details and total days
+        return response()->json(['travel_authorization_details' => $response]);
+    }
 
 
     public function getEmployeeById($id)

@@ -86,6 +86,9 @@
                                                                         DESCRIPTION
                                                                     </th>
                                                                     <th>
+                                                                        APPLIED ON
+                                                                    </th>
+                                                                    <th>
                                                                         STATUS
                                                                     </th>
                                                                     <th>
@@ -100,19 +103,22 @@
                                                                     <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}</td>
                                                                     <td>{{ $expense->type->name }}
                                                                     </td>
-                                                                    <td>{{ $expense->amount }}</td>
+                                                                    <td class="text-right">{{formatAmount($expense->amount) }}</td>
                                                                     <td>{{ $expense->description }}</td>
                                                                     <td class="text-center">
+                                                                        {{ \Carbon\Carbon::parse($expense->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($expense->created_at)->format('h:i A') }}
+                                                                    </td>
+                                                                    <td class="text-center">
                                                                         @php
-                                                                            $statusClasses = [
-                                                                                -1 => 'badge bg-danger',
-                                                                                0 => 'badge bg-warning',
-                                                                                1 => 'badge bg-primary',
-                                                                                2 => 'badge bg-success',
-                                                                                3 => 'badge bg-success',
-                                                                            ];
-                                                                            $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
-                                                                            $statusClass = $statusClasses[$expense->status] ?? 'badge bg-secondary';
+                                                                        $statusClasses = [
+                                                                        -1 => 'badge bg-danger',
+                                                                        0 => 'badge bg-warning',
+                                                                        1 => 'badge bg-primary',
+                                                                        2 => 'badge bg-primary',
+                                                                        3 => 'badge bg-success',
+                                                                        ];
+                                                                        $statusText = config("global.application_status.{$expense->status}", 'Unknown Status');
+                                                                        $statusClass = $statusClasses[$expense->status] ?? 'badge bg-secondary';
                                                                         @endphp
                                                                         <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                     </td>
@@ -172,7 +178,7 @@
                                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                             id="basic-datatable table-responsive">
                                                             <thead>
-                                                                <tr role="row">
+                                                                <tr role="row" class="thead-light">
                                                                     <th>
                                                                         #
                                                                     </th>
@@ -192,6 +198,9 @@
                                                                         TOTAL AMOUNT
                                                                     </th>
                                                                     <th>
+                                                                        APPLIED ON
+                                                                    </th>
+                                                                    <th>
                                                                         STATUS
                                                                     </th>
                                                                     <th>
@@ -206,18 +215,21 @@
                                                                     <td>{{ $empIdName }}
 
                                                                     <td>{{ $dsaClaim->created_at->format('d-M-Y') }}
-                                                                    <td>{{ $dsaClaim->net_payable_amount }}
+                                                                    <td class="text-right">{{ formatAmount($dsaClaim->net_payable_amount )}}
                                                                     </td>
-                                                                    <td>{{ $dsaClaim->dsaexpense?->amount ?? '0.00' }}
+                                                                    <td class="text-right">{{ formatAmount($dsaClaim->dsaexpense?->amount ?? '0.00' )}}
                                                                     </td>
-                                                                    <td>{{ $dsaClaim->amount }}</td>
+                                                                    <td class="text-right">{{ formatAmount($dsaClaim->amount) }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ \Carbon\Carbon::parse($dsaClaim->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsaClaim->created_at)->format('h:i A') }}
+                                                                    </td>
                                                                     <td class="text-center">
                                                                         @php
                                                                         $statusClasses = [
                                                                         -1 => 'badge bg-danger',
                                                                         0 => 'badge bg-warning',
                                                                         1 => 'badge bg-primary',
-                                                                        2 => 'badge bg-success',
+                                                                        2 => 'badge bg-primary',
                                                                         3 => 'badge bg-success',
                                                                         ];
                                                                         $statusText = config("global.application_status.{$dsaClaim->status}", 'Unknown Status');
@@ -282,7 +294,7 @@
                                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                             id="basic-datatable table-responsive">
                                                             <thead>
-                                                                <tr role="row">
+                                                                <tr role="row" class="thead-light">
                                                                     <th>
                                                                         #
                                                                     </th>
@@ -305,10 +317,13 @@
                                                                         NEW LOCATION
                                                                     </th>
                                                                     <th>
+                                                                        APPLIED ON
+                                                                    </th>
+                                                                    <th>
                                                                         STATUS
                                                                     </th>
                                                                     <th>
-                                                                        Action
+                                                                        VIEW
                                                                     </th>
                                                                 </tr>
                                                             <tbody>
@@ -321,18 +336,21 @@
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}
                                                                     </td>
-                                                                    <td>{{ $transfer->amount }}
+                                                                    <td class="text-right">{{ formatAmount($transfer->amount )}}
                                                                     </td>
                                                                     <td>{{ $transfer->current_location }}
                                                                     </td>
                                                                     <td>{{ $transfer->new_location }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ \Carbon\Carbon::parse($transfer->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($transfer->created_at)->format('h:i A') }}
+                                                                    </td>
                                                                     <td class="text-center">
                                                                         @php
                                                                         $statusClasses = [
                                                                         -1 => 'badge bg-danger',
                                                                         0 => 'badge bg-warning',
                                                                         1 => 'badge bg-primary',
-                                                                        2 => 'badge bg-success',
+                                                                        2 => 'badge bg-primary',
                                                                         3 => 'badge bg-success',
                                                                         ];
                                                                         $statusText = config("global.application_status.{$transfer->status}", 'Unknown Status');

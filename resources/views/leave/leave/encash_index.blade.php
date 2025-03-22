@@ -29,7 +29,7 @@
                                                 style="box-sizing: content-box; padding-right: 0px;">
                                                 <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
                                                     <thead>
-                                                        <tr role="row">
+                                                        <tr role="row" class="thead-light">
                                                             <th>
                                                                 #
                                                             </th>
@@ -64,7 +64,7 @@
                                                                         -1 => 'badge bg-danger',
                                                                         0 => 'badge bg-warning',
                                                                         1 => 'badge bg-primary',
-                                                                        2 => 'badge bg-success',
+                                                                        2 => 'badge bg-primary',
                                                                         3 => 'badge bg-info',
                                                                     ];
                                                                     $statusText = config("global.application_status.{$leave->status}", 'Unknown Status');

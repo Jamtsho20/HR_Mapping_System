@@ -13,7 +13,7 @@ class DsaClaimApplication extends Model
 
     protected $guarded = [];
 
-    protected $fillable = ['dsa_claim_no', 'advance_application_id', 'travel_authorization_id', 'type_id', 'attachment', 'amount', 'net_payable_amount', 'balance_amount', 'status', 'advance_amount', 'total_number_of_days'];
+    protected $fillable = ['transaction_no', 'advance_application_id', 'travel_authorization_id', 'type_id', 'attachment', 'amount', 'net_payable_amount', 'balance_amount', 'status', 'advance_amount', 'total_number_of_days'];
 
     public function employee()
     {

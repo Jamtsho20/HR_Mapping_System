@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('travel_authorization_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('travel_authorization_no')->index();
+            $table->string('transaction_no')->index();
             $table->date('date');
             $table->decimal("estimated_travel_expenses", 10, 2);
             $table->decimal("advance_amount", 10, 2)->nullable();

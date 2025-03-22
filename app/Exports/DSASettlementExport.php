@@ -48,7 +48,7 @@ class DSASettlementExport implements FromCollection, WithHeadings
                         $dsa->daily_allowance,
                         $dsa->travel_allowance,
                         $dsa->total_amount,
-                        $claim->travel->travel_authorization_no ?? '-',
+                        $claim->travel->transaction_no ?? '-',
                         $claim->dsaadvance->amount ?? '-',
                         $claim->net_payable_amount,
                         $statusClasses[$claim->status] ?? 'Unknown Status',

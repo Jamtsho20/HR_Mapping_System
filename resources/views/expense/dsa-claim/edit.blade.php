@@ -17,10 +17,10 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="dsa_claim_no">Claim No <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="dsa_claim_no"
-                                value="{{ old('dsa_claim_no', $dsaClaimApplication->dsa_claim_no) }}" id="dsa_claim_no"
-                                value="{{ old('dsa_claim_no', $dsaClaimApplication->dsa_claim_no) }}"
+                            <label for="transaction_no">Claim No <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="transaction_no"
+                                value="{{ old('transaction_no', $dsaClaimApplication->transaction_no) }}" id="transaction_no"
+                                value="{{ old('transaction_no', $dsaClaimApplication->transaction_no) }}"
                                 placeholder="Generating..." readonly>
                         </div>
                     </div>
@@ -32,7 +32,7 @@
                                 @foreach ($travels as $travel)
                                     <option value="{{ $travel->id }}"
                                         {{ $dsaClaimApplication->travel_authorization_id == $travel->id ? 'selected' : '' }}>
-                                        {{ $travel->travel_authorization_no }}</option>
+                                        {{ $travel->transaction_no }}</option>
                                 @endforeach
                             </select>
                         </div>

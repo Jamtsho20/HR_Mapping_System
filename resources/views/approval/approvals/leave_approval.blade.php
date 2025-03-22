@@ -36,7 +36,7 @@
                                         STATUS
                                     </th>
                                     <th>
-                                        ACTION
+                                        VIEW
                                     </th>
                                 </tr>
                             </thead>
@@ -49,7 +49,7 @@
                                                     value="{{ $leave->id }}">
                                             </td>
                                         @endif
-                                        <td>{{ $leave->created_at->format('d-M-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($leave->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($leave->created_at)->format('h:i A') }}</td>
                                         <td>{{ $leave->employee->emp_id_name }}</td>
                                         <td>{{ $leave->leaveType->name }}</td>
                                         <td>{{ \Carbon\Carbon::parse($leave->from_date)->format('d-M-Y') }}</td>
@@ -62,7 +62,7 @@
                                                     -1 => 'badge bg-danger',
                                                     0 => 'badge bg-warning',
                                                     1 => 'badge bg-primary',
-                                                    2 => 'badge bg-success',
+                                                    2 => 'badge bg-primary',
                                                     3 => 'badge bg-info',
                                                 ];
                                                 $statusText = config(

@@ -43,8 +43,8 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="expense_no">Expense No <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="expense_no" id="expense_no"
+                                            <label for="transaction_no">Expense No <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="transaction_no" id="transaction_no"
                                                 placeholder="Generating..." readonly>
                                         </div>
                                     </div>
@@ -241,10 +241,10 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="dsa_claim_no">Claim No <span
+                                                <label for="transaction_no">Claim No <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="dsa_claim_no"
-                                                    id="dsa_claim_no" placeholder="Generating..." readonly>
+                                                <input type="text" class="form-control" name="transaction_no"
+                                                    id="transaction_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
 
@@ -257,7 +257,7 @@
                                                                 name="travel_authorization_id[]" multiple required>
                                                             @foreach ($travels as $travel)
                                                                 <option value='@json(["id" => $travel->id, "advance_id" => $travel->advance->id ?? null])'>
-                                                                    {{ $travel->travel_authorization_no }}
+                                                                    {{ $travel->transaction_no }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -276,7 +276,7 @@
                                                     <option value="" selected disabled>Select your option</option>
                                                     @foreach ($travels as $travel)
                                                         <option value="{{ $travel->id }}">
-                                                            {{ $travel->travel_authorization_no }}
+                                                            {{ $travel->transaction_no }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -285,7 +285,7 @@
                                         {{-- <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="dsa_advance_tour">Advance No</label>
-                                                <select class="form-control" id="dsa_advance_tour" name="advance_no">
+                                                <select class="form-control" id="dsa_advance_tour" name="transaction_no">
                                                     <option value="" selected disabled>Select your option</option>
                                                 </select>
                                             </div>
@@ -386,7 +386,7 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 <input
-                                                                    name="dsa_claim_detail[AAAAA][advance_no]"
+                                                                    name="dsa_claim_detail[AAAAA][transaction_no]"
                                                                     class="form-control form-control-sm resetKeyForNew"
                                                                     required />
                                                             </td>
@@ -518,10 +518,10 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="transfer_claim_no">Claim No <span
+                                                <label for="transaction_no">Claim No <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="transfer_claim_no"
-                                                    id="transfer_claim_no" placeholder="Generating..." readonly>
+                                                <input type="text" class="form-control" name="transaction_no"
+                                                    id="transaction_no" placeholder="Generating..." readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -1273,12 +1273,12 @@ document.addEventListener("click", function (event) {
                     data.travel_authorization_details.travel_authorizations.forEach((travel_authorizations, authIndex) => {
                         // <td colspan="4" class="text-center" style="color: black;">
                         //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" value="${travel_authorizations.travelAuthorization.id}">
-                        //                 Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                        //                 Travel Authorization Number: ${travel_authorizations.travelAuthorization.transaction_no}
                         //             </td>
                         //             <td colspan="4" class="text-center" style="color: black;">
                         //                 <input type="hidden" name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
-                        //                 ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
-                        //                     ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+                        //                 ${travel_authorizations.advance_details && travel_authorizations.advance_details.transaction_no
+                        //                     ? `Advance Number: ${travel_authorizations.advance_details.transaction_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
                         //                     : 'Advance Number: N/A, Advance Amount: N/A'}
                         //             </td>
                         // Append as a single row
@@ -1288,13 +1288,13 @@ document.addEventListener("click", function (event) {
 
                                     <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
                                         <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                            Travel Authorization Number: ${travel_authorizations.travelAuthorization.travel_authorization_no}
+                                            Travel Authorization Number: ${travel_authorizations.travelAuthorization.transaction_no}
                                         </span>
                                     </td>
                                     <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
                                         <span name="dsa_claim_detail[${travel_authorizations.details.id}][advance_detail_id]" data-value="${travel_authorizations.advance_detail ? travel_authorizations.advance_detail.id : ''}">
-                                            ${travel_authorizations.advance_details && travel_authorizations.advance_details.advance_no
-                                                ? `Advance Number: ${travel_authorizations.advance_details.advance_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
+                                            ${travel_authorizations.advance_details && travel_authorizations.advance_details.transaction_no
+                                                ? `Advance Number: ${travel_authorizations.advance_details.transaction_no}, Advance Amount: ${travel_authorizations.advance_details.amount || 'N/A'}`
                                                 : 'Advance Number: N/A, Advance Amount: N/A'}
                                         </span>
                                     </td>
@@ -1460,6 +1460,7 @@ $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', f
     if (currentVal > maxVal) {
         showErrorMessage(`Value cannot be more than the number of days`);
         $(this).val(maxVal); // Reset to max value
+        $(this).trigger("change");
     }
 });
             function getTravelAuthorizationDetails() {
@@ -1617,7 +1618,7 @@ $(document).on('input', 'input[name*="dsa_claim_detail"][name*="total_days"]', f
             //                     // Loop through the data and create options
             //                     data.forEach(item => {
             //                         const option =
-            //                             `<option value="${item.id}">${item.advance_no}</option>`;
+            //                             `<option value="${item.id}">${item.transaction_no}</option>`;
             //                         $("#dsa_advance_tour").append(option);
             //                     });
             //                 } else {

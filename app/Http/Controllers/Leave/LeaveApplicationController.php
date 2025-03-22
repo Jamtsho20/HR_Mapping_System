@@ -7,7 +7,6 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\EmployeeLeave;
 use App\Models\LeaveApplication;
 use App\Models\MasEmployeeJob;
-use App\Models\MasEmploymentType;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\User;
@@ -88,12 +87,7 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-        $matchingLeaves = prepareLeaveCombination(Carbon::parse($request->from_date));
-        if ($request->leave_type == CASUAL_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
-            if ($matchingLeaves[0]->type_id == EARNED_LEAVE && $matchingLeaves[1]->type_id == CASUAL_LEAVE) {
-                return back()->withInput()->with('msg_error', 'Leave combination of CL + EL + CL, last CL is not allowed. Please correct & try again.');
-            }
-        }
+
         try {
             DB::beginTransaction();
 
@@ -110,54 +104,21 @@ class LeaveApplicationController extends Controller
             ]);
             // Create a history record
             $historyService = new ApplicationHistoriesService();
-            // if this leave combination El + CL + EL happens then middle CL will be converted to EL and accordingly update data and update leave balance accordingly
-            if ($request->leave_type == EARNED_LEAVE && $matchingLeaves && $matchingLeaves->count() == 2) {
-                if ($matchingLeaves[0]->type_id == CASUAL_LEAVE && $matchingLeaves[1]->type_id == EARNED_LEAVE) {
-                    DB::table('employee_leaves')
-                        ->where('mas_leave_type_id', $matchingLeaves[0]->type_id)
-                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
-                        ->update([
-                            'leaves_availed' => DB::raw('leaves_availed + ' . $matchingLeaves[0]->no_of_days),
-                            'closing_balance' => DB::raw('closing_balance + ' . $matchingLeaves[0]->no_of_days),
-                        ]);
 
-                    // Deduct from the second leave type (decrement) which is converted leave type
-                    DB::table('employee_leaves')
-                        ->where('mas_leave_type_id', EARNED_LEAVE)
-                        ->where('mas_employee_id', $matchingLeaves[0]->created_by)
-                        ->update([
-                            'leaves_availed' => DB::raw('leaves_availed - ' . $matchingLeaves[0]->no_of_days),
-                            'closing_balance' => DB::raw('closing_balance - ' . $matchingLeaves[0]->no_of_days),
-                        ]);
-
-                    DB::table('leave_applications')->where('id', $matchingLeaves[0]->id)->update(['type_id' => 2]);
-                    DB::table('application_histories')
-                        ->where('application_type', \App\Models\MasLeaveType::class)
-                        ->where('application_id', $matchingLeaves[0]->id)
-                        ->update([
-                            'hierarchy_id' => $approverByHierarchy['hierarchy_id'],
-                            'max_level_id' => $approverByHierarchy['max_level_id'],
-                            'next_level_id' => $approverByHierarchy['next_level']->id,
-                            'approver_role_id' => $approverByHierarchy['approver_details']['approver_role_id'],
-                            'approver_emp_id' => $approverByHierarchy['approver_details']['user_with_approving_role']->id,
-                            'level_sequence' => $approverByHierarchy['next_level']->sequence,
-                        ]);
-                }
-            }
             $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
 
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
             DB::commit();
-            if(isset($approverByHierarchy['approver_details'])){
+            if (isset($approverByHierarchy['approver_details'])) {
                 $leaveType = MasLeaveType::where('id', $request->leave_type)->value('name');
                 $emailContent = 'has applied ' . $request->no_of_days . ' day(s) of ' .  $leaveType . ' from ' . $request->from_date . ' to ' . $request->to_date . '.';
                 $emailSubject = 'Leave';
-                try{
+                try {
                     // Mail::raw('This is a test email', function ($message) {
                     //     $message->to('heranghalley123@gmail.com')->subject('Test Email');
                     // });
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
-                }catch(\Exception $e){
+                } catch (\Exception $e) {
                     \Log::error('Error sending mail for ' . $request->leave_type . ': ' . $e->getMessage());
                 }
             }
@@ -176,12 +137,17 @@ class LeaveApplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+ 
     public function show($id)
     {
-        $leave = LeaveApplication::findOrfail($id);
+        $leave = LeaveApplication::findOrFail($id);
         $empDetails = empDetails($leave->created_by);
         $approvalDetail = getApplicationLogs(\App\Models\LeaveApplication::class, $leave->id);
-        return view('leave.leave.show', compact('leave', 'empDetails', 'approvalDetail'));
+        $leaveBalance = EmployeeLeave::where('mas_employee_id', $leave->created_by)
+            ->where('mas_leave_type_id', $leave->type_id) // Match the leave type
+            ->pluck('closing_balance')
+            ->first();
+        return view('leave.leave.show', compact('leave', 'empDetails', 'approvalDetail', 'leaveBalance'));
     }
 
     /**
@@ -267,10 +233,12 @@ class LeaveApplicationController extends Controller
 
     public function leaveBalance(Request $request)
     {
-        $leaveTypes = MasLeaveType::whereIn('id',[CASUAL_LEAVE, EARNED_LEAVE])->get(['id', 'name']);
+        $leaveTypes = MasLeaveType::whereIn('id', [CASUAL_LEAVE, EARNED_LEAVE])->get(['id', 'name']);
 
-        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where('mas_employee_id',
-                                    auth()->user()->id)->whereIn('mas_leave_type_id', [CASUAL_LEAVE, EARNED_LEAVE])->paginate(config('global.pagination'));
+        $balances = EmployeeLeave::filter($request)->with(['employee', 'leaveType'])->where(
+            'mas_employee_id',
+            auth()->user()->id
+        )->whereIn('mas_leave_type_id', [CASUAL_LEAVE, EARNED_LEAVE])->paginate(config('global.pagination'));
 
         return view('leave.leave.leave-balance', compact('balances', 'leaveTypes'));
     }
@@ -278,13 +246,13 @@ class LeaveApplicationController extends Controller
     private function handleLeaveApplication(Request $request, $leaveApplication = null)
     { //common function to handle store and update of leave
         $userDetails = User::where('id', loggedInUser())->first();
-        if($request->leave_type == EXTRA_ORDINARY_LEAVE && !$userDetails->no_probation){
-           $dateOfAppointment = new DateTime($userDetails->regularized_on);
-           $currentDate = new DateTime('now');
-           $interval = $dateOfAppointment->diff($currentDate)->y;
-           if($interval != 2){
-               return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave based on your year of service to the company, requires 2 years of service to the company.');
-           }
+        if ($request->leave_type == EXTRA_ORDINARY_LEAVE && !$userDetails->no_probation) {
+            $dateOfAppointment = new DateTime($userDetails->regularized_on);
+            $currentDate = new DateTime('now');
+            $interval = $dateOfAppointment->diff($currentDate)->y;
+            if ($interval != 2) {
+                return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave based on your year of service to the company, requires 2 years of service to the company.');
+            }
         }
 
         $leaveBalance = EmployeeLeave::where('mas_leave_type_id', $request->leave_type)
@@ -315,13 +283,14 @@ class LeaveApplicationController extends Controller
 
         $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
         $maxLeaveDays = $leavePolicy && $leavePolicy->leaveType ? $leavePolicy->leaveType->max_days : 0;
-        if($leavePolicy && $leavePolicy->leavePolicyPlan){
-            if($leavePolicy->leavePolicyPlan->gender != $userDetails->gender && $leavePolicy->leavePolicyPlan->gender != 3){
+        if ($leavePolicy && $leavePolicy->leavePolicyPlan) {
+            if ($leavePolicy->leavePolicyPlan->gender != $userDetails->gender && $leavePolicy->leavePolicyPlan->gender != 3) {
                 $count = LeaveApplication::where('created_by', loggedInUser())
-                                            ->where('type_id', $request->leave_type)
-                                            ->value('count');
+                    ->where('type_id', $request->leave_type)
+                    ->value('count');
                 if (($userDetails->gender == 1 && $request->leave_type == PATERNITY_LEAVE && $count >= 3) ||
-                    ($userDetails->gender == 2 && $request->leave_type == MATERNITY_LEAVE && $count >= 3)) {
+                    ($userDetails->gender == 2 && $request->leave_type == MATERNITY_LEAVE && $count >= 3)
+                ) {
                     return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave since you have availed for 3 times.');
                 }
                 return back()->withInput()->with('msg_error', 'You are not eligible to apply for this leave based on your gender.');

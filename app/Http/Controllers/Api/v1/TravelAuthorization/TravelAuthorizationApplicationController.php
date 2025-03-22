@@ -75,10 +75,7 @@ class TravelAuthorizationApplicationController extends Controller
             $travelAuthorizations = TravelAuthorizationApplication::with('travelType:id,name',  'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->with('details')->createdBy()->filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
             $mappedModel = TravelAuthorizationApplication::class;
             $travelAuthorizations = $travelAuthorizations->map(function ($travelAuthorization) use ($mappedModel) {
-                $travelAuthorization->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $travelAuthorization->id)
-                    ->value('remarks');
-                return $travelAuthorization;
+                return loadApplicationDetails($travelAuthorization, $mappedModel);
             });
             return response()->json([
                 'message' => 'Travel authorization applications retrieved successfully',
@@ -143,12 +140,13 @@ class TravelAuthorizationApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->travel_type, \App\Models\MasTravelType::class, $conditionFields ?? []);
             $date = formatDate(request('date'));
-            $travelAuthorizationNo = $this->ajax->getTravelNumber($request->travel_type)->getData()->travel_no;
-
+            $travelType = MasTravelType::where('id', $request->travel_type)->first();
+            $lastTransaction = TravelAuthorizationApplication::latest('id')->first();
+            $travelAuthorizationNo = generateTransactionNumber1($travelType, $lastTransaction, 'transaction_no');
             // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
         // dd($travelAuthorizationNo);
-            if (TravelAuthorizationApplication::where('travel_authorization_no', $travelAuthorizationNo)->exists()) {
+            if (TravelAuthorizationApplication::where('transaction_no', $travelAuthorizationNo)->exists()) {
                 // If the travel number already exists, throw an exception or return an error
                 return $this->errorResponse('Travel Authorization Number already exists. Please try again.', 500);
             }
@@ -156,8 +154,8 @@ class TravelAuthorizationApplicationController extends Controller
                 DB::beginTransaction();
 
 
-                $travelAuthorization->travel_authorization_no = $travelAuthorizationNo;
-                $travelAuthorization->date = $date;
+                $travelAuthorization->transaction_no = $travelAuthorizationNo;
+                $travelAuthorization->transaction_date = $date;
                 $travelAuthorization->total_days = $request->total_days;
                 $travelAuthorization->advance_amount = $request->advance_required;
                 $travelAuthorization->estimated_travel_expenses = $request->estimated_travel_expenses;
@@ -251,7 +249,7 @@ class TravelAuthorizationApplicationController extends Controller
             DB::beginTransaction();
 
             $travelAuthorization->update([
-                'travel_authorization_no' => $request->travel_authorization_no,
+                'transaction_no' => $request->transaction_no,
                 'date' => $date,
                 'advance_amount' => $request->advance_required,
                 'estimated_travel_expenses' => $request->estimated_travel_expenses,
@@ -349,7 +347,7 @@ class TravelAuthorizationApplicationController extends Controller
 
         $latestTransaction =  TravelAuthorizationApplication::latest('id')->first();
 
-        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->travel_authorization_no, -4) + 1 : 1;
+        $nextSequence = $latestTransaction ? (int)substr($latestTransaction->transaction_no, -4) + 1 : 1;
 
 
 
