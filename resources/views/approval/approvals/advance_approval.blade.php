@@ -48,7 +48,7 @@
                                         </td>
                                         <td>{{ $advance->employee->emp_id_name }}</td>
                                         <td>{{ $advance->advanceType->name }}</td>
-                                        <td>{{ $advance->amount }}</td>
+                                        <td class="text-right">{{ formatAmount($advance->amount) }}</td>
                                         <td class="text-center">
 
                                             @php

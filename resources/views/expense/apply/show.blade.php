@@ -37,7 +37,7 @@
                             <tr>
                                 <th style="width:35%;">Expense Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $expense->amount }}</td>
+                                <td style="padding-left:25px;"> {{ formatAmount($expense->amount )}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Description<span class="pull-right d-none d-sm-block">:</span>

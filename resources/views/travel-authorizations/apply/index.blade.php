@@ -65,7 +65,7 @@
                                                 <td>{{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-M-Y') }}</td>
 
                                                 <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
-                                                <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                                <td class="text-right">{{ formatAmount($travelAuthorization->estimated_travel_expenses )}}</td>
                                                 <!-- <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td> -->
 
                                                 <td>@php

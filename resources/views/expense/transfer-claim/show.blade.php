@@ -42,7 +42,7 @@
                             <tr>
                                 <th style="width:35%;">Amount Claimed <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $transfer->amount }}</td>
+                                <td style="padding-left:25px;"> {{formatAMount( $transfer->amount )}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>

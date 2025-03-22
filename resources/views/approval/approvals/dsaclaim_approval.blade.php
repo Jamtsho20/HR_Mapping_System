@@ -65,11 +65,11 @@
                                             <td>{{ $dsaclaim->employee->employee_id }}
                                                 ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
                                             <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
-                                            <td>{{ $dsaclaim->net_payable_amount }}
+                                            <td class="text-right">{{ formatAmount($dsaclaim->net_payable_amount) }}
                                             </td>
-                                            <td>{{ $dsaclaim->advance_amount ?? '0.00' }}
+                                            <td class="text-right">{{formatAmount($dsaclaim->advance_amount ?? '0.00') }}
                                             </td>
-                                            <td>{{ $dsaclaim->amount }}</td>
+                                            <td class="text-right">{{ formatAmount($dsaclaim->amount) }}</td>
 
                                             <td class="text-center">
                                                 @php

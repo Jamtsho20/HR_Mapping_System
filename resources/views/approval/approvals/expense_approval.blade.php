@@ -76,7 +76,7 @@
 
                                         <td>{{ $application->vehicle->location ?? config('global.null_value') }}
                                         </td>
-                                        <td>{{ $application->amount }}
+                                        <td class="text-right">{{ formatAmount($application->amount )}}
                                         </td>
                                         <td>{{ $application->description }}
                                         </td>
