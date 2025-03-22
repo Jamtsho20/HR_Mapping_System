@@ -40,7 +40,7 @@
                                 <th style="width:35%;">Estimated Expense Amount <span
                                         class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $travelAuthorization->estimated_travel_expenses }}
+                                <td style="padding-left:25px;"> {{ formatAmount($travelAuthorization->estimated_travel_expenses) }}
                                 </td>
                             </tr>
                             <tr>

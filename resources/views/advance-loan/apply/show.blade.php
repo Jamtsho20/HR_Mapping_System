@@ -49,16 +49,25 @@
                                 <th style="width:35%;">Amount<span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
-                                    {{ $advance->amount }}
+                                    {{ formatAmount($advance->amount )}}
                                 </td>
                             </tr>
-                            <tr>
+                            <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                            <td style="padding-left:25px;">
+                                @if (is_numeric($advance->total_amount))
+                                {{ formatAmount(floatval($advance->total_amount), 2) }} {{-- Format as float with 2 decimal places --}}
+                                @else
+                                - {{-- Display "-" if it's not a valid number --}}
+                                @endif
+                            </td>
+                            </tr>
+                            <!-- <tr>
                                 <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
                                     {{ $advance->total_amount ?? '-' }}
                                 </td>
-                            </tr>
+                            </tr> -->
                             <tr>
                                 <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">

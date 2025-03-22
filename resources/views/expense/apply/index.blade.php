@@ -103,7 +103,7 @@
                                                                     <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-M-Y') }}</td>
                                                                     <td>{{ $expense->type->name }}
                                                                     </td>
-                                                                    <td>{{ $expense->amount }}</td>
+                                                                    <td class="text-right">{{formatAmount($expense->amount) }}</td>
                                                                     <td>{{ $expense->description }}</td>
                                                                     <td class="text-center">
                                                                         {{ \Carbon\Carbon::parse($expense->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($expense->created_at)->format('h:i A') }}
@@ -215,11 +215,11 @@
                                                                     <td>{{ $empIdName }}
 
                                                                     <td>{{ $dsaClaim->created_at->format('d-M-Y') }}
-                                                                    <td>{{ $dsaClaim->net_payable_amount }}
+                                                                    <td class="text-right">{{ formatAmount($dsaClaim->net_payable_amount )}}
                                                                     </td>
-                                                                    <td>{{ $dsaClaim->dsaexpense?->amount ?? '0.00' }}
+                                                                    <td class="text-right">{{ formatAmount($dsaClaim->dsaexpense?->amount ?? '0.00' )}}
                                                                     </td>
-                                                                    <td>{{ $dsaClaim->amount }}</td>
+                                                                    <td class="text-right">{{ formatAmount($dsaClaim->amount) }}</td>
                                                                     <td class="text-center">
                                                                         {{ \Carbon\Carbon::parse($dsaClaim->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsaClaim->created_at)->format('h:i A') }}
                                                                     </td>
@@ -336,7 +336,7 @@
                                                                     </td>
                                                                     <td>{{ $transfer->type->name }}
                                                                     </td>
-                                                                    <td>{{ $transfer->amount }}
+                                                                    <td class="text-right">{{ formatAmount($transfer->amount )}}
                                                                     </td>
                                                                     <td>{{ $transfer->current_location }}
                                                                     </td>

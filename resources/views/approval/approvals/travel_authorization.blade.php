@@ -43,7 +43,7 @@
                                         <td>{{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('h:i A') }}</td>
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
-                                        <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                        <td class="text-right">{{ formatAmount($travelAuthorization->estimated_travel_expenses )}}</td>
                                         @if (request()->is('approval/applications'))
                                             <td id="timeLeftForApproval-{{ $travelAuthorization->id }}"
                                                 class=" text-danger"></td>

@@ -446,3 +446,10 @@ if(!function_exists('normalizePathForDisplay') ) {
         return $path;
     }
 }
+
+if (!function_exists('formatAmount')) {
+    function formatAmount($amount)
+    {
+        return 'Nu. ' . number_format($amount, 2);
+    }
+}

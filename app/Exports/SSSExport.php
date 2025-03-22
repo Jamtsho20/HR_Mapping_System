@@ -38,6 +38,7 @@ class SSSExport implements FromCollection, WithHeadings
                     $serialNo++,
                     $sss->employee->username,
                     $sss->employee->name,
+                    $sss->employee->cid_no,
                     $sss->policy_number ?? '-',
                     $sss->amount,
                     $sss->for_month,
@@ -51,6 +52,7 @@ class SSSExport implements FromCollection, WithHeadings
             'Sl No',
             'Employee ID',
             'Employee Name',
+            'CID',
             'Policy Number',
             'SSS Amount',
 
