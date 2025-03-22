@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\AdvanceLoanExport;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
+use App\Models\MasAdvanceTypes;
 use App\Models\MasDepartment;
 use App\Models\MasSection;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -27,13 +28,13 @@ class AdvanceLoanReportController extends Controller
     {
         $privileges = $request->instance();
         $employeeLists = employeeList();
-
+        $advanceType = MasAdvanceTypes::whereIn('id', [2, 4])->get();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
         $advanceReports = AdvanceApplication::filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
 
 
-        return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'sections', 'advanceReports'));
+        return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'sections', 'advanceReports', 'advanceType'));
     }
 
     /**

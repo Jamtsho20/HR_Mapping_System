@@ -49,6 +49,20 @@
 
             </div>
 
+            <div class="col-md-3">
+                <select name="advance_type" class="form-control select2 select2-hidden-accessible"
+                    data-placeholder="Select Advance">
+                    <option value="" disabled="" selected="" hidden="">Select Advance Type</option>
+                    @foreach ($advanceType as $type)
+                        <option value="{{ $type->id }}"
+                            {{ request()->get('advance_type') == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+            </div>
+
             <div class="col-md-2">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Section" name="section">
                     <option value="" disabled selected hidden>Select Sections</option>
