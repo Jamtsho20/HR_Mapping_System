@@ -98,13 +98,14 @@
             <div class="app-sidebar__overlay" data-bs-toggle="sidebar"></div>
             <aside class="app-sidebar ps ps--active-y sidemenu-scroll">
                 <div class="side-header">
+                    <!-- LOGO code from here -->
                     <a class="header-brand1" href="/">
-                        <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img desktop-logo"
+                        <!-- <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img desktop-logo"
                             alt="logo" />
                         <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img toggle-logo"
                             alt="logo" />
                         <img src="{{ asset('assets/images/brand/logo.png') }}" class="header-brand-img light-logo"
-                            alt="logo" />
+                            alt="logo" /> -->
                         <img src="{{ asset('assets/images/brand/logo3.png') }}" class="header-brand-img light-logo1"
                             alt="logo" style="width:90px; height:50px" />
                     </a>
