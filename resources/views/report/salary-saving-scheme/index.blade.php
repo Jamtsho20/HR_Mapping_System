@@ -56,10 +56,15 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            Employee ID </th>
+                                                            Employee ID
+                                                        </th>
                                                         <th>
                                                             Full name
                                                         </th>
+                                                        <th>
+                                                            CID
+                                                        </th>
+
                                                         <th>
                                                             policy number
                                                         </th>
@@ -81,6 +86,7 @@
                                                             </td>
                                                             <td>{{ $salary->employee->username }}</td>
                                                             <td>{{ $salary->employee->name }}</td>
+                                                            <td>{{ $salary->employee->cid_no }}</td>
                                                             <td>{{ $salary->policy_number }}</td>
                                                             <td>{{ $salary->amount }}</td>
                                                             <td>{{ $salary->for_month }}</td>

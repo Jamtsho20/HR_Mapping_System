@@ -59,7 +59,7 @@
                                                     <td>{{ $advance->advanceType->name }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
                                                     </td>
-                                                    <td>{{ number_format($advance->amount, 2) }}</td>
+                                                    <td class="text-right">{{ formatAmount($advance->amount) }}</td>
                                                     <td class="text-center">
                                                         {{ \Carbon\Carbon::parse($advance->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($advance->created_at)->format('h:i A') }}
                                                     </td>

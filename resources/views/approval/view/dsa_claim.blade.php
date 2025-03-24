@@ -39,17 +39,17 @@
                                     <tr>
                                         <th style="width:35%;">Advance Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->total_amount ?? '-' }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->total_amount ?? '-') }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Net Payable Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? '-' }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? '-' )}}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Balance Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->balance_amount }}</td>
+                                        <td style="padding-left:25px;"> {{ fomatAmount($dsa->balance_amount )}}</td>
                                     </tr>
 
 
@@ -168,23 +168,23 @@
                             <tr>
                                 <th style="width:35%;">Total Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->amount ?? config('global.null_value') )}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Advance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{formatAmount($dsa->advance_amount ?? config('global.null_value') )}}</td>
                             </tr>
 
                             <tr>
                                 <th style="width:35%;">Net Payable Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Balance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->balance_amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{formatAmount( $dsa->balance_amount ?? config('global.null_value') )}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Total Number of Days <span
@@ -325,7 +325,23 @@
 
                                             </td>
                                         </tr>
+                       
                                     @endforeach
+                                    <tr style="font-weight: bold; background-color: #f5f5f5">
+                                    
+                                <td colspan="2" style="padding-left:25px;"></td>
+                                <th style="width:35%;">Total Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->amount ?? config('global.null_value') )}}</td>
+                                <th style="width:35%;">Advance Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{formatAmount($dsa->advance_amount ?? config('global.null_value') )}}</td>
+
+                                <th style="width:35%;">Net Payable Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
+                            </tr>
+                         
                                     </tbody>
                                 </table>
                             </div>

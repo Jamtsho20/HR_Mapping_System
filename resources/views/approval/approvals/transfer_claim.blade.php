@@ -70,7 +70,7 @@
                                             </td>
                                             <td>{{ $transferclaim->type->name}}
                                             </td>
-                                            <td>{{ $transferclaim->amount }}
+                                            <td class="text-right">{{ formatAmount($transferclaim->amount )}}
                                             </td>
                                             <td>{{ $transferclaim->current_location }}
                                             </td>
