@@ -29,7 +29,8 @@ class AnniversaryController extends Controller
                 'department' => $employee->empJob->department->name ?? 'N/A',
                 'office' => $employee->empJob->office->name ?? 'N/A',
                 'region' => $region,
-                'dzongkhag' => $employee->empPresentAddress->masDzongkhag->dzongkhag ?? 'N/A', // assuming dzongkhag is in PresentAddress
+                'dzongkhag' => $employee->empPresentAddress->masDzongkhag->dzongkhag ?? 'N/A',
+                'contact' => $employee->contact_number
             ];
         });
 
@@ -56,10 +57,10 @@ class AnniversaryController extends Controller
             'emp_id' => $employee->username,
             'empname' => $employee->name,
             'department' => $employee->empJob->department->name ?? 'N/A',
-           
             'office' => $employee->empJob->office->name ?? 'N/A',
             'region' => $region,
-            'dzongkhag' => $employee->empPresentAddress->masDzongkhag->dzongkhag ?? 'N/A', // Assuming it's in PresentAddress
+            'dzongkhag' => $employee->empPresentAddress->masDzongkhag->dzongkhag ?? 'N/A', 
+            'contact' => $employee->contact_number,
         ];
 
         return response()->json($employeeData);
