@@ -16,7 +16,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="requisition_type">Requisition Type <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="requisition_type" name="requisition_type" value="{{$requisition->requisitionType->name}}" placeholder="Enter Requisition Type" readonly>
+                        <input type="text" class="form-control" id="requisition_type" name="requisition_type" value="{{$requisition->type->name}}" placeholder="Enter Requisition Type" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -59,7 +59,7 @@
 
                             <tr>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][grn_no]" value="{{$detail->grn_no}}" required readonly />
+                                    <input type="text" class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][grn_no]" value="{{$detail->serials}}" required readonly />
 
                                 </td>
                                 <td>
@@ -69,10 +69,10 @@
                                     <input type="text" name="details[AAAAA][uom]" value="{{$detail->uom}}" class="form-control form-control-sm resetKeyForNew" readonly required />
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][store]" value="{{$detail->grnMapping->store->name}}" class="form-control form-control-sm resetKeyForNew" readonly required>
+                                    <input type="text" name="details[AAAAA][store]" value="{{$detail->grnItemDetail->store->name}}" class="form-control form-control-sm resetKeyForNew" readonly required>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][stock_status]" value="{{$detail->grnMapping->current_stock}}" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
+                                    <input type="text" name="details[AAAAA][stock_status]" value="{{$detail->grnItemDetail->current_stock}}" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
                                         </td>
                                 <td>
                                     <input type="number" name="details[AAAAA][quantity_required]" value="{{$detail->quantity_required}}" class="form-control form-control-sm resetKeyForNew quantity-input" required readonly />

@@ -64,7 +64,7 @@ class RequisitionApplicationController extends Controller
      {
          $privileges = $request->instance();
          $reqTypes = MasRequisitionType::get(['id', 'name']);
-         $requisitions = RequisitionApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+         $requisitions = RequisitionApplication::with('details.grnItem')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
          return view('asset.requisition-apply.index', compact('privileges', 'requisitions', 'reqTypes'));
      }
 
