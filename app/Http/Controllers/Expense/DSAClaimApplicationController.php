@@ -95,13 +95,10 @@ class DSAClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->dsa_claim_type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
 
-
-        $dsaClaimNo = $this->ajax->getDsaClaimNumber($request->dsa_claim_type_id);
-
-        $dsaType = DsaClaimType::where('id', $request->advance_type)->first();
+        $dsaType = DsaClaimType::where('id', $request->dsa_claim_type_id)->first();
         $lastTransaction = DsaClaimApplication::latest('id')->first();
         $dsaClaimNo = generateTransactionNumber1($dsaType, $lastTransaction, 'transaction_no');
-            
+
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
         if (DsaClaimApplication::where('transaction_no', $dsaClaimNo)->exists()) {

@@ -27,7 +27,7 @@ class BusinessUnitController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-           
+
         return view('work-structure.business-unit.index', compact('privileges'));
     }
 
@@ -51,6 +51,41 @@ class BusinessUnitController extends Controller
     {
         //
     }
+    // public function updateLogo(Request $request)
+    // {
+    //     $request->validate([
+    //         'logo' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+    //     ]);
+
+    //     if ($request->hasFile('logo')) {
+    //         $file = $request->file('logo');
+    //         $filename = 'logo.png'; // Override old logo
+    //         $file->storeAs('public', $filename); // Save in storage/app/public/
+
+    //         return back()->with('success', 'Logo updated successfully!');
+    //     }
+
+    //     return back()->with('error', 'Please select a valid image file.');
+    // }
+    public function updateLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+    
+        if ($request->hasFile('logo')) {
+            $logo = $request->file('logo');
+            $logoName = 'logo3.png'; // Keeping the same name to avoid changing file references
+            $logoPath = public_path('assets/images/brand/' . $logoName);
+    
+            // Move the uploaded file and replace the existing logo
+            $logo->move(public_path('assets/images/brand/'), $logoName);
+        }
+    
+        return back()->with('success', 'Logo updated successfully!');
+    }
+    
+    
 
     /**
      * Display the specified resource.
