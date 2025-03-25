@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
+use App\Models\AssetCommissionDetail;
 use App\Models\DsaClaimApplication;
 use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
@@ -55,6 +56,8 @@ use App\Models\DsaClaimMappings;
 use App\Models\MasDzongkhag;
 use App\Models\MasGrnItem;
 use App\Models\MasGrnItemDetail;
+use App\Models\MasSite;
+use App\Models\ReceivedSerial;
 use App\Models\RequisitionDetail;
 
 class AjaxRequestController extends Controller
@@ -417,7 +420,7 @@ class AjaxRequestController extends Controller
         }])
             ->whereTypeId($id)
             ->whereStatus(1)
-            ->first();
+            ->first(); 
 
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
@@ -438,7 +441,7 @@ class AjaxRequestController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
-            10 => MasCommissionTypes::class,
+            11 => MasCommissionTypes::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -703,36 +706,53 @@ class AjaxRequestController extends Controller
 
     public function getAssetNoByGrnId($grnId)
     {
-        $uomValue = "";
-        $itemDescription = ""; //default item description if asset description null
-        $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
-        try{
-            $uom = MasGrnItemDetail::where('grn_id', $grnId)
-                ->with(['item' => function ($query) {
-                    $query->select('id', 'uom', 'item_description'); // Only fetch the 'uom' field
-                }])
-                ->first();
-            $uomValue = $uom->item->uom;
-            $itemDescription = $uom->item->item_description;
-
-            $assetNos = RequisitionDetail::where('grn_item_id', $grnId)
+        $existingSerials = AssetCommissionDetail::pluck('received_serial_id')->toArray();
+        // dd($existingSerials);
+        try {
+            $assetNosQuery = RequisitionDetail::where('id', $grnId)
                 ->whereHas('serials', function ($query) {
                     $query->where('is_commissioned', 0);
                 })
-                ->with(['serials' => function ($query) use($itemDescription) {
-                    $query->where('is_commissioned', 0)->selectRaw("id, requisition_detail_id, asset_serial_no, IFNULL(asset_description, '$itemDescription') AS asset_description"); //incase if description is null in received serials the sent default item description
-                }])
-                ->selectRaw("id, requisition_id, grn_item_id, CONCAT(GREATEST(0, received_quantity - commissioned_quantity - transferred_quantity - returned_quantity), ' $uomValue') AS qty_at_hand")
-                ->get();
-            //   dd($assetNos);
+                ->with(['serials' => function ($query) use ($existingSerials) {
+                        $query->where('is_commissioned', 0);
+                        if(!empty($existingSerials)){
+                            $query->whereNotIn('id', $existingSerials);
+                        }
+                        $query->selectRaw("id, requisition_detail_id, asset_serial_no");
+                    },
+                ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
+                // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
+            $assetNos = $assetNosQuery->get();
             if ($assetNos->isEmpty()) {
                 return $this->errorResponse('No asset numbers found for the provided GRN number.');
+            } else {
+                $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
             }
-            // dd($assetNos);
+            
             return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             \Log::info("asset commission: " . $e->getMessage());
             return $this->internalServerErrorResponse('Something went wrong while fetching asset numbers. Please try again.');
         }   
+    }
+
+    public function getDescriptionAndUomBySerialId($serialId) 
+    {
+        try {
+            $serial = ReceivedSerial::where('id', $serialId)->with(['requisitionDetail.grnItemDetail.item'])->get();
+            return $this->successResponse(['serial' => $serial]);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching description and quantity. Please try again.');
+        }
+    }
+
+    public function getSitesByDzongkhagId($dzongkhagId)
+    {
+        try {
+            $sites = MasSite::where('dzongkhag_id', $dzongkhagId)->get(['id', 'name']);
+            return $this->successResponse(['sites' => $sites]);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching sites. Please try again.');
+        }
     }
 }
