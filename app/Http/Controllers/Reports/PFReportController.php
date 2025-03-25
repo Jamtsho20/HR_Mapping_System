@@ -85,6 +85,7 @@ class PFReportController extends Controller
             6 => 0.05, // general support staff long term contract
             7 => 0.05, //Short Term Contract
             8 => 0,
+            9 => 0.15, //longterm T2
         ];
 
         //calculate
