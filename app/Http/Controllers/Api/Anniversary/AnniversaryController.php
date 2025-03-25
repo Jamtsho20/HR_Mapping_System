@@ -13,11 +13,11 @@ class AnniversaryController extends Controller
     public function getEmployees()
     {
         $employees = User::with('empJob.department', 'empJob.office', 'region') // Eager load relationships
+            ->where('is_active', 1) 
             ->get();
 
-        // Transform employees if needed (e.g., to make sure all necessary fields are returned)
         $employees = $employees->map(function ($employee) {
-            //dd($employee);
+            // dd($employee);
             $office = $employee->empJob->office->name ?? 'N/A';
 
 
@@ -28,6 +28,7 @@ class AnniversaryController extends Controller
                 'empname' => $employee->name,
                 'department' => $employee->empJob->department->name ?? 'N/A',
                 'office' => $employee->empJob->office->name ?? 'N/A',
+                'email' => $employee->email ?? 'N/A',
                 'region' => $region,
                 'dzongkhag' => $employee->empPresentAddress->masDzongkhag->dzongkhag ?? 'N/A',
                 'contact' => $employee->contact_number
@@ -52,12 +53,12 @@ class AnniversaryController extends Controller
 
         $region = MasRegionLocation::where('name', $office)
             ->first()?->region->name ?? 'N/A';
-        // Transform the employee data for response
         $employeeData = [
             'emp_id' => $employee->username,
             'empname' => $employee->name,
             'department' => $employee->empJob->department->name ?? 'N/A',
             'office' => $employee->empJob->office->name ?? 'N/A',
+            'email' => $employee->email ?? 'N/A',
             'region' => $region,
             'dzongkhag' => $employee->empPresentAddress->masDzongkhag->dzongkhag ?? 'N/A', 
             'contact' => $employee->contact_number,
