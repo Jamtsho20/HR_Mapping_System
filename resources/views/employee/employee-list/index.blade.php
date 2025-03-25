@@ -167,7 +167,7 @@
                                                                     <td>{{ $employee->empJob->office->name ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $employee->date_of_appointment }}</td>
-                                                                    <td>{{ $employee->empJob->gradeStep->name }}</td>
+                                                                    <td>{{ $employee->empJob->gradeStep->name ?? config('global.null_value')}}</td>
                                                                     <td>{{ $employee->contact_number }}</td>
                                                                     <td>{{ $employee->email }}</td>
                                                                     <td class="text-center">
