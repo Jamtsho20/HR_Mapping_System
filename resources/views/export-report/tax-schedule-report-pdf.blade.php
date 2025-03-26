@@ -92,6 +92,9 @@
                     Health Tax
                 </th>
                 <th>
+                    Salary Tax
+                </th>
+                <th>
                     Total Tax
                 </th>
                 <th>
@@ -115,6 +118,7 @@
                     <td>{{ $pf->details['deductions']['GSLI'] ?? '0' }}</td>
                     <td>{{ $pf->details['net_pay'] ?? '0' }}</td>
                     <td>{{ $pf->details['deductions']['H/Tax'] ?? '0' }}</td>
+                    <td>{{ $pf->details['deductions']['Salary Tax'] ?? '0' }}</td>
                     <td>{{ ($pf->details['deductions']['Salary Tax'] ?: 0) + ($pf->details['deductions']['H/Tax'] ?: 0) }}
                     </td>
                     <td>{{ $pf->for_month }}</td>
@@ -135,6 +139,7 @@
                 <td>{{ $totalGIS }}</td>
                 <td>{{ $totalNet }}</td>
                 <td>{{ $totalHealth }}</td>
+                <td>{{ $totalSalaryTax }}</td>
                 <td>{{ $totalHealth + $totalSalaryTax }}</td>
             </tr>
         </tbody>
