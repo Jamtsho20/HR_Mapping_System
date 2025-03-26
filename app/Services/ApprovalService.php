@@ -15,7 +15,6 @@ class ApprovalService
 {
 	public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
 	{
-		dd($conditionfields);
 		$loggedInUserRoleId = Auth::user()->roles->collect();
 		// incase if employee has this two roles then it will be different from normal hierarchy
 		// Filter and collect the desired roles

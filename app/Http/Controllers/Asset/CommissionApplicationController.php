@@ -85,7 +85,6 @@ class CommissionApplicationController extends Controller
             }
         }
 
-        // dd($attachment);
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
@@ -94,14 +93,14 @@ class CommissionApplicationController extends Controller
         $comType = MasCommissionTypes::where('id', COMMISSION_TYPE)->first();
         $lastTransaction = AssetCommissionApplication::latest('id')->first();
         $transactionNo = generateTransactionNumber1($comType, $lastTransaction, 'transaction_no');
-        
         try {
             DB::beginTransaction();
             $commissionApplication = AssetCommissionApplication::create([
+                'type_id' => COMMISSION_TYPE,
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => $attachments ?? null,
+                'file' => !empty($attachments) ? json_encode($attachments) : null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
@@ -145,7 +144,9 @@ class CommissionApplicationController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // $leave = LeaveApplication::findOrfail($id);
+        // $empDetails = empDetails($leave->created_by);
+        // $approvalDetail = getApplicationLogs(\App\Models\LeaveApplication::class, $leave->id);
     }
 
     /**

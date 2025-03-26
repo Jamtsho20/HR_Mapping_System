@@ -29,7 +29,6 @@
                                         </option>
                                     @endforeach
                                 @endforeach
-
                             </select>
                         </div>
                     </div>
@@ -38,6 +37,8 @@
                             <label for="commission_date">Commission Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="commission_date" id="commission_date"
                                 value="{{ old('commission_date', date('Y-m-d')) }}">
+
+                            <input type="hidden" name="total_quantity" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
                         </div>
                     </div>
 
@@ -90,6 +91,7 @@
                                     <th>Description*</th>
                                     <th>UOM*</th>
                                     <th>Qty*</th>
+                                    <th>Amount (Nu.)*</th>
                                     <th>Dzongkhag*</th>
                                     {{-- <th>Quantity*</th> --}}
                                     <th>Date Place In Service*</th>
@@ -127,6 +129,11 @@
                                     </td>
                                     <td>
                                         <input type="number" name="details[AAAAA][qty]" value=""
+                                            class="form-control form-control-sm resetKeyForNew quantity-input text-right" readonly
+                                            required />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="details[AAAAA][amount]" value=""
                                             class="form-control form-control-sm resetKeyForNew text-right" readonly
                                             required />
                                     </td>
@@ -155,7 +162,7 @@
                                 </tr>
 
                                 <tr class="notremovefornew">
-                                    <td colspan="8"></td>
+                                    <td colspan="9"></td>
                                     <td class="text-right">
                                         <a href="#" class="add-table-row btn btn-sm btn-info"
                                             style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
@@ -231,6 +238,7 @@
                         type: "GET",
                         success: function(data) {
                             let serialData = data?.data?.serial[0];
+                            console.log(serialData)
                             if (serialData) {
                                 row.find("input[name^='details'][name$='[description]']").val(
                                     serialData.asset_description ?? serialData
@@ -240,6 +248,10 @@
                                     serialData?.requisition_detail?.grn_item_detail.item.uom
                                 );
                                 row.find("input[name^='details'][name$='[qty]']").val(1);
+                                row.find("input[name^='details'][name$='[amount]']").val(
+                                    serialData.amount ?? 0.00
+                                );
+                                updateTotalQuantity();
                             }
                         },
                         error: function(error) {
@@ -297,6 +309,17 @@
                     siteDropdown.append('<option value="' + site.id + '">' + site.name + '</option>');
                 });
             }
+
+            function updateTotalQuantity() {
+                let total = 0;
+                $(".quantity-input").each(function () {
+                    let value = $(this).val();
+                    total += value ? parseFloat(value) : 0;
+                });
+                $("#total-quantity-id").val(total);
+            }
+
+            updateTotalQuantity();
 
         })
     </script>
