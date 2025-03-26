@@ -40,6 +40,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
                 $taxSchedules->details['deductions']['GSLI'] ?? '-',
                 $taxSchedules->details['net_pay'] ?? '-',
                 $taxSchedules->details['deductions']['H/Tax'] ?? '-',
+                $taxSchedules->details['deductions']['Salary Tax'] ?? '-',
                 $hTax +  $tds,
                 $taxSchedules->for_month,
             ];
@@ -59,6 +60,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
             'GIS',
             'Net Salary',
             'Health Tax',
+            'Salary Tax',
             'Total Tax',
             'Date',
         ];
