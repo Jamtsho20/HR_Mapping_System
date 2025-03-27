@@ -4,18 +4,40 @@ namespace App\Http\Controllers\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    public function show($id)
+    public function show($id, Request $request)
     {
-        // Retrieve the employee by their ID
         $employee = User::findOrFail($id); // Use findOrFail to handle cases where the ID is not found
 
-        // Pass the employee data to the view
-        return view('user-profile.user-profile.show', compact('employee'));
+        $employeeId = $employee->employee_id;
+        $month = $request->month = 12;
+        $directory = storage_path('payslips');
+        $files = array_diff(scandir($directory), ['.', '..']);
+        $payslips = array_filter($files, function ($file) use ($employeeId, $month) {
+            return preg_match("/\({$employeeId}\)_\d{4}_{$month}\.pdf$/", $file);
+        });
+        $payslipData = [];
+        foreach ($payslips as $payslip) {
+            if (preg_match("/\({$employeeId}\)_(\d{4})_({$month})\.pdf$/", $payslip, $matches)) {
+                $year = $matches[1];  
+                $month = $matches[2];  
+
+                $payslipData[] = [
+                    'filename' => $payslip,
+                    'year' => $year,
+                    'month' => Carbon::createFromFormat('m', $month)->format('F')
+                ];
+            }
+        }
+        $payslips = $payslipData;
+
+        return view('user-profile.user-profile.show', compact('employee', 'payslips'));
     }
 
     // Method to display the edit form
@@ -50,5 +72,16 @@ class ProfileController extends Controller
 
         // Redirect back with a success message
         return redirect()->back()->with('msg_success', 'Profile picture updated successfully.');
+    }
+    
+    public function viewPayslip($filename)
+    {
+        $path = storage_path("payslips/{$filename}");
+
+        if (!file_exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        return Response::file($path, ['Content-Type' => 'application/pdf']);
     }
 }
