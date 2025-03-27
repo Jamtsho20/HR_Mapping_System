@@ -374,6 +374,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('mas-item', 'MasItemsController');
         // Route::resource('requisition', 'RequisitionApplicationController')->except('create', 'show', 'edit');
         Route::resource('requisition', 'RequisitionApplicationController');
+        Route::get('requisition/{id}/receive', 'RequisitionApplicationController@receive')->name('requisition.receive');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');

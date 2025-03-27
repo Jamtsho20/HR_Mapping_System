@@ -1,9 +1,12 @@
 <x-mail::message>
-# Dear {{ $gm }}
+# Dear {{ $employee }}
 
 Greetings for the day!!
 
-{{ $emailContent }}
+Your requested goods under **Requisition No: {{ $requisitionNo }}**
+have been successfully issued on **{{ $issuedDate }}** by **{{ $issuedBy }}**.
+
+Please check your system for further details.
 
 Sincerely,
 Tashi InfoComm Private Limited.

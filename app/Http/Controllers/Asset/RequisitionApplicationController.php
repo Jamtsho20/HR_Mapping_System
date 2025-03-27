@@ -68,6 +68,11 @@ class RequisitionApplicationController extends Controller
          return view('asset.requisition-apply.index', compact('privileges', 'requisitions', 'reqTypes'));
      }
 
+     public function receive(string $id)
+     {
+        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
+        return view('asset.requisition-apply.receive', compact('requisition'));
+     }
      /**
       * Show the form for creating a new resource.
       */
@@ -138,10 +143,14 @@ class RequisitionApplicationController extends Controller
      /**
       * Display the specified resource.
       */
-     public function show(string $id)
+
+
+
+      public function show(string $id)
      {
         $requisition = RequisitionApplication::with('histories')->find($id);
-        return view('asset.requisition-apply.show', compact('requisition'));
+        $approvalDetail = getApplicationLogs(\App\Models\RequisitionApplication::class, $requisition->id);
+        return view('asset.requisition-apply.show', compact('requisition', 'approvalDetail'));
      }
 
      /**

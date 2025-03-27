@@ -9,10 +9,13 @@ use App\Models\MasGrnItemDetail;
 use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
+use App\Models\User;
+use App\Mail\GoodsIssuedMail;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 class ApiController extends BaseController
 {
@@ -306,6 +309,13 @@ class ApiController extends BaseController
                         ReceivedSerial::insert($serialsData);
                     }
                 }
+            }
+
+            $employee = User::find($reqApplication->created_by); // Ensure employee_id exists in requisition
+            if ($employee && $employee->email) {
+                Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $reqApplication));
+            } else {
+                \Log::warning("Email not sent: No email found for user ID {$reqApplication->created_by}");
             }
 
             DB::commit();
