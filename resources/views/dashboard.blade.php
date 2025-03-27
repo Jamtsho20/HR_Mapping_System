@@ -288,6 +288,49 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
 
     </div>
 
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-condensed table-striped table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th colspan="4">
+                                        <h5><strong>Assets</strong></h5>
+                                    </th>
+                                </tr>
+                                <tr class="thead-light">
+                                    <th>#</th>
+                                    <th>Serial Number</th>
+                                    <th>Item Description</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($assetData as $index => $asset)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>
+                                         @foreach ($asset->serials as $serial)
+                                        {{ $serial->asset_serial_no }}<br>
+                                        @endforeach
+                                    </td>
+                                    <td>{{ $asset->grnItemDetail->item->item_description }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-danger">No assets found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
 
 

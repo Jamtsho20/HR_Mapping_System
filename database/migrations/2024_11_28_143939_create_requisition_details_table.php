@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('requested_quantity')->default(0);
             $table->integer('received_quantity')->default(0);
             $table->integer('commissioned_quantity')->default(0);
+            $table->integer('transferred_quantity')->default(0);
+            $table->integer('returned_quantity')->default(0);
             $table->tinyInteger('status')->index();
             $table->foreignId('grn_item_id')->index()->constrained('mas_grn_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('grn_item_detail_id')->index()->constrained('mas_grn_item_details')->cascadeOnUpdate()->cascadeOnDelete();

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('transaction_no')->index();
             $table->foreignId('type_id')->index()->constrained('mas_transfer_types')->restrictOnDelete()->cascadeOnUpdate();
             $table->date('transaction_date')->index();
-            $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->comment('do transfer against goods received detail as it has to be done against each GRN');
+            // $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->comment('do transfer against goods received detail as it has to be done against each GRN');
             $table->text('reason_of_transfer');
             $table->foreignId('from_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('to_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();

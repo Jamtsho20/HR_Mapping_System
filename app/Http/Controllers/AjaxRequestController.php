@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
+use App\Models\AssetCommissionDetail;
 use App\Models\DsaClaimApplication;
 use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
@@ -52,6 +53,12 @@ use App\Models\GoodReceiptApplicationDetail;
 use App\Models\LeaveApplication;
 use DateTime;
 use App\Models\DsaClaimMappings;
+use App\Models\MasDzongkhag;
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
+use App\Models\MasSite;
+use App\Models\ReceivedSerial;
+use App\Models\RequisitionDetail;
 
 class AjaxRequestController extends Controller
 {
@@ -413,7 +420,7 @@ class AjaxRequestController extends Controller
         }])
             ->whereTypeId($id)
             ->whereStatus(1)
-            ->first();
+            ->first(); 
 
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
@@ -434,7 +441,7 @@ class AjaxRequestController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
-            10 => MasCommissionTypes::class,
+            11 => MasCommissionTypes::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -673,48 +680,6 @@ class AjaxRequestController extends Controller
         }
     }
 
-    public function getIssueNumber($id)
-    {
-        try {
-            $issueType = MasGoodIssueType::findOrFail($id);
-            $latestTransaction = GoodIssueApplication::latest('id')->first();
-            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->requisition_no, -4) + 1 : 1;
-            $issueNo = generateTransactionNumber($issueType->code, $nextSequence);
-            return $this->successResponse(['issue_no' => $issueNo]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something went wront while trying to generate issue no, please try again.');
-        }
-    }
-
-    public function getReceiptNumber($id)
-    {
-        try {
-            $receiptType = MasGoodReceiptType::findOrFail($id);
-            $latestTransaction = GoodReceiptApplication::latest('id')->first();
-            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->receipt_no, -4) + 1 : 1;
-            $receiptNo = generateTransactionNumber($receiptType->code, $nextSequence);
-            return $this->successResponse(['receipt_no' => $receiptNo]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something went wront while trying to generate receipt no, please try again.');
-        }
-    }
-
-    public function getCommissionNumber($id)
-    {
-        try {
-            $receiptType = MasCommissionTypes::findOrFail($id);
-            $latestTransaction = GoodCommissionApplication::latest('id')->first();
-            // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-            $nextSequence = $latestTransaction ? (int) substr($latestTransaction->commission_no, -4) + 1 : 1;
-            $commissionNo = generateTransactionNumber($receiptType->code, $nextSequence);
-            return $this->successResponse(['commission_no' => $commissionNo]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something went wront while trying to generate commission no, please try again.');
-        }
-    }
-
     public function getRequisitionDetails($id)
     {
         try {
@@ -739,24 +704,55 @@ class AjaxRequestController extends Controller
         return response()->json($vehicleDetailType);
     }
 
-    public function getDetailsByIssue($issue_no)
+    public function getAssetNoByGrnId($grnId)
     {
-        // Fetch the data based on the issue_no, e.g. using Eloquent
-        $goodsDetails = GoodIssueApplication::where('issue_no', $issue_no)->with('detail')->get();
-        $goodsDetails = $goodsDetails->pluck('detail')->flatten(); // Flatten in case you have multiple results
-
-        return response()->json([
-            'data' => $goodsDetails
-        ]);
+        $existingSerials = AssetCommissionDetail::pluck('received_serial_id')->toArray();
+        // dd($existingSerials);
+        try {
+            $assetNosQuery = RequisitionDetail::where('id', $grnId)
+                ->whereHas('serials', function ($query) {
+                    $query->where('is_commissioned', 0);
+                })
+                ->with(['serials' => function ($query) use ($existingSerials) {
+                        $query->where('is_commissioned', 0);
+                        if(!empty($existingSerials)){
+                            $query->whereNotIn('id', $existingSerials);
+                        }
+                        $query->selectRaw("id, requisition_detail_id, asset_serial_no");
+                    },
+                ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
+                // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
+            $assetNos = $assetNosQuery->get();
+            if ($assetNos->isEmpty()) {
+                return $this->errorResponse('No asset numbers found for the provided GRN number.');
+            } else {
+                $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
+            }
+            
+            return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
+        } catch(\Exception $e) {
+            \Log::info("asset commission: " . $e->getMessage());
+            return $this->internalServerErrorResponse('Something went wrong while fetching asset numbers. Please try again.');
+        }   
     }
 
-    public function getDetailsByReceipt($receipt_no)
+    public function getDescriptionAndUomBySerialId($serialId) 
     {
-        // Fetch the data based on the issue_no, e.g. using Eloquent
-        $goodsDetails = GoodReceiptApplicationDetail::where('good_receipt_id', $receipt_no)->where('status', 0)->get();
+        try {
+            $serial = ReceivedSerial::where('id', $serialId)->with(['requisitionDetail.grnItemDetail.item'])->get();
+            return $this->successResponse(['serial' => $serial]);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching description and quantity. Please try again.');
+        }
+    }
 
-        return response()->json([
-            'data' => $goodsDetails
-        ]);
+    public function getSitesByDzongkhagId($dzongkhagId)
+    {
+        try {
+            $sites = MasSite::where('dzongkhag_id', $dzongkhagId)->get(['id', 'name']);
+            return $this->successResponse(['sites' => $sites]);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching sites. Please try again.');
+        }
     }
 }

@@ -8,6 +8,7 @@ use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
+use App\Models\MasCommissionTypes;
 use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ class CommissionApplicationController extends Controller
     protected $rules = [
         'commission_date' => 'required',
         'grn' => 'required',
-        'attachment' => 'file|mimes:pdf,jpg,png,docx|max:2048',
+        // 'attachments' => 'nullable|file|mimes:pdf,jpg,png,docx|max:2048',
         'details.*.asset_no' => 'required',
         'details.*.date_placed_in_service' => 'required',
         'details.*.site' => 'required',
@@ -54,12 +55,13 @@ class CommissionApplicationController extends Controller
     public function create()
     {
         // only fixed asset can be commissioned
-        $faItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+        $grnItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
             ->where('is_received', 1)
+            ->where('created_by', auth()->user()->id)
             ->get();
-
+            
         $empDetails = empDetails(auth()->user()->id);
-        return view('asset.commission.create',compact('empDetails', 'faItems'));
+        return view('asset.commission.create',compact('empDetails', 'grnItems'));
     }
 
     /**
@@ -67,38 +69,38 @@ class CommissionApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        // Add file validation only if a file is uploaded
+        if ($request->hasFile('attachments')) {
+            $this->rules['attachments'] = 'array'; // Ensure attachments is an array
+            $this->rules['attachments.*'] = 'file|mimes:pdf,jpg,png,docx|max:2048';
+        }
+        $this->validate($request, $this->rules, $this->messages);
         $attachments = []; // Initialize an array to store uploaded file names
 
         if ($request->file('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                // If an old attachment exists, delete it
-                // if ($expenseApplication && $expenseApplication->attachment && file_exists(public_path($this->attachmentPath . $expenseApplication->attachment))) {
-                //     delete_image($this->attachmentPath . $expenseApplication->attachment); // Delete old attachment
-                // }
-                // Upload the new file and store its name in the array
                 $attachment = uploadImageToDirectory($file, $this->attachmentPath);
-
                 // Add the uploaded file name to the attachments array
                 $attachments[] = $attachment;
             }
         }
 
-        // dd($attachment);
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
+        
         // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
+        $comType = MasCommissionTypes::where('id', COMMISSION_TYPE)->first();
         $lastTransaction = AssetCommissionApplication::latest('id')->first();
-
-        $transactionNo = generateTransactionNumber1(COMMISSION_TYPE, $lastTransaction, 'transaction_no');
-
+        $transactionNo = generateTransactionNumber1($comType, $lastTransaction, 'transaction_no');
         try {
             DB::beginTransaction();
             $commissionApplication = AssetCommissionApplication::create([
+                'type_id' => COMMISSION_TYPE,
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => $attachments ?? null,
+                'file' => !empty($attachments) ? json_encode($attachments) : null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
@@ -108,7 +110,7 @@ class CommissionApplicationController extends Controller
                         'received_serial_id' => $detail['asset_no'],
                         'date_placed_in_service' => $detail['date_placed_in_service'],
                         'dzongkhag_id' => $detail['dzongkhag'],
-                        'office_id' => $detail['office'],
+                        'office_id' => $detail['office'] ?? null,
                         'site_id' => $detail['site'],
                         'remark' => $detail['remark'],
                     ]);
@@ -127,6 +129,7 @@ class CommissionApplicationController extends Controller
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
+            dd($e->getMessage());
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
@@ -141,7 +144,9 @@ class CommissionApplicationController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $commission = AssetCommissionApplication::with('details')->findOrFail($id);
+        $approvalDetail = getApplicationLogs(\App\Models\AssetCommissionApplication::class, $commission->id);
+        return view('asset.commission.show', compact('commission', 'approvalDetail'));
     }
 
     /**

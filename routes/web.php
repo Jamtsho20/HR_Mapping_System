@@ -383,7 +383,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt', 'GoodsReceiptController')->except('show', 'edit');
         Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
-        Route::resource('commission', 'CommissionApplicationController')->except('show', 'edit');
+        Route::resource('commission', 'CommissionApplicationController');
         Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
         Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
         Route::resource('asset-transfer', 'AssetTransferController');
@@ -458,6 +458,9 @@ Route::middleware('auth')->group(function () {
     Route::get('getcommissionnobycommissiontype/{id}', 'AjaxRequestController@getCommissionNumber');
     Route::get('getdetailsbyreceipt/{receipt_no}', 'AjaxRequestController@getDetailsByReceipt')->name('get.details.by.receipt');
     Route::get('getvehicledetailtypebyid/{id}', 'AjaxRequestController@getVehicleDetailTypeById');
+    Route::get('getassetnobygrnid/{grnId}', 'AjaxRequestController@getAssetNoByGrnId');
+    Route::get('getdescriptionanduombyserialid/{serialId}', 'AjaxRequestController@getDescriptionAndUomBySerialId');
+    Route::get('getsitesbydzongkhagid/{dzongkhagId}', 'AjaxRequestController@getSitesByDzongkhagId');
 });
 
 

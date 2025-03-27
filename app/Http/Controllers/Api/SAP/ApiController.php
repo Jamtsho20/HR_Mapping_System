@@ -284,6 +284,9 @@ class ApiController extends BaseController
                     }
 
                     $requisition_detail->received_quantity = $line['received_quantity'];
+                    $requisition_detail->is_received = 1;
+                    $requisition_detail->received_at = now();
+                    $requisition_detail->received_by = $reqApplication->created_by;
                     $requisition_detail->save();
 
 

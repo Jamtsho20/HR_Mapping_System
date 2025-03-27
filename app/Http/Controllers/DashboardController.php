@@ -11,6 +11,7 @@ use App\Models\LeaveEncashmentApplication;
 use App\Models\SystemNotification;
 use App\Models\User;
 use App\Models\WorkHolidayList;
+use App\Models\RequisitionDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -70,7 +71,7 @@ class DashboardController extends Controller
             ];
         })->merge(collect($notifications));
 
-
+        $assetData = $this->getAssetData();
 
         // Check leave encashment eligibility and send notification if applicable
         $leaveEncashmentMessage = $this->sendEncashmentNotification($user->id, $currentYear);
@@ -96,6 +97,7 @@ class DashboardController extends Controller
         // dd($alerts);
         return view('dashboard', compact(
             'user',
+            'assetData',
             'holidays',
             'notifications',
             'leaveData',
@@ -165,6 +167,18 @@ class DashboardController extends Controller
         return '';  // Return empty if the conditions are not met
     }
 
+    private function getAssetData(){
+        $assets = RequisitionDetail::with(['serials' => function ($query) {
+            $query->where('is_transfered', '!=', 1)
+                  ->where('is_returned', '!=', 1);
+        }])
+        ->whereHas('requisition', function ($query) {
+            $query->where('created_by', auth()->id()); // Filter by logged-in user's ID
+        })
+        ->where('is_received', 1)
+        ->get();
+        return $assets;
+    }
 
 
     /**
