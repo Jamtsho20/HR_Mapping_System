@@ -52,7 +52,7 @@
                                                                 <td>{{ $loop->iteration }}</td>
                                                                 <td>{{ $commission->employee->emp_id_name }}</td>
                                                                 <td>{{ $commission->transaction_no }}</td>
-                                                                <td>{{ $commission->transaction_date }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($commission->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($commission->created_at)->format('h:i A') }}</td>
                                                                 <td class ="text-center">
                                                                     @php
                                                                         $statusClasses = [

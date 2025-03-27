@@ -144,9 +144,9 @@ class CommissionApplicationController extends Controller
      */
     public function show(string $id)
     {
-        // $leave = LeaveApplication::findOrfail($id);
-        // $empDetails = empDetails($leave->created_by);
-        // $approvalDetail = getApplicationLogs(\App\Models\LeaveApplication::class, $leave->id);
+        $commission = AssetCommissionApplication::with('details')->findOrFail($id);
+        $approvalDetail = getApplicationLogs(\App\Models\AssetCommissionApplication::class, $commission->id);
+        return view('asset.commission.show', compact('commission', 'approvalDetail'));
     }
 
     /**

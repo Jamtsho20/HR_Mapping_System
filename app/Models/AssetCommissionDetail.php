@@ -29,4 +29,15 @@ class AssetCommissionDetail extends Model
     public function receivedSerial(){
         return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
     }
+
+    public function dzongkhag()
+    {
+        return $this->belongsTo(MasDzongkhag::class, 'dzongkhag_id');
+    }
+
+
+    public function site()
+    {
+        return $this->belongsTo(MasSite::class, 'site_id');
+    }
 }

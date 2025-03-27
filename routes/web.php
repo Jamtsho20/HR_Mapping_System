@@ -382,7 +382,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
         Route::resource('goods-receipt', 'GoodsReceiptController')->except('show', 'edit');
         Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
-        Route::resource('commission', 'CommissionApplicationController')->except('show', 'edit');
+        Route::resource('commission', 'CommissionApplicationController');
         Route::resource('commission-history', 'CommissionHistoryController')->except('create', 'show', 'edit');
         Route::resource('commission-approval', 'CommissionApprovalController')->except('create', 'show', 'edit');
         Route::resource('asset-transfer', 'AssetTransferController');
