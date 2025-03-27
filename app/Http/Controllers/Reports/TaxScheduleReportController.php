@@ -81,19 +81,40 @@ class TaxScheduleReportController extends Controller
     public function exportTaxSchedule(Request $request)
     {
 
-        // Load all bookings with their dzongkhag names
-        $taxSchedules = FinalPaySlip::filter($request)->get();
 
+        $taxSchedules = FinalPaySlip::filter($request)->get();
+        $totalAllowances = 0;
+
+        foreach ($taxSchedules as $schedule) {
+            $allowances = $schedule->details['allowances'] ?? [];
+            $totalAllowances += array_sum(is_array($allowances) ? $allowances : []);
+        }
 
         $totalHealth = $taxSchedules->sum(function ($health) {
             return $health->details['deductions']['H/Tax'] ?? 0;
         });
-        $totalSalary = $taxSchedules->sum(function ($salary) {
+        $totalSalaryTax = $taxSchedules->sum(function ($salary) {
             return $salary->details['deductions']['Salary Tax'] ?? 0;
         });
+        $totalBasic = $taxSchedules->sum(function ($salary) {
+            return $salary->details['basic_pay'] ?? 0;
+        });
+        $totalGIS = $taxSchedules->sum(function ($salary) {
+            return $salary->details['deductions']['GSLI'] ?? 0;
+        });
+        $totalNet = $taxSchedules->sum(function ($salary) {
+            return $salary->details['net_pay'] ?? 0;
+        });
+
+        $totalGross = $taxSchedules->sum(function ($salary) {
+            return $salary->details['gross_pay'] ?? 0;
+        });
+
+
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('taxSchedules', 'totalHealth', 'totalSalary'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('totalGross', 'taxSchedules', 'totalHealth', 'totalSalaryTax', 'totalGIS', 'totalNet', 'totalBasic', 'totalAllowances'))->setPaper('a4', 'landscape');
+
 
         // Return the PDF download
         return $pdf->download('TaxSchedule-Deduction.pdf');
@@ -105,17 +126,39 @@ class TaxScheduleReportController extends Controller
     }
     public function printTaxSchedule(Request $request)
     {
+
         $taxSchedules = FinalPaySlip::filter($request)->get();
+        $totalAllowances = 0;
+
+        foreach ($taxSchedules as $schedule) {
+            $allowances = $schedule->details['allowances'] ?? [];
+            $totalAllowances += array_sum(is_array($allowances) ? $allowances : []);
+        }
 
         $totalHealth = $taxSchedules->sum(function ($health) {
             return $health->details['deductions']['H/Tax'] ?? 0;
         });
-        $totalSalary = $taxSchedules->sum(function ($salary) {
+        $totalSalaryTax = $taxSchedules->sum(function ($salary) {
             return $salary->details['deductions']['Salary Tax'] ?? 0;
         });
+        $totalBasic = $taxSchedules->sum(function ($salary) {
+            return $salary->details['basic_pay'] ?? 0;
+        });
+        $totalGIS = $taxSchedules->sum(function ($salary) {
+            return $salary->details['deductions']['GSLI'] ?? 0;
+        });
+        $totalNet = $taxSchedules->sum(function ($salary) {
+            return $salary->details['net_pay'] ?? 0;
+        });
+
+        $totalGross = $taxSchedules->sum(function ($salary) {
+            return $salary->details['gross_pay'] ?? 0;
+        });
+
+
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('taxSchedules', 'totalHealth', 'totalSalary'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('totalGross', 'taxSchedules', 'totalHealth', 'totalSalaryTax', 'totalGIS', 'totalNet', 'totalBasic', 'totalAllowances'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser
