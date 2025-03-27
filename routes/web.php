@@ -123,6 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::get('profile', 'HomeController@getProfile');
     Route::get('change-password', 'HomeController@getChangePassword')->name('change-password');
     Route::post('change-password', 'HomeController@postChangePassword');
+    Route::get('/payslips/view/{filename}', [ProfileController::class, 'viewPayslip']);
 
     // SYSTEM SETTINGS
     Route::namespace('SystemSetting')->prefix('system-setting')->group(function () {
