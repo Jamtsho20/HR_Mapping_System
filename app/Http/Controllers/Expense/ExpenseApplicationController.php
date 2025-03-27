@@ -24,6 +24,8 @@ use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\DsaClaimMappings;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
+
 class ExpenseApplicationController extends Controller
 {
     protected $ajax;
@@ -118,7 +120,7 @@ class ExpenseApplicationController extends Controller
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
-            ->get(['id', 'advance_no'])
+            ->get(['id', 'transaction_no'])
             ->toArray();
 
         $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
@@ -187,15 +189,20 @@ class ExpenseApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
 
-        $expenseApplicationNo = $this->ajax->getExpenseNumber($request->expense_type)->getData()->expense_no;
-
+        $expenseType = MasExpenseType::where('id', $request->expense_type)->first();
+        $lastTransaction = ExpenseApplication::latest('id')->first();
+        $expenseApplicationNo = generateTransactionNumber1($expenseType, $lastTransaction, 'transaction_no');
+      
+      
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
 
-        if (ExpenseApplication::where('expense_no', $expenseApplicationNo)->exists()) {
+        if (ExpenseApplication::where('transaction_no', $expenseApplicationNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return back()->withInput()->with('msg_error', 'Expense Application Number already exists. Please try again.');
         }
+
+        
 
         if ($approverByHierarchy) {
             try {
@@ -203,10 +210,10 @@ class ExpenseApplicationController extends Controller
 
                 $expenseApplication = ExpenseApplication::create([
                     // 'mas_employee_id' => loggedInUser(),
-                    'expense_no' => $expenseApplicationNo,
+                    'transaction_no' => $expenseApplicationNo,
                     'type_id' => $request->expense_type,
                     'mas_vehicle_id' => $request->mas_vehicle_id ?? null,
-                    'date' => $request->date,
+                    'transaction_date' => $request->date,
                     'amount' => $request->amount,
                     'description' => $request->description,
                     'file' => json_encode($result['attachments']),

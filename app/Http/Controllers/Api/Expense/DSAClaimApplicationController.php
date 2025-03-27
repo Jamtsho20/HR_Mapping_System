@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\Api\Expense;
 
+use App\Http\Controllers\AjaxRequestController;
+use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\ApplicationHistory;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimApplication;
+use App\Models\DsaClaimDetail;
+use App\Models\DsaClaimMappings;
+use App\Models\DsaClaimType;
+use App\Models\MasExpenseType;
+use App\Models\TravelAuthorizationApplication;
+use App\Services\ApplicationHistoriesService;
+use App\Services\ApprovalService;
+use App\Traits\JsonResponseTrait;
 use DateTime;
 use Illuminate\Http\Request;
-use App\Models\DailyAllowance;
-use App\Models\DsaClaimDetail;
-use App\Services\ApprovalService;
-use App\Models\AdvanceApplication;
-use Illuminate\Support\Facades\DB;
-use App\Models\DsaClaimApplication;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use App\Models\TravelAuthorizationApplication;
-use App\Traits\JsonResponseTrait;
-use App\Models\MasExpenseType;
-use App\Http\Controllers\AjaxRequestController;
-use App\Models\ApplicationHistory;
-use App\Models\DsaClaimMappings;
 
-use App\Services\ApplicationHistoriesService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DSAClaimApplicationController extends Controller
 {   use JsonResponseTrait;
@@ -37,7 +38,7 @@ class DSAClaimApplicationController extends Controller
     protected $rules = [
 
         'type_id' => 'required|exists:dsa_claim_types,id',
-        'advance_no' => 'nullable|exists:advance_applications,id',
+        'transaction_no' => 'nullable|exists:advance_applications,id',
         'amount' => 'required|numeric|min:0',
         'net_payable_amount' => 'nullable|numeric|min:0',
         'balance_amount' => 'nullable|numeric|min:0',
@@ -109,7 +110,7 @@ class DSAClaimApplicationController extends Controller
             $dsaClaimApplications = DSAClaimApplication::where('created_by', $user)->with('expense_approved_by:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->orderBy('created_at', 'desc')->get();
             $mappedModel = DSAClaimApplication::class;
             $dsaClaimApplications = $dsaClaimApplications->map(function ($dsaClaimApplication) use ($mappedModel) {
-                $dsaClaimApplication->mapping = DsaClaimMappings::with('travelAuthorization:id,travel_authorization_no')->where('dsa_claim_id', $dsaClaimApplication->id)->get();
+                $dsaClaimApplication->mapping = DsaClaimMappings::with('travelAuthorization:id,transaction_no')->where('dsa_claim_id', $dsaClaimApplication->id)->get();
                 $dsaClaimApplication->rejectRemarks = getApplicationLogs($mappedModel, $dsaClaimApplication->id)->pluck('remarks')->first();
                 return $dsaClaimApplication;
             });
@@ -193,9 +194,11 @@ class DSAClaimApplicationController extends Controller
             $approvalService = new ApprovalService();
             $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\DsaClaimType::class, $conditionFields ?? []);
 
-            $dsaClaimNo = $this->ajax->getDsaClaimNumber($request->dsa_claim_type_id);
-
-            if (DsaClaimApplication::where('dsa_claim_no', $dsaClaimNo)->exists()) {
+            $dsaType = DsaClaimType::where('id', $request->advance_type)->first();
+            $lastTransaction = DsaClaimApplication::latest('id')->first();
+            $dsaClaimNo = generateTransactionNumber1($dsaType, $lastTransaction, 'transaction_no');
+              
+            if (DsaClaimApplication::where('transaction_no', $dsaClaimNo)->exists()) {
                 return $this->errorResponse('DSA Claim Application Number already exists. Please try again.', 500);
             }
 
@@ -221,7 +224,7 @@ class DSAClaimApplicationController extends Controller
                 $advanceIdsJson = json_encode($request->advance_ids ?? []);
 
                 $dsaClaimApplication = DsaClaimApplication::create([
-                    'dsa_claim_no' => $dsaClaimNo,
+                    'transaction_no' => $dsaClaimNo,
                     'type_id' => $request->type_id,
                     'travel_authorization_id' => $travel_id_json,
                     'advance_application_id' => $advanceIdsJson,
@@ -354,7 +357,7 @@ class DSAClaimApplicationController extends Controller
         $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
             ->where('created_by', loggedInUser())
             ->whereNotIn('id', $excludedAdvanceIds)
-            ->get(['id', 'advance_no'])
+            ->get(['id', 'transaction_no'])
             ->toArray();
 
         return view('expense.dsa-claim.edit', compact('dsaClaimApplication', 'empIdName', 'travels', 'dailyAllowance', 'gradeId', 'advances'));

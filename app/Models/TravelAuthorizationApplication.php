@@ -16,7 +16,7 @@ class TravelAuthorizationApplication extends Model
     protected $table = 'travel_authorization_applications';
 
     protected $fillable = [
-        'travel_authorization_no',
+        'transaction_no',
         'date',
         'type_id',
         'created_by',

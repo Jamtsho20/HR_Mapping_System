@@ -73,6 +73,8 @@
                 </th>
                 <th> loan type
                 </th>
+                <th> Branch Code
+                </th>
                 <th>
                     Monthly Installment
                 </th>
@@ -90,6 +92,7 @@
                     <td>{{ $loan->employee->name }}</td>
                     <td>{{ $loan->pay_head_name }}</td>
                     <td>{{ $loan->loan_number }}</td>
+                    <td>{{ $loan->branch_code, }}</td>
                     <td>{{ $loan->loan_type }}</td>
                     <td>{{ $loan->amount }}</td>
                     <td>{{ $loan->for_month }}</td>

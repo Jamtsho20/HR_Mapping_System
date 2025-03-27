@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Availed Report</title>
+    <title>Employee Report</title>
     <style>
         body {
             font-size: 12px;
@@ -70,6 +70,9 @@
                     Name
                 </th>
                 <th>
+                    Gender
+                </th>
+                <th>
                     Department
                 </th>
                 <th>
@@ -104,28 +107,29 @@
         </thead>
         <tbody>
             @forelse($employees as $employee)
-            <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>{{$employee->username}}</td>
-                <td>{{$employee->name}}</td>
-                <td>{{$employee->empJob->department->name}}</td>
-                <td>{{$employee->empJob->section->name??'-'}}</td>
-                <td>{{$employee->empJob->designation->name}}</td>
-                <td>{{$employee->empJob->gradeStep->name}}</td>
-                <td>{{$employee->empJob->office->name}}</td>
-                <td>{{$employee->date_of_appointment}}</td>
-                <td>{{$employee->contact_number}}</td>
-                <td>{{$employee->email}}</td>
-                <td>
-                    {{ $employee->is_active ?'Active':'Inactive' }}
-                </td>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $employee->username }}</td>
+                    <td>{{ $employee->name }}</td>
+                    <td>{{ $employee->gender_name }}</td>
+                    <td>{{ $employee->empJob->department->name }}</td>
+                    <td>{{ $employee->empJob->section->name ?? '-' }}</td>
+                    <td>{{ $employee->empJob->designation->name }}</td>
+                    <td>{{ $employee->empJob->gradeStep->name }}</td>
+                    <td>{{ $employee->empJob->office->name }}</td>
+                    <td>{{ $employee->date_of_appointment }}</td>
+                    <td>{{ $employee->contact_number }}</td>
+                    <td>{{ $employee->email }}</td>
+                    <td>
+                        {{ $employee->is_active ? 'Active' : 'Inactive' }}
+                    </td>
 
 
-            </tr>
+                </tr>
             @empty
-            <tr>
-                <td colspan="12" class="text-danger text-center">No users to be displayed</td>
-            </tr>
+                <tr>
+                    <td colspan="12" class="text-danger text-center">No users to be displayed</td>
+                </tr>
             @endforelse
         </tbody>
     </table>

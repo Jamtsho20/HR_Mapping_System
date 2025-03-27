@@ -13,8 +13,8 @@ class AdvanceApplication extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'advance_no',
-        'date',
+        'transaction_no',
+        'transaction_date',
         'type_id',
         'travel_authorization_id',
         'mas_employee_id',
@@ -57,6 +57,11 @@ class AdvanceApplication extends Model
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
+    public function verified_by()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application')->where('status', '2');
+    }
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -66,6 +71,9 @@ class AdvanceApplication extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+
+
 
     public function advanceType()
     {
@@ -81,7 +89,7 @@ class AdvanceApplication extends Model
     {
         return $this->hasMany(AdvanceDetail::class, 'advance_application_id');
     }
-    
+
     public function travelAuthorization()
     {
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
@@ -180,7 +188,7 @@ class AdvanceApplication extends Model
             'start_date' => $this->deduction_from_period,
             'end_date' => $endDate,
             'amount' => $this->monthly_emi_amount,
-            'loan_number' => $this->advance_no,
+            'loan_number' => $this->transaction_no,
             'loan_type_id' => 4,
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,

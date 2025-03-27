@@ -53,6 +53,10 @@
                             value="{{ $loanEMIDeduction->amount }}" required="required">
                     </div>
                     <div class="form-group col-md-6">
+                        <label for="branch_code">Branch Code </label>
+                        <input type="text" class="form-control" name="branch_code" value="{{ $loanEMIDeduction->branch_code }}">
+                    </div>
+                    <div class="form-group col-md-6">
                         <label class="custom-switch">
                             <input type="checkbox" name="recurring" id="recurring" class="custom-switch-input"
                                 value="1" {{ old('recurring', $loanEMIDeduction->recurring) ? 'checked' : '' }}>

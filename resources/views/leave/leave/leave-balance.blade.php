@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Leave Balance')
+@section('buttons')
+<a href="{{ url('leave/leave-apply') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Leave List</a>
+@endsection
 @section('content')
     <div class="row">
         <div class="col-md-12">

@@ -139,7 +139,7 @@ class TravelAuthorizationApprovalController extends Controller
             DB::beginTransaction();
 
             $travelAuthorization->update([
-                'travel_authorization_no' => $request->travel_authorization_no,
+                'transaction_no' => $request->transaction_no,
                 'date' => $request->date,
                 'advance_amount' => $request->advance_required,
                 'estimated_travel_expenses' => $request->estimated_travel_expenses,

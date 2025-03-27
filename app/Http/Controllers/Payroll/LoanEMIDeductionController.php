@@ -104,6 +104,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->amount = $validated['amount'];
             $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
             $loanEMIDeduction->recurring_months = $validated['recurring_months'];
+            $loanEMIDeduction->branch_code = $request->branch_code;
             $loanEMIDeduction->remarks = $request->remarks;
             $loanEMIDeduction->is_paid_off = $request->paid_off_early ?? false;
             $loanEMIDeduction->save();
@@ -179,6 +180,7 @@ class LoanEMIDeductionController extends Controller
             $loanEMIDeduction->amount = $validated['amount'];
             $loanEMIDeduction->recurring = $request->recurring; // 1 or 0
             $loanEMIDeduction->recurring_months = $validated['recurring_months'];
+            $loanEMIDeduction->branch_code = $request->branch_code;
             $loanEMIDeduction->remarks = $request->remarks;
             $loanEMIDeduction->is_paid_off = $request->paid_off_early ?? $loanEMIDeduction->is_paid_off;
             $loanEMIDeduction->save();

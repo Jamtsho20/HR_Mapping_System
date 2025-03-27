@@ -42,13 +42,14 @@
                                         <thead>
                                             <tr role="row" class="thead-light">
                                                 <th>#</th>
-                                                <th>Travel Authorizaiton number</th>
+                                                <th>APPLIED ON</th>
+                                                <th>Travel Authorization number</th>
                                                 <th>Travel Type</th>
                                                 <th>Date</th>
                                                 <th>ESTIMATED EXPENSES</th>
                                                 <!-- <th>ADVANCE REQUIRED</th> -->
                                                 <th>STATUS</th>
-                                                <th>ACTION</th>
+                                                <th>VIEW</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -56,12 +57,15 @@
                                             <tr>
 
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $travelAuthorization->travel_authorization_no }}</td>
+                                                <td class="text-center">
+                                                    {{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($travelAuthorization->created_at)->format('h:i A') }}
+                                                </td>
+                                                <td>{{ $travelAuthorization->transaction_no }}</td>
                                                 <td>{{ $travelAuthorization->travelType->name }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-M-Y') }}</td>
 
                                                 <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
-                                                <td>{{ $travelAuthorization->estimated_travel_expenses }}</td>
+                                                <td class="text-right">{{ formatAmount($travelAuthorization->estimated_travel_expenses )}}</td>
                                                 <!-- <td>{{ $travelAuthorization->advance_amount ?? '-' }}</td> -->
 
                                                 <td>@php
@@ -69,7 +73,7 @@
                                                     -1 => 'badge bg-danger',
                                                     0 => 'badge bg-warning',
                                                     1 => 'badge bg-primary',
-                                                    2 => 'badge bg-success',
+                                                    2 => 'badge bg-primary',
                                                     3 => 'badge bg-success',
                                                     ];
                                                     $statusText = config("global.application_status.{$travelAuthorization->status}", 'Unknown Status');

@@ -39,10 +39,10 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th style="width:35%;">Created At<span class="pull-right d-none d-sm-block">:</span>
+                                    <th style="width:35%;">Applied On<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $leaveEncashment->created_at->format('d-M-Y') }}
+                                    {{ \Carbon\Carbon::parse($leaveEncashment->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($leaveEncashment->created_at)->format('h:i A') }}
                                     </td>
                                 </tr>
 

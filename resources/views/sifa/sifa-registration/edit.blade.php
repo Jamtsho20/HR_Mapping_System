@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Edit Sifa Registration')
+@section('page-title', 'Edit SIFA Registration')
 @section('content')
 
 <div class="container mt-5">
