@@ -65,6 +65,8 @@
         ])
     @elseif ($tab == 9)
         @include('approval.view.dsa_claim', ['dsa' => $data, 'empDetails' => $empDetails, 'oldDataFlag' => $oldDataFlag, 'travelNosString' => $travelNosString, 'advanceNosString' => $advanceNosString])
+    @elseif ($tab == 11)
+        @include('approval.view.commission', ['commission' => $data, 'empDetails' => $empDetails])
     @endif
 
 @endsection

@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <div class="tab-pane" id="vehiclefuelclaimsection">
+        <div class="tab-pane" id="commission">
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -92,7 +92,7 @@
                                             {{ $loop->iteration }}
                                         </td>
                                         <td class="text-center">
-                                            {{ $detail->receivedSerial->asset_no }}
+                                            {{ $detail->receivedSerial->asset_serial_no }}
                                         </td>
                                         <td class="text-center">
                                             {{ $detail->receivedSerial->asset_description }}

@@ -15,34 +15,28 @@
                                         </th>
                                     @endif
                                             <th>EMPLOYEE</th>
-                                            <th>REQUISITION NUMBER</th>
-                                            <th>REQUISITION TYPE</th>
-                                            <th>REQUISITION DATE</th>
+                                            <th>Commission No</th>
+                                            <th>Commission Date</th>
                                             <th>DEPARTMENT</th>
                                             <th>SECTION</th>
-                                            <th>NEED BY DATE</th>
-                                            <th>ITEM CATEGORY</th>
                                             <th>STATUS</th>
                                             <th>ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($results->get(5) as $requisition)
+                                        @forelse ($results->get(11) as $commission)
                                         <tr>
                                             @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox" class="bulk_checkbox"
-                                                    value="{{ $requisition->id }}">
+                                                    value="{{ $commission->id }}">
                                             </td>
                                             @endif
-                                            <td>{{ $requisition->employee->emp_id_name }}</td>
-                                            <td>{{ $requisition->transaction_no }}</td>
-                                            <td>{{ $requisition->type->name }}</td>
-                                            <td>{{ $requisition->transaction_date }}</td>
-                                            <td>{{ $requisition->employee->empJob->department->name }}</td>
-                                            <td>{{ $requisition->employee->empJob->section->name }}</td>
-                                            <td>{{ $requisition->need_by_date }}</td>
-                                            <td>{{ $requisition->item_category }}</td>
+                                            <td>{{ $commission->employee->emp_id_name }}</td>
+                                            <td>{{ $commission->transaction_no }}</td>
+                                            <td>{{ $commission->transaction_date }}</td>
+                                            <td>{{ $commission->employee->empJob->department->name }}</td>
+                                            <td>{{ $commission->employee->empJob->section->name }}</td>
                                             <td class="text-center">
                                                 @php
                                                 $statusClasses = [
@@ -53,11 +47,11 @@
                                                     3 => 'badge bg-info',
                                                 ];
                                                 $statusText = config(
-                                                    "global.application_status.{$requisition->status}",
+                                                    "global.application_status.{$commission->status}",
                                                     'Unknown Status',
                                                 );
                                                 $statusClass = config(
-                                                    "global.status_classes.{$requisition->status}",
+                                                    "global.status_classes.{$commission->status}",
                                                     'badge bg-secondary',
                                                 );
                                             @endphp
@@ -71,19 +65,19 @@
                                                 @endphp
 
                                                 @if ($routeName == 'approval.index')
-                                                <a href="{{ url('approval/applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.approved')
-                                                <a href="{{ url('approval/approved-applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/approved-applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.rejected')
-                                                <a href="{{ url('approval/rejected-applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/rejected-applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @else
-                                                <a href="{{ url('default-route/applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('default-route/applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @endif
@@ -94,7 +88,7 @@
                                                 </a>
                                                 @endif --}}
                                                 @if ($privileges->delete)
-                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('requisition/approval/' . $requisition->id) }}">
+                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('commission/approval/' . $requisition->id) }}">
                                                     <i class="fa fa-trash"></i> DELETE
                                                 </a>
                                                 @endif
@@ -103,7 +97,7 @@
                                         @empty
                                         <tr>
                                             <td colspan="8" class="text-center text-danger">
-                                                No Requisition Found
+                                                No Commission Found
                                             </td>
                                         </tr>
                                     @endforelse

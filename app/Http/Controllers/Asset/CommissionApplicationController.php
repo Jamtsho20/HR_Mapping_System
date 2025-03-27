@@ -114,6 +114,11 @@ class CommissionApplicationController extends Controller
                         'site_id' => $detail['site'],
                         'remark' => $detail['remark'],
                     ]);
+
+                    // Update the is_commissioned column in received_serials
+                    // DB::table('received_serials')
+                    //     ->where('id', $detail['asset_no']) // Assuming asset_no is the id in received_serials
+                    //     ->update(['is_commissioned' => 1, 'updated_at' => now()]);
                 }
             }
 

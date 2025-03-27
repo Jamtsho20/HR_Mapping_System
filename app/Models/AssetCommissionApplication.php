@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\CreatedByTrait;
+use Illuminate\Support\Facades\DB;
 
 
 class AssetCommissionApplication extends Model
@@ -50,10 +51,10 @@ class AssetCommissionApplication extends Model
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
 
-    // public function goodsReceivedDetail()
-    // {
-    //     return $this->belongsTo(GoodsReceivedDetail::class, 'goods_received_detail_id');
-    // }
+    public function requisitionDetail()
+    {
+        return $this->belongsTo(RequisitionDetail::class, 'requisition_detail_id');
+    }
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
@@ -61,4 +62,31 @@ class AssetCommissionApplication extends Model
             $query->where('created_by', auth()->user()->id);
         }
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($commissionApplication) {
+            // Check if the status is changed to -1
+            if ($commissionApplication->isDirty('status') && $commissionApplication->status == -1) {
+                // Get all related commission details
+                $details = $commissionApplication->details;
+
+                // Extract received_serial_id values
+                $receivedSerialIds = $details->pluck('received_serial_id')->toArray();
+
+                if (!empty($receivedSerialIds)) {
+                    // Update received_serials table to set is_commissioned = 0
+                    DB::table('received_serials')
+                        ->whereIn('id', $receivedSerialIds)
+                        ->update([
+                            'is_commissioned' => 0,
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
+        });
+    }
+
 }
