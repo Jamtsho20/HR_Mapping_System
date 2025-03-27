@@ -706,7 +706,10 @@ class AjaxRequestController extends Controller
 
     public function getAssetNoByGrnId($grnId)
     {
-        $existingSerials = AssetCommissionDetail::pluck('received_serial_id')->toArray();
+        //only those serial whose status is not -1
+        $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
+            $query->where('status', '!=', -1);
+        })->pluck('received_serial_id')->toArray();
         // dd($existingSerials);
         try {
             $assetNosQuery = RequisitionDetail::where('id', $grnId)
