@@ -107,6 +107,8 @@
                                         @include('approval.approvals.dsaclaim_approval')
                                     @elseif ($id == 5)
                                         @include('approval.approvals.requisition_approval')
+                                    @elseif ($id == 11)
+                                        @include('approval.approvals.commission_approval')
                                     @endif
 
                                 </div>

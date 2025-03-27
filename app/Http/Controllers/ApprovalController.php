@@ -149,21 +149,22 @@ class ApprovalController extends Controller
                         $shortName = $application->employee->username;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
-                        if ($accountCode == 501152){
+                        if ($accountCode == 501152) {
                             $amount = $application->net_payable_amount;
                         }
                         $tax_amount = $application->tax_amount ?? null;
 
                         $item_code = $application->details ?? null;
                         $required_date = null;
+                        // field required for commission api in SAP
+                        $grnNo = $application->requisitionDetail->grnItem->grn_no ?? null;
 
                         $assetFlag = false;
-                        if($item_code){
-                        $assetFlag = true;
-                        $application->load('details');
-                        $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
-
-                    }
+                        if ($item_code) {
+                            $assetFlag = true;
+                            $application->load('details');
+                            $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
+                        }
 
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = $application->employee?->empJob?->department?->code; // department code
@@ -177,7 +178,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo);
 
                             Log::info($postFields);
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
@@ -251,34 +252,35 @@ class ApprovalController extends Controller
             return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
         }
     }
-private function groupDocumentLinesByGRN($documentLines)
-            {
-                $groupedData = [];
 
-                foreach ($documentLines as $line) {
-                    $grnNumber = $line['GrnNumber'];
+    private function groupDocumentLinesByGRN($documentLines)
+    {
+        $groupedData = [];
 
-                    if (!isset($groupedData[$grnNumber])) {
-                        $groupedData[$grnNumber] = [
-                            "GrnNumber" => $grnNumber,
-                            "LineItems" => []
-                        ];
-                    }
+        foreach ($documentLines as $line) {
+            $grnNumber = $line['GrnNumber'];
 
-                    // Add items under the respective GRN
-                    $groupedData[$grnNumber]["LineItems"][] = [
-                        "ItemCode"        => $line["ItemCode"],
-                        "ItemDescription" => $line["ItemDescription"],
-                        "Quantity"        => $line["Quantity"],
-                        "WarehouseCode"   => $line["WarehouseCode"],
-                        "Project"         => $line["Project"]
-                    ];
-                }
-
-                return array_values($groupedData);
+            if (!isset($groupedData[$grnNumber])) {
+                $groupedData[$grnNumber] = [
+                    "GrnNumber" => $grnNumber,
+                    "LineItems" => []
+                ];
             }
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null)
+            // Add items under the respective GRN
+            $groupedData[$grnNumber]["LineItems"][] = [
+                "ItemCode"        => $line["ItemCode"],
+                "ItemDescription" => $line["ItemDescription"],
+                "Quantity"        => $line["Quantity"],
+                "WarehouseCode"   => $line["WarehouseCode"],
+                "Project"         => $line["Project"]
+            ];
+        }
+
+        return array_values($groupedData);
+    }
+
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null)
     {
 
         if ($tax_amount) {
@@ -313,14 +315,13 @@ private function groupDocumentLinesByGRN($documentLines)
 
                 ]
             }';
-
-        } elseif ($item_code){
+        } elseif ($item_code) {
             $data = [
                 "DocDate" => date('Y-m-d'),
                 "DocumentLines" => $application->details->map(function ($detail) {
-// dd($detail);
+                    // dd($detail);
                     return [
-                        "GrnNumber"=> (string) $detail->grnItemDetail->grn_no,
+                        "GrnNumber" => (string) $detail->grnItemDetail->grn_no,
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->grnItemDetail->quantity,
@@ -329,7 +330,7 @@ private function groupDocumentLinesByGRN($documentLines)
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date
-                       ];
+            ];
 
 
             $postFields = [
@@ -338,7 +339,24 @@ private function groupDocumentLinesByGRN($documentLines)
                 "RequriedDate" => $data["RequriedDate"]
             ];
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-
+        }
+        else if($grnNo) {  // sap data for asset commissioning
+            $postFields = [
+                "DocDate" => date('Y-m-d'),
+                "U_REQ" => $application->transaction_no,
+                "DocumentLines" => $application->details->map(function ($detail, $grnNo) {  return [
+                    "AsstSerialNo" => (string) $detail->receivedSerial->asset_serial_no,
+                    "AssetDescription" => $detail->receivedSerial->asset_description ?? $detail->requisitionDetail->grnItemDetail->item->item_description,
+                    "UOM" => $detail->requisitionDetail->grnItemDetail->item->uom,
+                    "Quantity" => 1,
+                    "Amount" => $detail->receivedSerial->amount,
+                    "Dzongkhag" => $detail->receivedSerial->dzongkhag->dzongkhag,
+                    "DatePlaceInService" => $detail->receivedSerial->date_placed_in_service,
+                    "ProjectCode" => $detail->receivedSerial->site->code,
+                    "U_GRNEntry" => (string) $grnNo,
+                ];
+            })->toArray(),];
+            return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } else {
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
@@ -434,19 +452,20 @@ private function groupDocumentLinesByGRN($documentLines)
         return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString'));
     }
 
-    public function edit(Request $request, $id){
+    public function edit(Request $request, $id)
+    {
 
         $oldDataFlag = true;
-        $travelNosString="";
-        $advanceNosString="";
-        $travelNumbers=[];
-        $da=0;
+        $travelNosString = "";
+        $advanceNosString = "";
+        $travelNumbers = [];
+        $da = 0;
 
-        if(DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+        if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
             $dsa = DsaClaimApplication::findOrFail($id);
             $userId = $dsa->created_by;
             return redirect()->back()->with("msg_error", "The old DSA claim applicaitons cannot be edited");
-        }else{
+        } else {
 
             $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
 
@@ -466,14 +485,14 @@ private function groupDocumentLinesByGRN($documentLines)
                 ->pluck('advance_no', 'id');
 
 
-                // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
-                $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                    $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
-                    $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
-                    $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
-                 // Replace with actual daily allowance from config or DB
+                $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                // Replace with actual daily allowance from config or DB
                 if ($newDays <= 15) {
                     $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                 } else {
@@ -497,7 +516,7 @@ private function groupDocumentLinesByGRN($documentLines)
         }
 
         $empIdName = $job->name;
-    return view('expense.dsa-approval.edit', compact('empIdName', 'da', 'dsa', 'oldDataFlag','travelNumbers', 'travelNosString', 'advanceNosString'));
+        return view('expense.dsa-approval.edit', compact('empIdName', 'da', 'dsa', 'oldDataFlag', 'travelNumbers', 'travelNosString', 'advanceNosString'));
     }
 
     public function update(Request $request, $id)
@@ -552,21 +571,21 @@ private function groupDocumentLinesByGRN($documentLines)
                 // Get all existing DsaClaimDetail records for the current claim
                 $existingDetails = DsaClaimDetail::whereIn('dsa_map_id', function ($query) use ($dsaClaimApplication) {
                     $query->select('id')
-                          ->from('dsa_claim_mappings')
-                          ->where('dsa_claim_id', $dsaClaimApplication->id);
+                        ->from('dsa_claim_mappings')
+                        ->where('dsa_claim_id', $dsaClaimApplication->id);
                 })->get();
 
                 // Collect incoming `dsa_map_id`s from the request
                 $incomingDetailIds = [];
-//dd($request->all());
+                //dd($request->all());
                 foreach ($request->dsa_claim_detail as $detail) {
                     $dsaMapping = DsaClaimMappings::where('travel_authorization_id', $detail['travel_authorization_id'])
-                                                  ->where('dsa_claim_id', $dsaClaimApplication->id)
-                                                  ->first();
+                        ->where('dsa_claim_id', $dsaClaimApplication->id)
+                        ->first();
 
                     if ($dsaMapping) {
                         $dsaClaimDetail = DsaClaimDetail::updateOrCreate(
-                            ['dsa_map_id' => $dsaMapping->id , 'id' => (int) $detail['id']],
+                            ['dsa_map_id' => $dsaMapping->id, 'id' => (int) $detail['id']],
                             [
                                 'from_date' => $detail['from_date'],
                                 'from_location' => $detail['from_location'],
@@ -585,8 +604,8 @@ private function groupDocumentLinesByGRN($documentLines)
 
                 // Delete records that are no longer in the request
                 DsaClaimDetail::whereIn('dsa_map_id', $existingDetails->pluck('dsa_map_id'))
-                              ->whereNotIn('id', $incomingDetailIds)
-                              ->delete();
+                    ->whereNotIn('id', $incomingDetailIds)
+                    ->delete();
             }
 
 
@@ -637,32 +656,32 @@ private function groupDocumentLinesByGRN($documentLines)
             $initiatorMailContent .= ' approved.';
 
 
-        if ($appType['name'] == 'In Country') {
+            if ($appType['name'] == 'In Country') {
 
-            $applierId= $applicationData->created_by;
-            $applier = User::where('id', $applierId)->with('empJob')->first();
-            $updatedBy = User::where('id', $applicationData->updated_by)->first();
-            $department = $applier->empJob->department->id;
-            $roleId = 7;
-            $gm = User::whereHas('empJob.department', function($query) use ($department) {
-                $query->where('id', $department); // Replace with your specific department ID
-            })
-            ->whereHas('roles', function($query) use ($roleId) {
-                $query->where('roles.id', $roleId); // Replace with your specific role ID
-            })
-            ->get()->first();
+                $applierId = $applicationData->created_by;
+                $applier = User::where('id', $applierId)->with('empJob')->first();
+                $updatedBy = User::where('id', $applicationData->updated_by)->first();
+                $department = $applier->empJob->department->id;
+                $roleId = 7;
+                $gm = User::whereHas('empJob.department', function ($query) use ($department) {
+                    $query->where('id', $department); // Replace with your specific department ID
+                })
+                    ->whereHas('roles', function ($query) use ($roleId) {
+                        $query->where('roles.id', $roleId); // Replace with your specific role ID
+                    })
+                    ->get()->first();
 
-            $requestingUserId = $applicationData->created_by; // ID of the user who applied for the travel authorization
-            $approvingUserId = $applicationData->updated_by; // ID of the user who approved the application
-            $emailSubject = 'Travel Authorization Application';
+                $requestingUserId = $applicationData->created_by; // ID of the user who applied for the travel authorization
+                $approvingUserId = $applicationData->updated_by; // ID of the user who approved the application
+                $emailSubject = 'Travel Authorization Application';
 
-            // Send the email
-            try {
-                Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
-
-            } catch (\Exception $e) {
-                log::error('Failed to send email: ' . $e->getMessage());
-            }}
+                // Send the email
+                try {
+                    Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
+                } catch (\Exception $e) {
+                    log::error('Failed to send email: ' . $e->getMessage());
+                }
+            }
         } else if ($status == -1) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' rejected.';
