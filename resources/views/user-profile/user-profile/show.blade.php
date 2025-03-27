@@ -89,13 +89,17 @@
                             <th>Month</th>
                             <th>File</th>
                         </tr>
-                        @foreach ($payslips as $payslip)
+                        @forelse ($payslips as $payslip)
                             <tr>
                                 <td>{{ $payslip['year'] }}</td>
                                 <td>{{ $payslip['month'] }}</td>
                                 <td><a href="{{ url('/payslips/view/' . urlencode($payslip['filename'])) }}" target="_blank">{{ $payslip['filename'] }}</a></td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td span="3">No payslips found</td>
+                            </tr>
+                        @endforelse
                     </table>
                 </div>
             </div>
