@@ -97,7 +97,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td span="3">No payslips found</td>
+                                <td span="3" class="text-danger text-center">No payslips found</td>
                             </tr>
                         @endforelse
                     </table>
