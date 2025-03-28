@@ -91,6 +91,18 @@
   ),
   'rawilk/laravel-printing' => 
   array (
+    'providers' => 
+    array (
+      0 => 'Rawilk\\Printing\\PrintingServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Printing' => 'Rawilk\\Printing\\Facades\\Printing',
+    ),
+  ),
+  'spatie/laravel-ignition' => 
+  'rawilk/laravel-printing' => 
+  array (
     'aliases' => 
     array (
       'Printing' => 'Rawilk\\Printing\\Facades\\Printing',
