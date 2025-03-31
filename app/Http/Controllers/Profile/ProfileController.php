@@ -31,13 +31,12 @@ class ProfileController extends Controller
                 $month = $matches[2];  // Extracted month (numeric)
 
                 // Convert month number to human-readable format
-                $monthName = Carbon::createFromFormat('m', $month)->format('F');  // Using Carbon to get month name
-
+                $monthName = Carbon::createFromFormat('Y-m-d', "2025-$month-01")->format('F');
                 // Store the payslip data along with year and human-readable month
                 $payslipData[] = [
                     'filename' => $payslip,
                     'year' => $year,
-                    'month' => $monthName  // Human-readable month
+                    'month' => $monthName  
                 ];
             }
         }
@@ -68,7 +67,7 @@ class ProfileController extends Controller
                 $deleteImage = delete_image($user->profile_pic);
                 if(!$deleteImage){
                     return redirect()->back()->with('msg_error', 'Profile picture couldnot be updated, please try again later.');
-                } 
+                }
             }
             // Upload new profile picture and update the path
             $profilePic = uploadImageToDirectory($request->profile_pic, 'images/users/');
@@ -79,7 +78,7 @@ class ProfileController extends Controller
         // Redirect back with a success message
         return redirect()->back()->with('msg_success', 'Profile picture updated successfully.');
     }
-    
+
     public function viewPayslip($filename)
     {
         $path = storage_path("payslips/{$filename}");

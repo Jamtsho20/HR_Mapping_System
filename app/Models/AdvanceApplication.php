@@ -122,8 +122,8 @@ class AdvanceApplication extends Model
             $month = $startDate->month;
 
             // Filter by year and month
-            $query->whereYear('date', $year)
-            ->whereMonth('date', $month);
+            $query->whereYear('transaction_date', $year)
+            ->whereMonth('transaction_date', $month);
         }
         if ($request->has('employee') && $request->get('employee')) {
             $query->where('created_by', $request->get('employee'));
