@@ -127,11 +127,6 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        @if ($results->get(8)->hasPages())
-                                        <div class="card-footer">
-                                            {{ $results->get(8)->links() }}
-                                        </div>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
