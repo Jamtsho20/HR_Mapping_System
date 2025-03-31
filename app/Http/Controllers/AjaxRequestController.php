@@ -346,65 +346,9 @@ class AjaxRequestController extends Controller
         ]);
     }
 
-    public function getAdvanceNumber($id)
-    {
-        $sifaInterestRate = 0;
-        $advanceCode = MasAdvanceTypes::where('id', $id)->pluck('code')[0];
-
-        $latestTransaction = AdvanceApplication::where('type_id', $id)
-            ->latest('id') // Orders by id in descending order
-            ->first();
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->advance_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Generate the new advance number with the incremented sequence
-        $advanceNo = generateTransactionNumber($advanceCode, $currentSequence);
-
-        // if advance type is SIFA LOAN then need to get its interest rate and sent it to frontend.
-        if ($id == SIFA_LOAN) {
-            $sifaInterestRate = SIFA_INTEREST_RATE;
-        }
-
-        return response()->json([
-            'advance_no' => $advanceNo,
-            'sifa_interest_rate' => $sifaInterestRate,
-        ]);
-    }
-
-    public function getTravelNumber($id)
-    {
-        $code = MasTravelType::where('id', $id)->value('code');
-        $latestTransaction = TravelAuthorizationApplication::latest('id')->first();
-
-        // Check if the latest transaction exists
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->travel_authorization_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Generate the travel authorization number
-        $authorizationNo = generateTransactionNumber($code, $currentSequence);
 
 
-        return response()->json([
-            'travel_no' => $authorizationNo,
-        ]);
-    }
+   
 
     public function getExpenseAmount($id)
     {
@@ -485,82 +429,7 @@ class AjaxRequestController extends Controller
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
 
-    public function getExpenseNumber($id)
-    {
-        $expenseCode = MasExpenseType::where('id', $id)->pluck('code')[0];
-
-        $latestTransaction = ExpenseApplication::where('type_id', $id)
-            ->latest('id') // Orders by id in descending order
-            ->first();
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->expense_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Extract the next sequence number: get last 4 digits if transaction exists, else default to 1
-        // $nextSequence = $latestTransaction ? (int) substr($latestTransaction->expense_no, -4) + 1 : 1;
-
-        // // Generate the new advance number with the incremented sequence
-        $expenseNo = generateTransactionNumber($expenseCode, $currentSequence);
-
-        return response()->json([
-            'expense_no' => $expenseNo,
-        ]);
-    }
-
-    public function getDsaClaimNumber()
-    {
-        $claimCode = MasExpenseType::where('id', 3)->pluck('code')[0];
-
-        $latestTransaction = DsaClaimApplication::latest('id')->first();
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->dsa_claim_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-
-        // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $currentSequence);
-
-        return $claimNo;
-    }
-
-    public function getTransferClaimNumber($id)
-    {
-        $claimCode = MasTransferClaim::where('id', $id)->pluck('code')[0];
-
-        $latestTransaction = TransferClaimApplication::latest('id')->first();
-
-
-        if ($latestTransaction) {
-            // Extract the sequence part (last part after the last slash)
-            preg_match('/(\d+)$/', $latestTransaction->transfer_claim_no, $matches);
-            $lastSequence = $matches ? (int) $matches[0] : 0;
-            // dd($lastSequence);
-            $currentSequence = $lastSequence;
-            // dd($nextSequence);
-        } else {
-            $currentSequence = 1;
-        }
-        // Generate the new advance number with the incremented sequence
-        $claimNo = generateTransactionNumber($claimCode, $currentSequence);
-
-        return $claimNo;
-    }
-
+   
     public function getTravelAuthorizationDetails($id)
     {
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);

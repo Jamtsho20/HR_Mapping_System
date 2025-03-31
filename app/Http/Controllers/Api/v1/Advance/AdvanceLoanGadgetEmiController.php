@@ -19,17 +19,17 @@ class AdvanceLoanGadgetEmiController extends Controller
 
        $formattedUsername = 'E' . sprintf('%05d', $username);
        $id = User::where('username', $formattedUsername)->value('id');
-    
+
         try {
 
-        $expenseApplications = AdvanceApplication::where('created_by', $id)->where('type_id', GADGET_EMI)->get(['advance_no']);
+            $expenseApplications = AdvanceApplication::where('created_by', $id)->where('type_id', GADGET_EMI)->selectRaw("transaction_no as advance_no")->get();
 
 
             return $this->successResponse($expenseApplications, 'Gadget EMI applications retrieved successfully');
 
-            } catch (\Exception $e) {
-                return $this->errorResponse($e->getMessage(), 500);
-            }
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
     public function getEmployees(Request $request){
@@ -42,11 +42,11 @@ class AdvanceLoanGadgetEmiController extends Controller
         }
     }
 
-    public function getDetailsByAdvance( $advance_no){
+    public function getDetailsByAdvance($transaction_no){
         {
              try {
 
-             $expenseApplications = AdvanceApplication::where('advance_no', $advance_no)->get([ 'total_amount', 'item_type', 'interest_rate']);
+             $expenseApplications = AdvanceApplication::where('transaction_no', $transaction_no)->get([ 'total_amount', 'item_type', 'interest_rate']);
 
                  return $this->successResponse($expenseApplications, 'Gadjet EMI applications retrieved successfully');
 

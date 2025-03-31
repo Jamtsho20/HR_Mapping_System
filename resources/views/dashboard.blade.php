@@ -195,44 +195,65 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
 </script>
 
 <div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                    <table class="table table-condensed table-striped table-bordered table-sm">
-                        <thead>
-                            <tr>
-                                <th colspan="4">
-                                    <h5><strong>Holidays</strong></h5>
-                                </th>
-                            </tr>
-                            <tr class="thead-light">
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($holidays as $index => $holiday)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $holiday->holiday_name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
+<style>
+   /* Glowing effect */
+   .glow {
+       animation: glow 1s infinite alternate;
+       background-color: rgb(11, 98, 164); /* Set base background color */
+       color: white; /* Ensures text is visible */
+   }
 
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center text-danger">No holidays found</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+   @keyframes glow {
+       from {
+           box-shadow: 0 0 5px rgba(11, 98, 164, 0.7);
+           background-color: rgb(11, 98, 164);
+       }
+       to {
+           box-shadow: 0 0 15px rgba(11, 98, 164, 1);
+           background-color: rgb(15, 120, 190); /* Slightly lighter shade for animation */
+       }
+   }
+</style>
+
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-condensed table-striped table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th colspan="5">
+                                <h5><strong>Holidays</strong></h5>
+                            </th>
+                        </tr>
+                        <tr class="thead-light">
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($holidays as $index => $holiday)
+                        <tr class="{{ $index == 0 ? 'glow' : '' }}"> <!-- Apply glow class only to the first row -->
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $holiday->holiday_name }}</td>
+                            <td>{{ \Carbon\Carbon::parse($holiday->start_date)->format('d-M-Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($holiday->end_date)->format('d-M-Y') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-danger">No holidays found</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
+
+
 
 
     <div class="col-md-6">
@@ -287,6 +308,49 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
         </div>
 
     </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-condensed table-striped table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th colspan="4">
+                                        <h5><strong>Assets</strong></h5>
+                                    </th>
+                                </tr>
+                                <tr class="thead-light">
+                                    <th>#</th>
+                                    <th>Serial Number</th>
+                                    <th>Item Description</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($assetData as $index => $asset)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>
+                                         @foreach ($asset->serials as $serial)
+                                        {{ $serial->asset_serial_no }}<br>
+                                        @endforeach
+                                    </td>
+                                    <td>{{ $asset->grnItemDetail->item->item_description }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-danger">No assets found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 
 

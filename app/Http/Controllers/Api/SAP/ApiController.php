@@ -9,10 +9,13 @@ use App\Models\MasGrnItemDetail;
 use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
+use App\Models\User;
+use App\Mail\GoodsIssuedMail;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 class ApiController extends BaseController
 {
@@ -281,6 +284,9 @@ class ApiController extends BaseController
                     }
 
                     $requisition_detail->received_quantity = $line['received_quantity'];
+                    $requisition_detail->is_received = 1;
+                    $requisition_detail->received_at = now();
+                    $requisition_detail->received_by = $reqApplication->created_by;
                     $requisition_detail->save();
 
 
@@ -306,6 +312,13 @@ class ApiController extends BaseController
                         ReceivedSerial::insert($serialsData);
                     }
                 }
+            }
+
+            $employee = User::find($reqApplication->created_by); // Ensure employee_id exists in requisition
+            if ($employee && $employee->email) {
+                Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $reqApplication));
+            } else {
+                \Log::warning("Email not sent: No email found for user ID {$reqApplication->created_by}");
             }
 
             DB::commit();
@@ -418,7 +431,119 @@ class ApiController extends BaseController
         }
     }
 
+
+    private function sendPostRequest($url, $postFields, $sessionId)
+        {
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $postFields,
+                CURLOPT_HTTPHEADER => [
+                    "Cookie: $sessionId; B1SESSION=$sessionId",
+                    'Content-Type: application/json',
+                ],
+                CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+                CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $responseArray = json_decode($response, true);
+
+            curl_close($curl);
+
+            if ($httpCode !== 201) {
+                return [
+                    'status' => $httpCode,
+                    'error' => $responseArray['error']['message']['value'] ?? 'Something went wrong from SAP API'
+                ];
+            }
+
+            return ['status' => 201, 'data' => $responseArray];
+        }
+    public function postCommission($postFields){
+         // Start SAP session and retrieve session ID
+         $response = $this->startSession();
+
+         if (json_last_error() === JSON_ERROR_NONE) {
+             $session = json_decode($response->getContent(), true);
+
+             $sessionId = $session['sessionId'] ?? null;
+         } else {
+             return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+         }
+
+         if (empty($sessionId)) {
+             return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+         }
+
+         $data = json_decode($postFields, true);
+
+        // Extract items and asset document lines as arrays
+        $items = $data['Items'];
+        $assetDocLines = $data['AssetDocumentLineCollection'];
+
+         if (empty($items) && empty($assetDocLines)) {
+             return response()->json(['msg_error' => 'No items found in the payload'], 400);
+         }
+
+
+
+         foreach ($items as $item) {
+            $formattedItem = [
+                "ItemCode" => $item['ItemCode'] ?? null,
+                "ItemName" => $item['ItemName'] ?? null,
+                "ForeignName" => $item['ForeignName'] ?? null,
+                "ItemsGroupCode" => 102,  // static value (Fixed Asset)
+                "ItemType" => "F",        // static value
+                "AssetClass" => $item['AssetClass'] ?? "Furnitures",  // default to "Furnitures"
+                "AssetGroup" => $item['AssetGroup'] ?? null,
+                "InventoryNumber" => $item['InventoryNumber'] ?? null,
+                "Employee" => $item['Employee'] ?? null,
+                "Location" => $item['Location'] ?? null,
+            ];
+
+            // Convert each item to JSON format
+            $jsonFormattedItem = json_encode($formattedItem, JSON_PRETTY_PRINT);
+            $url1='/b1s/v1/Items';
+            $response = $this->sendPostRequest($url1,$jsonFormattedItem, $sessionId);
+
+         if ($response['status'] !== 201) {
+                return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+            }
+
+            }
+
+        $formattedAssetCapitalization = [
+            "AssetDocumentLineCollection" => $assetDocLines,
+            "AssetValueDate" => $data['AssetValueDate'],
+            "DocumentDate" => $data['DocumentDate'],
+            "PostingDate" => $data['PostingDate']
+        ];
+        $jsonFormattedAssetCapitalization = json_encode($formattedAssetCapitalization, JSON_PRETTY_PRINT);
+
+
+        $url2='/b1s/v1/AssetCapitalization';
+        $response = $this->sendPostRequest($url2,$jsonFormattedAssetCapitalization, $sessionId);
+
+     if ($response['status'] !== 201) {
+            return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+        }
+
+
+        $responseArray = $response;
+         return response()->json(['success' => true, 'data' => $responseArray], 201);
+     }
+
+
+
+
+
     // public function postJournalEntries($accountCode, $shortName, $memo, $amount, $costingCode = null, $costingCode2 = null)
+
+
     public function postJournalEntries($postFields, $assetFlag)
     {
         // Start SAP session and retrieve session ID

@@ -13,6 +13,7 @@ use App\Mail\ApprovalNotificationMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Mail\TravelApprovalMail;
 use App\Models\User;
+use App\Models\EmployeeLeave;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationHistory;
@@ -68,6 +69,7 @@ class ApprovalController extends Controller
             }
         }
 
+
         $holidays;
 
         if ($results->get(7)) {
@@ -108,6 +110,7 @@ class ApprovalController extends Controller
                 }
 
                 $costingCode = null;
+
                 $type = $application->type;
 
                 if ($applicationType == 2) { // Expense
@@ -147,6 +150,7 @@ class ApprovalController extends Controller
                         $accountCode = $type->code ?? null;
                         $memo = $type->name ?? null;
                         $shortName = $application->employee->username;
+                        $transactionNumber = $application->transaction_no;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
                         if ($accountCode == 501152) {
@@ -154,10 +158,11 @@ class ApprovalController extends Controller
                         }
                         $tax_amount = $application->tax_amount ?? null;
 
-                        $item_code = $application->details ?? null;
+                        $item_code = isset($application->need_by_date) ? $application->need_by_date : null;
                         $required_date = null;
                         // field required for commission api in SAP
-                        $grnNo = $application->requisitionDetail->grnItem->grn_no ?? null;
+
+                        $grnNo = isset($application->requisitionDetail) ? $application->requisitionDetail->grnItem->grn_no : null;
 
                         $assetFlag = false;
                         if ($item_code) {
@@ -165,6 +170,7 @@ class ApprovalController extends Controller
                             $application->load('details');
                             $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
                         }
+
 
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = $application->employee?->empJob?->department?->code; // department code
@@ -181,7 +187,11 @@ class ApprovalController extends Controller
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo);
 
                             Log::info($postFields);
+                            if($grnNo){
+                                $postJournalEntriesResponse = $this->sap->postCommission($postFields);
+                            }else{
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
+                            }
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
@@ -253,32 +263,6 @@ class ApprovalController extends Controller
         }
     }
 
-    private function groupDocumentLinesByGRN($documentLines)
-    {
-        $groupedData = [];
-
-        foreach ($documentLines as $line) {
-            $grnNumber = $line['GrnNumber'];
-
-            if (!isset($groupedData[$grnNumber])) {
-                $groupedData[$grnNumber] = [
-                    "GrnNumber" => $grnNumber,
-                    "LineItems" => []
-                ];
-            }
-
-            // Add items under the respective GRN
-            $groupedData[$grnNumber]["LineItems"][] = [
-                "ItemCode"        => $line["ItemCode"],
-                "ItemDescription" => $line["ItemDescription"],
-                "Quantity"        => $line["Quantity"],
-                "WarehouseCode"   => $line["WarehouseCode"],
-                "Project"         => $line["Project"]
-            ];
-        }
-
-        return array_values($groupedData);
-    }
 
     private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null)
     {
@@ -287,6 +271,7 @@ class ApprovalController extends Controller
             return $postFields = '{
                 "ReferenceDate":"' . date('Y-m-d') . '",
                 "Memo": "' . $memo . '",
+                "U_HRMS_No": "' . $transactionNo . '",
                 "JournalEntryLines": [
                     {
                         "AccountCode": "' . $accountCode . '",
@@ -315,13 +300,12 @@ class ApprovalController extends Controller
 
                 ]
             }';
-        } elseif ($item_code) {
-            $data = [
+        } elseif ($item_code){
+            $postFields = [
                 "DocDate" => date('Y-m-d'),
                 "DocumentLines" => $application->details->map(function ($detail) {
-                    // dd($detail);
                     return [
-                        "GrnNumber" => (string) $detail->grnItemDetail->grn_no,
+                        "GrnNumber"=> (string) $detail->grnItemDetail->grn_no,
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->grnItemDetail->quantity,
@@ -330,37 +314,44 @@ class ApprovalController extends Controller
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date
-            ];
+                       ];
 
-
-            $postFields = [
-                "DocDate" => $data["DocDate"],
-                "DocumentLines" => $this->groupDocumentLinesByGRN($data['DocumentLines']), // Convert grouped data into a proper array
-                "RequriedDate" => $data["RequriedDate"]
-            ];
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         }
-        else if($grnNo) {  // sap data for asset commissioning
+        elseif($grnNo) {  // sap data for asset commissioning
             $postFields = [
-                "DocDate" => date('Y-m-d'),
-                "U_REQ" => $application->transaction_no,
-                "DocumentLines" => $application->details->map(function ($detail, $grnNo) {  return [
-                    "AsstSerialNo" => (string) $detail->receivedSerial->asset_serial_no,
-                    "AssetDescription" => $detail->receivedSerial->asset_description ?? $detail->requisitionDetail->grnItemDetail->item->item_description,
-                    "UOM" => $detail->requisitionDetail->grnItemDetail->item->uom,
-                    "Quantity" => 1,
-                    "Amount" => $detail->receivedSerial->amount,
-                    "Dzongkhag" => $detail->receivedSerial->dzongkhag->dzongkhag,
-                    "DatePlaceInService" => $detail->receivedSerial->date_placed_in_service,
-                    "ProjectCode" => $detail->receivedSerial->site->code,
-                    "U_GRNEntry" => (string) $grnNo,
-                ];
-            })->toArray(),];
+                "Items" => $application->details->map(function ($detail) use ($application) {
+                    return [
+                        "ItemCode" => (string) $detail->receivedSerial->asset_serial_no,
+                        "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
+                        "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
+                        "ItemsGroupCode" => 102,
+                        "ItemType" => "F",
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group,
+                        "AssetGroup" => null,
+                        "InventoryNumber"=> null,
+                        "Employee"=> null,
+                        "Location"=> null,
+                    ];
+                })->toArray(),
+                "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
+                    return [
+                        "AssetNumber" => (string) $detail->receivedSerial->asset_serial_no,
+                        "Quantity" => 1,
+                        "TotalLC" => $detail->receivedSerial->amount
+                    ];
+                })->toArray(),
+                "AssetValueDate"=> date('Y-m-d'),
+                "DocumentDate" => date('Y-m-d'),
+                "PostingDate" => date('Y-m-d')
+
+     ];
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } else {
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
                             "Memo": "' . $memo . '",
+                            "U_HRMS_No": "' . $transactionNo . '",
                             "JournalEntryLines": [
                                 {
                                     "ShortName": "' . $shortName . '",
@@ -398,6 +389,7 @@ class ApprovalController extends Controller
         $oldDataFlag = true;
         $travelNosString = "";
         $advanceNosString = "";
+        $leaveBalance = "";
         $approvalDetail = getApplicationLogs($mappedModel['name'], $id);
         if ($tab == 9) {
             if (DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
@@ -413,16 +405,16 @@ class ApprovalController extends Controller
 
                 // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
                 $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
-                    ->pluck('travel_authorization_no', 'id');
+                    ->pluck('transaction_no', 'id');
 
-                // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+                // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
                 $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
-                    ->pluck('advance_no', 'id');
+                    ->pluck('transaction_no', 'id');
 
-                // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+                // Attach both transaction_no and transaction_no to each dsaClaimMapping
                 $data->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                    $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                    $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                    $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                     $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                     $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
@@ -434,11 +426,18 @@ class ApprovalController extends Controller
                     return $mapping;
                 });
 
-                // Now, $dsa->dsaClaimMappings contains 'travel_authorization_no' and 'advance_no' for each mapping
+                // Now, $dsa->dsaClaimMappings contains 'transaction_no' and 'transaction_no' for each mapping
                 $travelNosString = $travelNos->implode(', ');
                 $advanceNosString = $advanceNos->implode(', ');
                 $oldDataFlag = false;
             }
+        }
+        if ($tab == 1) {
+            // Fetch the leave type balance for the employee
+            $leaveBalance = EmployeeLeave::where('mas_employee_id', $data->created_by) // Get employee's leave balance
+                ->where('mas_leave_type_id', $data->type_id) // Match leave type from the leave application
+                ->pluck('closing_balance')
+                ->first();
         }
 
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
@@ -449,7 +448,7 @@ class ApprovalController extends Controller
             ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
         // Pass the reject remarks to the view
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance'));
     }
 
     public function edit(Request $request, $id)
@@ -478,17 +477,17 @@ class ApprovalController extends Controller
 
             // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
             $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
-                ->pluck('travel_authorization_no', 'id');
+                ->pluck('transaction_no', 'id');
 
-            // Fetch Advance Application Numbers as key-value pairs (id => advance_no)
+            // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
             $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
-                ->pluck('advance_no', 'id');
+                ->pluck('transaction_no', 'id');
 
 
-            // Attach both travel_authorization_no and advance_no to each dsaClaimMapping
+            // Attach both transaction_no and transaction_no to each dsaClaimMapping
             $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                $mapping->travel_authorization_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                 $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping

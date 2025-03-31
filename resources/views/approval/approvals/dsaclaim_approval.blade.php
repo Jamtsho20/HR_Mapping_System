@@ -13,8 +13,8 @@
                                     class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                     id="basic-datatable table-responsive">
                                     <thead>
-                                        <tr role="row">
-                                        @if ($privileges->edit)
+                                        <tr role="row" class="thead-light">
+                                            @if ($privileges->edit)
                                             <th>
                                                 <input type="checkbox"
                                                     id="select_all"
@@ -23,6 +23,9 @@
                                                     title="select all">
                                             </th>
                                             @endif
+                                            <th>
+                                                APPLIED ON
+                                            </th>
                                             <th>
                                                 EMPLOYEE
                                             </th>
@@ -42,29 +45,31 @@
                                                 STATUS
                                             </th>
                                             <th>
-                                                ACTION
+                                                VIEW
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse ($results->get(9) as $dsaclaim)
                                         <tr>
-                                        @if ($privileges->edit)
+                                            @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox"
                                                     class="bulk_checkbox"
                                                     value="{{ $dsaclaim->id }}">
                                             </td>
                                             @endif
-
+                                            <td class="text-center">
+                                                {{ \Carbon\Carbon::parse($dsaclaim->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsaclaim->created_at)->format('h:i A') }}
+                                            </td>
                                             <td>{{ $dsaclaim->employee->employee_id }}
                                                 ({{ $dsaclaim->employee->title . ' ' . $dsaclaim->employee->name }})
                                             <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
-                                            <td>{{ $dsaclaim->net_payable_amount }}
+                                            <td class="text-right">{{ formatAmount($dsaclaim->net_payable_amount) }}
                                             </td>
-                                            <td>{{ $dsaclaim->advance_amount ?? '0.00' }}
+                                            <td class="text-right">{{formatAmount($dsaclaim->advance_amount ?? '0.00') }}
                                             </td>
-                                            <td>{{ $dsaclaim->amount }}</td>
+                                            <td class="text-right">{{ formatAmount($dsaclaim->amount) }}</td>
 
                                             <td class="text-center">
                                                 @php
@@ -79,12 +84,10 @@
                                                 "global.application_status.{$dsaclaim->status}",
                                                 'Unknown Status',
                                                 );
-                                                $statusClass =
-                                                $statusClasses[
-                                                $dsaclaim
-                                                ->status
-                                                ] ??
-                                                'badge bg-secondary';
+                                                $statusClass = config(
+                                            "global.status_classes.{$dsaclaim->status}",
+                                            'badge bg-secondary',
+                                            );
                                                 @endphp
 
                                                 <span

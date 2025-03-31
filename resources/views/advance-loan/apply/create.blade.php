@@ -14,8 +14,8 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="advance_no">Advance No <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="advance_no" value="{{ old('advance_no') }}" id="advance_no" value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
+                        <label for="transaction_no">Advance No <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="transaction_no" value="{{ old('transaction_no') }}" id="transaction_no" value="{{ old('transaction_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
 

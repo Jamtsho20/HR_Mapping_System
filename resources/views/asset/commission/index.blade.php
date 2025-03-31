@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Asset Commission')
+@section('page-title', 'FA Commission')
 @section('content')
 
     @if ($privileges->create)

@@ -44,7 +44,7 @@
                                                         <th>REQUISITION DATE</th>
                                                         <th>REQUISITION TYPE</th>
                                                         <th>NEED BY DATE</th>
-                                                        <th>ITEM CATEGORY</th>
+                                            
                                                         <th>STATUS</th>
                                                         <th>ACTION</th>
                                                     </tr>
@@ -58,7 +58,7 @@
                                                             <td>{{ $requisition->transaction_date }}</td>
                                                             <td>{{ $requisition->type->name ?? '' }}</td>
                                                             <td>{{ $requisition->need_by_date }}</td>
-                                                            <td>{{ $requisition->item_category }}</td>
+
                                                             <td class ="text-center">
                                                                 @php
                                                                     $statusClasses = [
@@ -84,12 +84,14 @@
                                                                     <a href="{{ url('asset/requisition/' . $requisition->id) }}"
                                                                         class="btn btn-sm btn-outline-secondary"><i
                                                                             class="fa fa-list"></i> Detail</a>
-                                                                @endif
-                                                                @if ($privileges->edit)
-                                                                    <a href="{{ url('asset/requisition/' . $requisition->id . '/edit') }}"
-                                                                        class="btn btn-sm btn-rounded btn-outline-success"><i
-                                                                            class="fa fa-edit"></i> EDIT</a>
-                                                                @endif
+
+                                                                        @if ($requisition->status == 3 && $requisition->good_issue_doc_no != null)
+                                                                    <a href="{{ url('asset/requisition/' . $requisition->id . '/receive') }}"
+                                                                        class="btn btn-sm btn-rounded btn-outline-success">
+                                                                        <i class="bi bi-box-arrow-in-down"></i> Receive
+                                                                    </a>
+                                                                    @endif
+                                                                    @endif
                                                                 @if ($privileges->delete)
                                                                     <a href="#"
                                                                         class="delete-btn btn btn-sm btn-rounded btn-outline-danger"

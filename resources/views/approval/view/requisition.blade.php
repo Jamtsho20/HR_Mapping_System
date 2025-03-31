@@ -23,12 +23,12 @@
                             <tbody>
                                 <tr>
                                     <th>Requisition Number<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $requisition->requisition_no }}</td>
+                                    <td style="padding-left:25px;"> {{ $requisition->transaction_no }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Requisition Type <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $requisition->requisitionType->name }}</td>
+                                    <td style="padding-left:25px;"> {{ $requisition->type->name ?? config('global.null_value') }}</td>
                                 </tr>
                                 <tr>
                                     <th style="width:35%;">Requisition Date<span class="pull-right d-none d-sm-block">:</span>
@@ -46,10 +46,6 @@
                                         {{ \Carbon\Carbon::parse($requisition->need_by_date)->format('d-M-Y') }}
 
                                     </td>
-                                </tr>
-                                <tr>
-                                    <th>Total Quantity Required<span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $requisition->total_quantity_required }}</td>
                                 </tr>
 
 
@@ -75,15 +71,33 @@
                                                 <tbody>
                                                     @foreach ($requisition->details as $index => $detail)
                                                         <tr>
-                                                            <td>{{ $detail->grn_no }}</td>
-                                                            <td>{{ $detail->item_description }}</td>
-                                                            <td>{{ $detail->uom }}</td>
-                                                            <td>{{ $detail->grnMapping->store->name }}</td>
-                                                            <td>{{ $detail->grnMapping->current_stock }}</td>
-                                                            <td>{{ $detail->quantity_required }}</td>
-                                                            <td>{{ $detail->dzongkhag->dzongkhag }}</td>
-                                                            <td>{{ $detail->site->name }}</td>
-                                                            <td>{{ $detail->remark ?? config('global.null_value') }}</td>
+                                                            <td>
+                                                                {{$detail->grnItem->grn_no}}
+                                                            </td>
+                                                            <td>
+                                                            {{$detail->grnItemDetail->item->item_description}}
+                                                            </td>
+                                                            <td>
+                                                              {{$detail->grnItemDetail->item->uom}}
+                                                            </td>
+                                                            <td>
+                                                                {{$detail->grnItemDetail->store->name}}
+                                                            </td>
+                                                            <td>
+                                                               {{$detail->grnItemDetail->quantity}}
+                                                            </td>
+                                                            <td>
+                                                                {{$detail->requested_quantity}}
+                                                            </td>
+                                                            <td>
+                                                                {{$detail->dzongkhag->dzongkhag}}
+                                                            </td>
+                                                            <td>
+                                                                {{$detail->site->name}}
+                                                            </td>
+                                                            <td>
+                                                                {{$detail->remark ?? config('global.null_value')}}
+                                                            </td>
 
                                                         </tr>
                                                     @endforeach

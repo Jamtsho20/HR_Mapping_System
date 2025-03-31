@@ -27,9 +27,13 @@ class AssetCommissionApplication extends Model
         'file' => 'array'
     ];
 
-    public function commisionType()
+    public function user()
     {
-        return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function type()
+    {
+        return $this->belongsTo(MasCommissionTypes::class, 'type_id');
     }
     public function details()
     {
@@ -56,10 +60,29 @@ class AssetCommissionApplication extends Model
         return $this->belongsTo(RequisitionDetail::class, 'requisition_detail_id');
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
+        }
+
+        if($request->from_date && $request->to_date){
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
+
+        if($request->comm_no){
+            $query->where('transaction_no', $request->comm_no);
+        }
+
+        if($request->status){
+            $query->where('status', $request->status);
         }
     }
 

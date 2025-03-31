@@ -29,6 +29,9 @@ return new class extends Migration
             $table->foreignId('office_id')->index()->nullable()->constrained('mas_offices')->comment('for now no need to make use of this only for future purpose');
             $table->foreignId('site_id')->index()->nullable()->constrained('mas_sites');
             $table->text('remark')->nullable();
+            $table->boolean('is_received')->default(0);
+            $table->timestamp('received_at')->nullable();
+            $table->string('received_by')->nullable();
             $table->timestamps();
         });
     }

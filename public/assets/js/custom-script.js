@@ -338,7 +338,7 @@ var hrms = function () {
                 //     type: "GET",
 
                 //     success: function (response) {
-                //         //$('#advance_no').val(response.advance_no)
+                //         //$('#transaction_no').val(response.transaction_no)
                 //         if (response.sifa_interest_rate != 0) {
                 //             $('#interest_rate_sifa').val(response.sifa_interest_rate);
                 //         }
@@ -362,7 +362,7 @@ var hrms = function () {
                     //     if (data.success) {
                     //         // console.log("Access Token:", data.access_token);
                     //         // console.log("Refresh Token:", data.refresh_token);
-                    
+
                     //         // Store token in localStorage/sessionStorage
                     //         localStorage.setItem("accessToken", data.access_token);
                     //     } else {
@@ -371,15 +371,15 @@ var hrms = function () {
                     // })
                     // .catch(error => console.error("Fetch Error:", error));
 
-                    
+
                     let typingTimer; // Timer for debounce
                     const debounceDelay = 200; // Delay in milliseconds
-                    
+
                     $('#item_type').select2({
                         placeholder: 'Select Item Type', // Placeholder text
                         allowClear: true, // Allow clearing the selection
                         minimumInputLength: 3, // Trigger search only after typing 3 characters
-                        
+
                         ajax: {
                             transport: function (params, success, failure) {
                                 // const accessToken = localStorage.getItem("accessToken");
@@ -398,7 +398,7 @@ var hrms = function () {
                                         success: success,
                                         error: failure
                                     });
-                                   
+
                                 }, debounceDelay);
                             },
                             processResults: function (data) {
@@ -452,24 +452,7 @@ var hrms = function () {
             }
         });
 
-        //generating advance no based on advance types
-        // $(document).on('change', '#expense_type', function () {
-        //     var expenseTypeId = $(this).val();
-        //     if (expenseTypeId !== '') {
-        //         $.ajax({
-        //             url: "/getexpensenobyexpensetype/" + expenseTypeId,
-        //             dataType: "JSON",
-        //             type: "GET",
-
-        //             success: function (response) {
-        //                 $('#expense_no').val(response.expense_no)
-        //             },
-        //             error: function (response) {
-        //                 alert('Something went wrong, please contact system admin for further information!');
-        //             }
-        //         });
-        //     }
-        // })
+    
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
@@ -519,7 +502,7 @@ var hrms = function () {
         //get dsa advance details based on select of dsa advance id
         $(document).ready(function () {
             function getDsaAdvanceDetails() {
-                const advanceId = $("#advance_no").val();
+                const advanceId = $("#transaction_no").val();
 
                 if (advanceId !== '') {
                     $.ajax({
@@ -578,8 +561,8 @@ var hrms = function () {
 
             }
 
-            // Trigger on change of advance_no
-            $(document).on("change", "#advance_no", getDsaAdvanceDetails);
+            // Trigger on change of transaction_no
+            $(document).on("change", "#transaction_no", getDsaAdvanceDetails);
 
             // Trigger calculation only on travel_allowance change
             $(document).on("input", "input[name='dsa_claim_detail[AAAAA][travel_allowance]'], input[name='dsa_claim_detail[AAAAA][total_days]']", calculateTotalAmount);
@@ -1104,6 +1087,31 @@ function showSuccessMessage(message, reload = true, documentReferrer = null) {
             } else if (reload) {
                 location.reload(); // Reload the page if no referrer is provided
             }
+        }
+    });
+}
+
+function showConfirmationMessage(message, confirmCallback, cancelCallback = null) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Are you sure?',
+        text: message,
+        width: '400px', // Set a smaller width for the popup
+        customClass: {
+            popup: 'p-3 border-warning', // Add padding and Bootstrap border class
+            title: 'text-warning fw-bold', // Yellow and bold title
+            confirmButton: 'btn btn-success btn-sm', // Small Bootstrap danger button
+            cancelButton: 'btn btn-danger btn-sm' // Small Bootstrap secondary button
+        },
+        showCancelButton: true, // Show cancel button
+        confirmButtonText: 'Yes, Confirm',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true, // Swap confirm and cancel buttons position
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (confirmCallback) confirmCallback(); // Execute confirm callback
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            if (cancelCallback) cancelCallback(); // Execute cancel callback (if provided)
         }
     });
 }

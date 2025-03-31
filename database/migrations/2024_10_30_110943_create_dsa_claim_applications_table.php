@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dsa_claim_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('dsa_claim_no')->index();
+            $table->string('transaction_no')->index();
             $table->foreignId('type_id')->index()->constrained('dsa_claim_types')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('travel_authorization_id')->nullable()->constrained('travel_authorization_applications')->restrictOnDelete()->restrictOnUpdate();
             $table->foreignId('advance_application_id')->nullable()->constrained()->restrictOnDelete()->restrictOnUpdate();

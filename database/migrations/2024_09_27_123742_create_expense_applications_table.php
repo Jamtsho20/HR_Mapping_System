@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('expense_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('expense_no')->index();
-            $table->date('date');
+            $table->string('transaction_no')->index();
+            $table->date('transaction_date');
             $table->foreignId('type_id')->constrained('mas_expense_types')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('mas_vehicle_id')->nullable()->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('travel_type')->nullable();

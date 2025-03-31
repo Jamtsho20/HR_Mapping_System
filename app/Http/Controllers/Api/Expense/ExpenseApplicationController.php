@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\ApplicationForwardedMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\ApplicationHistory;
+use App\Models\ApplicationAuditLog;
 
 
 class ExpenseApplicationController extends Controller
@@ -82,13 +83,10 @@ class ExpenseApplicationController extends Controller
             $user = loggedInUser();
             $empIdName = LoggedInUserEmpIdName();
 
-            $expenseApplications = ExpenseApplication::with(['type:id,name', 'travelType:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username', 'vehicle.vehicleType:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
+            $expenseApplications = ExpenseApplication::with(['type:id,name',  'travelType:id,name', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username', 'vehicle.vehicleType:id,name'])->filter($request)->createdBy()->orderBy('created_at', 'desc')->get();
             $mappedModel = ExpenseApplication::class;
             $expenseApplications = $expenseApplications->map(function ($expenseApplication) use ($mappedModel) {
-                $expenseApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $expenseApplication->id)
-                    ->value('remarks');
-                return $expenseApplication;
+                return loadApplicationDetails($expenseApplication, $mappedModel);
             });
             return response()->json([
                 'expenseApplications' => $expenseApplications,
@@ -112,14 +110,6 @@ class ExpenseApplicationController extends Controller
         }
     }
 
-    public function fetchExpenseNumber($id)
-    {
-        $expenseNo = $this->ajaxRequestController->getExpenseNumber($id);
-
-        return response()->json([
-            'expense_no' => $expenseNo,
-        ]);
-    }
 
 
     public function create(Request $request)
@@ -138,7 +128,7 @@ class ExpenseApplicationController extends Controller
             $advances = AdvanceApplication::where('type_id', DSA_ADVANCE)
                 ->where('created_by', loggedInUser())
                 ->whereNotIn('id', $excludedAdvanceIds)
-                ->get(['id', 'advance_no']);
+                ->get(['id', 'transaction_no']);
 
             $transferClaimTypes = MasTransferClaim::select('id', 'name')->get();
 
@@ -212,12 +202,16 @@ class ExpenseApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(EXPENSE_APPVL_HEAD, $request); // fetching condition field for particular approval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->expense_type, \App\Models\MasExpenseType::class, $conditionFields ?? []);
-        $expenseApplicationNo = $this->ajax->getExpenseNumber($request->expense_type)->getData()->expense_no;
+
+        $expenseType = MasExpenseType::where('id', $request->expense_type)->first();
+        $lastTransaction = ExpenseApplication::latest('id')->first();
+        $expenseApplicationNo = generateTransactionNumber1($expenseType, $lastTransaction, 'transaction_no');
+
 
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
 
-        if (ExpenseApplication::where('expense_no', $expenseApplicationNo)->exists()) {
+        if (ExpenseApplication::where('transaction_no', $expenseApplicationNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return $this->errorResponse('Expense Application Number already exists. Please try again.', 500);
         }
@@ -228,10 +222,10 @@ class ExpenseApplicationController extends Controller
 
                 $expenseApplication = ExpenseApplication::create([
                     // 'mas_employee_id' => loggedInUser(),
-                    'expense_no' => $expenseApplicationNo,
+                    'transaction_no' => $expenseApplicationNo,
                     'type_id' => $request->expense_type,
                     'mas_vehicle_id' => $request->mas_vehicle_id ?? null,
-                    'date' => formatDate($request->date),
+                    'transaction_date' => formatDate($request->date),
                     'amount' => $request->amount,
                     'description' => $request->description,
                     'file' => json_encode($result['attachments']),
@@ -496,4 +490,3 @@ public function update(Request $request, $id)
     }
 
 }
- 

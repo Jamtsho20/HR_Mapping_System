@@ -11,7 +11,7 @@ class TransferClaimApplication extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    // protected $fillable = ['transfer_claim_no ', 'transfer_claim_id', 'current_location', 'new_location', 'distance_travelled', 'amount_claimed', 'attachment', 'status'];
+    // protected $fillable = ['transaction_no ', 'transfer_claim_id', 'current_location', 'new_location', 'distance_travelled', 'amount_claimed', 'attachment', 'status'];
 
     protected $guarded = [];
 

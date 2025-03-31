@@ -79,10 +79,7 @@ class TravelAuthorizationApprovalController extends Controller
 
             $mappedModel = TravelAuthorizationApplication::class;
             $travelAuthorizations = $travelAuthorizations->map(function ($travelAuthorization) use ($mappedModel) {
-                $travelAuthorization->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $travelAuthorization->id)
-                    ->value('remarks');
-                return $travelAuthorization;
+                return loadApplicationDetails($travelAuthorization, $mappedModel);
             });
             return response()->json([
                 'success' => true,

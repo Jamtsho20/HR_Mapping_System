@@ -28,15 +28,17 @@ use App\Http\Controllers\Reports\TaxScheduleReportController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\Sifa\SifaRegistrationController;
 use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
+use App\Http\Controllers\WorkStructure\BusinessUnitController;
+use App\Jobs\SendEmployeeCredentialsJob;
+use App\Jobs\UpdateEmployeePasswordJob;
+use App\Mail\SendCredentialsMail;
 use App\Models\ExpenseApplication;
 use App\Models\PaySlip;
-use App\Services\PayrollService;
-use Illuminate\Support\Facades\Route;
-use App\Mail\SendCredentialsMail;
 use App\Models\User;
+use App\Services\PayrollService;
 use Illuminate\Support\Facades\Mail;
-use App\Jobs\UpdateEmployeePasswordJob;
-use App\Jobs\SendEmployeeCredentialsJob;
+use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -121,6 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::get('profile', 'HomeController@getProfile');
     Route::get('change-password', 'HomeController@getChangePassword')->name('change-password');
     Route::post('change-password', 'HomeController@postChangePassword');
+    Route::get('/payslips/view/{filename}', [ProfileController::class, 'viewPayslip']);
 
     // SYSTEM SETTINGS
     Route::namespace('SystemSetting')->prefix('system-setting')->group(function () {
@@ -171,6 +174,7 @@ Route::middleware('auth')->group(function () {
     Route::namespace('WorkStructure')->prefix('work-structure')->group(function () {
         Route::resource('holiday-lists', 'HolidayListController')->except('create', 'show', 'edit');
         Route::resource('business-unit', 'BusinessUnitController')->except('create', 'show', 'edit');
+        Route::post('/update-logo', [BusinessUnitController::class, 'updateLogo'])->name('update.logo');
         Route::resource('geography', 'GeographyController')->except('create', 'show', 'edit');
     });
 
@@ -368,7 +372,7 @@ Route::middleware('auth')->group(function () {
 
 
 
-    //AssetsReport
+    //Assets
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
         Route::resource('mas-item', 'MasItemsController');
@@ -376,6 +380,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('commission', 'CommissionApplicationController');
         Route::resource('asset-transfer', 'AssetTransferApplicationController');
+        Route::get('requisition/{id}/receive', 'RequisitionApplicationController@receive')->name('requisition.receive');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
@@ -390,6 +395,14 @@ Route::middleware('auth')->group(function () {
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
 
+
+    //AssetREports
+    Route::namespace('AssetReport')->prefix('asset-report')->group(function () {
+        Route::resource('requisition-report', 'RequisitionReportController')->except('create', 'edit');
+        Route::resource('commission-report', 'CommissionReportController')->except('create', 'edit');
+        Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
+        Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
+    });
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
         Route::resource('account-heads', 'AccountHeadsController');

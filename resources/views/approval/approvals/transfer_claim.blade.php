@@ -14,7 +14,7 @@
                                     id="basic-datatable table-responsive">
                                     <thead>
                                         <tr role="row" class="thead-light">
-                                        @if ($privileges->edit)
+                                            @if ($privileges->edit)
                                             <th>
                                                 <input type="checkbox"
                                                     id="select_all"
@@ -23,6 +23,9 @@
                                                     title="select all">
                                             </th>
                                             @endif
+                                            <th>
+                                                APPLIED ON
+                                            </th>
                                             <th>
                                                 EMPLOYEE
                                             </th>
@@ -45,26 +48,29 @@
                                                 STATUS
                                             </th>
                                             <th>
-                                                Action
+                                                VIEW
                                             </th>
                                         </tr>
                                     <tbody>
                                         @forelse ($results->get(6) as $transferclaim)
                                         <tr>
-                                        @if ($privileges->edit)
+                                            @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox"
                                                     class="bulk_checkbox"
                                                     value="{{ $transferclaim->id }}">
                                             </td>
                                             @endif
+                                            <td class="text-center">
+                                                {{ \Carbon\Carbon::parse($transferclaim->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($transferclaim->created_at)->format('h:i A') }}
+                                            </td>
                                             <td>{{ $transferclaim->employee->name }}
                                             </td>
                                             <td>{{ $transferclaim->created_at->format('d-M-Y') }}
                                             </td>
                                             <td>{{ $transferclaim->type->name}}
                                             </td>
-                                            <td>{{ $transferclaim->amount }}
+                                            <td class="text-right">{{ formatAmount($transferclaim->amount )}}
                                             </td>
                                             <td>{{ $transferclaim->current_location }}
                                             </td>
@@ -76,19 +82,17 @@
                                                 -1 => 'badge bg-danger',
                                                 0 => 'badge bg-warning',
                                                 1 => 'badge bg-primary',
-                                                2 => 'badge bg-success',
+                                                2 => 'badge bg-primary',
                                                 3 => 'badge bg-info',
                                                 ];
                                                 $statusText = config(
                                                 "global.application_status.{$transferclaim->status}",
                                                 'Unknown Status',
                                                 );
-                                                $statusClass =
-                                                $statusClasses[
-                                                $transferclaim
-                                                ->status
-                                                ] ??
-                                                'badge bg-secondary';
+                                                $statusClass = config(
+                                            "global.status_classes.{$transferclaim->status}",
+                                            'badge bg-secondary',
+                                            );
                                                 @endphp
 
                                                 <span

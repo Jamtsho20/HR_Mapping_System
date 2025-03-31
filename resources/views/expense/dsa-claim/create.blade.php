@@ -17,20 +17,20 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="advance_no">Advance No </label>
-                            <select class="form-control" id="advance_no" name="advance_no">
+                            <label for="transaction_no">Advance No </label>
+                            <select class="form-control" id="transaction_no" name="transaction_no">
                                 <option value="" selected disabled>Select your option</option>
                                 @foreach ($advances as $advance)
                                     <option value="{{ $advance['id'] }}"
-                                        {{ old('advance_no') == $advance['id'] ? 'selected' : '' }}>
-                                        {{ $advance['advance_no'] }}</option>
+                                        {{ old('transaction_no') == $advance['id'] ? 'selected' : '' }}>
+                                        {{ $advance['transaction_no'] }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="advance_no">Advance Amount </label>
+                            <label for="transaction_no">Advance Amount </label>
                             <input type="number" class="form-control" id="advance_amount" name="advance_amount"
                                 value="{{ old('advance_amount') }}" readonly>
                         </div>

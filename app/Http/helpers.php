@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ApplicationAuditLog;
+use App\Models\ApplicationHistory;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
@@ -272,6 +273,37 @@ if(!function_exists('generateTransactionNumber1')){
         return $type['code'] . '/' . $datePart . '/' . $currentSequence;
     }
 }
+if (!function_exists('loadApplicationDetails')) {
+    function loadApplicationDetails($expenseApplication, $mappedModel)
+    {
+        $expenseApplication->verified_by = ApplicationAuditLog::where('application_type', $mappedModel)
+            ->where('application_id', $expenseApplication->id)
+            ->where('status', '2')
+            ->select(['id', 'action_performed_by', 'created_at'])
+            ->with('performedBy:id,name')
+            ->first();
+
+        $expenseApplication->approved_by = ApplicationAuditLog::where('application_type', $mappedModel)
+            ->where('application_id', $expenseApplication->id)
+            ->where('status', '3')
+            ->select(['id', 'action_performed_by', 'created_at'])
+            ->with('performedBy:id,name')
+            ->first();
+
+        $expenseApplication->rejected_by = ApplicationAuditLog::where('application_type', $mappedModel)
+        ->where('application_id', $expenseApplication->id)
+        ->where('status', '-1')
+        ->select(['id', 'action_performed_by', 'created_at'])
+        ->with('performedBy:id,name')
+        ->first();
+
+        $expenseApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
+            ->where('application_id', $expenseApplication->id)
+            ->value('remarks');
+
+        return $expenseApplication;
+    }
+}
 
 if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id based on mass_office_id
     function loggedInUserRegion(){
@@ -411,5 +443,12 @@ if(!function_exists('normalizePathForDisplay') ) {
         $path = preg_replace('/"+/', '', $path); // Removes any quotes
         $path = preg_replace('/\/+/', '/', $path); // Normalizes multiple slashes
         return $path;
+    }
+}
+
+if (!function_exists('formatAmount')) {
+    function formatAmount($amount)
+    {
+        return 'Nu. ' . number_format($amount, 2);
     }
 }

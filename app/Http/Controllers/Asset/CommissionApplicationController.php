@@ -46,7 +46,7 @@ class CommissionApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->paginate(config('global.pagination'))->withQueryString();
+        $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
         return view('asset.commission.index',compact('privileges', 'commissions'));
     }
     /**

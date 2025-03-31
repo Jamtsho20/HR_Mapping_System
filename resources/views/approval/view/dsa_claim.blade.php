@@ -23,12 +23,12 @@
                                     <tr>
                                         <th style="width:35%;">Claim No <span class="pull-right d-none d-sm-block">:</span>
                                             &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->dsa_claim_no }}</td>
+                                        <td style="padding-left:25px;"> {{ $dsa->transaction_no }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Travel No <span class="pull-right d-none d-sm-block">:</span>
                                             &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->travel->travel_authorization_no }}</td>
+                                        <td style="padding-left:25px;"> {{ $dsa->travel->transaction_no }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
@@ -39,17 +39,17 @@
                                     <tr>
                                         <th style="width:35%;">Advance Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->total_amount ?? '-' }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->total_amount ?? '-') }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Net Payable Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? '-' }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? '-' )}}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Balance Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->balance_amount }}</td>
+                                        <td style="padding-left:25px;"> {{ fomatAmount($dsa->balance_amount )}}</td>
                                     </tr>
 
 
@@ -153,7 +153,7 @@
                             <tr>
                                 <th style="width:35%;">Claim No <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->dsa_claim_no }}</td>
+                                <td style="padding-left:25px;"> {{ $dsa->transaction_no }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Travel No(s) <span class="pull-right d-none d-sm-block">:</span>
@@ -168,28 +168,33 @@
                             <tr>
                                 <th style="width:35%;">Total Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->amount ?? config('global.null_value') )}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Advance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{formatAmount($dsa->advance_amount ?? config('global.null_value') )}}</td>
                             </tr>
 
                             <tr>
                                 <th style="width:35%;">Net Payable Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Balance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->balance_amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{formatAmount( $dsa->balance_amount ?? config('global.null_value') )}}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Total Number of Days <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $dsa->total_number_of_days ?? config('global.null_value') }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Applied On <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ \Carbon\Carbon::parse($dsa->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsa->created_at)->format('h:i A') }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -227,15 +232,15 @@
 
                                             <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
                                                 <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                                    Travel Authorization Number: {{$detail->travel_authorization_no}}
+                                                    Travel Authorization Number: {{$detail->transaction_no}}
                                                 </span>
                                             </td>
                                             <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
                                                 <span
                                                     name="dsa_claim_detail[{{ $detail->travel_authorization_id ?? '' }}][advance_detail_id]"
-                                                    data-value="{{ $detail->advance_no ? $detail->advance_no : '' }}">
-                                                    {{ $detail->advance_no
-                                                        ? "Advance Number: {$detail->advance_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
+                                                    data-value="{{ $detail->transaction_no ? $detail->transaction_no : '' }}">
+                                                    {{ $detail->transaction_no
+                                                        ? "Advance Number: {$detail->transaction_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
                                                         : 'Advance Number: N/A, Advance Amount: N/A'
                                                     }}
                                                 </span>
@@ -320,7 +325,23 @@
 
                                             </td>
                                         </tr>
+                       
                                     @endforeach
+                                    <tr style="font-weight: bold; background-color: #f5f5f5">
+                                    
+                                <td colspan="2" style="padding-left:25px;"></td>
+                                <th style="width:35%;">Total Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->amount ?? config('global.null_value') )}}</td>
+                                <th style="width:35%;">Advance Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{formatAmount($dsa->advance_amount ?? config('global.null_value') )}}</td>
+
+                                <th style="width:35%;">Net Payable Amount <span
+                                        class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
+                            </tr>
+                         
                                     </tbody>
                                 </table>
                             </div>

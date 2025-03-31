@@ -23,19 +23,18 @@
                                 <tr>
                                     <th style="width:35%;">Advance No <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $advance->advance_no }}</td>
+                                    <td style="padding-left:25px;"> {{ $advance->transaction_no }}</td>
                                 </tr>
                                 <tr>
-                                    <th style="width:35%;">Applied On<span class="pull-right d-none d-sm-block">:</span>
-                                        &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;">
-                                        {{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}
-                                    </td>
-                                </tr>
+                                <th style="width:35%;">Applied On <span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                {{ \Carbon\Carbon::parse($advance->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($advance->created_at)->format('h:i A') }}
+                                </td>
+                            </tr>
                                 <tr>
                                     <th style="width:35%;">Advance Type <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
-                                    <td style="padding-left:25px;"> {{ $advance->advanceType->name }}</td>
+                                    <td style="padding-left:25px;"> {{ $advance->advanceType->name  }}</td>
                                 </tr>
 
                                 @if ($advance->type_id == 2)
@@ -58,17 +57,25 @@
                                     <th style="width:35%;">Amount<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
-                                        {{ $advance->amount }}
+                                        {{ formatAmount($advance->amount )}}
                                     </td>
                                 </tr>
-                                <tr>
+                                <!-- <tr>
                                     <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
                                         {{ $advance->total_amount ?? '-' }}
                                     </td>
-                                </tr>
-
+                                </tr> -->
+                                <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                            <td style="padding-left:25px;">
+                                @if (is_numeric($advance->total_amount))
+                                {{ formatAmount(floatval($advance->total_amount), 2) }} {{-- Format as float with 2 decimal places --}}
+                                @else
+                                - {{-- Display "-" if it's not a valid number --}}
+                                @endif
+                            </td>
+                            </tr>
                                 <tr>
                                     <th style="width:35%;">Remarks<span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>

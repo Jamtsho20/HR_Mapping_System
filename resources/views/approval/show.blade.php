@@ -24,7 +24,7 @@
 
 
     @if ($tab == 1)
-        @include('approval.view.leave', ['leave' => $data, 'empDetails' => $empDetails])
+        @include('approval.view.leave', ['leave' => $data, 'empDetails' => $empDetails,'leaveBalance' => $leaveBalance])
     @elseif ($tab == 2)
         @include('approval.view.expense', ['expense' => $data, 'empDetails' => $empDetails])
     @elseif ($tab == 3)

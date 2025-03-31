@@ -11,16 +11,16 @@
                                 <thead>
                                     <tr role="row" class="thead-light">
                                         @if ($privileges->edit)
-                                            <th>
-                                                <input type="checkbox" id="select_all" class="select_all"
-                                                    data-item-class="bulk_checkbox" title="select all">
-                                            </th>
+                                        <th>
+                                            <input type="checkbox" id="select_all" class="select_all"
+                                                data-item-class="bulk_checkbox" title="select all">
+                                        </th>
                                         @endif
                                         <th>
-                                            EMPLOYEE
+                                            APPLIED ON
                                         </th>
                                         <th>
-                                            APPLIED ON
+                                            EMPLOYEE
                                         </th>
                                         <th>
                                             ADVANCE TYPE
@@ -32,50 +32,52 @@
                                             STATUS
                                         </th>
                                         <th>
-                                            Action
+                                            VIEW
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($results->get(3) as $advance)
-                                        <tr>
-                                            @if ($privileges->edit)
-                                                <td><input type="checkbox" class="bulk_checkbox"
-                                                        value="{{ $advance->id }}"></td>
-                                            @endif
-                                            <td>{{ $advance->employee->emp_id_name }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($advance->date)->format('d-M-Y') }}</td>
-                                            <td>{{ $advance->advanceType->name }}</td>
-                                            <td>{{ $advance->amount }}</td>
-                                            <td class="text-center">
+                                    <tr>
+                                        @if ($privileges->edit)
+                                        <td><input type="checkbox" class="bulk_checkbox"
+                                                value="{{ $advance->id }}"></td>
+                                        @endif
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($advance->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($advance->created_at)->format('h:i A') }}
+                                        </td>
+                                        <td>{{ $advance->employee->emp_id_name }}</td>
+                                        <td>{{ $advance->advanceType->name }}</td>
+                                        <td class="text-right">{{ formatAmount($advance->amount) }}</td>
+                                        <td class="text-center">
 
-                                                @php
-                                                    $statusClasses = [
-                                                        -1 => 'badge bg-danger',
-                                                        0 => 'badge bg-warning',
-                                                        1 => 'badge bg-primary',
-                                                        2 => 'badge bg-success',
-                                                        3 => 'badge bg-info',
-                                                    ];
-                                                    $statusText = config(
-                                                        "global.application_status.{$advance->status}",
-                                                        'Unknown Status',
-                                                    );
-                                                    $statusClass = config(
-                                                        "global.status_classes.{$advance->status}",
-                                                        'badge bg-secondary',
-                                                    );
-                                                @endphp
+                                            @php
+                                            $statusClasses = [
+                                            -1 => 'badge bg-danger',
+                                            0 => 'badge bg-warning',
+                                            1 => 'badge bg-primary',
+                                            2 => 'badge bg-primary',
+                                            3 => 'badge bg-info',
+                                            ];
+                                            $statusText = config(
+                                            "global.application_status.{$advance->status}",
+                                            'Unknown Status',
+                                            );
+                                            $statusClass = config(
+                                            "global.status_classes.{$advance->status}",
+                                            'badge bg-secondary',
+                                            );
+                                            @endphp
 
-                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                            <span class="{{ $statusClass }}">{{ $statusText }}</span>
 
-                                            </td>
-                                            <td class="text-center">
-                                                @if ($privileges->view)
-                                                    @php
-                                                        $routeName = Route::currentRouteName(); // Get the current route name
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($privileges->view)
+                                            @php
+                                            $routeName = Route::currentRouteName(); // Get the current route name
 
-                                                    @endphp
+                                            @endphp
 
                                             @if ($routeName == 'approval.index')
                                             <a href="{{ url('approval/applications/' . $advance->id . '?tab=3') }}" class="btn btn-sm btn-outline-secondary">
@@ -98,13 +100,13 @@
                                             @endif
                                         </td>
 
-                                        </tr>
+                                    </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center text-danger">
-                                                No Advance found
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td colspan="7" class="text-center text-danger">
+                                            No Advance found
+                                        </td>
+                                    </tr>
                                     @endforelse
                                 </tbody>
                             </table>

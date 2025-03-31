@@ -10,9 +10,9 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="advance_no">Travel Authorizaiton No <span class="text-danger"></span></label>
-                            <input type="text" class="form-control" name="travel_authorization_no" id="travel_no"
-                                value="{{ old('advance_no') }}" placeholder="Generating..." readonly>
+                            <label for="transaction_no">Travel Authorization No <span class="text-danger"></span></label>
+                            <input type="text" class="form-control" name="transaction_no" id="travel_no"
+                                value="{{ old('transaction_no') }}" placeholder="Generating..." readonly>
                         </div>
                     </div>
 

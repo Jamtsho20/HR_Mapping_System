@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Expense;
 
+use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Controller;
 use App\Models\MasTransferClaim;
+use App\Models\MasTransferType;
 use App\Models\TransferClaimApplication;
+use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Services\ApplicationHistoriesService;
-use App\Http\Controllers\AjaxRequestController;
 
 class TransferClaimApplicationController extends Controller
 {
@@ -78,11 +79,13 @@ class TransferClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
 
-        $transferClaimNo = $this->ajax->getTransferClaimNumber($request->transfer_claim);
+        $transferClaimType = MasTransferClaim::where('id', $request->expense_type)->first();
+        $lastTransaction = TransferClaimApplication::latest()->first();
+        $transferClaimNo = generateTransactionNumber1($transferClaimType, $lastTransaction, 'transaction_no');
 
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
-        if (TransferClaimApplication::where('transfer_claim_no', $transferClaimNo)->exists()) {
+        if (TransferClaimApplication::where('transaction_no', $transferClaimNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return back()->withInput()->with('msg_error', 'Transfer Claim Application Number already exists. Please try again.');
         }
@@ -103,7 +106,7 @@ class TransferClaimApplicationController extends Controller
                 }
 
                 $transferClaimApplication = TransferClaimApplication::create([
-                    'transfer_claim_no' => $transferClaimNo,
+                    'transaction_no' => $transferClaimNo,
                     'type_id' => $request->transfer_claim,
                     'current_location' => $request->current_location,
                     'new_location' => $request->new_location,

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Showing Commission Details')
+@section('page-title', 'Showing FA Commission Details')
 @section('buttons')
     <a href="{{ url('asset/commission/') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to
         List</a>
@@ -10,7 +10,7 @@
             <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
                 <div class="row">
                     <div class="col-md-12">
-                        <h6>Commission Details</h6>
+                        <h6>FA Commission Details</h6>
                     </div>
                 </div>
                 <div class="row">
@@ -68,8 +68,7 @@
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table id="vehiclefuelclaimtable"
-                            class="table table-condensed table-bordered table-striped table-sm basic-datatable">
+                        <table id="commission-detail" class="table table-condensed table-bordered table-striped table-sm basic-datatable">
                             <thead>
                                 <tr role="row">
                                     <th>#</th>

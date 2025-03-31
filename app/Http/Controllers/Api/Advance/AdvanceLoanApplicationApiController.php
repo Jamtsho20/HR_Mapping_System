@@ -35,7 +35,6 @@ class AdvanceLoanApplicationApiController extends Controller
 
         'date' => 'required|date',
         'advance_type' => 'required',
-        'travel_authorization_no' => 'required_if:advance_type,' . DSA_ADVANCE,
         'advance_settlement_date' => 'required_if:advance_type,' . ADVANCE_TO_STAFF,
         'item_type' => 'required_if:advance_type,' . GADGET_EMI,
         'amount' => '|required_if:advance_type,' . DSA_ADVANCE . '|required_if:advance_type,' . ADVANCE_TO_STAFF .
@@ -48,8 +47,7 @@ class AdvanceLoanApplicationApiController extends Controller
     ];
 
     protected $messages = [
-        'advance_no.unique' => 'Advance Number has already been taken, please refresh the page and try again.',
-        'travel_authorization_no.required_if' => 'Travel authorization no is required for the selected advance type.',
+
         'advance_settlement_date.required_if' => 'Advance settlement date no is required for the selected advance type.',
         'item_type.required_if' => 'Item type is required for the selected gadget EMI.',
         'amount.required_if' => 'Amount is required for the selected advance type.',
@@ -75,10 +73,7 @@ class AdvanceLoanApplicationApiController extends Controller
             $applications = AdvanceApplication::with('advanceType', 'histories:id,application_id,action_performed_by,application_type,status',  'histories.actionPerformer:id,name,username')->createdBy()->orderBy('created_at', 'desc')->get();
             $mappedModel = AdvanceApplication::class;
             $applications = $applications->map(function ($advance) use ($mappedModel) {
-                $advance->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
-                    ->where('application_id', $advance->id)
-                    ->value('remarks');
-                return $advance;
+                return loadApplicationDetails($advance, $mappedModel);
             });
             return $this->successResponse($applications, 'Advance applications retrieved successfully');
         } catch (\Exception $e) {
@@ -98,7 +93,7 @@ class AdvanceLoanApplicationApiController extends Controller
                 ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
                     $query->whereNotIn('id', $excludedTravelAuthorizationIds);
                 })
-                ->get(['id', 'travel_authorization_no']); // Always fetch after conditions are applied
+                ->get(['id', 'transaction_no']); // Always fetch after conditions are applied
             return response()->json(['advanceTypes' => $advanceTypes, 'dzongkhags' => $dzongkhags, 'budgetCodes' => $budgetCodes, 'excludedTravelAuthorizationIds' => $excludedTravelAuthorizationIds, 'travelAuthorizations' => $travelAuthorizations]);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 500);
@@ -121,9 +116,11 @@ class AdvanceLoanApplicationApiController extends Controller
             $attachment = "";
             $date = formatDate(request('date'));
 
-            $advanceNo = $this->ajax->getAdvanceNumber($request->advance_type)->getData()->advance_no;
+            $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
+            $lastTransaction = AdvanceApplication::latest('id')->first();
+            $advanceNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
 
-            if (AdvanceApplication::where('advance_no', $advanceNo)->exists()) {
+            if (AdvanceApplication::where('transaction_no', $advanceNo)->exists()) {
                 // If the travel number already exists, throw an exception or return an error
                 return $this->errorResponse('Advance Loan Application Number already exists. Please try again.', 500);
                 }
@@ -134,12 +131,12 @@ class AdvanceLoanApplicationApiController extends Controller
             }
             try {
                 DB::beginTransaction();
-                $advanceApplication->advance_no = $advanceNo;
-                $advanceApplication->date = $date;
+                $advanceApplication->transaction_no = $advanceNo;
+                $advanceApplication->transaction_date = $date;
                 $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
                 $advanceApplication->type_id = $request->advance_type;
                 $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
-                $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null;
+                $advanceApplication->travel_authorization_id = $request->transaction_no ?? null;
 
                 $advanceApplication->amount = $request->amount ?? null;
                 $advanceApplication->attachment = $attachment ?? null; // Store attachment path
@@ -245,13 +242,13 @@ class AdvanceLoanApplicationApiController extends Controller
             try {
                 // Start a database transaction to ensure atomicity
                 DB::beginTransaction();
-                $advanceApplication->advance_no = $request->advance_no;
+                $advanceApplication->transaction_no = $request->transaction_no;
                 $advanceApplication->date = formatDate($request->date);
                 // $advanceApplication->date = $request->date;
                 $advanceApplication->advance_settlement_date = formatDate($request->advance_settlement_date) ?? null;
                 $advanceApplication->type_id = $request->advance_type;
                 $advanceApplication->mas_employee_id = $request->employee ?? null; // only required if user applies on behalf of someone
-                $advanceApplication->travel_authorization_id = $request->travel_authorization_no ?? null; // only required if user applies on behalf of someone
+                $advanceApplication->travel_authorization_id = $request->transaction_no ?? null; // only required if user applies on behalf of someone
 
                 $advanceApplication->amount = $request->amount ?? null;
                 $advanceApplication->attachment = $attachment ?? null; // Store attachment path
