@@ -1,19 +1,20 @@
 @extends('layouts.app')
 @section('page-title', 'Asset Transfer')
 @section('content')
-
+<link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+<link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
 <div class="block-header block-header-default">
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-header"></div>
+            {{-- <div class="card-header"></div> --}}
             <div class="card-body">
 
                 <div class="row">
 
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="transfer_no">Transfer No</label>
-                            <input type="text" class="form-control" name="transfer_no" value="" disabled>
+                            <label for="transfer_no">Transfer No. <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="transfer_no" value="" placeholder="Generating..." disabled>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -21,8 +22,9 @@
                             <label for="transfer_type">Transfer Type<span class="text-danger">*</span></label>
                             <select class="form-control" name="transfer_type">
                                 <option value="" disabled selected hidden>Select your option</option>
-                                <option value="">Employee to Employee</option>
-                                <option value="">Site to Site</option>
+                                @foreach($types as $type)
+                                    <option value="{{ $type->id }}" {{ old('transfer_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                                @endforeach
 
                             </select>
                         </div>
@@ -30,30 +32,24 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="commission_date">Transfer Date<span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" name="commission_date">
+                            <input type="date" class="form-control" name="commission_date" value="{{ old('commission_date') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="employee">From Employee<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="from_employee" value="{{ LoggedInUserEmpIdName() ?? config('global.null_value') }}" disabled>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="commission_date">Reason of Transfer<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="commission_date">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="employee">Old Employee Name<span class="text-danger">*</span></label>
-                                                                                    <input type="text" class="form-control" name="employee" value="{{ Auth::user()->name }}" disabled>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="new_employee">New Employee<span class="text-danger">*</span></label>
-                            <select name="job[new_employee]" class="form-control select2 select2-hidden-accessible"
+                            <label for="new_employee">To Employee<span class="text-danger">*</span></label>
+                            <select name="to_employee" class="form-control select2 select2-hidden-accessible"
                                 data-placeholder="Select your option" tabindex="-1">
                                 <option value="" disabled selected hidden>Select your option</option>
                                 @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}"
-                                    {{ old('job.new_employee', isset($selectedEmployee) && $selectedEmployee == $employee->id ? 'selected' : '') }}>
+                                <option value="{{ $employee->id }}" {{ old('to_employee') == $employee->id ? 'selected' : '' }}>
                                     {{ $employee->emp_id_name }}
                                 </option>
                                 @endforeach
@@ -63,56 +59,89 @@
 
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="old_location">Old Location<span class="text-danger">*</span></label>
-                            <select class="form-control" name="old_location">
+                            <label for="from_site">From Site<span class="text-danger">*</span></label>
+                            <select class="form-control select2 select2-hidden-accessible" name="from_site">
                                 <option value="" disabled selected hidden>Select your option</option>
-
+                                @foreach($sites as $site)
+                                    <option value="{{ $site->id }}" {{ old('from_site') == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="new_location">New Location<span class="text-danger">*</span></label>
-                            <select class="form-control" name="new_location">
+                            <label for="to_site">To Site<span class="text-danger">*</span></label>
+                            <select class="form-control select2 select2-hidden-accessible" name="to_site">
                                 <option value="" disabled selected hidden>Select your option</option>
-
+                                @foreach($sites as $site)
+                                    <option value="{{ $site->id }}" {{ old('to_site') == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
 
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="file">File</label>
-                            <input type="file" class="form-control" name="file" value="" disabled>
+                            <label for="commission_date">Reason of Transfer<span class="text-danger">*</span></label>
+                            {{-- <input type="text" class="form-control" name="reason_of_transfer" value="{{ old('reason_of_transfers') }}"> --}}
+                            <textarea class="form-control" name="reason_of_transfer" rows="2">{{ old('reason_of_transfer') }}</textarea>
                         </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <div class="file-uploader">
+                                <label for="file">Attachment (s)</label>
+                                <div class="file-upload-box">
+                                    <div class="box-title">
+                                        <!-- <span class="file-instruction">Drag files here or</span> -->
+                                        <span class="file-browse-button">Upload Files</span>
+                                    </div>
+                                    <input class="file-browse-input" type="file" multiple hidden name="attachments[]"
+                                        id="attachment" class="form-control" accept="image/*,.pdf,.doc,.docx" />
+
+                                </div>
+                                <ul class="file-list">
+
+                                </ul>
+                            </div>
+                        </div>
+
                     </div>
 
 
                     <div class="table-responsive">
-                        <table class="table table-condensed table-bordered table-striped table-sm">
+                        <table id="details" class="table table-condensed table-bordered table-striped table-sm">
                             <thead>
                                 <tr>
                                     <th width="3%" class="text-center">#</th>
                                     <th>
-                                        Asset No.
+                                        Asset No.*
                                     </th>
                                     <th>
-                                        Category </th>
-                                    <th>
-                                        Item Description
+                                        Category*
                                     </th>
                                     <th>
+                                        Description*
+                                    </th>
+                                    {{-- <th>
                                         Asset Key
+                                    </th> --}}
+                                    <th>
+                                        Asset Type*
                                     </th>
                                     <th>
-                                        Asset Type
+                                        UOM*
+                                    </th>
+                                    <th>
+                                        QTY*
                                     </th>
                                     <th>
                                         Date Placed in Service
                                     </th>
-                                    <th>
+                                    {{-- <th>
                                         Property Type
-                                    </th>
+                                    </th> --}}
 
 
                                 </tr>
@@ -126,7 +155,9 @@
                                     <td>
                                         <select class="form-control form-control-sm resetKeyForNew" name="asset_no">
                                             <option value="" disabled selected hidden>Select</option>
-                                            <option value="122">1212</option>
+                                            @foreach($assetNos as $assetNo)
+                                                <option value="{{ $assetNo->id }}">{{ $assetNo->asset_serial_no }}</option>
+                                            @endforeach
                                         </select>
                                     </td>
                                     <td>
@@ -136,22 +167,30 @@
                                     <td>
                                         <input type="text" name="description" class="form-control form-control-sm resetKeyForNew" disabled>
                                     </td>
-                                    <td>
+                                    {{-- <td>
                                         <input type="text" name="asset_key" class="form-control form-control-sm resetKeyForNew" disabled>
 
-                                    </td>
+                                    </td> --}}
                                     <td>
-                                        <input type="text" name="asset_typee" class="form-control form-control-sm resetKeyForNew" disabled>
+                                        <input type="text" name="asset_type" class="form-control form-control-sm resetKeyForNew" disabled>
 
                                     </td>
                                     <td>
-                                        <input type="text" name="unit" class="form-control form-control-sm resetKeyForNew">
+                                        <input type="text" name="uom" class="form-control form-control-sm resetKeyForNew" disabled>
 
                                     </td>
                                     <td>
+                                        <input type="number" name="quantity" class="form-control form-control-sm resetKeyForNew" disabled>
+
+                                    </td>
+                                    <td>
+                                        <input type="date" name="date_placed_in_service" class="form-control form-control-sm resetKeyForNew">
+
+                                    </td>
+                                    {{-- <td>
                                         <input type="property_type" name="unit" class="form-control form-control-sm resetKeyForNew">
 
-                                    </td>
+                                    </td> --}}
 
                                 </tr>
 
@@ -176,7 +215,7 @@
                 'cancelName' => 'CANCEL'
                 ])
 
-                <input class="btn btn-info" type="reset" value="Reset">
+                {{-- <input class="btn btn-info" type="reset" value="Reset"> --}}
 
             </div>
 

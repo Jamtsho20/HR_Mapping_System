@@ -60,10 +60,10 @@
                                     readonly disabled>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <div class="file-uploader">
-                                    <label for="file">Attachments</label>
+                                    <label for="file">Attachment (s)</label>
                                     <div class="file-upload-box">
                                         <div class="box-title">
                                             <!-- <span class="file-instruction">Drag files here or</span> -->
