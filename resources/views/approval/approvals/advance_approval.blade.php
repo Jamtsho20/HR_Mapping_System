@@ -110,11 +110,16 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <div>{{ $results->get(3)->links() }}</div>
+                            <div>
+                                @if ($results->get(3)->hasPages())
+                                <div class="card-footer">
+                                    {{ $results->get(3)->links() }}
+                                </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
