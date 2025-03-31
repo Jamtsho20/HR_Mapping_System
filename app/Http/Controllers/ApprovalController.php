@@ -311,7 +311,7 @@ class ApprovalController extends Controller
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
                         "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
-                        "Project" => (string) $detail->site->code
+                        "ProjectCode" => (string) $detail->site->code
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date
