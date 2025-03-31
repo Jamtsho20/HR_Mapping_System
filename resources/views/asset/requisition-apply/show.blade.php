@@ -46,7 +46,7 @@
                                         <table id="details" class="table table-condensed table-bordered table-striped table-sm">
                                             <thead>
                                                 <tr>
-
+                                                    <th width="3%" class="text-center">#</th>
                                                     <th>GRN*</th>
                                                     <th>Item Description*</th>
                                                     <th>UOM*</th>
@@ -65,6 +65,15 @@
                                                 @forelse ($requisition->details as $key => $detail)
 
                                                 <tr>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-primary toggle-btn"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#collapseDetails{{$key}}"
+                                                                aria-expanded="false"
+                                                                aria-controls="collapseDetails{{$key}}">
+                                                            +
+                                                        </button>
+                                                    </td>
                                                     <td>
                                                         {{$detail->grnItem->grn_no}}
                                                     </td>
@@ -99,6 +108,36 @@
 
 
                                                 </tr>
+
+                                                  <!-- Collapsible Row -->
+                                                <tr class = "collapse" id="collapseDetails{{$key}}">
+                                                    <th colspan="1"></th>
+                                                    <th colspan="2">Serial No</th>
+                                                    <th colspan="2">Amount</th>
+
+                                                    <th colspan="6"></th>
+                                                </tr>
+                                                @foreach ($detail->serials as $serial )
+
+                                                <tr class="collapse" id="collapseDetails{{$key}}"  style="background-color: white;">
+                                                    <td colspan="1">
+                                                        <input type="hidden" name="details[{{$key}}][serials][id]" value="{{$serial->id}}">
+                                                    </td>
+
+                                                            <td colspan="2">
+                                                                <p>{{$serial->asset_serial_no}}</p>
+                                                                <input type="hidden" name="details[{{$key}}][serials][serial_no]" value="{{$serial->asset_serial_no}}" class="form-control form-control-sm" readonly required />
+                                                            </td>
+                                                            <td colspan="2">
+                                                                <p>{{ number_format($serial->amount, 2) }}</p>
+                                                                <input type="hidden" name="details[{{$key}}][serials][amount]"  value="{{ isset($serial->amount) ? number_format($serial->amount, 2) : config('global.null_value') }}"  class="form-control form-control-sm" readonly required />
+                                                            </td>
+
+
+                                                            <td colspan="6">
+                                                            </td>
+                                                </tr>
+                                                @endforeach
                                                 @empty
                                                 <tr>
                                                     <td colspan="9" class="text-center text-danger">No requisition details found</td>
@@ -137,4 +176,23 @@
     </div>
 </div>
 
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+ document.querySelectorAll(".toggle-btn").forEach(function(button) {
+         button.addEventListener("click", function() {
+             let targetId = this.getAttribute("data-bs-target");
+             let target = document.querySelector(targetId);
+             console.log(target);
+             target.addEventListener("shown.bs.collapse", () => {
+                 this.innerHTML = "-"; // Change to minus when expanded
+             });
+
+             target.addEventListener("hidden.bs.collapse", () => {
+                 this.innerHTML = "+"; // Change back to plus when collapsed
+             });
+         });
+     });
+});
+ </script>
 @endsection

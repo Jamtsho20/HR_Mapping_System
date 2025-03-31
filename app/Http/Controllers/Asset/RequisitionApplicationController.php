@@ -148,7 +148,7 @@ class RequisitionApplicationController extends Controller
 
       public function show(string $id)
      {
-        $requisition = RequisitionApplication::with('histories')->find($id);
+        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
         $approvalDetail = getApplicationLogs(\App\Models\RequisitionApplication::class, $requisition->id);
         return view('asset.requisition-apply.show', compact('requisition', 'approvalDetail'));
      }

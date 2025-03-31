@@ -174,7 +174,7 @@
                                 receiveAllToggle.disabled = true;
                                 checkbox.disabled = true; // Disable checkbox after checking
                                 let hiddenInput = document.querySelector(`input[name="details[${checkbox.dataset.key}][received_quantity]"]`);
-                                
+
                             });
                             console.log('Confirmed: All items received.');
                         },
