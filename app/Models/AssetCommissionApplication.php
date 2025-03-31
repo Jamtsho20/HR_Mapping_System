@@ -27,6 +27,11 @@ class AssetCommissionApplication extends Model
         'file' => 'array'
     ];
 
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'created_by');
