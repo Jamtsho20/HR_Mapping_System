@@ -184,7 +184,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber);
 
                             Log::info($postFields);
                             if($grnNo){
@@ -264,7 +264,7 @@ class ApprovalController extends Controller
     }
 
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null, $transactionNo=null)
     {
 
         if ($tax_amount) {
@@ -303,9 +303,10 @@ class ApprovalController extends Controller
         } elseif ($item_code){
             $postFields = [
                 "DocDate" => date('Y-m-d'),
+                "U_REQ" => $transactionNo,
                 "DocumentLines" => $application->details->map(function ($detail) {
                     return [
-                        "GrnNumber"=> (string) $detail->grnItem->grn_no,
+                        "U_GRNEntry"=> (string) $detail->grnItem->grn_no,
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
