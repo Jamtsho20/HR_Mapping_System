@@ -52,12 +52,31 @@ class RequisitionApplication extends Model
         return $this->belongsTo(MasRequisitionType::class, 'type_id');
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        // if($request->req_type){
-        //     $query->where('type_id', $request->req_type);
-        // }
+        if($request->req_type){
+            $query->where('type_id', $request->req_type);
+        }
+
+        if($request->from_date && $request->to_date){
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
+
+        if($request->req_no){
+            $query->where('transaction_no', $request->req_no);
+        }
+
+        if($request->status){
+            $query->where('status', $request->status);
+        }
 
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);

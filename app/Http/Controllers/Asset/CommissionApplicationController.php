@@ -20,7 +20,7 @@ class CommissionApplicationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:asset/commission,view')->only('index');
+        $this->middleware('permission:asset/commission,view')->only('index', 'show');
         $this->middleware('permission:asset/commission,create')->only('store');
         $this->middleware('permission:asset/commission,edit')->only('update');
         $this->middleware('permission:asset/commission,delete')->only('destroy');
@@ -46,7 +46,7 @@ class CommissionApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->paginate(config('global.pagination'))->withQueryString();
+        $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
         return view('asset.commission.index',compact('privileges', 'commissions'));
     }
     /**
@@ -114,11 +114,6 @@ class CommissionApplicationController extends Controller
                         'site_id' => $detail['site'],
                         'remark' => $detail['remark'],
                     ]);
-
-                    // Update the is_commissioned column in received_serials
-                    // DB::table('received_serials')
-                    //     ->where('id', $detail['asset_no']) // Assuming asset_no is the id in received_serials
-                    //     ->update(['is_commissioned' => 1, 'updated_at' => now()]);
                 }
             }
 
