@@ -110,6 +110,7 @@ class ApprovalController extends Controller
                 }
 
                 $costingCode = null;
+
                 $type = $application->type;
 
                 if ($applicationType == 2) { // Expense
@@ -157,10 +158,11 @@ class ApprovalController extends Controller
                         }
                         $tax_amount = $application->tax_amount ?? null;
 
-                        $item_code = $application->details ?? null;
+                        $item_code = isset($application->need_by_date) ? $application->need_by_date : null;
                         $required_date = null;
                         // field required for commission api in SAP
-                        $grnNo = $application->requisitionDetail->grnItem->grn_no ?? null;
+
+                        $grnNo = isset($application->requisitionDetail) ? $application->requisitionDetail->grnItem->grn_no : null;
 
                         $assetFlag = false;
                         if ($item_code) {
@@ -168,6 +170,7 @@ class ApprovalController extends Controller
                             $application->load('details');
                             $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
                         }
+
 
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = $application->employee?->empJob?->department?->code; // department code
@@ -184,7 +187,11 @@ class ApprovalController extends Controller
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo);
 
                             Log::info($postFields);
+                            if($grnNo){
+                                $postJournalEntriesResponse = $this->sap->postCommission($postFields);
+                            }else{
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
+                            }
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
@@ -293,12 +300,10 @@ class ApprovalController extends Controller
 
                 ]
             }';
-
         } elseif ($item_code){
-            $data = [
+            $postFields = [
                 "DocDate" => date('Y-m-d'),
                 "DocumentLines" => $application->details->map(function ($detail) {
-// dd($detail);
                     return [
                         "GrnNumber"=> (string) $detail->grnItemDetail->grn_no,
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
@@ -311,30 +316,36 @@ class ApprovalController extends Controller
                 "RequriedDate" => $required_date
                        ];
 
-
-            $postFields = [
-                "DocDate" => $data["DocDate"],
-                "DocumentLines" => $this->groupDocumentLinesByGRN($data['DocumentLines']), // Convert grouped data into a proper array
-                "RequriedDate" => $data["RequriedDate"]
-            ];
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         }
         elseif($grnNo) {  // sap data for asset commissioning
             $postFields = [
-                "DocDate" => date('Y-m-d'),
-                "U_REQ" => $application->transaction_no,
-                "DocumentLines" => $application->details->map(function ($detail, $grnNo) {  return [
-                    "AsstSerialNo" => (string) $detail->receivedSerial->asset_serial_no,
-                    "AssetDescription" => $detail->receivedSerial->asset_description ?? $detail->requisitionDetail->grnItemDetail->item->item_description,
-                    "UOM" => $detail->requisitionDetail->grnItemDetail->item->uom,
-                    "Quantity" => 1,
-                    "Amount" => $detail->receivedSerial->amount,
-                    "Dzongkhag" => $detail->receivedSerial->dzongkhag->dzongkhag,
-                    "DatePlaceInService" => $detail->receivedSerial->date_placed_in_service,
-                    "ProjectCode" => $detail->receivedSerial->site->code,
-                    "U_GRNEntry" => (string) $grnNo,
-                ];
-            })->toArray(),];
+                "Items" => $application->details->map(function ($detail) use ($application) {
+                    return [
+                        "ItemCode" => (string) $detail->receivedSerial->asset_serial_no,
+                        "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
+                        "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
+                        "ItemsGroupCode" => 102,
+                        "ItemType" => "F",
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group,
+                        "AssetGroup" => null,
+                        "InventoryNumber"=> null,
+                        "Employee"=> null,
+                        "Location"=> null,
+                    ];
+                })->toArray(),
+                "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
+                    return [
+                        "AssetNumber" => (string) $detail->receivedSerial->asset_serial_no,
+                        "Quantity" => 1,
+                        "TotalLC" => $detail->receivedSerial->amount
+                    ];
+                })->toArray(),
+                "AssetValueDate"=> date('Y-m-d'),
+                "DocumentDate" => date('Y-m-d'),
+                "PostingDate" => date('Y-m-d')
+
+     ];
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } else {
             return $postFields = '{

@@ -10,7 +10,7 @@ class AssetReturnApplication extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    public function commisionType ()
+    public function type ()
     {
         return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
     }

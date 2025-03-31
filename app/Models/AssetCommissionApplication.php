@@ -27,9 +27,13 @@ class AssetCommissionApplication extends Model
         'file' => 'array'
     ];
 
-    public function commisionType()
+    public function user()
     {
-        return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function type()
+    {
+        return $this->belongsTo(MasCommissionTypes::class, 'type_id');
     }
     public function details()
     {
