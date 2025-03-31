@@ -21,7 +21,6 @@
                                             <th>DEPARTMENT</th>
                                             <th>SECTION</th>
                                             <th>NEED BY DATE</th>
-                                            <th>ITEM CATEGORY</th>
                                             <th>STATUS</th>
                                             <th>ACTION</th>
                                         </tr>
@@ -42,7 +41,7 @@
                                             <td>{{ $requisition->employee->empJob->department->name }}</td>
                                             <td>{{ $requisition->employee->empJob->section->name }}</td>
                                             <td>{{ $requisition->need_by_date }}</td>
-                                            <td>{{ $requisition->item_category }}</td>
+                                         
                                             <td class="text-center">
                                                 @php
                                                 $statusClasses = [

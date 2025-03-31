@@ -44,7 +44,7 @@
                                                         <th>REQUISITION DATE</th>
                                                         <th>REQUISITION TYPE</th>
                                                         <th>NEED BY DATE</th>
-                                            
+
                                                         <th>STATUS</th>
                                                         <th>ACTION</th>
                                                     </tr>
@@ -85,12 +85,12 @@
                                                                         class="btn btn-sm btn-outline-secondary"><i
                                                                             class="fa fa-list"></i> Detail</a>
 
-                                                                        @if ($requisition->status == 3 && $requisition->good_issue_doc_no != null)
+                                                                        {{-- @if ($requisition->status == 3 && $requisition->good_issue_doc_no != null)
                                                                     <a href="{{ url('asset/requisition/' . $requisition->id . '/receive') }}"
                                                                         class="btn btn-sm btn-rounded btn-outline-success">
                                                                         <i class="bi bi-box-arrow-in-down"></i> Receive
                                                                     </a>
-                                                                    @endif
+                                                                    @endif --}}
                                                                     @endif
                                                                 @if ($privileges->delete)
                                                                     <a href="#"

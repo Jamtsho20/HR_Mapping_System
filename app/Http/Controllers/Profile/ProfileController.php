@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -16,22 +16,27 @@ class ProfileController extends Controller
         $employee = User::findOrFail($id); // Use findOrFail to handle cases where the ID is not found
 
         $employeeId = $employee->employee_id;
-        $month = $request->month = 12;
         $directory = storage_path('payslips');
         $files = array_diff(scandir($directory), ['.', '..']);
-        $payslips = array_filter($files, function ($file) use ($employeeId, $month) {
-            return preg_match("/\({$employeeId}\)_\d{4}_{$month}\.pdf$/", $file);
+
+        // Filter files for the given employee ID (no month filter)
+        $payslips = array_filter($files, function ($file) use ($employeeId) {
+            return preg_match("/\({$employeeId}\)_\d{4}_\d{2}\.pdf$/", $file);  // Matching by employee ID only
         });
+
         $payslipData = [];
         foreach ($payslips as $payslip) {
-            if (preg_match("/\({$employeeId}\)_(\d{4})_({$month})\.pdf$/", $payslip, $matches)) {
-                $year = $matches[1];  
-                $month = $matches[2];  
+            if (preg_match("/\({$employeeId}\)_(\d{4})_(\d{2})\.pdf$/", $payslip, $matches)) {
+                $year = $matches[1];  // Extracted year
+                $month = $matches[2];  // Extracted month (numeric)
 
+                // Convert month number to human-readable format
+                $monthName = Carbon::createFromFormat('Y-m-d', "2025-$month-01")->format('F');
+                // Store the payslip data along with year and human-readable month
                 $payslipData[] = [
                     'filename' => $payslip,
                     'year' => $year,
-                    'month' => Carbon::createFromFormat('m', $month)->format('F')
+                    'month' => $monthName  
                 ];
             }
         }
@@ -62,7 +67,7 @@ class ProfileController extends Controller
                 $deleteImage = delete_image($user->profile_pic);
                 if(!$deleteImage){
                     return redirect()->back()->with('msg_error', 'Profile picture couldnot be updated, please try again later.');
-                } 
+                }
             }
             // Upload new profile picture and update the path
             $profilePic = uploadImageToDirectory($request->profile_pic, 'images/users/');
@@ -73,7 +78,7 @@ class ProfileController extends Controller
         // Redirect back with a success message
         return redirect()->back()->with('msg_success', 'Profile picture updated successfully.');
     }
-    
+
     public function viewPayslip($filename)
     {
         $path = storage_path("payslips/{$filename}");

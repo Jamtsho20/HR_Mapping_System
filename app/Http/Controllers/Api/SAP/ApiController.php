@@ -253,6 +253,7 @@ class ApiController extends BaseController
 
             $reqApplication = RequisitionApplication::where('doc_no', $validated['purchase_req_doc_no'])->firstOrFail();
             $reqApplication->good_issue_doc_no = $validated['doc_no'];
+            $reqApplication->is_received = 1;
             $reqApplication->save();
 
             foreach ($validated['details'] as $detail) {
