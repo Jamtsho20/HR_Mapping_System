@@ -109,11 +109,6 @@
                             </tbody>
                         </table>
                     </div>
-                    @if ($results->get(7)->hasPages())
-                    <div class="card-footer">
-                        {{ $results->get(7)->links() }}
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>

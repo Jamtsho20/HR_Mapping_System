@@ -185,7 +185,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo);
-      
+dd($postFields);
                             Log::info($postFields);
                             if($grnNo){
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
@@ -305,7 +305,7 @@ class ApprovalController extends Controller
                 "DocDate" => date('Y-m-d'),
                 "DocumentLines" => $application->details->map(function ($detail) {
                     return [
-                        "GrnNumber"=> (string) $detail->grnItemDetail->grn_no,
+                        "GrnNumber"=> (string) $detail->grnItem->grn_no,
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
