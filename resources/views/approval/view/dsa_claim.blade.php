@@ -232,17 +232,18 @@
 
                                             <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
                                                 <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                                    Travel Authorization Number: {{$detail->transaction_no}}
+                                                    Travel Authorization Number: {{$detail->travelAuthorization->transaction_no}}
                                                 </span>
                                             </td>
                                             <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
                                                 <span
                                                     name="dsa_claim_detail[{{ $detail->travel_authorization_id ?? '' }}][advance_detail_id]"
-                                                    data-value="{{ $detail->transaction_no ? $detail->transaction_no : '' }}">
-                                                    {{ $detail->transaction_no
-                                                        ? "Advance Number: {$detail->transaction_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
+                                                    data-value="{{ $detail->advanceApplication?->transaction_no ?? '' }}">
+                                                    {{ $detail->advanceApplication
+                                                        ? "Advance Number: {$detail->advanceApplication->transaction_no}, Advance Amount: " . ($detail->advanceApplication->amount ?? 'N/A')
                                                         : 'Advance Number: N/A, Advance Amount: N/A'
                                                     }}
+
                                                 </span>
                                             </td>
 
@@ -325,10 +326,10 @@
 
                                             </td>
                                         </tr>
-                       
+
                                     @endforeach
                                     <tr style="font-weight: bold; background-color: #f5f5f5">
-                                    
+
                                 <td colspan="2" style="padding-left:25px;"></td>
                                 <th style="width:35%;">Total Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
@@ -341,7 +342,7 @@
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
                             </tr>
-                         
+
                                     </tbody>
                                 </table>
                             </div>
