@@ -257,7 +257,7 @@
                                     </td>
                                             </tr>
 
-                                            @foreach ($detail->dsaDetails as $claimDetail )
+                                            @foreach ($detail->dsaDetails as $index =>$claimDetail )
                                             <tr>
                                                 <td class="text-center">
                                                     {{ $index + 1 }}
