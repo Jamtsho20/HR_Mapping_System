@@ -62,7 +62,7 @@ class TravelAuthorizationApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+        $travelAuthorizations = TravelAuthorizationApplication::with('employee')->createdBy()->filter($request)->orderBy('created_at','desc')->paginate(config('global.pagination'))->withQueryString();
         return view('travel-authorizations.apply.index', compact('privileges', 'travelAuthorizations'));
     }
 
