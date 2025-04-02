@@ -129,8 +129,12 @@ class CommissionApplicationController extends Controller
             if(isset($approverByHierarchy['approver_details'])){
                 $emailContent = 'has submitted a asset commission request and is awaiting your approval.';
                 $emailSubject = 'Asset Commission Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
-            }
+                try{
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                }catch(\Exception $e){
+                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                }
+          }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
