@@ -44,8 +44,8 @@
                                                         <th>REQUISITION DATE</th>
                                                         <th>REQUISITION TYPE</th>
                                                         <th>NEED BY DATE</th>
-
                                                         <th>STATUS</th>
+                                                        <th>GOOD ISSUED</th>
                                                         <th>ACTION</th>
                                                     </tr>
                                                 </thead>
@@ -79,6 +79,12 @@
 
                                                                 <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                             </td>
+
+                                                            <td>
+                                                                <input type="checkbox" style="accent-color: primary; pointer-events: none;"
+                                                                    {{ $requisition->status == 3 && $requisition->good_issue_doc_no != null ? 'checked' : '' }}>
+                                                            </td>
+
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
                                                                     <a href="{{ url('asset/requisition/' . $requisition->id) }}"
