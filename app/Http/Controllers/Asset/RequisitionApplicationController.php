@@ -129,8 +129,13 @@ class RequisitionApplicationController extends Controller
             if (isset($approverByHierarchy['approver_details'])) {
                 $emailContent = 'has submitted a requisition request and is awaiting your approval for requisition no ' . $request->requisition_no;
                 $emailSubject = 'Requisition Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
-            }
+
+                try{
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                }catch(\Exception $e){
+                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                }
+           }
 
         } catch (\Exception $e) {
             DB::rollBack();
