@@ -116,8 +116,8 @@ class TravelAuthorizationApplication extends Model
             $month = $startDate->month;
 
             // Filter by year and month
-            $query->whereYear('date', $year)
-            ->whereMonth('date', $month);
+            $query->whereYear('transaction_date', $year)
+            ->whereMonth('transaction_date', $month);
         }
     // elseif ($request->filled('to_date')) {
     //     $query->where('date', '<=', $request->to_date);

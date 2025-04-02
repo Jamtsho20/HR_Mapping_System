@@ -37,6 +37,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
                 $taxSchedules->details['basic_pay'] ?? '-',
                 array_sum($taxSchedules->details['allowances'] ?? []), // Sum all allowances
                 $taxSchedules->details['gross_pay'] ?? '-',
+                $taxSchedules->details['deductions']['PF Contr'] ?? '-',
                 $taxSchedules->details['deductions']['GSLI'] ?? '-',
                 $taxSchedules->details['net_pay'] ?? '-',
                 $taxSchedules->details['deductions']['H/Tax'] ?? '-',
@@ -57,6 +58,7 @@ class TaxScheduleExport implements FromCollection, WithHeadings
             'Basic Pay',
             'Allowance',
             'Gross Salary',
+            'Provident Fund',
             'GIS',
             'Net Salary',
             'Health Tax',

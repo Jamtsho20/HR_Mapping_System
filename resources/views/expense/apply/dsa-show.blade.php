@@ -233,17 +233,18 @@
 
                                     <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
                                         <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                            Travel Authorization Number: {{$detail->transaction_no}}
+                                            Travel Authorization Number: {{$detail->travelAuthorization->transaction_no}}
                                         </span>
                                     </td>
                                     <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
                                         <span
                                             name="dsa_claim_detail[{{ $detail->travel_authorization_id ?? '' }}][advance_detail_id]"
-                                            data-value="{{ $detail->transaction_no ? $detail->transaction_no : '' }}">
-                                            {{ $detail->transaction_no
-                                                    ? "Advance Number: {$detail->transaction_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
-                                                    : 'Advance Number: N/A, Advance Amount: N/A'
-                                                }}
+                                            data-value="{{ $detail->advanceApplication?->transaction_no ?? '' }}">
+                                            {{ $detail->advanceApplication
+                                                ? "Advance Number: {$detail->advanceApplication->transaction_no}, Advance Amount: " . ($detail->advanceApplication->amount ?? 'N/A')
+                                                : 'Advance Number: N/A, Advance Amount: N/A'
+                                            }}
+
                                         </span>
                                     </td>
 
@@ -307,6 +308,7 @@
                                         </span>
                                         <input type="hidden" id="total_days" name="total_days[{{$detail->travel_authorization_id}}]" value="{{$detail->number_of_days}}">
                                     </td>
+                                    <td colspan="5" class="text-center" style="color: black; ">
                                     <td colspan="1" class="text-center" style="color: black;  font-weight: bold;">
                                         <span>
                                             Travel Authorization Amount:

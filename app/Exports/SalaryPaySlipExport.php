@@ -39,7 +39,7 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
                 $salaries->details['deductions']['GSLI'] ?? '-',
                 $salaries->details['deductions']['SIFA'] ?? '-',
                 $salaries->details['deductions']['Loan BOB'] ?? '-',
-                $salary->details['deductions']['Loan BNB'] ?? '-',
+                $salaries->details['deductions']['Loan BNB'] ?? '-',
                 $salaries->details['deductions']['Loan TBank'] ?? '-',
                 $salaries->details['deductions']['Loan BDFC'] ?? '-',
                 $salaries->details['allowances']['Corporate Allowance'] ?? '-',

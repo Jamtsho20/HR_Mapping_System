@@ -217,7 +217,8 @@
                                                                     <td>{{ $dsaClaim->created_at->format('d-M-Y') }}
                                                                     <td class="text-right">{{ formatAmount($dsaClaim->net_payable_amount )}}
                                                                     </td>
-                                                                    <td class="text-right">{{ formatAmount($dsaClaim->dsaexpense?->amount ?? '0.00' )}}
+                                                                    <td class="text-right">
+                                                                        {{ formatAmount($dsaClaim->dsaClaimMappings?->first()?->advanceApplication?->amount ?? '0.00') }}
                                                                     </td>
                                                                     <td class="text-right">{{ formatAmount($dsaClaim->amount) }}</td>
                                                                     <td class="text-center">
