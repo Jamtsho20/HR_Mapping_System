@@ -45,7 +45,7 @@
                                                         <th>REQUISITION TYPE</th>
                                                         <th>NEED BY DATE</th>
                                                         <th>STATUS</th>
-                                                        <th>GOOD ISSUED</th>
+                                                        <th>GOOD RECEIVED</th>
                                                         <th>ACTION</th>
                                                     </tr>
                                                 </thead>
