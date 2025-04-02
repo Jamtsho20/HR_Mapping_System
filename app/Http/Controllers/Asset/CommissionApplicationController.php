@@ -59,7 +59,7 @@ class CommissionApplicationController extends Controller
             ->where('is_received', 1)
             ->where('created_by', auth()->user()->id)
             ->get();
-            
+
         $empDetails = empDetails(auth()->user()->id);
         return view('asset.commission.create',compact('empDetails', 'grnItems'));
     }
@@ -86,13 +86,15 @@ class CommissionApplicationController extends Controller
         }
 
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
-        
+
         // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $comType = MasCommissionTypes::where('id', COMMISSION_TYPE)->first();
         $lastTransaction = AssetCommissionApplication::latest('id')->first();
         $transactionNo = generateTransactionNumber1($comType, $lastTransaction, 'transaction_no');
+
         try {
             DB::beginTransaction();
             $commissionApplication = AssetCommissionApplication::create([
@@ -103,6 +105,7 @@ class CommissionApplicationController extends Controller
                 'file' => !empty($attachments) ? json_encode($attachments) : null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
+
 
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
@@ -129,7 +132,6 @@ class CommissionApplicationController extends Controller
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
             }
         } catch (\Exception $e) {
-            dd($e->getMessage());
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
