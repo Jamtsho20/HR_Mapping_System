@@ -220,6 +220,7 @@ class ApiController extends BaseController
 
         } catch (\Exception $e) {
             \DB::rollBack();
+            \Log::info("Error saving GRN item mappings: " . $e->getMessage());
             return $this->errorResponse($e->getMessage());
         }
     }
