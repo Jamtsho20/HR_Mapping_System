@@ -719,7 +719,7 @@ class ApprovalController extends Controller
                 ->whereIn('status', $statuses)
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at')
+                ->orderBy('created_at', 'desc')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
         };
