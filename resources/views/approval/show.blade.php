@@ -45,8 +45,7 @@
         @php
             $no_of_days = 3;
         @endphp
-    @elseif ($tab == 7)
-        @endphp
+    
     @elseif ($tab == 7)
         @include('approval.view.travel_authorization', [
             'travelAuthorization' => $data,
