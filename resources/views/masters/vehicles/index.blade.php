@@ -8,8 +8,15 @@
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-12 form-group">
-        <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Search">
+    <div class="col-md-12 form-group">
+        <select class="form-control select2 select2-hidden-accessible" name="vehicle_no">
+            <option value="" disabled selected hidden>Select Vehicle No</option>
+            @foreach ($vehicleNos as $vehicleNo)
+            <option value="{{ $vehicleNo }}" {{ request()->get('vehicle_no') == $vehicleNo ? 'selected' : '' }}>
+                {{ $vehicleNo }}
+            </option>
+            @endforeach
+        </select>
     </div>
     @endcomponent
     <div class="row row-sm">
@@ -32,13 +39,19 @@
                                                         <tr role="row" class="thead-light">
                                                             <th>#</th>
                                                             <th>
-                                                                Name
-                                                            </th>
-                                                            <th>
                                                                 Vehicle No
                                                             </th>
                                                             <th>
                                                                 Vehicle Type
+                                                            </th>
+                                                            <th>
+                                                                Department
+                                                            </th>
+                                                            <th>
+                                                                Location
+                                                            </th>
+                                                            <th>
+                                                                Final Reading
                                                             </th>
                                                             <th>
                                                                 Status
@@ -52,15 +65,11 @@
                                                         @forelse($vehicles as $vehicle)
                                                         <tr>
                                                             <td>{{ $vehicles->firstItem() + ($loop->iteration - 1) }}</td>
-                                                            <td>{{ $vehicle->name }}</td>
                                                             <td>{{ $vehicle->vehicle_no }}</td>
-                                                            <td>
-                                                                @if($vehicle->vehicle_type == 1) Light
-                                                                @elseif($vehicle->vehicle_type == 2) Medium
-                                                                @elseif($vehicle->vehicle_type == 3) Heavy
-                                                                @elseif($vehicle->vehicle_type == 4) Two Wheeler
-                                                                @endif
-                                                            </td>
+                                                            <td>{{ $vehicle->vehicleType->name ?? 'N/A' }}</td>
+                                                            <td>{{ $vehicle->department->name ?? 'N/A' }}</td>
+                                                            <td>{{ $vehicle->location }}</td>
+                                                            <td>{{ $vehicle->final_reading }}</td>
                                                             <td>{{ $vehicle->is_active ? 'Vehicle is operable' : 'Vehicle is in-operable' }}</td>
                                                             <td class="text-center">
                                                                 @if ($privileges->edit)
@@ -77,10 +86,11 @@
                                                         </tr>
                                                         @empty
                                                         <tr>
-                                                            <td colspan="5" class="text-center text-danger">No Vehicles found</td>
+                                                            <td colspan="7" class="text-center text-danger">No Vehicles found</td>
                                                         </tr>
                                                         @endforelse
                                                     </tbody>
+
                                                 </table>
                                                 {{ $vehicles->links() }}
                                             </div>
