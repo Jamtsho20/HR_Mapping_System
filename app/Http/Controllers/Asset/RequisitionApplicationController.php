@@ -78,7 +78,7 @@ class RequisitionApplicationController extends Controller
       */
      public function create()
      {
-        $reqTypes = MasRequisitionType::get();
+        $reqTypes = MasRequisitionType::where('status', 1)->get();
         $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])->whereStatus(1)->get();
         $dzongkhags = MasDzongkhag::all();
         $sites = MasSite::with('dzongkhag')->get();
