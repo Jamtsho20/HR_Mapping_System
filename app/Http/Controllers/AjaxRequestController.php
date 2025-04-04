@@ -181,7 +181,7 @@ class AjaxRequestController extends Controller
 
         // Find the last working day before the new leave (skip holidays & weekends)
         $prevLeaveEndDate = $this->getLastValidLeaveDate($fromDate, $holidayDates);
-        
+
         // Fetch previous leave ending exactly one day before the new leave
         $prevLeave = LeaveApplication::where('type_id', '<>', CASUAL_LEAVE)
             ->where('to_date', '=', $prevLeaveEndDate->format('Y-m-d'))
@@ -227,7 +227,7 @@ class AjaxRequestController extends Controller
                 $nextDay->modify('+1 day'); // Skip holidays and weekends
                 continue;
             }
-            
+
             // If we find a working day in between, it's **not** a violation
             $hasWorkingDayBetween = true;
             break;
@@ -348,7 +348,7 @@ class AjaxRequestController extends Controller
 
 
 
-   
+
 
     public function getExpenseAmount($id)
     {
@@ -364,7 +364,7 @@ class AjaxRequestController extends Controller
         }])
             ->whereTypeId($id)
             ->whereStatus(1)
-            ->first(); 
+            ->first();
 
         $attachmentRequired = $expensePolicy && $expensePolicy->rateDefinition ? $expensePolicy->rateDefinition->attachment_required : 0;
         $limitAmount = $expensePolicy && $expensePolicy->rateDefinition->expenseRateLimits->isNotEmpty() ? $expensePolicy->rateDefinition->expenseRateLimits[0]->limit_amount : 0;
@@ -385,7 +385,7 @@ class AjaxRequestController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
-            11 => MasCommissionTypes::class,
+            10 => MasCommissionTypes::class,
         ];
 
         if (isset($modelMap[$id])) {
@@ -429,7 +429,7 @@ class AjaxRequestController extends Controller
         return response()->json(['advance_detail' => $advanceDetail, 'da' => DAILY_ALLOWANCE]);
     }
 
-   
+
     public function getTravelAuthorizationDetails($id)
     {
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')->find($id);
@@ -600,15 +600,15 @@ class AjaxRequestController extends Controller
             } else {
                 $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
             }
-            
+
             return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
         } catch(\Exception $e) {
             \Log::info("asset commission: " . $e->getMessage());
             return $this->internalServerErrorResponse('Something went wrong while fetching asset numbers. Please try again.');
-        }   
+        }
     }
 
-    public function getDescriptionAndUomBySerialId($serialId) 
+    public function getDescriptionAndUomBySerialId($serialId)
     {
         try {
             $serial = ReceivedSerial::where('id', $serialId)->with(['requisitionDetail.grnItemDetail.item'])->get();

@@ -245,7 +245,7 @@ return [
             'approver_mail_content' => 'has applied DSA Claim of {type} for your endorsement.',
             'initiator_mail_content' => 'Your DSA Claim has been'
         ],
-        11 => [
+        10 => [
             'name' => App\Models\AssetCommissionApplication::class,
             'post_to_sap' => true,
             'email_subject' => 'Asset Commission',
