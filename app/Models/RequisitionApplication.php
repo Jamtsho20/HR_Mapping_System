@@ -13,22 +13,20 @@ class RequisitionApplication extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'requisition_type_id',
-        'requisition_no',
-        'requisition_date',
-        'asset_type',
+        'type_id',
+        'transaction_no',
+        'tansaction_date',
         'need_by_date',
-        'employee_id',
-        'item_category',
+        'requested_by',
         'status',
+        'doc_no',
+        'good_issue_doc_no',
+        'is_received',
+        'received_at',
+        'received_by'
 
     ];
 
-    public function requisitionType()
-    {
-        return $this->belongsTo(MasRequisitionType::class, 'type_id');
-    }
-    
     public function audit_logs()
     {
         return $this->morphMany(ApplicationAuditLog::class, 'application');
@@ -38,7 +36,7 @@ class RequisitionApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
-    
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -49,17 +47,36 @@ class RequisitionApplication extends Model
         return $this->hasMany(RequisitionDetail::class, 'requisition_id');
     }
 
-    public function goodReceivedByUser()
+    public function type()
     {
-        return $this->hasOne(GoodReceiptApplication::class, 'requisition_application_id');
+        return $this->belongsTo(MasRequisitionType::class, 'type_id');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
-        // if($request->req_type){
-        //     $query->where('type_id', $request->req_type);
-        // }
+        if($request->req_type){
+            $query->where('type_id', $request->req_type);
+        }
+
+        if($request->from_date && $request->to_date){
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
+
+        if($request->req_no){
+            $query->where('transaction_no', $request->req_no);
+        }
+
+        if($request->status){
+            $query->where('status', $request->status);
+        }
 
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
@@ -81,4 +98,41 @@ class RequisitionApplication extends Model
                 ->whereMonth('created_at', $month);
         }
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($requisition) {
+            if ($requisition->isDirty('status') && $requisition->status == -1) {
+                $requisition->restoreStock();
+            }
+        });
+    }
+
+    public function restoreStock()
+{
+    // Ensure details relationship is loaded
+    $this->loadMissing('details');
+
+    foreach ($this->details as $detail) {
+
+        if (!$detail->grn_item_mapping_id) {
+            \Log::warning("Invalid GRN data for detail ID: {$detail->id}", ['grn_no' => $detail->grn_no]);
+            continue; // Skip if data is invalid
+        }
+
+        // Find the GRN item mapping entry
+        $grnItem = MasGrnItems::find($detail->grn_item_id);
+
+        if (!$grnItem) {
+            \Log::warning("GRN Item Mapping not found for ID: {$detail->grn_item_id}");
+            continue;
+        }
+
+        // Restore the stock
+        $grnItem->increment('quantity', $detail->requested_required);
+
+    }
+}
+
+
 }

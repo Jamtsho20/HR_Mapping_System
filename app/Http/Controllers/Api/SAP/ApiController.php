@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Api\SAP;
 
 use App\Http\Controllers\Controller as BaseController;
-use App\Models\GoodsReceivedDetail;
-use App\Models\GoodsReceivedDetailSerial;
-use App\Models\GrnItemMapping;
+use App\Models\ReceivedSerial;
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
 use App\Models\MasGoodsReceivedByUser;
 use App\Models\MasItem;
 use App\Models\MasStore;
+use App\Models\User;
+use App\Mail\GoodsIssuedMail;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 class ApiController extends BaseController
 {
@@ -83,6 +86,7 @@ class ApiController extends BaseController
             }
         } catch(\Exception $e) {
             return $this->errorResponse($e->getMessage());
+            \Log::info("Error saving store: " . $e->getMessage());
         }
 
         return $this->successResponse($store, $message);
@@ -134,6 +138,7 @@ class ApiController extends BaseController
             }
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
+            \Log::info("Error saving item: " . $e->getMessage());
         }
 
         return $this->successResponse($item, $message);
@@ -142,139 +147,194 @@ class ApiController extends BaseController
     public function saveGrnItemMapping(Request $request)
     {
         $rules = [
-            'store_code' => 'required',
-            'item_no' => 'required', // Single item_no
-            // 'items' => 'required|array',
-            'items.*.uom' => 'required',
+            'items.*.details.*.item_no' => 'required',
             'items.*.grn_no' => 'required',
-            'items.*.current_stock' => 'required|numeric',
-            // 'items.*.received_quantity' => 'required|numeric',
+            'items.*.details' => 'required|array',
+            'items.*.details.*.store' => 'required',
+            'items.*.details.*.quantity' => 'required|numeric',
         ];
 
         $validator = \Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
+            \Log::info("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
         }
 
-        $storeId = MasStore::where('code', $request->store_code)->value('id');
-        if (!$storeId) {
-            return $this->errorResponse("Store code {$request->store_code} not found in HRMS system.");
-        }
-
-        $item = MasItem::where('item_no', $request->item_no)->first();
-        if (!$item) {
-            return $this->errorResponse("Item no. {$request->item_no} not available for the given store.");
-        }
-
+        \DB::beginTransaction();
         try {
             $createdMappings = [];
 
             foreach ($request->items as $itemData) {
-                $itemMapping = new GrnItemMapping();
-                $itemMapping->store_id = $storeId;
-                $itemMapping->item_id = $item->id;
-                $itemMapping->item_description = $itemData['item_description'] ?? $item->item_description;
-                $itemMapping->grn_no = $itemData['grn_no'];
-                $itemMapping->uom = $itemData['uom'];
-                $itemMapping->current_stock = $itemData['current_stock'];
-                $itemMapping->received_quantity = $itemData['current_stock'];
-                $itemMapping->last_synced_at = now();
-                $itemMapping->status = $itemData['status'] ?? 1;
-                $itemMapping->save();
+                // Check if GRN already exists in grn_item_mappings
+                $itemMapping = MasGrnItem::where('grn_no', $itemData['grn_no'])->first();
 
-                $createdMappings[] = $itemMapping;
+                if (!$itemMapping) {
+                    // Create new GRN entry if it does not exist
+                    $itemMapping = new MasGrnItem();
+                    $itemMapping->grn_no = $itemData['grn_no'];
+                    $itemMapping->last_synced_at = now();
+                    $itemMapping->status = $itemData['status'] ?? 1;
+                    $itemMapping->save();
+                }
+
+                foreach ($itemData['details'] as $detail) {
+                    $storeId = MasStore::where('code', $detail['store'])->value('id');
+                    if (!$storeId) {
+                        \DB::rollBack();
+                        return $this->errorResponse("Store code {$detail['store']} not found in HRMS.");
+                    }
+
+                    $item = MasItem::where('item_no', $detail['item_no'])->first();
+                    if (!$item) {
+                        \DB::rollBack();
+                        return $this->errorResponse("Item no. {$detail['item_no']} not found in HRMS.");
+                    }
+                    // Check if item already exists in item_mapping_details for the same GRN and store
+                    $existingItemDetail = MasGrnItemDetail::where([
+                        'store_id' => $storeId,
+                        'item_id' => $item->id,
+                        'grn_id' => $itemMapping->id
+                    ])->first();
+
+                    if ($existingItemDetail) {
+                        // Update stock if item already exists
+                        $existingItemDetail->quantity += $detail['quantity'];
+                        $existingItemDetail->save();
+                    } else {
+                        // Create a new record if item does not exist
+                        $itemDetails = new MasGrnItemDetail();
+                        $itemDetails->store_id = $storeId;
+                        $itemDetails->item_id = $item->id;
+                        $itemDetails->description = $detail['description'] ?? null;
+                        $itemDetails->grn_id = $itemMapping->id; // Foreign key to grn_item_mappings
+                        $itemDetails->quantity = $detail['quantity'];
+                        $itemDetails->save();
+                    }
+
+                    $createdMappings[] = [
+                        'grn_mapping' => $itemMapping,
+                        'item_detail' => $existingItemDetail ?? $itemDetails
+                    ];
+                }
             }
+
+            \DB::commit();
+            return $this->successResponse($createdMappings, 'GRN item mappings created/updated successfully.');
+
         } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::info("Error saving GRN item mappings: " . $e->getMessage());
             return $this->errorResponse($e->getMessage());
         }
-
-        return $this->successResponse($createdMappings, 'GRN item mappings created successfully.');
     }
 
     public function saveGoodsIssued(Request $request)
     {
-        $reqApplication = RequisitionApplication::with('details')->where('doc_no', $request->purchase_req_doc_no)->first();
-        if(!$reqApplication){
-            \Log::info("Purchase requisition doc no. {$request->purchase_req_doc_no} not found in HRMS system.");
-            return $this->errorResponse("Purchase requisition doc no. {$request->purchase_req_doc_no} not found in HRMS system.");
-        }
-        // $reqDetails = RequisitionDetail::where('requisition_id', $reqApplication['id'])->collect();
+
+        $validated = $request->validate([
+            'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
+            'doc_no' => 'required|string',
+            'details' => 'required|array|min:1',
+            'details.*.grn_no' => 'required|string|exists:mas_grn_items,grn_no',
+            'details.*.line_item' => 'required|array|min:1',
+            'details.*.line_item.*.item_code' => 'required|string|exists:mas_items,item_no',
+            'details.*.line_item.*.store_code' => 'required|string|exists:mas_stores,code',
+            'details.*.line_item.*.received_quantity' => 'required|integer|min:1',
+            'details.*.line_item.*.serials' => 'sometimes|array',
+            'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
+            'details.*.line_item.*.serials.*.asset_description' => 'required|string',
+            'details.*.line_item.*.serials.*.amount' => 'required|string'
+        ]
+        , [
+            'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
+            'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
+            'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
+            'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
+        ]);
+
         DB::beginTransaction();
         try {
-            // Save the Goods Received by User
-            $goodsReceived = MasGoodsReceivedByUser::create([
-                'requisition_application_id' => $reqApplication['id'],
-                'total_requested_quantity' => $reqApplication['total_quantity_required'],
-                'total_received_quantity' => $request->received_quantity,
-                'received_from' => $this->sapUser,
-                'received_by' => $reqApplication['created_by'],
-                'doc_no' => $request->doc_no, //issued sap doc no
-                // 'received_at' => now(),
-                // 'is_confirmed' => $request->is_confirmed ?? 0,
-            ]);
 
-            // Validate Details
-            if (!isset($request->details) || !is_array($request->details)) {
-                \Log::info("Invalid or missing goods received details for {$request->doc_no}.");
-                return $this->errorResponse("Invalid or missing goods received details for {$request->doc_no}.");
-            }
+            $reqApplication = RequisitionApplication::where('doc_no', $validated['purchase_req_doc_no'])->firstOrFail();
+            $reqApplication->good_issue_doc_no = $validated['doc_no'];
+            $reqApplication->is_received = 1;
+            $reqApplication->save();
 
-            $goodsReceivedDetails = [];
-            $serialNumbers = [];
+            foreach ($validated['details'] as $detail) {
+                $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
-            foreach ($request->details as $detail) {
+                foreach ($detail['line_item'] as $line) {
 
-                $reqDetail = $reqApplication->details->where('grn_no', $detail['grn_no'])->first();
+                    $item_id = MasItem::where('item_no', $line['item_code'])->value('id');
+                    $store_id = MasStore::where('code', $line['store_code'])->value('id');
+                    $grn_item_detail_id = MasGrnItemDetail::where('item_id', $item_id)
+                        ->where('store_id', $store_id)
+                        ->where('grn_id', $grn_id)
+                        ->value('id');
 
-                $goodsReceivedDetails[] = [
-                    'goods_received_by_user_id' => $goodsReceived->id,
-                    'req_detail_id' => $reqDetail->id,
-                    'grn_no' => $detail['grn_no'],
-                    'uom' => $detail['uom'] ?? $reqDetail->uom,
-                    'item_description' => $detail['item_description'] ?? $reqDetail->item_description,
-                    'asset_type' => $detail['asset_type'],
-                    'asset_class' => $detail['asset_class'],
-                    'requested_quantity' => $detail['requested_quantity'] ?? $reqDetail->requested_quantity,
-                    'received_quantity' => $detail['received_quantity'],
-                    // 'comissioned_quantity' => $detail['comissioned_quantity'],
-                    // 'commissioned_status' => $detail['commissioned_status'],
-                    // 'created_at' => now(),
-                    // 'updated_at' => now(),
-                ];
-                // Bulk insert
-                $goodsReceivedDetails = GoodsReceivedDetail::insert($goodsReceivedDetails);
-
-                if (!empty($serialNumbers)) {
+                    if (!$grn_item_detail_id) {
+                        DB::rollBack();
+                        return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
+                    }
 
 
-                if (!empty($detail['serials'])) {
-                    foreach ($detail['serials'] as $serial) {
-                        $serialNumbers[] = [
-                            'goods_received_detail_id' => $goodsReceivedDetails->id,
-                            'asset_serial_no' => $serial['asset_serial_no'],
-                            'asset_description' => $serial['asset_description'] ?? $detail['item_description'],
-                            // 'is_commissioned' => $serial['is_commissioned'] ?? 0,
-                            // 'created_at' => now(),
-                            // 'updated_at' => now(),
-                        ];
+                    $requisition_detail = RequisitionDetail::where('requisition_id', $reqApplication->id)
+                        ->where('grn_item_id', $grn_id)
+                        ->where('grn_item_detail_id', $grn_item_detail_id)
+                        ->first();
+
+                    if (!$requisition_detail) {
+                        DB::rollBack();
+                        return $this->errorResponse("Requisition application details not found for item_code: {$line['item_code']} and grn_no: {$detail['grn_no']}");
+                    }
+
+                    $requisition_detail->received_quantity = $line['received_quantity'];
+                    $requisition_detail->is_received = 1;
+                    $requisition_detail->received_at = now();
+                    $requisition_detail->received_by = $reqApplication->created_by;
+                    $requisition_detail->save();
+
+
+                    if (!empty($line['serials'])) {
+                        $serialsData = [];
+                        foreach ($line['serials'] as $serial) {
+
+                            $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
+                            if ($exists) {
+                                DB::rollBack();
+                                return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                            }
+
+                            $serialsData[] = [
+                                'requisition_detail_id' => $requisition_detail->id,
+                                'asset_serial_no' => $serial['asset_serial_no'],
+                                'asset_description' => $serial['asset_description'],
+                                'amount' => $serial['amount'],
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+                        }
+                        ReceivedSerial::insert($serialsData);
                     }
                 }
             }
 
-                GoodsReceivedDetailSerial::insert($serialNumbers);
+            $employee = User::find($reqApplication->created_by); // Ensure employee_id exists in requisition
+            if ($employee && $employee->email) {
+                Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $reqApplication));
+            } else {
+                \Log::warning("Email not sent: No email found for user ID {$reqApplication->created_by}");
             }
 
             DB::commit();
-            // return response()->json(['message' => 'Goods issued and received successfully!', 'data' => $goodsReceived], 201);
-            return $this->successResponse($goodsReceived, 'Goods issued and received successfully.');
+            return $this->successResponse($reqApplication, 'Goods issued and received successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::info("Failed to save data for {$request->doc_no} " . $e->getMessage());
-            return $this->errorResponse("Failed to save data for {$request->doc_no} " . $e->getMessage());
-            // return response()->json(['error' => "Failed to save data for {$request->doc_no}", 'message' => $e->getMessage()], 500);
+            \Log::error("Failed to save data for {$request->doc_no}: " . $e->getMessage());
+            return $this->errorResponse("Failed to save data for {$request->doc_no}: " . $e->getMessage());
         }
-
     }
+
 
     public function startSession()
     {
@@ -376,8 +436,120 @@ class ApiController extends BaseController
         }
     }
 
+
+    private function sendPostRequest($url, $postFields, $sessionId)
+        {
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $postFields,
+                CURLOPT_HTTPHEADER => [
+                    "Cookie: $sessionId; B1SESSION=$sessionId",
+                    'Content-Type: application/json',
+                ],
+                CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+                CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $responseArray = json_decode($response, true);
+
+            curl_close($curl);
+
+            if ($httpCode !== 201) {
+                return [
+                    'status' => $httpCode,
+                    'error' => $responseArray['error']['message']['value'] ?? 'Something went wrong from SAP API'
+                ];
+            }
+
+            return ['status' => 201, 'data' => $responseArray];
+        }
+    public function postCommission($postFields){
+         // Start SAP session and retrieve session ID
+         $response = $this->startSession();
+
+         if (json_last_error() === JSON_ERROR_NONE) {
+             $session = json_decode($response->getContent(), true);
+
+             $sessionId = $session['sessionId'] ?? null;
+         } else {
+             return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+         }
+
+         if (empty($sessionId)) {
+             return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+         }
+
+         $data = json_decode($postFields, true);
+
+        // Extract items and asset document lines as arrays
+        $items = $data['Items'];
+        $assetDocLines = $data['AssetDocumentLineCollection'];
+
+         if (empty($items) && empty($assetDocLines)) {
+             return response()->json(['msg_error' => 'No items found in the payload'], 400);
+         }
+
+
+
+         foreach ($items as $item) {
+            $formattedItem = [
+                "ItemCode" => $item['ItemCode'] ?? null,
+                "ItemName" => $item['ItemName'] ?? null,
+                "ForeignName" => $item['ForeignName'] ?? null,
+                "ItemsGroupCode" => 102,  // static value (Fixed Asset)
+                "ItemType" => "F",        // static value
+                "AssetClass" => $item['AssetClass'] ?? "Furnitures",  // default to "Furnitures"
+                "AssetGroup" => $item['AssetGroup'] ?? null,
+                "InventoryNumber" => $item['InventoryNumber'] ?? null,
+                "Employee" => $item['Employee'] ?? null,
+                "Location" => $item['Location'] ?? null,
+            ];
+
+            // Convert each item to JSON format
+            $jsonFormattedItem = json_encode($formattedItem, JSON_PRETTY_PRINT);
+            $url1='/b1s/v1/Items';
+            $response = $this->sendPostRequest($url1,$jsonFormattedItem, $sessionId);
+
+         if ($response['status'] !== 201) {
+                return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+            }
+
+            }
+
+        $formattedAssetCapitalization = [
+            "AssetDocumentLineCollection" => $assetDocLines,
+            "AssetValueDate" => $data['AssetValueDate'],
+            "DocumentDate" => $data['DocumentDate'],
+            "PostingDate" => $data['PostingDate']
+        ];
+        $jsonFormattedAssetCapitalization = json_encode($formattedAssetCapitalization, JSON_PRETTY_PRINT);
+
+
+        $url2='/b1s/v1/AssetCapitalization';
+        $response = $this->sendPostRequest($url2,$jsonFormattedAssetCapitalization, $sessionId);
+
+     if ($response['status'] !== 201) {
+            return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+        }
+
+
+        $responseArray = $response;
+         return response()->json(['success' => true, 'data' => $responseArray], 201);
+     }
+
+
+
+
+
     // public function postJournalEntries($accountCode, $shortName, $memo, $amount, $costingCode = null, $costingCode2 = null)
-    public function postJournalEntries($postFields)
+
+
+    public function postJournalEntries($postFields, $assetFlag)
     {
         // Start SAP session and retrieve session ID
         $response = $this->startSession();
@@ -396,7 +568,7 @@ class ApiController extends BaseController
 
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . '/b1s/v1/JournalEntries',
+            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . ($assetFlag ? '/b1s/v1/PurchaseRequests' : '/b1s/v1/JournalEntries'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,

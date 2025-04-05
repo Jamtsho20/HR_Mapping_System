@@ -210,6 +210,13 @@ return [
             'approver_mail_content' => 'has applied Leave Encashment for your endorsement.',
             'initiator_mail_content' => 'Your Leave Encashment has been'
         ],
+        5 => [
+            'name' => App\Models\RequisitionApplication::class,
+            'post_to_sap' => true,
+            'email_subject' => 'Requisition',
+            'approver_mail_content' => 'has applied Requisition of {type} for your endorsement.',
+            'initiator_mail_content' => 'Your Requisition has been'
+        ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,
             'post_to_sap' => true,
@@ -238,8 +245,19 @@ return [
             'approver_mail_content' => 'has applied DSA Claim of {type} for your endorsement.',
             'initiator_mail_content' => 'Your DSA Claim has been'
         ],
+        10 => [
+            'name' => App\Models\AssetCommissionApplication::class,
+            'post_to_sap' => true,
+            'email_subject' => 'Asset Commission',
+            'approver_mail_content' => 'has applied asset commission for your endorsement.',
+            'initiator_mail_content' => 'Your asset commission has been'
+        ]
     ],
 
-
+    'asset_condition_codes' => [
+        1 => 'Beyond Economic Repair',
+        2 => 'Absolete',
+        3 => 'Working',
+    ],
 
 ];

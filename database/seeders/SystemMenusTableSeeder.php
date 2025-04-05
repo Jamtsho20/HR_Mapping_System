@@ -35,6 +35,7 @@ class SystemMenusTableSeeder extends Seeder
             ['id' => 17, 'name' => 'Travel Authorization', 'icon' => 'fa-plane', 'display_order' => 17],
             ['id' => 18, 'name' => 'Approval', 'icon' => 'fa-check', 'display_order' => 18],
             ['id' => 19, 'name' => 'Team', 'icon' => 'fa-users', 'display_order' => 19],
+            ['id' => 20, 'name' => 'Asset Report', 'icon' => 'fa-users', 'display_order' => 20],
         ]);
     }
 }

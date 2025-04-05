@@ -47,7 +47,6 @@ class ApprovalController extends Controller
 
 
 
-
         $results = collect();
 
 
@@ -70,7 +69,9 @@ class ApprovalController extends Controller
             }
         }
 
+
         $holidays;
+
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')
                 ->select('start_date', 'end_date')
@@ -96,6 +97,7 @@ class ApprovalController extends Controller
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
+
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
@@ -108,6 +110,7 @@ class ApprovalController extends Controller
                 }
 
                 $costingCode = null;
+
                 $type = $application->type;
 
                 if ($applicationType == 2) { // Expense
@@ -154,6 +157,21 @@ class ApprovalController extends Controller
                             $amount = $application->net_payable_amount;
                         }
                         $tax_amount = $application->tax_amount ?? null;
+
+                        $item_code = isset($application->need_by_date) ? $application->need_by_date : null;
+                        $required_date = null;
+                        // field required for commission api in SAP
+
+                        $grnNo = isset($application->requisitionDetail) ? $application->requisitionDetail->grnItem->grn_no : null;
+
+                        $assetFlag = false;
+                        if ($item_code) {
+                            $assetFlag = true;
+                            $application->load('details');
+                            $required_date = Carbon::parse($application->need_by_date)->format('Y-m-d');
+                        }
+
+
                         $postToSap = $type->post_to_sap;
                         $costingCode2 = $application->employee?->empJob?->department?->code; // department code
 
@@ -163,12 +181,17 @@ class ApprovalController extends Controller
                                 continue;
                             }
 
+
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($transactionNumber, $memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount);
-                            //dd($postFields);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber);
+
                             Log::info($postFields);
-                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields);
+                            if($grnNo){
+                                $postJournalEntriesResponse = $this->sap->postCommission($postFields);
+                            }else{
+                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
+                            }
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
@@ -240,8 +263,10 @@ class ApprovalController extends Controller
         }
     }
 
-    private function preparePostFields($transactionNo, $memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null)
+
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null, $transactionNo=null)
     {
+
         if ($tax_amount) {
             return $postFields = '{
                 "ReferenceDate":"' . date('Y-m-d') . '",
@@ -275,6 +300,54 @@ class ApprovalController extends Controller
 
                 ]
             }';
+        } elseif ($item_code){
+            $postFields = [
+                "DocDate" => date('Y-m-d'),
+                "U_REQ" => $transactionNo,
+                "DocumentLines" => $application->details->map(function ($detail) {
+                    return [
+                        "U_GRNEntry"=> (string) $detail->grnItem->grn_no,
+                        "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
+                        "ItemDescription" => $detail->grnItemDetail->item->item_description,
+                        "Quantity" => $detail->requested_quantity,
+                        "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
+                        "ProjectCode" => (string) $detail->site->code
+                    ];
+                })->toArray(),
+                "RequriedDate" => $required_date
+                       ];
+
+            return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        }
+        elseif($grnNo) {  // sap data for asset commissioning
+            $postFields = [
+                "Items" => $application->details->map(function ($detail) use ($application) {
+                    return [
+                        "ItemCode" => (string) $detail->receivedSerial->asset_serial_no,
+                        "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
+                        "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
+                        "ItemsGroupCode" => 102,
+                        "ItemType" => "F",
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
+                        "AssetGroup" => null,
+                        "InventoryNumber"=> null,
+                        "Employee"=> null,
+                        "Location"=> null,
+                    ];
+                })->toArray(),
+                "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
+                    return [
+                        "AssetNumber" => (string) $detail->receivedSerial->asset_serial_no,
+                        "Quantity" => 1,
+                        "TotalLC" => $detail->receivedSerial->amount
+                    ];
+                })->toArray(),
+                "AssetValueDate"=> date('Y-m-d'),
+                "DocumentDate" => date('Y-m-d'),
+                "PostingDate" => date('Y-m-d')
+
+     ];
+            return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } else {
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
@@ -646,7 +719,7 @@ class ApprovalController extends Controller
                 ->whereIn('status', $statuses)
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at')
+                ->orderBy('created_at', 'desc')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
         };

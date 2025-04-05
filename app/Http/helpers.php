@@ -248,7 +248,7 @@ if (!function_exists('loggedInUser')) {
 if (!function_exists('LoggedInUserEmpIdName')) {
     function LoggedInUserEmpIdName()
     {
-        return auth()->user()->username . ' - ' . auth()->user()->name;;
+        return auth()->user()->username . ' - ' . auth()->user()->title . ' ' .auth()->user()->name;
     }
 }
 
@@ -272,14 +272,14 @@ if (!function_exists('generateTransactionNumber1')) {
             // Extract the sequence part (last part after the last slash)
             preg_match('/(\d+)$/', $lastTransaction[$columnName], $matches);
             $lastSequence = $matches ? (int) $matches[0] : 0;
-            $currentSequence = $lastSequence;
+            $currentSequence = $lastSequence + 1;
         } else {
             $currentSequence = 1;
         }
 
         $datePart = now()->format('Ymd');
         // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
-        return $type['code'] . '/' . $datePart . '/' . $currentSequence + 1;
+        return $type['code'] . '/' . $datePart . '/' . $currentSequence;
     }
 }
 if (!function_exists('loadApplicationDetails')) {
@@ -373,7 +373,7 @@ if (!function_exists('prepareLeaveCombination')) {
     function prepareLeaveCombination($fromDate)
     {
         $leaveApplications = LeaveApplication::where('created_by', loggedInUser())
-            ->where('status', 1)
+            // ->where('status', 1)
             ->orderBy('to_date', 'desc')
             ->get();
 

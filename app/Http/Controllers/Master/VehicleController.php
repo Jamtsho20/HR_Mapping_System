@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\MasVehicle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends Controller
 {
@@ -19,69 +20,88 @@ class VehicleController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $vehicles = MasVehicle::filter($request)->paginate(10);
-        return view('masters.vehicles.index', compact('privileges', 'vehicles'));
+        $vehicleNos = MasVehicle::distinct()->pluck('vehicle_no');
+        $vehicles = MasVehicle::filter($request)
+            ->with(['vehicleType', 'department'])
+            ->orderBy('created_at', 'asc')->paginate(30);
+        return view('masters.vehicles.index', compact('privileges', 'vehicles', 'vehicleNos'));
     }
 
 
     public function create()
     {
-        return view('masters.vehicles.create');
+        $vehicleTypes = DB::table('mas_vehicle_types')->pluck('name', 'id');
+        $departments = DB::table('mas_departments')->pluck('name', 'id');
+        return view('masters.vehicles.create', compact('vehicleTypes', 'departments'));
     }
     public function store(Request $request)
     {
         // Validate the request data
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
             'vehicle_no' => 'required|string|max:255|unique:mas_vehicles,vehicle_no',
-            'vehicle_type' => 'required|in:1,2,3,4', // Light, Medium, Heavy, Two Wheeler
-            'status.is_active' => 'boolean',
+            'vehicle_type' => 'required|exists:mas_vehicle_types,id',
+            'department_id' => 'required|exists:mas_departments,id',
+            'location' => 'required|string|max:255',
+            'final_reading' => 'required|numeric',
+            'status.is_active' => 'nullable|boolean',
         ]);
 
-        // Create a new MasVehicle instance and fill it with the validated data
-        $vehicle = new MasVehicle();
-        $vehicle->name = $validatedData['name'];
-        $vehicle->vehicle_no = $validatedData['vehicle_no'];
-        $vehicle->vehicle_type = $validatedData['vehicle_type'];
-        $vehicle->is_active = $request->input('status.is_active', 0); // Updated to use 'is_active'
+        try {
+            // Create and save the vehicle
+            $vehicle = new MasVehicle();
+            $vehicle->vehicle_no = $validatedData['vehicle_no'];
+            $vehicle->vehicle_type_id = $validatedData['vehicle_type']; // Store vehicle type ID
+            $vehicle->department_id = $validatedData['department_id']; // Store department ID
+            $vehicle->location = $validatedData['location'];
+            $vehicle->final_reading = $validatedData['final_reading'];
+            $vehicle->is_active = $request->has('status.is_active') ? 1 : 0; // Handle checkbox
 
-        // Save the MasVehicle instance to the database
-        $vehicle->save();
+            $vehicle->save();
 
-        // Redirect with success message
-        return redirect()->route('vehicles.index')->with('success', 'Vehicle created successfully.');
+            return redirect()->route('vehicles.index')->with('success', 'Vehicle created successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
     }
+
+
     public function edit($id)
     {
         $vehicle = MasVehicle::findOrFail($id);
-
-        return view('masters.vehicles.edit', compact('vehicle'));
+        $vehicleTypes = DB::table('mas_vehicle_types')->pluck('name', 'id');
+        $departments = DB::table('mas_departments')->pluck('name', 'id');
+        return view('masters.vehicles.edit', compact('vehicle', 'vehicleTypes', 'departments'));
     }
-    public function update(Request $request, string $id)
+
+    public function update(Request $request, $id)
     {
+        $vehicle = MasVehicle::findOrFail($id);
+
         // Validate the request data
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'vehicle_no' => 'required|string|max:255|unique:mas_vehicles,vehicle_no,' . $id, // Exclude the current vehicle from unique validation
-            'vehicle_type' => 'required|in:1,2,3,4', // Light, Medium, Heavy, Two Wheeler
+            'vehicle_no' => 'required|string|max:255|unique:mas_vehicles,vehicle_no,' . $vehicle->id,
+            'vehicle_type' => 'required|exists:mas_vehicle_types,id',
+            'location' => 'required|string|max:255',
+            'final_reading' => 'required|string|max:255',
+            'department_id' => 'required|exists:mas_departments,id',
             'status.is_active' => 'boolean',
         ]);
 
-        // Find the vehicle by ID or throw a 404 error
-        $vehicle = MasVehicle::findOrFail($id);
-
-        // Update the vehicle details with the validated data
-        $vehicle->name = $validatedData['name'];
+        // Update the vehicle's data
         $vehicle->vehicle_no = $validatedData['vehicle_no'];
-        $vehicle->vehicle_type = $validatedData['vehicle_type'];
-        $vehicle->is_active = $request->input('status.is_active', 0); // Set to 0 if not checked
+        $vehicle->vehicle_type_id = $validatedData['vehicle_type'];
+        $vehicle->location = $validatedData['location'];
+        $vehicle->final_reading = $validatedData['final_reading'];
+        $vehicle->department_id = $validatedData['department_id'];
+        $vehicle->is_active = $request->input('status.is_active', 0); // Default to 0 if not checked
 
-        // Save the updated vehicle to the database
+        // Save the updated vehicle information
         $vehicle->save();
 
-        // Redirect with success message
+        // Redirect to the vehicles index with a success message
         return redirect()->route('vehicles.index')->with('success', 'Vehicle updated successfully.');
     }
+
 
 
     public function destroy(string $id)

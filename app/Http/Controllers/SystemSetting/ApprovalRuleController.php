@@ -56,7 +56,8 @@ class ApprovalRuleController extends Controller
         $operators = MasApprovalRuleConditionOperator::select('id', 'name', 'value')->orderBy('name')->get();
         $hierarchies = SystemHierarchy::select('id', 'name')->get();
 
-        return view('system-settings.approval-rule.create', compact('privileges', 'employees', 'roles', 'heads', 'operators', 'hierarchies'));
+        return view('system-settings.approval-rule.cr
+        eate', compact('privileges', 'employees', 'roles', 'heads', 'operators', 'hierarchies'));
     }
 
     /**
@@ -85,7 +86,7 @@ class ApprovalRuleController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
-            10 => MasCommissionTypes::class,
+            11 => MasCommissionTypes::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

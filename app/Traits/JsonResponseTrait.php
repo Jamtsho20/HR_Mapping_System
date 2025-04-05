@@ -42,6 +42,16 @@ trait JsonResponseTrait
         ], $status);
     }
 
+    // this is typically for internal server error 
+    protected function internalServerErrorResponse(string $message = 'Server error', int $status = 500, $data = null): JsonResponse
+    {
+        return response()->json([
+            'status' => 'error',
+            'message' => $message,
+            'data' => $data,
+        ], $status);
+    }
+
     // protected function validationErrorResponse($errors, string $message = 'Validation error', int $status = 422): JsonResponse
     // {
     //     return response()->json([

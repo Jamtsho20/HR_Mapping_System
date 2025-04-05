@@ -126,12 +126,12 @@
 
      .file-uploader .file-upload-box {
          /* margin: 10px 20px 20px; */
-         border-radius: 5px;
+         border-radius: 7px;
          min-height: 40px;
          display: flex;
          align-items: center;
          justify-content: center;
-         border: 1px dashed #626161;
+         border: 1px dashed #eaedf1;
          transition: all 0.2s ease;
      }
 

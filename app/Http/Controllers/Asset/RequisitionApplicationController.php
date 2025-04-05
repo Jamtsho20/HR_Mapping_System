@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ApplicationForwardedMail;
-use App\Models\GrnItemMapping;
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
 use App\Models\MasRequisitionType;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
@@ -13,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\MasSite;
+use App\Models\MasDzongkhag;
 
 class RequisitionApplicationController extends Controller
 {
@@ -41,19 +44,19 @@ class RequisitionApplicationController extends Controller
         // 'details.*.stock_status' => 'required',
         'details.*.quantity_required' => 'required',
         'details.*.dzongkhag' => 'required',
-        'details.*.office_name' => 'required',
+        // 'details.*.office_name' => 'required',
         'details.*.site_name' => 'required',
      ];
 
      protected $messages = [
-        'details.*.grn_no.required' => 'The purchase order number is required for each detail item.',
+        'details.*.grn_no.required' => 'The GRN is required for each detail item.',
         'details.*.item_description.required' => 'The item description is required for each detail item.',
         'details.*.uom.required' => 'The unit of measure is required for each detail item.',
         'details.*.store.required' => 'The store is required for each detail item.',
         // 'details.*.stock_status.required' => 'The stock status is required for each detail item.',
         'details.*.quantity_required.required' => 'The quantity is required for each detail item.',
         'details.*.dzongkhag.required' => 'The dzongkhag is required for each detail item.',
-        'details.*.office_name.required' => 'The office name is required for each detail item.',
+        // 'details.*.office_name.required' => 'The office name is required for each detail item.',
         'details.*.site_name.required' => 'The site name is required for each detail item.',
     ];
 
@@ -61,18 +64,25 @@ class RequisitionApplicationController extends Controller
      {
          $privileges = $request->instance();
          $reqTypes = MasRequisitionType::get(['id', 'name']);
-         $requisitions = RequisitionApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+         $requisitions = RequisitionApplication::with('details.grnItem')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
          return view('asset.requisition-apply.index', compact('privileges', 'requisitions', 'reqTypes'));
      }
 
+     public function receive(string $id)
+     {
+        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
+        return view('asset.requisition-apply.receive', compact('requisition'));
+     }
      /**
       * Show the form for creating a new resource.
       */
      public function create()
      {
-        $reqTypes = MasRequisitionType::get();
-        $grnNos = GrnItemMapping::whereStatus(1)->pluck('grn_no')->toArray();
-        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos'));
+        $reqTypes = MasRequisitionType::where('status', 1)->get();
+        $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])->whereStatus(1)->get();
+        $dzongkhags = MasDzongkhag::all();
+        $sites = MasSite::with('dzongkhag')->get();
+        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags'));
      }
 
      /**
@@ -80,21 +90,27 @@ class RequisitionApplicationController extends Controller
       */
      public function store(Request $request)
      {
+        //dd($request->all());
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
+
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
-        $reqType = MasRequisitionType::where('type_id', $request->type_id)->first();
+
+        $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $lastTransaction = RequisitionApplication::latest('id')->first();
-        $reqNumber = generateTransactionNumber1($reqType, $lastTransaction, 'requisition_no');
+
+        $transactionNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
+
+
         try {
             DB::beginTransaction();
-            $requisition->requisition_no = $reqNumber;
+            $requisition->transaction_no = $transactionNo;
             $requisition->type_id = $request->type_id;
-            $requisition->requisition_date = $request->requisition_date;
+            $requisition->transaction_date = $request->requisition_date;
             $requisition->need_by_date = $request->need_by_date;
-            $requisition->item_category = $request->item_category;
+
             $requisition->status = $approverByHierarchy['application_status'];
             $requisition->save();
 
@@ -113,8 +129,14 @@ class RequisitionApplicationController extends Controller
             if (isset($approverByHierarchy['approver_details'])) {
                 $emailContent = 'has submitted a requisition request and is awaiting your approval for requisition no ' . $request->requisition_no;
                 $emailSubject = 'Requisition Application';
-                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->email, $emailContent, $emailSubject));
-            }
+
+                try{
+                    Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+                }catch(\Exception $e){
+                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                }
+           }
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -126,9 +148,14 @@ class RequisitionApplicationController extends Controller
      /**
       * Display the specified resource.
       */
-     public function show(string $id)
+
+
+
+      public function show(string $id)
      {
-         //
+        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
+        $approvalDetail = getApplicationLogs(\App\Models\RequisitionApplication::class, $requisition->id);
+        return view('asset.requisition-apply.show', compact('requisition', 'approvalDetail'));
      }
 
      /**
@@ -155,26 +182,40 @@ class RequisitionApplicationController extends Controller
          //
      }
 
+
      private function saveDetails ($details, $requisitionId) {
         // Track existing IDs to avoid deleting records that are updated
         $existingIds = [];
 
+
         foreach ($details as $detail) {
+            $grnData = json_decode($detail['grn_no'], true);
+            $grn_item = MasGrnItemDetail::where('grn_id', $grnData['id'])
+            ->where('store_id', $detail['store'])
+            ->where('item_id', $detail['item_description'])
+            ->first();
+
+            if ($grn_item) {
+                // Ensure stock doesn't go negative
+                $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
+                // Update stock in database
+                $grn_item->update(['quantity' => $newStock]);
+            }
+
             // Check if the detail has an 'id' (indicating an existing record)
             if (isset($detail['id']) && !empty($detail['id'])) {
                 // Update the existing record
                 $existingDetail = RequisitionDetail::find($detail['id']);
                 if ($existingDetail) {
                     $existingDetail->update([
-                        'purchase_order_no' => $detail['purchase_order_no'],
-                        'item_description' => $detail['item_description'],
-                        'uom' => $detail['uom'],
-                        'store' => $detail['store'],
-                        'stock_status' => $detail['stock_status'],
-                        'quantity_required' => $detail['quantity_required'],
-                        'dzongkhag' => $detail['dzongkhag'],
-                        'site_name' => $detail['site_name'],
-                        'remark' => $detail['remark'],
+                    'requisition_id' => $requisitionId,
+                    'grn_item_id' => $grn_item['grn_id'],
+                    'grn_item_detail_id' => $grn_item['id'],
+                    'status' => 1,
+                    'requested_quantity' => $detail['quantity_required'],
+                    'dzongkhag_id' => $detail['dzongkhag'],
+                    'site_id' => $detail['site_name'],
+                    'remark' => $detail['remark'],
                     ]);
 
                     $existingIds[] = $existingDetail->id; // Track updated record IDs
@@ -182,15 +223,14 @@ class RequisitionApplicationController extends Controller
             } else {
                 // Insert new record
                 $newDetail = RequisitionDetail::create([
+
                     'requisition_id' => $requisitionId,
-                    'purchase_order_no' => $detail['purchase_order_no'],
-                    'item_description' => $detail['item_description'],
-                    'uom' => $detail['uom'],
-                    'store' => $detail['store'],
-                    'stock_status' => $detail['stock_status'],
-                    'quantity_required' => $detail['quantity_required'],
-                    'dzongkhag' => $detail['dzongkhag'],
-                    'site_name' => $detail['site_name'],
+                    'grn_item_id' => $grn_item['grn_id'],
+                    'grn_item_detail_id' => $grn_item['id'],
+                    'status' => 1,
+                    'requested_quantity' => $detail['quantity_required'],
+                    'dzongkhag_id' => $detail['dzongkhag'],
+                    'site_id' => $detail['site_name'],
                     'remark' => $detail['remark'],
                 ]);
 
@@ -199,6 +239,7 @@ class RequisitionApplicationController extends Controller
                 }
             }
         }
+
 
         // Optionally delete records not in the current request
         RequisitionDetail::where('requisition_id', $requisitionId)

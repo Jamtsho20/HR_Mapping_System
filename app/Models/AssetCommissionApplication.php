@@ -1,0 +1,120 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Traits\CreatedByTrait;
+use Illuminate\Support\Facades\DB;
+
+
+class AssetCommissionApplication extends Model
+{
+    use HasFactory, CreatedByTrait;
+
+    protected $fillable = [
+        'id',
+        'type_id',
+        'transaction_no',
+        'transaction_date',
+        'requisition_detail_id',
+        'file',
+        'doc_no',
+        'status'
+    ];
+
+    protected $cast = [
+        'file' => 'array'
+    ];
+
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function type()
+    {
+        return $this->belongsTo(MasCommissionTypes::class, 'type_id');
+    }
+    public function details()
+    {
+        return $this->hasMany(AssetCommissionDetail::class, 'commission_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function empJob()
+    {
+        return $this->hasOne(MasEmployeeJob::class, 'mas_employee_id');
+    }
+
+    public function histories()
+    {
+        return $this->morphMany(ApplicationHistory::class, 'application');
+    }
+
+    public function requisitionDetail()
+    {
+        return $this->belongsTo(RequisitionDetail::class, 'requisition_detail_id');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+        if ($onesOwnRecord) {
+            $query->where('created_by', auth()->user()->id);
+        }
+
+        if($request->from_date && $request->to_date){
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
+
+        if($request->comm_no){
+            $query->where('transaction_no', $request->comm_no);
+        }
+
+        if($request->status){
+            $query->where('status', $request->status);
+        }
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($commissionApplication) {
+            // Check if the status is changed to -1
+            if ($commissionApplication->isDirty('status') && $commissionApplication->status == -1) {
+                // Get all related commission details
+                $details = $commissionApplication->details;
+
+                // Extract received_serial_id values
+                $receivedSerialIds = $details->pluck('received_serial_id')->toArray();
+
+                if (!empty($receivedSerialIds)) {
+                    // Update received_serials table to set is_commissioned = 0
+                    DB::table('received_serials')
+                        ->whereIn('id', $receivedSerialIds)
+                        ->update([
+                            'is_commissioned' => 0,
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
+        });
+    }
+
+}

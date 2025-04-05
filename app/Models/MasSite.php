@@ -16,4 +16,9 @@ class MasSite extends Model
     {
         return $this->hasOne(RequisitionDetail::class, 'site_id');
     }
+
+    public function dzongkhag()
+    {
+        return $this->belongsTo(MasDzongkhag::class, 'dzongkhag_id');
+    }
 }

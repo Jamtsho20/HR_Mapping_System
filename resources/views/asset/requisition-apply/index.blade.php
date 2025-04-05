@@ -41,11 +41,11 @@
                                                         <th>#</th>
                                                         <th>EMPLOYEE</th>
                                                         <th>RREQUISITION NUMBER</th>
-                                                        <th>REQUISITION TYPE</th>
                                                         <th>REQUISITION DATE</th>
+                                                        <th>REQUISITION TYPE</th>
                                                         <th>NEED BY DATE</th>
-                                                        <th>ITEM CATEGORY</th>
                                                         <th>STATUS</th>
+                                                        <th>GOOD RECEIVED</th>
                                                         <th>ACTION</th>
                                                     </tr>
                                                 </thead>
@@ -54,11 +54,11 @@
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $requisition->employee->emp_id_name }}</td>
-                                                            <td>{{ $requisition->requisition_no }}</td>
-                                                            <td>{{ $requisition->requisition_date }}</td>
-                                                            <td>{{ $requisition->requisitionType->name }}</td>
+                                                            <td>{{ $requisition->transaction_no }}</td>
+                                                            <td>{{ $requisition->transaction_date }}</td>
+                                                            <td>{{ $requisition->type->name ?? '' }}</td>
                                                             <td>{{ $requisition->need_by_date }}</td>
-                                                            <td>{{ $requisition->item_category }}</td>
+
                                                             <td class ="text-center">
                                                                 @php
                                                                     $statusClasses = [
@@ -79,17 +79,25 @@
 
                                                                 <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                             </td>
+
+                                                            <td>
+                                                                <input type="checkbox" style="accent-color: primary; pointer-events: none;"
+                                                                    {{ $requisition->status == 3 && $requisition->good_issue_doc_no != null ? 'checked' : '' }}>
+                                                            </td>
+
                                                             <td class="text-center">
                                                                 @if ($privileges->view)
                                                                     <a href="{{ url('asset/requisition/' . $requisition->id) }}"
                                                                         class="btn btn-sm btn-outline-secondary"><i
                                                                             class="fa fa-list"></i> Detail</a>
-                                                                @endif
-                                                                @if ($privileges->edit)
-                                                                    <a href="{{ url('asset/requisition/' . $requisition->id . '/edit') }}"
-                                                                        class="btn btn-sm btn-rounded btn-outline-success"><i
-                                                                            class="fa fa-edit"></i> EDIT</a>
-                                                                @endif
+
+                                                                        {{-- @if ($requisition->status == 3 && $requisition->good_issue_doc_no != null)
+                                                                    <a href="{{ url('asset/requisition/' . $requisition->id . '/receive') }}"
+                                                                        class="btn btn-sm btn-rounded btn-outline-success">
+                                                                        <i class="bi bi-box-arrow-in-down"></i> Receive
+                                                                    </a>
+                                                                    @endif --}}
+                                                                    @endif
                                                                 @if ($privileges->delete)
                                                                     <a href="#"
                                                                         class="delete-btn btn btn-sm btn-rounded btn-outline-danger"

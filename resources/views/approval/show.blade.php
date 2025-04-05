@@ -34,12 +34,18 @@
             'leaveEncashment' => $data,
             'empDetails' => $empDetails,
         ])
+    @elseif ($tab == 5)
+        @include('approval.view.requisition', [
+            'requisition' => $data,
+            'empDetails' => $empDetails,
+        ])
     @elseif ($tab == 6)
         @include('approval.view.transfer_claim', ['transfer' => $data, 'empDetails' => $empDetails])
 
         @php
             $no_of_days = 3;
         @endphp
+
     @elseif ($tab == 7)
         @include('approval.view.travel_authorization', [
             'travelAuthorization' => $data,
@@ -58,6 +64,8 @@
         ])
     @elseif ($tab == 9)
         @include('approval.view.dsa_claim', ['dsa' => $data, 'empDetails' => $empDetails, 'oldDataFlag' => $oldDataFlag, 'travelNosString' => $travelNosString, 'advanceNosString' => $advanceNosString])
+    @elseif ($tab == 10)
+        @include('approval.view.commission', ['commission' => $data, 'empDetails' => $empDetails])
     @endif
 
 @endsection

@@ -17,6 +17,6 @@ class MasCommissionTypes extends Model
 
     public function commissions ()
     {
-        return $this->hasMany(CommissionApplication::class, 'commission_type_id');
+        return $this->hasMany(AssetCommissionApplication::class, 'type_id');
     }
 }

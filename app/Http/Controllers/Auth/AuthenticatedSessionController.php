@@ -30,10 +30,14 @@ class AuthenticatedSessionController extends Controller
         if($activeUser != "Active"){
             return back()->withInput()->with('msg_error', 'The user associated with these credentials has been deactivated. Please contact the system administrator for further assistance.');
         }
-
         $request->authenticate();
 
         $request->session()->regenerate();
+        if($request->query('source') === 'qr'){
+            dd("a");
+            return redirect()->intended(RouteServiceProvider::HOME . '?source=qr');
+        }
+
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }

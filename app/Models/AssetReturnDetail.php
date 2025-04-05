@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class AssetReturnDetail extends Model
 {
     use HasFactory;
+
+    protected $table = "return_details";
+
+    public function assetReturn()
+    {
+        return $this->belongsTo(AssetReturnApplication::class, 'asset_return_id');
+    }
+
+    public function receivedSerial(){
+        return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
+    }
 }

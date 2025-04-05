@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('page-title', 'Requisition')
 @section('content')
-
-<form action="{{ route('requisition.store') }}" method="POST" enctype="multipart/form-data">
+@include('layouts.includes.loader')
+<form action="{{ route('requisition.store') }}" method="POST" id="requisitionForm" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-body">
@@ -10,14 +10,14 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="requisition_no">Requisition No. <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="requisition_no" name="requisition_no" value="{{ old('requisition_no') }}" readonly>
+                        <input type="text" class="form-control" id="requisition_no" name="requisition_no" value="{{ old('requisition_no') }}" placeholder="Generating..." readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="requisition_type">Requisition Type <span class="text-danger">*</span></label>
                         <select class="form-control" name="type_id" id="requisition_type">
-                            <option value="" disabled selected hidden>Select your option</option>
+                            <option value="" disabled selected hidden>Select requisition type</option>
                             @foreach ($reqTypes as $type)
                                 <option value="{{ $type->id }}"
                                     {{ old('requisition_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}
@@ -32,6 +32,9 @@
                         <label for="requisition_date">Requisition Date <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="requisition_date"
                             value="{{ old('requisition_date', date('Y-m-d')) }}">
+
+                            <input type="hidden" name="total_quantity_required" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
+
                     </div>
                 </div>
                 <div class="row">
@@ -39,10 +42,10 @@
                         <div class="form-group">
                             <label for="need_by_date">Need By Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" name="need_by_date"
-                                value="{{ old('need_by_date') }}">
+                                value="{{ old('need_by_date') }}" required>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    {{-- <div class="col-md-4">
                         <div class="form-group">
                             <label for="requisition_type">Item Category <span class="text-danger">*</span></label>
                             <select class="form-control" name="item_category">
@@ -50,7 +53,7 @@
                                 <option value="FA.MISC">FA.MISC</option>
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="table-responsive">
@@ -58,7 +61,7 @@
                         <thead>
                             <tr>
                                 <th width="3%" class="text-center">#</th>
-                                <th>PO*</th>
+                                <th>GRN*</th>
                                 <th>Item Description*</th>
                                 <th>UOM*</th>
                                 <th>Store*</th>
@@ -77,46 +80,40 @@
                                             class="fa fa-times"></i></a>
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][purchase_order_no]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="122">1212</option>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]"  required />
+                                        <option value="" disabled selected hidden>Select GRN</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][item_description]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="Item A">Item A</option>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][item_description]" required />
+                                        <option value="" disabled selected hidden>Select Item</option>
+
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][uom]" value="No" class="form-control form-control-sm resetKeyForNew" readonly required />
+                                    <input type="text" name="details[AAAAA][uom]" value="" class="form-control form-control-sm resetKeyForNew" readonly required />
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="Store A">Store A</option>
+                                        <option value="" disabled selected hidden>Select Store</option>
+
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][stock_status]" value="4" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
-
-                                </td>
+                                    <input type="text" name="details[AAAAA][stock_status]" value="" class="form-control form-control-sm resetKeyForNew stock-status" readonly required />
+                                        </td>
                                 <td>
                                     <input type="number" name="details[AAAAA][quantity_required]" class="form-control form-control-sm resetKeyForNew quantity-input" required />
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][dzongkhag]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="Thimphu">Thimphu</option>
-                                        {{-- @foreach ($dzongkhags as $dzongkhag)
-                                            <option value="{{$dzongkhag->id}}">{{$dzongkhag->dzongkhag}}</option>
-                                            @endforeach --}}
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][dzongkhag]" required>
+                                        <option value="" disabled selected hidden>Select Dzongkhag</option>
                                     </select>
+
                                 </td>
                                 <td>
-                                    <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][site_name]" required />
-                                        <option value="" disabled selected hidden>Select</option>
-                                        <option value="Site A">Site A</option>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][site_name]" required />
+                                        <option value="" disabled selected hidden>Select Site</option>
                                     </select>
                                 </td>
                                 <td>
@@ -138,7 +135,7 @@
         </div>
         <div class="card-footer">
             @include('layouts.includes.buttons', [
-                'buttonName' => 'Create Requisition',
+                'buttonName' => 'Submit',
                 'cancelUrl' => url('asset/requisition'),
                 'cancelName' => 'CANCEL',
             ])
@@ -151,38 +148,241 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
-            $(document).on('change', '#requisition_type', function () {
-                const requisitionType = $(this).val();
-                if(requisitionType != ''){
-                    $.ajax({
-                        url: "/getrequisitionnobyrequisitiontype/" + requisitionType,
-                        dataType: "JSON",
-                        type: "GET",
 
-                        success: function (response) {
-                            if(response.data.requisition_no){
-                                $('#requisition_no').val(response.data.requisition_no)
-                            }
-                        },
-                        error: function (error) {
-                            alert(error.responseJSON.message);
+            const loader = document.getElementById('loader');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('requisitionForm');
+            const type = document.getElementById('requisition_type');
+            const itemDropdown = document.querySelector('select[name^="details"][name$="[item_description]"]');
+            const grnItemDropdown = document.querySelector('select[name^="details"][name$="[grn_no]"]');
+
+
+            type.addEventListener('change', function(e) {
+                        const selectedType = e.target.value;
+                        const grnItemAll = document.querySelectorAll('select[name^="details"][name$="[grn_no]"]');
+                        const itemAll = document.querySelectorAll('select[name^="details"][name$="[item_description]"]');
+
+                        grnItemAll.forEach(select => {
+                            select.innerHTML = ''; // Clear existing options
+                            const placeholderOption = document.createElement('option');
+                            placeholderOption.textContent = 'Select GRN';
+                            placeholderOption.disabled = true;
+                            placeholderOption.selected = true;
+                            select.appendChild(placeholderOption); // Add placeholder
+                        });
+
+                        itemAll.forEach(select => {
+                            select.innerHTML = ''; // Clear existing options
+                            const placeholderOption = document.createElement('option');
+                            placeholderOption.textContent = 'Select Item';
+                            placeholderOption.disabled = true;
+                            placeholderOption.selected = true;
+                            select.appendChild(placeholderOption); // Add placeholder
+                        });
+
+                        let grnDatas = @json($grnNos);
+
+                        if (Array.isArray(grnDatas)) {
+                            grnDatas.forEach(grn => {
+                                if (grn.detail) {
+                                    const filteredDetails = grn.detail.filter(detail =>
+                                        detail.item &&
+                                        ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
+                                        (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
+                                    );
+
+                                    if (filteredDetails.length > 0) {
+                                        // Add the GRN option if it contains filtered items
+                                        let grnOption = document.createElement('option');
+                                        grnOption.value = JSON.stringify(grn);
+                                        grnOption.textContent = grn.grn_no;
+                                        grnItemDropdown.appendChild(grnOption);
+                                    }
+                                }
+                            });
+                        } else {
+
                         }
                     });
+
+
+            form.addEventListener('submit', function(e) {
+                                    // Show loader
+                                    loader.style.display = 'flex';
+                                });
+
+            let grnDatas = @json($grnNos); // Ensure backend passes this as JSON
+            let siteData = @json($sites);
+            let dzongkhagData = @json($dzongkhags);
+
+            $(document).on('change', 'select[name^="details"][name$="[grn_no]"]', function () {
+                let grnData = $(this).val();
+                    if (!grnData) return;
+
+                    let selectedGRN = JSON.parse(grnData);
+                    let row = $(this).closest('tr');
+                    let grnDetails = grnDatas.find(grn => grn.id == selectedGRN.id);
+
+                    row.find('select[name^="details"][name$="[item_description]"]').empty();
+
+                    if (grnDetails) {
+                        const selectedType = type.value; // Get the selected requisition type again
+                        const itemDropdown = row.find('select[name^="details"][name$="[item_description]"]');
+
+                        // Clear existing options before appending new ones
+                        itemDropdown.html('');
+
+                        // Add the placeholder as the first option
+                        const placeholderOption = $('<option>', {
+                            text: 'Select Item',
+                            disabled: true,
+                            selected: true
+                        });
+                        itemDropdown.append(placeholderOption);
+
+                        grnDetails.detail.forEach(detail => {
+                            if (detail.item &&
+                                ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
+                                (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
+                            ) {
+                                itemDropdown.append(
+                                    `<option value="${detail.item.id}" class="grn_${selectedGRN.id}_detail_${detail.id}">
+                                        ${detail.item.item_description}
+                                    </option>`
+                                );
+                            }
+                        });
+                    }
+                });
+
+                $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
+                let optionValue = $(this).val();
+                let selectedOption = $(this).find('option:selected');
+                if (!selectedOption.length || !optionValue) return;
+                 let isDuplicate = false;
+
+    $('select[name^="details"][name$="[item_description]"]').not(this).each(function () {
+        let outerOptionValue = $(this).val(); // Get the selected value of other rows
+
+        console.log("Outer Selected Value:", outerOptionValue, "| Current Selected Value:", optionValue);
+
+        if (optionValue && optionValue == outerOptionValue) {
+            isDuplicate = true;
+            return false; // Exit the loop early if a duplicate is found
+        }
+    });
+
+    if (isDuplicate) {
+        showErrorMessage('Item already selected.');
+        $(this).val('').trigger('change'); // Clear the current selection
+    }
+                let classList = selectedOption.attr('class').split('_');
+
+                let grnId = classList[1];
+                let grnDetailId = classList[3];
+                let row = $(this).closest('tr');
+
+                console.log('GRN ID:', grnId);
+                console.log('GRN Detail ID:', grnDetailId);
+                console.log('Option Value:', optionValue);
+
+                if (typeof grnDatas === 'undefined' || !Array.isArray(grnDatas)) {
+                    console.error("grnDatas is not defined or is not an array.");
+                    return;
                 }
-            })
+
+                let grnDetail = grnDatas.find(grn => grn.id == grnId);
+                if (!grnDetail) {
+                    console.error("GRN ID not found in grnDatas:", grnId);
+                    return;
+                }
+
+                let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
+                if (!detail) {
+                    console.error("GRN Detail ID not found in details:", grnDetailId);
+                    return;
+                }
+
+                console.log("Detail Found:", detail);
+
+                row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
+                row.find('select[name^="details"][name$="[store]"]').empty()
+                    .append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`)
+                    .trigger('change');
+                row.find('input[name^="details"][name$="[stock_status]"]').val(detail.quantity);
+
+                let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
+                dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+
+                dzongkhagData.forEach(dzongkhag => {
+                    dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
+                });
+
+                dzongkhagDropdown.on('change', function () {
+                    let selectedDzongkhagId = $(this).val();
+                    let siteDropdown = row.find('select[name^="details"][name$="[site_name]"]');
+
+                    siteDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+                    let filteredSites = siteData.filter(site => site.dzongkhag_id == selectedDzongkhagId);
+
+                    filteredSites.forEach(site => {
+                        siteDropdown.append(`<option value="${site.id}">${site.name}</option>`);
+                    });
+
+                    siteDropdown.trigger('change');
+                });
+            });
+
+            // $(document).on('change', '#requisition_type', function () {
+            //     const requisitionType = $(this).val();
+            //     if(requisitionType != ''){
+            //         $.ajax({
+            //             url: "/getrequisitionnobyrequisitiontype/" + requisitionType,
+            //             dataType: "JSON",
+            //             type: "GET",
+
+            //             success: function (response) {
+            //                 if(response.data.requisition_no){
+            //                     $('#requisition_no').val(response.data.requisition_no)
+            //                 }
+            //             },
+            //             error: function (error) {
+            //                 alert(error.responseJSON.message);
+            //             }
+            //         });
+            //     }
+            // })
         })
+        $('.select2').select2({
+            placeholder: "Select a dzongkhag",
+            allowClear: true
+        });
+
+        function updateTotalQuantity() {
+            let total = 0;
+            $(".quantity-input").each(function () {
+                let value = $(this).val();
+                total += value ? parseFloat(value) : 0;
+            });
+            $("#total-quantity-id").val(total);
+        }
+
 
         $(document).on('change', '.quantity-input', function () {
             const $row = $(this).closest('tr'); // Get the row of the input
             const quantity = parseInt($(this).val()) || 0; // Get the quantity entered
             const stockStatus = parseInt($row.find('.stock-status').val()) || 0; // Parse the stock status value
             // Check if quantity exceeds stock status
+            updateTotalQuantity();
             if (quantity <= stockStatus) {
                 return;
             }else{
-                alert('Quantity required cannot be greater than stock status.');
+                showErrorMessage('Quantity required cannot be greater than stock status.');
                 $(this).val(''); // Reset the value of the quantity field
             }
+
         });
+
+        updateTotalQuantity();
     </script>
 @endpush

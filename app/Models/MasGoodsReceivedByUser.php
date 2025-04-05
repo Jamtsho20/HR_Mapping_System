@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class MasGoodsReceivedByUser extends Model
 {
     protected $fillable = [
-        'requisition_application_id',
+        'requisition_id',
         'total_requested_quantity',
         'total_received_quantity',
         'received_from',
@@ -19,18 +19,26 @@ class MasGoodsReceivedByUser extends Model
     
     use HasFactory, CreatedByTrait;
 
-    // public function histories()
-    // {
-    //     return $this->morphMany(ApplicationHistory::class, 'application');
-    // }
-
-    // public function receiptType ()
-    // {
-    //     return $this->belongsTo(MasGoodReceiptType::class, 'receipt_type_id');
-    // }
-    public function receivedDetail ()
+    public function details ()
     {
-        return $this->hasMany(GoodsReceivedDetail::class, 'good_receipt_id');
+        return $this->hasMany(GoodsReceivedDetail::class, 'goods_received_by_user_id');
+    }
+
+    public function requisition () 
+    {
+        return $this->belongsTo(RequisitionApplication::class, 'requisition_id');
+    }
+
+    public function itemSerials()
+    {
+        return $this->hasManyThrough(
+            GoodsReceivedDetailSerial::class, //final model
+            GoodsReceivedDetail::class, //intermediate model
+            'goods_received_by_user_id', //Foreign key on GoodsReceivedDetail (links to this model)
+            'goods_received_detail_id', // Foreign key on GoodsReceivedDetailSerial
+            'id', // Local key on MasGoodsReceivedByUser
+            'id' // Local key on GoodsReceivedDetail
+        );
     }
 
 }

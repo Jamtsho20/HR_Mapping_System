@@ -362,7 +362,7 @@ var hrms = function () {
                     //     if (data.success) {
                     //         // console.log("Access Token:", data.access_token);
                     //         // console.log("Refresh Token:", data.refresh_token);
-                    
+
                     //         // Store token in localStorage/sessionStorage
                     //         localStorage.setItem("accessToken", data.access_token);
                     //     } else {
@@ -371,15 +371,15 @@ var hrms = function () {
                     // })
                     // .catch(error => console.error("Fetch Error:", error));
 
-                    
+
                     let typingTimer; // Timer for debounce
                     const debounceDelay = 200; // Delay in milliseconds
-                    
+
                     $('#item_type').select2({
                         placeholder: 'Select Item Type', // Placeholder text
                         allowClear: true, // Allow clearing the selection
                         minimumInputLength: 3, // Trigger search only after typing 3 characters
-                        
+
                         ajax: {
                             transport: function (params, success, failure) {
                                 // const accessToken = localStorage.getItem("accessToken");
@@ -398,7 +398,7 @@ var hrms = function () {
                                         success: success,
                                         error: failure
                                     });
-                                   
+
                                 }, debounceDelay);
                             },
                             processResults: function (data) {
@@ -1087,6 +1087,31 @@ function showSuccessMessage(message, reload = true, documentReferrer = null) {
             } else if (reload) {
                 location.reload(); // Reload the page if no referrer is provided
             }
+        }
+    });
+}
+
+function showConfirmationMessage(message, confirmCallback, cancelCallback = null) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Are you sure?',
+        text: message,
+        width: '400px', // Set a smaller width for the popup
+        customClass: {
+            popup: 'p-3 border-warning', // Add padding and Bootstrap border class
+            title: 'text-warning fw-bold', // Yellow and bold title
+            confirmButton: 'btn btn-success btn-sm', // Small Bootstrap danger button
+            cancelButton: 'btn btn-danger btn-sm' // Small Bootstrap secondary button
+        },
+        showCancelButton: true, // Show cancel button
+        confirmButtonText: 'Yes, Confirm',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true, // Swap confirm and cancel buttons position
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (confirmCallback) confirmCallback(); // Execute confirm callback
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            if (cancelCallback) cancelCallback(); // Execute cancel callback (if provided)
         }
     });
 }
