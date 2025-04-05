@@ -84,14 +84,12 @@ class PayslipReportController extends Controller
 
     public function exportPayslip(Request $request)
     {
-        $request->merge([
-            'year' => $request->get('year', \Carbon\Carbon::now()->format('Y-m'))
-        ]);
+        // $request->merge([
+        //     'year' => $request->get('year', \Carbon\Carbon::now()->format('Y-m'))
+        // ]);
 
         // Load all bookings with their dzongkhag names
         $payslips = FinalPaySlip::filter($request)->get();
-
-
 
         $totalEmployeeAmount = $payslips->sum(function ($pf) {
             return $pf->details['deductions']['PF Contr'] ?? 0;
@@ -105,6 +103,6 @@ class PayslipReportController extends Controller
 
         // Return the PDF download
         // return $pdf->download('PF-Deduction.pdf');
-        return $pdf->stream('PF-Deduction.pdf');
+        return $pdf->stream('Payslip.pdf');
     }
 }
