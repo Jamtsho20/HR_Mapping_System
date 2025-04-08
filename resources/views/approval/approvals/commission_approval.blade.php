@@ -24,7 +24,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($results->get(11) as $commission)
+                                        @forelse ($results->get(10) as $commission)
                                         <tr>
                                             @if ($privileges->edit)
                                             <td>

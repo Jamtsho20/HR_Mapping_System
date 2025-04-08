@@ -89,7 +89,6 @@ class CommissionApplicationController extends Controller
 
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
-
         // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $comType = MasCommissionTypes::where('id', COMMISSION_TYPE)->first();
         $lastTransaction = AssetCommissionApplication::latest('id')->first();
