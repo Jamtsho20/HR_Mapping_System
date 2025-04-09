@@ -102,7 +102,8 @@
     @include('layouts.includes.letter-head')
     <div class="container">
         <div class="row">
-            <div class="left"><b style="text-transform: capitalzse">REF.No:</b></div>
+            <div class="left"><b style="text-transform: capitalzse">REF.No:</b>
+                TIPL/HRAD/01/{{ $employee->created_at->year }}/</div>
             <div class="right"><b>Date:</b> {{ now()->format('d-m-Y') }}</div>
         </div>
 
