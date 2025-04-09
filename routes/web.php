@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\SAP\ApiController;
+use App\Http\Controllers\AssetReport\CommissionReportController;
+use App\Http\Controllers\AssetReport\RequisitionReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
@@ -347,6 +349,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-encashment-excel-report', [LeaveEncashmentReportController::class, 'exportEncashmentExcel'])->name('encashment.export');
     Route::get('/payslip-report-excel-report', [PayslipReportController::class, 'exportPayslip'])->name('payslip-report-pdf.export');
 
+    //AssetReport
+    Route::get('/export-requisition-report', [RequisitionReportController::class, 'exportRequisition'])->name('requisition-report-pdf.export');
+    Route::get('/export-requisition-excel-report', [RequisitionReportController::class, 'exportRequisitionExcel'])->name('requisition-report-excel.export');
+
+    Route::get('/export-commission-report', [CommissionReportController::class, 'exportCommission'])->name('commission-report-pdf.export');
+    Route::get('/export-commission-excel-report', [CommissionReportController::class, 'exportCommissionExcel'])->name('commission-report-excel.export');
+
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
@@ -369,6 +378,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-eteeru-remittance', [eTeeruRemittanceReportController::class, 'printEteeru'])->name('eteeru-remittance-print');
     Route::get('/print-pay-comparision-report', [PayComparisionReportController::class, 'printPayComparision'])->name('pay-comparision-report-print');
     Route::get('/print-leave-encashment-report', [LeaveEncashmentReportController::class, 'printLeaveEncashment'])->name('leave-encashment-report-print');
+
+    Route::get('/print-requisition-report', [RequisitionReportController::class, 'printRequisitionReport'])->name('requisition-report-print');
+    Route::get('/print-commission-report', [CommissionReportController::class, 'printCommissionReport'])->name('commission-report-print');
 
 
 

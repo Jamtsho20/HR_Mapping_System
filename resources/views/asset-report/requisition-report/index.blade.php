@@ -4,14 +4,14 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            {{-- <a href="{{ route('employee-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
-                title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('employee-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('commission-report-excel.export', Request::query()) }}" data-toggle="tooltip"
+                data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+            <a href="{{ route('commission-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('employee-report-print', Request::query()) }}" target="_blank"
+            <a href="{{ route('commission-report-print', Request::query()) }}" target="_blank"
                 onclick="openPrintPreview(event)">
                 <span><i class="fa fa-print fa-lg"></i></span>
-            </a> --}}
+            </a>
 
         </div>
     </div>
@@ -21,11 +21,13 @@
         @component('layouts.includes.filter')
             <div class="col-md-3 form-group">
                 <label for="">From Date:</label>
-                <input type="date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}" placeholder="From Date">
+                <input type="date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}"
+                    placeholder="From Date">
             </div>
             <div class="col-md-3 form-group">
                 <label for="">To Date:</label>
-                <input type="date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}" placeholder="To Date">
+                <input type="date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}"
+                    placeholder="To Date">
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Req Type:</label>
@@ -40,7 +42,8 @@
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Req No:</label>
-                <input type="text" class="form-control" name="req_no" value="{{ old('req_no', request()->get('req_no')) }}" placeholder="Req No" />
+                <input type="text" class="form-control" name="req_no" value="{{ old('req_no', request()->get('req_no')) }}"
+                    placeholder="Req No" />
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Status:</label>
@@ -72,7 +75,7 @@
                                                 <th>
                                                     Employee Name
                                                 </th>
-                                                <th> 
+                                                <th>
                                                     Req Type
                                                 </th>
                                                 <th>
@@ -116,7 +119,7 @@
                                                 </th>
                                                 <th>
                                                     Approved By
-                                                </th> 
+                                                </th>
                                                 {{-- <th>
                                                     Action
                                                 </th> --}}
@@ -136,19 +139,24 @@
                                                         <td>{{ $req->transaction_date }}</td>
 
                                                         {{-- Detail-specific data --}}
-                                                        <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}</td>
-                                                        <td title="{{ $detail->grnItemDetail->item->item_description }}">{{ \Illuminate\Support\Str::limit($detail->grnItemDetail->item->item_description, 25, '...') }}</td>
-                                                        <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}
+                                                        </td>
+                                                        <td title="{{ $detail->grnItemDetail->item->item_description }}">
+                                                            {{ \Illuminate\Support\Str::limit($detail->grnItemDetail->item->item_description, 25, '...') }}
+                                                        </td>
+                                                        <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}
+                                                        </td>
                                                         <td>{{ $detail->grnItemDetail->store->name }}</td>
                                                         <td class="text-right">{{ $detail->grnItemDetail->quantity }}</td>
                                                         <td class="text-right">{{ $detail->requested_quantity }}</td>
                                                         <td class="text-right">{{ $detail->received_quantity }}</td>
-                                                        <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}
+                                                        </td>
                                                         <td>{{ $detail->site->name ?? config('global.null_value') }}</td>
                                                         <td>{{ $detail->remark ?? config('global.null_value') }}</td>
 
                                                         {{-- Parent-level status & approver repeated per row --}}
-                                                
+
                                                         <td>{{ config("global.application_status.{$req->status}", 'Unknown') }}
                                                         </td>
                                                         <td>{{ $req->approvedBy->emp_id_name ?? '-' }}</td>
@@ -192,7 +200,7 @@
                                                     <td>
                                                         {{ $statusText }}
                                                     </td>
-                            
+
                                                     <td>
                                                         {{ $req->approvedBy->emp_id_name ?? '-' }}
                                                     </td>
@@ -203,7 +211,7 @@
                                                                     class="fa fa-list"></i> Detail</a>
                                                         @endif
                                                     </td> --}}
-                                                {{-- </tr> --}}
+                                            {{-- </tr> --}}
                                             {{-- @empty
                                                 <tr>
                                                     <td colspan="17" class="text-danger text-center">No Data Found</td>
