@@ -49,7 +49,7 @@ class CommissionExport implements FromCollection, WithHeadings
                     1, // Quantity is always 1
                     $detail->receivedSerial->amount ?? 0,
                     $detail->dzongkhag->dzongkhag ?? '-',
-                    optional($detail->date_placed_in_service)->format('d-M-Y'),
+                    \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y'),
                     $detail->site->name ?? '-',
                     $detail->remark ?? '-',
                     config("global.application_status.{$comm->status}", 'Unknown'),
