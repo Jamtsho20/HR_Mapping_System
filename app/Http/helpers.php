@@ -8,10 +8,12 @@ use App\Models\MasEmployeeJob;
 use Carbon\Carbon;
 use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
+
 /**
  * Helper functions
  */
-Use Illuminate\Support\Facades\DB;
+
+use Illuminate\Support\Facades\DB;
 
 if (!function_exists('uploadImageToDirectory')) {
     /**
@@ -23,9 +25,9 @@ if (!function_exists('uploadImageToDirectory')) {
     function uploadImageToDirectory($file, $path)
     {
 
-        $randomString=str_random(8);
+        $randomString = str_random(8);
         $fileName = time() . '-' . $randomString . '.' . $file->getClientOriginalExtension();
-        $imageDestination = $path.$fileName;
+        $imageDestination = $path . $fileName;
         $file->move($path, $fileName);
         return $imageDestination;
     }
@@ -43,7 +45,7 @@ if (!function_exists('get_image')) {
      * Eg: <img src="{{ get_image('path/to/original/image.jpg', 100, 150) }}">
      *
      */
-    function get_image ($path, $width, $height = 0, $crop = true)
+    function get_image($path, $width, $height = 0, $crop = true)
     {
         //if original path not found, return not found image
         if (!file_exists($path)) {
@@ -74,15 +76,15 @@ if (!function_exists('delete_image')) {
             // unlink(public_path($path)); //incase if path not found provide meaningful message to user to avoid confusion
             $decodedString = decoded_string($path);
 
-            if($decodedString){
-                foreach($decodedString as $string){//incase if path not found provide meaningful message to user to avoid confusion
+            if ($decodedString) {
+                foreach ($decodedString as $string) { //incase if path not found provide meaningful message to user to avoid confusion
 
                     unlink(public_path($string));
                 }
-            }else{
+            } else {
                 unlink(public_path($path));
             }
-        }else{
+        } else {
             return false;
         }
         return true;
@@ -90,11 +92,12 @@ if (!function_exists('delete_image')) {
 }
 
 if (!function_exists('decoded_string')) {
-    function decoded_string($string){
+    function decoded_string($string)
+    {
         $decodedString = json_decode($string); // Attempt to decode the JSON string
-        if($decodedString){
+        if ($decodedString) {
             return $decodedString;
-        }else{
+        } else {
             return false;
         }
     }
@@ -105,12 +108,15 @@ if (!function_exists('comma_separated_to_array')) {
     function comma_separated_to_array($value, $separator = ',')
     {
         $values = explode($separator, $value);
-        foreach($values as $k => $v) {
+        foreach ($values as $k => $v) {
             $values[$k] = trim($v);
         }
         return array_diff($values, array(""));
     }
 }
+
+
+
 
 if (!function_exists('convert_array_to_string')) {
     function convert_array_to_string($array, $separator)
@@ -122,13 +128,11 @@ if (!function_exists('convert_array_to_string')) {
 if (!function_exists('formatSizeUnits')) {
     function formatSizeUnits($bytes)
     {
-        if ($bytes > 0)
-        {
+        if ($bytes > 0) {
             $unit = intval(log($bytes, 1024));
             $units = array('B', 'KB', 'MB', 'GB');
 
-            if (array_key_exists($unit, $units) === true)
-            {
+            if (array_key_exists($unit, $units) === true) {
                 return sprintf('%d %s', $bytes / pow(1024, $unit), $units[$unit]);
             }
         }
@@ -178,27 +182,28 @@ if (!function_exists('fixEmployeeId')) {
     function fixEmployeeId($employeeId)
     {
         if (strlen($employeeId) == 1) {
-            return 'E0000'.$employeeId;
+            return 'E0000' . $employeeId;
         } else if (strlen($employeeId) == 2) {
-            return 'E000'.$employeeId;
+            return 'E000' . $employeeId;
         } else if (strlen($employeeId) == 3) {
-            return 'E00'.$employeeId;
+            return 'E00' . $employeeId;
         } else if (strlen($employeeId) == 4) {
-            return 'E0'.$employeeId;
+            return 'E0' . $employeeId;
         } else if (strlen($employeeId) == 5) {
-            return 'E'.$employeeId;
+            return 'E' . $employeeId;
         }
     }
 }
 
 if (!function_exists('invoiceNoGenerator')) {
-    function invoiceNoGenerator($storeId){
-        $startDate = date('Y')."-01-01";
-        $endDate = date('Y')."-12-31";
+    function invoiceNoGenerator($storeId)
+    {
+        $startDate = date('Y') . "-01-01";
+        $endDate = date('Y') . "-12-31";
         $maxInvoiceNo = Hafele\OrderInvoice::whereBetween('invoice_date', [$startDate, $endDate])->select(DB::raw('count(id) as max_no'))->first();
-        if(!(bool)$maxInvoiceNo->max_no){
+        if (!(bool)$maxInvoiceNo->max_no) {
             $newInvoiceNo = 1;
-        }else{
+        } else {
             $newInvoiceNo = (int)$maxInvoiceNo->max_no + 1;
         }
         $invoiceNo = str_pad($newInvoiceNo, 5, '0', STR_PAD_LEFT);
@@ -206,8 +211,9 @@ if (!function_exists('invoiceNoGenerator')) {
     }
 }
 
-if(!function_exists('employeeList')){
-    function employeeList(){
+if (!function_exists('employeeList')) {
+    function employeeList()
+    {
         return DB::table('mas_employees as t1')->selectRaw("t1.id, concat(t1.username, ' - ', t1.title, ' ', t1.name) as name")->whereNotIn('t1.id', [1, 2])->get();
     }
 }
@@ -232,8 +238,9 @@ if (!function_exists('modifyFormRequest')) {
     }
 }
 
-if(!function_exists('loggedInUser')){
-    function loggedInUser(){
+if (!function_exists('loggedInUser')) {
+    function loggedInUser()
+    {
         return auth()->user()->id;
     }
 }
@@ -245,8 +252,9 @@ if (!function_exists('LoggedInUserEmpIdName')) {
     }
 }
 
-if(!function_exists('generateTransactionNumber')){
-    function generateTransactionNumber($code, $currentSequence){
+if (!function_exists('generateTransactionNumber')) {
+    function generateTransactionNumber($code, $currentSequence)
+    {
         //include cureent Ymd in while generating transaction number
         $datePart = now()->format('Ymd');
         // return $code . '/' . $datePart . '/' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
@@ -254,10 +262,11 @@ if(!function_exists('generateTransactionNumber')){
     }
 }
 
-if(!function_exists('generateTransactionNumber1')){
+if (!function_exists('generateTransactionNumber1')) {
     // type => respective modelType(eg: MasRequisitionType, lastTransaction is latest transaction from application model(eg: RequisitionApplication),
     // columnName is coulumn name in application table that holds transaction_number(eg:requisition_no)
-    function generateTransactionNumber1($type, $lastTransaction, $columnName){
+    function generateTransactionNumber1($type, $lastTransaction, $columnName)
+    {
         //include cureent Ymd in while generating transaction number
         if ($lastTransaction) {
             // Extract the sequence part (last part after the last slash)
@@ -291,11 +300,11 @@ if (!function_exists('loadApplicationDetails')) {
             ->first();
 
         $expenseApplication->rejected_by = ApplicationAuditLog::where('application_type', $mappedModel)
-        ->where('application_id', $expenseApplication->id)
-        ->where('status', '-1')
-        ->select(['id', 'action_performed_by', 'created_at'])
-        ->with('performedBy:id,name')
-        ->first();
+            ->where('application_id', $expenseApplication->id)
+            ->where('status', '-1')
+            ->select(['id', 'action_performed_by', 'created_at'])
+            ->with('performedBy:id,name')
+            ->first();
 
         $expenseApplication->rejectRemarks = ApplicationHistory::where('application_type', $mappedModel)
             ->where('application_id', $expenseApplication->id)
@@ -305,31 +314,35 @@ if (!function_exists('loadApplicationDetails')) {
     }
 }
 
-if(!function_exists('loggedInUserRegion')){ //loggedInUser Region name and id based on mass_office_id
-    function loggedInUserRegion(){
+if (!function_exists('loggedInUserRegion')) { //loggedInUser Region name and id based on mass_office_id
+    function loggedInUserRegion()
+    {
         $loggedInUserId = loggedInUser();
         $loggedInUserOfficeId = MasEmployeeJob::where('mas_employee_id', $loggedInUserId)->value('mas_office_id');
         $loggedInUserRegion = DB::select(
-                                        "select
+            "select
                                             t3.mas_region_id as region_id,
                                             t3.name as region_name
                                         from mas_offices t1
                                         left join mas_dzongkhags t2 on t1.mas_dzongkhag_id = t2.id
                                         left join mas_region_locations t3 on t2.id = t3.mas_dzongkhag_id
-                                        where t1.id = ?", [$loggedInUserOfficeId]);
+                                        where t1.id = ?",
+            [$loggedInUserOfficeId]
+        );
         return $loggedInUserRegion;
     }
 }
 
-if(!function_exists('approvalHeadConditionField')){
-    function approvalHeadConditionFields($approvalHeadId, $request) {
+if (!function_exists('approvalHeadConditionField')) {
+    function approvalHeadConditionFields($approvalHeadId, $request)
+    {
         $conditionFields = MasConditionField::where('mas_approval_head_id', $approvalHeadId)->get(['id', 'name', 'has_employee_field'])->toArray();
         // dd($conditionFields);
-        foreach($conditionFields as &$field){
-            if($request->has($field['name'])){
+        foreach ($conditionFields as &$field) {
+            if ($request->has($field['name'])) {
                 $field['value'] = $request->input($field['name']);
                 // $field['value'] = $request
-            }else {// Set 'value' to null if not present in the request
+            } else { // Set 'value' to null if not present in the request
                 $field['value'] = null;
             }
         }
@@ -356,7 +369,7 @@ if (!function_exists('formatDate')) {
     }
 }
 
-if(!function_exists('prepareLeaveCombination')) {
+if (!function_exists('prepareLeaveCombination')) {
     function prepareLeaveCombination($fromDate)
     {
         $leaveApplications = LeaveApplication::where('created_by', loggedInUser())
@@ -387,35 +400,36 @@ if(!function_exists('prepareLeaveCombination')) {
 
         return $matchingLeaves ? $matchingLeaves : [];
     }
-
 }
 
-if(!function_exists('getApplicationLogs') ) {
+if (!function_exists('getApplicationLogs')) {
     function getApplicationLogs($model, $applicationId)
     {
-        $applicationLogs = ApplicationAuditLog::where('application_type',
-        $model)->where('application_id', $applicationId)->get();
+        $applicationLogs = ApplicationAuditLog::where(
+            'application_type',
+            $model
+        )->where('application_id', $applicationId)->get();
         return $applicationLogs;
     }
 }
 
 
-if(!function_exists('prepareMail')) {
+if (!function_exists('prepareMail')) {
     function prepareMail($applicationModel, $applicationData, $appType, $status)
     {
         $applicationData['type'] = $appType->name;
         $approverMailContent = $applicationModel['approver_mail_content'];
         $initiatorMailContent = $applicationModel['initiator_mail_content'];
         $response = [];
-        if($status == 2){
+        if ($status == 2) {
             $finalApproverMailContent = prepareMailContent($approverMailContent, $applicationData);
             $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
             $response['approver_mail_content'] = $finalApproverMailContent;
             $response['initiator_mail_content'] = $finalInitiatorMaleContent;
-        }else if($status == 3){
+        } else if ($status == 3) {
             $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
             $response['initiator_mail_content'] = $finalInitiatorMaleContent;
-        }else if($status == -1){
+        } else if ($status == -1) {
             $finalInitiatorMaleContent = prepareMailContent($initiatorMailContent, $applicationData);
             $response['initiator_mail_content'] = $finalInitiatorMaleContent;
         }
@@ -423,8 +437,9 @@ if(!function_exists('prepareMail')) {
     }
 }
 
-if(!function_exists('prepareMailContent')) {
-    function prepareMailContent($approverMailContent, $applicationData) {
+if (!function_exists('prepareMailContent')) {
+    function prepareMailContent($approverMailContent, $applicationData)
+    {
         $finalContent = preg_replace_callback(
             '/\{(\w+)\}/', // Match placeholders like {key}
             function ($matches) use ($applicationData) {
@@ -437,8 +452,9 @@ if(!function_exists('prepareMailContent')) {
     }
 }
 
-if(!function_exists('normalizePathForDisplay') ) {
-    function normalizePathForDisplay($path) {
+if (!function_exists('normalizePathForDisplay')) {
+    function normalizePathForDisplay($path)
+    {
         $path = stripslashes($path); // Removes escape slashes
         $path = preg_replace('/"+/', '', $path); // Removes any quotes
         $path = preg_replace('/\/+/', '/', $path); // Normalizes multiple slashes
@@ -447,8 +463,11 @@ if(!function_exists('normalizePathForDisplay') ) {
 }
 
 if (!function_exists('formatAmount')) {
-    function formatAmount($amount)
+    function formatAmount($amount, $curFLag = true)
     {
+        if ($curFLag == false) {
+            return number_format($amount, 2);
+        }
         return 'Nu. ' . number_format($amount, 2);
     }
 }

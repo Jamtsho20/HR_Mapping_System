@@ -134,7 +134,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             $('.buttonsubmit').click(function() {
 
-                const itemType = 11;
+                const itemType = 10;
                 var action = $(this).data('value');
                 var selectedItems = [{{ $commission->id }}];
                 var routeUrl = $(this).data('route');

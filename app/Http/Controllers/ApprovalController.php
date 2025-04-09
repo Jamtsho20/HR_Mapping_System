@@ -330,7 +330,7 @@ class ApprovalController extends Controller
                         "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
                         "ItemsGroupCode" => 102,
                         "ItemType" => "F",
-                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group,
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
                         "AssetGroup" => null,
                         "InventoryNumber"=> null,
                         "Employee"=> null,
@@ -721,7 +721,7 @@ class ApprovalController extends Controller
                 ->whereIn('status', $statuses)
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at')
+                ->orderBy('created_at', 'desc')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
         };

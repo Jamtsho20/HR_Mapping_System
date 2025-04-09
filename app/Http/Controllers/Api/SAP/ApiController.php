@@ -86,6 +86,7 @@ class ApiController extends BaseController
             }
         } catch(\Exception $e) {
             return $this->errorResponse($e->getMessage());
+            \Log::info("Error saving store: " . $e->getMessage());
         }
 
         return $this->successResponse($store, $message);
@@ -137,6 +138,7 @@ class ApiController extends BaseController
             }
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
+            \Log::info("Error saving item: " . $e->getMessage());
         }
 
         return $this->successResponse($item, $message);
@@ -155,6 +157,7 @@ class ApiController extends BaseController
         $validator = \Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
+            \Log::info("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
         }
 
         \DB::beginTransaction();
