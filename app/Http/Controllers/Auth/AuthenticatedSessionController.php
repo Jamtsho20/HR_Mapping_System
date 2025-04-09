@@ -33,10 +33,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-        if($request->query('source') === 'qr'){
-            dd("a");
-            return redirect()->intended(RouteServiceProvider::HOME . '?source=qr');
-        }
+        // if($request->query('source') === 'qr'){
+        //     dd("a");
+        //     return redirect()->intended(RouteServiceProvider::HOME . '?source=qr');
+        // }
 
 
         return redirect()->intended(RouteServiceProvider::HOME);
