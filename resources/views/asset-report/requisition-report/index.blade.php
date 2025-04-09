@@ -4,11 +4,11 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('commission-report-excel.export', Request::query()) }}" data-toggle="tooltip"
+            <a href="{{ route('requisition-report-excel.export', Request::query()) }}" data-toggle="tooltip"
                 data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('commission-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('requisition-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('commission-report-print', Request::query()) }}" target="_blank"
+            <a href="{{ route('requisition-report-print', Request::query()) }}" target="_blank"
                 onclick="openPrintPreview(event)">
                 <span><i class="fa fa-print fa-lg"></i></span>
             </a>

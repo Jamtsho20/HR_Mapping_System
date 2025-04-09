@@ -72,6 +72,7 @@ class CommissionExport implements FromCollection, WithHeadings
             'UOM',
             'Quantity',
             'Amount',
+            'Dzongkhag',
             'Date Placed In Service',
             'Site',
             'Remarks',
