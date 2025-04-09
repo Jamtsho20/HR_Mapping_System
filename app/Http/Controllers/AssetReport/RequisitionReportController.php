@@ -26,9 +26,8 @@ class RequisitionReportController extends Controller
         $privileges = $request->instance();
         $stores= MasStore::get(['id', 'name']);
         $reqTypes = MasRequisitionType::get(['id', 'name']);
-        $requisitions = RequisitionApplication::with(['audit_logs' => function($query){
-                $query->whereIn('status', [-1, 3]); 
-            }])
+        $requisitions = RequisitionApplication::with(['audit_logs', 'details',])
+            ->whereIn('status', [-1 , 3])
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->paginate(config('global.pagination'))

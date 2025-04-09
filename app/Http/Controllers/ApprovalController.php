@@ -196,7 +196,9 @@ class ApprovalController extends Controller
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
                             if ($statusCode != 201) {
-                                throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                                // throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                                $errorMsg = $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
+                                return response()->json(['msg_error' => 'SAP Error - ' . $errorMsg], 500);
                             }
 
 

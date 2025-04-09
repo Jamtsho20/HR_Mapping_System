@@ -50,7 +50,7 @@
 
                                                     <th>#</th>
                                                     <th>GRN</th>
-                                                    <th>Item Description*</th>
+                                                    <th>Item Description</th>
                                                     <th>UOM</th>
                                                     <th>Store</th>
                                                     <th>Stock Status</th>

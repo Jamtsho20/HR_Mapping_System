@@ -21,15 +21,18 @@
         @component('layouts.includes.filter')
             <div class="col-md-3 form-group">
                 <label for="">From Date:</label>
-                <input type="date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}" placeholder="From Date">
+                <input type="date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}"
+                    placeholder="From Date">
             </div>
             <div class="col-md-3 form-group">
                 <label for="">To Date:</label>
-                <input type="date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}" placeholder="To Date">
+                <input type="date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}"
+                    placeholder="To Date">
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Commission No:</label>
-                <input type="text" class="form-control" name="comm_no" value="{{ old('comm_no', request()->get('comm_no')) }}" placeholder="Comm No" />
+                <input type="text" class="form-control" name="comm_no"
+                    value="{{ old('comm_no', request()->get('comm_no')) }}" placeholder="Comm No" />
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Status:</label>
@@ -68,61 +71,89 @@
                                                     Comm Date
                                                 </th>
                                                 <th>
+                                                    Asset No
+                                                </th>
+                                                <th>
+                                                    Item Description
+                                                </th>
+                                                <th>
+                                                    UOM
+                                                </th>
+                                                <th>
+                                                    QTY
+                                                </th>
+                                                <th>
+                                                    Amount (Nu.)
+                                                </th>
+                                                <th>
+                                                    Dzongkhag
+                                                </th>
+                                                <th>
+                                                    Date Placed In Service
+                                                </th>
+                                                <th>
+                                                    Site
+                                                </th>
+                                                <th>
+                                                    Remark
+                                                </th>
+                                                <th>
                                                     Status
                                                 </th>
                                                 <th>
                                                     Approved By
-                                                </th> 
-                                                <th>
-                                                    Action
                                                 </th>
+                                                {{-- <th>
+                                                    Action
+                                                </th> --}}
 
 
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @php $count = 1; @endphp
                                             @forelse($commissions as $comm)
-                                                <tr>
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $comm->employee->emp_id_name }}</td>
-                                                    <td>{{ $comm->transaction_no }}</td>
-                                                    <td>{{ $comm->transaction_date }}</td>
-                                                    @php
-                                                        $statusClasses = [
-                                                            -1 => 'Rejected',
-                                                            0 => 'Cancelled',
-                                                            1 => 'Submitted',
-                                                            2 => 'Verified',
-                                                            3 => 'Approved',
-                                                        ];
-                                                        $statusText = config(
-                                                            "global.application_status.{$comm->status}",
-                                                            'Unknown Status',
-                                                        );
-                                                        $statusClass =
-                                                            $statusClasses[$comm->status] ??
-                                                            'badge bg-secondary';
-                                                    @endphp
-                                                    <td>
-                                                        {{ $statusText }}
-                                                    </td>
-                            
-                                                    <td>
-                                                        {{ $comm->approvedBy->emp_id_name ?? '-' }}
-                                                    </td>
-                                                    <td>
-                                                        @if ($privileges->view)
-                                                            <a href="{{ url('asset-report/commission-report/' . $comm->id) }}"
-                                                                class="btn btn-sm btn-outline-secondary"><i
-                                                                    class="fa fa-list"></i> Detail</a>
-                                                        @endif
-                                                    </td>
-                                                </tr>
+                                                @foreach ($comm->details as $detail)
+                                                    <tr>
+                                                        <td>{{ $count++ }}</td> {{-- Parent index --}}
+                                                        <td>{{ $comm->employee->emp_id_name }}</td>
+                                                        <td>{{ $comm->transaction_no }}</td>
+                                                        <td>{{ $comm->transaction_date }}</td>
+
+                                                        {{-- Detail-specific data --}}
+                                                        <td>{{ $detail->receivedSerial->asset_serial_no }}</td>
+                                                        {{-- <td>{{ $detail->receivedSerial->asset_description }}</td> --}}
+                                                        <td title="{{ $detail->receivedSerial->asset_description }}">{{ \Illuminate\Support\Str::limit($detail->receivedSerial->asset_description, 25, '...') }}</td>
+
+                                                        <td>{{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom ?? '-' }}
+                                                        </td>
+                                                        <td class="text-right">1</td>
+                                                        <td class="text-right">{{ $detail->receivedSerial->amount }}</td>
+                                                        <td>{{ $detail->dzongkhag->dzongkhag }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}
+                                                        </td>
+                                                        <td>{{ $detail->site->name ?? '-' }}</td>
+                                                        <td>{{ $detail->remark ?? '-' }}</td>
+
+                                                        {{-- Parent-level status & approver repeated per row --}}
+                                                        <td>{{ config("global.application_status.{$comm->status}", 'Unknown') }}
+                                                        </td>
+                                                        <td>{{ $comm->approvedBy->emp_id_name ?? '-' }}</td>
+                                                        {{-- <td>
+                                                            @if ($privileges->view)
+                                                                <a href="{{ url('asset-report/commission-report/' . $comm->id) }}"
+                                                                    class="btn btn-sm btn-outline-secondary"><i
+                                                                        class="fa fa-list"></i> Detail</a>
+                                                            @endif
+                                                        </td> --}}
+                                                    </tr>
+                                                @endforeach
                                             @empty
                                                 <tr>
-                                                    <td colspan="8" class="text-danger text-center">No Commissions Data Found</td>
+                                                    <td colspan="16" class="text-danger text-center">No Data Found</td>
                                                 </tr>
                                             @endforelse
+
                                         </tbody>
                                     </table>
                                 </div>

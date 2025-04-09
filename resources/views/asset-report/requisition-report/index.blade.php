@@ -82,20 +82,91 @@
                                                     Req Date
                                                 </th>
                                                 <th>
+                                                    GRN
+                                                </th>
+                                                <th>
+                                                    Item Description
+                                                </th>
+                                                <th>
+                                                    UOM
+                                                </th>
+                                                <th>
+                                                    Store
+                                                </th>
+                                                <th>
+                                                    Stock Status
+                                                </th>
+                                                <th>
+                                                    Quantity Requested
+                                                </th>
+                                                <th>
+                                                    Quantity Received
+                                                </th>
+                                                <th>
+                                                    Dzongkhag
+                                                </th>
+                                                <th>
+                                                    Site
+                                                </th>
+                                                <th>
+                                                    Remark
+                                                </th>
+                                                <th>
                                                     Status
                                                 </th>
                                                 <th>
                                                     Approved By
                                                 </th> 
-                                                <th>
+                                                {{-- <th>
                                                     Action
-                                                </th>
+                                                </th> --}}
 
 
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @php $count = 1; @endphp
                                             @forelse($requisitions as $req)
+                                                @foreach ($req->details as $detail)
+                                                    <tr>
+                                                        <td>{{ $count++ }}</td> {{-- Parent index --}}
+                                                        <td>{{ $req->employee->emp_id_name }}</td>
+                                                        <td>{{ $req->type->name }}</td>
+                                                        <td>{{ $req->transaction_no }}</td>
+                                                        <td>{{ $req->transaction_date }}</td>
+
+                                                        {{-- Detail-specific data --}}
+                                                        <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}</td>
+                                                        <td title="{{ $detail->grnItemDetail->item->item_description }}">{{ \Illuminate\Support\Str::limit($detail->grnItemDetail->item->item_description, 25, '...') }}</td>
+                                                        <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->grnItemDetail->store->name }}</td>
+                                                        <td class="text-right">{{ $detail->grnItemDetail->quantity }}</td>
+                                                        <td class="text-right">{{ $detail->requested_quantity }}</td>
+                                                        <td class="text-right">{{ $detail->received_quantity }}</td>
+                                                        <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->site->name ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->remark ?? config('global.null_value') }}</td>
+
+                                                        {{-- Parent-level status & approver repeated per row --}}
+                                                
+                                                        <td>{{ config("global.application_status.{$req->status}", 'Unknown') }}
+                                                        </td>
+                                                        <td>{{ $req->approvedBy->emp_id_name ?? '-' }}</td>
+                                                        {{-- <td>
+                                                            @if ($privileges->view)
+                                                                <a href="{{ url('asset-report/commission-report/' . $comm->id) }}"
+                                                                    class="btn btn-sm btn-outline-secondary"><i
+                                                                        class="fa fa-list"></i> Detail</a>
+                                                            @endif
+                                                        </td> --}}
+                                                    </tr>
+                                                @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="17" class="text-danger text-center">No Data Found</td>
+                                                </tr>
+                                            @endforelse
+                                            {{-- @forelse($requisitions as $req)
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $req->employee->emp_id_name }}</td>
@@ -125,19 +196,19 @@
                                                     <td>
                                                         {{ $req->approvedBy->emp_id_name ?? '-' }}
                                                     </td>
-                                                    <td>
+                                                    {{-- <td>
                                                         @if ($privileges->view)
                                                             <a href="{{ url('asset-report/requisition-report/' . $req->id) }}"
                                                                 class="btn btn-sm btn-outline-secondary"><i
                                                                     class="fa fa-list"></i> Detail</a>
                                                         @endif
-                                                    </td>
-                                                </tr>
-                                            @empty
+                                                    </td> --}}
+                                                {{-- </tr> --}}
+                                            {{-- @empty
                                                 <tr>
-                                                    <td colspan="8" class="text-danger text-center">No Requisitions Data Found</td>
+                                                    <td colspan="17" class="text-danger text-center">No Data Found</td>
                                                 </tr>
-                                            @endforelse
+                                            @endforelse --}}
                                         </tbody>
                                     </table>
                                 </div>

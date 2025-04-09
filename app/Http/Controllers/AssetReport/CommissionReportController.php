@@ -20,16 +20,25 @@ class CommissionReportController extends Controller
         $this->middleware('permission:asset-report/commission-report,edit')->only('update');
         $this->middleware('permission:asset-report/commission-report,delete')->only('destroy');
     }
+    
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $commissions = AssetCommissionApplication::with(['audit_logs' => function($query){
-                $query->whereIn('status', [-1, 3]); 
-            }])
+        // $commissions = AssetCommissionApplication::with(['audit_logs' => function($query){
+        //         $query->whereIn('status', [-1, 3]); 
+        //     }])
+        //     ->filter($request, false)
+        //     ->orderBy('created_at', 'desc')
+        //     ->paginate(config('global.pagination'))
+        //     ->withQueryString();
+
+        $commissions = AssetCommissionApplication::with(['audit_logs','details',])
+            ->whereIn('status', [-1, 3])
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->paginate(config('global.pagination'))
             ->withQueryString();
+        // dd($commissions);
 
         return view('asset-report.commission-report.index', compact('privileges', 'commissions'));
     }
@@ -55,9 +64,8 @@ class CommissionReportController extends Controller
      */
     public function show(string $id)
     {
-        $commission = AssetCommissionDetail::with(['details'])->findOrFail($id);
+        $commission = AssetCommissionApplication::with(['details'])->findOrFail($id);
         $empDetails = empDetails($commission->created_by);
-
         return view('asset-report.commission-report.show', compact('commission', 'empDetails'));
     }
 
