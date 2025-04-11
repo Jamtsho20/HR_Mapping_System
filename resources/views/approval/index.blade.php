@@ -32,19 +32,19 @@
                     </div>
                 @endif
                 @if (!request()->is('approval/applications'))
-                @component('layouts.includes.filter')
-
-                <div class="col-md-12 form-group">
-                    <select name="name" class="form-control select2" style="width: 100%" id="name-select">
-                        <option value="">Select Name</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->name }}" {{ request()->get('name') == $user->name ? 'selected' : '' }}>
-                                {{ $user->username }} - {{ $user->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                @endcomponent
+                    @component('layouts.includes.filter')
+                        <div class="col-md-12 form-group">
+                            <select name="name" class="form-control select2" style="width: 100%" id="name-select">
+                                <option value="">Select Name</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->name }}"
+                                        {{ request()->get('name') == $user->name ? 'selected' : '' }}>
+                                        {{ $user->username }} - {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endcomponent
                 @endif
             </div>
             <br>
@@ -125,58 +125,16 @@
 @endsection
 @push('page_scripts')
     <script>
+        window.appData = {
+            currentUrl: "{{ url()->current() }}",
+            csrfToken: "{{ csrf_token() }}"
+        };
+
+
         $(document).ready(function() {
-    // Initialize Select2 on the select element
-    $('#name-select').select2();
-});
-        // function showSuccessMessage(message) {
-        //     Swal.fire({
-        //         icon: 'success',
-        //         title: 'Success',
-        //         text: message,
-
-        //         width: '400px', // Set a smaller width for the popup
-        //         customClass: {
-        //             popup: 'p-3 border-success', // Add padding and Bootstrap border class
-        //             title: 'text-success fw-bold', // Green and bold title
-        //             confirmButton: 'btn btn-success btn-sm' // Small Bootstrap success button
-        //         },
-        //         // timer: 3000, // Auto-dismiss after 3 seconds
-        //         timer: false,
-        //         // showConfirmButton: false,
-        //         // showCloseButton: true, // Display the close button
-        //         confirmButtonText: 'OK', // Set the text of the button
-        //         showCloseButton: false, // Hide the default close (X) button
-        //         willClose: () => {
-        //             // Reload the page when the alert is closed
-        //             location.reload();
-        //         }
-        //     });
-        // }
-
-        // function showErrorMessage(message) {
-        //     Swal.fire({
-        //         icon: 'error',
-        //         title: 'Error',
-        //         text: message,
-        //         // timer: 3000, // Auto-dismiss after 3 seconds
-        //         timer: false,
-        //         width: '400px', // Small popup
-        //         customClass: {
-        //             popup: 'p-3 border-danger', // Add padding and Bootstrap border class
-        //             title: 'text-danger fw-bold', // Red and bold title
-        //             confirmButton: 'btn btn-danger btn-sm' // Small Bootstrap error button
-        //         },
-        //         // showConfirmButton: false,
-        //         // showCloseButton: true, // Display the close button
-        //         confirmButtonText: 'OK', // Set the text of the button
-        //         showCloseButton: false,
-        //         // willClose: () => {
-        //         //     // Reload the page when the alert is closed
-        //         //     location.reload();
-        //         // }
-        //     });
-        // }
+            // Initialize Select2 on the select element
+            $('#name-select').select2();
+        });
 
         $(document).ready(function() {
             // Select/Deselect all checkboxes
@@ -186,8 +144,8 @@
                 // Find the checkboxes only within the current active tab
                 $('.tab-pane.active .bulk_checkbox').each(function() {
                     if (!$(this).prop('disabled')) { // Check if the checkbox is not disabled
-                    $(this).prop('checked', checkedStatus);
-                }
+                        $(this).prop('checked', checkedStatus);
+                    }
                 });
             });
 
@@ -207,11 +165,15 @@
                 const targetContent = $(`#content-${targetContentId}`);
                 const itemName = targetContent.data('item-name');
                 const itemType = targetContent.data('item-type');
-
+               
                 $('.buttonsubmit').each(function() {
                     $(this).attr('data-item-name', itemName);
                     $(this).attr('data-item-type', itemType);
                 });
+
+                 // Store the active tab in localStorage
+                //  localStorage.setItem('activeTabId', `${itemType}`);
+                localStorage.setItem('activeTabId', e.target.id);
             });
 
             // Bulk approval/rejection
@@ -271,7 +233,7 @@
                                 // alert(response.msg_success);
                                 // location.reload();
                                 $('#loader').hide();
-                                showSuccessMessage(response.msg_success);
+                                showSuccessMessage(response.msg_success, true, null, itemType);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 try {
@@ -280,11 +242,13 @@
                                     // alert(errorResponse.msg_error ||
                                     //     'An unexpected error occurred.');
                                     $('#loader').hide();
-                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
+                                    showErrorMessage(errorResponse.msg_error ||
+                                        'An unexpected error occurred.');
                                 } catch (e) {
                                     // alert('An error occurred: ' + errorThrown);
                                     $('#loader').hide();
-                                    showErrorMessage('An error occurred: ' + errorThrown);
+                                    showErrorMessage('An error occurred: ' +
+                                        errorThrown);
                                 }
                             }
                         });
@@ -308,7 +272,7 @@
                             // alert(response.msg_success);
                             // location.reload();
                             $('#loader').hide();
-                            showSuccessMessage(response.msg_success);
+                            showSuccessMessage(response.msg_success, true, null, itemType);
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             $('#loader').hide();
@@ -327,5 +291,18 @@
                 }
             });
         });
+        //remove activeTabId from local storage if user visits other links or pages
+        window.addEventListener('beforeunload', function () {
+            if (!window.location.href.includes('/approval/applications')) {
+                localStorage.removeItem('activeTabId');
+            }
+        });
+
+        // Restore the last active tab on page refresh
+        const savedTabId = localStorage.getItem('activeTabId');
+        if (savedTabId && document.getElementById(savedTabId)) {
+            const tabTrigger = new bootstrap.Tab(document.getElementById(savedTabId));
+            tabTrigger.show();
+        }
     </script>
 @endpush

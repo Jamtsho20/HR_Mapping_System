@@ -77,6 +77,11 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
+
+        // Check for AJAX partial reload
+        if ($request->ajax() && $request->get('partial') == 'true') {
+            return response()->view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
+        }
         return view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
     }
 
