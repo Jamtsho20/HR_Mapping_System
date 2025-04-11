@@ -62,18 +62,18 @@ const CASUAL_LEAVE_CREDIT_AMOUNT = 10;
 
 
 // SAP constants for UAT;
-const SAP_BASE_URL = "https://192.168.196.23";
-const SAP_PORT = 50000;
-const SAP_CONPANY_DB = "TIPL_DB_TEST";
-const SAP_USERNAME = "manager";
-const SAP_PASSWORD = "Sap@2024";
+// const SAP_BASE_URL = "https://192.168.196.23";
+// const SAP_PORT = 50000;
+// const SAP_CONPANY_DB = "TIPL_DB_TEST";
+// const SAP_USERNAME = "manager";
+// const SAP_PASSWORD = "Sap@2024";
 
 // SAP constants for LIVE;
-// const SAP_BASE_URL = "https://192.168.196.20";
-// const SAP_PORT = 50000;
-// const SAP_CONPANY_DB = "TICL_DB_PRD";
-// const SAP_USERNAME = "manager";
-// const SAP_PASSWORD = "TipL@2025";
+const SAP_BASE_URL = "https://192.168.196.20";
+const SAP_PORT = 50000;
+const SAP_CONPANY_DB = "TICL_DB_PRD";
+const SAP_USERNAME = "manager";
+const SAP_PASSWORD = "TipL@2025";
 
 // Payslip statuses
 const SIFA_APPROVED = 3;
