@@ -20,8 +20,11 @@
                     @endforeach
                 </select>
             </div> --}}
+            <div class="col-6 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+            </div>
         @endcomponent
-    
+
             <div class="row row-sm">
                 <div class="col-lg-12">
                     <div class="card">
@@ -70,7 +73,7 @@
                                                                             $statusClasses[$commission->status] ??
                                                                             'badge bg-secondary';
                                                                     @endphp
-    
+
                                                                     <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                                 </td>
                                                                 <td class="text-center">
@@ -93,14 +96,14 @@
                                                                 </td>
                                                             </tr>
                                                         @empty
-    
+
                                                             <tr>
                                                                 <td colspan="6" class="text-center text-danger">No Commission Found</td>
                                                             </tr>
                                                         @endforelse
                                                     </tbody>
                                                 </table>
-    
+
                                                 @if ($commissions->hasPages())
                                                     <div class="card-footer">
                                                         {{ $commissions->links() }}
