@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
 use App\Models\MasSite;
 use App\Models\MasDzongkhag;
+use App\Models\MasItem;
+use App\Models\MasStore;
 
 class RequisitionApplicationController extends Controller
 {
@@ -37,7 +39,6 @@ class RequisitionApplicationController extends Controller
         'type_id' => 'required',
         'requisition_date' => 'required',
         'need_by_date' => 'required',
-        'details.*.grn_no' => 'required',
         'details.*.item_description' => 'required',
         'details.*.uom' => 'required',
         'details.*.store' => 'required',
@@ -49,7 +50,6 @@ class RequisitionApplicationController extends Controller
      ];
 
      protected $messages = [
-        'details.*.grn_no.required' => 'The GRN is required for each detail item.',
         'details.*.item_description.required' => 'The item description is required for each detail item.',
         'details.*.uom.required' => 'The unit of measure is required for each detail item.',
         'details.*.store.required' => 'The store is required for each detail item.',
@@ -80,9 +80,11 @@ class RequisitionApplicationController extends Controller
      {
         $reqTypes = MasRequisitionType::where('status', 1)->get();
         $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])->whereStatus(1)->get();
+        $items = MasItem::where('is_fixed_asset', 0)->get();
+        $stores = MasStore::where('status', 1)->get();
         $dzongkhags = MasDzongkhag::all();
         $sites = MasSite::with('dzongkhag')->get();
-        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags'));
+        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags', 'items', 'stores'));
      }
 
      /**
@@ -94,11 +96,11 @@ class RequisitionApplicationController extends Controller
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
 
         $reqType = MasRequisitionType::where('id', $request->type_id)->first();
+
         $lastTransaction = RequisitionApplication::latest('id')->first();
 
         $transactionNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
@@ -115,7 +117,7 @@ class RequisitionApplicationController extends Controller
             $requisition->save();
 
             if($request->details){
-                $this->saveDetails($request->details, $requisition->id);
+                $this->saveDetails($request->details, $requisition->id, $request->type_id);
             }
 
             // Create a corresponding history record for advance
@@ -183,67 +185,72 @@ class RequisitionApplicationController extends Controller
      }
 
 
-     private function saveDetails ($details, $requisitionId) {
-        // Track existing IDs to avoid deleting records that are updated
-        $existingIds = [];
+     private function saveDetails($details, $requisitionId, $typeId)
+     {
+         $existingIds = [];
 
+         foreach ($details as $detail) {
+             $grn_item = null;
+             $grn_item_id = null;
+             $grn_item_detail_id = null;
 
-        foreach ($details as $detail) {
-            $grnData = json_decode($detail['grn_no'], true);
-            $grn_item = MasGrnItemDetail::where('grn_id', $grnData['id'])
-            ->where('store_id', $detail['store'])
-            ->where('item_id', $detail['item_description'])
-            ->first();
+             // Handle GRN-based requisition (type_id == 1)
+             if (!empty($detail['grn_no'])) {
+                 $grnData = json_decode($detail['grn_no'], true);
 
-            if ($grn_item) {
-                // Ensure stock doesn't go negative
-                $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
-                // Update stock in database
-                $grn_item->update(['quantity' => $newStock]);
-            }
+                 if ($grnData && isset($grnData['id'])) {
+                     $grn_item = MasGrnItemDetail::where('grn_id', $grnData['id'])
+                         ->where('store_id', $detail['store'])
+                         ->where('item_id', $detail['item_description'])
+                         ->first();
 
-            // Check if the detail has an 'id' (indicating an existing record)
-            if (isset($detail['id']) && !empty($detail['id'])) {
-                // Update the existing record
-                $existingDetail = RequisitionDetail::find($detail['id']);
-                if ($existingDetail) {
-                    $existingDetail->update([
-                    'requisition_id' => $requisitionId,
-                    'grn_item_id' => $grn_item['grn_id'],
-                    'grn_item_detail_id' => $grn_item['id'],
-                    'status' => 1,
-                    'requested_quantity' => $detail['quantity_required'],
-                    'dzongkhag_id' => $detail['dzongkhag'],
-                    'site_id' => $detail['site_name'],
-                    'remark' => $detail['remark'],
-                    ]);
+                     if ($grn_item) {
+                         $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
+                         $grn_item->update(['quantity' => $newStock]);
 
-                    $existingIds[] = $existingDetail->id; // Track updated record IDs
-                }
-            } else {
-                // Insert new record
-                $newDetail = RequisitionDetail::create([
+                         $grn_item_id = $grn_item->grn_id;
+                         $grn_item_detail_id = $grn_item->id;
+                     }
+                 }
+             }
 
-                    'requisition_id' => $requisitionId,
-                    'grn_item_id' => $grn_item['grn_id'],
-                    'grn_item_detail_id' => $grn_item['id'],
-                    'status' => 1,
-                    'requested_quantity' => $detail['quantity_required'],
-                    'dzongkhag_id' => $detail['dzongkhag'],
-                    'site_id' => $detail['site_name'],
-                    'remark' => $detail['remark'],
-                ]);
+             $data = [
+                 'requisition_id' => $requisitionId,
+                 'status' => 1,
+                 'requested_quantity' => $detail['quantity_required'],
+                 'dzongkhag_id' => $detail['dzongkhag'],
+                 'site_id' => $detail['site_name'],
+                 'remark' => $detail['remark'],
+             ];
 
-                if ($newDetail) {
-                    $existingIds[] = $newDetail->id; // Track newly inserted record IDs
-                }
-            }
-        }
+             if ($typeId == 1) {
+                 $data['grn_item_id'] = $grn_item_id;
+                 $data['grn_item_detail_id'] = $grn_item_detail_id;
+             } else {
+                 $data['item_id'] = $detail['item_description'];
+                 $data['store_id'] = $detail['store'];
+                 $data['current_stock'] = $detail['stock_status'];
+             }
 
+             if (!empty($detail['id'])) {
+                 $existingDetail = RequisitionDetail::find($detail['id']);
+                 if ($existingDetail) {
+                     $existingDetail->update($data);
+                     $existingIds[] = $existingDetail->id;
+                 }
+             } else {
+                 $newDetail = RequisitionDetail::create($data);
+                 if ($newDetail) {
+                     $existingIds[] = $newDetail->id;
+                 }
+             }
+         }
 
-        // Optionally delete records not in the current request
-        RequisitionDetail::where('requisition_id', $requisitionId)
-            ->whereNotIn('id', $existingIds)
-            ->delete();
+         // Cleanup: delete details that are no longer present
+         RequisitionDetail::where('requisition_id', $requisitionId)
+             ->whereNotIn('id', $existingIds)
+             ->delete();
      }
+
+
 }

@@ -56,7 +56,9 @@
                                                 class="table table-condensed table-bordered table-striped table-sm">
                                                 <thead>
                                                     <tr>
+                                                        @if ($requisition->type_id == 1)
                                                         <th>GRN</th>
+                                                        @endif
                                                         <th>Item Description</th>
                                                         <th>UOM</th>
                                                         <th>Store</th>
@@ -71,20 +73,22 @@
                                                 <tbody>
                                                     @foreach ($requisition->details as $index => $detail)
                                                         <tr>
+                                                            @if ($requisition->type_id == 1)
                                                             <td>
                                                                 {{$detail->grnItem->grn_no}}
                                                             </td>
+                                                            @endif
                                                             <td>
-                                                            {{$detail->grnItemDetail->item->item_description}}
+                                                            {{$detail->grnItemDetail->item->item_description ?? $detail->item->item_description}}
                                                             </td>
                                                             <td>
-                                                              {{$detail->grnItemDetail->item->uom}}
+                                                              {{$detail->grnItemDetail->item->uom ?? $detail->item->uom}}
                                                             </td>
                                                             <td>
-                                                                {{$detail->grnItemDetail->store->name}}
+                                                                {{$detail->grnItemDetail->store->name ?? $detail->store->name}}
                                                             </td>
                                                             <td>
-                                                               {{$detail->grnItemDetail->quantity}}
+                                                               {{$detail->grnItemDetail->quantity ?? $detail->current_stock}}
                                                             </td>
                                                             <td>
                                                                 {{$detail->requested_quantity}}

@@ -120,6 +120,8 @@ Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginA
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
+
+    Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);
     Route::get('profile', 'HomeController@getProfile');
     Route::get('change-password', 'HomeController@getChangePassword')->name('change-password');
     Route::post('change-password', 'HomeController@postChangePassword');

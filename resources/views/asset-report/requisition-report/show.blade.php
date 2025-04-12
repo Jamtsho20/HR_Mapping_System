@@ -47,15 +47,18 @@
                                         <table id="details" class="table table-condensed table-bordered table-striped table-sm">
                                             <thead>
                                                 <tr>
-
                                                     <th>#</th>
+                                                    @if ($requisition->type_id == FIXED_ASSET)
                                                     <th>GRN</th>
+                                                    @endif
                                                     <th>Item Description*</th>
                                                     <th>UOM</th>
                                                     <th>Store</th>
                                                     <th>Stock Status</th>
                                                     <th>Quantity Requested</th>
+                                                    @if ($requisition->type_id == FIXED_ASSET)
                                                     <th>Quantity Received</th>
+                                                    @endif
                                                     <th>Dzongkhag</th>
                                                     <th>Site</th>
                                                     <th>Remark</th>
@@ -70,38 +73,42 @@
                                                     <td>
                                                         {{ $loop->iteration }}
                                                     </td>
+                                                    @if($requisition->type_id == FIXED_ASSET)
                                                     <td>
                                                         {{ $detail->grnItem->grn_no }}
                                                     </td>
+                                                    @endif
                                                     <td>
-                                                        {{ $detail->grnItemDetail->item->item_description }}
+                                                        {{ $detail->grnItemDetail->item->item_description ?? $detail->item->item_description  }}
                                                     </td>
                                                     <td>
-                                                        {{ $detail->grnItemDetail->item->uom }}
+                                                        {{ $detail->grnItemDetail->item->uom ?? $detail->item->uom}}
                                                     </td>
                                                     <td>
-                                                        {{ $detail->grnItemDetail->store->name }}
+                                                        {{ $detail->grnItemDetail->store->name ?? $detail->store->name }}
                                                     </td>
                                                     <td>
-                                                       {{ $detail->grnItemDetail->quantity }}
+                                                       {{ $detail->grnItemDetail->quantity ?? $detail->current_stock }}
                                                     </td>
                                                     <td class="text-right">
                                                         {{ $detail->requested_quantity }}
                                                     </td>
-                                                    <td class="text-right">
+                                                   @if ($requisition->type_id == FIXED_ASSET)
+                                                   <td class="text-right">
                                                         {{ $detail->received_quantity }}
                                                     </td>
+                                                   @endif
                                                     <td>
                                                         {{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}
                                                     </td>
-                                                    <td> 
+                                                    <td>
                                                         {{ $detail->site->name ?? config('global.null_value') }}
                                                     </td>
 
                                                     <td>
                                                         {{ $detail->remark ?? config('global.null_value') }}
                                                     </td>
-                                                    
+
 
 
                                                 </tr>

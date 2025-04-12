@@ -46,8 +46,10 @@
                                         <table id="details" class="table table-condensed table-bordered table-striped table-sm">
                                             <thead>
                                                 <tr>
+                                                    @if ($requisition->type_id == 1)
                                                     <th width="3%" class="text-center">#</th>
                                                     <th>GRN*</th>
+                                                    @endif
                                                     <th>Item Description*</th>
                                                     <th>UOM*</th>
                                                     <th>Store*</th>
@@ -56,7 +58,9 @@
                                                     <th>Dzongkhang*</th>
                                                     <th>Site Name*</th>
                                                     <th>Remark</th>
+                                                    @if ($requisition->type_id == 1)
                                                     <th>Quantity Received</th>
+                                                    @endif
 
 
                                                 </tr>
@@ -65,6 +69,7 @@
                                                 @forelse ($requisition->details as $key => $detail)
 
                                                 <tr>
+                                                    @if ($requisition->type_id == 1)
                                                     <td>
                                                         <button type="button" class="btn btn-sm btn-primary toggle-btn"
                                                                 data-bs-toggle="collapse"
@@ -77,17 +82,18 @@
                                                     <td>
                                                         {{$detail->grnItem->grn_no}}
                                                     </td>
+                                                    @endif
                                                     <td>
-                                                    {{$detail->grnItemDetail->item->item_description}}
+                                                    {{$detail->grnItemDetail->item->item_description ?? $detail->item->item_description}}
                                                     </td>
                                                     <td>
-                                                      {{$detail->grnItemDetail->item->uom}}
+                                                      {{$detail->grnItemDetail->item->uom ?? $detail->item->uom}}
                                                     </td>
                                                     <td>
-                                                        {{$detail->grnItemDetail->store->name}}
+                                                        {{$detail->grnItemDetail->store->name ?? $detail->store->name}}
                                                     </td>
                                                     <td>
-                                                       {{$detail->grnItemDetail->quantity}}
+                                                       {{$detail->grnItemDetail->quantity ?? $detail->current_stock}}
                                                     </td>
                                                     <td>
                                                         {{$detail->requested_quantity}}
@@ -102,9 +108,11 @@
                                                     <td>
                                                         {{$detail->remark ?? config('global.null_value')}}
                                                     </td>
+                                                    @if ($requisition->type_id == 1)
                                                     <td>
                                                         {{ $detail->received_quantity }}
                                                     </td>
+                                                    @endif
 
 
                                                 </tr>

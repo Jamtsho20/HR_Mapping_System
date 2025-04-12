@@ -61,7 +61,7 @@
                         <thead>
                             <tr>
                                 <th width="3%" class="text-center">#</th>
-                                <th>GRN*</th>
+                                <th id="grn-header">GRN*</th>
                                 <th>Item Description*</th>
                                 <th>UOM*</th>
                                 <th>Store*</th>
@@ -72,15 +72,15 @@
                                 <th>Remark</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="details-body">
 
                             <tr>
                                 <td class="text-center">
                                     <a href="" class="delete-table-row btn btn-danger btn-sm"><i
                                             class="fa fa-times"></i></a>
                                 </td>
-                                <td>
-                                    <select class="form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]"  required />
+                                <td class="grn-td">
+                                    <select class="grn-select form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]" id="grn-select" required />
                                         <option value="" disabled selected hidden>Select GRN</option>
                                     </select>
                                 </td>
@@ -122,7 +122,7 @@
                             </tr>
 
                             <tr class="notremovefornew">
-                                <td colspan="9"></td>
+                                <td colspan="9" id="colspace"></td>
                                 <td class="text-right">
                                     <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                 </td>
@@ -148,6 +148,93 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+            const typeSelect = document.getElementById('requisition_type');
+            const grnHeader = document.getElementById('grn-header');
+            const grnSelect = document.getElementById('grn-select');
+            const colspace = document.getElementById('colspace');
+            let itemData = @json($items);
+
+            function toggleConsumable() {
+                const selectedType = typeSelect.value;
+                const grnHeader = document.getElementById('grn-header');
+                const grnTd = document.querySelector('#grn-td');
+
+                // Ensure the elements exist before modifying their styles or properties
+                if (grnHeader) {
+                    const tableBody = document.querySelector('#details-body'); // Replace with your actual table ID or selector
+
+                    if (tableBody) {
+                        const rows = tableBody.querySelectorAll('tr');
+
+                        let firstDataRowFound = false;
+
+                        rows.forEach((row) => {
+                            // Skip the special "Add Row" row
+                            if (row.classList.contains('notremovefornew')) {
+                                return;
+                            }
+
+                            if (!firstDataRowFound) {
+                                // First data row — keep it and clear its inputs
+                                firstDataRowFound = true;
+                                $(row).find('input, select').val('').trigger('change');
+                                $(row).find('select[name^="details"][name$="[store]"]').empty();
+
+                                // Also reset Select2 dropdowns if present
+                                $(row).find('select.select2-hidden-accessible').val('').trigger('change.select2');
+                            } else {
+                                // Remove all other data rows
+                                row.remove();
+                            }
+                        });
+                    }
+                    if (selectedType == '2') {
+                        grnHeader.style.display = 'none';
+                        if (grnTd) grnTd.style.opacity = '0.5'; // optional visual effect
+                        if (grnSelect) {
+                            // Remove the select2 container completely
+                            const select2Container = $(grnSelect).next('.select2-container');
+                            if (select2Container.length) {
+                                select2Container.remove();
+                            }
+
+                            colspace.setAttribute('colspan', '8');
+                            grnSelect.disabled = true;
+                            grnSelect.required = false;
+
+                            document.querySelector('.grn-td').style.display = 'none';
+                            $(grnSelect).val(null).trigger('change');
+
+
+                        }
+                    } else {
+                        grnHeader.style.display = '';
+                        const grnTdEl = document.querySelector('.grn-td');
+                        if (grnTdEl) grnTdEl.style.display = '';  // ensure td is shown
+                        if (grnTd) grnTd.style.opacity = '1';
+
+                        if (grnSelect) {
+                            grnSelect.disabled = false;
+                            grnSelect.required = true;
+                            colspace.setAttribute('colspan', '9');
+
+                            // Destroy if already initialized
+                            if ($(grnSelect).hasClass('select2-hidden-accessible')) {
+                                $(grnSelect).select2('destroy');
+                            }
+
+                            // Now reinitialize
+                            $(grnSelect).select2();
+                        }
+                            }
+
+                        }
+                    }
+
+
+            toggleConsumable();
+
+            typeSelect.addEventListener('change', toggleConsumable);
 
             const loader = document.getElementById('loader');
             const submitBtn = document.getElementById('submitBtn');
@@ -158,53 +245,61 @@
 
 
             type.addEventListener('change', function(e) {
-                        const selectedType = e.target.value;
-                        const grnItemAll = document.querySelectorAll('select[name^="details"][name$="[grn_no]"]');
-                        const itemAll = document.querySelectorAll('select[name^="details"][name$="[item_description]"]');
+                const selectedType = e.target.value;
+                const grnItemAll = document.querySelectorAll('select[name^="details"][name$="[grn_no]"]');
+                const itemAll = document.querySelectorAll('select[name^="details"][name$="[item_description]"]');
 
-                        grnItemAll.forEach(select => {
-                            select.innerHTML = ''; // Clear existing options
-                            const placeholderOption = document.createElement('option');
-                            placeholderOption.textContent = 'Select GRN';
-                            placeholderOption.disabled = true;
-                            placeholderOption.selected = true;
-                            select.appendChild(placeholderOption); // Add placeholder
-                        });
+                grnItemAll.forEach(select => {
+                    select.innerHTML = ''; // Clear existing options
+                    const placeholderOption = document.createElement('option');
+                    placeholderOption.textContent = 'Select GRN';
+                    placeholderOption.disabled = true;
+                    placeholderOption.selected = true;
+                    select.appendChild(placeholderOption); // Add placeholder
+                });
 
-                        itemAll.forEach(select => {
-                            select.innerHTML = ''; // Clear existing options
-                            const placeholderOption = document.createElement('option');
-                            placeholderOption.textContent = 'Select Item';
-                            placeholderOption.disabled = true;
-                            placeholderOption.selected = true;
-                            select.appendChild(placeholderOption); // Add placeholder
-                        });
+                itemAll.forEach(select => {
+                    select.innerHTML = ''; // Clear existing options
+                    const placeholderOption = document.createElement('option');
+                    placeholderOption.textContent = 'Select Item';
+                    placeholderOption.disabled = true;
+                    placeholderOption.selected = true;
+                    select.appendChild(placeholderOption); // Add placeholder
+                });
 
-                        let grnDatas = @json($grnNos);
+                let grnDatas = @json($grnNos);
+                let itemData = @json($items);
+                if (Array.isArray(grnDatas) && selectedType=='1') {
+                    grnDatas.forEach(grn => {
+                        if (grn.detail) {
+                            const filteredDetails = grn.detail.filter(detail =>
+                                detail.item &&
+                                ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
+                                (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
+                            );
 
-                        if (Array.isArray(grnDatas)) {
-                            grnDatas.forEach(grn => {
-                                if (grn.detail) {
-                                    const filteredDetails = grn.detail.filter(detail =>
-                                        detail.item &&
-                                        ((selectedType === '1' && detail.item.is_fixed_asset === 1) ||
-                                        (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
-                                    );
-
-                                    if (filteredDetails.length > 0) {
-                                        // Add the GRN option if it contains filtered items
-                                        let grnOption = document.createElement('option');
-                                        grnOption.value = JSON.stringify(grn);
-                                        grnOption.textContent = grn.grn_no;
-                                        grnItemDropdown.appendChild(grnOption);
-                                    }
-                                }
-                            });
-                        } else {
-
+                            if (filteredDetails.length > 0) {
+                                // Add the GRN option if it contains filtered items
+                                let grnOption = document.createElement('option');
+                                grnOption.value = JSON.stringify(grn);
+                                grnOption.textContent = grn.grn_no;
+                                grnItemDropdown.appendChild(grnOption);
+                            }
                         }
                     });
-
+                }else{
+                    itemData.forEach(
+                        item => {
+                            let itemOption = document.createElement('option');
+                            itemOption.value = item.id;
+                            itemOption.setAttribute('data-uom', item.uom);
+                            itemOption.setAttribute('data-code', item.item_no);
+                            itemOption.textContent = item.item_description;
+                            itemDropdown.appendChild(itemOption);
+                        }
+                    )
+                }
+            });
 
             form.addEventListener('submit', function(e) {
                                     // Show loader
@@ -224,7 +319,9 @@
                     let grnDetails = grnDatas.find(grn => grn.id == selectedGRN.id);
 
                     row.find('select[name^="details"][name$="[item_description]"]').empty();
-
+                    row.find('select[name^="details"][name$="[store]"]').empty();
+                    row.find('input[name^="details"][name$="[uom]"]').val('');
+                    row.find('input[name^="details"][name$="[stock_status]"]').val('');
                     if (grnDetails) {
                         const selectedType = type.value; // Get the selected requisition type again
                         const itemDropdown = row.find('select[name^="details"][name$="[item_description]"]');
@@ -255,109 +352,183 @@
                     }
                 });
 
-                $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
+
+
+
+            let stores = @json($stores);
+            const codesArray = stores.map(item => item.code);
+
+            $(document).on('change', 'select[name^="details"][name$="[item_description]"]', function () {
                 let optionValue = $(this).val();
                 let selectedOption = $(this).find('option:selected');
+
                 if (!selectedOption.length || !optionValue) return;
-                 let isDuplicate = false;
 
-    $('select[name^="details"][name$="[item_description]"]').not(this).each(function () {
-        let outerOptionValue = $(this).val(); // Get the selected value of other rows
+                    let isDuplicate = false;
 
-        console.log("Outer Selected Value:", outerOptionValue, "| Current Selected Value:", optionValue);
+                        $('select[name^="details"][name$="[item_description]"]').not(this).each(function () {
+                            let outerOptionValue = $(this).val(); // Get the selected value of other rows
+                            if (optionValue && optionValue == outerOptionValue) {
+                                isDuplicate = true;
+                                return false;
+                            }
+                        });
 
-        if (optionValue && optionValue == outerOptionValue) {
-            isDuplicate = true;
-            return false; // Exit the loop early if a duplicate is found
-        }
-    });
+                    if (isDuplicate) {
+                        showErrorMessage('Item already selected.');
+                        $(this).val('').trigger('change'); // Clear the current selection
+                    }
 
-    if (isDuplicate) {
-        showErrorMessage('Item already selected.');
-        $(this).val('').trigger('change'); // Clear the current selection
-    }
-                let classList = selectedOption.attr('class').split('_');
+                    const selectedType = document.getElementById('requisition_type').value;
 
-                let grnId = classList[1];
-                let grnDetailId = classList[3];
-                let row = $(this).closest('tr');
+                    let row = $(this).closest('tr');
+                    if (selectedType == '1'){
+                        let classList = selectedOption.attr('class').split('_');
 
-                console.log('GRN ID:', grnId);
-                console.log('GRN Detail ID:', grnDetailId);
-                console.log('Option Value:', optionValue);
+                        let grnId = classList[1];
+                        let grnDetailId = classList[3];
 
-                if (typeof grnDatas === 'undefined' || !Array.isArray(grnDatas)) {
-                    console.error("grnDatas is not defined or is not an array.");
-                    return;
-                }
 
-                let grnDetail = grnDatas.find(grn => grn.id == grnId);
-                if (!grnDetail) {
-                    console.error("GRN ID not found in grnDatas:", grnId);
-                    return;
-                }
+                        if (typeof grnDatas === 'undefined' || !Array.isArray(grnDatas)) {
+                            showErrorMessage('grnDatas is not defined or is not an array.');
+                            return;
+                        }
 
-                let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
-                if (!detail) {
-                    console.error("GRN Detail ID not found in details:", grnDetailId);
-                    return;
-                }
+                        let grnDetail = grnDatas.find(grn => grn.id == grnId);
+                        if (!grnDetail) {
+                            showErrorMessage('GRN ID not found in grnDatas:', grnId);
+                            return;
+                        }
 
-                console.log("Detail Found:", detail);
+                        let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
+                        if (!detail) {
+                            showErrorMessage('Detail ID not found in grnDetail:', grnDetailId);
+                            return;
+                        }
 
-                row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
-                row.find('select[name^="details"][name$="[store]"]').empty()
-                    .append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`)
-                    .trigger('change');
-                row.find('input[name^="details"][name$="[stock_status]"]').val(detail.quantity);
 
-                let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
-                dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+                        row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
+                        row.find('select[name^="details"][name$="[store]"]').empty()
+                            .append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`)
+                            .trigger('change');
+                        row.find('input[name^="details"][name$="[stock_status]"]').val(detail.quantity);
+                        let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
+                        dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
 
-                dzongkhagData.forEach(dzongkhag => {
-                    dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
-                });
+                        dzongkhagData.forEach(dzongkhag => {
+                            dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
+                        });
 
-                dzongkhagDropdown.on('change', function () {
-                    let selectedDzongkhagId = $(this).val();
-                    let siteDropdown = row.find('select[name^="details"][name$="[site_name]"]');
+                    } else {
+                        let itemCode = selectedOption.attr('data-code');
+                        let uomValue = selectedOption.attr('data-uom');
 
-                    siteDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
-                    let filteredSites = siteData.filter(site => site.dzongkhag_id == selectedDzongkhagId);
 
-                    filteredSites.forEach(site => {
-                        siteDropdown.append(`<option value="${site.id}">${site.name}</option>`);
-                    });
+                        const SAP_BASE_URL = "<?php echo SAP_BASE_URL; ?>";
+                        const SAP_PORT = "<?php echo SAP_PORT; ?>";
+                        $('#loader').show();
+                        fetch(`/get-stock/${itemCode}`)
+                            .then(res => res.json())  // Parse the JSON response from your PHP controller
+                            .then(data => {
 
-                    siteDropdown.trigger('change');
-                });
-            });
+                                if (data.msg_error) {
+                                // Handle error if there's a message in the response
+                                showErrorMessage("SAP Error:" + data.msg_error);
+                                return;
+                                }
 
-            // $(document).on('change', '#requisition_type', function () {
-            //     const requisitionType = $(this).val();
-            //     if(requisitionType != ''){
-            //         $.ajax({
-            //             url: "/getrequisitionnobyrequisitiontype/" + requisitionType,
-            //             dataType: "JSON",
-            //             type: "GET",
+                                if (data.data.error) {
+                                    showErrorMessage("SAP Error:" + data.data.error.message.value);
+                                }
 
-            //             success: function (response) {
-            //                 if(response.data.requisition_no){
-            //                     $('#requisition_no').val(response.data.requisition_no)
-            //                 }
-            //             },
-            //             error: function (error) {
-            //                 alert(error.responseJSON.message);
-            //             }
-            //         });
-            //     }
-            // })
-        })
+                                const filteredItems = filterItemsByQuantity(codesArray, data.data);
+                                if (filteredItems.length === 0) {
+                                    $('#loader').hide();
+                                    showErrorMessage("No stock available for the selected item.");
+                                    clearInputs(row);
+                                    const placeholderOption = $('<option>', {
+                                            text: 'Select Item',
+                                            disabled: true,
+                                            selected: true
+                                        });
+                                    row.find('select[name^="details"][name$="[item_description]"]').append(placeholderOption);
+
+                                    const placeholderOption2 = $('<option>', {
+                                            text: 'Select Store',
+                                            disabled: true,
+                                            selected: true,
+                                            hidden: true
+                                    })
+                                    row.find('select[name^="details"][name$="[store]"]').empty().append(placeholderOption2);
+                                    return;
+                                }
+
+                        const select = row.find('select[name^="details"][name$="[store]"]');
+                        select.empty();
+
+                        filteredItems.forEach(item => {
+                            const warehouseCode = Object.keys(item)[0];
+                            const inStock = item[warehouseCode];
+
+                            // Find the matching store name from stores array
+                            const store = stores.find(s => s.code === warehouseCode); // 'code' matches the warehouseCode
+
+                            if (store) {
+                                select.append(
+                                    `<option data-instock="${inStock}" value="${store.id}">${store.name}</option>`
+                                );
+                            }
+                        });
+
+                        select.trigger('change');
+                        $('#loader').hide();
+                            })
+                            .catch(err => {
+                                $('#loader').hide();
+                                showErrorMessage(err);
+                            });
+
+
+
+                            row.find('input[name^="details"][name$="[uom]"]').val(uomValue);
+                            row.find('select[name^="details"][name$="[store]"]').on('change', function () {
+                                const selectedOption = $(this).find('option:selected');
+                                const inStock = selectedOption.data('instock');
+                                row.find('input[name^="details"][name$="[stock_status]"]').val(inStock);
+                            });
+                            let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
+                            dzongkhagDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+
+                            dzongkhagData.forEach(dzongkhag => {
+                                dzongkhagDropdown.append(`<option value="${dzongkhag.id}">${dzongkhag.dzongkhag}</option>`);
+                            });
+                        }
+                        let dzongkhagDropdown = row.find('select[name^="details"][name$="[dzongkhag]"]');
+                        dzongkhagDropdown.on('change', function () {
+                                let selectedDzongkhagId = $(this).val();
+                                let siteDropdown = row.find('select[name^="details"][name$="[site_name]"]');
+
+                                siteDropdown.empty().append('<option value="" disabled selected hidden>Select</option>');
+                                let filteredSites = siteData.filter(site => site.dzongkhag_id == selectedDzongkhagId);
+
+                                filteredSites.forEach(site => {
+                                    siteDropdown.append(`<option value="${site.id}">${site.name}</option>`);
+                                });
+
+                                siteDropdown.trigger('change');
+                            });
+                        });
+                        });
         $('.select2').select2({
             placeholder: "Select a dzongkhag",
             allowClear: true
         });
 
+
+        function clearInputs(row) {
+            row.find('input[name^="details"]').val('');
+            row.find('select[name^="details"]').val('').trigger('change');
+        }
         function updateTotalQuantity() {
             let total = 0;
             $(".quantity-input").each(function () {
@@ -384,5 +555,20 @@
         });
 
         updateTotalQuantity();
+
+
+        function filterItemsByQuantity(warehouseCodes, data) {
+            // Filter the ItemWarehouseInfoCollection to get items with quantity greater than 0
+            const filteredItems = data.ItemWarehouseInfoCollection.filter(item =>
+                warehouseCodes.includes(item.WarehouseCode) && item.InStock > 0
+            );
+
+            const result = filteredItems.map(item => ({
+                [item.WarehouseCode]: item.InStock
+            }));
+
+            return result;
+        }
+
     </script>
 @endpush

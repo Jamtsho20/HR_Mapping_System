@@ -436,6 +436,75 @@ class ApiController extends BaseController
         }
     }
 
+    public function getStock($itemCode)
+    {
+        // Start a new session and get session ID
+        $response = $this->startSession();
+
+        // Decode response if valid JSON
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $session = json_decode($response->getContent(), true);
+            $sessionId = $session['sessionId'] ?? null;
+        } else {
+            return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+        }
+
+        // If session ID is missing, return an error
+        if (empty($sessionId)) {
+            return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+        }
+
+        // Initialize cURL for SAP API request
+        $curl = curl_init();
+
+        $url = SAP_BASE_URL . ':' . SAP_PORT . '/b1s/v1/Items(\'' . $itemCode . '\')/ItemWarehouseInfoCollection';
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30, // Set a reasonable timeout
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => [
+                'Cookie: B1SESSION=' . $sessionId, // Pass session ID dynamically
+                'Content-Type: application/json',
+            ],
+            CURLOPT_SSL_VERIFYPEER => false,  // Disable SSL verification
+            CURLOPT_SSL_VERIFYHOST => false,  // Disable host verification
+
+        ]);
+
+        // Execute cURL and check for errors
+        $curlResponse = curl_exec($curl);
+
+        // If cURL fails, return an error response
+        if ($curlResponse === false) {
+            $curlError = curl_error($curl);
+            curl_close($curl);
+            return response()->json(['msg_error' => 'CURL Error: ' . $curlError], 500);
+        }
+
+        // Close the cURL session
+        curl_close($curl);
+
+        // Decode the response from SAP API
+        $responseArray = json_decode($curlResponse, true);
+
+        // Check if response is valid JSON
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['msg_error' => 'Invalid JSON response from SAP API: ' . json_last_error_msg()], 500);
+        }
+
+        // Return the response (success case)
+        return response()->json([
+            'success' => true,
+            'data' => $responseArray,
+        ]);
+    }
+
 
     private function sendPostRequest($url, $postFields, $sessionId)
         {
