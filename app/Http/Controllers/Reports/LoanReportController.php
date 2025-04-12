@@ -121,11 +121,25 @@ class LoanReportController extends Controller
             return $loan->amount ?? 0;
         });
 
-        // Generate the PDF view and pass the data
+        // Get the bank name from the request (fallback to 'Loan-Report' if not provided)
+        $payHeadId = $request->input('mas_pay_head_id');
+
+        // Get the bank name using the ID
+        $bankName = null;
+        if ($payHeadId) {
+            $bank = MasPayHead::find($payHeadId);
+            $bankName = $bank ? $bank->name : 'Loan-Report';
+        } else {
+            $bankName = 'Loan-Report';
+        }
+
+        $safeBankName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $bankName); // Sanitize for filename
+
+        // Generate the PDF view
         $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans', 'totalLoans'))->setPaper('a4', 'landscape');
 
-        // Return the PDF download
-        return $pdf->download('Loan-Report.pdf');
+        // Return the PDF download with the bank name in filename
+        return $pdf->download("{$safeBankName}.pdf");
     }
 
     public function exportLoanExcel(Request $request)
@@ -147,6 +161,21 @@ class LoanReportController extends Controller
             return $loan->amount ?? 0;
         });
 
+        // Get the bank name from the request (fallback to 'Loan-Report' if not provided)
+        $payHeadId = $request->input('mas_pay_head_id');
+        // Get the bank name using the ID
+        $bankName = null;
+        if ($payHeadId) {
+            $bank = MasPayHead::find($payHeadId);
+            $bankName = $bank ? $bank->name : 'Loan-Report';
+        } else {
+            $bankName = 'Loan-Report';
+        }
+
+        $safeBankName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $bankName); // Sanitize for filename
+
+        // Generate the PDF view
+
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.loan-report-pdf', compact('loans', 'totalLoans'))->setPaper('a4', 'landscape');
 
@@ -154,6 +183,6 @@ class LoanReportController extends Controller
 
 
         // Return the PDF as a stream to display it in the browser
-        return $pdf->stream('Loan-Report.pdf');
+        return $pdf->stream("{$safeBankName}.pdf");
     }
 }

@@ -4,14 +4,14 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            {{-- <a href="{{ route('employee-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
-                title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('employee-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('requisition-report-excel.export', Request::query()) }}" data-toggle="tooltip"
+                data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
+            <a href="{{ route('requisition-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('employee-report-print', Request::query()) }}" target="_blank"
+            <a href="{{ route('requisition-report-print', Request::query()) }}" target="_blank"
                 onclick="openPrintPreview(event)">
                 <span><i class="fa fa-print fa-lg"></i></span>
-            </a> --}}
+            </a>
 
         </div>
     </div>
@@ -21,11 +21,13 @@
         @component('layouts.includes.filter')
             <div class="col-md-3 form-group">
                 <label for="">From Date:</label>
-                <input type="date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}" placeholder="From Date">
+                <input type="date" name="from_date" class="form-control" value="{{ request()->get('from_date') }}"
+                    placeholder="From Date">
             </div>
             <div class="col-md-3 form-group">
                 <label for="">To Date:</label>
-                <input type="date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}" placeholder="To Date">
+                <input type="date" name="to_date" class="form-control" value="{{ request()->get('to_date') }}"
+                    placeholder="To Date">
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Req Type:</label>
@@ -40,7 +42,8 @@
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Req No:</label>
-                <input type="text" class="form-control" name="req_no" value="{{ old('req_no', request()->get('req_no')) }}" placeholder="Req No" />
+                <input type="text" class="form-control" name="req_no" value="{{ old('req_no', request()->get('req_no')) }}"
+                    placeholder="Req No" />
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Status:</label>
@@ -72,7 +75,7 @@
                                                 <th>
                                                     Employee Name
                                                 </th>
-                                                <th> 
+                                                <th>
                                                     Req Type
                                                 </th>
                                                 <th>
@@ -82,20 +85,96 @@
                                                     Req Date
                                                 </th>
                                                 <th>
+                                                    GRN
+                                                </th>
+                                                <th>
+                                                    Item Description
+                                                </th>
+                                                <th>
+                                                    UOM
+                                                </th>
+                                                <th>
+                                                    Store
+                                                </th>
+                                                <th>
+                                                    Stock Status
+                                                </th>
+                                                <th>
+                                                    Quantity Requested
+                                                </th>
+                                                <th>
+                                                    Quantity Received
+                                                </th>
+                                                <th>
+                                                    Dzongkhag
+                                                </th>
+                                                <th>
+                                                    Site
+                                                </th>
+                                                <th>
+                                                    Remark
+                                                </th>
+                                                <th>
                                                     Status
                                                 </th>
                                                 <th>
                                                     Approved By
-                                                </th> 
-                                                <th>
-                                                    Action
                                                 </th>
+                                                {{-- <th>
+                                                    Action
+                                                </th> --}}
 
 
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @php $count = 1; @endphp
                                             @forelse($requisitions as $req)
+                                                @foreach ($req->details as $detail)
+                                                    <tr>
+                                                        <td>{{ $count++ }}</td> {{-- Parent index --}}
+                                                        <td>{{ $req->employee->emp_id_name }}</td>
+                                                        <td>{{ $req->type->name }}</td>
+                                                        <td>{{ $req->transaction_no }}</td>
+                                                        <td>{{ $req->transaction_date }}</td>
+
+                                                        {{-- Detail-specific data --}}
+                                                        <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}
+                                                        </td>
+                                                        <td title="{{ $detail->grnItemDetail->item->item_description }}">
+                                                            {{ \Illuminate\Support\Str::limit($detail->grnItemDetail->item->item_description, 25, '...') }}
+                                                        </td>
+                                                        <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}
+                                                        </td>
+                                                        <td>{{ $detail->grnItemDetail->store->name }}</td>
+                                                        <td class="text-right">{{ $detail->grnItemDetail->quantity }}</td>
+                                                        <td class="text-right">{{ $detail->requested_quantity }}</td>
+                                                        <td class="text-right">{{ $detail->received_quantity }}</td>
+                                                        <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}
+                                                        </td>
+                                                        <td>{{ $detail->site->name ?? config('global.null_value') }}</td>
+                                                        <td>{{ $detail->remark ?? config('global.null_value') }}</td>
+
+                                                        {{-- Parent-level status & approver repeated per row --}}
+
+                                                        <td>{{ config("global.application_status.{$req->status}", 'Unknown') }}
+                                                        </td>
+                                                        <td>{{ $req->approvedBy->emp_id_name ?? '-' }}</td>
+                                                        {{-- <td>
+                                                            @if ($privileges->view)
+                                                                <a href="{{ url('asset-report/commission-report/' . $comm->id) }}"
+                                                                    class="btn btn-sm btn-outline-secondary"><i
+                                                                        class="fa fa-list"></i> Detail</a>
+                                                            @endif
+                                                        </td> --}}
+                                                    </tr>
+                                                @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="17" class="text-danger text-center">No Data Found</td>
+                                                </tr>
+                                            @endforelse
+                                            {{-- @forelse($requisitions as $req)
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $req->employee->emp_id_name }}</td>
@@ -121,23 +200,23 @@
                                                     <td>
                                                         {{ $statusText }}
                                                     </td>
-                            
+
                                                     <td>
                                                         {{ $req->approvedBy->emp_id_name ?? '-' }}
                                                     </td>
-                                                    <td>
+                                                    {{-- <td>
                                                         @if ($privileges->view)
                                                             <a href="{{ url('asset-report/requisition-report/' . $req->id) }}"
                                                                 class="btn btn-sm btn-outline-secondary"><i
                                                                     class="fa fa-list"></i> Detail</a>
                                                         @endif
-                                                    </td>
-                                                </tr>
-                                            @empty
+                                                    </td> --}}
+                                            {{-- </tr> --}}
+                                            {{-- @empty
                                                 <tr>
-                                                    <td colspan="8" class="text-danger text-center">No Requisitions Data Found</td>
+                                                    <td colspan="17" class="text-danger text-center">No Data Found</td>
                                                 </tr>
-                                            @endforelse
+                                            @endforelse --}}
                                         </tbody>
                                     </table>
                                 </div>

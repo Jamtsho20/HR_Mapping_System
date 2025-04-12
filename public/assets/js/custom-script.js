@@ -1059,7 +1059,7 @@ $(document).ready(function () {
     initializeSelect2('.select2'); // Targets all elements with the .select2 class
 });
 // Common success message function
-function showSuccessMessage(message, reload = true, documentReferrer = null) {
+function showSuccessMessage(message, reload = true, documentReferrer = null, itemType = null) {
 
     Swal.fire({
         icon: 'success',
@@ -1076,15 +1076,16 @@ function showSuccessMessage(message, reload = true, documentReferrer = null) {
         showCloseButton: false,
 
         willClose: () => {
-            if (reload) location.reload(); // Optionally reload the page
-
+            if(itemType){
+                reloadActiveTab(itemType);
+            }
         }
     }).then((result) => {
 
         if (result.isConfirmed) {
             if (documentReferrer) {
                 window.location.href = documentReferrer; // Redirect to the referrer
-            } else if (reload) {
+            } else if (reload && !itemType) {
                 location.reload(); // Reload the page if no referrer is provided
             }
         }
@@ -1142,6 +1143,43 @@ function showErrorMessage(message, reload = false, documentReferrer = null) {
         }
     });
 }
+
+function reloadActiveTab(itemType) {
+    const tabContent = $('.tab-pane[data-item-type="' + itemType + '"]');
+    if (tabContent.length) {
+        const url = window.appData.currentUrl;
+        const itemName = tabContent.data('item-name');
+
+        $('#loader').show();
+
+        $.ajax({
+            url: url,
+            method: 'GET', // or POST if needed
+            data: {
+                partial: true,
+                item_type: itemType,
+                item_name: itemName,
+                _token: window.appData.csrfToken
+            },
+            success: function (response) {
+                console.log("AJAX Response:", response);
+                const html = $(response).find(`.tab-pane[data-item-type="${itemType}"]`).html();
+
+                console.log("Extracted HTML:", html);
+                tabContent.html(html);
+                $('#loader').hide();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Error:", errorThrown);
+                console.error("Response:", jqXHR.responseText);
+                $('#loader').hide();
+                showErrorMessage('Failed to refresh tab content.');
+            }
+        });
+    }
+}
+
+
 
 
 fileBrowseInput.addEventListener("change", (e) => handleSelectedFiles(e.target.files));

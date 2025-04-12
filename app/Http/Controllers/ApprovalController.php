@@ -77,6 +77,11 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
+
+        // Check for AJAX partial reload
+        if ($request->ajax() && $request->get('partial') == 'true') {
+            return response()->view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
+        }
         return view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
     }
 
@@ -197,6 +202,8 @@ class ApprovalController extends Controller
 
                             if ($statusCode != 201) {
                                 throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
+                                // $errorMsg = $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
+                                // return response()->json(['msg_error' => 'SAP Error - ' . $errorMsg], 500);
                             }
 
 
@@ -347,7 +354,7 @@ class ApprovalController extends Controller
                         "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
                         "ItemsGroupCode" => 102,
                         "ItemType" => "F",
-                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group,
                         "AssetGroup" => null,
                         "InventoryNumber"=> null,
                         "Employee"=> null,
@@ -738,7 +745,7 @@ class ApprovalController extends Controller
                 ->whereIn('status', $statuses)
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
         };

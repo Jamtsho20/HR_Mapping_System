@@ -50,7 +50,7 @@ class PayComparisionReportController extends Controller
             return $item; // Return the modified item
         });
 
-     
+
         $previous = FinalPaySlip::filter($request)->where('for_month', $previousMonth)->get()->map(function ($item) {
             // Check if 'details' is a JSON string or already an array
             $details = is_string($item->details) ? json_decode($item->details, true) : $item->details;

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\AssetReport;
 
+use App\Exports\RequisitionExport;
 use App\Http\Controllers\Controller;
 use App\Models\MasRequisitionType;
 use App\Models\MasStore;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RequisitionReportController extends Controller
 {
@@ -24,16 +27,15 @@ class RequisitionReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $stores= MasStore::get(['id', 'name']);
+        $stores = MasStore::get(['id', 'name']);
         $reqTypes = MasRequisitionType::get(['id', 'name']);
-        $requisitions = RequisitionApplication::with(['audit_logs' => function($query){
-                $query->whereIn('status', [-1, 3]); 
-            }])
+        $requisitions = RequisitionApplication::with(['audit_logs', 'details',])
+            ->whereIn('status', [-1, 3])
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->paginate(config('global.pagination'))
             ->withQueryString();
-        return view('asset-report.requisition-report.index', compact('privileges','stores', 'requisitions', 'reqTypes'));
+        return view('asset-report.requisition-report.index', compact('privileges', 'stores', 'requisitions', 'reqTypes'));
     }
 
     /**
@@ -86,5 +88,40 @@ class RequisitionReportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function exportRequisition(Request $request)
+    {
+
+        $requisitions = RequisitionApplication::with(['audit_logs', 'details',])
+            ->whereIn('status', [-1, 3])
+            ->filter($request, false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.requisition-report-pdf', compact('requisitions'))->setPaper('a4', 'landscape');
+
+        // Return the PDF download
+        return $pdf->download('Requisition.pdf');
+    }
+
+    public function exportRequisitionExcel(Request $request)
+    {
+        return Excel::download(new RequisitionExport($request), 'requisition.xlsx');
+    }
+    public function printRequisitionReport(Request $request)
+    {
+        $requisitions = RequisitionApplication::with(['audit_logs', 'details',])
+            ->whereIn('status', [-1, 3])
+            ->filter($request, false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.requisition-report-pdf', compact('requisitions'))->setPaper('a4', 'landscape');
+
+        // Return the PDF as a stream to display it in the browser
+        return $pdf->stream('Requisition.pdf');
     }
 }

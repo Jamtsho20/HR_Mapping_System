@@ -52,7 +52,8 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half" style="text-align: right; padding-left: 60px;">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 60px;">
+                                {{ number_format($paySlip->$column, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -71,7 +72,8 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half" style="text-align: right; padding-left: 50px;">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 50px;">
+                                {{ number_format($paySlip->$column, 2) }}</td>
                             @php
                                 $deductionsTotal += $paySlip->$column ?? 0;
                             @endphp
@@ -90,7 +92,8 @@
                         @endphp
                         <tr>
                             <td class="w-half">{{ $displayName }}: </td>
-                            <td class="w-half" style="text-align: right; padding-left: 90px;">{{ number_format($paySlip->$column, 2) }}</td>
+                            <td class="w-half" style="text-align: right; padding-left: 90px;">
+                                {{ number_format($paySlip->$column, 2) }}</td>
                             @php
                                 $deductionsTotal += $paySlip->$column ?? 0;
                             @endphp
@@ -128,7 +131,7 @@
                     <td style="width: 100%; padding: 0; margin: 0;">
                         <small style="display: block; width: 100%;">
                             This payslip is system generated. In case of any discrepancies in the payslip,
-                            kindly report at erp.engineer.mis@tashicell.com. Thank You.
+                            kindly report at sas@tashicell.com. Thank You.
                         </small>
                     </td>
                 </tr>
