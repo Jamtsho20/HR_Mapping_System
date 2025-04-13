@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\CreatedByTrait;
 use Illuminate\Support\Facades\DB;
-
+use Carbon\Carbon;
 
 class AssetCommissionApplication extends Model
 {
@@ -88,6 +88,22 @@ class AssetCommissionApplication extends Model
 
         if($request->status){
             $query->where('status', $request->status);
+        }
+
+        if ($request->get('year')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('year'));
+
+            // Step 2: Convert each date to Y-m format using Carbon
+            $startDate = Carbon::createFromFormat('Y-m', trim($dates[0]));
+
+            // Extract year and month
+            $year = $startDate->year;
+            $month = $startDate->month;
+
+            // Filter by year and month
+            $query->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month);
         }
     }
 

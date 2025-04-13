@@ -65,19 +65,19 @@
                                                 @endphp
 
                                                 @if ($routeName == 'approval.index')
-                                                <a href="{{ url('approval/applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/applications/' . $commission->id . '?tab=10') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.approved')
-                                                <a href="{{ url('approval/approved-applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/approved-applications/' . $commission->id . '?tab=10') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.rejected')
-                                                <a href="{{ url('approval/rejected-applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/rejected-applications/' . $commission->id . '?tab=10') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @else
-                                                <a href="{{ url('default-route/applications/' . $commission->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('default-route/applications/' . $commission->id . '?tab=10') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @endif

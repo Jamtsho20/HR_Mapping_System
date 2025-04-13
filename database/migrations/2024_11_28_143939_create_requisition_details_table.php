@@ -21,8 +21,8 @@ return new class extends Migration
             $table->integer('transferred_quantity')->default(0);
             $table->integer('returned_quantity')->default(0);
             $table->tinyInteger('status')->index();
-            $table->foreignId('grn_item_id')->index()->constrained('mas_grn_items')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('grn_item_detail_id')->index()->constrained('mas_grn_item_details')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('grn_item_id')->index()->nullable()->constrained('mas_grn_items')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('grn_item_detail_id')->index()->nullable()->constrained('mas_grn_item_details')->cascadeOnUpdate()->cascadeOnDelete();
             //$table->integer('approved_quantity')->nullable();
             $table->foreignId('dzongkhag_id')->index()->nullable()->constrained('mas_dzongkhags');
             // $table->string('site_name');
@@ -32,6 +32,9 @@ return new class extends Migration
             $table->boolean('is_received')->default(0);
             $table->timestamp('received_at')->nullable();
             $table->string('received_by')->nullable();
+            $table->foreignId('store_id')->nullable()->constrained('mas_stores')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('item_id')->nullable()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->integer('current_stock')->default(0);
             $table->timestamps();
         });
     }

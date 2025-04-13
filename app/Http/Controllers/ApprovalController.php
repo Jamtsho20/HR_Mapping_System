@@ -188,7 +188,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber);
-
+                          
                             Log::info($postFields);
                             if($grnNo){
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
@@ -306,6 +306,7 @@ class ApprovalController extends Controller
                 ]
             }';
         } elseif ($item_code){
+            if($application->type_id == FIXED_ASSET) {
             $postFields = [
                 "DocDate" => date('Y-m-d'),
                 "U_REQ" => $transactionNo,
@@ -321,7 +322,25 @@ class ApprovalController extends Controller
                 })->toArray(),
                 "RequriedDate" => $required_date
                        ];
-
+            }else {
+                $name_empid =$application->employee->username ." ".$application->employee->name;
+                $postFields = [
+                    "DocDate" => date('Y-m-d'),
+                    "U_REQ" => $transactionNo,
+                    "RequesterName" => $name_empid,
+                    "RequesterDepartment" => $application->employee->empJob->department->sap_id,
+                    "DocumentLines" => $application->details->map(function ($detail) {
+                        return [
+                            "ItemCode" => (string) $detail->item->item_no,
+                            "ItemDescription" => $detail->item->item_description,
+                            "Quantity" => $detail->requested_quantity,
+                            "WarehouseCode" => (string) $detail->store->code,
+                            "ProjectCode" => (string) $detail->site->code
+                        ];
+                    })->toArray(),
+                    "RequriedDate" => $required_date
+                           ];
+            }
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         }
         elseif($grnNo) {  // sap data for asset commissioning

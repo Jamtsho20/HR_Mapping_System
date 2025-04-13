@@ -12,13 +12,17 @@
 
     <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-        <div class="col-12 form-group">
+        <div class="col-6 form-group">
             <select class="form-control" id="req_type" name="req_type">
                 <option value="" disabled selected hidden>Select Requisition Type</option>
                 @foreach ($reqTypes as $type)
                     <option value="{{ $type->id }}" {{ request()->get('req_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                 @endforeach
             </select>
+        </div>
+
+        <div class="col-6 form-group">
+            <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
         </div>
     @endcomponent
 

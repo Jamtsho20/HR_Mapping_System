@@ -122,6 +122,8 @@ Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginA
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
+
+    Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);
     Route::get('profile', 'HomeController@getProfile');
     Route::get('change-password', 'HomeController@getChangePassword')->name('change-password');
     Route::post('change-password', 'HomeController@postChangePassword');
@@ -397,13 +399,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
 
-        Route::resource('goods-issue', 'GoodsIssueController');
-        Route::resource('goods-issue-history', 'GoodsIssueHistoryController')->except('create', 'show', 'edit');
-        Route::resource('goods-receipt', 'GoodsReceiptController')->except('show', 'edit');
-        Route::resource('goods-receipt-history', 'GoodsReceiptHistoryController')->except('create', 'show', 'edit');
-        Route::resource('fixed-asset-return', 'FixedAssetReturnController');
-        Route::resource('fixed-asset-return-history', 'FixedAssetReturnHistoryController')->except('create', 'show', 'edit');
-        Route::resource('fixed-asset-return-approval', 'FixedAssetReturnApprovalController')->except('create', 'show', 'edit');
+
+        Route::resource('asset-return', 'FixedAssetReturnController');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
 
