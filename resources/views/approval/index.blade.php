@@ -165,13 +165,13 @@
                 const targetContent = $(`#content-${targetContentId}`);
                 const itemName = targetContent.data('item-name');
                 const itemType = targetContent.data('item-type');
-               
+
                 $('.buttonsubmit').each(function() {
                     $(this).attr('data-item-name', itemName);
                     $(this).attr('data-item-type', itemType);
                 });
 
-                 // Store the active tab in localStorage
+                // Store the active tab in localStorage
                 //  localStorage.setItem('activeTabId', `${itemType}`);
                 localStorage.setItem('activeTabId', e.target.id);
             });
@@ -233,7 +233,8 @@
                                 // alert(response.msg_success);
                                 // location.reload();
                                 $('#loader').hide();
-                                showSuccessMessage(response.msg_success, true, null, itemType);
+                                showSuccessMessage(response.msg_success, true, null,
+                                    itemType);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 try {
@@ -291,18 +292,40 @@
                 }
             });
         });
-        //remove activeTabId from local storage if user visits other links or pages
-        window.addEventListener('beforeunload', function () {
-            if (!window.location.href.includes('/approval/applications')) {
+
+        // //remove activeTabId from local storage if user visits other links or pages
+        document.addEventListener('DOMContentLoaded', function() {
+            const targetPath = '/approval/applications';
+            const currentPath = window.location.pathname;
+
+            // Restore and store tab if on the correct path
+            if (currentPath === targetPath) {
+                const savedTabId = localStorage.getItem('activeTabId');
+                if (savedTabId && document.getElementById(savedTabId)) {
+                    const tabTrigger = new bootstrap.Tab(document.getElementById(savedTabId));
+                    tabTrigger.show();
+                }
+
+                document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                    tab.addEventListener('shown.bs.tab', function(event) {
+                        localStorage.setItem('activeTabId', event.target.id);
+                    });
+                });
+            } else {
+                // On any other page, remove stored tab
                 localStorage.removeItem('activeTabId');
             }
-        });
 
-        // Restore the last active tab on page refresh
-        const savedTabId = localStorage.getItem('activeTabId');
-        if (savedTabId && document.getElementById(savedTabId)) {
-            const tabTrigger = new bootstrap.Tab(document.getElementById(savedTabId));
-            tabTrigger.show();
-        }
+            //Intercept sidebar link clicks
+            document.querySelectorAll('.side-menu__item, .slide-item').forEach(link => {
+                link.addEventListener('click', function() {
+                    const href = this.getAttribute('href');
+
+                    if (href && !href.includes('/approval/applications')) {
+                        localStorage.removeItem('activeTabId');
+                    }
+                });
+            });
+        });
     </script>
 @endpush
