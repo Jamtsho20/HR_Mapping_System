@@ -1149,12 +1149,14 @@ function reloadActiveTab(itemType) {
     if (tabContent.length) {
         const url = window.appData.currentUrl;
         const itemName = tabContent.data('item-name');
+        const sanitizedName = itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const tabButton = $('#tab-' + sanitizedName);
 
         $('#loader').show();
 
         $.ajax({
             url: url,
-            method: 'GET', // or POST if needed
+            method: 'GET',
             data: {
                 partial: true,
                 item_type: itemType,
@@ -1162,22 +1164,37 @@ function reloadActiveTab(itemType) {
                 _token: window.appData.csrfToken
             },
             success: function (response) {
-                console.log("AJAX Response:", response);
-                const html = $(response).find(`.tab-pane[data-item-type="${itemType}"]`).html();
+                const parsed = $('<div>').html(response); // convert string to DOM
 
-                console.log("Extracted HTML:", html);
-                tabContent.html(html);
+                // Update tab content
+                const newTabContent = parsed.find(`.tab-pane[data-item-type="${itemType}"]`).html();
+                tabContent.html(newTabContent);
+
+                // Extract updated badge
+                const newBadge = parsed.find(`#tab-${sanitizedName} .badge`);
+
+                if (newBadge.length) {
+                    // If badge exists, update it
+                    if (tabButton.find('.badge').length) {
+                        tabButton.find('.badge').text(newBadge.text());
+                    } else {
+                        tabButton.append('&nbsp; <span class="badge bg-danger rounded-pill">' + newBadge.text() + '</span>');
+                    }
+                } else {
+                    // Remove badge if not needed
+                    tabButton.find('.badge').remove();
+                }
+
                 $('#loader').hide();
             },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Error:", errorThrown);
-                console.error("Response:", jqXHR.responseText);
+            error: function () {
                 $('#loader').hide();
                 showErrorMessage('Failed to refresh tab content.');
             }
         });
     }
 }
+
 
 
 

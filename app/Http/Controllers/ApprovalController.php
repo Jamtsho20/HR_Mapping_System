@@ -45,10 +45,7 @@ class ApprovalController extends Controller
 
         $applicationModels = config('global.applications');
 
-
-
         $results = collect();
-
 
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
@@ -64,14 +61,15 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
-            foreach ($headers as $header) {
-                $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
-            }
         }
 
+        //calculate the header counts after collecting all results
+        foreach ($headers as $header) {
+            $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+        }
 
         $holidays;
-
+        
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')
                 ->select('start_date', 'end_date')
@@ -760,8 +758,6 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
-
-
         return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }
 }
