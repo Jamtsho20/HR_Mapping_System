@@ -24,10 +24,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\DailyAllowance;
 use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
+use App\Traits\JsonResponseTrait;
 
 class ApprovalController extends Controller
 {
     protected $sap;
+    use JsonResponseTrait;
 
     public function __construct(ApiController $sap)
     {
@@ -88,7 +90,6 @@ class ApprovalController extends Controller
      */
     public function approveReject(Request $request)
     {
-
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
 
@@ -199,9 +200,11 @@ class ApprovalController extends Controller
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
                             if ($statusCode != 201) {
-                                throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
-                                // $errorMsg = $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
-                                // return response()->json(['msg_error' => 'SAP Error - ' . $errorMsg], 500);
+                                $errorMsg = 'SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
+                                return $this->errorResponse('An error occurred during the operation: ' . $errorMsg);
+                                // return response()->json([
+                                //     'error_msg' => "An error occurred during the operation: $errorMsg"
+                                // ], 500);
                             }
 
 
@@ -257,14 +260,14 @@ class ApprovalController extends Controller
                     continue;
                 }
             }
-
-            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage], 200);
+            return $this->successResponse(null, 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage);
+            // return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
             \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-
-            return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
+            return $this->errorResponse('An error occurred during the operation: ' . $e->getMessage());
+            // return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
         }
     }
 

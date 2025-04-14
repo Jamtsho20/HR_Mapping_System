@@ -130,7 +130,6 @@
             csrfToken: "{{ csrf_token() }}"
         };
 
-
         $(document).ready(function() {
             // Initialize Select2 on the select element
             $('#name-select').select2();
@@ -230,28 +229,15 @@
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                // alert(response.msg_success);
-                                // location.reload();
                                 $('#loader').hide();
-                                showSuccessMessage(response.msg_success, true, null,
-                                    itemType);
+                                showSuccessMessage(response.message, true, null, itemType);
                             },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                try {
-
-                                    var errorResponse = JSON.parse(jqXHR.responseText);
-                                    // alert(errorResponse.msg_error ||
-                                    //     'An unexpected error occurred.');
-                                    $('#loader').hide();
-                                    showErrorMessage(errorResponse.msg_error ||
-                                        'An unexpected error occurred.');
-                                } catch (e) {
-                                    // alert('An error occurred: ' + errorThrown);
-                                    $('#loader').hide();
-                                    showErrorMessage('An error occurred: ' +
-                                        errorThrown);
-                                }
+                            error: function(error) {
+                                $('#loader').hide();
+                                showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
+                                
                             }
+                            
                         });
 
                         // Close the modal
@@ -270,23 +256,13 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            // alert(response.msg_success);
-                            // location.reload();
                             $('#loader').hide();
-                            showSuccessMessage(response.msg_success, true, null, itemType);
+                            showSuccessMessage(response.message, true, null, itemType);
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
+                        
+                        error: function(error) {
                             $('#loader').hide();
-                            try {
-                                var errorResponse = JSON.parse(jqXHR.responseText);
-                                // alert(errorResponse.msg_error ||
-                                //     'An unexpected error occurred.');
-                                showErrorMessage(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
-                            } catch (e) {
-                                // alert('An error occurred: ' + errorThrown);
-                                showErrorMessage('An error occurred: ' + errorThrown);
-                            }
+                            showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
                         }
                     });
                 }
