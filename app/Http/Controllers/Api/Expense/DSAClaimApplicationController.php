@@ -197,7 +197,7 @@ class DSAClaimApplicationController extends Controller
             $dsaType = DsaClaimType::where('id', $request->advance_type)->first();
             $lastTransaction = DsaClaimApplication::latest('id')->first();
             $dsaClaimNo = generateTransactionNumber1($dsaType, $lastTransaction, 'transaction_no');
-              
+
             if (DsaClaimApplication::where('transaction_no', $dsaClaimNo)->exists()) {
                 return $this->errorResponse('DSA Claim Application Number already exists. Please try again.', 500);
             }
@@ -327,7 +327,7 @@ class DSAClaimApplicationController extends Controller
         try{
         $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);
         $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
-        return $this->successResponse([$dsa, $approvalDetail], 'DSA claim application retrieved successfully');
+        return $this->successResponse($dsa, 'DSA claim application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
         }
