@@ -351,8 +351,8 @@ class DSAClaimApplicationController extends Controller
 
                 // Attach both transaction_no and transaction_no to each dsaClaimMapping
                 $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
-                    $mapping->transaction_no = $travelNos[$mapping->travel_authorization_id] ?? null;
-                    $mapping->transaction_no = $advanceNos[$mapping->advance_application_id] ?? null;
+                    $mapping->travel_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
 
                     $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                      // Replace with actual daily allowance from config or DB
