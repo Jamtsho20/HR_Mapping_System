@@ -85,9 +85,9 @@
                                                 'Unknown Status',
                                                 );
                                                 $statusClass = config(
-                                            "global.status_classes.{$dsaclaim->status}",
-                                            'badge bg-secondary',
-                                            );
+                                                "global.status_classes.{$dsaclaim->status}",
+                                                'badge bg-secondary',
+                                                );
                                                 @endphp
 
                                                 <span
@@ -140,6 +140,11 @@
                                 </table>
 
                             </div>
+                            @if ($results->get(9)->hasPages())
+                            <div class="card-footer">
+                                {{ $results->get(9)->links() }}
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

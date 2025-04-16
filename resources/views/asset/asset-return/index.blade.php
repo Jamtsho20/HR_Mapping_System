@@ -1,24 +1,14 @@
 @extends('layouts.app')
-@section('page-title', 'Fixed Asset Return')
+@section('page-title', 'Asset Return')
 @section('content')
 
     @if ($privileges->create)
         @section('buttons')
-            <a href="{{ route('fixed-asset-return.create') }}" class="btn btn-sm btn-primary">
-                <i class="fa fa-plus"></i> Apply Fixed Asset Return
+            <a href="{{ route('asset-return.create') }}" class="btn btn-sm btn-primary">
+                <i class="fa fa-plus"></i> Apply Asset Return
             </a>
         @endsection
     @endif
-
-    <div class="block-header block-header-default">
-    @component('layouts.includes.filter')
-        <div class="col-12 form-group">
-            <select class="form-control" id="req_type" name="req_type">
-                <option value="" disabled selected hidden>Select Fixed Return Type</option>
-           
-            </select>
-        </div>
-    @endcomponent 
 
         <div class="row row-sm">
             <div class="col-lg-12">
