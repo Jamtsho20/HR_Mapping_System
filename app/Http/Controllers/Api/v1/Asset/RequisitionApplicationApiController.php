@@ -158,6 +158,9 @@ class RequisitionApplicationApiController extends Controller
         try{
             $requisition = RequisitionApplication::with([
                 'details.serials',
+                'details.site:id,name',
+                'details.dzongkhag:id,dzongkhag',
+                'details.office:id,name',
                 'details.item:id,item_no,item_description,uom',
                 'details.store:id,name,code',
                 'details.grnItem:id,grn_no',          // eager load grnItem relation
