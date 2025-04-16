@@ -25,6 +25,8 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\v1\Asset\RequisitionApplicationApiController;
+use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
 
 
 
@@ -45,7 +47,7 @@ Route::middleware('api.access.log')->group(function () {
 
 
     Route::get('/get-soms-token', [SomsApiComtroller::class, 'startSession']);
-    
+
     //other app related route
     // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     //     return $request->user();
@@ -64,6 +66,12 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('my_team', 'TeamApiController');
         Route::post('/profile-pic', [UserController::class, 'updateProfilePic']);
 
+    });
+
+    Route::namespace('Api\v1\Asset')->middleware('auth:sanctum')->group(function () {
+        Route::resource('requisition', 'RequisitionApplicationApiController');
+        Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);
+        Route::resource('commission', 'CommissionApplicationApiController');
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
