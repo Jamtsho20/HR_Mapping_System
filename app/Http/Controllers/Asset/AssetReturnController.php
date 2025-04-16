@@ -3,32 +3,39 @@
 namespace App\Http\Controllers\Asset;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasDzongkhag;
+use App\Models\MasStore;
+use App\Models\MasTransferType;
 use Illuminate\Http\Request;
 
-class FixedAssetReturnController extends Controller
+class AssetReturnController extends Controller
 {
    /**
      * Display a listing of the resource.
      */
     public function __construct()
     {
-        $this->middleware('permission:asset/fixed-asset-return,view')->only('index');
-        $this->middleware('permission:asset/fixed-asset-return,create')->only('store');
-        $this->middleware('permission:asset/fixed-asset-return,edit')->only('update');
-        $this->middleware('permission:asset/fixed-asset-return,delete')->only('destroy');
+        $this->middleware('permission:asset/asset-return,view')->only('index');
+        $this->middleware('permission:asset/asset-return,create')->only('store');
+        $this->middleware('permission:asset/asset-return,edit')->only('update');
+        $this->middleware('permission:asset/asset-return,delete')->only('destroy');
     }
     public function index(Request $request)
     {
         $privileges = $request->instance();
       
-        return view('asset.fixed-asset-return.index',compact('privileges'));
+        return view('asset.asset-return.index',compact('privileges'));
     }
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('asset.fixed-asset-return.create');
+        $types = MasTransferType::whereStatus(1)->get(['id', 'name']);
+        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+        $stores = MasStore::select('id', 'name')->get();
+
+        return view('asset.asset-return.create', compact('types', 'dzongkhags','stores'));
     }
 
     /**
