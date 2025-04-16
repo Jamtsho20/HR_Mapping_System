@@ -64,10 +64,14 @@ class RequisitionApplicationApiController extends Controller
         public function index(Request $request)
         {
             try{
-                $requisitions = RequisitionApplication::with('details.grnItem')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-                return $this->successResponse($requisitions, 'Leave applications retrieved successfully');
+                $requisitions = RequisitionApplication::filter($request)->orderBy('created_at')->get();
+                $mappedModel = 'App\Models\RequisitionApplication';
+                $requisitions->map(function ($requisition) use ($mappedModel) {
+                    return loadApplicationDetails($requisition, $mappedModel);
+                });
+                return $this->successResponse($requisitions, 'Requisition applications retrieved successfully');
             }catch(\Exception $e){
-                return $this->errorMessage($e->getMessage());
+                return $this->errorResponse($e->getMessage());
             }
 
         }

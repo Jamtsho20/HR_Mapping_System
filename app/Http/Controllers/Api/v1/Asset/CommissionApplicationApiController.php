@@ -52,7 +52,11 @@ class CommissionApplicationApiController extends Controller
     public function index(Request $request)
     {
         try {
-            $commissions = AssetCommissionApplication::with('details')->filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->get();
+            $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->get();
+            $mappedModel = 'App\Models\AssetCommissionApplication';
+            $commissions->map(function ($commission) use ($mappedModel) {
+                return loadApplicationDetails($commission, $mappedModel);
+            });
             return $this->successResponse($commissions, 'Commission applications retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
