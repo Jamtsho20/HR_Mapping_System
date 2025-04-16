@@ -80,34 +80,13 @@ class RequisitionApplicationApiController extends Controller
         {
             try{
             $reqTypes = MasRequisitionType::where('status', 1)->orderBy('id', 'desc')->select('id', 'name')->get();
-            $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])
-            ->whereStatus(1)
-            ->get()
-            ->map(function ($grn) {
-                return [
-                    'id' => $grn->id,
-                    'grn_no' => $grn->grn_no,
-                    'detail' => collect($grn->detail)->map(function ($d) {
-                        return [
-                            'id' => $d->id,
-                            'store_id' => $d->store_id,
-                            'item_id' => $d->item_id,
-                            'grn_id' => $d->grn_id,
-                            'quantity' => $d->quantity,
-                            'description' => $d->description,
-                            'store' => $d->store,
-                            'item' => $d->item,
-                        ];
-                    }),
-                ];
-            });
+            $grnNos = MasGrnItem::whereStatus(1)
+            ->select('id', 'grn_no')
+            ->get();
             $items = MasItem::where('is_fixed_asset', 0)->select('id','item_no', 'item_description', 'uom')->get();
            $stores = MasStore::where('status', 1)->select('id', 'name', 'code')->get();
            $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-           $sites = MasSite::with(['dzongkhag' => function ($q) {
-            $q->select('id', 'dzongkhag');
-        }])->select('id', 'code', 'name', 'dzongkhag_id')->get();
-           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos, 'sites' => $sites, 'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Leave applications retrieved successfully');
+           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Leave applications retrieved successfully');
             }catch(\Exception $e){
                 return $this->errorResponse($e->getMessage());
             }
@@ -177,7 +156,14 @@ class RequisitionApplicationApiController extends Controller
      public function show(string $id)
      {
         try{
-        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
+            $requisition = RequisitionApplication::with([
+                'details.serials',
+                'details.item:id,item_no,item_description,uom',
+                'details.store:id,name,code',
+                'details.grnItem:id,grn_no',          // eager load grnItem relation
+                'details.grnItemDetail.item:id,item_description,uom',   // nested item from grnItemDetail
+            'details.grnItemDetail.store:id,name,code'    // eager load grnItemDetail relation
+            ])->find($id);
         return $this->successResponse($requisition, 'Requisition application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());

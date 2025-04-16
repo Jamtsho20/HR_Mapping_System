@@ -76,11 +76,8 @@ class CommissionApplicationApiController extends Controller
         $empDetails = empDetails(auth()->user()->id);
         $employee = auth()->user()->name;
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-        $sites = MasSite::with(['dzongkhag' => function ($q) {
-                $q->select('id', 'dzongkhag');
-            }])->select('id', 'code', 'name', 'dzongkhag_id')->get();
         $department = $empDetails->empJob->department;
-        return $this->successResponse(['requisitions' => $requisitions,'empname'=>$employee, 'empdepartment'=>$department, 'dzongkhags'=>$dzongkhags,'sites'=>$sites], 'Commission applications retrieved successfully');
+        return $this->successResponse(['requisitions' => $requisitions,'empname'=>$employee, 'empdepartment'=>$department, 'dzongkhags'=>$dzongkhags], 'Commission applications retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
