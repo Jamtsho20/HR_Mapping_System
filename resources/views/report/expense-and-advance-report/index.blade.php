@@ -23,10 +23,10 @@
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
             <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Expense" name="type_id">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Expense" name="expense_type">
                     <option value="" disabled="" selected="" hidden="">Select Expense</option>
                     @foreach ($expenses as $expense)
-                        <option value="{{ $expense->id }}" {{ request()->get('type_id') == $expense->id ? 'selected' : '' }}>
+                        <option value="{{ $expense->id }}" {{ request()->get('expense_type') == $expense->id ? 'selected' : '' }}>
                             {{ $expense->name }}
                         </option>
                     @endforeach
@@ -107,7 +107,7 @@
             </div>
 
             <div class="col-md-2 form-group">
-                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
+                <input class="form-control" type="text" name="sap_trans_no" value="{{ request()->get('sap_trans_no') }}" placeholder="SAP Trans No">
             </div>
         @endcomponent
         <div class="row row-sm">
