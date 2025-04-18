@@ -426,13 +426,19 @@
 
                         const SAP_BASE_URL = "<?php echo SAP_BASE_URL; ?>";
                         const SAP_PORT = "<?php echo SAP_PORT; ?>";
+
                         $('#loader').show();
                         fetch(`/get-stock/${itemCode}`)
                             .then(res => res.json())  // Parse the JSON response from your PHP controller
                             .then(data => {
-
+                                if (data.status === 'error') {
+                                    $('#loader').hide();
+                                    showErrorMessage("SAP Error: " + data.message);
+                                    return;
+                                }
                                 if (data.msg_error) {
                                 // Handle error if there's a message in the response
+                                $('#loader').hide();
                                 showErrorMessage("SAP Error:" + data.msg_error);
                                 return;
                                 }
@@ -444,7 +450,6 @@
                                 const filteredItems = filterItemsByQuantity(codesArray, data.data);
                                 if (filteredItems.length === 0) {
                                     $('#loader').hide();
-                                    showErrorMessage("No stock available for the selected item.");
                                     clearInputs(row);
                                     const placeholderOption = $('<option>', {
                                             text: 'Select Item',
@@ -485,7 +490,7 @@
                             })
                             .catch(err => {
                                 $('#loader').hide();
-                                showErrorMessage(err);
+                                showErrorMessage('here' + err);
                             });
 
 
@@ -559,12 +564,12 @@
 
         function filterItemsByQuantity(warehouseCodes, data) {
             // Filter the ItemWarehouseInfoCollection to get items with quantity greater than 0
-            const filteredItems = data.ItemWarehouseInfoCollection.filter(item =>
-                warehouseCodes.includes(item.WarehouseCode) && item.InStock > 0
+            const filteredItems = data.filter(item =>
+                warehouseCodes.includes(item.code) && item.stock > 0
             );
 
             const result = filteredItems.map(item => ({
-                [item.WarehouseCode]: item.InStock
+                [item.code]: item.stock
             }));
 
             return result;

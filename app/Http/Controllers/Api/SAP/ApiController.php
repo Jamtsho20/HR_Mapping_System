@@ -498,11 +498,40 @@ class ApiController extends BaseController
         if (json_last_error() !== JSON_ERROR_NONE) {
             return response()->json(['msg_error' => 'Invalid JSON response from SAP API: ' . json_last_error_msg()], 500);
         }
+        $responseFormated = [];
+
+        if (isset($responseArray['error']['message']['value'])) {
+            return $this->errorResponse($responseArray['error']['message']['value']);
+        }
+
+
+
+
+        $storesCodes = MasStore::all()->pluck('code')->toArray();
+        if($responseArray['ItemWarehouseInfoCollection']) {
+        foreach($responseArray['ItemWarehouseInfoCollection'] as $response) {
+            if(!in_array($response['WarehouseCode'], $storesCodes)) {
+                continue;
+            }
+
+            if($response['InStock'] == 0) {
+                continue;
+            }
+            $responseFormated[] = [
+                'code' => $response['WarehouseCode'],
+                'stock' => $response['InStock'],
+            ];
+
+            }
+        }
+        if (empty($responseFormated)) {
+            return $this->errorResponse('No stock found for the selected item');
+        }
 
         // Return the response (success case)
         return response()->json([
             'success' => true,
-            'data' => $responseArray,
+            'data' => $responseFormated,
         ]);
     }
 

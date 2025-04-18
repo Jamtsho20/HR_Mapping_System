@@ -11,12 +11,12 @@ class AssetCommissionDetail extends Model
     use HasFactory;
 
     protected $table = 'commission_details';
-    
+
     protected $fillable = [
-        'commission_id', 
-        'received_serial_id', 
-        'date_placed_in_service', 
-        'dzongkhag_id', 
+        'commission_id',
+        'received_serial_id',
+        'date_placed_in_service',
+        'dzongkhag_id',
         'office_id',
         'site_id',
         'remark',
@@ -37,6 +37,10 @@ class AssetCommissionDetail extends Model
     }
 
 
+    public function office()
+    {
+        return $this->belongsTo(MasOffice::class, 'office_id');
+    }
     public function site()
     {
         return $this->belongsTo(MasSite::class, 'site_id');
