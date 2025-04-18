@@ -274,7 +274,6 @@ class ApprovalController extends Controller
 
     private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null, $transactionNo=null)
     {
-
         if ($tax_amount) {
             return $postFields = '{
                 "ReferenceDate":"' . date('Y-m-d') . '",
