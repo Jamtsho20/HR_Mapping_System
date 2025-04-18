@@ -153,7 +153,7 @@ class CommissionApplicationApiController extends Controller
                 try{
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }catch(\Exception $e){
-                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                    \Log::error('Error sending mail for Commission Application: ' . $e->getMessage());
                 }
           }
         } catch (\Exception $e) {
@@ -170,7 +170,9 @@ class CommissionApplicationApiController extends Controller
     public function show(string $id)
     {
         try{
-        $commission = AssetCommissionApplication::with('details')->findOrFail($id);
+        $commission = AssetCommissionApplication::with('details', 'details.site:id,name',
+                'details.dzongkhag:id,dzongkhag',
+                'details.office:id,name','details.receivedSerial:id,asset_serial_no,asset_description,amount')->findOrFail($id);
         $approvalDetail = getApplicationLogs(\App\Models\AssetCommissionApplication::class, $commission->id);
         return $this->successResponse($commission, 'Commission application retrieved successfully');
         }catch(\Exception $e){
