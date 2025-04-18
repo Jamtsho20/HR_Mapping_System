@@ -9,7 +9,7 @@
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">
                 <div class="col-md-12">
-                    <h6>Travel Details</h6>
+                    <h6>Requisition Details</h6>
                 </div>
             </div>
             <div class="row">
