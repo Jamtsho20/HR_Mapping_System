@@ -32,19 +32,19 @@
                     </div>
                 @endif
                 @if (!request()->is('approval/applications'))
-                @component('layouts.includes.filter')
-
-                <div class="col-md-12 form-group">
-                    <select name="name" class="form-control select2" style="width: 100%" id="name-select">
-                        <option value="">Select Name</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->name }}" {{ request()->get('name') == $user->name ? 'selected' : '' }}>
-                                {{ $user->username }} - {{ $user->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                @endcomponent
+                    @component('layouts.includes.filter')
+                        <div class="col-md-12 form-group">
+                            <select name="name" class="form-control select2" style="width: 100%" id="name-select">
+                                <option value="">Select Name</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->name }}"
+                                        {{ request()->get('name') == $user->name ? 'selected' : '' }}>
+                                        {{ $user->username }} - {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endcomponent
                 @endif
             </div>
             <br>
@@ -125,58 +125,15 @@
 @endsection
 @push('page_scripts')
     <script>
+        window.appData = {
+            currentUrl: "{{ url()->current() }}",
+            csrfToken: "{{ csrf_token() }}"
+        };
+
         $(document).ready(function() {
-    // Initialize Select2 on the select element
-    $('#name-select').select2();
-});
-        // function showSuccessMessage(message) {
-        //     Swal.fire({
-        //         icon: 'success',
-        //         title: 'Success',
-        //         text: message,
-
-        //         width: '400px', // Set a smaller width for the popup
-        //         customClass: {
-        //             popup: 'p-3 border-success', // Add padding and Bootstrap border class
-        //             title: 'text-success fw-bold', // Green and bold title
-        //             confirmButton: 'btn btn-success btn-sm' // Small Bootstrap success button
-        //         },
-        //         // timer: 3000, // Auto-dismiss after 3 seconds
-        //         timer: false,
-        //         // showConfirmButton: false,
-        //         // showCloseButton: true, // Display the close button
-        //         confirmButtonText: 'OK', // Set the text of the button
-        //         showCloseButton: false, // Hide the default close (X) button
-        //         willClose: () => {
-        //             // Reload the page when the alert is closed
-        //             location.reload();
-        //         }
-        //     });
-        // }
-
-        // function showErrorMessage(message) {
-        //     Swal.fire({
-        //         icon: 'error',
-        //         title: 'Error',
-        //         text: message,
-        //         // timer: 3000, // Auto-dismiss after 3 seconds
-        //         timer: false,
-        //         width: '400px', // Small popup
-        //         customClass: {
-        //             popup: 'p-3 border-danger', // Add padding and Bootstrap border class
-        //             title: 'text-danger fw-bold', // Red and bold title
-        //             confirmButton: 'btn btn-danger btn-sm' // Small Bootstrap error button
-        //         },
-        //         // showConfirmButton: false,
-        //         // showCloseButton: true, // Display the close button
-        //         confirmButtonText: 'OK', // Set the text of the button
-        //         showCloseButton: false,
-        //         // willClose: () => {
-        //         //     // Reload the page when the alert is closed
-        //         //     location.reload();
-        //         // }
-        //     });
-        // }
+            // Initialize Select2 on the select element
+            $('#name-select').select2();
+        });
 
         $(document).ready(function() {
             // Select/Deselect all checkboxes
@@ -186,8 +143,8 @@
                 // Find the checkboxes only within the current active tab
                 $('.tab-pane.active .bulk_checkbox').each(function() {
                     if (!$(this).prop('disabled')) { // Check if the checkbox is not disabled
-                    $(this).prop('checked', checkedStatus);
-                }
+                        $(this).prop('checked', checkedStatus);
+                    }
                 });
             });
 
@@ -212,6 +169,10 @@
                     $(this).attr('data-item-name', itemName);
                     $(this).attr('data-item-type', itemType);
                 });
+
+                // Store the active tab in localStorage
+                //  localStorage.setItem('activeTabId', `${itemType}`);
+                localStorage.setItem('activeTabId', e.target.id);
             });
 
             // Bulk approval/rejection
@@ -268,25 +229,15 @@
                                 item_type_id: itemType
                             },
                             success: function(response) {
-                                // alert(response.msg_success);
-                                // location.reload();
                                 $('#loader').hide();
-                                showSuccessMessage(response.msg_success);
+                                showSuccessMessage(response.message, true, null, itemType);
                             },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                try {
-
-                                    var errorResponse = JSON.parse(jqXHR.responseText);
-                                    // alert(errorResponse.msg_error ||
-                                    //     'An unexpected error occurred.');
-                                    $('#loader').hide();
-                                    showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
-                                } catch (e) {
-                                    // alert('An error occurred: ' + errorThrown);
-                                    $('#loader').hide();
-                                    showErrorMessage('An error occurred: ' + errorThrown);
-                                }
+                            error: function(error) {
+                                $('#loader').hide();
+                                showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
+                                
                             }
+                            
                         });
 
                         // Close the modal
@@ -305,26 +256,51 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            // alert(response.msg_success);
-                            // location.reload();
                             $('#loader').hide();
-                            showSuccessMessage(response.msg_success);
+                            showSuccessMessage(response.message, true, null, itemType);
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
+                        
+                        error: function(error) {
                             $('#loader').hide();
-                            try {
-                                var errorResponse = JSON.parse(jqXHR.responseText);
-                                // alert(errorResponse.msg_error ||
-                                //     'An unexpected error occurred.');
-                                showErrorMessage(errorResponse.msg_error ||
-                                    'An unexpected error occurred.');
-                            } catch (e) {
-                                // alert('An error occurred: ' + errorThrown);
-                                showErrorMessage('An error occurred: ' + errorThrown);
-                            }
+                            showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
                         }
                     });
                 }
+            });
+        });
+
+        // //remove activeTabId from local storage if user visits other links or pages
+        document.addEventListener('DOMContentLoaded', function() {
+            const targetPath = '/approval/applications';
+            const currentPath = window.location.pathname;
+
+            // Restore and store tab if on the correct path
+            if (currentPath === targetPath) {
+                const savedTabId = localStorage.getItem('activeTabId');
+                if (savedTabId && document.getElementById(savedTabId)) {
+                    const tabTrigger = new bootstrap.Tab(document.getElementById(savedTabId));
+                    tabTrigger.show();
+                }
+
+                document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                    tab.addEventListener('shown.bs.tab', function(event) {
+                        localStorage.setItem('activeTabId', event.target.id);
+                    });
+                });
+            } else {
+                // On any other page, remove stored tab
+                localStorage.removeItem('activeTabId');
+            }
+
+            //Intercept sidebar link clicks
+            document.querySelectorAll('.side-menu__item, .slide-item').forEach(link => {
+                link.addEventListener('click', function() {
+                    const href = this.getAttribute('href');
+
+                    if (href && !href.includes('/approval/applications')) {
+                        localStorage.removeItem('activeTabId');
+                    }
+                });
             });
         });
     </script>

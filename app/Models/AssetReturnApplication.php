@@ -14,6 +14,7 @@ class AssetReturnApplication extends Model
     {
         return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
     }
+    
     public function details ()
     {
         return $this->hasMany(AssetCommissionDetail::class, 'commission_id');

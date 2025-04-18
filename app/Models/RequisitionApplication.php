@@ -109,30 +109,31 @@ class RequisitionApplication extends Model
     }
 
     public function restoreStock()
-{
-    // Ensure details relationship is loaded
-    $this->loadMissing('details');
-
-    foreach ($this->details as $detail) {
-
-        if (!$detail->grn_item_mapping_id) {
-            \Log::warning("Invalid GRN data for detail ID: {$detail->id}", ['grn_no' => $detail->grn_no]);
-            continue; // Skip if data is invalid
+    {
+        // Only restore stock if requisition type requires GRN handling
+        if ($this->type_id != 1) {
+            return;
         }
 
-        // Find the GRN item mapping entry
-        $grnItem = MasGrnItems::find($detail->grn_item_id);
+        $this->loadMissing('details');
 
-        if (!$grnItem) {
-            \Log::warning("GRN Item Mapping not found for ID: {$detail->grn_item_id}");
-            continue;
+        foreach ($this->details as $detail) {
+            if (!$detail->grn_item_id) {
+                \Log::warning("Invalid GRN item ID for detail ID: {$detail->id}", ['grn_item_id' => $detail->grn_item_id]);
+                continue;
+            }
+
+            $grnItem = MasGrnItemDetail::find($detail->grn_item_id);
+
+            if (!$grnItem) {
+                \Log::warning("GRN Item not found for ID: {$detail->grn_item_id}");
+                continue;
+            }
+
+            // Restore the stock
+            $grnItem->increment('quantity', $detail->requested_quantity);
         }
-
-        // Restore the stock
-        $grnItem->increment('quantity', $detail->requested_required);
-
     }
-}
 
 
 }

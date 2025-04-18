@@ -24,10 +24,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\DailyAllowance;
 use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
+use App\Traits\JsonResponseTrait;
 
 class ApprovalController extends Controller
 {
     protected $sap;
+    use JsonResponseTrait;
 
     public function __construct(ApiController $sap)
     {
@@ -45,10 +47,7 @@ class ApprovalController extends Controller
 
         $applicationModels = config('global.applications');
 
-
-
         $results = collect();
-
 
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
@@ -64,18 +63,24 @@ class ApprovalController extends Controller
                 ->withQueryString();
 
             $results->put($key, $data);
-            foreach ($headers as $header) {
-                $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
-            }
         }
 
+        //calculate the header counts after collecting all results
+        foreach ($headers as $header) {
+            $header->count = $results->has($header->id) ? $results->get($header->id)->total() : 0;
+        }
 
         $holidays;
-
+        
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')
                 ->select('start_date', 'end_date')
                 ->get();
+        }
+
+        // Check for AJAX partial reload
+        if ($request->ajax() && $request->get('partial') == 'true') {
+            return response()->view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
         }
         return view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
     }
@@ -85,7 +90,6 @@ class ApprovalController extends Controller
      */
     public function approveReject(Request $request)
     {
-
         $applicationModel = config('global.applications')[$request->item_type_id];
         $model = $applicationModel['name'];
 
@@ -185,7 +189,7 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber);
-
+                          
                             Log::info($postFields);
                             if($grnNo){
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
@@ -196,9 +200,11 @@ class ApprovalController extends Controller
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
                             if ($statusCode != 201) {
-                                // throw new \Exception('SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.');
-                                $errorMsg = $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
-                                return response()->json(['msg_error' => 'SAP Error - ' . $errorMsg], 500);
+                                $errorMsg = 'SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
+                                return $this->errorResponse('An error occurred during the operation: ' . $errorMsg);
+                                // return response()->json([
+                                //     'error_msg' => "An error occurred during the operation: $errorMsg"
+                                // ], 500);
                             }
 
 
@@ -254,14 +260,14 @@ class ApprovalController extends Controller
                     continue;
                 }
             }
-
-            return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage], 200);
+            return $this->successResponse(null, 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage);
+            // return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
             \Log::error('Bulk approval/rejection error: ' . $e->getMessage());
-
-            return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
+            return $this->errorResponse('An error occurred during the operation: ' . $e->getMessage());
+            // return response()->json(['msg_error' => 'An error occurred during the operation: ' . $e->getMessage()], 500);
         }
     }
 
@@ -303,6 +309,7 @@ class ApprovalController extends Controller
                 ]
             }';
         } elseif ($item_code){
+            if($application->type_id == FIXED_ASSET) {
             $postFields = [
                 "DocDate" => date('Y-m-d'),
                 "U_REQ" => $transactionNo,
@@ -318,7 +325,25 @@ class ApprovalController extends Controller
                 })->toArray(),
                 "RequriedDate" => $required_date
                        ];
-
+            }else {
+                $name_empid =$application->employee->username ." ".$application->employee->name;
+                $postFields = [
+                    "DocDate" => date('Y-m-d'),
+                    "U_REQ" => $transactionNo,
+                    "RequesterName" => $name_empid,
+                    "RequesterDepartment" => $application->employee->empJob->department->sap_id,
+                    "DocumentLines" => $application->details->map(function ($detail) {
+                        return [
+                            "ItemCode" => (string) $detail->item->item_no,
+                            "ItemDescription" => $detail->item->item_description,
+                            "Quantity" => $detail->requested_quantity,
+                            "WarehouseCode" => (string) $detail->store->code,
+                            "ProjectCode" => (string) $detail->site->code
+                        ];
+                    })->toArray(),
+                    "RequriedDate" => $required_date
+                           ];
+            }
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         }
         elseif($grnNo) {  // sap data for asset commissioning
@@ -330,7 +355,7 @@ class ApprovalController extends Controller
                         "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
                         "ItemsGroupCode" => 102,
                         "ItemType" => "F",
-                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group,
                         "AssetGroup" => null,
                         "InventoryNumber"=> null,
                         "Employee"=> null,
@@ -721,7 +746,7 @@ class ApprovalController extends Controller
                 ->whereIn('status', $statuses)
                 ->filter($request, false)
                 ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
         };
@@ -755,8 +780,6 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
-
-
         return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }
 }

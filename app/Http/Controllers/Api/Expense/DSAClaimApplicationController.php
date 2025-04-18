@@ -197,7 +197,7 @@ class DSAClaimApplicationController extends Controller
             $dsaType = DsaClaimType::where('id', $request->advance_type)->first();
             $lastTransaction = DsaClaimApplication::latest('id')->first();
             $dsaClaimNo = generateTransactionNumber1($dsaType, $lastTransaction, 'transaction_no');
-              
+
             if (DsaClaimApplication::where('transaction_no', $dsaClaimNo)->exists()) {
                 return $this->errorResponse('DSA Claim Application Number already exists. Please try again.', 500);
             }
@@ -325,9 +325,55 @@ class DSAClaimApplicationController extends Controller
     public function show($id)
     {
         try{
-        $dsa = DsaClaimApplication::with('dsaClaimDetails')->findOrfail($id);
-        $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
-        return $this->successResponse([$dsa, $approvalDetail], 'DSA claim application retrieved successfully');
+            $oldDataFlag = true;
+            $travelNosString="";
+            $advanceNosString="";
+            $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
+            if(DsaClaimApplication::findOrFail($id)->travel_authorization_id != null) {
+                $dsa = DsaClaimApplication::findOrFail($id);
+            }else{
+                $dsa = DsaClaimApplication::with(['dsaClaimMappings.dsaDetails'])->findOrFail($id);
+
+                // Extract Travel Authorization IDs
+                $travelNumbers = $dsa->dsaClaimMappings->pluck('travel_authorization_id')->filter()->toArray();
+
+                // Extract Advance Application IDs (if they exist)
+                $advanceNumbers = $dsa->dsaClaimMappings->pluck('advance_application_id')->filter()->toArray();
+
+                // Fetch Travel Authorization Numbers as key-value pairs (id => travel_no)
+                $travelNos = TravelAuthorizationApplication::whereIn('id', $travelNumbers)
+                    ->pluck('transaction_no', 'id');
+
+                // Fetch Advance Application Numbers as key-value pairs (id => transaction_no)
+                $advanceNos = AdvanceApplication::whereIn('id', $advanceNumbers)
+                    ->pluck('transaction_no', 'id');
+
+
+                // Attach both transaction_no and transaction_no to each dsaClaimMapping
+                $dsa->dsaClaimMappings->transform(function ($mapping) use ($travelNos, $advanceNos) {
+                    $mapping->travel_no = $travelNos[$mapping->travel_authorization_id] ?? null;
+                    $mapping->advance_no = $advanceNos[$mapping->advance_application_id] ?? null;
+
+                    $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
+                     // Replace with actual daily allowance from config or DB
+                     $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
+                    if ($newDays <= 15) {
+                        $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
+                    } else {
+                        $mapping->formula = "($DAILY_ALLOWANCE * 15 day(s)) + (" . ($DAILY_ALLOWANCE / 2) . " * " . ($newDays - 15) . " day(s)) =";
+                    }
+                    return $mapping;
+                });
+
+                // Now, $dsa->dsaClaimMappings contains 'transaction_no' and 'transaction_no' for each mapping
+
+                $travelNosString = $travelNos->implode(', ');
+                $advanceNosString = $advanceNos->implode(', ');
+
+                $oldDataFlag = false;
+                $approvalDetail = getApplicationLogs(DsaClaimApplication::class, $id);
+            }
+        return $this->successResponse($dsa, 'DSA claim application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
         }

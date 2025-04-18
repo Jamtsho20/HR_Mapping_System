@@ -1,100 +1,105 @@
 <?php
 
-namespace App\Http\Controllers\Asset;
+namespace App\Http\Controllers\Api\v1\Asset;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ApplicationForwardedMail;
-use App\Models\MasGrnItem;
-use App\Models\MasGrnItemDetail;
-use App\Models\MasRequisitionType;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
+use App\Models\ApplicationHistory;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Services\ApprovalService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use App\Services\ApplicationHistoriesService;
+use App\Models\MasRequisitionType;
 use App\Models\MasSite;
 use App\Models\MasDzongkhag;
 use App\Models\MasItem;
 use App\Models\MasStore;
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationForwardedMail;
+use App\Http\Controllers\Api\SAP\ApiController;
 
-class RequisitionApplicationController extends Controller
+class RequisitionApplicationApiController extends Controller
 {
+    use JsonResponseTrait;
     /**
      * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+        protected $rules = [
+            // 'requisition_no' => 'required|unique:requisition_applications,requisition_no',
+            'type_id' => 'required',
+            'requisition_date' => 'required',
+            'need_by_date' => 'required',
+            'details.*.item_description' => 'required',
+            'details.*.store' => 'required',
+            // 'details.*.stock_status' => 'required',
+            'details.*.quantity_required' => 'required',
+            'details.*.dzongkhag' => 'required',
+            // 'details.*.office_name' => 'required',
+            'details.*.site_name' => 'required',
+         ];
 
-     public function __construct()
+         protected $messages = [
+            'details.*.item_description.required' => 'The item description is required for each detail item.',
+            'details.*.store.required' => 'The store is required for each detail item.',
+            // 'details.*.stock_status.required' => 'The stock status is required for each detail item.',
+            'details.*.quantity_required.required' => 'The quantity is required for each detail item.',
+            'details.*.dzongkhag.required' => 'The dzongkhag is required for each detail item.',
+            // 'details.*.office_name.required' => 'The office name is required for each detail item.',
+            'details.*.site_name.required' => 'The site name is required for each detail item.',
+        ];
+
+
+        public function index(Request $request)
+        {
+            try{
+                $requisitions = RequisitionApplication::filter($request)->orderBy('created_at')->get();
+                $mappedModel = 'App\Models\RequisitionApplication';
+                $requisitions->map(function ($requisition) use ($mappedModel) {
+                    return loadApplicationDetails($requisition, $mappedModel);
+                });
+                return $this->successResponse($requisitions, 'Requisition applications retrieved successfully');
+            }catch(\Exception $e){
+                return $this->errorResponse($e->getMessage());
+            }
+
+        }
+
+        public function create()
+        {
+            try{
+            $reqTypes = MasRequisitionType::where('status', 1)->orderBy('id', 'desc')->select('id', 'name')->get();
+            $grnNos = MasGrnItem::whereStatus(1)
+            ->select('id', 'grn_no')
+            ->get();
+            $items = MasItem::where('is_fixed_asset', 0)->select('id','item_no', 'item_description', 'uom')->get();
+           $stores = MasStore::where('status', 1)->select('id', 'name', 'code')->get();
+           $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Leave applications retrieved successfully');
+            }catch(\Exception $e){
+                return $this->errorResponse($e->getMessage());
+            }
+        }
+
+
+        public function store(Request $request)
      {
-        $this->middleware('permission:asset/requisition,view')->only('index', 'show');
-        $this->middleware('permission:asset/requisition,create')->only('store');
-        $this->middleware('permission:asset/requisition,edit')->only('update');
-        $this->middleware('permission:asset/requisition,delete')->only('destroy');
-
-     }
-
-     protected $rules = [
-        // 'requisition_no' => 'required|unique:requisition_applications,requisition_no',
-        'type_id' => 'required',
-        'requisition_date' => 'required',
-        'need_by_date' => 'required',
-        'details.*.item_description' => 'required',
-        'details.*.uom' => 'required',
-        'details.*.store' => 'required',
-        // 'details.*.stock_status' => 'required',
-        'details.*.quantity_required' => 'required',
-        'details.*.dzongkhag' => 'required',
-        // 'details.*.office_name' => 'required',
-        'details.*.site_name' => 'required',
-     ];
-
-     protected $messages = [
-        'details.*.item_description.required' => 'The item description is required for each detail item.',
-        'details.*.uom.required' => 'The unit of measure is required for each detail item.',
-        'details.*.store.required' => 'The store is required for each detail item.',
-        // 'details.*.stock_status.required' => 'The stock status is required for each detail item.',
-        'details.*.quantity_required.required' => 'The quantity is required for each detail item.',
-        'details.*.dzongkhag.required' => 'The dzongkhag is required for each detail item.',
-        // 'details.*.office_name.required' => 'The office name is required for each detail item.',
-        'details.*.site_name.required' => 'The site name is required for each detail item.',
-    ];
-
-     public function index(Request $request)
-     {
-         $privileges = $request->instance();
-         $reqTypes = MasRequisitionType::get(['id', 'name']);
-         $requisitions = RequisitionApplication::with('details.grnItem')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-         return view('asset.requisition-apply.index', compact('privileges', 'requisitions', 'reqTypes'));
-     }
-
-     public function receive(string $id)
-     {
-        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
-        return view('asset.requisition-apply.receive', compact('requisition'));
-     }
-     /**
-      * Show the form for creating a new resource.
-      */
-     public function create()
-     {
-        $reqTypes = MasRequisitionType::where('status', 1)->orderBy('id', 'desc')->get();
-        $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])->whereStatus(1)->get();
-        $items = MasItem::where('is_fixed_asset', 0)->get();
-        $stores = MasStore::where('status', 1)->get();
-        $dzongkhags = MasDzongkhag::all();
-        $sites = MasSite::with('dzongkhag')->get();
-        return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags', 'items', 'stores'));
-     }
-
-     /**
-      * Store a newly created resource in storage.
-      */
-     public function store(Request $request)
-     {
-        //dd($request->all());
         $requisition = new RequisitionApplication();
-        $this->validate($request, $this->rules, $this->messages);
+        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasRequisitionType::class, $conditionFields ?? []);
@@ -141,50 +146,32 @@ class RequisitionApplicationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('msg_error', $e->getMessage());
+            return $this->errorResponse($e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
-        return redirect('asset/requisition')->with('msg_success', 'Requisition has been applied successfully!');
+        return $this->successResponse($requisition, 'Requisition application created successfully');
      }
 
-     /**
-      * Display the specified resource.
-      */
 
-
-
-      public function show(string $id)
+     public function show(string $id)
      {
-        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
-        $approvalDetail = getApplicationLogs(\App\Models\RequisitionApplication::class, $requisition->id);
-        return view('asset.requisition-apply.show', compact('requisition', 'approvalDetail'));
+        try{
+            $requisition = RequisitionApplication::with([
+                'details.serials',
+                'details.site:id,name',
+                'details.dzongkhag:id,dzongkhag',
+                'details.office:id,name',
+                'details.item:id,item_no,item_description,uom',
+                'details.store:id,name,code',
+                'details.grnItem:id,grn_no',          // eager load grnItem relation
+                'details.grnItemDetail.item:id,item_description,uom',   // nested item from grnItemDetail
+            'details.grnItemDetail.store:id,name,code'    // eager load grnItemDetail relation
+            ])->find($id);
+        return $this->successResponse($requisition, 'Requisition application retrieved successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
      }
-
-     /**
-      * Show the form for editing the specified resource.
-      */
-     public function edit(string $id)
-     {
-         //
-     }
-
-     /**
-      * Update the specified resource in storage.
-      */
-     public function update(Request $request, string $id)
-     {
-         //
-     }
-
-     /**
-      * Remove the specified resource from storage.
-      */
-     public function destroy(string $id)
-     {
-         //
-     }
-
-
      private function saveDetails($details, $requisitionId, $typeId)
      {
          $existingIds = [];
@@ -195,11 +182,11 @@ class RequisitionApplicationController extends Controller
              $grn_item_detail_id = null;
 
              // Handle GRN-based requisition (type_id == 1)
-             if (!empty($detail['grn_no'])) {
-                 $grnData = json_decode($detail['grn_no'], true);
+             if (!empty($detail['grn_id'])) {
+                 $grnId = $detail['grn_id'];
 
-                 if ($grnData && isset($grnData['id'])) {
-                     $grn_item = MasGrnItemDetail::where('grn_id', $grnData['id'])
+                 if ($grnId) {
+                     $grn_item = MasGrnItemDetail::where('grn_id', $grnId)
                          ->where('store_id', $detail['store'])
                          ->where('item_id', $detail['item_description'])
                          ->first();
@@ -252,5 +239,5 @@ class RequisitionApplicationController extends Controller
              ->delete();
      }
 
-
 }
+

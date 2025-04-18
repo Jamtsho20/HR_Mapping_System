@@ -1059,7 +1059,7 @@ $(document).ready(function () {
     initializeSelect2('.select2'); // Targets all elements with the .select2 class
 });
 // Common success message function
-function showSuccessMessage(message, reload = true, documentReferrer = null) {
+function showSuccessMessage(message, reload = true, documentReferrer = null, itemType = null) {
 
     Swal.fire({
         icon: 'success',
@@ -1076,15 +1076,16 @@ function showSuccessMessage(message, reload = true, documentReferrer = null) {
         showCloseButton: false,
 
         willClose: () => {
-            if (reload) location.reload(); // Optionally reload the page
-
+            if(itemType){
+                reloadActiveTab(itemType);
+            }
         }
     }).then((result) => {
 
         if (result.isConfirmed) {
             if (documentReferrer) {
                 window.location.href = documentReferrer; // Redirect to the referrer
-            } else if (reload) {
+            } else if (reload && !itemType) {
                 location.reload(); // Reload the page if no referrer is provided
             }
         }
@@ -1142,6 +1143,60 @@ function showErrorMessage(message, reload = false, documentReferrer = null) {
         }
     });
 }
+
+function reloadActiveTab(itemType) {
+    const tabContent = $('.tab-pane[data-item-type="' + itemType + '"]');
+    if (tabContent.length) {
+        const url = window.appData.currentUrl;
+        const itemName = tabContent.data('item-name');
+        const sanitizedName = itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const tabButton = $('#tab-' + sanitizedName);
+
+        $('#loader').show();
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            data: {
+                partial: true,
+                item_type: itemType,
+                item_name: itemName,
+                _token: window.appData.csrfToken
+            },
+            success: function (response) {
+                const parsed = $('<div>').html(response); // convert string to DOM
+
+                // Update tab content
+                const newTabContent = parsed.find(`.tab-pane[data-item-type="${itemType}"]`).html();
+                tabContent.html(newTabContent);
+
+                // Extract updated badge
+                const newBadge = parsed.find(`#tab-${sanitizedName} .badge`);
+
+                if (newBadge.length) {
+                    // If badge exists, update it
+                    if (tabButton.find('.badge').length) {
+                        tabButton.find('.badge').text(newBadge.text());
+                    } else {
+                        tabButton.append('&nbsp; <span class="badge bg-danger rounded-pill">' + newBadge.text() + '</span>');
+                    }
+                } else {
+                    // Remove badge if not needed
+                    tabButton.find('.badge').remove();
+                }
+
+                $('#loader').hide();
+            },
+            error: function () {
+                $('#loader').hide();
+                showErrorMessage('Failed to refresh tab content.');
+            }
+        });
+    }
+}
+
+
+
 
 
 fileBrowseInput.addEventListener("change", (e) => handleSelectedFiles(e.target.files));

@@ -10,9 +10,16 @@ class RequisitionDetail extends Model
     use HasFactory;
 
     protected $fillable = [
-        'requisition_id', 'requested_quantity', 'received_quantity', 'commissioned_quantity', 'status', 'grn_item_id', 'grn_item_detail_id',  'site_id', 'dzongkhag_id', 'office_id', 'remark'
+        'requisition_id', 'requested_quantity', 'received_quantity', 'item_id','commissioned_quantity', 'status', 'grn_item_id', 'grn_item_detail_id',  'site_id', 'dzongkhag_id', 'office_id', 'remark', 'store_id', 'current_stock'
     ];
 
+    public function item(){
+        return $this->belongsTo(MasItem::class, 'item_id');
+    }
+
+    public function store(){
+        return $this->belongsTo(MasStore::class, 'store_id');
+    }
     public function requisition()
     {
         return $this->belongsTo(RequisitionApplication::class, 'requisition_id');

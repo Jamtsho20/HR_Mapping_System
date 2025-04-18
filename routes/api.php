@@ -25,6 +25,8 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\v1\Asset\RequisitionApplicationApiController;
+use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
 
 
 
@@ -45,6 +47,7 @@ Route::middleware('api.access.log')->group(function () {
 
 
     Route::get('/get-soms-token', [SomsApiComtroller::class, 'startSession']);
+
     //other app related route
     // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     //     return $request->user();
@@ -62,7 +65,15 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('approval_count', 'GeneralApporvalController');
         Route::resource('my_team', 'TeamApiController');
         Route::post('/profile-pic', [UserController::class, 'updateProfilePic']);
-            
+
+    });
+
+    Route::namespace('Api\v1\Asset')->middleware('auth:sanctum')->group(function () {
+        Route::resource('requisition', 'RequisitionApplicationApiController');
+        Route::get('requisition/get_item/{id}', [AjaxRequestController::class, 'getItemByGrnId']);
+        Route::get('get_sites/{id}', [AjaxRequestController::class, 'getSitesByDzongkhagId']);
+        Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);
+        Route::resource('commission', 'CommissionApplicationApiController');
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
@@ -101,7 +112,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('gadget-emi/employees/', [AdvanceLoanGadgetEmiController::class, 'getEmployees']);
         Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
         Route::get('gadget-emi/details/{id}', [AdvanceLoanGadgetEmiController::class, 'getDetailsByAdvance'])
-    ->where('id', '.*'); 
+    ->where('id', '.*');
 
     });
 
@@ -109,11 +120,11 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('employees/', [AnniversaryController::class, 'getEmployees']);
         Route::get('employee/{id}', [AnniversaryController::class, 'getEmployeeById']); // No need for where() here
     });
-    
+
     Route::get('test', function () {
         return response()->json(['message' => 'API is working']);
     });
-    
+
     Route::namespace('Api\Advance')->middleware('auth:sanctum')->group(function () {
         Route::resource('advance_loan', 'AdvanceLoanApplicationApiController');
         Route::get('advance_loan_number/{id}', [AjaxRequestController::class, 'getAdvanceNumber']);

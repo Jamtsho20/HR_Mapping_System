@@ -151,28 +151,12 @@
                             item_type_id: itemType
                         },
                         success: function(response) {
-                            // alert(response.msg_success);
-                            // location.reload();
                             $('#loader').hide();
-                            showSuccessMessage(response.msg_success, true, document.referrer);
-
-
-
+                            showSuccessMessage(response.message, true, document.referrer);
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            try {
-                                var errorResponse = JSON.parse(jqXHR.responseText);
-                                // alert(errorResponse.msg_error ||
-                                //     'An unexpected error occurred.');
-                                $('#loader').hide();
-                                showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
-
-                            } catch (e) {
-                                // alert('An error occurred: ' + errorThrown);
-                                $('#loader').hide();
-                                showErrorMessage('An error occurred: ' + errorThrown);
-
-                            }
+                        error: function(error) {
+                            $('#loader').hide();
+                            showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
                         }
                     });
 
@@ -192,27 +176,12 @@
                         item_type_id: itemType
                     },
                     success: function(response) {
-                        // alert(response.msg_success);
-                        // location.reload();
-
-                        showSuccessMessage(response.msg_success, true, document.referrer);
+                        showSuccessMessage(response.message, true, document.referrer);
                         $('#loader').hide();
-
-
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
+                    error: function(error) {
                         $('#loader').hide();
-                        try {
-                            var errorResponse = JSON.parse(jqXHR.responseText);
-                            // alert(errorResponse.msg_error ||
-                            //     'An unexpected error occurred.');
-                            showErrorMessage(errorResponse.msg_error || 'An unexpected error occurred.');
-
-                        } catch (e) {
-                            // alert('An error occurred: ' + errorThrown);
-                            showErrorMessage('An error occurred: ' + errorThrown);
-
-                        }
+                        showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
                     }
                 });
             }
