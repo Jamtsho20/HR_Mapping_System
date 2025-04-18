@@ -43,7 +43,7 @@ class ExpenseExport implements FromCollection, WithHeadings
                 $expense->employee->empJob->department->name,
                 $expense->type->name,
                 \Carbon\Carbon::parse($expense->transaction_date)->format('d-F-Y'),
-                $expense->vehicle->vehicleType->name,
+                $expense->vehicle->vehicleType->name ?? '-',
                 $expense->vehicle->vehicle_no ?? '-',
                 $expense->transaction_no,
                 $expense->amount,
