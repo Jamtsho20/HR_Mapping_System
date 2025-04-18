@@ -12,6 +12,8 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
 use App\Models\MasCommissionTypes;
 use App\Models\RequisitionApplication;
+use App\Models\RequisitionDetail;
+use App\Models\AssetCommissionDetail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\MasDzongkhag;
@@ -68,16 +70,28 @@ class CommissionApplicationApiController extends Controller
     {
         try{
         // only fixed asset can be commissioned
-        $requisitions = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+        $requisitions = RequisitionApplication::with(['details.grnItem','details.grnItemDetail.item',  'details.serials'])->where('type_id', FIXED_ASSET)
             ->where('is_received', 1)
             ->where('created_by', auth()->user()->id)
             ->get();
-
-        $empDetails = empDetails(auth()->user()->id);
-        $employee = auth()->user()->name;
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-        $department = $empDetails->empJob->department;
-        return $this->successResponse(['requisitions' => $requisitions,'empname'=>$employee, 'empdepartment'=>$department, 'dzongkhags'=>$dzongkhags], 'Commission applications retrieved successfully');
+        $simplifiedRequisitions = $requisitions->flatMap(function ($req) {
+            $transactionNo = $req->transaction_no;
+            return collect($req->details)->map(function ($detail) use ($transactionNo) {
+                return [
+                    'req_no' => $transactionNo,
+                    'id' => $detail->id,
+                    'grn_item' => $detail->grnItem ?? null,
+                ];
+            });
+        })->values();
+
+
+        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+
+        return $this->successResponse([
+
+            'grns' => $simplifiedRequisitions, 'dzongkhags'=>$dzongkhags], 'Commission applications retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -170,13 +184,52 @@ class CommissionApplicationApiController extends Controller
     public function show(string $id)
     {
         try{
-        $commission = AssetCommissionApplication::with('details', 'details.site:id,name',
+        $commission = AssetCommissionApplication::with(
+            'requisitionDetail:id,grn_item_detail_id',
+            'requisitionDetail.grnItemDetail:item_id,id', // assuming item_id is foreign key
+            'requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group_id',
+            'details', 'details.site:id,name',
                 'details.dzongkhag:id,dzongkhag',
                 'details.office:id,name','details.receivedSerial:id,asset_serial_no,asset_description,amount')->findOrFail($id);
         $approvalDetail = getApplicationLogs(\App\Models\AssetCommissionApplication::class, $commission->id);
         return $this->successResponse($commission, 'Commission application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
+        }
+    }
+
+
+
+    public function getAssetNoByGrnId($grnId)
+    {
+        //only those serial whose status is not -1
+        $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
+            $query->where('status', '!=', -1);
+        })->pluck('received_serial_id')->toArray();
+        // dd($existingSerials);
+        try {
+            $assetNosQuery = RequisitionDetail::where('id', $grnId)
+                ->whereHas('serials', function ($query) {
+                    $query->where('is_commissioned', 0);
+                })
+                ->with('grnItemDetail:id,item_id', 'grnItemDetail.item:id,item_no,item_description,uom')
+                ->with(['serials' => function ($query) use ($existingSerials) {
+                        $query->where('is_commissioned', 0);
+                        if(!empty($existingSerials)){
+                            $query->whereNotIn('id', $existingSerials);
+                        }
+                        $query->selectRaw("id, requisition_detail_id, asset_serial_no");
+                    },
+                ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
+                // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
+            $assetNos = $assetNosQuery->get();
+            if ($assetNos->isEmpty()) {
+                return $this->errorResponse('No asset numbers found for the provided GRN number.');
+            }
+
+            return $this->successResponse( $assetNos);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching asset numbers'. $e->getMessage());
         }
     }
 
