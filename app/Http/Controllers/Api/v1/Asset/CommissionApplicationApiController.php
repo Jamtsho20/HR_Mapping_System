@@ -218,12 +218,14 @@ class CommissionApplicationApiController extends Controller
                         if(!empty($existingSerials)){
                             $query->whereNotIn('id', $existingSerials);
                         }
-                        $query->selectRaw("id, requisition_detail_id, asset_serial_no");
+                        $query->selectRaw("id, requisition_detail_id, asset_serial_no, asset_description, amount");
                     },
                 ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
                 // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
-            $assetNos = $assetNosQuery->get();
-            if ($assetNos->isEmpty()) {
+
+            $assetNos = $assetNosQuery->first();
+
+            if (!$assetNos) {
                 return $this->errorResponse('No asset numbers found for the provided GRN number.');
             }
 
