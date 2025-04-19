@@ -25,6 +25,7 @@ use App\Models\DailyAllowance;
 use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
 use App\Traits\JsonResponseTrait;
+use App\Models\MasAdvanceTypes;
 
 class ApprovalController extends Controller
 {
@@ -71,7 +72,7 @@ class ApprovalController extends Controller
         }
 
         $holidays;
-        
+
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')
                 ->select('start_date', 'end_date')
@@ -157,9 +158,12 @@ class ApprovalController extends Controller
                         $transactionNumber = $application->transaction_no;
                         $contactNo = $application->employee->contact_number;
                         $amount = $application->amount;
-                        if ($accountCode == 501152) {
-                            $amount = $application->net_payable_amount;
+                        $advanceCode = null;
+                        if ($accountCode == DSA_ACCOUNT_CODE) {
+                            $advanceCode = MasAdvanceTypes::where('id', DSA_ADVANCE)->get('code')->first()->code;
                         }
+
+
                         $tax_amount = $application->tax_amount ?? null;
 
                         $item_code = isset($application->need_by_date) ? $application->need_by_date : null;
@@ -188,8 +192,8 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber);
-                          
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber, $advanceCode);
+
                             Log::info($postFields);
                             if($grnNo){
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
@@ -272,7 +276,7 @@ class ApprovalController extends Controller
     }
 
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null, $transactionNo=null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null, $transactionNo=null, $advanceCode = null)
     {
         if ($tax_amount) {
             return $postFields = '{
@@ -372,9 +376,67 @@ class ApprovalController extends Controller
                 "DocumentDate" => date('Y-m-d'),
                 "PostingDate" => date('Y-m-d')
 
-     ];
-            return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        } else {
+                ];
+                return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        } elseif ($accountCode == DSA_ACCOUNT_CODE) {
+            if ($application->advance_amount > 0){
+                $postFields = '{
+                            "ReferenceDate":"' . date('Y-m-d') . '",
+                            "Memo": "' . $memo . '",
+                            "U_HRMS_No": "' . $transactionNo . '",
+                            "JournalEntryLines": [
+                                 {
+                                    "ShortName": "' . $shortName . '",
+                                    "CostingCode": "' . $costingCode . '",
+                                    "CostingCode2": "' . $costingCode2 . '",
+                                    "U_P_NUMBER": "' . $contactNo . '",
+                                    "Credit": "' . $application->net_payable_amount . '",
+                                    "Debit": 0
+                                },
+                                {
+                                    "AccountCode": "' . $advanceCode . '",
+                                    "CostingCode": "' . $costingCode . '",
+                                    "CostingCode2": "' . $costingCode2 . '",
+                                    "U_P_NUMBER": "' . $contactNo . '",
+                                    "Credit": "' . $application->advance_amount . '",
+                                    "Debit": 0
+                                },
+                                {
+                                    "AccountCode": "' . $accountCode . '",
+                                    "CostingCode": "' . $costingCode . '",
+                                    "CostingCode2": "' . $costingCode2 . '",
+                                    "Credit": 0,
+                                    "Debit": "' . $application->amount . '"
+                                }
+                            ]
+                        }';
+            }else{
+                $postFields = '{
+                    "ReferenceDate":"' . date('Y-m-d') . '",
+                    "Memo": "' . $memo . '",
+                    "U_HRMS_No": "' . $transactionNo . '",
+                    "JournalEntryLines": [
+                        {
+                            "ShortName": "' . $shortName . '",
+                            "CostingCode": "' . $costingCode . '",
+                            "CostingCode2": "' . $costingCode2 . '",
+                            "U_P_NUMBER": "' . $contactNo . '",
+                            "Credit": "' . $application->net_payable_amount . '",
+                            "Debit": 0
+                        },
+                        {
+                            "AccountCode": "' . $accountCode . '",
+                            "CostingCode": "' . $costingCode . '",
+                            "CostingCode2": "' . $costingCode2 . '",
+                            "Credit": 0,
+                            "Debit": "' . $application->amount . '"
+                        }
+                    ]
+                }';
+            }
+            return $postFields;
+        }
+        else {
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
                             "Memo": "' . $memo . '",
