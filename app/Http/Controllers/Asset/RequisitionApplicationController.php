@@ -84,6 +84,7 @@ class RequisitionApplicationController extends Controller
         $stores = MasStore::where('status', 1)->get();
         $dzongkhags = MasDzongkhag::all();
         $sites = MasSite::with('dzongkhag')->get();
+
         return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags', 'items', 'stores'));
      }
 
@@ -92,7 +93,7 @@ class RequisitionApplicationController extends Controller
       */
      public function store(Request $request)
      {
-        //dd($request->all());
+        dd($request->all());
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
