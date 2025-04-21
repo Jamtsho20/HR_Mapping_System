@@ -479,7 +479,7 @@ class ApiController extends BaseController
         ]);
 
         // Execute cURL and check for errors
-        
+
         $curlResponse = curl_exec($curl);
 
         // If cURL fails, return an error response

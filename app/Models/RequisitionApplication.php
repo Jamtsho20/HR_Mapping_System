@@ -123,10 +123,10 @@ class RequisitionApplication extends Model
                 continue;
             }
 
-            $grnItem = MasGrnItemDetail::find($detail->grn_item_id);
+            $grnItem = MasGrnItemDetail::find($detail->grn_item_detail_id);
 
             if (!$grnItem) {
-                \Log::warning("GRN Item not found for ID: {$detail->grn_item_id}");
+                \Log::warning("GRN Item not found for ID: {$detail->grn_item_detail_id}");
                 continue;
             }
 

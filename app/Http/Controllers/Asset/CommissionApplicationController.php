@@ -59,7 +59,7 @@ class CommissionApplicationController extends Controller
             ->where('is_received', 1)
             ->where('created_by', auth()->user()->id)
             ->get();
-
+            
         $empDetails = empDetails(auth()->user()->id);
         return view('asset.commission.create',compact('empDetails', 'grnItems'));
     }

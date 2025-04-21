@@ -90,24 +90,23 @@
                                 <td style="padding-left:25px;">
                                     @if ($expense->file)
                                     @php
-                                    $files = json_decode($expense->file, true); // Decode JSON string to an array
-                                    $file = $files[0] ?? null; // Get the first file if it exists
+                                    // Decode the JSON string into an array
+                                    $attachments = json_decode($expense->file, true);
                                     @endphp
-
-                                    @if ($file)
-                                    <a href="{{ asset($file) }}" class="btn btn-sm btn-primary"
-                                        target="_blank">
-                                        <i class="fas fa-file-alt"></i> View Attachment
-                                    </a>
-                                    @else
-                                    <p>No attachment available.</p>
-                                    @endif
+                                    <div class="flex">
+                                        @foreach ($attachments as $attachment)
+                                        <a href="{{ asset($attachment) }}" class="btn btn-sm btn-primary"
+                                            target="_blank">
+                                            <i class="fas fa-file-alt"></i> View file
+                                        </a>
+                                        @endforeach
+                                    </div>
                                     @else
                                     <span class="text-danger">No attachment available.</span>
                                     @endif
+
                                 </td>
                             </tr>
-
                         </tbody>
                     </table>
                 </div>

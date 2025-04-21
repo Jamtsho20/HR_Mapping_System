@@ -239,5 +239,86 @@ class RequisitionApplicationApiController extends Controller
              ->delete();
      }
 
+     public function indexRequisitionApproval(Request $request)
+     {
+         try {
+             $currentUser = auth()->user();
+             $name = $request->input('name');
+             $requisitionTypes = MasRequisitionType::get(['id', 'name']);
+             $statuses = [];
+             $applicationType = App\Models\RequisitionApplication::class; // Default application type
+             $tab = null;
+
+             // Define conditions for filtering based on status
+             switch ($request->input('status')) {
+                 case 'pending':
+                     $statuses = [1, 2]; // Pending statuses
+                     $tab = 'history';
+                     break;
+                 case 'approved':
+                     $statuses = [2, 3]; // Approved statuses
+                     $tab = 'audit_logs';
+                     break;
+                 case 'rejected':
+                     $statuses = [-1]; // Rejected status
+                     $tab = 'audit_logs'; // Adjust tab if needed
+                     break;
+                 default:
+                     return response()->json(['error' => 'Invalid status parameter'], 400);
+             }
+
+             // Build the query dynamically
+             $requisitionApplications = RequisitionApplication::with([
+                'employee:id,name,username,contact_number',
+                     'employee.empjob' => function ($query) {
+                         $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                     },
+                     'employee.empjob.designation:id,name',
+                 'employee.empjob.department:id,name',
+                 'employee.empjob.section:id,name',
+                 'histories:id,application_id,action_performed_by',
+                 'leaveType:id,name', // Include leave type
+             ])
+             ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                 $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                     $query->where('approver_emp_id', $currentUser->id)
+                           ->where('application_type', $applicationType);
+                 });
+             })
+             ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                 $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                     $query->where('application_type', $applicationType)
+                           ->where('action_performed_by', $currentUser->id);
+                 })
+                 ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+             })
+             ->when($name, function ($query) use ($name) {
+                 $query->whereHas('employee', function ($query) use ($name) {
+                     $query->where('name', 'like', "%{$name}%"); // Filter by name
+                 });
+             })
+             ->whereIn('status', $statuses) // Filter based on statuses
+             ->filter($request, false)
+             ->orderBy('created_at')
+             ->get();
+
+             $mappedModel = RequisitionApplication::class;
+             $requisitionApplications = $requisitionApplications->map(function ($requisition) use ($mappedModel) {
+                 return loadApplicationDetails($requisition, $mappedModel);
+             });
+
+             return response()->json([
+                 'success' => true,
+                 'message' => 'Requisition approval applications fetched successfully',
+                 'data' => $requisitionApplications,
+             ]);
+
+         } catch (\Exception $e) {
+             return $this->errorResponse($e->getMessage());
+         }
+
+
+     }
+
 }
 
