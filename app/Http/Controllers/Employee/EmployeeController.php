@@ -712,24 +712,24 @@ class EmployeeController extends Controller
         $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
         $sapData = [
             'CardCode' => $employee->username,
-            'CardName' => trim($employee->first_name . ' ' . ($employee->middle_name ?? '') . ' ' . ($employee->last_name ?? '')),
-            'CardType' => 'C',
-            'GroupCode' => 108,
+            'CardName' => $employee->name,
+            'CardType' => 'S',
+            'GroupCode' => 110,
             'Currency' => '',
             'CardForeignName' => $employee->cid_no,
             'Country' => 'BT',
-            'DebitorAccount' => '34611',
-            'DownPaymentInterimAccount' => '23245',
-            "BPFiscalTaxIDCollection" =>
-                [
+            'DebitorAccount' => '204111',
+            'DownPaymentClearAct' => '205144',
+            'DownPaymentInterimAccount' => '205144',
+            'U_TPN' => $tpnNo,
             "BPFiscalTaxIDCollection" =>
             [
 
-                    ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
-                ]
-
+                // ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+                "TaxId0" =>  '0012345697' // static
             ]
         ];
+
         $this->apiController->postEmployeeToSap($sapData);
     }
 
