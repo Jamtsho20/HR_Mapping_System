@@ -41,9 +41,7 @@ class RequisitionApplicationApiController extends Controller
             'type_id' => 'required',
             'requisition_date' => 'required',
             'need_by_date' => 'required',
-            'details.*.item_description' => 'required',
-            'details.*.store' => 'required',
-            // 'details.*.stock_status' => 'required',
+
             'details.*.quantity_required' => 'required',
             'details.*.dzongkhag' => 'required',
             // 'details.*.office_name' => 'required',
@@ -140,16 +138,16 @@ class RequisitionApplicationApiController extends Controller
                 try{
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }catch(\Exception $e){
-                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                    \Log::error('Error sending mail for requisition application: ' . $e->getMessage());
                 }
            }
-
+           return $this->successResponse($requisition, 'Requisition application created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->errorResponse($e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
-        return $this->successResponse($requisition, 'Requisition application created successfully');
+
      }
 
 
@@ -176,28 +174,28 @@ class RequisitionApplicationApiController extends Controller
      {
          $existingIds = [];
 
+         try{
          foreach ($details as $detail) {
              $grn_item = null;
              $grn_item_id = null;
              $grn_item_detail_id = null;
 
              // Handle GRN-based requisition (type_id == 1)
-             if (!empty($detail['grn_id'])) {
-                 $grnId = $detail['grn_id'];
+             if (!empty($detail['grn_item_id'])) {
+                 $grnId = $detail['grn_item_id'];
 
                  if ($grnId) {
-                     $grn_item = MasGrnItemDetail::where('grn_id', $grnId)
-                         ->where('store_id', $detail['store'])
-                         ->where('item_id', $detail['item_description'])
-                         ->first();
+                    $grn_item = MasGrnItemDetail::where('id', $grnId)
+                    ->firstOrFail();
+                         if (!$grn_item) {
+                            throw new \Exception('GRN item not found');
+                        } else {
+                            $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
+                            $grn_item->update(['quantity' => $newStock]);
 
-                     if ($grn_item) {
-                         $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
-                         $grn_item->update(['quantity' => $newStock]);
-
-                         $grn_item_id = $grn_item->grn_id;
-                         $grn_item_detail_id = $grn_item->id;
-                     }
+                            $grn_item_id = $grn_item->grn_id;
+                            $grn_item_detail_id = $grn_item->id;
+                        }
                  }
              }
 
@@ -219,6 +217,7 @@ class RequisitionApplicationApiController extends Controller
                  $data['current_stock'] = $detail['stock_status'];
              }
 
+
              if (!empty($detail['id'])) {
                  $existingDetail = RequisitionDetail::find($detail['id']);
                  if ($existingDetail) {
@@ -237,7 +236,10 @@ class RequisitionApplicationApiController extends Controller
          RequisitionDetail::where('requisition_id', $requisitionId)
              ->whereNotIn('id', $existingIds)
              ->delete();
+     }catch(\Exception $e){
+         return $this->errorResponse($e->getMessage());
      }
+    }
 
      public function indexRequisitionApproval(Request $request)
      {
