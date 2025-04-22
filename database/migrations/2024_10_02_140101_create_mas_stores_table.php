@@ -22,9 +22,10 @@ return new class extends Migration
             // $table->string('store_location')->nullable();
             $table->string('store_email')->nullable();
             $table->string('store_phone')->nullable();
-            $table->string('contact_person')->nullable();
-            $table->string('contact_email')->nullable();
-            $table->string('contact_number')->nullable();
+            // $table->string('contact_person')->nullable();
+            // $table->string('contact_email')->nullable();
+            // $table->string('contact_number')->nullable();
+            $table->foreignId('store_officer')->index()->nullable()->constrained('mas_employees');
             $table->boolean('status')->default(1)->comment('1 => active, 0 => in-active');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
