@@ -106,7 +106,7 @@
                                                             </td>
                                                             <td>{{ $pf->details['gross_pay'] ?? '0' }}</td>
                                                             <td>{{ $pf->details['deductions']['GSLI'] ?? '0' }}</td>
-                                                            <td>{{ $pf->details['net_pay'] ?? '0' }}</td>
+                                                            <td>{{ ($pf->details['gross_pay'] ?? 0) - (($pf['details']['deductions']['PF Contr'] ?? 0) + ($pf->details['deductions']['GSLI'] ?? 0)) }}
                                                             <td>{{ $pf->details['deductions']['H/Tax'] ?? '0' }}</td>
                                                             <td>{{ ($pf->details['deductions']['Salary Tax'] ?: 0) + ($pf->details['deductions']['H/Tax'] ?: 0) }}
                                                             </td>
