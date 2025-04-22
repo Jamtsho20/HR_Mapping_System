@@ -248,7 +248,7 @@ class RequisitionApplicationApiController extends Controller
              $name = $request->input('name');
              $requisitionTypes = MasRequisitionType::get(['id', 'name']);
              $statuses = [];
-             $applicationType = App\Models\RequisitionApplication::class; // Default application type
+             $applicationType = 'App\Models\RequisitionApplication'; // Default application type
              $tab = null;
 
              // Define conditions for filtering based on status
@@ -279,7 +279,7 @@ class RequisitionApplicationApiController extends Controller
                  'employee.empjob.department:id,name',
                  'employee.empjob.section:id,name',
                  'histories:id,application_id,action_performed_by',
-                 'leaveType:id,name', // Include leave type
+
              ])
              ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
                  $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
@@ -300,7 +300,7 @@ class RequisitionApplicationApiController extends Controller
                  });
              })
              ->whereIn('status', $statuses) // Filter based on statuses
-             ->filter($request, false)
+            //  ->filter($request, false)
              ->orderBy('created_at')
              ->get();
 
@@ -308,7 +308,6 @@ class RequisitionApplicationApiController extends Controller
              $requisitionApplications = $requisitionApplications->map(function ($requisition) use ($mappedModel) {
                  return loadApplicationDetails($requisition, $mappedModel);
              });
-
              return response()->json([
                  'success' => true,
                  'message' => 'Requisition approval applications fetched successfully',
