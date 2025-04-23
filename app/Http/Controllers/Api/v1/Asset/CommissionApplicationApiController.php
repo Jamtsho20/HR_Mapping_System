@@ -137,7 +137,7 @@ class CommissionApplicationApiController extends Controller
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => !empty($attachments) ? json_encode($attachments) : null,
+                'file' => !empty($attachments) ? json_encode($attachments) : [],
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
