@@ -34,33 +34,36 @@ class ExpenseExport implements FromCollection, WithHeadings
         ];
 
         // Access the request data to apply filters
-        return ExpenseApplication::filter($this->request, false)->get()->map(function ($expense) use (&$serialNo, $statusClasses) {
-            return [
-                $serialNo++,
-                $expense->employee->username,
-                $expense->employee->name,
-                $expense->employee->empJob->designation->name,
-                $expense->employee->empJob->department->name,
-                $expense->type->name,
-                \Carbon\Carbon::parse($expense->transaction_date)->format('d-F-Y'),
-                $expense->vehicle->vehicleType->name ?? '-',
-                $expense->vehicle->vehicle_no ?? '-',
-                $expense->transaction_no,
-                $expense->amount,
-                $expense->travel_type,
-                $expense->travel_mode,
-                $expense->travel_from_date,
-                $expense->travel_to_date,
-                $expense->travel_from,
-                $expense->travel_to,
-                $expense->travel_disatnce,
-                $expense->description,
-                $statusClasses[$expense->status],
-                $expense->expense_approved_by->name ?? '-',
-
-
-            ];
-        });
+        $expenses = ExpenseApplication::with(['audit_logs' => function ($query) {
+            $query->where('status', 3);
+        }])
+            ->filter($this->request, false)
+            ->get()
+            ->map(function ($expense) use (&$serialNo, $statusClasses) {
+                return [
+                    $serialNo++,
+                    $expense->employee->username,
+                    $expense->employee->name,
+                    $expense->employee->empJob->designation->name,
+                    $expense->employee->empJob->department->name,
+                    $expense->type->name,
+                    \Carbon\Carbon::parse($expense->transaction_date)->format('d-F-Y'),
+                    $expense->vehicle->vehicleType->name ?? '-',
+                    $expense->vehicle->vehicle_no ?? '-',
+                    $expense->transaction_no,
+                    $expense->amount,
+                    $expense->travel_type,
+                    $expense->travel_mode,
+                    $expense->travel_from_date,
+                    $expense->travel_to_date,
+                    $expense->travel_from,
+                    $expense->travel_to,
+                    $expense->travel_distance, // fixed typo
+                    $expense->description,
+                    $statusClasses[$expense->status] ?? 'Unknown',
+                    $expense->expense_approved_by->name ?? '-',
+                ];
+            });
     }
     public function headings(): array
     {
