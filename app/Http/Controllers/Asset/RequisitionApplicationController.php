@@ -93,7 +93,7 @@ class RequisitionApplicationController extends Controller
       */
      public function store(Request $request)
      {
-        dd($request->all());
+    
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head

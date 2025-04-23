@@ -34,7 +34,7 @@
                                 </tr>
 
                                 <tr>
-                                    <th style="width:35%;">Attachment <span class="pull-right d-none d-sm-block">:</span>
+                                    <th style="width:35%;">Attachment (s) <span class="pull-right d-none d-sm-block">:</span>
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;">
                                         @if ($commission->file)
@@ -99,7 +99,7 @@
                                         <td class="text-center">
                                             {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
                                         </td>
-                                        <td class="text-right">1</td>
+                                        <td class="text-right">{{ $detail->receivedSerial->quantity ?? 1 }}</td>
                                         <td class="text-right">
                                             {{ $detail->receivedSerial->amount }}
                                         </td>

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\MasDzongkhag;
 use App\Models\MasSite;
-
+use Carbon\Carbon;
 
 class CommissionApplicationApiController extends Controller
 {
@@ -137,7 +137,7 @@ class CommissionApplicationApiController extends Controller
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => !empty($attachments) ? json_encode($attachments) : null,
+                'file' => !empty($attachments) ? json_encode($attachments) : [],
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
@@ -234,5 +234,86 @@ class CommissionApplicationApiController extends Controller
             return $this->errorResponse('Something went wrong while fetching asset numbers'. $e->getMessage());
         }
     }
+
+
+    public function indexCommissionApproval(Request $request)
+     {
+         try {
+             $currentUser = auth()->user();
+             $name = $request->input('name');
+             $requisitionTypes = MasCommissionTypes::get(['id', 'name']);
+             $statuses = [];
+             $applicationType = 'App\Models\AssetCommissionApplication'; // Default application type
+             $tab = null;
+
+             // Define conditions for filtering based on status
+             switch ($request->input('status')) {
+                 case 'pending':
+                     $statuses = [1, 2]; // Pending statuses
+                     $tab = 'history';
+                     break;
+                 case 'approved':
+                     $statuses = [2, 3]; // Approved statuses
+                     $tab = 'audit_logs';
+                     break;
+                 case 'rejected':
+                     $statuses = [-1]; // Rejected status
+                     $tab = 'audit_logs'; // Adjust tab if needed
+                     break;
+                 default:
+                     return response()->json(['error' => 'Invalid status parameter'], 400);
+             }
+
+             // Build the query dynamically
+             $commissionApplications = AssetCommissionApplication::with([
+                'employee:id,name,username,contact_number',
+                     'employee.empjob' => function ($query) {
+                         $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                     },
+                     'employee.empjob.designation:id,name',
+                 'employee.empjob.department:id,name',
+                 'employee.empjob.section:id,name',
+                 'histories:id,application_id,action_performed_by',
+
+             ])
+             ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                 $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                     $query->where('approver_emp_id', $currentUser->id)
+                           ->where('application_type', $applicationType);
+                 });
+             })
+             ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                 $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                     $query->where('application_type', $applicationType)
+                           ->where('action_performed_by', $currentUser->id);
+                 })
+                 ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+             })
+             ->when($name, function ($query) use ($name) {
+                 $query->whereHas('employee', function ($query) use ($name) {
+                     $query->where('name', 'like', "%{$name}%"); // Filter by name
+                 });
+             })
+             ->whereIn('status', $statuses) // Filter based on statuses
+            //  ->filter($request, false)
+             ->orderBy('created_at')
+             ->get();
+
+             $mappedModel = AssetCommissionApplication::class;
+             $commissionApplications = $commissionApplications->map(function ($commission) use ($mappedModel) {
+                 return loadApplicationDetails($commission, $mappedModel);
+             });
+             return response()->json([
+                 'success' => true,
+                 'message' => 'Commission approval applications fetched successfully',
+                 'data' => $commissionApplications,
+             ]);
+
+         } catch (\Exception $e) {
+             return $this->errorResponse($e->getMessage());
+         }
+
+
+     }
 
 }

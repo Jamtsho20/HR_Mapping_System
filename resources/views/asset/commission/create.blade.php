@@ -247,7 +247,7 @@
                                 row.find("input[name^='details'][name$='[uom]']").val(
                                     serialData?.requisition_detail?.grn_item_detail.item.uom
                                 );
-                                row.find("input[name^='details'][name$='[qty]']").val(1);
+                                row.find("input[name^='details'][name$='[qty]']").val(serialData?.requisition_detail?.grn_item_detail.item.quantity ?? 1);
                                 row.find("input[name^='details'][name$='[amount]']").val(
                                     serialData.amount ?? 0.00
                                 );
