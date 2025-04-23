@@ -310,7 +310,7 @@ class ApiController extends BaseController
                                 'asset_serial_no' => $serial['asset_serial_no'],
                                 'asset_description' => $serial['asset_description'],
                                 'amount' => $serial['amount'],
-                                'quantity' => isset($serial['quantity']) ? $serial['quantity'] : null,
+                                'quantity' => isset($serial['quantity']) ? $serial['quantity'] : 1,
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ];
