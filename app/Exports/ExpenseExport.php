@@ -34,12 +34,10 @@ class ExpenseExport implements FromCollection, WithHeadings
         ];
 
         // Access the request data to apply filters
-        $expenses = ExpenseApplication::with(['audit_logs' => function ($query) {
+        return ExpenseApplication::with('details')->with(['audit_logs' => function ($query) {
             $query->where('status', 3);
-        }])
-            ->filter($this->request, false)
-            ->get()
-            ->map(function ($expense) use (&$serialNo, $statusClasses) {
+        }])->filter($this->request, false)->whereStatus(3)->get()->flatMap(function ($expense) use (&$serialNo, $statusClasses) {
+            return $expense->details->map(function ($detail) use (&$serialNo, $expense, $statusClasses) {
                 return [
                     $serialNo++,
                     $expense->employee->username,
@@ -51,19 +49,27 @@ class ExpenseExport implements FromCollection, WithHeadings
                     $expense->vehicle->vehicleType->name ?? '-',
                     $expense->vehicle->vehicle_no ?? '-',
                     $expense->transaction_no,
-                    $expense->amount,
+                    $detail->initial_reading,
+                    $detail->final_reading,
+                    $detail->quantity,
+                    $detail->rate,
+                    $detail->amount ?? $expense->amount,
+                    $detail->mileage,
                     $expense->travel_type,
                     $expense->travel_mode,
                     $expense->travel_from_date,
                     $expense->travel_to_date,
                     $expense->travel_from,
                     $expense->travel_to,
-                    $expense->travel_distance, // fixed typo
+                    $expense->travel_disatnce,
                     $expense->description,
-                    $statusClasses[$expense->status] ?? 'Unknown',
+                    $statusClasses[$expense->status],
                     $expense->expense_approved_by->name ?? '-',
+
+
                 ];
             });
+        });
     }
     public function headings(): array
     {
@@ -78,7 +84,12 @@ class ExpenseExport implements FromCollection, WithHeadings
             'Vechicle Type',
             'Vehicle No',
             'Expense No',
-            'Expense Amount',
+            'Initial Reading',
+            'FInal Reading',
+            'Qty',
+            'Rate',
+            'Amount',
+            'Mileage',
             'Travel Type',
             'Travel Mode',
             'Travel From Date',
