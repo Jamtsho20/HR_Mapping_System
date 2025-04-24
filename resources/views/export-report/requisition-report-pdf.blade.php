@@ -63,7 +63,10 @@
                     SL no
                 </th>
                 <th>
-                    Employee Name
+                    Employee
+                </th>
+                <th>
+                    Department
                 </th>
                 <th>
                     Req Type
@@ -124,6 +127,7 @@
                     <tr>
                         <td>{{ $count++ }}</td> {{-- Parent index --}}
                         <td>{{ $req->employee->emp_id_name }}</td>
+                        <td>{{ $req->employee->empJob->department->name ?? config('global_null_value') }}</td>
                         <td>{{ $req->type->name }}</td>
                         <td>{{ $req->transaction_no }}</td>
                         <td>{{ $req->transaction_date }}</td>
@@ -131,13 +135,13 @@
                         {{-- Detail-specific data --}}
                         <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}
                         </td>
-                        <td title="{{ $detail->grnItemDetail->item->item_description }}">
-                            {{ \Illuminate\Support\Str::limit($detail->grnItemDetail->item->item_description, 25, '...') }}
+                        <td title="{{ $detail->grnItemDetail?->item?->item_description }}">
+                            {{ \Illuminate\Support\Str::limit($detail->grnItemDetail?->item?->item_description, 25, '...') }}
                         </td>
                         <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}
                         </td>
-                        <td>{{ $detail->grnItemDetail->store->name }}</td>
-                        <td class="text-right">{{ $detail->grnItemDetail->quantity }}</td>
+                        <td>{{ $detail->grnItemDetail?->store?->name }}</td>
+                        <td class="text-right">{{ $detail->current_stock }}</td>
                         <td class="text-right">{{ $detail->requested_quantity }}</td>
                         <td class="text-right">{{ $detail->received_quantity }}</td>
                         <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}

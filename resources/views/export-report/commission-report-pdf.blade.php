@@ -63,7 +63,10 @@
                     SL no
                 </th>
                 <th>
-                    Employee Name
+                    Employee
+                </th>
+                <th>
+                    Department
                 </th>
                 <th>
                     Comm No
@@ -118,21 +121,22 @@
                     <tr>
                         <td>{{ $count++ }}</td> {{-- Parent index --}}
                         <td>{{ $comm->employee->emp_id_name }}</td>
+                        <td>{{ $comm->employee->empJob->department->name ?? config('global_null_value') }}</td>
                         <td>{{ $comm->transaction_no }}</td>
                         <td>{{ $comm->transaction_date }}</td>
 
                         {{-- Detail-specific data --}}
-                        <td>{{ $detail->receivedSerial->asset_serial_no }}</td>
+                        <td>{{ $detail->receivedSerial?->asset_serial_no }}</td>
                         {{-- <td>{{ $detail->receivedSerial->asset_description }}</td> --}}
                         <td title="{{ $detail->receivedSerial->asset_description }}">
-                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial->asset_description, 25, '...') }}
+                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 25, '...') }}
                         </td>
 
-                        <td>{{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom ?? '-' }}
+                        <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->uom ?? '-' }}
                         </td>
                         <td class="text-right">1</td>
-                        <td class="text-right">{{ $detail->receivedSerial->amount }}</td>
-                        <td>{{ $detail->dzongkhag->dzongkhag }}</td>
+                        <td class="text-right">{{ $detail->receivedSerial?->amount }}</td>
+                        <td>{{ $detail->dzongkhag?->dzongkhag }}</td>
                         <td>{{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}
                         </td>
                         <td>{{ $detail->site->name ?? '-' }}</td>

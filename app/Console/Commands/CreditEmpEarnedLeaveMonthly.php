@@ -33,14 +33,11 @@ class CreditEmpEarnedLeaveMonthly extends Command
                 DB::transaction(function () use ($leaves) {
                     foreach ($leaves as $leave) {
                         // Credit leave based on type
-                        $calculatedCurrentEntitlement = $leave->current_entitlement + EARNED_LEAVE_CREDIT_AMOUNT;
                         $leave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT; // Add 2.5 days per month
                         $calculatedClosingBalance = $leave->opening_balance 
                                                     + $leave->current_entitlement 
                                                     - $leave->leaves_availed;
                         $leave->closing_balance = min($calculatedClosingBalance, 90.00);
-                        // $leave->current_entitlement = min($calculatedCurrentEntitlement, 90.00);
-                        // Save updated leave
                         $leave->save();
                     }
                 });
@@ -51,25 +48,29 @@ class CreditEmpEarnedLeaveMonthly extends Command
 
     // public function handle()
     // {
-    //     $previousMonth = now()->subMonth()->month;
-    //     $previousMonthYear = now()->subMonth()->year;
+    //     $currentMonth = now()->month;
+    //     // $previousMonth = now()->subMonth()->month;
+    //     // $previousMonthYear = now()->subMonth()->year;
+    //     $currentYear = now()->year;
 
     //     EmployeeLeave::where('mas_leave_type_id', EARNED_LEAVE)
-    //         ->chunk(100, function ($leaves) use ($previousMonth, $previousMonthYear) {
-    //             DB::transaction(function () use ($leaves, $previousMonth, $previousMonthYear) {
-    //                 foreach ($leaves as $leave) {
-    //                     $employeeId = $leave->employee_id;
+    //         ->chunk(100, function ($empLeaves) use ($currentMonth, $currentYear) {
+    //             DB::transaction(function () use ($empLeaves, $currentMonth, $currentYear) {
+    //                 foreach ($empLeaves as $empLeave) {
+    //                     $employeeId = $empLeave->employee_id;
 
     //                     // Total leave days in previous month
     //                     $totalLeaveDays = DB::table('leave_applications')
     //                         ->where('created_by', $employeeId)
-    //                         ->where('status', 2) // Approved
-    //                         ->where(function ($query) use ($previousMonth, $previousMonthYear) {
-    //                             $query->whereMonth('from_date', $previousMonth)
-    //                                 ->whereYear('from_date', $previousMonthYear)
-    //                                 ->orWhere(function ($q) use ($previousMonth, $previousMonthYear) {
-    //                                     $q->whereMonth('to_date', $previousMonth)
-    //                                         ->whereYear('to_date', $previousMonthYear);
+    //                         ->where('status', 3) // Approved
+    //                         ->where('updated_at', $currentMonth)
+    //                         ->where('updated_at', $currentYear)
+    //                         ->where(function ($query) use ($currentMonth, $currentYear) {
+    //                             $query->whereMonth('from_date', $currentMonth)
+    //                                 ->whereYear('from_date', $currentYear)
+    //                                 ->orWhere(function ($q) use ($currentMonth, $currentYear) {
+    //                                     $q->whereMonth('to_date', $currentMonth)
+    //                                         ->whereYear('to_date', $currentYear);
     //                                 });
     //                         })
     //                         ->sum('no_of_days');
@@ -80,14 +81,14 @@ class CreditEmpEarnedLeaveMonthly extends Command
     //                     }
 
     //                     // Credit earned leave
-    //                     $leave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT;
+    //                     $empLeave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT;
 
-    //                     $calculatedClosingBalance = $leave->opening_balance 
-    //                         + $leave->current_entitlement 
-    //                         - $leave->leaves_availed;
+    //                     $calculatedClosingBalance = $empLeave->opening_balance 
+    //                         + $empLeave->current_entitlement 
+    //                         - $empLeave->leaves_availed;
 
-    //                     $leave->closing_balance = min($calculatedClosingBalance, 90.00);
-    //                     $leave->save();
+    //                     $empLeave->closing_balance = min($calculatedClosingBalance, 90.00);
+    //                     $empLeave->save();
     //                 }
     //             });
     //         });
