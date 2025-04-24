@@ -135,7 +135,7 @@
                     <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}
                     </td>
                     <td>{{ $reports->no_of_emi }}</td>
-                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi)->format('d-F-Y') }}
+                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi - 1)->format('d-F-Y') }}
                     </td>
                     <td>{{ $reports->monthly_emi_amount }}</td>
                     <td>{{ $reports->advance_approved_by->name ?? '-' }}
