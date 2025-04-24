@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('received_serials', function (Blueprint $table) {
             $table->id();
             $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('asset_serial_no')->unique()->index()->comment('Unique serial number for each item.');
+            $table->string('asset_serial_no')->index()->comment('Unique serial number for each item.');
             $table->string('asset_description')->nullable();
             $table->decimal('amount', 12, 2)->nullable();
             $table->decimal('quantity', 12, 2)->nullable();
