@@ -109,6 +109,9 @@
                                         @include('approval.approvals.requisition_approval')
                                     @elseif ($id == 10)
                                         @include('approval.approvals.commission_approval')
+                                    @elseif ($id == 12)
+                                        @include('approval.approvals.asset_return_approval')
+
                                     @endif
 
                                 </div>

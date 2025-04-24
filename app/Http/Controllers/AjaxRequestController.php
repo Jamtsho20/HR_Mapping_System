@@ -41,6 +41,7 @@ use App\Models\LeaveApplication;
 use DateTime;
 use App\Models\DsaClaimMappings;
 use App\Models\MasDzongkhag;
+use App\Models\MasReturnType;
 use App\Models\MasSite;
 use App\Models\ReceivedSerial;
 use App\Models\RequisitionDetail;
@@ -372,6 +373,8 @@ class AjaxRequestController extends Controller
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
             10 => MasCommissionTypes::class,
+            11 => MasCommissionTypes::class,
+            12 => MasReturnType::class,
         ];
 
         if (isset($modelMap[$id])) {

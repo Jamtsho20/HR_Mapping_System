@@ -15,7 +15,7 @@ class MasReturnType extends Model
         return $this->morphMany(MasApprovalRule::class, 'approvable');
     }
     
-    public function requisitions()
+    public function assetReturn()
     {
         return $this->hasMany(AssetReturnApplication::class, 'type_id');
     }
