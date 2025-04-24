@@ -40,7 +40,7 @@
                     @endforeach
                 </select>
             </div>
-        @endcomponent
+    @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
                 <div class="card">
@@ -61,6 +61,7 @@
                                                             <th> # </th>
                                                             <th> Employee </th>
                                                             <th> Employee ID </th>
+                                                            <th> Employee CID </th>
                                                             <th> Pay Head </th>
                                                             <th> Loan Type </th>
                                                             <th> Branch Code </th>
@@ -82,6 +83,7 @@
                                                                 <td>{{ $loop->iteration }}</td>
                                                                 <td>{{ $record->employee->emp_id_name }} </td>
                                                                 <td>{{ $record->employee->employee_id }} </td>
+                                                                <td>{{ $record->employee->cid_no }} </td>
                                                                 <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->loanType?->name }} </td>
                                                                 <td>{{ $record->branch_code ?? config('global.null_value') }}
