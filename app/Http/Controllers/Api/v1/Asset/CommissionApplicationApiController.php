@@ -299,9 +299,9 @@ class CommissionApplicationApiController extends Controller
              ->orderBy('created_at')
              ->get();
 
-             $mappedModel = RequisitionApplication::class;
-             $commissionApplications = $commissionApplications->map(function ($requisition) use ($mappedModel) {
-                 return loadApplicationDetails($requisition, $mappedModel);
+             $mappedModel = AssetCommissionApplication::class;
+             $commissionApplications = $commissionApplications->map(function ($commission) use ($mappedModel) {
+                 return loadApplicationDetails($commission, $mappedModel);
              });
              return response()->json([
                  'success' => true,

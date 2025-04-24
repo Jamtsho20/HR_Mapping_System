@@ -36,7 +36,7 @@ class AdvanceLoanExport implements FromCollection, WithHeadings
                 \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->format('d-F-Y'),
                 $AdvanceReports->no_of_emi,
                 $AdvanceReports->monthly_emi_amount,
-                \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->addMonths($AdvanceReports->no_of_emi)->format('d-F-Y'), // Adding months
+                \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->addMonths($AdvanceReports->no_of_emi - 1)->format('d-F-Y'), // Adding months
                 $AdvanceReports->advance_approved_by->name,
                 \Carbon\Carbon::parse($AdvanceReports->updated_at)->format('d-F-Y')
             ];

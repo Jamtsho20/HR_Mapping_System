@@ -400,7 +400,7 @@ Route::middleware('auth')->group(function () {
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
 
 
-        Route::resource('asset-return', 'AssetReturnController');
+        Route::resource('asset-return', 'AssetReturnApplicationController');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
 
