@@ -40,5 +40,11 @@ class LoanEMIDeduction extends Model
         if ($request->has('loantype') && $request->query('loantype') != '') {
             $query->where('loan_type_id', $request->query('loantype'));
         }
+        if ($request->has('cid_no') && $request->query('cid_no') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('cid_no', '=', $request->query('cid_no'));
+            });
+        }
+
     }
 }

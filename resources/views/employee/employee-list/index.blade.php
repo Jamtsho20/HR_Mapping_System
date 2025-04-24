@@ -84,6 +84,10 @@
                     </option>
                 </select>
             </div>
+            <div class="col-md-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID ID">
+            </div>
         @endcomponent
 
         <div class="row row-sm">

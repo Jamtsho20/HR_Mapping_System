@@ -32,7 +32,11 @@
                         <option value="{{ $id }}" {{ old('loantype', request()->get('loantype')) == $id ? 'selected' : '' }} >{{ $name }}</option>
                     @endforeach
                 </select>
-            </div>         
+            </div>
+            <div class="col-md-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID ID">
+            </div>
     @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -54,6 +58,7 @@
                                                             <th> # </th>
                                                             <th> Employee </th>
                                                             <th> Employee ID </th>
+                                                            <th> Employee CID </th>
                                                             <th> Pay Head </th>
                                                             <th> Loan Type </th>
                                                             <th> Branch Code </th>
@@ -75,6 +80,7 @@
                                                                 <td>{{ $loop->iteration }}</td>
                                                                 <td>{{ $record->employee->emp_id_name }} </td>
                                                                 <td>{{ $record->employee->employee_id }} </td>
+                                                                <td>{{ $record->employee->cid_no }} </td>
                                                                 <td>{{ $record->payHead->name }}</td>
                                                                 <td>{{ $record->loanType?->name }} </td>
                                                                 <td>{{ $record->branch_code ?? config('global.null_value') }} </td>
@@ -121,7 +127,7 @@
                                                         @endforelse
                                                     </tbody>
                                                 </table>
-                                               
+
                                             </div>
                                         </div>
                                     </div>
