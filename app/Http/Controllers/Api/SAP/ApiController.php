@@ -299,11 +299,11 @@ class ApiController extends BaseController
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
 
-                            $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
-                            if ($exists) {
-                                DB::rollBack();
-                                return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
-                            }
+                            // $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
+                            // if ($exists) {
+                            //     DB::rollBack();
+                            //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                            // }
 
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,
