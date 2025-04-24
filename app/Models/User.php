@@ -168,6 +168,9 @@ class User extends Authenticatable
         if ($request->has('gender') && $request->query('gender') != '') {
             $query->where('gender', '=', $request->query('gender'));
         }
+        if ($request->has('cid_no') && $request->query('cid_no') != '') {
+            $query->where('cid_no', '=', $request->query('cid_no'));
+        }
 
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('mas_employees.name', 'LIKE', '%' . $request->query('name') . '%');
