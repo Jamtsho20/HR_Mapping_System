@@ -9,14 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 class AssetReturnApplication extends Model
 {
     use HasFactory, CreatedByTrait;
+     
+    protected $fillable = ['type_id','transaction_no','transaction_date','attachment','doc_no','status'];
 
-    public function type ()
+    public function type()
     {
-        return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
+        return $this->belongsTo(MasReturnType::class, 'type_id');
     }
-    public function details ()
+    public function details()
     {
-        return $this->hasMany(AssetCommissionDetail::class, 'commission_id');
+        return $this->hasMany(AssetReturnDetail::class, 'asset_return_id');
     }
 
     public function employee()

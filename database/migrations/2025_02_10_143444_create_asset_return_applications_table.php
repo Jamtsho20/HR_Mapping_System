@@ -19,6 +19,7 @@ return new class extends Migration
             // $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->comment('do transfer against goods received detail as it has to be done against each GRN');
             $table->json('attachment')->nullable();
             $table->string('doc_no')->index()->nullable();
+            $table->tinyInteger('status')->index()->comment('-1 => rejected, 1 => new, 2 => verified, 3 => approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

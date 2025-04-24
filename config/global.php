@@ -251,7 +251,15 @@ return [
             'email_subject' => 'Asset Commission',
             'approver_mail_content' => 'has applied asset commission for your endorsement.',
             'initiator_mail_content' => 'Your asset commission has been'
+        ],
+        12 => [
+            'name' => App\Models\AssetReturnApplication::class,
+            'post_to_sap' => true,
+            'email_subject' => 'Asset Return',
+            'approver_mail_content' => 'has applied asset commission for your endorsement.',
+            'initiator_mail_content' => 'Your asset commission has been'
         ]
+        
     ],
 
     'asset_condition_codes' => [
