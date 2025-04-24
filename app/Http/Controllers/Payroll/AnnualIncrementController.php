@@ -31,6 +31,7 @@ class AnnualIncrementController extends Controller
             ->whereHas('empJob', function ($query) {
                 $query->where('mas_employment_type_id', '<>', 8);
             })
+            ->completed()
             ->with(['empJob'])
             ->get();
 
