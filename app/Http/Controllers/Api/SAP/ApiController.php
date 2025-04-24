@@ -310,6 +310,7 @@ class ApiController extends BaseController
                                 'asset_serial_no' => $serial['asset_serial_no'],
                                 'asset_description' => $serial['asset_description'],
                                 'amount' => $serial['amount'],
+                                'quantity' => isset($serial['quantity']) ? $serial['quantity'] : 1,
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ];
@@ -478,6 +479,7 @@ class ApiController extends BaseController
         ]);
 
         // Execute cURL and check for errors
+
         $curlResponse = curl_exec($curl);
 
         // If cURL fails, return an error response
@@ -497,11 +499,40 @@ class ApiController extends BaseController
         if (json_last_error() !== JSON_ERROR_NONE) {
             return response()->json(['msg_error' => 'Invalid JSON response from SAP API: ' . json_last_error_msg()], 500);
         }
+        $responseFormated = [];
+
+        if (isset($responseArray['error']['message']['value'])) {
+            return $this->errorResponse($responseArray['error']['message']['value']);
+        }
+
+
+
+
+        $storesCodes = MasStore::all()->pluck('code')->toArray();
+        if($responseArray['ItemWarehouseInfoCollection']) {
+        foreach($responseArray['ItemWarehouseInfoCollection'] as $response) {
+            if(!in_array($response['WarehouseCode'], $storesCodes)) {
+                continue;
+            }
+
+            if($response['InStock'] == 0) {
+                continue;
+            }
+            $responseFormated[] = [
+                'code' => $response['WarehouseCode'],
+                'stock' => $response['InStock'],
+            ];
+
+            }
+        }
+        if (empty($responseFormated)) {
+            return $this->errorResponse('No stock found for the selected item');
+        }
 
         // Return the response (success case)
         return response()->json([
             'success' => true,
-            'data' => $responseArray,
+            'data' => $responseFormated,
         ]);
     }
 
@@ -565,9 +596,13 @@ class ApiController extends BaseController
 
 
 
+
          foreach ($items as $item) {
+         $originalCode = $item['ItemCode'] ?? null;
+        $itemCode = $originalCode ? date('dm') . '-' . $originalCode : null;
+
             $formattedItem = [
-                "ItemCode" => $item['ItemCode'] ?? null,
+                "ItemCode" => $itemCode ?? null,
                 "ItemName" => $item['ItemName'] ?? null,
                 "ForeignName" => $item['ForeignName'] ?? null,
                 "ItemsGroupCode" => 102,  // static value (Fixed Asset)

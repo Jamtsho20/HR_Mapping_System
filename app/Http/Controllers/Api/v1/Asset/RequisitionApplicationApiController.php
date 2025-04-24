@@ -41,9 +41,7 @@ class RequisitionApplicationApiController extends Controller
             'type_id' => 'required',
             'requisition_date' => 'required',
             'need_by_date' => 'required',
-            'details.*.item_description' => 'required',
-            'details.*.store' => 'required',
-            // 'details.*.stock_status' => 'required',
+
             'details.*.quantity_required' => 'required',
             'details.*.dzongkhag' => 'required',
             // 'details.*.office_name' => 'required',
@@ -64,10 +62,14 @@ class RequisitionApplicationApiController extends Controller
         public function index(Request $request)
         {
             try{
-                $requisitions = RequisitionApplication::with('details.grnItem')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-                return $this->successResponse($requisitions, 'Leave applications retrieved successfully');
+                $requisitions = RequisitionApplication::filter($request)->orderBy('created_at')->get();
+                $mappedModel = 'App\Models\RequisitionApplication';
+                $requisitions->map(function ($requisition) use ($mappedModel) {
+                    return loadApplicationDetails($requisition, $mappedModel);
+                });
+                return $this->successResponse($requisitions, 'Requisition applications retrieved successfully');
             }catch(\Exception $e){
-                return $this->errorMessage($e->getMessage());
+                return $this->errorResponse($e->getMessage());
             }
 
         }
@@ -76,34 +78,13 @@ class RequisitionApplicationApiController extends Controller
         {
             try{
             $reqTypes = MasRequisitionType::where('status', 1)->orderBy('id', 'desc')->select('id', 'name')->get();
-            $grnNos = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])
-            ->whereStatus(1)
-            ->get()
-            ->map(function ($grn) {
-                return [
-                    'id' => $grn->id,
-                    'grn_no' => $grn->grn_no,
-                    'detail' => collect($grn->detail)->map(function ($d) {
-                        return [
-                            'id' => $d->id,
-                            'store_id' => $d->store_id,
-                            'item_id' => $d->item_id,
-                            'grn_id' => $d->grn_id,
-                            'quantity' => $d->quantity,
-                            'description' => $d->description,
-                            'store' => $d->store,
-                            'item' => $d->item,
-                        ];
-                    }),
-                ];
-            });
+            $grnNos = MasGrnItem::whereStatus(1)
+            ->select('id', 'grn_no')
+            ->get();
             $items = MasItem::where('is_fixed_asset', 0)->select('id','item_no', 'item_description', 'uom')->get();
            $stores = MasStore::where('status', 1)->select('id', 'name', 'code')->get();
            $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-           $sites = MasSite::with(['dzongkhag' => function ($q) {
-            $q->select('id', 'dzongkhag');
-        }])->select('id', 'code', 'name', 'dzongkhag_id')->get();
-           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos, 'sites' => $sites, 'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Leave applications retrieved successfully');
+           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Leave applications retrieved successfully');
             }catch(\Exception $e){
                 return $this->errorResponse($e->getMessage());
             }
@@ -157,23 +138,33 @@ class RequisitionApplicationApiController extends Controller
                 try{
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }catch(\Exception $e){
-                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                    \Log::error('Error sending mail for requisition application: ' . $e->getMessage());
                 }
            }
-
+           return $this->successResponse($requisition, 'Requisition application created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->errorResponse($e->getMessage());
             // return back()->withInput()->with('msg_error', GENERAL_ERR_MSG);
         }
-        return $this->successResponse($requisition, 'Requisition application created successfully');
+
      }
 
 
      public function show(string $id)
      {
         try{
-        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
+            $requisition = RequisitionApplication::with([
+                'details.serials',
+                'details.site:id,name',
+                'details.dzongkhag:id,dzongkhag',
+                'details.office:id,name',
+                'details.item:id,item_no,item_description,uom',
+                'details.store:id,name,code',
+                'details.grnItem:id,grn_no',          // eager load grnItem relation
+                'details.grnItemDetail.item:id,item_description,uom',   // nested item from grnItemDetail
+            'details.grnItemDetail.store:id,name,code'    // eager load grnItemDetail relation
+            ])->find($id);
         return $this->successResponse($requisition, 'Requisition application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage());
@@ -183,28 +174,28 @@ class RequisitionApplicationApiController extends Controller
      {
          $existingIds = [];
 
+         try{
          foreach ($details as $detail) {
              $grn_item = null;
              $grn_item_id = null;
              $grn_item_detail_id = null;
 
              // Handle GRN-based requisition (type_id == 1)
-             if (!empty($detail['grn_id'])) {
-                 $grnId = $detail['grn_id'];
+             if (!empty($detail['grn_item_id'])) {
+                 $grnId = $detail['grn_item_id'];
 
                  if ($grnId) {
-                     $grn_item = MasGrnItemDetail::where('grn_id', $grnId)
-                         ->where('store_id', $detail['store'])
-                         ->where('item_id', $detail['item_description'])
-                         ->first();
+                    $grn_item = MasGrnItemDetail::where('id', $grnId)
+                    ->firstOrFail();
+                         if (!$grn_item) {
+                            throw new \Exception('GRN item not found');
+                        } else {
+                            $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
+                            $grn_item->update(['quantity' => $newStock]);
 
-                     if ($grn_item) {
-                         $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
-                         $grn_item->update(['quantity' => $newStock]);
-
-                         $grn_item_id = $grn_item->grn_id;
-                         $grn_item_detail_id = $grn_item->id;
-                     }
+                            $grn_item_id = $grn_item->grn_id;
+                            $grn_item_detail_id = $grn_item->id;
+                        }
                  }
              }
 
@@ -226,6 +217,7 @@ class RequisitionApplicationApiController extends Controller
                  $data['current_stock'] = $detail['stock_status'];
              }
 
+
              if (!empty($detail['id'])) {
                  $existingDetail = RequisitionDetail::find($detail['id']);
                  if ($existingDetail) {
@@ -244,6 +236,89 @@ class RequisitionApplicationApiController extends Controller
          RequisitionDetail::where('requisition_id', $requisitionId)
              ->whereNotIn('id', $existingIds)
              ->delete();
+     }catch(\Exception $e){
+         return $this->errorResponse($e->getMessage());
+     }
+    }
+
+     public function indexRequisitionApproval(Request $request)
+     {
+         try {
+             $currentUser = auth()->user();
+             $name = $request->input('name');
+             $requisitionTypes = MasRequisitionType::get(['id', 'name']);
+             $statuses = [];
+             $applicationType = 'App\Models\RequisitionApplication'; // Default application type
+             $tab = null;
+
+             // Define conditions for filtering based on status
+             switch ($request->input('status')) {
+                 case 'pending':
+                     $statuses = [1, 2]; // Pending statuses
+                     $tab = 'history';
+                     break;
+                 case 'approved':
+                     $statuses = [2, 3]; // Approved statuses
+                     $tab = 'audit_logs';
+                     break;
+                 case 'rejected':
+                     $statuses = [-1]; // Rejected status
+                     $tab = 'audit_logs'; // Adjust tab if needed
+                     break;
+                 default:
+                     return response()->json(['error' => 'Invalid status parameter'], 400);
+             }
+
+             // Build the query dynamically
+             $requisitionApplications = RequisitionApplication::with([
+                'employee:id,name,username,contact_number',
+                     'employee.empjob' => function ($query) {
+                         $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                     },
+                     'employee.empjob.designation:id,name',
+                 'employee.empjob.department:id,name',
+                 'employee.empjob.section:id,name',
+                 'histories:id,application_id,action_performed_by',
+
+             ])
+             ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                 $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                     $query->where('approver_emp_id', $currentUser->id)
+                           ->where('application_type', $applicationType);
+                 });
+             })
+             ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                 $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                     $query->where('application_type', $applicationType)
+                           ->where('action_performed_by', $currentUser->id);
+                 })
+                 ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+             })
+             ->when($name, function ($query) use ($name) {
+                 $query->whereHas('employee', function ($query) use ($name) {
+                     $query->where('name', 'like', "%{$name}%"); // Filter by name
+                 });
+             })
+             ->whereIn('status', $statuses) // Filter based on statuses
+            //  ->filter($request, false)
+             ->orderBy('created_at')
+             ->get();
+
+             $mappedModel = RequisitionApplication::class;
+             $requisitionApplications = $requisitionApplications->map(function ($requisition) use ($mappedModel) {
+                 return loadApplicationDetails($requisition, $mappedModel);
+             });
+             return response()->json([
+                 'success' => true,
+                 'message' => 'Requisition approval applications fetched successfully',
+                 'data' => $requisitionApplications,
+             ]);
+
+         } catch (\Exception $e) {
+             return $this->errorResponse($e->getMessage());
+         }
+
+
      }
 
 }

@@ -9,7 +9,7 @@
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">
                 <div class="col-md-12">
-                    <h6>Travel Details</h6>
+                    <h6>Requisition Details</h6>
                 </div>
             </div>
             <div class="row">
@@ -29,7 +29,7 @@
                             <tr>
                                 <th style="width:35%;">Requisition Date<span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;">
+                                <td style="padding-left:25px;"> 
                                    {{ \Carbon\Carbon::parse($requisition->transaction_date)->format('d-M-Y') }}
                                 </td>
                             </tr>

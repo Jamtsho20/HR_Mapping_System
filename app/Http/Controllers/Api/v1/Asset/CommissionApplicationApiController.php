@@ -12,11 +12,13 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetCommissionApplication;
 use App\Models\MasCommissionTypes;
 use App\Models\RequisitionApplication;
+use App\Models\RequisitionDetail;
+use App\Models\AssetCommissionDetail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\MasDzongkhag;
 use App\Models\MasSite;
-
+use Carbon\Carbon;
 
 class CommissionApplicationApiController extends Controller
 {
@@ -52,7 +54,11 @@ class CommissionApplicationApiController extends Controller
     public function index(Request $request)
     {
         try {
-            $commissions = AssetCommissionApplication::with('details')->filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->get();
+            $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->get();
+            $mappedModel = 'App\Models\AssetCommissionApplication';
+            $commissions->map(function ($commission) use ($mappedModel) {
+                return loadApplicationDetails($commission, $mappedModel);
+            });
             return $this->successResponse($commissions, 'Commission applications retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -64,19 +70,28 @@ class CommissionApplicationApiController extends Controller
     {
         try{
         // only fixed asset can be commissioned
-        $requisitions = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+        $requisitions = RequisitionApplication::with(['details.grnItem','details.grnItemDetail.item',  'details.serials'])->where('type_id', FIXED_ASSET)
             ->where('is_received', 1)
             ->where('created_by', auth()->user()->id)
             ->get();
-
-        $empDetails = empDetails(auth()->user()->id);
-        $employee = auth()->user()->name;
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-        $sites = MasSite::with(['dzongkhag' => function ($q) {
-                $q->select('id', 'dzongkhag');
-            }])->select('id', 'code', 'name', 'dzongkhag_id')->get();
-        $department = $empDetails->empJob->department;
-        return $this->successResponse(['requisitions' => $requisitions,'empname'=>$employee, 'empdepartment'=>$department, 'dzongkhags'=>$dzongkhags,'sites'=>$sites], 'Commission applications retrieved successfully');
+        $simplifiedRequisitions = $requisitions->flatMap(function ($req) {
+            $transactionNo = $req->transaction_no;
+            return collect($req->details)->map(function ($detail) use ($transactionNo) {
+                return [
+                    'req_no' => $transactionNo,
+                    'id' => $detail->id,
+                    'grn_item' => $detail->grnItem ?? null,
+                ];
+            });
+        })->values();
+
+
+        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
+
+        return $this->successResponse([
+
+            'grns' => $simplifiedRequisitions, 'dzongkhags'=>$dzongkhags], 'Commission applications retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -122,7 +137,7 @@ class CommissionApplicationApiController extends Controller
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => !empty($attachments) ? json_encode($attachments) : null,
+                'file' => !empty($attachments) ? json_encode($attachments) : [],
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
@@ -152,7 +167,7 @@ class CommissionApplicationApiController extends Controller
                 try{
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }catch(\Exception $e){
-                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                    \Log::error('Error sending mail for Commission Application: ' . $e->getMessage());
                 }
           }
         } catch (\Exception $e) {
@@ -169,12 +184,136 @@ class CommissionApplicationApiController extends Controller
     public function show(string $id)
     {
         try{
-        $commission = AssetCommissionApplication::with('details')->findOrFail($id);
+        $commission = AssetCommissionApplication::with(
+            'requisitionDetail:id,grn_item_detail_id',
+            'requisitionDetail.grnItemDetail:item_id,id', // assuming item_id is foreign key
+            'requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group_id',
+            'details', 'details.site:id,name',
+                'details.dzongkhag:id,dzongkhag',
+                'details.office:id,name','details.receivedSerial:id,asset_serial_no,asset_description,amount')->findOrFail($id);
         $approvalDetail = getApplicationLogs(\App\Models\AssetCommissionApplication::class, $commission->id);
         return $this->successResponse($commission, 'Commission application retrieved successfully');
         }catch(\Exception $e){
             return $this->errorResponse($e->getMessage(), 500);
         }
     }
+
+
+
+    public function getAssetNoByGrnId($grnId)
+    {
+        //only those serial whose status is not -1
+        $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
+            $query->where('status', '!=', -1);
+        })->pluck('received_serial_id')->toArray();
+        // dd($existingSerials);
+        try {
+            $assetNosQuery = RequisitionDetail::where('id', $grnId)
+                ->whereHas('serials', function ($query) {
+                    $query->where('is_commissioned', 0);
+                })
+                ->with('grnItemDetail:id,item_id', 'grnItemDetail.item:id,item_no,item_description,uom')
+                ->with(['serials' => function ($query) use ($existingSerials) {
+                        $query->where('is_commissioned', 0);
+                        if(!empty($existingSerials)){
+                            $query->whereNotIn('id', $existingSerials);
+                        }
+                        $query->selectRaw("id, requisition_detail_id, asset_serial_no, asset_description, amount");
+                    },
+                ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
+                // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
+
+            $assetNos = $assetNosQuery->first();
+
+            if (!$assetNos) {
+                return $this->errorResponse('No asset numbers found for the provided GRN number.');
+            }
+
+            return $this->successResponse( $assetNos);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching asset numbers'. $e->getMessage());
+        }
+    }
+
+
+    public function indexCommissionApproval(Request $request)
+     {
+         try {
+             $currentUser = auth()->user();
+             $name = $request->input('name');
+             $requisitionTypes = MasCommissionTypes::get(['id', 'name']);
+             $statuses = [];
+             $applicationType = 'App\Models\AssetCommissionApplication'; // Default application type
+             $tab = null;
+
+             // Define conditions for filtering based on status
+             switch ($request->input('status')) {
+                 case 'pending':
+                     $statuses = [1, 2]; // Pending statuses
+                     $tab = 'history';
+                     break;
+                 case 'approved':
+                     $statuses = [2, 3]; // Approved statuses
+                     $tab = 'audit_logs';
+                     break;
+                 case 'rejected':
+                     $statuses = [-1]; // Rejected status
+                     $tab = 'audit_logs'; // Adjust tab if needed
+                     break;
+                 default:
+                     return response()->json(['error' => 'Invalid status parameter'], 400);
+             }
+
+             // Build the query dynamically
+             $commissionApplications = AssetCommissionApplication::with([
+                'employee:id,name,username,contact_number',
+                     'employee.empjob' => function ($query) {
+                         $query->select('mas_employee_id', 'mas_department_id', 'mas_section_id', 'mas_designation_id');
+                     },
+                     'employee.empjob.designation:id,name',
+                 'employee.empjob.department:id,name',
+                 'employee.empjob.section:id,name',
+                 'histories:id,application_id,action_performed_by',
+
+             ])
+             ->when($tab === 'history', function ($query) use ($currentUser, $applicationType) {
+                 $query->whereHas('histories', function ($query) use ($currentUser, $applicationType) {
+                     $query->where('approver_emp_id', $currentUser->id)
+                           ->where('application_type', $applicationType);
+                 });
+             })
+             ->when($tab === 'audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                 $query->whereHas('audit_logs', function ($query) use ($currentUser, $applicationType, $statuses) {
+                     $query->where('application_type', $applicationType)
+                           ->where('action_performed_by', $currentUser->id);
+                 })
+                 ->whereYear('created_at', Carbon::now()->year); // Add condition for audit_logs
+             })
+             ->when($name, function ($query) use ($name) {
+                 $query->whereHas('employee', function ($query) use ($name) {
+                     $query->where('name', 'like', "%{$name}%"); // Filter by name
+                 });
+             })
+             ->whereIn('status', $statuses) // Filter based on statuses
+            //  ->filter($request, false)
+             ->orderBy('created_at')
+             ->get();
+
+             $mappedModel = AssetCommissionApplication::class;
+             $commissionApplications = $commissionApplications->map(function ($commission) use ($mappedModel) {
+                 return loadApplicationDetails($commission, $mappedModel);
+             });
+             return response()->json([
+                 'success' => true,
+                 'message' => 'Commission approval applications fetched successfully',
+                 'data' => $commissionApplications,
+             ]);
+
+         } catch (\Exception $e) {
+             return $this->errorResponse($e->getMessage());
+         }
+
+
+     }
 
 }

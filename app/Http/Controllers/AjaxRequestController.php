@@ -45,7 +45,8 @@ use App\Models\MasReturnType;
 use App\Models\MasSite;
 use App\Models\ReceivedSerial;
 use App\Models\RequisitionDetail;
-
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
 class AjaxRequestController extends Controller
 {
     /* write code related to ajax request */
@@ -613,6 +614,17 @@ class AjaxRequestController extends Controller
             return $this->successResponse(['sites' => $sites]);
         } catch(\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching sites. Please try again.');
+        }
+    }
+
+
+    public function getItemByGrnId($grnId)
+    {
+        try {
+            $items = MasGrnItemDetail::where('grn_id', $grnId)->with('item:id,item_no,item_description,uom', 'store:id,name,code')->get();
+            return $this->successResponse(['items' => $items]);
+        } catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching items. Please try again.' . $e->getMessage());
         }
     }
 }

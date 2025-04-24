@@ -129,7 +129,7 @@
 
                                                         <td>{{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom ?? '-' }}
                                                         </td>
-                                                        <td class="text-right">1</td>
+                                                        <td class="text-right">{{$detail->receivedSerial->quantity?? 1}}</td>
                                                         <td class="text-right">{{ $detail->receivedSerial->amount }}</td>
                                                         <td>{{ $detail->dzongkhag->dzongkhag }}</td>
                                                         <td>{{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}

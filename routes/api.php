@@ -70,8 +70,14 @@ Route::middleware('api.access.log')->group(function () {
 
     Route::namespace('Api\v1\Asset')->middleware('auth:sanctum')->group(function () {
         Route::resource('requisition', 'RequisitionApplicationApiController');
+        Route::get('requisition/get_item/{id}', [AjaxRequestController::class, 'getItemByGrnId']);
+        Route::get('requisition_approval', [RequisitionApplicationApiController::class, 'indexRequisitionApproval']);
+
+        Route::get('get_sites/{id}', [AjaxRequestController::class, 'getSitesByDzongkhagId']);
         Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);
+        Route::get('/get-asset/{id}', [CommissionApplicationApiController::class, 'getAssetNoByGrnId']);
         Route::resource('commission', 'CommissionApplicationApiController');
+        Route::get('commission_approval', [CommissionApplicationApiController::class, 'indexCommissionApproval']);
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {

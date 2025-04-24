@@ -13,6 +13,8 @@ use App\Models\TravelAuthorizationApplication;
 use App\Models\ExpenseApplication;
 use App\Models\DsaClaimApplication;
 use App\Models\TransferClaimApplication;
+use App\Models\RequisitionApplication;
+use App\Models\AssetCommissionApplication;
 use App\Models\MasApprovalHead;
 class GeneralApporvalController extends Controller
 {    use JsonResponseTrait;
@@ -46,6 +48,8 @@ class GeneralApporvalController extends Controller
                 'expense_applications_count' => $fetchCount(ExpenseApplication::class, ['type:id,name', 'employee:id,name,username']),
                 'dsa_claim_applications_count' => $fetchCount(DsaClaimApplication::class, ['employee:id,name,username']),
                 'transfer_claim_applications_count' => $fetchCount(TransferClaimApplication::class, ['type:id,name', 'employee:id,name,username']),
+                'requisition_applications_count' => $fetchCount(RequisitionApplication::class, ['type:id,name', 'employee:id,name,username']),
+                'commission_applications_count' => $fetchCount(AssetCommissionApplication::class, ['commissionType:id,name', 'employee:id,name,username']),
             ];
 
             return response()->json($response);
@@ -62,7 +66,7 @@ class GeneralApporvalController extends Controller
     $user = auth()->user();
 
     $applicationModels = config('global.applications');
-  
+
     $results = collect();
 
     // Fetch statuses from the query parameter

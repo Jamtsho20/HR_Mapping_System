@@ -34,6 +34,29 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <th style="width:35%;">Attachment (s) <span class="pull-right d-none d-sm-block">:</span>
+                                        &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;">
+                                        @if ($commission->file)
+                                            @php
+                                                // Decode the JSON string into an array
+                                                $attachments = json_decode($commission->file, true);
+                                            @endphp
+                                            <div class="flex">
+                                                @foreach ($attachments as $attachment)
+                                                    <a href="{{ asset($attachment) }}" class="btn btn-sm btn-primary"
+                                                        target="_blank">
+                                                        <i class="fas fa-file-alt"></i> View file
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-danger">No attachment available.</span>
+                                        @endif
+
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td colspan="2">
                                         <div class="table-responsive" style="margin-top: 20px; ">
                                             <table id="travel_details"
