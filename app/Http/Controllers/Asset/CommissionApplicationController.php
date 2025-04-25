@@ -84,7 +84,7 @@ class CommissionApplicationController extends Controller
                 $attachments[] = $attachment;
             }
         }
-
+        
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
@@ -99,7 +99,8 @@ class CommissionApplicationController extends Controller
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => !empty($attachments) ? json_encode($attachments) : [],
+                // 'file' => $attachments,
+                'file' => json_encode($attachments),
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
