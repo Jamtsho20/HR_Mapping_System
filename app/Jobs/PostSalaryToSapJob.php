@@ -64,7 +64,7 @@ class PostSalaryToSapJob implements ShouldQueue
         }
 
         // Post the payload to SAP
-        $response = $sap->postJournalEntries($postFields);
+        $response = $sap->postJournalEntries($postFields, false);
         Log::info($response);
 
         $content = json_decode($response->getContent(), true);
