@@ -55,20 +55,4 @@ class MenuGenerator
         return $this->menuAccessibleByRole()->toArray();
     }
 
-
-//     public function userRolesCastedToArray()
-// {
-//     $roleIds = $this->roles()->pluck('id')->toArray();
-
-//     // Check if user has delegated access from another user
-//     $delegatedRoles = DB::table('delegations')
-//         ->join('model_has_roles', 'delegations.delegator_id', '=', 'model_has_roles.model_id')
-//         ->where('delegatee_id', $this->id)
-//         ->where('start_date', '<=', now())
-//         ->where('end_date', '>=', now())
-//         ->pluck('role_id')
-//         ->toArray();
-
-//     return array_unique(array_merge($roleIds, $delegatedRoles));
-// }
 }

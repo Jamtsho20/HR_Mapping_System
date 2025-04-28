@@ -17,10 +17,10 @@
             <thead class="thead-light">
                 <tr>
                     <th>#</th>
-                    <th>Type</th>
-                    <th>Delegate To</th>
-                    <th>From Date</th>
+                    <th>Role</th>
+                    <th>Delegatee</th>
                     <th>Start Date</th>
+                    <th>End Date</th>
                     <th>Status</th>
                 </tr>
             </thead>

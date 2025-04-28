@@ -26,8 +26,8 @@ return [
     ],
 
     'status' => [
-        1 => 'active',
-        0 => 'inactive'
+        1 => 'Active',
+        0 => 'Inactive'
     ],
 
     'regular_emp_type_id' => 2,
