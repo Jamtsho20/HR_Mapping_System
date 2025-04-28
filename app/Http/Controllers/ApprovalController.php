@@ -26,6 +26,8 @@ use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasAdvanceTypes;
+use App\Models\AssetReturnApplication;
+
 
 class ApprovalController extends Controller
 {
@@ -58,7 +60,7 @@ class ApprovalController extends Controller
                     ->where('application_type', $modelClass);
             })
                 ->whereNotIn('status', [-1, 3])
-                //->filter($request, false)
+                ->filter($request, false)
                 ->orderByDesc('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();

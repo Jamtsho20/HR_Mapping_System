@@ -31,4 +31,16 @@ class AssetReturnApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+        if ($request->has('type_id') && $request->query('type_id') != '') {
+
+            $query->where('type_id', $request->query('type_id'));
+        }
+    }
+
 }
