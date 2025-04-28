@@ -355,7 +355,7 @@ class ApprovalController extends Controller
             $postFields = [
                 "Items" => $application->details->map(function ($detail) use ($application) {
                     return [
-                        "ItemCode" => (string) $detail->receivedSerial->asset_serial_no,
+                        "ItemCode" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$detail->receivedSerial->asset_serial_no,
                         "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
                         "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
                         "ItemsGroupCode" => 102,
