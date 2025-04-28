@@ -5,61 +5,78 @@
 <form action="{{ url('system-setting/delegations') }}" method="POST">
     @csrf
     <div class="card">
-        <div class="card-header ">
-            <h3 class="card-title">Add Delegation</h3>
-        </div>
         <div class="card-body">
             <div class="row">
-                <div class="form-group col-4">
-                    <label for="type">Role <span class="text-danger">*</span></label>
-                    <select class="form-control" name="role">
-                        <option value="">Select your option</option>
-                        @foreach($delegatorRoles as $role)
-                        <option value="{{ $role->id }}" {{ old('role') == $role->id ? 'selected' : '' }}>
-                            {{ $role->name }} 
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+                {{-- tabular form --}}
+                <div class="table-responsive">
+                    <table id="details" class="table table-condensed table-bordered table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th width="3%" class="text-center">#</th>
+                                <th>Role*</th>
+                                <th>Delegatee*</th>
+                                <th>Start Date*</th>
+                                <th>End Date*</th>
+                                <th>Remark</th>
+                                <th>Status*</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                <div class="form-group col-4">
-                    <label for="">Delegatee <span class="text-danger">*</span></label>
-                    <select class="form-control select2" name="delegatee">
-                    <option value="" disabled selected hidden>Select your option</option>
-                        @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}" {{ old('delegatee') == $employee->id ? 'selected' : '' }}>
-                            {{ $employee->emp_id_name }} 
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+                            <tr>
+                                <td class="text-center">
+                                    <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
+                                </td>
+                                <td>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="delegations[AAAAA][role]" required>
+                                        <option value="">Select your option</option>
+                                        @foreach($delegatorRoles as $role)
+                                            <option value="{{ $role->id }}" {{ old('role') == $role->id ? 'selected' : '' }}>
+                                                {{ $role->name }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="delegations[AAAAA][delegatee]" required >
+                                        <option value="" disabled selected hidden>Select your option</option>
+                                        @foreach($employees as $employee)
+                                            <option value="{{ $employee->id }}" {{ old('delegatee') == $employee->id ? 'selected' : '' }}>
+                                                {{ $employee->emp_id_name }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="date" name="delegations[AAAAA][start_date]" value="" class="form-control form-control-sm resetKeyForNew" required />
+                                </td>
+                                <td>
+                                    <input type="date" name="delegations[AAAAA][end_date]" value="" class="form-control form-control-sm resetKeyForNew" required />
+                                </td>
+                                <td>
+                                    <textarea class="form-control form-control-sm resetKeyForNew" name="delegations[AAAAA][remark]"></textarea>
+                                </td>
+                                <td>
+                                    <select class="form-control form-control-sm resetKeyForNew select2" name="delegations[AAAAA][status]" required>
+                                    <option value="" disabled selected hidden>Select Your Option</option>
+                                    @foreach (config('global.status') as $key => $type)
+                                        <option value="{{ $key }}" {{ $key == 1 ? 'selected' : '' }}>
+                                            {{ $type }}
+                                        </option>
+                                    @endforeach
+                                    </select>
+                                </td>
+                            </tr>
 
-                <div class="form-group col-4">
-                    <label for="start_date">Start Date <span class="text-danger">*</span></label>
-                    <input type="date" class="js-datepicker form-control js-datepicker" id="start_date" name="start_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="mm/dd/yy" placeholder="mm/dd/yy">
-                </div>
-
-                <div class="form-group col-4">
-                    <label for="end_date">End Date <span class="text-danger">*</span></label>
-                    <input type="date" class="js-datepicker form-control js-datepicker" id="end_date" name="end_date" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="mm/dd/yy" placeholder="mm/dd/yy">
-                </div>
-
-                <div class="form-group col-4">
-                    <label for="remark">Remark</label>
-                    <textarea class="form-control" name="remark">{{ old('remark') }}</textarea>
-                </div>
-
-                <div class="form-group col-4">
-                    <label for="">Status <span class="text-danger">*</span></label>
-                    <select class="form-control" name="status">
-                        {{-- Optional placeholder --}}
-                        <option value="" disabled hidden>Select Status</option>
-                        @foreach (config('global.status') as $key => $type)
-                            <option value="{{ $key }}" {{ $key == 1 ? 'selected' : '' }}>
-                                {{ $type }}
-                            </option>
-                        @endforeach
-                    </select>
+                            <tr class="notremovefornew">
+                                <td colspan="6"></td>
+                                <td class="text-right">
+                                    <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus">
+                                        </i> Add New Row</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -73,7 +90,7 @@
    
 </form>
 
-@include('layouts.includes.delete-modal')
+@include('layouts.includes.alert-message')
 @endsection
 @push('page_scripts')
 <script>

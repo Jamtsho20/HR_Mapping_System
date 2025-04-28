@@ -222,6 +222,6 @@
         </div>
     </div>
 </div>
-
+@include('layouts.includes.alert-message')
 
 @endsection

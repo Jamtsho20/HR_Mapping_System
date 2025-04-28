@@ -21,6 +21,7 @@
                     <th>Delegatee</th>
                     <th>Start Date</th>
                     <th>End Date</th>
+                    <th>Remark</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -33,10 +34,11 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
                 </tr>
 
                 <tr>
-                    <td colspan="6" class="text-center text-danger">No Delegations found</td>
+                    <td colspan="7" class="text-center text-danger">No Delegations found</td>
                 </tr>
 
             </tbody>

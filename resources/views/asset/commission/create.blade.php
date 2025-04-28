@@ -182,7 +182,7 @@
             </div>
         </div>
     </form>
-
+    @include('layouts.includes.alert-message')
 @endsection
 @push('page_scripts')
     <script>

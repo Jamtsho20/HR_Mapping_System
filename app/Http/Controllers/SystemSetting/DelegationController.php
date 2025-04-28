@@ -50,7 +50,7 @@ class DelegationController extends Controller
     public function create()
     {
         $employees = User::all();
-        $delegatorRoles = \Auth::user()->roles->filter(function ($role) {
+        $delegatorRoles = \Auth::user()->roles->filter(function ($role) { 
             return strtolower($role->name) !== 'Employee';
         });
         return view('system-settings.delegation.create',compact('employees', 'delegatorRoles'));
