@@ -598,11 +598,9 @@ class ApiController extends BaseController
 
 
          foreach ($items as $item) {
-         $originalCode = $item['ItemCode'] ?? null;
-        $itemCode = $originalCode ? date('dm') . '-' . $originalCode : null;
 
             $formattedItem = [
-                "ItemCode" => $itemCode ?? null,
+                "ItemCode" => $item['ItemCode'] ?? null,
                 "ItemName" => $item['ItemName'] ?? null,
                 "ForeignName" => $item['ForeignName'] ?? null,
                 "ItemsGroupCode" => 102,  // static value (Fixed Asset)
