@@ -94,20 +94,6 @@
 @endsection
 @push('page_scripts')
 <script>
-    $(document).ready(function () {
-        $('#start_date').on('change', function () {
-            let startDate = $(this).val();
-            let $endDate = $('#end_date');
-
-            // Set the min attribute on end_date
-            $endDate.attr('min', startDate);
-
-            // Clear end_date if it's before the selected start_date
-            if ($endDate.val() < startDate) {
-                $endDate.val('');
-            }
-        });
-    });
+    
 </script>
-
 @endpush

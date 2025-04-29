@@ -316,6 +316,7 @@ class ApiController extends BaseController
                             ];
                         }
                         ReceivedSerial::insert($serialsData);
+                        \Log::info('Serial Data: ' . $serialsData);
                     }
                 }
             }

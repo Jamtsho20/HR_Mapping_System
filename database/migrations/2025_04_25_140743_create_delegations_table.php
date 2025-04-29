@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('delegations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('delegator_id')->index()->constrained('mas_employees');
-            $table->foreignId('delegatee_id')->index()->constrained('mas_employees');
             $table->foreignId('role_id')->index()->consatrained('roles');
+            $table->foreignId('delegatee_id')->index()->constrained('mas_employees');
             $table->string('module')->index()->nullable()->comment('optional for now if required in future need to make use of this.');
             $table->date('start_date')->index();
             $table->date('end_date')->index();
