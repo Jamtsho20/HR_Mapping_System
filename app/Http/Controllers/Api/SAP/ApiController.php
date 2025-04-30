@@ -230,8 +230,27 @@ class ApiController extends BaseController
 
     public function saveGoodsIssued(Request $request)
     {
-
-        $validated = $request->validate([
+        // $validated = $request->validate([
+        //     'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
+        //     'doc_no' => 'required|string',
+        //     'details' => 'required|array|min:1',
+        //     'details.*.grn_no' => 'required|string|exists:mas_grn_items,grn_no',
+        //     'details.*.line_item' => 'required|array|min:1',
+        //     'details.*.line_item.*.item_code' => 'required|string|exists:mas_items,item_no',
+        //     'details.*.line_item.*.store_code' => 'required|string|exists:mas_stores,code',
+        //     'details.*.line_item.*.received_quantity' => 'required|integer|min:1',
+        //     'details.*.line_item.*.serials' => 'sometimes|array',
+        //     'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
+        //     'details.*.line_item.*.serials.*.asset_description' => 'required|string',
+        //     'details.*.line_item.*.serials.*.amount' => 'required|string'
+        // ]
+        // , [
+        //     'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
+        //     'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
+        //     'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
+        //     'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
+        // ]);
+        $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
             'details' => 'required|array|min:1',
@@ -244,23 +263,29 @@ class ApiController extends BaseController
             'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
             'details.*.line_item.*.serials.*.asset_description' => 'required|string',
             'details.*.line_item.*.serials.*.amount' => 'required|string'
-        ]
-        , [
+        ];
+        $messages = [
             'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
             'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
             'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
             'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
-        ]);
+        ];
 
+        $validator = \Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+            \Log::info("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
+        }
+        
         DB::beginTransaction();
         try {
 
-            $reqApplication = RequisitionApplication::where('doc_no', $validated['purchase_req_doc_no'])->firstOrFail();
-            $reqApplication->good_issue_doc_no = $validated['doc_no'];
+            $reqApplication = RequisitionApplication::where('doc_no', $request->purchase_req_doc_no)->firstOrFail();
+            $reqApplication->good_issue_doc_no = $request->doc_no;
             $reqApplication->is_received = 1;
             $reqApplication->save();
 
-            foreach ($validated['details'] as $detail) {
+            foreach ($request->details as $detail) {
                 $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
                 foreach ($detail['line_item'] as $line) {
@@ -740,7 +765,7 @@ class ApiController extends BaseController
                 "Cookie: $sessionId; B1SESSION=$sessionId",
                 'Content-Type: application/json',
             ],
-            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTIONPconstant
             CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
         ));
 
