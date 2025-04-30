@@ -273,7 +273,7 @@ class ApiController extends BaseController
                         ->value('id');
 
                     if (!$grn_item_detail_id) {
-                        DB::rollBack();
+                        // DB::rollBack();
                         return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
                     }
 
@@ -284,43 +284,42 @@ class ApiController extends BaseController
                         ->first();
 
                     if (!$requisition_detail) {
-                        DB::rollBack();
+                        // DB::rollBack();
                         return $this->errorResponse("Requisition application details not found for item_code: {$line['item_code']} and grn_no: {$detail['grn_no']}");
                     }
-
+                    
                     $requisition_detail->received_quantity = $line['received_quantity'];
                     $requisition_detail->is_received = 1;
                     $requisition_detail->received_at = now();
                     $requisition_detail->received_by = $reqApplication->created_by;
                     $requisition_detail->save();
-
+                    
 
                     if (!empty($line['serials'])) {
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
-
+                            
                             // $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
                             // if ($exists) {
-                            //     DB::rollBack();
-                            //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
-                            // }
-
-                            $serialsData[] = [
-                                'requisition_detail_id' => $requisition_detail->id,
-                                'asset_serial_no' => $serial['asset_serial_no'],
-                                'asset_description' => $serial['asset_description'],
-                                'amount' => $serial['amount'],
-                                'quantity' => isset($serial['quantity']) ? $serial['quantity'] : 1,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ];
-                        }
-                        ReceivedSerial::insert($serialsData);
-                        \Log::info('Serial Data: ' . $serialsData);
+                                //     DB::rollBack();
+                                //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                                // }
+                                
+                                $serialsData[] = [
+                                    'requisition_detail_id' => $requisition_detail->id,
+                                    'asset_serial_no' => $serial['asset_serial_no'],
+                                    'asset_description' => $serial['asset_description'],
+                                    'amount' => $serial['amount'],
+                                    'quantity' => isset($serial['quantity']) ? $serial['quantity'] : 1,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ];
+                            }
+                            ReceivedSerial::insert($serialsData);
                     }
                 }
             }
-
+           
             $employee = User::find($reqApplication->created_by); // Ensure employee_id exists in requisition
             if ($employee && $employee->email) {
                 Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $reqApplication));
