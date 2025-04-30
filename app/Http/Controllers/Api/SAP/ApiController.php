@@ -273,8 +273,8 @@ class ApiController extends BaseController
 
         $validator = \Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
+            \Log::error("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
             return $this->validationErrorResponse($validator->errors());
-            \Log::info("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
         }
         
         DB::beginTransaction();
