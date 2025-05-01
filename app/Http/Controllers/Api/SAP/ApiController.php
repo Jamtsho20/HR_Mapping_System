@@ -265,7 +265,7 @@ class ApiController extends BaseController
             $reqApplication->good_issue_doc_no = $request->doc_no;
             $reqApplication->is_received = 1;
             $reqApplication->save();
-
+            \Log::info('requestCheck', ['RequestData' => $request->details]);
             foreach ($request->details as $detail) {
                 $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
