@@ -302,6 +302,7 @@ class ApiController extends BaseController
                     
 
                     if (!empty($line['serials'])) {
+                        \Log::info('checking serials data', ['serials' => $line['serials']]);
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
                             
