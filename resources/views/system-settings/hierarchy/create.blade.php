@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Grade & Steps')
+@section('page-title', 'Hierarchies')
 @section('content')
 <form action="{{ url('system-setting/hierarchies') }}" method="POST">
     @csrf
@@ -148,4 +148,5 @@
         </div>
     </div>
 </form>
+@include('layouts.includes.alert-message')
 @endsection

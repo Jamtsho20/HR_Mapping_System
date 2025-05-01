@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Delegation extends Model
 {
@@ -16,16 +17,31 @@ class Delegation extends Model
 
     public function delegator()
     {
-        return $this->belongsTo(User::class, 'delgator_id');
+        return $this->belongsTo(User::class, 'delegator_id');
     }
 
     public function delegatee()
     {
-        return $this->belongsTo(User::class, 'delgatee_id');
+        return $this->belongsTo(User::class, 'delegatee_id');
     }
 
-    public function scopeFilter($query, $request)
+    public function role(){
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    //accessors & mutators refeer this
+    public function getStatusNameAttribute()
     {
+        $statusNameMapping = config('global.status');
+        return $statusNameMapping[$this->status];
+    }
+
+    //scope filter
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+        if ($onesOwnRecord) {
+            $query->where('created_by', auth()->user()->id);
+        }
         // if ($request->has('') && $request->query('gewog') != '')
         // {
         //     $query->where('name', 'LIKE', '%' . $request->query('gewog') . '%');

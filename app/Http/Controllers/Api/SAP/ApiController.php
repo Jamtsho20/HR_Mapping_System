@@ -230,8 +230,8 @@ class ApiController extends BaseController
 
     public function saveGoodsIssued(Request $request)
     {
-
-        $validated = $request->validate([
+        
+        $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
             'details' => 'required|array|min:1',
@@ -244,23 +244,29 @@ class ApiController extends BaseController
             'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
             'details.*.line_item.*.serials.*.asset_description' => 'required|string',
             'details.*.line_item.*.serials.*.amount' => 'required|string'
-        ]
-        , [
+        ];
+        $messages = [
             'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
             'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
             'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
             'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
-        ]);
+        ];
 
+        $validator = \Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            \Log::error("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
+            return $this->validationErrorResponse($validator->errors());
+        }
+        
         DB::beginTransaction();
         try {
 
-            $reqApplication = RequisitionApplication::where('doc_no', $validated['purchase_req_doc_no'])->firstOrFail();
-            $reqApplication->good_issue_doc_no = $validated['doc_no'];
+            $reqApplication = RequisitionApplication::where('doc_no', $request->purchase_req_doc_no)->firstOrFail();
+            $reqApplication->good_issue_doc_no = $request->doc_no;
             $reqApplication->is_received = 1;
             $reqApplication->save();
-
-            foreach ($validated['details'] as $detail) {
+            \Log::info('requestCheck', ['RequestData' => $request->details]);
+            foreach ($request->details as $detail) {
                 $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
                 foreach ($detail['line_item'] as $line) {
@@ -273,7 +279,7 @@ class ApiController extends BaseController
                         ->value('id');
 
                     if (!$grn_item_detail_id) {
-                        DB::rollBack();
+                        // DB::rollBack();
                         return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
                     }
 
@@ -284,27 +290,28 @@ class ApiController extends BaseController
                         ->first();
 
                     if (!$requisition_detail) {
-                        DB::rollBack();
+                        // DB::rollBack();
                         return $this->errorResponse("Requisition application details not found for item_code: {$line['item_code']} and grn_no: {$detail['grn_no']}");
                     }
-
+                    
                     $requisition_detail->received_quantity = $line['received_quantity'];
                     $requisition_detail->is_received = 1;
                     $requisition_detail->received_at = now();
                     $requisition_detail->received_by = $reqApplication->created_by;
                     $requisition_detail->save();
-
+                    
 
                     if (!empty($line['serials'])) {
+                        \Log::info('checking serials data', ['serials' => $line['serials']]);
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
-
+                            
                             // $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
                             // if ($exists) {
-                            //     DB::rollBack();
-                            //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
-                            // }
-
+                                //     DB::rollBack();
+                                //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                                // }
+                                
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,
                                 'asset_serial_no' => $serial['asset_serial_no'],
@@ -315,11 +322,15 @@ class ApiController extends BaseController
                                 'updated_at' => now(),
                             ];
                         }
-                        ReceivedSerial::insert($serialsData);
+                        if(!empty($serialsData)){
+                            \Log::info('Inserting serials data', ['serialsData' => $serialsData]);
+                            // \Log::info('Inserting serials data: ' . json_encode($serialsData));
+                            ReceivedSerial::insert($serialsData);
+                        }
                     }
                 }
             }
-
+           
             $employee = User::find($reqApplication->created_by); // Ensure employee_id exists in requisition
             if ($employee && $employee->email) {
                 Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $reqApplication));
@@ -740,7 +751,7 @@ class ApiController extends BaseController
                 "Cookie: $sessionId; B1SESSION=$sessionId",
                 'Content-Type: application/json',
             ],
-            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTIONPconstant
             CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
         ));
 

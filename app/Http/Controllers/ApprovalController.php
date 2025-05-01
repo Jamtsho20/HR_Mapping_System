@@ -213,7 +213,6 @@ class ApprovalController extends Controller
                                 // ], 500);
                             }
 
-
                             //update the updateData array and update ApplicationHistory once it is done
                             $updateData['is_posted_to_sap'] = 1;
                             $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
@@ -369,7 +368,7 @@ class ApprovalController extends Controller
                 })->toArray(),
                 "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
                     return [
-                        "AssetNumber" => (string) $detail->receivedSerial->asset_serial_no,
+                        "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$detail->receivedSerial->asset_serial_no,
                         "Quantity" => 1,
                         "TotalLC" => $detail->receivedSerial->amount
                     ];

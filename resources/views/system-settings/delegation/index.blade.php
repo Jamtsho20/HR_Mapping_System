@@ -17,28 +17,48 @@
             <thead class="thead-light">
                 <tr>
                     <th>#</th>
+                    <th>Delegator</th>
                     <th>Role</th>
                     <th>Delegatee</th>
                     <th>Start Date</th>
                     <th>End Date</th>
+                    <th>Remark</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-
+                @forelse($delegations as $delegation)
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $delegation->delegator?->emp_id_name }}</td>
+                    <td>{{ $delegation->role?->name }}</td>
+                    <td>{{ $delegation->delegatee?->emp_id_name }}</td>
+                    <td>{{ $delegation->start_date }}</td>
+                    <td>{{ $delegation->end_date }}</td>
+                    <td>{{ $delegation->remark }}</td>
+                    <td>{{ $delegation->status_name }}</td>
+                    <td class="text-center">
+                        @if ($privileges->edit)
+                        <a href="{{ url('system-setting/delegations/' . $delegation->id . '/edit') }}"
+                            class="btn btn-sm btn-rounded btn-outline-success f-s-10">
+                            <i class="fa fa-edit"></i> EDIT
+                        </a>
+                        @endif
+                        @if ($privileges->delete)
+                        <a href="#"
+                            class="delete-btn btn btn-sm btn-rounded btn-outline-danger f-s-10"
+                            data-url="{{ url('system-setting/delegations/' . $delegation->id) }}">
+                            <i class="fa fa-trash"></i> DELETE
+                        </a>
+                        @endif
+                    </td>
                 </tr>
-
+                @empty
                 <tr>
-                    <td colspan="6" class="text-center text-danger">No Delegations found</td>
+                    <td colspan="7" class="text-center text-danger">{{ config('global.no_data_found_msg') }}</td>
                 </tr>
-
+                @endforelse
             </tbody>
         </table>
     </div>
