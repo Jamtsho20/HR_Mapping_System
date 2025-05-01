@@ -230,26 +230,7 @@ class ApiController extends BaseController
 
     public function saveGoodsIssued(Request $request)
     {
-        // $validated = $request->validate([
-        //     'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
-        //     'doc_no' => 'required|string',
-        //     'details' => 'required|array|min:1',
-        //     'details.*.grn_no' => 'required|string|exists:mas_grn_items,grn_no',
-        //     'details.*.line_item' => 'required|array|min:1',
-        //     'details.*.line_item.*.item_code' => 'required|string|exists:mas_items,item_no',
-        //     'details.*.line_item.*.store_code' => 'required|string|exists:mas_stores,code',
-        //     'details.*.line_item.*.received_quantity' => 'required|integer|min:1',
-        //     'details.*.line_item.*.serials' => 'sometimes|array',
-        //     'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
-        //     'details.*.line_item.*.serials.*.asset_description' => 'required|string',
-        //     'details.*.line_item.*.serials.*.amount' => 'required|string'
-        // ]
-        // , [
-        //     'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
-        //     'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
-        //     'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
-        //     'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
-        // ]);
+        
         $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
@@ -330,17 +311,20 @@ class ApiController extends BaseController
                                 //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
                                 // }
                                 
-                                $serialsData[] = [
-                                    'requisition_detail_id' => $requisition_detail->id,
-                                    'asset_serial_no' => $serial['asset_serial_no'],
-                                    'asset_description' => $serial['asset_description'],
-                                    'amount' => $serial['amount'],
-                                    'quantity' => isset($serial['quantity']) ? $serial['quantity'] : 1,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ];
-                            }
+                            $serialsData[] = [
+                                'requisition_detail_id' => $requisition_detail->id,
+                                'asset_serial_no' => $serial['asset_serial_no'],
+                                'asset_description' => $serial['asset_description'],
+                                'amount' => $serial['amount'],
+                                'quantity' => isset($serial['quantity']) ? $serial['quantity'] : 1,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+                        }
+                        if(!empty($serialsData)){
+                            \Log::error('serialData: ' . $serialsData);
                             ReceivedSerial::insert($serialsData);
+                        }
                     }
                 }
             }
