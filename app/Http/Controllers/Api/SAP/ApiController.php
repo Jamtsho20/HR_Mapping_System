@@ -322,7 +322,8 @@ class ApiController extends BaseController
                             ];
                         }
                         if(!empty($serialsData)){
-                            \Log::error('serialData: ' . $serialsData);
+                            \Log::info('Inserting serials data', ['serialsData' => $serialsData]);
+                            // \Log::info('Inserting serials data: ' . json_encode($serialsData));
                             ReceivedSerial::insert($serialsData);
                         }
                     }
