@@ -1,32 +1,10 @@
 @extends('layouts.app')
-@section('page-title', 'Asset Return')
+@section('page-title', 'Store Incharge')
 @section('content')
 
 @if ($privileges->create)
-@section('buttons')
-<a href="{{ route('asset-return.create') }}" class="btn btn-sm btn-primary">
-    <i class="fa fa-plus"></i> Apply Asset Return
-</a>
-@endsection
+
 @endif
-<div class="block-header block-header-default">
-    @component('layouts.includes.filter')
-
-    <div class="col-6 form-group">
-        <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-    </div>
-
-    <div class="col-6 form-group">
-        <select class="form-control" id="status" name="status" onchange="displaySelectedValue()">
-            <option value="" disabled selected hidden>Select Application Status</option>
-            @foreach(config('global.application_status') as $key => $label)
-            <option value="{{ $key }}">{{ $label }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    @endcomponent
-</div>
 
 <div class="row row-sm">
     <div class="col-lg-12">
@@ -48,17 +26,25 @@
                                                 <th>EMPLOYEE</th>
                                                 <th>ASSET RETURN NUMBER</th>
                                                 <th>RETURN DATE</th>
+                                                <th>RETURN STORE</th>
+                                                <th>ACKNOWLEDGE </th>
                                                 <th>STATUS</th>
                                                 <th>VIEW</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse($assetReturns as $return)
+                                            @forelse($approvedApplications as $application)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $return->employee->emp_id_name }}</td>
-                                                <td>{{ $return->transaction_no }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($return->transaction_date)->format('d-M-Y') }}</td>
+                                                <td>{{ $application->employee->emp_id_name }}</td>
+                                                <td>{{ $application->transaction_no }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($application->transaction_date)->format('d-M-Y') }}</td>
+                                                <td>@foreach($application->details as $detail)
+                                                    <div>{{ $detail->store->name ?? 'N/A' }}</div>
+                                                    @endforeach
+                                                </td>
+                                                <td class="text-center">
+                                                </td>
                                                 <td class="text-center">
                                                     @php
                                                     $statusClasses = [
@@ -68,40 +54,28 @@
                                                     2 => 'badge bg-success',
                                                     3 => 'badge bg-info',
                                                     ];
-                                                    $statusText = config("global.application_status.{$return->status}", 'Unknown');
-                                                    $statusClass = $statusClasses[$return->status] ?? 'badge bg-secondary';
+                                                    $statusText = config("global.application_status.{$application->status}", 'Unknown');
+                                                    $statusClass = $statusClasses[$application->status] ?? 'badge bg-secondary';
                                                     @endphp
                                                     <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                 </td>
                                                 <td class="text-center">
-                                                    @if ($privileges->view)
-                                                    <a href="{{ route('asset-return.show', $return->id) }}"
-                                                        class="btn btn-sm btn-outline-secondary"><i class="fa fa-list"></i> Detail</a>
-                                                    @endif
-                                                    @if ($privileges->edit)
-                                                    <a href="{{ route('asset-return.edit', $return->id) }}"
-                                                        class="btn btn-sm btn-rounded btn-outline-success"><i class="fa fa-edit"></i> EDIT</a>
-                                                    @endif
-                                                    @if ($privileges->delete)
-                                                    <a href="#"
-                                                        class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                        data-url="{{ route('asset-return.destroy', $return->id) }}"><i class="fa fa-trash"></i> DELETE</a>
-                                                    @endif
+                                                    <a href="{{ route('store-incharge.show', $application->id) }}"
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-list"></i> Detail
+                                                    </a>
                                                 </td>
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="6" class="text-center text-danger">No Asset Returns Found</td>
+                                                <td colspan="6" class="text-center text-danger">No Approved Applications Found</td>
                                             </tr>
                                             @endforelse
                                         </tbody>
+
                                     </table>
 
-                                    @if ($assetReturns->hasPages())
-                                    <div class="card-footer">
-                                        {{ $assetReturns->links() }}
-                                    </div>
-                                    @endif
+
                                 </div>
                             </div>
                         </div>

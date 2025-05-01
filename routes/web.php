@@ -401,6 +401,7 @@ Route::middleware('auth')->group(function () {
 
 
         Route::resource('asset-return', 'AssetReturnApplicationController');
+        Route::resource('store-incharge', 'StoreInchargeController');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
 
