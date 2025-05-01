@@ -25,7 +25,7 @@
                                 @foreach ($grnItems as $grnItem)
                                     @foreach ($grnItem->details as $detail)
                                         <option value="{{ $detail->id }}">
-                                            {{ $detail->grnItem->grn_no }} ({{ $grnItem->transaction_no }})
+                                            {{ $detail->grnItem->grn_no ?? config('global.null_value') }} ({{ $grnItem->transaction_no ?? config('global.null_value') }})
                                         </option>
                                     @endforeach
                                 @endforeach

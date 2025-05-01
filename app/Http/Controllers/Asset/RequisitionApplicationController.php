@@ -93,7 +93,8 @@ class RequisitionApplicationController extends Controller
       */
      public function store(Request $request)
      {
-    
+
+
         $requisition = new RequisitionApplication();
         $this->validate($request, $this->rules, $this->messages);
         $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
@@ -194,6 +195,7 @@ class RequisitionApplicationController extends Controller
              $grn_item = null;
              $grn_item_id = null;
              $grn_item_detail_id = null;
+             $newStock = null;
 
              // Handle GRN-based requisition (type_id == 1)
              if (!empty($detail['grn_no'])) {
@@ -208,7 +210,6 @@ class RequisitionApplicationController extends Controller
                      if ($grn_item) {
                          $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
                          $grn_item->update(['quantity' => $newStock]);
-
                          $grn_item_id = $grn_item->grn_id;
                          $grn_item_detail_id = $grn_item->id;
                      }
@@ -227,10 +228,11 @@ class RequisitionApplicationController extends Controller
              if ($typeId == 1) {
                  $data['grn_item_id'] = $grn_item_id;
                  $data['grn_item_detail_id'] = $grn_item_detail_id;
+                 $data['current_stock'] = $newStock;
              } else {
                  $data['item_id'] = $detail['item_description'];
                  $data['store_id'] = $detail['store'];
-                 $data['current_stock'] = $detail['stock_status'];
+                 $data['current_stock'] = $detail['stock_status'] - $detail['quantity_required'];
              }
 
              if (!empty($detail['id'])) {

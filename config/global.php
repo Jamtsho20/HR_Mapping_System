@@ -253,6 +253,13 @@ return [
             'email_subject' => 'Asset Commission',
             'approver_mail_content' => 'has applied asset commission for your endorsement.',
             'initiator_mail_content' => 'Your asset commission has been'
+        ],
+        11 => [
+            'name' => App\Models\AssetTransferApplication::class,
+            'post_to_sap' => false,
+            'email_subject' => 'Asset Transfer',
+            'approver_mail_content' => 'has applied asset transfer for your endorsement.',
+            'initiator_mail_content' => 'Your asset transfer has been'
         ]
     ],
 

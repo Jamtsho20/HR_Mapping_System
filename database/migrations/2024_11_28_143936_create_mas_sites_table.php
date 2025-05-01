@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->string('name');
             $table->foreignId('dzongkhag_id')->index()->nullable()->constrained('mas_dzongkhags');
-            $table->foreignId('site_supervisor')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('site_supervisor')->index()->constrained('mas_employees');
             $table->text('description')->nullable();
+            $table->foreignId('site_supervisor')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }

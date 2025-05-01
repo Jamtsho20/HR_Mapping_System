@@ -568,6 +568,96 @@ class ApiController extends BaseController
 
             return ['status' => 201, 'data' => $responseArray];
         }
+
+    public function postAssetTransferReturn($postFields){
+        $response = $this->startSession();
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $session = json_decode($response->getContent(), true);
+
+            $sessionId = $session['sessionId'] ?? null;
+        } else {
+            return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+        }
+
+        if (empty($sessionId)) {
+            return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+        }
+
+        $data = json_decode($postFields, true);
+        if($data['asset_post_type'] == 'transfer') {
+            $items = explode(',', $data['items']);
+            $project = $data['project_code'];
+
+            foreach ($items as $itemCode) {
+                $itemCode = trim($itemCode); // Clean up the item code
+                $url = "/b1s/v1/Items('" . $itemCode . "')"; // API URL for each item
+                $postField = []; // Reset per item
+
+                if ($project) {
+                    // Build ItemProjects for this item
+                    $postField['ItemProjects'] = [
+                        [
+                            'LineNumber' => 0,
+                            'ValidTo' => '2025-03-07',
+                        ],
+                        [
+                            'LineNumber' => 1,
+                            'ValidFrom' => '2025-03-08',
+                            'ValidTo' => null,
+                            'Project' => $project
+                        ]
+                    ];
+                } else {
+                    // Build ItemDistributionRules for this item
+                    $postField['ItemDistributionRules'] = [
+                        [
+                            'LineNumber' => 0,
+                            'ValidTo' => '2025-03-07',
+                        ],
+                        [
+                            'LineNumber' => 1,
+                            'ValidFrom' => '2025-03-08',
+                            'ValidTo' => null,
+                            'DistributionRule2' => '106'
+                        ]
+                    ];
+                }
+                dd($postField);
+                $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
+                if ($response['status'] !== 201) {
+                    return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                }
+
+                $responseArray = $response;
+                return response()->json(['success' => true, 'data' => $responseArray], 201);
+
+            }
+        }elseif($data['asset_post_type'] == 'return') {
+            $items = explode(',', $data['items']);
+            foreach ($items as $itemCode) {
+                $itemCode = trim($itemCode); // Clean up the item code
+                $url = "/b1s/v1/Items('" . $itemCode . "')"; // API URL for each item
+                $postField = [];
+
+                $postField['ItemProjects'] = [
+                    [
+                        'U_Status' => 'return'
+                    ]
+                ];
+
+                dd($postField);
+                $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
+                if ($response['status'] !== 201) {
+                    return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                }
+
+                $responseArray = $response;
+                return response()->json(['success' => true, 'data' => $responseArray], 201);
+            }
+        }
+
+    }
     public function postCommission($postFields){
          // Start SAP session and retrieve session ID
          $response = $this->startSession();
@@ -593,10 +683,6 @@ class ApiController extends BaseController
          if (empty($items) && empty($assetDocLines)) {
              return response()->json(['msg_error' => 'No items found in the payload'], 400);
          }
-
-
-
-
          foreach ($items as $item) {
          $originalCode = $item['ItemCode'] ?? null;
         $itemCode = $originalCode ? date('dm') . '-' . $originalCode : null;

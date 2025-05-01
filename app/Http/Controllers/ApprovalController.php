@@ -26,6 +26,7 @@ use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasAdvanceTypes;
+use App\Mail\AssetTransferMail;
 
 class ApprovalController extends Controller
 {
@@ -259,6 +260,7 @@ class ApprovalController extends Controller
                     //     $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
                     // }
                     $this->sendMail($applicationModel, $application, $type, $updateData['status'], $applicationForwardedTo);
+        
                 } catch (\Exception $e) {
                     \Log::error('Error sending mail for application ID ' . $id . ': ' . $e->getMessage());
                     continue;
@@ -744,6 +746,32 @@ class ApprovalController extends Controller
             $initiatorMailContent .= ' approved.';
 
 
+            if ($applicationModel['name'] == 'App\Models\AssetTransferApplication'){
+                $requestingUserId = $applicationData->fromEmployee->name;
+                $receiverUserId = $applicationData->toEmployee->id;
+                $receiverEmail = $applicationData->toEmployee->email;
+                $emailSubject = 'Asset Transfer Application';
+                $type = 'asset transfer';
+                // Send the email
+                try {
+                    Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
+                } catch (\Exception $e) {
+                    log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
+                }
+            }
+            if ($applicationModel['name'] == 'App\Models\AssetReturnApplication'){
+                $requestingUserId = $applicationData->fromEmployee->name;
+                $receiverUserId = $applicationData->toEmployee->id;
+                $receiverEmail = $applicationData->toEmployee->email;
+                $emailSubject = 'Asset Return Application';
+                $type = 'asset return';
+                // Send the email
+                try {
+                    Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
+                } catch (\Exception $e) {
+                    log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
+                }
+            }
             if ($appType['name'] == 'In Country') {
 
                 $applierId = $applicationData->created_by;
@@ -752,10 +780,10 @@ class ApprovalController extends Controller
                 $department = $applier->empJob->department->id;
                 $roleId = 7;
                 $gm = User::whereHas('empJob.department', function ($query) use ($department) {
-                    $query->where('id', $department); // Replace with your specific department ID
+                    $query->where('id', $department);
                 })
                     ->whereHas('roles', function ($query) use ($roleId) {
-                        $query->where('roles.id', $roleId); // Replace with your specific role ID
+                        $query->where('roles.id', $roleId);
                     })
                     ->get()->first();
 

@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use App\Services\ApprovalService;
 use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
-use App\Models\AssetCommissionApplication;
-use App\Models\MasCommissionTypes;
 use App\Models\RequisitionApplication;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use App\Models\AssetCommissionApplication;
+use App\Models\MasCommissionTypes;
 
 class CommissionApplicationController extends Controller
 {
@@ -59,7 +59,7 @@ class CommissionApplicationController extends Controller
             ->where('is_received', 1)
             ->where('created_by', auth()->user()->id)
             ->get();
-            
+
         $empDetails = empDetails(auth()->user()->id);
         return view('asset.commission.create',compact('empDetails', 'grnItems'));
     }
@@ -87,7 +87,7 @@ class CommissionApplicationController extends Controller
         }
 
         $conditionFields = approvalHeadConditionFields(COMMISSION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-        
+
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
         // $reqType = MasRequisitionType::where('id', $request->type_id)->first();

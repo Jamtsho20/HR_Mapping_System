@@ -109,6 +109,8 @@
                                         @include('approval.approvals.requisition_approval')
                                     @elseif ($id == 10)
                                         @include('approval.approvals.commission_approval')
+                                    @elseif ($id == 11)
+                                        @include('approval.approvals.asset_transfer_approval')
                                     @endif
 
                                 </div>
@@ -235,9 +237,9 @@
                             error: function(error) {
                                 $('#loader').hide();
                                 showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
-                                
+
                             }
-                            
+
                         });
 
                         // Close the modal
@@ -259,7 +261,7 @@
                             $('#loader').hide();
                             showSuccessMessage(response.message, true, null, itemType);
                         },
-                        
+
                         error: function(error) {
                             $('#loader').hide();
                             showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');

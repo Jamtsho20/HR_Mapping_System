@@ -18,12 +18,14 @@ return new class extends Migration
             $table->date('transaction_date')->index();
             // $table->foreignId('requisition_detail_id')->index()->constrained('requisition_details')->comment('do transfer against goods received detail as it has to be done against each GRN');
             $table->text('reason_of_transfer');
-            $table->foreignId('from_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreignId('to_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreignId('from_site_id')->index()->constrained('mas_sites')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreignId('to_site_id')->index()->constrained('mas_sites')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreignId('from_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate()->nullable();
+            $table->foreignId('to_employee_id')->constrained('mas_employees')->restrictOnDelete()->cascadeOnUpdate()->nullable();
+            $table->foreignId('from_site_id')->index()->constrained('mas_sites')->restrictOnDelete()->cascadeOnUpdate()->nullable();
+            $table->foreignId('to_site_id')->index()->constrained('mas_sites')->restrictOnDelete()->cascadeOnUpdate()->nullable();
             $table->json('attachment')->nullable();
             $table->string('doc_no')->index()->nullable();
+            $table->boolean('received_acknowledged')->default(0);
+            $table->tinyInteger('status')->index()->comment('-1 => rejected, 1 => new, 2 => verified, 3 => approved');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();

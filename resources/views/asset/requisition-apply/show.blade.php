@@ -29,7 +29,7 @@
                             <tr>
                                 <th style="width:35%;">Requisition Date<span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> 
+                                <td style="padding-left:25px;">
                                    {{ \Carbon\Carbon::parse($requisition->transaction_date)->format('d-M-Y') }}
                                 </td>
                             </tr>
@@ -93,7 +93,7 @@
                                                         {{$detail->grnItemDetail->store->name ?? $detail->store->name}}
                                                     </td>
                                                     <td>
-                                                       {{$detail->grnItemDetail->quantity ?? $detail->current_stock}}
+                                                       {{ $detail->current_stock ?? config('global.null_value') }}
                                                     </td>
                                                     <td>
                                                         {{$detail->requested_quantity}}

@@ -11,16 +11,20 @@
     @endif
 
     <div class="block-header block-header-default">
-    {{-- @component('layouts.includes.filter')
-        <div class="col-4 form-group">
+    @component('layouts.includes.filter')
+        <div class="col-6 form-group">
             <select class="form-control" id="req_type" name="req_type">
-                <option value="" disabled selected hidden>Select Requisition Type</option>
-                @foreach ($reqTypes as $type)
+                <option value="" disabled selected hidden>Select transfer Type</option>
+                @foreach ($transferTypes as $type)
                     <option value="{{ $type->id }}" {{ request()->get('req_type') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                 @endforeach
             </select>
         </div>
-    @endcomponent --}}
+
+        <div class="col-6 form-group">
+            <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+        </div>
+    @endcomponent
 
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -43,21 +47,66 @@
                                                         <th>TRANSFER TYPE</th>
                                                         <th>TRANSFER DATE</th>
                                                         <th>STATUS</th>
+                                                        <th>ACKNOWLEDGED</th>
                                                         <th>ACTION</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+
+                                                 @forelse ($assetTransfer as $transfer)
+
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ $transfer->transaction_no }}</td>
+                                                            <td>{{ $transfer->transferType->name }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($transfer->transfer_date)->format('d-M-Y') }}</td>
+                                                            <td class ="text-center">
+                                                                @php
+                                                                $statusClasses = [
+                                                                    -1 => 'badge bg-danger',
+                                                                    0 => 'badge bg-warning',
+                                                                    1 => 'badge bg-primary',
+                                                                    2 => 'badge bg-success',
+                                                                    3 => 'badge bg-info',
+                                                                ];
+
+                                                                $statusText = config(
+                                                                    "global.application_status.{$transfer->status}",
+                                                                    'Unknown Status',
+                                                                );
+                                                                $statusClass =
+                                                                    $statusClasses[$transfer->status] ??
+                                                                    'badge bg-secondary';
+                                                                @endphp
+
+                                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" style="accent-color: primary; pointer-events: none;"
+                                                                    {{ $transfer->received_acknowledged ? 'checked' : '' }}>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                    <a href="{{ url('asset/asset-transfer/' . $transfer->id) }}"
+                                                                        class="btn btn-sm btn-outline-secondary"><i
+                                                                            class="fa fa-list"></i> Detail</a>
+                                                                @endif
+                                                            </td>
+                                                    <tr>
+
+                                                    @empty
                                                 <tr>
-                                                            <td colspan="9" class="text-center text-danger">No Asset Transfer Found</td>
-                                                        </tr>
+                                                    <td colspan="9" class="text-center text-danger">No Asset Transfer Found</td>
+                                                </tr>
+                                                @endforelse
                                                 </tbody>
                                             </table>
 
-                                            {{-- @if ($requisitions->hasPages())
+                                            @if ($assetTransfer->hasPages())
                                                 <div class="card-footer">
-                                                    {{ $requisitions->links() }}
+                                                    {{ $assetTransfer->links() }}
                                                 </div>
-                                            @endif --}}
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -17,6 +17,7 @@ use App\Models\MasRequisitionType;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
+use App\Models\MasTransferType;
 use App\Models\Role;
 use App\Models\SystemHierarchy;
 use App\Models\User;
@@ -85,12 +86,12 @@ class ApprovalRuleController extends Controller
             7 => MasTravelType::class,
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
-            11 => MasCommissionTypes::class,
+            10 => MasCommissionTypes::class,
+            11 => MasTransferType::class
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {
             $modelInstance = $models[$request->mas_approval_head_id]::find($request->approvable_id);
-
             $approvableRule = $modelInstance->approvableRule()->create([
                 'mas_approval_head_id' => $request->mas_approval_head_id,
                 'name' => $request->name,
