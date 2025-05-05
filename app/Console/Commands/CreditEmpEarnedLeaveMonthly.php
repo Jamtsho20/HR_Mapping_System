@@ -25,10 +25,33 @@ class CreditEmpEarnedLeaveMonthly extends Command
     /**
      * Execute the console command.
      */
+    // public function handle()
+    // {
+    //     // Process EmployeeLeave records in batches to handle large datasets
+    //     EmployeeLeave::where('mas_leave_type_id', EARNED_LEAVE)
+    //         ->chunk(100, function ($leaves) {
+    //             DB::transaction(function () use ($leaves) {
+    //                 foreach ($leaves as $leave) {
+    //                     // Credit leave based on type
+    //                     $leave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT; // Add 2.5 days per month
+    //                     $calculatedClosingBalance = $leave->opening_balance 
+    //                                                 + $leave->current_entitlement 
+    //                                                 - $leave->leaves_availed;
+    //                     $leave->closing_balance = min($calculatedClosingBalance, 90.00);
+    //                     $leave->save();
+    //                 }
+    //             });
+    //         });
+
+    //     $this->info('Monthly earned leave credit completed successfully in batches.');
+    // }
     public function handle()
     {
-        // Process EmployeeLeave records in batches to handle large datasets
+        // Process EmployeeLeave records in batches, only for active employees
         EmployeeLeave::where('mas_leave_type_id', EARNED_LEAVE)
+            ->whereHas('employee', function ($query) {
+                $query->where('is_active', 1); // Only include active employees
+            })
             ->chunk(100, function ($leaves) {
                 DB::transaction(function () use ($leaves) {
                     foreach ($leaves as $leave) {
@@ -42,10 +65,10 @@ class CreditEmpEarnedLeaveMonthly extends Command
                     }
                 });
             });
-
+    
         $this->info('Monthly earned leave credit completed successfully in batches.');
     }
-
+    
     // public function handle()
     // {
     //     $currentMonth = now()->month;
