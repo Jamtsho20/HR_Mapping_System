@@ -27,6 +27,9 @@ class EmployeeLeave extends Model
         if ($request->has('mas_leave_type_id') && $request->query('mas_leave_type_id') != '') {
             $query->where('mas_leave_type_id', $request->query('mas_leave_type_id'));
         }
+        if ($request->has('employee_id') && $request->query('employee_id') != '') {
+            $query->where('mas_employee_id', $request->query('employee_id'));
+        }
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('employee.empJob.department', function ($q) use ($request) {
                 $q->where('id', $request->query('department'));
