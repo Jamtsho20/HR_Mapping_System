@@ -325,13 +325,14 @@ class ApprovalController extends Controller
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
                         "UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
-                        "U_GRNEntry" => null,
                         "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
                         "ProjectCode" => (string) $detail->site->code
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date
                        ];
+
+                    
             }else {
                 $name_empid =$application->employee->username ." ".$application->employee->name;
                 $postFields = [
