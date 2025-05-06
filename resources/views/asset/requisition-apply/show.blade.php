@@ -87,7 +87,7 @@
                                                     {{$detail->grnItemDetail->item->item_description ?? $detail->item->item_description}}
                                                     </td>
                                                     <td>
-                                                      {{$detail->grnItemDetail->item->uom ?? $detail->item->uom}}
+                                                      {{$detail->unitOfMeasurement->code ?? $detail->grnItemDetail->item->uom ?? $detail->item->uom}}
                                                     </td>
                                                     <td>
                                                         {{$detail->grnItemDetail->store->name ?? $detail->store->name}}

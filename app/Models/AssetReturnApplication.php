@@ -9,15 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 class AssetReturnApplication extends Model
 {
     use HasFactory, CreatedByTrait;
+     
+    protected $fillable = ['type_id','transaction_no','transaction_date','attachment','doc_no','status'];
 
-    public function type ()
+    public function type()
     {
-        return $this->belongsTo(MasCommissionTypes::class, 'commission_type_id');
+        return $this->belongsTo(MasReturnType::class, 'type_id');
     }
-    
-    public function details ()
+    public function details()
     {
-        return $this->hasMany(AssetCommissionDetail::class, 'commission_id');
+        return $this->hasMany(AssetReturnDetail::class, 'asset_return_id');
     }
 
     public function employee()
@@ -30,4 +31,16 @@ class AssetReturnApplication extends Model
     {
         return $this->morphMany(ApplicationHistory::class, 'application');
     }
+    public function audit_logs()
+    {
+        return $this->morphMany(ApplicationAuditLog::class, 'application');
+    }
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+        if ($request->has('type_id') && $request->query('type_id') != '') {
+
+            $query->where('type_id', $request->query('type_id'));
+        }
+    }
+
 }

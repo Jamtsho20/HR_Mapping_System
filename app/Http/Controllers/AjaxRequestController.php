@@ -43,10 +43,12 @@ use App\Models\LeaveApplication;
 use DateTime;
 use App\Models\DsaClaimMappings;
 use App\Models\MasDzongkhag;
+use App\Models\MasReturnType;
 use App\Models\MasSite;
 use App\Models\ReceivedSerial;
 use App\Models\RequisitionDetail;
 use App\Models\AssetTransferApplication;
+use App\Models\AssetReturnApplication;
 use App\Models\MasGrnItem;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MasGrnItemDetail;
@@ -376,7 +378,8 @@ class AjaxRequestController extends Controller
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
             10 => MasCommissionTypes::class,
-            11 => MasTransferType::class
+            11 => MasTransferType::class,
+            12 => MasReturnType::class
         ];
 
         if (isset($modelMap[$id])) {
@@ -645,9 +648,22 @@ class AjaxRequestController extends Controller
             ->values() // reindex the array
             ->toArray();
 
+            $returnedSerials = AssetReturnApplication::with('details.receivedSerial')
+            ->where('created_by', Auth::user()->id)
+            ->whereNot('status', -1)
+            ->get()
+            ->flatMap(function ($application) {
+                return $application->details->pluck('receivedSerial.id');
+            })
+            ->filter() // in case some are null
+            ->unique() // optional: to remove duplicates
+            ->values() // reindex the array
+            ->toArray();
+
             $loggedInUserId = Auth::id();
 
             $assetNos = ReceivedSerial::whereNotIn('id', $transferedSerials)
+            ->whereNotIn('id', $returnedSerials)
             ->where('is_commissioned', 1)
             ->where('is_returned', 0)
             ->where(function ($query) use ($loggedInUserId, $empID, $siteID) {
@@ -703,7 +719,7 @@ class AjaxRequestController extends Controller
         try {
             $type = $request->input('type');
             $ackService->acknowledge($id, $type);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Receipt acknowledged successfully.'

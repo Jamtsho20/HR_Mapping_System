@@ -120,7 +120,7 @@
                                                             {{  $detail->receivedSerial->asset_description ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description  }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                                            {{ $detail->receivedSerial->requisitionDetail->unitOfMeasurement->name ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
                                                         </td>
                                                         <td class="text-right">{{ $detail->receivedSerial->quantity ?? 1 }}</td>
                                                         <td class="text-right">

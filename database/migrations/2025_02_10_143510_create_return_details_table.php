@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('asset_return_id')->index()->constrained('asset_return_applications')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('received_serial_id')->index()->constrained('received_serials')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->unsignedInteger('unit');
+            //$table->unsignedInteger('unit');
             $table->foreignId('dzongkhag_id')->index()->constrained('mas_dzongkhags')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('store_id')->index()->constrained('mas_stores')->cascadeOnUpdate()->restrictOnDelete();
             $table->unsignedTinyInteger('condition_code')->default(1)->index()->comment('1 => Beyond Economic Repair, 2 => Absolete, 3 => Working');

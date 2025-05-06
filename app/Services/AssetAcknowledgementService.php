@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AssetTransferApplication;
+use App\Models\AssetReturnApplication;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Api\SAP\ApiController;
 use Illuminate\Support\Facades\DB;
@@ -74,16 +75,37 @@ class AssetAcknowledgementService
 
     protected function acknowledgeAssetReturn($id)
     {
+        try{
+            DB::beginTransaction();
         $assetReturn = AssetReturnApplication::findOrFail($id);
         $assetReturn->received_acknowledged = 1;
         $assetReturn->save();
+
+        $items = [];
+
+        foreach ($assetReturn->details as $detail) {
+            $itemCode = $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no ?? null;
+            $serialNumber = $detail->receivedSerial->asset_serial_no ?? null;
+            $formattedItemCode = $itemCode . '-' . $serialNumber;
+            if ($formattedItemCode) {
+                $items[] = $formattedItemCode;
+            };
+
+        }
+        $joinedItems = implode(',', $items); // Join with comma
+
+
         $postData = [
-            'return_id' => $id,
-            'status' => 'acknowledged',
-            'acknowledged_by' => auth()->user()->id,
-            'timestamp' => now()->toDateTimeString()
+            'asset_post_type' => 'return',
+            'items' => $joinedItems,
         ];
 
-        Http::post('https://example.com/api/acknowledge-return', $postData);
+        $postJournalEntriesResponse = $this->sap->postAssetTransferReturn(json_encode($postData));
+
+        DB::commit();
+        }catch(\Exception $e){
+            DB::rollBack();
+            throw new \Exception("Acknowledge asset transfer failed: " . $e->getMessage(), 500);
+        }
     }
 }

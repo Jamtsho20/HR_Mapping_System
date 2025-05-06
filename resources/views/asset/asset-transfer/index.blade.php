@@ -81,7 +81,7 @@
 
                                                                 <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                             </td>
-                                                            <td>
+                                                            <td class="text-center">
                                                                 <input type="checkbox" style="accent-color: primary; pointer-events: none;"
                                                                     {{ $transfer->received_acknowledged ? 'checked' : '' }}>
                                                             </td>

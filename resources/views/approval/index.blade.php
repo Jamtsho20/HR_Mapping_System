@@ -111,6 +111,9 @@
                                         @include('approval.approvals.commission_approval')
                                     @elseif ($id == 11)
                                         @include('approval.approvals.asset_transfer_approval')
+                                    @elseif ($id == 12)
+                                        @include('approval.approvals.asset_return_approval')
+
                                     @endif
 
                                 </div>

@@ -89,7 +89,7 @@
                                                                 {{ $detail->receivedSerial->asset_description }}
                                                             </td>
                                                             <td class="text-center">
-                                                                {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                                                {{$detail->receivedSerial->requisitionDetail->unitOfMeasurement->name ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
                                                             </td>
                                                             <td class="text-right">1</td>
                                                             <td class="text-right">
@@ -204,7 +204,7 @@
                                 showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
                             }
                         });
-                        
+
                         // Close the modal
                         $('#rejectModal').modal('hide');
                     });

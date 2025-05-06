@@ -84,7 +84,7 @@ class AssetTransferApplicationController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $assetTransfer = AssetTransferApplication::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+        $assetTransfer = AssetTransferApplication::filter($request)->where('created_by', auth()->user()->id)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
 
 
         $transferTypes = MasTransferType::get(['id', 'name']);
@@ -101,19 +101,6 @@ class AssetTransferApplicationController extends Controller
         $transferedToUser = AssetTransferApplication::where('received_acknowledged', 1)->whereHas('details.receivedSerial', function ($query) {
             $query->where('is_transfered_to', auth()->user()->id);
         })->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-
-        // $assets = ReceivedSerial::where('is_transfered', 0)->where('is_returned', 0)->where('is_commissioned', 1)
-        // ->whereHas('requisitionDetail.requisition', function ($query) {$query->where('created_by', auth()->id());})->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-        // // $assets = RequisitionDetail::with(['serials' => function ($query) {
-        // //     $query->where('is_transfered', '!=', 1)
-        // //           ->where('is_returned', '!=', 1)
-        // //           ->where('is_commissioned', 1);
-        // // }])
-        // ->whereHas('requisition', function ($query) {
-        //     $query->where('created_by', auth()->id()); // Filter by logged-in user's ID
-        // })
-        // ->where('is_received', 1)
-        // ->get();
 
         // $userAssets = $assets->concat($assetTransfer);
         return view('asset.asset-transfer.my_asset_index',compact('privileges', 'transferTypes', 'toBeTransferedToUserAsset', 'transferedToUser'));

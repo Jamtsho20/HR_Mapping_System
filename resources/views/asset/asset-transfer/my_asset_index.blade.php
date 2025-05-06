@@ -216,7 +216,7 @@
 @endsection
 
 @push('page_scripts')
-@endpush
+
 <script>
      document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.ack-checkbox').forEach(checkbox => {
@@ -229,3 +229,4 @@
         });
     });
 </script>
+@endpush

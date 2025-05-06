@@ -27,7 +27,7 @@ class AnnualIncrementController extends Controller
         $privileges = $request->instance();
         $year = date("Y");
         $month = date("m");
-        $employees = User::whereRaw("MONTH(date_of_appointment) = ?", [$month])
+        $employees = User::whereRaw("MONTH(date_of_appointment) = ? AND is_active = ? AND status = ?", [$month, 1, 1])
             ->whereHas('empJob', function ($query) {
                 $query->where('mas_employment_type_id', '<>', 8);
             })

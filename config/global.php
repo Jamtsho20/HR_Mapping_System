@@ -26,8 +26,8 @@ return [
     ],
 
     'status' => [
-        1 => 'active',
-        0 => 'inactive'
+        1 => 'Active',
+        0 => 'Inactive'
     ],
 
     'regular_emp_type_id' => 2,
@@ -260,7 +260,15 @@ return [
             'email_subject' => 'Asset Transfer',
             'approver_mail_content' => 'has applied asset transfer for your endorsement.',
             'initiator_mail_content' => 'Your asset transfer has been'
+        ],
+        12 => [
+            'name' => App\Models\AssetReturnApplication::class,
+            'post_to_sap' => true,
+            'email_subject' => 'Asset Return',
+            'approver_mail_content' => 'has applied asset commission for your endorsement.',
+            'initiator_mail_content' => 'Your asset commission has been'
         ]
+
     ],
 
     'asset_condition_codes' => [

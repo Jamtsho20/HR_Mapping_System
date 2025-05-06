@@ -10,10 +10,12 @@ use App\Models\MasApprovalCondition;
 use App\Models\MasApprovalHead;
 use App\Models\MasApprovalRule;
 use App\Models\MasApprovalRuleConditionOperator;
+use App\Models\MasCommissionTypes;
 use App\Models\MasConditionField;
 use App\Models\MasExpenseType;
 use App\Models\MasLeaveType;
 use App\Models\MasRequisitionType;
+use App\Models\MasReturnType;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
 use App\Models\MasTravelType;
@@ -22,7 +24,6 @@ use App\Models\Role;
 use App\Models\SystemHierarchy;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\MasCommissionTypes;
 
 class ApprovalRuleController extends Controller
 {
@@ -87,7 +88,8 @@ class ApprovalRuleController extends Controller
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
             10 => MasCommissionTypes::class,
-            11 => MasTransferType::class
+            11 => MasTransferType::class,
+            12 => MasReturnType::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

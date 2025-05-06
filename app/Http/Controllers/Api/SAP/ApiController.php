@@ -231,7 +231,7 @@ class ApiController extends BaseController
     public function saveGoodsIssued(Request $request)
     {
 
-        $validated = $request->validate([
+        $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
             'details' => 'required|array|min:1',
@@ -244,23 +244,29 @@ class ApiController extends BaseController
             'details.*.line_item.*.serials.*.asset_serial_no' => 'required|string',
             'details.*.line_item.*.serials.*.asset_description' => 'required|string',
             'details.*.line_item.*.serials.*.amount' => 'required|string'
-        ]
-        , [
+        ];
+        $messages = [
             'purchase_req_doc_no.exists' => 'Purchase requisition doc no. :input not found in HRMS system.',
             'details.*.grn_no.exists' => 'GRN No. :input not found in HRMS system.',
             'details.*.line_item.*.item_code.exists' => 'Item code :input not found in HRMS system.',
             'details.*.line_item.*.store_code.exists' => 'Store code :input not found in HRMS system.',
-        ]);
+        ];
+
+        $validator = \Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            \Log::error("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
+            return $this->validationErrorResponse($validator->errors());
+        }
 
         DB::beginTransaction();
         try {
 
-            $reqApplication = RequisitionApplication::where('doc_no', $validated['purchase_req_doc_no'])->firstOrFail();
-            $reqApplication->good_issue_doc_no = $validated['doc_no'];
+            $reqApplication = RequisitionApplication::where('doc_no', $request->purchase_req_doc_no)->firstOrFail();
+            $reqApplication->good_issue_doc_no = $request->doc_no;
             $reqApplication->is_received = 1;
             $reqApplication->save();
-
-            foreach ($validated['details'] as $detail) {
+            \Log::info('requestCheck', ['RequestData' => $request->details]);
+            foreach ($request->details as $detail) {
                 $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
                 foreach ($detail['line_item'] as $line) {
@@ -273,7 +279,7 @@ class ApiController extends BaseController
                         ->value('id');
 
                     if (!$grn_item_detail_id) {
-                        DB::rollBack();
+                        // DB::rollBack();
                         return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
                     }
 
@@ -284,7 +290,7 @@ class ApiController extends BaseController
                         ->first();
 
                     if (!$requisition_detail) {
-                        DB::rollBack();
+                        // DB::rollBack();
                         return $this->errorResponse("Requisition application details not found for item_code: {$line['item_code']} and grn_no: {$detail['grn_no']}");
                     }
 
@@ -296,14 +302,15 @@ class ApiController extends BaseController
 
 
                     if (!empty($line['serials'])) {
+                        \Log::info('checking serials data', ['serials' => $line['serials']]);
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
 
-                            $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
-                            if ($exists) {
-                                DB::rollBack();
-                                return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
-                            }
+                            // $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
+                            // if ($exists) {
+                                //     DB::rollBack();
+                                //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
+                                // }
 
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,
@@ -315,7 +322,11 @@ class ApiController extends BaseController
                                 'updated_at' => now(),
                             ];
                         }
-                        ReceivedSerial::insert($serialsData);
+                        if(!empty($serialsData)){
+                            \Log::info('Inserting serials data', ['serialsData' => $serialsData]);
+                            // \Log::info('Inserting serials data: ' . json_encode($serialsData));
+                            ReceivedSerial::insert($serialsData);
+                        }
                     }
                 }
             }
@@ -588,6 +599,8 @@ class ApiController extends BaseController
         if($data['asset_post_type'] == 'transfer') {
             $items = explode(',', $data['items']);
             $project = $data['project_code'];
+            $dateToday = date('Y-m-d');
+            $oneDayEarly = date('Y-m-d', strtotime('-1 day'));
 
             foreach ($items as $itemCode) {
                 $itemCode = trim($itemCode); // Clean up the item code
@@ -599,11 +612,11 @@ class ApiController extends BaseController
                     $postField['ItemProjects'] = [
                         [
                             'LineNumber' => 0,
-                            'ValidTo' => '2025-03-07',
+                            'ValidTo' => $oneDayEarly,
                         ],
                         [
                             'LineNumber' => 1,
-                            'ValidFrom' => '2025-03-08',
+                            'ValidFrom' => $dateToday,
                             'ValidTo' => null,
                             'Project' => $project
                         ]
@@ -613,11 +626,11 @@ class ApiController extends BaseController
                     $postField['ItemDistributionRules'] = [
                         [
                             'LineNumber' => 0,
-                            'ValidTo' => '2025-03-07',
+                            'ValidTo' => $oneDayEarly,
                         ],
                         [
                             'LineNumber' => 1,
-                            'ValidFrom' => '2025-03-08',
+                            'ValidFrom' => $dateToday,
                             'ValidTo' => null,
                             'DistributionRule2' => '106'
                         ]
@@ -637,7 +650,7 @@ class ApiController extends BaseController
             $items = explode(',', $data['items']);
             foreach ($items as $itemCode) {
                 $itemCode = trim($itemCode); // Clean up the item code
-                $url = "/b1s/v1/Items('" . $itemCode . "')"; // API URL for each item
+                $url = "/b1s/v1/Items/('" . $itemCode . "')"; // API URL for each item
                 $postField = [];
 
                 $postField['ItemProjects'] = [
@@ -646,7 +659,7 @@ class ApiController extends BaseController
                     ]
                 ];
 
-                dd($postField);
+                dd($postField, $url);
                 $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
                 if ($response['status'] !== 201) {
                     return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
@@ -684,11 +697,9 @@ class ApiController extends BaseController
              return response()->json(['msg_error' => 'No items found in the payload'], 400);
          }
          foreach ($items as $item) {
-         $originalCode = $item['ItemCode'] ?? null;
-        $itemCode = $originalCode ? date('dm') . '-' . $originalCode : null;
 
             $formattedItem = [
-                "ItemCode" => $itemCode ?? null,
+                "ItemCode" => $item['ItemCode'] ?? null,
                 "ItemName" => $item['ItemName'] ?? null,
                 "ForeignName" => $item['ForeignName'] ?? null,
                 "ItemsGroupCode" => 102,  // static value (Fixed Asset)
@@ -828,7 +839,7 @@ class ApiController extends BaseController
                 "Cookie: $sessionId; B1SESSION=$sessionId",
                 'Content-Type: application/json',
             ],
-            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTION
+            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTIONPconstant
             CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
         ));
 

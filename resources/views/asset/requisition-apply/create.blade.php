@@ -91,12 +91,17 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" name="details[AAAAA][uom]" value="" class="form-control form-control-sm resetKeyForNew" readonly required />
+                                    <select name="details[AAAAA][uom]" id="" class="form-control resetKeyForNew form-control-sm">
+                                        <option value="" disabled selected hidden>Select UOM</option>
+                                    </select>
+                                    <input type="hidden" name='details[AAAAA][conversion]' class="form-control form-control-sm resetKeyForNew">
                                 </td>
+                                    {{-- <td>
+                                    <input type="text" name="details[AAAAA][uom]" value="" class="form-control form-control-sm resetKeyForNew" readonly required />
+                                </td> --}}
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
                                         <option value="" disabled selected hidden>Select Store</option>
-
                                     </select>
                                 </td>
                                 <td>
@@ -144,6 +149,7 @@
         </div>
     </div>
 </form>
+@include('layouts.includes.alert-message')
 @endsection
 @push('page_scripts')
     <script>
@@ -320,7 +326,7 @@
 
                     row.find('select[name^="details"][name$="[item_description]"]').empty();
                     row.find('select[name^="details"][name$="[store]"]').empty();
-                    row.find('input[name^="details"][name$="[uom]"]').val('');
+                    row.find('select[name^="details"][name$="[uom]"]').val('');
                     row.find('input[name^="details"][name$="[stock_status]"]').val('');
                     if (grnDetails) {
                         const selectedType = type.value; // Get the selected requisition type again
@@ -401,13 +407,20 @@
                         }
 
                         let detail = grnDetail.detail.find(detail => detail.id == grnDetailId);
+
                         if (!detail) {
                             showErrorMessage('Detail ID not found in grnDetail:', grnDetailId);
                             return;
                         }
 
 
-                        row.find('input[name^="details"][name$="[uom]"]').val(detail.item.uom);
+
+                        row.find('select[name^="details"][name$="[uom]"]').empty().append(`<option value="${detail.item.uom}" selected>${detail.item.uom}</option>`);
+                        if (detail.item.uom == 'Roll'){
+                            row.find('select[name^="details"][name$="[uom]"]').append('<option value="Meter" data-type="conversion">Meter</option>');
+                            row.find('select[name^="details"][name$="[uom]"]').append('<option value="Kilometer" data-type="conversion">Kilometer</option>');
+
+                        }
                         row.find('select[name^="details"][name$="[store]"]').empty()
                             .append(`<option value="${detail.store.id}" selected>${detail.store.name}</option>`)
                             .trigger('change');
@@ -548,8 +561,18 @@
             const $row = $(this).closest('tr'); // Get the row of the input
             const quantity = parseInt($(this).val()) || 0; // Get the quantity entered
             const stockStatus = parseInt($row.find('.stock-status').val()) || 0; // Parse the stock status value
-            // Check if quantity exceeds stock status
+            const $uomSelect = $row.find('select[name^="details"][name$="[uom]"]');
+            const selectedOption = $uomSelect.find('option:selected');
+            const uomType = selectedOption.data('type');
+            console.log(uomType);
+
             updateTotalQuantity();
+
+            $row.find('input[name^="details"][name$="[conversion]"]').val(false);
+            if (uomType === 'conversion') {
+                $row.find('input[name^="details"][name$="[conversion]"]').val(true);
+                return
+            }
             if (quantity <= stockStatus) {
                 return;
             }else{

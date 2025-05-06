@@ -23,9 +23,9 @@ class AssetCommissionApplication extends Model
         'status'
     ];
 
-    protected $cast = [
-        'file' => 'array'
-    ];
+    // protected $cast = [
+    //     'file' => 'array'
+    // ];
 
     public function audit_logs()
     {

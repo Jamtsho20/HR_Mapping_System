@@ -69,7 +69,6 @@ class CommissionApplicationController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         // Add file validation only if a file is uploaded
         if ($request->hasFile('attachments')) {
             $this->rules['attachments'] = 'array'; // Ensure attachments is an array
@@ -90,11 +89,10 @@ class CommissionApplicationController extends Controller
 
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(COMMISSION_TYPE, \App\Models\MasCommissionTypes::class, $conditionFields ?? []);
-        // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $comType = MasCommissionTypes::where('id', COMMISSION_TYPE)->first();
         $lastTransaction = AssetCommissionApplication::latest('id')->first();
         $transactionNo = generateTransactionNumber1($comType, $lastTransaction, 'transaction_no');
-        // dd($attachments);
+
         try {
             DB::beginTransaction();
             $commissionApplication = AssetCommissionApplication::create([
@@ -102,12 +100,11 @@ class CommissionApplicationController extends Controller
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
                 'requisition_detail_id' => $request->grn,
-                'file' => !empty($attachments) ? json_encode($attachments) : [],
                 // 'file' => $attachments,
+                'file' => json_encode($attachments),
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
-            // dd($commissionApplication);
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
                     $commissionApplication->details()->create([
