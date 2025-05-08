@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('page-title', 'Asset Return')
+@include('layouts.includes.loader')
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
@@ -13,6 +14,7 @@
 
                         <div class="col-md-3">
                             <div class="form-group">
+                                <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
                                 <label for="transaction_no">Asset Return No. <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="transaction_no" value="" placeholder="Generating..." required readonly>
                             </div>
@@ -104,13 +106,8 @@
                                             <a href="" class="delete-table-row btn btn-danger btn-sm"><i class="fa fa-times"></i></a>
                                         </td>
                                         <td>
-                                            <select class="form-control select2 form-control-sm resetKeyForNew asset-number-selector" name="details[AAAAA][received_serial_id]">
+                                            <select class="asset_no form-control select2 form-control-sm resetKeyForNew asset-number-selector" name="details[AAAAA][received_serial_id]">
                                                 <option value="" disabled selected hidden>Select</option>
-                                                @foreach ($assetNos as $assetNo)
-                                                <option value="{{ $assetNo->id }}" {{ old('asset_no') == $assetNo->id ? 'selected' : '' }}>
-                                                    {{ $assetNo->asset_serial_no }}
-                                                </option>
-                                                @endforeach
                                             </select>
                                         </td>
                                         <td>
@@ -183,10 +180,41 @@
         </div>
     </div>
 </form>
-
+@include('layouts.includes.alert-message')
 @endsection
 @push('page_scripts')
 <script>
+
+    $(document).ready(function () {
+
+        const empId = $('input[name="user_id"]').val();
+
+        if (empId) {
+            $('#loader').show();
+
+            $.ajax({
+                url: `/assetNosBySiteEmployee/${empId}`,
+                method: 'GET',
+                success: function(response) {
+                    const assetSelect = $('.asset_no');
+
+                    assetSelect.empty();
+                    assetSelect.append('<option value="" disabled selected hidden>Select</option>');
+
+                    response.data.forEach(function(assetNo) {
+                        assetSelect.append('<option value="' + assetNo.id + '">' + assetNo.asset_serial_no + '</option>');
+                    });
+
+                    $('#loader').hide();
+                },
+                error: function(xhr) {
+                    $('#loader').hide();
+                    showErrorMessage(xhr.responseText);
+                }
+            });
+        }
+    });
+
     //populate asset description and uom based on selection of asset no
     $(document).on('change', '.asset-number-selector', function() {
         var serialId = $(this).val();

@@ -452,7 +452,7 @@ var hrms = function () {
             }
         });
 
-    
+
 
         //populate expense details based on selection of expense types for validation purpose
         $(document).ready(function () {
@@ -1193,7 +1193,66 @@ function reloadActiveTab(itemType) {
             }
         });
     }
+
 }
+
+function handleAcknowledgment(checkbox, transferId) {
+    // Only proceed if data type is 'assettransfer'
+    const dataType = checkbox.dataset.type;
+    console.log(dataType);
+    // if (dataType !== 'assettransfer') return;
+
+    // Show the confirmation message
+    showConfirmationMessage(
+        'Are you sure you want to acknowledge receipt?', // Message to show
+        () => {
+            $('#loader').show();
+            // Send the acknowledgment status to the server
+            fetch('/assets/acknowledge/' + transferId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // CSRF token
+                },
+                body: JSON.stringify({ type: dataType })
+
+            })
+            .then(response => {
+                // Ensure the response is JSON
+                $('#loader').hide();
+                if (!response.ok) {
+                    throw new Error('Server responded with status: ' + response.status);
+                }
+
+                return response.json(); // Parse the JSON response
+            })
+            .then(data => {
+                // Check the success field in the response
+                if (data.success) {
+                    checkbox.checked = true;
+                    $('#loader').hide();
+                    showSuccessMessage(data.message); // Show success message from the response
+                } else {
+                    showErrorMessage(data.message); // Show error message from the response
+                }
+            })
+            .catch(error => {
+                let errorMessage = 'Failed to acknowledge receipt.';
+                if (error && error.message) {
+                    errorMessage += ' ' + error.message;
+                }
+                $('#loader').hide();
+                showErrorMessage(errorMessage);
+            });
+        },
+        () => {
+            // If canceled, uncheck the checkbox
+            checkbox.checked = false;
+            $('#loader').hide();
+        }
+    );
+}
+
 
 
 

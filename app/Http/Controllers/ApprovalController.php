@@ -26,6 +26,9 @@ use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasAdvanceTypes;
+use App\Mail\AssetTransferMail;
+use App\Models\AssetReturnApplication;
+
 
 class ApprovalController extends Controller
 {
@@ -58,7 +61,7 @@ class ApprovalController extends Controller
                     ->where('application_type', $modelClass);
             })
                 ->whereNotIn('status', [-1, 3])
-                //->filter($request, false)
+                ->filter($request, false)
                 ->orderByDesc('created_at')
                 ->paginate(config('global.pagination'))
                 ->withQueryString();
@@ -193,7 +196,6 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber, $advanceCode);
-
                             Log::info($postFields);
                             if($grnNo){
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
@@ -210,7 +212,6 @@ class ApprovalController extends Controller
                                 //     'error_msg' => "An error occurred during the operation: $errorMsg"
                                 // ], 500);
                             }
-
 
                             //update the updateData array and update ApplicationHistory once it is done
                             $updateData['is_posted_to_sap'] = 1;
@@ -264,6 +265,7 @@ class ApprovalController extends Controller
                     continue;
                 }
             }
+            // dd('ia m here');
             return $this->successResponse(null, 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage);
             // return response()->json(['msg_success' => 'Selected ' . Str::plural(strtolower($respString ?? 'applicaton')) . ' have been successfully ' . $responseMessage], 200);
         } catch (\Exception $e) {
@@ -322,12 +324,15 @@ class ApprovalController extends Controller
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
+                        "UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
                         "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
                         "ProjectCode" => (string) $detail->site->code
                     ];
                 })->toArray(),
                 "RequriedDate" => $required_date
                        ];
+
+                    
             }else {
                 $name_empid =$application->employee->username ." ".$application->employee->name;
                 $postFields = [
@@ -353,12 +358,12 @@ class ApprovalController extends Controller
             $postFields = [
                 "Items" => $application->details->map(function ($detail) use ($application) {
                     return [
-                        "ItemCode" => (string) $detail->receivedSerial->asset_serial_no,
+                        "ItemCode" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$detail->receivedSerial->asset_serial_no,
                         "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
                         "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
                         "ItemsGroupCode" => 102,
                         "ItemType" => "F",
-                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group,
+                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
                         "AssetGroup" => null,
                         "InventoryNumber"=> null,
                         "Employee"=> null,
@@ -367,7 +372,7 @@ class ApprovalController extends Controller
                 })->toArray(),
                 "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
                     return [
-                        "AssetNumber" => (string) $detail->receivedSerial->asset_serial_no,
+                        "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$detail->receivedSerial->asset_serial_no,
                         "Quantity" => 1,
                         "TotalLC" => $detail->receivedSerial->amount
                     ];
@@ -744,6 +749,34 @@ class ApprovalController extends Controller
             $initiatorMailContent .= ' approved.';
 
 
+            if ($applicationModel['name'] == 'App\Models\AssetTransferApplication'){
+                $requestingUserId = $applicationData->fromEmployee->name;
+                $receiverUserId = $applicationData->toEmployee->id;
+                $receiverEmail = $applicationData->toEmployee->email;
+                $emailSubject = 'Asset Transfer Application';
+                $type = 'asset transfer';
+                // Send the email
+                try {
+                    Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
+                } catch (\Exception $e) {
+                    log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
+                }
+            }
+            if ($applicationModel['name'] == 'App\Models\AssetReturnApplication'){
+                $requestingUserId = $applicationData->employee->name;
+                $receiverUserId = $applicationData->details;
+                $receiverEmail = $applicationData->employee->email;
+                $emailSubject = 'Asset Return Application';
+                $type = 'asset return';
+
+                // dd($requestingUserId, $receiverUserId, $emailSubject, $type);
+                // Send the email
+                try {
+                    Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
+                } catch (\Exception $e) {
+                    log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
+                }
+            }
             if ($appType['name'] == 'In Country') {
 
                 $applierId = $applicationData->created_by;
@@ -752,10 +785,10 @@ class ApprovalController extends Controller
                 $department = $applier->empJob->department->id;
                 $roleId = 7;
                 $gm = User::whereHas('empJob.department', function ($query) use ($department) {
-                    $query->where('id', $department); // Replace with your specific department ID
+                    $query->where('id', $department);
                 })
                     ->whereHas('roles', function ($query) use ($roleId) {
-                        $query->where('roles.id', $roleId); // Replace with your specific role ID
+                        $query->where('roles.id', $roleId);
                     })
                     ->get()->first();
 
@@ -835,6 +868,7 @@ class ApprovalController extends Controller
 
             $results->put($key, $data);
         }
+
         $holidays;
         if ($results->get(7)) {
             $holidays = DB::table('work_holiday_lists')

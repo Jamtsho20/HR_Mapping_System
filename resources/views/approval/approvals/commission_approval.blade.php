@@ -14,6 +14,7 @@
                                                 data-item-class="bulk_checkbox" title="select all">
                                         </th>
                                     @endif
+                                            <th>APPLIED ON</th>
                                             <th>EMPLOYEE</th>
                                             <th>Commission No</th>
                                             <th>Commission Date</th>
@@ -32,6 +33,9 @@
                                                     value="{{ $commission->id }}">
                                             </td>
                                             @endif
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($commission->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($commission->created_at)->format('h:i A') }}
+                                            </td>
                                             <td>{{ $commission->employee->emp_id_name }}</td>
                                             <td>{{ $commission->transaction_no }}</td>
                                             <td>{{ $commission->transaction_date }}</td>

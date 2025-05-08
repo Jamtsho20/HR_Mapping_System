@@ -394,6 +394,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition', 'RequisitionApplicationController');
         Route::resource('commission', 'CommissionApplicationController');
         Route::resource('asset-transfer', 'AssetTransferApplicationController');
+        Route::resource('assets', 'AssetTransferApplicationController')->only('index', 'show');
+        Route::get('assets', 'AssetTransferApplicationController@myAssetIndex');
         Route::get('requisition/{id}/receive', 'RequisitionApplicationController@receive')->name('requisition.receive');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
@@ -401,6 +403,7 @@ Route::middleware('auth')->group(function () {
 
 
         Route::resource('asset-return', 'AssetReturnApplicationController');
+        Route::resource('store-incharge', 'StoreInchargeController');
         //Route::resource('', 'Controller')->except('create', 'show', 'edit');
     });
 
@@ -478,6 +481,9 @@ Route::middleware('auth')->group(function () {
     Route::get('getassetnobygrnid/{grnId}', 'AjaxRequestController@getAssetNoByGrnId');
     Route::get('getdescriptionanduombyserialid/{serialId}', 'AjaxRequestController@getDescriptionAndUomBySerialId');
     Route::get('getsitesbydzongkhagid/{dzongkhagId}', 'AjaxRequestController@getSitesByDzongkhagId');
+    Route::get('assetNosBySiteEmployee/{empID}/{siteID?}', 'AjaxRequestController@getAssetNoBySiteEmployee');
+    Route::get('itemByAssetId/{assetNo}', 'AjaxRequestController@getItemByAssetId');
+    Route::post('assets/acknowledge/{id}', 'AjaxRequestController@acknowledge');
 });
 
 

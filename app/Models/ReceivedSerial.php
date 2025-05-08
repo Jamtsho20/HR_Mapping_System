@@ -14,6 +14,8 @@ class ReceivedSerial extends Model
         'asset_serial_no',
         'asset_description',
         'is_commissioned',
+        'is_transfered_to',
+        'is_transfered',
         'amount',
     ];
 

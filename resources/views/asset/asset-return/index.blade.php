@@ -9,6 +9,24 @@
 </a>
 @endsection
 @endif
+<div class="block-header block-header-default">
+    @component('layouts.includes.filter')
+
+    <div class="col-6 form-group">
+        <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+    </div>
+
+    <div class="col-6 form-group">
+        <select class="form-control" id="status" name="status" onchange="displaySelectedValue()">
+            <option value="" disabled selected hidden>Select Application Status</option>
+            @foreach(config('global.application_status') as $key => $label)
+            <option value="{{ $key }}">{{ $label }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    @endcomponent
+</div>
 
 <div class="row row-sm">
     <div class="col-lg-12">
@@ -30,6 +48,7 @@
                                                 <th>EMPLOYEE</th>
                                                 <th>ASSET RETURN NUMBER</th>
                                                 <th>RETURN DATE</th>
+                                                <th>ACKNOWLEDGED </th>
                                                 <th>STATUS</th>
                                                 <th>VIEW</th>
                                             </tr>
@@ -41,6 +60,10 @@
                                                 <td>{{ $return->employee->emp_id_name }}</td>
                                                 <td>{{ $return->transaction_no }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($return->transaction_date)->format('d-M-Y') }}</td>
+                                                <td class="text-center">
+                                                    <input type="checkbox" style="accent-color: primary; pointer-events: none;"
+                                                        {{ $return->received_acknowledged ? 'checked' : '' }}>
+                                                </td>
                                                 <td class="text-center">
                                                     @php
                                                     $statusClasses = [
@@ -55,6 +78,7 @@
                                                     @endphp
                                                     <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                 </td>
+
                                                 <td class="text-center">
                                                     @if ($privileges->view)
                                                     <a href="{{ route('asset-return.show', $return->id) }}"

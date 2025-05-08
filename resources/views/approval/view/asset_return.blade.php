@@ -87,7 +87,7 @@
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td class="text-center">{{ $detail->receivedSerial->asset_serial_no }}</td>
                                         <td class="text-center">
-                                            {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                            {{ $detail->receivedSerial->requisitionDetail->unitOfMeasurement->name ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
                                         </td>
                                         <td class="text-center">{{ $detail->receivedSerial->asset_description }}</td>
                                         <td class="text-right">1</td>
@@ -190,7 +190,7 @@
                                 showErrorMessage(error.responseJSON.message || 'An unexpected error occurred.');
                             }
                         });
-                        
+
                         // Close the modal
                         $('#rejectModal').modal('hide');
                     });

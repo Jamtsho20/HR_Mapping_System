@@ -66,6 +66,8 @@
         @include('approval.view.dsa_claim', ['dsa' => $data, 'empDetails' => $empDetails, 'oldDataFlag' => $oldDataFlag, 'travelNosString' => $travelNosString, 'advanceNosString' => $advanceNosString])
     @elseif ($tab == 10)
         @include('approval.view.commission', ['commission' => $data, 'empDetails' => $empDetails])
+    @elseif ($tab == 11)
+        @include('approval.view.asset_transfer', ['transfer' => $data, 'empDetails' => $empDetails])
     @elseif ($tab == 12)
         @include('approval.view.asset_return', ['return' => $data, 'empDetails' => $empDetails])
     @endif

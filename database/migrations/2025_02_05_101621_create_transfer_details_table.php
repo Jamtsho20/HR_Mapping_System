@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transfer_details', function (Blueprint $table) {
+        Schema::create('asset_transfer_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asset_transfer_id')->index()->constrained('asset_transfer_applications')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('received_serial_id')->index()->constrained('received_serials')->cascadeOnUpdate()->cascadeOnDelete();
