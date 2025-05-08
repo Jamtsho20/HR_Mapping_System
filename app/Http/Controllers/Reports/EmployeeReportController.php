@@ -27,7 +27,7 @@ class EmployeeReportController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        $employees = User::filter($request)->paginate(config('global.pagination'))->withQueryString();
+        $employees = User::active()->filter($request)->paginate(config('global.pagination'))->withQueryString();
         $departments = MasDepartment::orderBy('name')->get(['id', 'name']);
         $designations = MasDesignation::orderBy('name')->get(['id', 'name']);
         $sections = MasSection::orderBy('name')->get(['id', 'name']);
@@ -86,7 +86,7 @@ class EmployeeReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-       $employees = User::filter($request, false)->get();
+        $employees = User::filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.employee-report-pdf', compact('employees'))->setPaper('a4', 'landscape');;
@@ -101,11 +101,11 @@ class EmployeeReportController extends Controller
 
     public function printEmployee(Request $request)
     {
-       $employees = User::filter($request, false)->get();
+        $employees = User::filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.employee-report-pdf', compact('employees'))
-        ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
         return $pdf->stream('Employee-Report.pdf');
