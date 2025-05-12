@@ -104,7 +104,6 @@ class ApprovalController extends Controller
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
@@ -129,7 +128,6 @@ class ApprovalController extends Controller
                 }
                 $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
 
-
                 // Update application status
                 $application->update([
                     'status' => $status,
@@ -145,7 +143,7 @@ class ApprovalController extends Controller
 
                 if ($action === 'approve' && $applicationHistory) {
                     $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
-
+                    
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
                             'next_level_id' => $applicationForwardedTo['next_level']->id,

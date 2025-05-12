@@ -9,7 +9,6 @@ use App\Models\MasApprovalRuleConditionOperator;
 use App\Models\MasEmployeeJob;
 use App\Models\SystemHierarchy;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class ApprovalService
 {
@@ -156,13 +155,13 @@ class ApprovalService
 	public function applicationForwardedTo($id, $applicationType)
 	{
 		$applicationHistory = ApplicationHistory::where('application_type', $applicationType)->where('application_id', $id)->where('approver_emp_id', auth()->user()->id)->first();
+		
 		if ($applicationHistory && $applicationHistory->approval_option == HIERARCHICAL_APPVL_OPTION) {
 			$systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function ($query) {
 				$query->whereStatus(1)->orderBy('sequence');
 			}])
 				->where('id', $applicationHistory->hierarchy_id)->first();
 			if ($systemHierarchy) {
-
 				$currentLevel = $applicationHistory->next_level_id;
 				$currentLevelSequence = $systemHierarchy->hierarchyLevels
 					->where('id', $currentLevel)
