@@ -13,7 +13,6 @@ class MenuGenerator
     {
         $this->user = auth()->user();
         $this->userRoles = $this->user->roles();
-
     }
 
     private function userRolesCastedToArray()
@@ -31,9 +30,16 @@ class MenuGenerator
     public function menuAccessibleByRole()
     {
         $userRoles = $this->userRolesCastedToArray();
-        $menus = SystemMenu::with(['systemSubMenus' => function ($query) use ($userRoles) {
-            $query->whereIn('id', function ($q) use ($userRoles){
-                $q->select('system_sub_menu_id')->from('role_permissions')->where('view', 1)->whereIn('role_id', $userRoles);
+
+        // Delegated roles (common function in helpers.php)
+        $delegatedRole = delegatedRole(auth()->user()->id);
+
+        // Merge and unique
+        $allRoles = array_unique(array_merge($userRoles, $delegatedRole));
+
+        $menus = SystemMenu::with(['systemSubMenus' => function ($query) use ($allRoles) {
+            $query->whereIn('id', function ($q) use ($allRoles){
+                $q->select('system_sub_menu_id')->from('role_permissions')->where('view', 1)->whereIn('role_id', $allRoles);
             })->orderBy('display_order');
 
             $query->where('visible', 1);
@@ -42,6 +48,7 @@ class MenuGenerator
         ->filter(function ($menu) {
             return $menu->systemSubMenus->isNotEmpty();
         });
+        // dd($menus);
         return $menus;
     }
 

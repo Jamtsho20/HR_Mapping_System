@@ -471,3 +471,41 @@ if (!function_exists('formatAmount')) {
         return 'Nu. ' . number_format($amount, 2);
     }
 }
+
+if (!function_exists('delegatedRole')) {
+    function delegatedRole($userId)
+    {
+        $today = now()->toDateString();
+        // Delegated roles
+        $delegatedRole = \DB::table('delegations')
+            ->where('delegatee_id', $userId)
+            ->where('status', 1)
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->pluck('role_id')
+            ->toArray();
+
+        return $delegatedRole;
+    }
+}
+
+if (!function_exists('delegatedUser')) {
+    function delegatedUser($roleId)
+    {
+        $today = now()->toDateString();
+
+        $delegatedUser = \DB::table('delegations')
+			->where('role_id', $roleId)
+			->where('status', 1)
+			->whereDate('start_date', '<=', $today)
+			->whereDate('end_date', '>=', $today)
+			->pluck('delegatee_id');
+		return $delegatedUser[0];
+    }
+}
+
+if (!function_exists('originalActionPerformer')) {
+    function originalActionPerformer(){
+        
+    }
+}

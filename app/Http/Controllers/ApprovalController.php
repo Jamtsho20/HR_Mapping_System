@@ -26,7 +26,7 @@ use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimDetail;
 use App\Traits\JsonResponseTrait;
 use App\Models\MasAdvanceTypes;
-use App\Models\AssetReturnApplication;
+// use App\Models\AssetReturnApplication;
 
 
 class ApprovalController extends Controller
@@ -36,8 +36,7 @@ class ApprovalController extends Controller
 
     public function __construct(ApiController $sap)
     {
-        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
-        // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
+        $this->middleware('permission:approval/applications,view')->only('index','approveReject','show');
         $this->sap = $sap;
     }
 

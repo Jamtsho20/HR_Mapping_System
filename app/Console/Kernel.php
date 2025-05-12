@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Models\MasLeaveType;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\CheckHolidayAlert;
@@ -23,6 +22,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('credit-emp-earned-leaves-monthly')->monthly()->at('03:00');
         $schedule->command('credit-emp-leaves-yearly')->yearly()->at('00:00');
         $schedule->command('holiday:check-alert')->daily()->at('4:00');
+        $schedule->command('reset-delegations')->daily()->at('00:35');
         // $schedule->command('holiday:clear-old')->daily()->at('9:22');
     }
 

@@ -14,6 +14,7 @@
 use App\Http\Controllers\ApprovalController;
 
 Route::prefix('approval')->group(function () {
+    // Route::get('applications', [ApprovalController::class, 'index'])->name('approval.index');
     Route::get('applications', [ApprovalController::class, 'index'])->name('approval.index');
     Route::get('applications/{id}/edit', [ApprovalController::class, 'edit'])->name('approval.edit');
     Route::put('applications/{id}', [ApprovalController::class, 'update'])->name('approval.update');
