@@ -35,6 +35,7 @@ return new class extends Migration
             $table->foreignId('store_id')->nullable()->constrained('mas_stores')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('item_id')->nullable()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('current_stock')->default(0);
+            $table->string('uom')->nullable();
             $table->timestamps();
         });
     }

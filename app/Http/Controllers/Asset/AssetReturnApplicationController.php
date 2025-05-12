@@ -35,7 +35,7 @@ class AssetReturnApplicationController extends Controller
     ];
     protected $messages = [
 
-        
+
     ];
 
     private $attachmentPath = 'images/asset-return/';
@@ -51,7 +51,7 @@ class AssetReturnApplicationController extends Controller
     {
         $privileges = $request->instance();
         $assetReturns = AssetReturnApplication::orderByDesc('created_at')->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
-       
+
         return view('asset.asset-return.index', compact('privileges','assetReturns'));
     }
     /**
@@ -79,27 +79,25 @@ class AssetReturnApplicationController extends Controller
             $this->rules['attachments'] = 'array';
             $this->rules['attachments.*'] = 'file|mimes:pdf,jpg,png,docx|max:2048';
         }
-    
+
         $this->validate($request, $this->rules, $this->messages);
-    
+
         $attachments = [];
         if ($request->file('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $attachments[] = uploadImageToDirectory($file, $this->attachmentPath);
             }
         }
-    
-        
+
+
         $conditionFields = approvalHeadConditionFields(ASSET_RETURN_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
 
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy(ASSET_RETURN_TYPE, \App\Models\MasReturnType::class, $conditionFields ?? []);
-        //dd($approverByHierarchy);
-        // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
         $returnType = MasReturnType::where('id', ASSET_RETURN_TYPE)->first();
         $lastTransaction = AssetReturnApplication::latest('id')->first();
         $transactionNo = generateTransactionNumber1($returnType, $lastTransaction, 'transaction_no');
-    //dd($transactionNo,$lastTransaction,$returnType);
+
         try {
             DB::beginTransaction();
             $assetReturnApplication = AssetReturnApplication::create([
@@ -110,7 +108,7 @@ class AssetReturnApplicationController extends Controller
                 'status'          => $approverByHierarchy['application_status'],
                 'created_by'      => auth()->id(),
             ]);
-    
+
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
                     $assetReturnApplication->details()->create([
@@ -123,18 +121,18 @@ class AssetReturnApplicationController extends Controller
                     ]);
                 }
             }
-    
+
             // Save application history
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($assetReturnApplication->histories(), $approverByHierarchy, $request->remarks);
-    
+
             DB::commit();
-    
+
             // Send email to approver
             if (isset($approverByHierarchy['approver_details'])) {
                 $emailContent = 'has submitted an asset return request and is awaiting your approval for transaction no ' . $transactionNo;
                 $emailSubject = 'Asset Return Application';
-    
+
                 try {
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])
                         ->send(new ApplicationForwardedMail(
@@ -147,17 +145,17 @@ class AssetReturnApplicationController extends Controller
                     \Log::error('Error sending mail for Asset Return: ' . $e->getMessage());
                 }
             }
-    
+
             return redirect('asset/asset-return')->with('msg_success', 'Asset return has been submitted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
     }
-    
 
 
-   
+
+
     public function show(string $id)
     {
         $return = AssetReturnApplication::with('details')->findOrFail($id);

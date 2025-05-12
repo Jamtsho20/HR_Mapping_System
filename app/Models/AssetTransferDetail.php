@@ -9,7 +9,11 @@ class AssetTransferDetail extends Model
 {
     use HasFactory;
 
-    public function assetTransfer ()
+    protected $fillable = [
+        'asset_transfer_id',
+        'received_serial_id'
+    ];
+    public function assetTransfer()
     {
         return $this->belongsTo(AssetTransferApplication::class, 'asset_transfer_id');
     }
@@ -17,4 +21,10 @@ class AssetTransferDetail extends Model
     public function receivedSerial(){
         return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
     }
+
+    public function scopeReceivedSerial($query)
+    {
+        return $query->whereNotNull('received_serial_id'); // Or whatever condition makes sense
+    }
+
 }

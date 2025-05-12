@@ -37,7 +37,6 @@ class ApprovalService
 		if (!$approvalRule) {
 			return [];
 		}
-
 		if ($approvalRule->approvalConditions && !empty($conditionfields)) {
 			foreach ($approvalRule->approvalConditions as $appvlCondition) {
 				// Fetch operator symbol
@@ -71,7 +70,7 @@ class ApprovalService
 							$matchingApprovingAuthority = $approvingAuthorities->first(function ($authority) use ($desiredRoles) {
 								return in_array($authority->role_id, $desiredRoles);
 							});
-							
+
 							// incase if it matches return data from here it self because hierarchy process will be customized as applying user will either be Immediate Head or Department Head
 							//which exists within the hierarchy level
 							if ($matchingApprovingAuthority) {

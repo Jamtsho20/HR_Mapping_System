@@ -22,6 +22,17 @@
             <div class="col-3 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
+            <div class="col-3 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Employee" tabindex="-1"
+                    style="width: 100%" aria-hidden="true" name="employee_id">
+                    <option value="" disabled selected>Select Employee</option> <!-- Placeholder option -->
+                    @foreach ($employee as $name)
+                        <option value="{{ $name->id }}" {{ request()->get('employee_id') == $name->id ? 'selected' : '' }}>
+                            {{ $name->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
             <div class="col-2 form-group">
                 <select name="mas_leave_type_id" class="form-control select2 select2-hidden-accessible"
@@ -36,7 +47,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select name="department" class="form-control select2 select2-hidden-accessible"
                     data-placeholder="Select Department">
                     <option value="" disabled="" selected="" hidden="">Select Department</option>

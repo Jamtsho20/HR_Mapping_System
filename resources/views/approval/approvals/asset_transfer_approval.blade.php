@@ -14,38 +14,37 @@
                                                 data-item-class="bulk_checkbox" title="select all">
                                         </th>
                                     @endif
-                                            <th>APPLIED ON</th>
+                                            <th>
+                                                APPLIED ON
+                                            </th>
                                             <th>EMPLOYEE</th>
-                                            <th>REQUISITION NUMBER</th>
-                                            <th>REQUISITION TYPE</th>
-                                            <th>REQUISITION DATE</th>
+                                            <th>Transfer No</th>
+                                            <th>Transfer Date</th>
                                             <th>DEPARTMENT</th>
                                             <th>SECTION</th>
-                                            <th>NEED BY DATE</th>
+                                            <th>TRANSFER TYPE</th>
                                             <th>STATUS</th>
                                             <th>ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($results->get(5) as $requisition)
+                                        @forelse ($results->get(11) as $transfer)
                                         <tr>
                                             @if ($privileges->edit)
                                             <td>
                                                 <input type="checkbox" class="bulk_checkbox"
-                                                    value="{{ $requisition->id }}">
+                                                    value="{{ $transfer->id }}">
                                             </td>
                                             @endif
                                             <td>
-                                                {{ \Carbon\Carbon::parse($requisition->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($requisition->created_at)->format('h:i A') }}
+                                                {{ \Carbon\Carbon::parse($transfer->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($transfer->created_at)->format('h:i A') }}
                                             </td>
-                                            <td>{{ $requisition->employee->emp_id_name }}</td>
-                                            <td>{{ $requisition->transaction_no }}</td>
-                                            <td>{{ $requisition->type->name }}</td>
-                                            <td>{{ $requisition->transaction_date }}</td>
-                                            <td>{{ $requisition->employee->empJob->department->name }}</td>
-                                            <td>{{ $requisition->employee->empJob->section->name }}</td>
-                                            <td>{{ $requisition->need_by_date }}</td>
-
+                                            <td>{{ $transfer->employee->emp_id_name }}</td>
+                                            <td>{{ $transfer->transaction_no }}</td>
+                                            <td>{{ $transfer->transaction_date }}</td>
+                                            <td>{{ $transfer->employee->empJob->department->name }}</td>
+                                            <td>{{ $transfer->employee->empJob->section->name }}</td>
+                                            <td>{{ $transfer->transferType->name }}</td>
                                             <td class="text-center">
                                                 @php
                                                 $statusClasses = [
@@ -56,11 +55,11 @@
                                                     3 => 'badge bg-info',
                                                 ];
                                                 $statusText = config(
-                                                    "global.application_status.{$requisition->status}",
+                                                    "global.application_status.{$transfer->status}",
                                                     'Unknown Status',
                                                 );
                                                 $statusClass = config(
-                                                    "global.status_classes.{$requisition->status}",
+                                                    "global.status_classes.{$transfer->status}",
                                                     'badge bg-secondary',
                                                 );
                                             @endphp
@@ -74,19 +73,19 @@
                                                 @endphp
 
                                                 @if ($routeName == 'approval.index')
-                                                <a href="{{ url('approval/applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/applications/' . $transfer->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.approved')
-                                                <a href="{{ url('approval/approved-applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/approved-applications/' . $transfer->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @elseif ($routeName == 'approval.rejected')
-                                                <a href="{{ url('approval/rejected-applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('approval/rejected-applications/' . $transfer->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @else
-                                                <a href="{{ url('default-route/applications/' . $requisition->id . '?tab=5') }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="{{ url('default-route/applications/' . $transfer->id . '?tab=11') }}" class="btn btn-sm btn-outline-secondary">
                                                     <i class="fa fa-list"></i> Detail
                                                 </a>
                                                 @endif
@@ -97,7 +96,7 @@
                                                 </a>
                                                 @endif --}}
                                                 @if ($privileges->delete)
-                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('requisition/approval/' . $requisition->id) }}">
+                                                <a href="#" class="delete-btn btn btn-sm btn-rounded btn-outline-danger" data-url="{{ url('transfer/approval/' . $requisition->id) }}">
                                                     <i class="fa fa-trash"></i> DELETE
                                                 </a>
                                                 @endif
@@ -106,7 +105,7 @@
                                         @empty
                                         <tr>
                                             <td colspan="8" class="text-center text-danger">
-                                                No Requisition Found
+                                                No transfer Found
                                             </td>
                                         </tr>
                                     @endforelse

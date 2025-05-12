@@ -230,7 +230,7 @@ class ApiController extends BaseController
 
     public function saveGoodsIssued(Request $request)
     {
-        
+
         $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
@@ -257,7 +257,7 @@ class ApiController extends BaseController
             \Log::error("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
             return $this->validationErrorResponse($validator->errors());
         }
-        
+
         DB::beginTransaction();
         try {
 
@@ -293,25 +293,25 @@ class ApiController extends BaseController
                         // DB::rollBack();
                         return $this->errorResponse("Requisition application details not found for item_code: {$line['item_code']} and grn_no: {$detail['grn_no']}");
                     }
-                    
+
                     $requisition_detail->received_quantity = $line['received_quantity'];
                     $requisition_detail->is_received = 1;
                     $requisition_detail->received_at = now();
                     $requisition_detail->received_by = $reqApplication->created_by;
                     $requisition_detail->save();
-                    
+
 
                     if (!empty($line['serials'])) {
                         \Log::info('checking serials data', ['serials' => $line['serials']]);
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
-                            
+
                             // $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
                             // if ($exists) {
                                 //     DB::rollBack();
                                 //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
                                 // }
-                                
+
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,
                                 'asset_serial_no' => $serial['asset_serial_no'],
@@ -330,7 +330,7 @@ class ApiController extends BaseController
                     }
                 }
             }
-           
+
             $employee = User::find($reqApplication->created_by); // Ensure employee_id exists in requisition
             if ($employee && $employee->email) {
                 Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $reqApplication));
@@ -579,6 +579,98 @@ class ApiController extends BaseController
 
             return ['status' => 201, 'data' => $responseArray];
         }
+
+    public function postAssetTransferReturn($postFields){
+        $response = $this->startSession();
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $session = json_decode($response->getContent(), true);
+
+            $sessionId = $session['sessionId'] ?? null;
+        } else {
+            return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+        }
+
+        if (empty($sessionId)) {
+            return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+        }
+
+        $data = json_decode($postFields, true);
+        if($data['asset_post_type'] == 'transfer') {
+            $items = explode(',', $data['items']);
+            $project = $data['project_code'];
+            $dateToday = date('Y-m-d');
+            $oneDayEarly = date('Y-m-d', strtotime('-1 day'));
+
+            foreach ($items as $itemCode) {
+                $itemCode = trim($itemCode); // Clean up the item code
+                $url = "/b1s/v1/Items('" . $itemCode . "')"; // API URL for each item
+                $postField = []; // Reset per item
+
+                if ($project) {
+                    // Build ItemProjects for this item
+                    $postField['ItemProjects'] = [
+                        [
+                            'LineNumber' => 0,
+                            'ValidTo' => $oneDayEarly,
+                        ],
+                        [
+                            'LineNumber' => 1,
+                            'ValidFrom' => $dateToday,
+                            'ValidTo' => null,
+                            'Project' => $project
+                        ]
+                    ];
+                } else {
+                    // Build ItemDistributionRules for this item
+                    $postField['ItemDistributionRules'] = [
+                        [
+                            'LineNumber' => 0,
+                            'ValidTo' => $oneDayEarly,
+                        ],
+                        [
+                            'LineNumber' => 1,
+                            'ValidFrom' => $dateToday,
+                            'ValidTo' => null,
+                            'DistributionRule2' => '106'
+                        ]
+                    ];
+                }
+                dd($postField);
+                $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
+                if ($response['status'] !== 201) {
+                    return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                }
+
+                $responseArray = $response;
+                return response()->json(['success' => true, 'data' => $responseArray], 201);
+
+            }
+        }elseif($data['asset_post_type'] == 'return') {
+            $items = explode(',', $data['items']);
+            foreach ($items as $itemCode) {
+                $itemCode = trim($itemCode); // Clean up the item code
+                $url = "/b1s/v1/Items/('" . $itemCode . "')"; // API URL for each item
+                $postField = [];
+
+                $postField['ItemProjects'] = [
+                    [
+                        'U_Status' => 'return'
+                    ]
+                ];
+
+                dd($postField, $url);
+                $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
+                if ($response['status'] !== 201) {
+                    return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                }
+
+                $responseArray = $response;
+                return response()->json(['success' => true, 'data' => $responseArray], 201);
+            }
+        }
+
+    }
     public function postCommission($postFields){
          // Start SAP session and retrieve session ID
          $response = $this->startSession();
@@ -604,10 +696,6 @@ class ApiController extends BaseController
          if (empty($items) && empty($assetDocLines)) {
              return response()->json(['msg_error' => 'No items found in the payload'], 400);
          }
-
-
-
-
          foreach ($items as $item) {
 
             $formattedItem = [

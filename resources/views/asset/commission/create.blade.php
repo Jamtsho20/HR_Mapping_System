@@ -25,7 +25,7 @@
                                 @foreach ($grnItems as $grnItem)
                                     @foreach ($grnItem->details as $detail)
                                         <option value="{{ $detail->id }}">
-                                            {{ $detail->grnItem->grn_no }} ({{ $grnItem->transaction_no }})
+                                            {{ $detail->grnItem->grn_no ?? config('global.null_value') }} ({{ $grnItem->transaction_no ?? config('global.null_value') }})
                                         </option>
                                     @endforeach
                                 @endforeach
@@ -238,14 +238,14 @@
                         type: "GET",
                         success: function(data) {
                             let serialData = data?.data?.serial[0];
-                            console.log(serialData)
                             if (serialData) {
                                 row.find("input[name^='details'][name$='[description]']").val(
                                     serialData.asset_description ?? serialData
                                     ?.requisition_detail?.grn_item_detail.item
                                     .item_description);
                                 row.find("input[name^='details'][name$='[uom]']").val(
-                                    serialData?.requisition_detail?.grn_item_detail.item.uom
+                                    serialData?.requisition_detail?.unitOfMeasurement?.code
+                                    ?? serialData?.requisition_detail?.grn_item_detail?.item?.uom
                                 );
                                 row.find("input[name^='details'][name$='[qty]']").val(serialData?.requisition_detail?.grn_item_detail.item.quantity ?? 1);
                                 row.find("input[name^='details'][name$='[amount]']").val(

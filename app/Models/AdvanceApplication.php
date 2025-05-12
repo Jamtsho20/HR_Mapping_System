@@ -48,8 +48,8 @@ class AdvanceApplication extends Model
     public function rejectRemarks()
     {
         return $this->hasOne(ApplicationHistory::class, 'application_id', 'id')
-                    ->where('application_type', self::class)
-                    ->select('remarks', 'application_id');
+            ->where('application_type', self::class)
+            ->select('remarks', 'application_id');
     }
 
     public function audit_logs()
@@ -71,8 +71,6 @@ class AdvanceApplication extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-
-
 
 
     public function advanceType()
@@ -123,7 +121,7 @@ class AdvanceApplication extends Model
 
             // Filter by year and month
             $query->whereYear('transaction_date', $year)
-            ->whereMonth('transaction_date', $month);
+                ->whereMonth('transaction_date', $month);
         }
         if ($request->has('employee') && $request->get('employee')) {
             $query->where('created_by', $request->get('employee'));
@@ -144,8 +142,11 @@ class AdvanceApplication extends Model
                 $q->where('name', 'like', '%' . $request->get('name') . '%');
             });
         }
-
-
+        if ($request->has('cid_no') && $request->query('cid_no') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('cid_no', $request->query('cid_no'));
+            });
+        }
     }
 
     public function setDeductionFromPeriodAttribute($value)
@@ -164,8 +165,8 @@ class AdvanceApplication extends Model
     {
         parent::boot();
         static::updated(function ($advance) {
-                if($advance->type_id == GADGET_EMI && $advance->status == 3) {
-                    $payHeadId = \DB::table('mas_pay_heads')
+            if ($advance->type_id == GADGET_EMI && $advance->status == 3) {
+                $payHeadId = \DB::table('mas_pay_heads')
                     ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
                     ->where('mas_advance_types.id', $advance->type_id)
                     ->value('mas_pay_heads.id');

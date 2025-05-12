@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('quantity', 12, 2)->nullable();
             $table->boolean('is_commissioned')->default(0)->comment('1 => commissioned, 0 => not commissioned');
             $table->boolean('is_transfered')->default(0)->comment('1 => commissioned, 0 => not commissioned');
+            $table->foreignId('is_transfered_to')->nullable()->constrained('mas_employees')->comment('Employee id of person who transfered the item');
             $table->boolean('is_returned')->default(0)->comment('1 => commissioned, 0 => not commissioned');
             $table->timestamps();
         });

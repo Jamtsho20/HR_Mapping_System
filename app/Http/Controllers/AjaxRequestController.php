@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\SAP\ApiController;
+use App\Services\AssetAcknowledgementService;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\AssetCommissionDetail;
@@ -25,6 +26,7 @@ use App\Models\MasRequisitionType;
 use App\Models\MasSection;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
+use App\Models\MasTransferType;
 use App\Models\MasTravelType;
 use App\Models\MasVehicle;
 use App\Models\MasVillage;
@@ -45,7 +47,10 @@ use App\Models\MasReturnType;
 use App\Models\MasSite;
 use App\Models\ReceivedSerial;
 use App\Models\RequisitionDetail;
+use App\Models\AssetTransferApplication;
+use App\Models\AssetReturnApplication;
 use App\Models\MasGrnItem;
+use Illuminate\Support\Facades\Auth;
 use App\Models\MasGrnItemDetail;
 class AjaxRequestController extends Controller
 {
@@ -373,8 +378,8 @@ class AjaxRequestController extends Controller
             8 => MasSifaType::class,
             9 => DsaClaimType::class,
             10 => MasCommissionTypes::class,
-            11 => MasCommissionTypes::class,
-            12 => MasReturnType::class,
+            11 => MasTransferType::class,
+            12 => MasReturnType::class
         ];
 
         if (isset($modelMap[$id])) {
@@ -625,6 +630,106 @@ class AjaxRequestController extends Controller
             return $this->successResponse(['items' => $items]);
         } catch(\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching items. Please try again.' . $e->getMessage());
+        }
+    }
+
+    public function getAssetNoBySiteEmployee($empID, $siteID = null){
+        try {
+
+            $transferedSerials = AssetTransferApplication::with('details.receivedSerial')
+            ->where('created_by', Auth::user()->id)
+            ->whereNot('status', -1)
+            ->get()
+            ->flatMap(function ($application) {
+                return $application->details->pluck('receivedSerial.id');
+            })
+            ->filter() // in case some are null
+            ->unique() // optional: to remove duplicates
+            ->values() // reindex the array
+            ->toArray();
+
+            $returnedSerials = AssetReturnApplication::with('details.receivedSerial')
+            ->where('created_by', Auth::user()->id)
+            ->whereNot('status', -1)
+            ->get()
+            ->flatMap(function ($application) {
+                return $application->details->pluck('receivedSerial.id');
+            })
+            ->filter() // in case some are null
+            ->unique() // optional: to remove duplicates
+            ->values() // reindex the array
+            ->toArray();
+
+            $loggedInUserId = Auth::id();
+
+            $assetNos = ReceivedSerial::whereNotIn('id', $transferedSerials)
+            ->whereNotIn('id', $returnedSerials)
+            ->where('is_commissioned', 1)
+            ->where('is_returned', 0)
+            ->where(function ($query) use ($loggedInUserId, $empID, $siteID) {
+                // Case 1: Transferred to user & commissionDetail.site_id matches (no created_by check)
+                $query->where(function ($q1) use ($loggedInUserId, $siteID) {
+                    $q1->where('is_transfered_to', $loggedInUserId)
+                       ->whereHas('commissionDetail', function ($subQuery) use ($siteID) {
+                           if (!is_null($siteID)) {
+                               $subQuery->where('commission_details.site_id', $siteID);
+                           }
+                       });
+                })
+
+                // Case 2: Not transferred to anyone, apply full commissionDetail filters
+                ->orWhere(function ($q) use ($empID, $siteID) {
+                    $q->where(function ($inner) {
+                            $inner->whereNull('is_transfered_to')
+                                  ->orWhere('is_transfered_to', 0);
+                        })
+                        ->where('is_transfered', 0)
+                        ->whereHas('commissionDetail', function ($subQuery) use ($empID, $siteID) {
+                            $subQuery->join('asset_commission_applications', 'commission_details.commission_id', '=', 'asset_commission_applications.id')
+                                     ->where('asset_commission_applications.created_by', $empID);
+
+                            if (!is_null($siteID)) {
+                                $subQuery->where('commission_details.site_id', $siteID);
+                            }
+                        });
+                });
+            })
+            ->get();
+
+
+
+
+            return $this->successResponse($assetNos);
+        }catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.'. $e->getMessage());
+        }
+    }
+
+    public function getItemByAssetId($assetNo){
+        try {
+            $item = ReceivedSerial::where('id', $assetNo)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
+            return $this->successResponse($item);
+        }catch(\Exception $e) {
+            return $this->errorResponse('Something went wrong while fetching items. Please try again.'. $e->getMessage());
+        }
+    }
+
+    public function acknowledge(Request $request, $id, AssetAcknowledgementService $ackService)
+    {
+        try {
+            $type = $request->input('type');
+            $ackService->acknowledge($id, $type);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Receipt acknowledged successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to acknowledge receipt.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
