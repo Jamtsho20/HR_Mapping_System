@@ -500,12 +500,13 @@ if (!function_exists('delegatedUser')) {
 			->whereDate('start_date', '<=', $today)
 			->whereDate('end_date', '>=', $today)
 			->pluck('delegatee_id');
-		return $delegatedUser[0];
+
+		return $delegatedUser->first();
     }
 }
 
-if (!function_exists('originalActionPerformer')) {
-    function originalActionPerformer(){
+// if (!function_exists('originalActionPerformer')) {
+//     function originalActionPerformer(){
         
-    }
-}
+//     }
+// }
