@@ -18382,15 +18382,19 @@ div.dtr-bs-modal table.table tr:first-child td {
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    color: #999;
+    color: white !important;
+    background-color: #f82649 !important;
     cursor: pointer;
     display: inline-block;
     font-weight: bold;
     margin-right: 2px;
+    padding: 2px 5px; /* gives the bg color some space */
+    border-radius: 3px; /* optional: round edges */
 }
 
+
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    color: #333;
+    color: #ffe5e5;
 }
 
 .select2-container--default[dir=rtl] .select2-selection--multiple .select2-selection__choice,
