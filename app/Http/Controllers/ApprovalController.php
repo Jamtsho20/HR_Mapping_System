@@ -192,6 +192,7 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
+                            //comment this when yo have to approve yet not post to sap 
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber, $advanceCode);
                             Log::info($postFields);
                             if($grnNo){
