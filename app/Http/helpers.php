@@ -505,8 +505,27 @@ if (!function_exists('delegatedUser')) {
     }
 }
 
-// if (!function_exists('originalActionPerformer')) {
-//     function originalActionPerformer(){
-        
-//     }
-// }
+if (!function_exists('getDelegatee')) {
+    function getDelegatee($delegatorId) {
+        $delegations = \DB::table('delegations')
+            ->where('delegator_id', $delegatorId)
+            ->get(['delegatee_id', 'start_date', 'end_date']);
+
+        return $delegations;
+    }
+}
+
+if (!function_exists('getDelegateeRecords')) {
+    function getDelegateeRecords($query, $delegatee, $modelClass, $statuses) {
+        foreach ($delegatee as $user) {
+            $query->orWhereHas('audit_logs', function ($q) use ($user, $modelClass, $statuses) {
+                $q->where('application_type', $modelClass)
+                    ->where('action_performed_by', $user->delegatee_id)
+                    ->whereIn('status', $statuses);
+            });
+        }
+    }
+}
+
+
+

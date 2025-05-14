@@ -811,13 +811,16 @@ class ApprovalController extends Controller
             $initiatorMailContent
         ));
     }
+
     public function approvedApplications(Request $request)
     {
         $privileges = $request->instance();
         $privileges['view'] = 1;
         $headers = MasApprovalHead::all();
         $user = auth()->user();
+        // $originalActionPerformer = getDelegatedApprovals($user->id);
         $users = User::select('id', 'username', 'name')->whereNotIn('id', [1, 2])->get();
+
         $applicationModels = config('global.applications');
         $results = collect();
         $specificCondition = false;
@@ -830,18 +833,27 @@ class ApprovalController extends Controller
 
         // Helper method to apply common query logic
         $applyQuery = function ($modelClass, $user, $request) use ($statuses) {
-            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass, $statuses) {
-                $query->where('application_type', $modelClass)
+            // get list of deleagtee from delegations table when delegator was absence via helper function 
+            $delegatee = getDelegatee($user->id); 
 
-                    ->where('action_performed_by', $user->id);
+            return $modelClass::where(function ($query) use ($user, $delegatee, $modelClass, $statuses) {
+                $query->whereHas('audit_logs', function ($q) use ($user, $modelClass, $statuses) {
+                    $q->where('application_type', $modelClass)
+                    ->where('action_performed_by', $user->id)
+                    ->whereIn('status', $statuses);
+                });
+
+                // get delegatee record via helper (those record approved by delegatee in absence of delegator)
+                getDelegateeRecords($query, $delegatee, $modelClass, $statuses);
             })
-                ->whereIn('status', $statuses)
-                ->filter($request, false)
-                ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at')
-                ->paginate(config('global.pagination'))
-                ->withQueryString();
+            ->whereIn('status', $statuses)
+            ->filter($request, false)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->orderBy('created_at')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
         };
+
 
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
@@ -873,6 +885,7 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
+        // dd($results);
         return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }
 }
