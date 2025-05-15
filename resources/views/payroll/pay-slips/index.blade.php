@@ -72,15 +72,30 @@
                                                             @endphp
                                                             @forelse($paySlips as $record)
                                                                 <tr>
-                                                                    <td>{{ \Carbon\Carbon::parse($record->for_month)->format('M, Y') }}
-                                                                    </td>
-                                                                    <td>{{ $record->status['label'] }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($record->for_month)->format('M, Y') }}</td>
+                                                                    @php
+                                                                    $statusKey = $record->status['key'];
+                                                                    $statusLabel = $record->status['label'];
+
+                                                                    $badgeClass = match($statusKey) {
+                                                                        0 => 'bg-danger',    // Cancelled
+                                                                        1 => 'bg-warning',   // New
+                                                                        2 => 'bg-info',      // Verified
+                                                                        3 => 'bg-primary',   // Approved
+                                                                        4 => 'bg-success',   // Mailed or Custom
+                                                                        default => 'bg-secondary', // Fallback
+                                                                    };
+                                                                @endphp
+
+                                                                <td>
+                                                                    <span class="badge rounded-pill {{ $badgeClass }}">{{ $statusLabel }}</span>
+                                                                </td>
                                                                     <td>{{ $record->created_at ? $record->created_at->format('Y-m-d H:i:s') : '-' }}
                                                                     </td>
                                                                     <td>{{ $record->updated_at ? $record->updated_at->format('Y-m-d H:i:s') : '-' }}
                                                                     </td>
                                                                     </td>
-                                                                    <td class="text-center">
+                                                                    <td>
                                                                         @if ($privileges->edit)
                                                                             @if ($record->id == $latestRecordId)
                                                                                 <a href="{{ route('pay-slips.show', $record->id) }}"
@@ -111,12 +126,17 @@
                                                                                     <i class="fa fa-check"></i> POST
                                                                                 </a>
                                                                             @endif
-                                                                            @if ($record->status['key'] == 4)
+
+                                                                            @php
+                                                                                $forMonth = \Carbon\Carbon::parse($record->for_month);
+                                                                                $isCurrentMonth = $forMonth->isSameMonth(now());
+                                                                            @endphp
+
+                                                                            @if ($record->status['key'] == 4 && $isCurrentMonth)
                                                                                 <a href="{{ route('pay-slips.mail', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-secondary"
                                                                                     id="email-payslip-btn">
-                                                                                    <i class="fa fa-envelope"></i> MAIL
-                                                                                    PAYSLIPS
+                                                                                    <i class="fa fa-envelope"></i> MAIL PAYSLIPS
                                                                                 </a>
                                                                             @endif
                                                                         @endif
