@@ -63,6 +63,13 @@
                                                                             EDIT
                                                                         </a>
                                                                     @endif
+                                                                    @if ($privileges->delete)
+                                                                        <button type="button" class="btn btn-sm btn-rounded btn-outline-danger delete-btn"
+                                                                            data-url="{{ route('salary-saving-schemes.destroy', $record->id) }}">
+                                                                            <i class="fa fa-trash"></i>
+                                                                            DELETE
+                                                                        </button>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         @empty
