@@ -38,7 +38,7 @@ class DelegationApiController extends Controller
     {
         try {
             $privileges = $request->instance();
-            $delegations = Delegation::with(['delegator', 'role', 'delegatee'])->filter($request)->get();
+            $delegations = Delegation::with(['delegator:id,name,username', 'role:id,name,description', 'delegatee:id,name,username'])->filter($request)->get();
             // dd(gettype($delegations[0]->delegator));
             return $this->successResponse($delegations);
         } catch (\Exception $e) {
@@ -48,7 +48,7 @@ class DelegationApiController extends Controller
     public function create()
     {
         try {
-            $employees = User::all();
+            $employees = User::select(['id', 'name', 'username'])->get();
 
             $delegatorRoles = $this->delegatorRoles()->pluck('name')->values();
             return $this->successResponse(['employees' => $employees, 'delegatorRoles' => $delegatorRoles]);
