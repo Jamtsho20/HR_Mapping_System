@@ -50,7 +50,7 @@ class DelegationApiController extends Controller
         try {
             $employees = User::select(['id', 'name', 'username'])->get();
 
-            $delegatorRoles = $this->delegatorRoles()->pluck('name')->values();
+            $delegatorRoles = $this->delegatorRoles()->select(['id', 'name', 'description'])->values();
             return $this->successResponse(['employees' => $employees, 'delegatorRoles' => $delegatorRoles]);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
