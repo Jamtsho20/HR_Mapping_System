@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\SystemMenu;
+use Illuminate\Support\Facades\Auth;
 
 class DelegationApiController extends Controller
 {
@@ -94,9 +96,12 @@ class DelegationApiController extends Controller
 
                 // Commit the transaction
                 DB::commit();
+                $user = Auth::user();
+                $roleIds = $user->roles->pluck('id');
+                $menus = $this->menuAccessibleByRole($roleIds, $user->id);
 
                 // Send success response
-                return $this->successResponse($newDelegation, 'Delegation(s) have been created successfully.', 201);
+                return $this->successResponse(['delegations' => $newDelegation, 'menus' => $menus], 'Delegation(s) have been created successfully.', 201);
             } catch (\Exception $e) {
                 // Rollback in case of error
                 DB::rollBack();
@@ -170,16 +175,20 @@ class DelegationApiController extends Controller
             $delegation->updated_by = auth()->id();
             $delegation->save();
 
+            $user = Auth::user();
+            $roleIds = $user->roles->pluck('id');
+            $menus = $this->menuAccessibleByRole($roleIds, $user->id);
+
             DB::commit();
 
             $this->updateEmpRoles($delegation->delegator_id, $delegation->role_id, $delegation->status == 1 ? 1 : 0);
 
-            return $this->successResponse($delegation, 'Delegation has been updated successfully.');
+            return $this->successResponse(['delegation' => $delegation, 'menus' => $menus], 'Delegation has been updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Delegation Update Error: ' . $e->getMessage());
 
-            return $this->errorResponse('Failed to update delegation. Please try again.', 500);
+            return $this->errorResponse('Failed to update delegation. Please try again.' . $e->getMessage(), 500);
         }
     }
 
@@ -198,5 +207,35 @@ class DelegationApiController extends Controller
             ->where('mas_employee_id', $delegator)
             ->where('role_id', $delegatorRole)
             ->update(['has_delegation' => $hasDelegation]);
+    }
+    private function menuAccessibleByRole($role, $userId)
+    {
+        $userRoles = $role->toArray();
+        // Delegated roles (common function in helpers.php)
+        $delegatedRole = delegatedRole($userId);
+        // Merge and unique role that is original role and delegated role
+        $allRoles = array_unique(array_merge($userRoles, $delegatedRole));
+
+        $menus = SystemMenu::select('id', 'name', 'display_order')->with(['systemSubMenus' => function ($query) use ($allRoles) {
+            $query->select('system_sub_menus.id', 'system_sub_menus.system_menu_id', 'system_sub_menus.name', 'system_sub_menus.route')
+                ->join('role_permissions', 'system_sub_menus.id', '=', 'role_permissions.system_sub_menu_id') // Join role_permissions
+                ->whereIn('role_permissions.role_id', $allRoles) // Check if the user has one of the roles
+                ->where('role_permissions.view', 1) // Optional: Filter by view permission
+                ->where('system_sub_menus.visible', 1) // Ensure the submenu is visible
+                ->orderBy('system_sub_menus.display_order')
+                ->addSelect([
+                    'view' => 'role_permissions.view',  // Select the "view" permission
+                    'edit' => 'role_permissions.edit',  // Select the "edit" permission
+                    'create' => 'role_permissions.create', // Select the "create" permission
+                    'delete' => 'role_permissions.delete'
+                ]);
+        }])
+            ->orderBy('display_order')->get()
+            ->filter(function ($menu) {
+                return $menu->systemSubMenus->isNotEmpty();
+            });
+
+
+        return $menus->values();
     }
 }
