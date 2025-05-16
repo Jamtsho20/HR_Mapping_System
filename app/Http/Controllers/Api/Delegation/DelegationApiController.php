@@ -193,7 +193,7 @@ class DelegationApiController extends Controller
             DB::rollBack();
             \Log::error('Delegation Update Error: ' . $e->getMessage());
 
-            return $this->errorResponse('Failed to update delegation. Please try again.', 500);
+            return $this->errorResponse('Failed to update delegation. Please try again.' . $e->getMessage(), 500);
         }
     }
 
@@ -213,4 +213,5 @@ class DelegationApiController extends Controller
             ->where('role_id', $delegatorRole)
             ->update(['has_delegation' => $hasDelegation]);
     }
+    
 }
