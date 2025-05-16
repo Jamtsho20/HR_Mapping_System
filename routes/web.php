@@ -489,6 +489,7 @@ Route::middleware('auth')->group(function () {
     Route::get('assetNosBySiteEmployee/{empID}/{siteID?}', 'AjaxRequestController@getAssetNoBySiteEmployee');
     Route::get('itemByAssetId/{assetNo}', 'AjaxRequestController@getItemByAssetId');
     Route::post('assets/acknowledge/{id}', 'AjaxRequestController@acknowledge');
+    // Route::get('getdelegateeemployee/{roleId}', 'AjaxRequestController@getDelegateeEmployee');
 });
 
 

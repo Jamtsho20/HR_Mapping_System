@@ -54,11 +54,24 @@ class DelegationController extends Controller
      */
     public function create()
     {
-        $employees = User::all();
-
         $delegatorRoles = $this->delegatorRoles();
+        $roleNames = $delegatorRoles->pluck('name')->toArray(); // Convert to array of names
+        $roleId = null;
+        // Define constants or replace them with actual values
+        $priorityRoles = [
+            MANAGING_DIRECTOR,
+            IMMEDIATE_HEAD,
+            DEPARTMENT_HEAD
+        ];
 
-        return view('delegation.create',compact('employees', 'delegatorRoles'));
+        foreach ($priorityRoles as $priorityRole) {
+            if (in_array($priorityRole, $roleNames)) {
+                $roleId = $priorityRole;
+                break;
+            }
+        }
+        $employees = getDeleagteeList($roleId);
+        return view('delegation.create',compact('delegatorRoles', 'employees'));
 
     }
 
@@ -124,7 +137,7 @@ class DelegationController extends Controller
     public function edit($id)
     {
         $delegation = Delegation::findOrFail($id);
-        $employees = User::all();
+        $employees = getDeleagteeList($delegation->role_id);
         $delegatorRoles = $this->delegatorRoles();
         return view('delegation.edit', compact('delegation', 'delegatorRoles', 'employees'));
     }

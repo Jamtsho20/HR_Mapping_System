@@ -17,12 +17,13 @@
                         @endforeach
                     </select>
                 </div>
+                {{-- @dd($employees[0]['id']) --}}
                 <div class="form-group col-md-4">
                     <label for="delegatee">Delegatee <span class="text-danger">*</span></label>
                     <select name="delegatee" class="form-control" id="delegatee">
                         <option value="" disabled selected hidden>Select your option</option>
                         @foreach ($employees as $employee)
-                        <option value="{{ $employee->id }}" {{ $delegation->delegatee_id == $employee->id ? 'selected' : '' }}>{{ $employee->emp_id_name }}</option>
+                        <option value="{{ $employee['id'] }}" {{ $delegation->delegatee_id == $employee['id'] ? 'selected' : '' }}>{{ $employee['emp_id_name'] }}</option>
                         @endforeach
                     </select>
                 </div>

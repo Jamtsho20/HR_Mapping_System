@@ -55,11 +55,11 @@ class DelegationController extends Controller
      */
     public function create()
     {
-        $employees = User::all();
+        // $employees = User::all();
 
         $delegatorRoles = $this->delegatorRoles();
 
-        return view('system-settings.delegation.create',compact('employees', 'delegatorRoles'));
+        return view('system-settings.delegation.create',compact('delegatorRoles'));
 
     }
 

@@ -527,5 +527,46 @@ if (!function_exists('getDelegateeRecords')) {
     }
 }
 
+if(!function_exists('getDeleagteeList')){
+    function getDeleagteeList($roleId) {
+        $employees = [];
+        if($roleId == DEPARTMENT_HEAD){
+            $departmentId = MasEmployeeJob::where('mas_emloyee_id', auth()->user()->id)->value('mas_department_id');
+            $employees = User::whereHas('empJob', function ($query) use ($departmentId) {
+                $query->where('mas_section_id', $departmentId);
+            }) 
+            ->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'emp_id_name' => $user->emp_id_name, // uses accessor safely
+                ];
+            });
+        }else if($roleId == MANAGING_DIRECTOR){
+            $employees = User::whereHas('roles', function ($query) {
+                $query->whereIn('roles.id', [DEPARTMENT_HEAD, IMMEDIATE_HEAD]);
+            })
+            ->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'emp_id_name' => $user->emp_id_name
+                ];
+            });
+        }else{
+            
+            $sectionId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('mas_section_id');
+            $employees = User::whereHas('empJob', function ($query) use ($sectionId) {
+                $query->where('mas_section_id', $sectionId);
+            }) 
+            ->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'emp_id_name' => $user->emp_id_name, // uses accessor safely
+                ];
+            });
+        }
+        return $employees;
+    }
+}
+
 
 

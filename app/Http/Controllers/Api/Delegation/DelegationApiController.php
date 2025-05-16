@@ -48,10 +48,24 @@ class DelegationApiController extends Controller
     public function create()
     {
         try {
-            $employees = User::select(['id', 'name', 'username'])->get();
-
             $delegatorRoles = $this->delegatorRoles()->select(['id', 'name', 'description'])->values();
-            return $this->successResponse(['employees' => $employees, 'delegatorRoles' => $delegatorRoles]);
+            $roleNames = $delegatorRoles->pluck('name')->toArray(); // Convert to array of names
+            $roleId = null;
+            // Define constants or replace them with actual values
+            $priorityRoles = [
+                MANAGING_DIRECTOR,
+                IMMEDIATE_HEAD,
+                DEPARTMENT_HEAD
+            ];
+
+            foreach ($priorityRoles as $priorityRole) {
+                if (in_array($priorityRole, $roleNames)) {
+                    $roleId = $priorityRole;
+                    break;
+                }
+            }
+            $employees = getDeleagteeList($roleId);
+            return $this->successResponse(['delegatorRoles' => $delegatorRoles, 'employees' => $employees]);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -120,7 +134,7 @@ class DelegationApiController extends Controller
             $delegation = Delegation::findOrFail($id);
 
             // Fetch all employees
-            $employees = User::all();
+            $employees = getDeleagteeList($delegation->role_id);
 
             // Fetch the delegator roles
             $delegatorRoles = $this->delegatorRoles();

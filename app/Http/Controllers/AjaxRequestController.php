@@ -49,9 +49,12 @@ use App\Models\ReceivedSerial;
 use App\Models\RequisitionDetail;
 use App\Models\AssetTransferApplication;
 use App\Models\AssetReturnApplication;
+use App\Models\MasDepartment;
 use App\Models\MasGrnItem;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MasGrnItemDetail;
+use Illuminate\Support\Facades\Log;
+
 class AjaxRequestController extends Controller
 {
     /* write code related to ajax request */
@@ -732,4 +735,15 @@ class AjaxRequestController extends Controller
             ], 500);
         }
     }
+
+    // public function getDelegateeEmployee($roleId)
+    // {
+    //     try{
+    //         return $this->successResponse(getDeleagteeList($roleId));
+    //     }catch(\Exception $e){
+    //         Log::error('Delegatee Fetch Error: ' . $e->getMessage());
+    //         return $this->errorResponse('Something went wrong while fetching delegatee. Please try again.');
+    //         // return $this->errorResponse($e->getMessage());
+    //     }
+    // }
 }

@@ -40,11 +40,7 @@
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew select2" name="delegations[AAAAA][delegatee]" required >
                                         <option value="" disabled selected hidden>Select your option</option>
-                                        @foreach($employees as $employee)
-                                            <option value="{{ $employee->id }}" {{ old('delegatee') == $employee->id ? 'selected' : '' }}>
-                                                {{ $employee->emp_id_name }} 
-                                            </option>
-                                        @endforeach
+                                        
                                     </select>
                                 </td>
                                 <td>
@@ -94,6 +90,36 @@
 @endsection
 @push('page_scripts')
 <script>
-    
+    $(document).ready(function () {
+        $('.table').on('change', 'select[name^="delegations"][name$="[role]"]', function () {
+            let selectedRoleId = $(this).val();
+            let $row = $(this).closest('tr'); // capture the correct row
+            let $delegateeSelect = $row.find('select[name^="delegations"][name$="[delegatee]"]');
+
+            if (selectedRoleId) {
+                $.ajax({
+                    url: '/getdelegateeemployee/' + selectedRoleId,
+                    type: 'GET',
+                    success: function (response) {
+                        console.log(response)
+                        $delegateeSelect.empty();
+                        $delegateeSelect.append('<option value="" disabled selected hidden>Select your option</option>');
+
+                        if (response.length > 0) {
+                            $.each(response, function (index, employee) {
+                                $delegateeSelect.append(`<option value="${employee.id}">${employee.emp_id_name}</option>`);
+                            });
+                        } else {
+                            $delegateeSelect.append('<option disabled>No employees found</option>');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error fetching delegatees:', xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+
 </script>
 @endpush
