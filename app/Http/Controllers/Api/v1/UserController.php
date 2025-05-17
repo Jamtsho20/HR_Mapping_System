@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 class UserController extends Controller
@@ -18,7 +19,7 @@ class UserController extends Controller
     ];
     public function updateProfilePic(Request $request)
     {
-        $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        $validator = Validator::make($request->all(), $this->rules, $this->messages);
         if ($validator->fails()) {
                 return $this->validationErrorResponse($validator->errors());
             }
