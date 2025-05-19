@@ -305,6 +305,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
         Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
         Route::resource('payslip-report', 'PayslipReportController')->except('create', 'show', 'edit');
+        Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes

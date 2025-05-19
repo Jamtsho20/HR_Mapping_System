@@ -23,19 +23,21 @@ class SifaExport implements FromCollection, WithHeadings
     {
         $serialNo = 1;
 
-        // Access the request data to apply filters
-        return FinalPaySlip::filter($this->request)->get()->map(function ($sifaContributions) use (&$serialNo) {
-            return [
-                $serialNo++,
-                $sifaContributions->employee->username,
-                $sifaContributions->employee->name,
-                $sifaContributions->employee->empJob->designation->name,
-                $sifaContributions->employee->empJob->empType->name,
-                $sifaContributions->details['deductions']['SIFA'] ?? '0',
-                $sifaContributions->for_month,
-
-            ];
-        });
+        return FinalPaySlip::filter($this->request)->get()
+            ->filter(function ($sifaContributions) {
+                return ($sifaContributions->details['deductions']['SIFA'] ?? 0) > 0;
+            })
+            ->map(function ($sifaContributions) use (&$serialNo) {
+                return [
+                    $serialNo++,
+                    $sifaContributions->employee->username ?? '-',
+                    $sifaContributions->employee->name ?? '-',
+                    $sifaContributions->employee->empJob->designation->name ?? '-',
+                    $sifaContributions->employee->empJob->empType->name ?? '-',
+                    $sifaContributions->details['deductions']['SIFA'] ?? 0,
+                    $sifaContributions->for_month ?? '-',
+                ];
+            });
     }
 
     public function headings(): array

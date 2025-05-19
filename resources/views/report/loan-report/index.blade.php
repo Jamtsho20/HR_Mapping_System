@@ -105,7 +105,8 @@
                                                             <td>{{ $loan->loan_type ?? config('global.null_value') }}
                                                             </td>
                                                             <td>{{ $loan->amount }}</td>
-                                                            <td>{{ $loan->for_month }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
+                                                            </td>
                                                         </tr>
                                                     @empty
                                                         <tr>

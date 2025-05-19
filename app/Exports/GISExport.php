@@ -23,20 +23,25 @@ class GISExport implements FromCollection, WithHeadings
     {
         $serialNo = 1;
 
-        // Access the request data to apply filters
-        return FinalPaySlip::filter($this->request)->get()->map(function ($gis) use (&$serialNo) {
-            return [
-                $serialNo++,
-                $gis->employee->name,
-                $gis->employee->empJob->gis_policy_number ?? '-',
-                $gis->employee->cid_no,
-                $gis->employee->dob,
-                $gis->employee->empJob->basic_pay,
-                $gis->details['deductions']['GSLI'] ?? '0',
-                $gis->for_month,
-            ];
-        });
+        return FinalPaySlip::filter($this->request)
+            ->get()
+            ->filter(function ($gis) {
+                return ($gis->details['deductions']['GSLI'] ?? 0) > 0;
+            })
+            ->map(function ($gis) use (&$serialNo) {
+                return [
+                    $serialNo++,
+                    $gis->employee->name ?? '-',
+                    $gis->employee->empJob->gis_policy_number ?? '-',
+                    $gis->employee->cid_no ?? '-',
+                    $gis->employee->dob ?? '-',
+                    $gis->employee->empJob->basic_pay ?? 0,
+                    $gis->details['deductions']['GSLI'] ?? 0,
+                    $gis->for_month ?? '-',
+                ];
+            });
     }
+
 
     public function headings(): array
     {

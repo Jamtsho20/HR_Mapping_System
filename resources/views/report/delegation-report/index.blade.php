@@ -1,17 +1,17 @@
 @extends('layouts.app')
-@section('page-title', 'sifa')
+@section('page-title', 'Delegation Report')
 @section('content')
 
-    <div class="col-md-12 d-flex justify-content-end gap-2">
+    {{-- <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('sifa-report-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('loan-report-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('sifa-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('loan-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('sifa-report-print', Request::query()) }}" target="_blank"
+            <a href="{{ route('loan-report-print', Request::query()) }}" target="_blank"
                 onclick="openPrintPreview(event)"><span><i class="fa fa-print fa-lg"></i></span></a>
         </div>
-    </div>
+    </div> --}}
 
     <br>
 
@@ -19,7 +19,6 @@
         @component('layouts.includes.filter')
             <div class="col-3 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-
             </div>
             <div class="col-3 form-group">
                 <select name="employee_id" class="form-control select2 select2-hidden-accessible"
@@ -32,6 +31,7 @@
                     @endforeach
                 </select>
             </div>
+
             <div class="col-3 form-group">
                 <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
                     placeholder="CID ID">
@@ -41,7 +41,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">SIFA Contribution</h3>
+                        <h3 class="card-title">Delegation Report</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -60,58 +60,58 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            EMployee ID
+                                                            Delegator
                                                         </th>
                                                         <th>
-                                                            EMployee Name
+                                                            Role
                                                         </th>
                                                         <th>
-                                                            Designtion
+                                                            Delegatee
                                                         </th>
                                                         <th>
-                                                            Employment Type
+                                                            Start Date
                                                         </th>
                                                         <th>
-                                                            amount
+                                                            End Date
                                                         </th>
                                                         <th>
-                                                            Date
+                                                            Remarks
                                                         </th>
+                                                        <th>
+                                                            Status
+                                                        </th>
+
 
                                                     </tr>
                                                 </thead>
-                                                @php $hasRecords = false; @endphp
 
                                                 <tbody>
-                                                    @forelse($sifaContributions as $sifa)
-                                                        @php
-                                                            $sifaAmount = $sifa->details['deductions']['SIFA'] ?? 0;
-                                                        @endphp
-
-                                                        @if ($sifaAmount > 0)
-                                                            @php $hasRecords = true; @endphp
-                                                            <tr>
-                                                                <td>{{ $loop->iteration }}</td>
-                                                                <td>{{ $sifa->employee->username }}</td>
-                                                                <td>{{ $sifa->employee->name }}</td>
-                                                                <td>{{ $sifa->employee->empJob->designation->name }}</td>
-                                                                <td>{{ $sifa->employee->empJob->empType->name }}</td>
-                                                                <td>{{ $sifaAmount }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($sifa->for_month)->format('F Y') }}
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    @empty
-                                                    @endforelse
-
-                                                    @if (!$hasRecords)
+                                                    @forelse($delegations as $delegation)
                                                         <tr>
-                                                            <td colspan="7" class="text-center text-danger">No SIFA
-                                                                contribution Reports found</td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ $delegation->delegator->name ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $delegation->role->name ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $delegation->delegatee->name ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $delegation->start_date ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $delegation->end_date ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $delegation->remarks ?? config('global.null_value') }}
+                                                            </td>
+                                                            <td>{{ $delegation->status == 1 ? 'active' : 'inactive' ?? config('global.null_value') }}
+                                                            </td>
 
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="21" class="text-center text-danger">No Delegation
+                                                                Reports found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
                                             </table>
                                         </div>
                                     </div>
@@ -119,16 +119,21 @@
                             </div>
                         </div>
                     </div>
-                    @if ($sifaContributions->hasPages())
+                    @if ($delegations->hasPages())
                         <div class="card-footer">
-                            {{ $sifaContributions->links() }}
+                            {{ $delegations->links() }}
                         </div>
                     @endif
-
                 </div>
             </div>
         </div>
     </div>
+
+
+
+
+
+
 
 
 @endsection

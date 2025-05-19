@@ -95,8 +95,7 @@
                     <td>{{ $loan->branch_code, }}</td>
                     <td>{{ $loan->loan_type }}</td>
                     <td>{{ $loan->amount }}</td>
-                    <td>{{ $loan->for_month }}</td>
-
+                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
                 </tr>
             @empty
                 <tr>
