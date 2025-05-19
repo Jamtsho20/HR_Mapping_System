@@ -90,8 +90,8 @@
                     <td>{{ $loan->employee->name }}</td>
                     <td>{{ $loan->pay_head_name }}</td>
                     <td>{{ $loan->loan_number }}</td>
-                    <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
                     <td>{{ formatAmount($loan->amount, false) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
                     </td>
                 </tr>
             @empty
