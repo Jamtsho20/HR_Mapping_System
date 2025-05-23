@@ -43,6 +43,10 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID ID">
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -70,6 +74,9 @@
                                                             Employee Name
                                                         </th>
                                                         <th>
+                                                            CID
+                                                        </th>
+                                                        <th>
                                                             Bank
                                                         </th>
                                                         <th>
@@ -92,12 +99,14 @@
                                                         <tr>
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{ $loan->employee->name }}</td>
+                                                            <td>{{ $loan->employee->cid_no }}</td>
                                                             <td>{{ $loan->pay_head_name }}</td>
                                                             <td>{{ $loan->loan_number }}</td>
                                                             <td>{{ $loan->loan_type ?? config('global.null_value') }}
                                                             </td>
                                                             <td>{{ $loan->amount }}</td>
-                                                            <td>{{ $loan->for_month }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
+                                                            </td>
                                                         </tr>
                                                     @empty
                                                         <tr>

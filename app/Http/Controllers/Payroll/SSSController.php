@@ -119,6 +119,13 @@ class SSSController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $salarySaving = EmployeeSalarySaving::findOrFail($id);
+            $salarySaving->delete();
+
+            return redirect()->back()->with(['msg_success' => 'SSS has been successfully deleted.']);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['msg_error' => 'Something went wrong while deleting SSS.']);
+        }
     }
 }

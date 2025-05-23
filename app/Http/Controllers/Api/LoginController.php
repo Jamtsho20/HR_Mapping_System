@@ -51,9 +51,7 @@ class LoginController extends Controller
                 ], 401);
             }
 
-
-            $menus = $this->menuAccessibleByRole($roleIds);
-
+            $menus = $this->menuAccessibleByRole($roleIds, $user->id);
 
             $token = $user->createToken($request->username)->plainTextToken;
 
@@ -146,14 +144,18 @@ class LoginController extends Controller
         }
     }
 
-    private function menuAccessibleByRole($role)
+    private function menuAccessibleByRole($role, $userId)
     {
         $userRoles = $role->toArray();
+        // Delegated roles (common function in helpers.php)
+        $delegatedRole = delegatedRole($userId);
+        // Merge and unique role that is original role and delegated role
+        $allRoles = array_unique(array_merge($userRoles, $delegatedRole));
 
-        $menus = SystemMenu::select('id', 'name', 'display_order')->with(['systemSubMenus' => function ($query) use ($userRoles) {
+        $menus = SystemMenu::select('id', 'name', 'display_order')->with(['systemSubMenus' => function ($query) use ($allRoles) {
             $query->select('system_sub_menus.id', 'system_sub_menus.system_menu_id', 'system_sub_menus.name', 'system_sub_menus.route')
                 ->join('role_permissions', 'system_sub_menus.id', '=', 'role_permissions.system_sub_menu_id') // Join role_permissions
-                ->whereIn('role_permissions.role_id', $userRoles) // Check if the user has one of the roles
+                ->whereIn('role_permissions.role_id', $allRoles) // Check if the user has one of the roles
                 ->where('role_permissions.view', 1) // Optional: Filter by view permission
                 ->where('system_sub_menus.visible', 1) // Ensure the submenu is visible
                 ->orderBy('system_sub_menus.display_order')
@@ -169,7 +171,7 @@ class LoginController extends Controller
                 return $menu->systemSubMenus->isNotEmpty();
             });
 
-
+            
         return $menus->values();
     }
 }

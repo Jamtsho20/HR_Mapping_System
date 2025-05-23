@@ -37,8 +37,7 @@ class ApprovalController extends Controller
 
     public function __construct(ApiController $sap)
     {
-        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
-        // $this->middleware('permission:approval/approved-applications/details,view')->only('index', 'approveReject', 'show');
+        $this->middleware('permission:approval/applications,view')->only('index','approveReject','show');
         $this->sap = $sap;
     }
 
@@ -105,7 +104,6 @@ class ApprovalController extends Controller
         $rejectRemarks = $request->input('reject_remarks', '');
         $actionBy = auth()->id();
         $responseMessage = $action === 'approve' ? 'approved.' : 'rejected.';
-
         DB::beginTransaction();
         try {
             $approvalService = new ApprovalService();
@@ -129,7 +127,6 @@ class ApprovalController extends Controller
                     }
                 }
                 $applicationHistory = $application->histories->where('application_type', $model)->where('application_id', $id)->first();
-
 
                 // Update application status
                 $application->update([
@@ -195,27 +192,27 @@ class ApprovalController extends Controller
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $commission, $transactionNumber, $advanceCode);
-                         
+
                             Log::info($postFields);
-                            // if($commission){
-                            //     $postJournalEntriesResponse = $this->sap->postCommission($postFields);
-                            // }else{
-                            // $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
-                            // }
-                            // $statusCode = $postJournalEntriesResponse->getStatusCode();
-                            // $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
+                            if($commission){
+                                $postJournalEntriesResponse = $this->sap->postCommission($postFields);
+                            }else{
+                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
+                            }
+                            $statusCode = $postJournalEntriesResponse->getStatusCode();
+                            $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
 
-                            // if ($statusCode != 201) {
-                            //     $errorMsg = 'SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
-                            //     return $this->errorResponse('An error occurred during the operation: ' . $errorMsg);
-                            //     // return response()->json([
-                            //     //     'error_msg' => "An error occurred during the operation: $errorMsg"
-                            //     // ], 500);
-                            // }
+                            if ($statusCode != 201) {
+                                $errorMsg = 'SAP Error - ' . $postJournalEntriesResponse['msg_error'] ?? 'Unknown error during SAP posting.';
+                                return $this->errorResponse('An error occurred during the operation: ' . $errorMsg);
+                                // return response()->json([
+                                //     'error_msg' => "An error occurred during the operation: $errorMsg"
+                                // ], 500);
+                            }
 
-                            // //update the updateData array and update ApplicationHistory once it is done
-                            // $updateData['is_posted_to_sap'] = 1;
-                            // $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
+                            //update the updateData array and update ApplicationHistory once it is done
+                            $updateData['is_posted_to_sap'] = 1;
+                            $updateData['sap_response'] = json_encode($postJournalEntriesResponse ?? []);
                         }
 
                         // Finalize approval if it's at the maximum level
@@ -822,13 +819,16 @@ class ApprovalController extends Controller
             $initiatorMailContent
         ));
     }
+
     public function approvedApplications(Request $request)
     {
         $privileges = $request->instance();
         $privileges['view'] = 1;
         $headers = MasApprovalHead::all();
         $user = auth()->user();
+        // $originalActionPerformer = getDelegatedApprovals($user->id);
         $users = User::select('id', 'username', 'name')->whereNotIn('id', [1, 2])->get();
+
         $applicationModels = config('global.applications');
         $results = collect();
         $specificCondition = false;
@@ -846,13 +846,14 @@ class ApprovalController extends Controller
 
                     ->where('action_performed_by', $user->id);
             })
-                ->whereIn('status', $statuses)
-                ->filter($request, false)
-                ->whereYear('created_at', Carbon::now()->year)
-                ->orderBy('created_at')
-                ->paginate(config('global.pagination'))
-                ->withQueryString();
+            ->whereIn('status', $statuses)
+            ->filter($request, false)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->orderBy('created_at')
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
         };
+
 
         foreach ($applicationModels as $key => $model) {
             $modelClass = $model['name'];
@@ -884,6 +885,7 @@ class ApprovalController extends Controller
                 ->select('start_date', 'end_date')
                 ->get();
         }
+        // dd($results);
         return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
     }
 }

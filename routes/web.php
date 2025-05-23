@@ -136,7 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::post('users/change-status', 'UserController@changeUserStatus');
         Route::resource('users', 'UserController');
         Route::resource('hierarchies', 'HierarchyController')->except('show');
-        Route::resource('delegations', 'DelegationController')->except('show');
+        // Route::resource('delegations', 'DelegationController')->except('show');
         Route::resource('notifications', 'NotificationController')->except('create', 'show', 'edit');
         Route::resource('approval-rules', 'ApprovalRuleController');
         Route::resource('approval-head', 'ApprovalHeadController');
@@ -149,6 +149,11 @@ Route::middleware('auth')->group(function () {
         Route::get('approvalrulesaddcondition/{id}/edit', 'ApprovalRuleController@getEditCondition')->name('approval-rule-conditions.edit');
         Route::put('approvalrulesaddcondition/{id}', 'ApprovalRuleController@updateCondition')->name('approval-rule-conditions.update');
     });
+    // Delegation
+    Route::namespace('Delegation')->prefix('delegation')->group(function () {
+        Route::resource('delegations', 'DelegationController')->except('show');
+    });
+
 
     // MASTERS
     Route::namespace('Master')->prefix('master')->group(function () {
@@ -300,6 +305,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
         Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
         Route::resource('payslip-report', 'PayslipReportController')->except('create', 'show', 'edit');
+        Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -485,6 +491,7 @@ Route::middleware('auth')->group(function () {
     Route::get('assetNosBySiteEmployee/{empID}/{siteID?}', 'AjaxRequestController@getAssetNoBySiteEmployee');
     Route::get('itemByAssetId/{assetNo}', 'AjaxRequestController@getItemByAssetId');
     Route::post('assets/acknowledge/{id}', 'AjaxRequestController@acknowledge');
+    // Route::get('getdelegateeemployee/{roleId}', 'AjaxRequestController@getDelegateeEmployee');
     Route::post('assets/receive', 'AjaxRequestController@receive');
 });
 

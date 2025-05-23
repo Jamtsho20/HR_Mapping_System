@@ -69,6 +69,18 @@
                         <li class="list-group-item">
                             <b>Department</b> <a class="pull-right">{{ optional(optional($employee->empJob)->department)->code_name }}</a>
                         </li>
+                        <li class="list-group-item">
+                            <b>Roles</b>
+                            <ul class="mb-0 text-end">
+                                @forelse($employee->roles as $role)
+                                <li>{{ $role->name }}</li>
+                                @empty
+                                <li>No roles assigned</li>
+                                @endforelse
+                            </ul>
+                        </li>
+
+
                     </ul>
                 </div>
             </div>
@@ -78,7 +90,7 @@
     </div>
     <div class="card">
         <div class="card-header">
-        <h3 class="card-title">Payslips</h3>
+            <h3 class="card-title">Payslips</h3>
         </div>
         <div class="card-body">
             <div class="row">
@@ -90,15 +102,15 @@
                             <th>File</th>
                         </tr>
                         @forelse ($payslips as $payslip)
-                            <tr>
-                                <td>{{ $payslip['year'] }}</td>
-                                <td>{{ $payslip['month'] }}</td>
-                                <td><a href="{{ url('/payslips/view/' . urlencode($payslip['filename'])) }}" target="_blank">{{ $payslip['filename'] }}</a></td>
-                            </tr>
+                        <tr>
+                            <td>{{ $payslip['year'] }}</td>
+                            <td>{{ $payslip['month'] }}</td>
+                            <td><a href="{{ url('/payslips/view/' . urlencode($payslip['filename'])) }}" target="_blank">{{ $payslip['filename'] }}</a></td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td span="3" class="text-danger text-center">No payslips found</td>
-                            </tr>
+                        <tr>
+                            <td span="3" class="text-danger text-center">No payslips found</td>
+                        </tr>
                         @endforelse
                     </table>
                 </div>

@@ -89,25 +89,34 @@
         </thead>
         <tbody>
             @forelse($gisDeductions as $gis)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $gis->employee->name }}</td>
-                    <td>{{ $gis->employee->empJob->gis_policy_number ?? '-' }}</td>
-                    <td>{{ $gis->employee->cid_no }}</td>
-                    <td>{{ $gis->employee->dob }}</td>
-                    <td>{{ $gis->employee->empJob->basic_pay }}</td>
-                    <td>{{ $gis->details['deductions']['GSLI'] ?? '0' }}</td>
-                    <td>{{ $gis->for_month }}</td>
+                @php
+                    $gsli = $gis->details['deductions']['GSLI'] ?? 0;
+                @endphp
 
-                </tr>
+                @if ($gsli > 0)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $gis->employee->name ?? '-' }}</td>
+                        <td>{{ $gis->employee->empJob->gis_policy_number ?? '-' }}
+                        </td>
+                        <td>{{ $gis->employee->cid_no ?? '-' }}</td>
+                        <td>{{ $gis->employee->dob ?? '-' }}</td>
+                        <td>{{ formatAmount($gis->employee->empJob->basic_pay ?? 0, false) }}
+                        </td>
+                        <td>{{ $gsli }}</td>
+                        <td>{{ \Carbon\Carbon::parse($gis->for_month)->format('F Y') }}
+                        </td>
+                    </tr>
+                @endif
             @empty
                 <tr>
-                    <td colspan="5" class="text-center text-danger">No GIS Reports found</td>
+                    <td colspan="8" class="text-center text-danger">No GIS
+                        Reports found</td>
                 </tr>
             @endforelse
             <tr>
                 <td colspan="6" style="text-align: right">Total:</td>
-                <td> {{ $totalGIS }}</td>
+                <td> {{ formatAmount($totalGIS, false) }}</td>
                 <td></td>
             </tr>
         </tbody>

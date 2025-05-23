@@ -87,7 +87,7 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-
+        // dd($approverByHierarchy);
         try {
             DB::beginTransaction();
 

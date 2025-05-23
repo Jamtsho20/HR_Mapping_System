@@ -36,7 +36,8 @@ class LoanExport implements FromCollection, WithHeadings
                     $loans->loan_number,
                     $loans->loan_type,
                     $loans->amount,
-                    $loans->for_month,
+                    \Carbon\Carbon::parse($loans->for_month)->format('F Y')
+
                 ];
             });
     }

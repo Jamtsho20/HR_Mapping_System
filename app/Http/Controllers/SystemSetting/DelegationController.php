@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Delegation;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DelegationController extends Controller
 {
@@ -54,11 +55,11 @@ class DelegationController extends Controller
      */
     public function create()
     {
-        $employees = User::all();
+        // $employees = User::all();
 
         $delegatorRoles = $this->delegatorRoles();
 
-        return view('system-settings.delegation.create',compact('employees', 'delegatorRoles'));
+        return view('system-settings.delegation.create',compact('delegatorRoles'));
 
     }
 
@@ -70,10 +71,9 @@ class DelegationController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
         $this->validate($request, $this->rules, $this->messages);
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try{
             if($request->has('delegations')){
                 $delegations = [];
@@ -92,10 +92,12 @@ class DelegationController extends Controller
         
                 foreach ($delegations as $delegation) {
                     Delegation::create($delegation);
+                    $this->updateEmpRoles($delegation['delegator_id'], $delegation['role_id'], $delegation['status'] == 1 ? 1 : 0);
                 }
             }
-            \DB::commit();
+            DB::commit();
         }catch(\Exception $e){
+            DB::rollBack();
             \Log::error('Delegation Insert Error:' . $e->getMessage());
             return back()->withInput()->with('msg_error', 'Failed to save delegations. Please try again.');
         }
@@ -149,16 +151,24 @@ class DelegationController extends Controller
         ];
 
         $this->validate($request, $rules, $messages);
-        
-        $delegation = Delegation::findOrFail($id);
-        $delegation->delegator_id = auth()->user()->id;
-        $delegation->role_id = $request->role;
-        $delegation->delegatee_id = $request->delegatee;
-        $delegation->start_date = $request->start_date;
-        $delegation->end_date = $request->end_date;
-        $delegation->remark = $request->remark;
-        $delegation->status = $request->status;
-        $delegation->save();
+        DB::beginTransaction();
+        try{
+            $delegation = Delegation::findOrFail($id);
+            $delegation->delegator_id = auth()->user()->id;
+            $delegation->role_id = $request->role;
+            $delegation->delegatee_id = $request->delegatee;
+            $delegation->start_date = $request->start_date;
+            $delegation->end_date = $request->end_date;
+            $delegation->remark = $request->remark;
+            $delegation->status = $request->status;
+            $delegation->save();
+            DB::commit();
+            $this->updateEmpRoles($delegation->delegator_id, $delegation->role_id, $delegation['status'] == 1 ? 1 : 0);
+        }catch(\Exception $e){
+            DB::rollBack();
+            \Log::error('Delegation Update Error:' . $e->getMessage());
+            return back()->withInput()->with('msg_error', 'Failed to update delegation. Please try again.');
+        }
 
         return redirect('system-setting/delegations')->with('msg_success', 'Delegation has been updated successfully.');
     }
@@ -171,8 +181,16 @@ class DelegationController extends Controller
      */
     public function destroy($id)
     {
-        $delegation = Delegation::findOrFail($id);
-        $delegation->delete();
+        $hasDelegation = 0;
+        try{
+            $delegation = Delegation::findOrFail($id);
+            $delegation->delete();
+            $this->updateEmpRoles($delegation->delegator_id, $delegation->role_id, $hasDelegation);
+            DB::commit();
+        }catch(\Exception $e){
+            DB::rollBack();
+            return back()->withInput()->with('msg_error', 'Failed to delete delegation. Please try again.');
+        }
         return redirect('system-setting/delegations')->with('msg_success', 'Delegation has been deleted successfully.');
     }
 
@@ -182,5 +200,13 @@ class DelegationController extends Controller
         });
 
         return $delegatorRoles;
+    }
+
+    //update mas_employee_roles table to indicate that particular role has delegation
+    private function updateEmpRoles($delegator, $delegatorRole, $hasDelegation){
+        DB::table('mas_employee_roles')
+            ->where('mas_employee_id', $delegator)
+            ->where('role_id', $delegatorRole)
+            ->update(['has_delegation' => $hasDelegation]);
     }
 }

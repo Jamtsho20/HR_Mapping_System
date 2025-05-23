@@ -26,19 +26,6 @@
                             <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <div class="dataTables_length" id="responsive-datatable_length"
-                                            data-select2-id="responsive-datatable_length">
-                                            <label data-select2-id="26">
-                                                Show
-                                                <select class="select2">
-                                                    <option value="10">10</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
-                                                </select>
-                                                entries
-                                            </label>
-                                        </div>
                                         <div class="dataTables_scroll">
                                             <div class="dataTables_scrollHead"
                                                 style="overflow: scroll; position: relative; border: 0px; width: 100%;">
@@ -72,15 +59,27 @@
                                                             @endphp
                                                             @forelse($paySlips as $record)
                                                                 <tr>
-                                                                    <td>{{ \Carbon\Carbon::parse($record->for_month)->format('M, Y') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($record->for_month)->format('M, Y') }}</td>
+                                                                    @php
+                                                                        $statusKey = $record->status['key'];
+                                                                        $statusLabel = $record->status['label'];
+
+                                                                        $badgeClass = match($statusKey) {
+                                                                            0 => 'bg-danger',    // Cancelled
+                                                                            1 => 'bg-warning',   // New
+                                                                            2 => 'bg-info',      // Verified
+                                                                            3 => 'bg-primary',   // Approved
+                                                                            4 => 'bg-success',   // Mailed or Custom
+                                                                            default => 'bg-secondary', // Fallback
+                                                                        };
+                                                                    @endphp
+
+                                                                    <td>
+                                                                        <span class="badge rounded-pill {{ $badgeClass }}">{{ $statusLabel }}</span>
                                                                     </td>
-                                                                    <td>{{ $record->status['label'] }}</td>
-                                                                    <td>{{ $record->created_at ? $record->created_at->format('Y-m-d H:i:s') : '-' }}
-                                                                    </td>
-                                                                    <td>{{ $record->updated_at ? $record->updated_at->format('Y-m-d H:i:s') : '-' }}
-                                                                    </td>
-                                                                    </td>
-                                                                    <td class="text-center">
+                                                                    <td>{{ $record->created_at ? $record->created_at->format('Y-m-d H:i:s') : '-' }}</td>
+                                                                    <td>{{ $record->updated_at ? $record->updated_at->format('Y-m-d H:i:s') : '-' }}</td>
+                                                                    <td>
                                                                         @if ($privileges->edit)
                                                                             @if ($record->id == $latestRecordId)
                                                                                 <a href="{{ route('pay-slips.show', $record->id) }}"
@@ -111,12 +110,17 @@
                                                                                     <i class="fa fa-check"></i> POST
                                                                                 </a>
                                                                             @endif
-                                                                            @if ($record->status['key'] == 4)
+
+                                                                            @php
+                                                                                $forMonth = \Carbon\Carbon::parse($record->for_month);
+                                                                                $isCurrentMonth = $forMonth->isSameMonth(now());
+                                                                            @endphp
+
+                                                                            @if ($record->status['key'] == 4 && $isCurrentMonth)
                                                                                 <a href="{{ route('pay-slips.mail', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-secondary"
                                                                                     id="email-payslip-btn">
-                                                                                    <i class="fa fa-envelope"></i> MAIL
-                                                                                    PAYSLIPS
+                                                                                    <i class="fa fa-envelope"></i> MAIL PAYSLIPS
                                                                                 </a>
                                                                             @endif
                                                                         @endif

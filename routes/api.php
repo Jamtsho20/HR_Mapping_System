@@ -4,6 +4,7 @@ use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApprovalController;
 use App\Http\Controllers\Api\Anniversary\AnniversaryController;
+use App\Http\Controllers\Api\Delegation\DelegationApiController;
 use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Expense\DSAClaimApplicationController;
 use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
@@ -17,16 +18,18 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\Api\SOMs\ApiController as SomsApiComtroller;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
+use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
+use App\Http\Controllers\Api\v1\Asset\RequisitionApplicationApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
 use App\Http\Controllers\Api\v1\TeamApiController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApprovalController;
+use App\Http\Controllers\Api\v1\UserController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\v1\Asset\RequisitionApplicationApiController;
-use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
+
 
 
 
@@ -40,6 +43,7 @@ use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
 Route::middleware('api.access.log')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
     Route::post('sap/login', [LoginController::class, 'sapLogin']);
@@ -57,7 +61,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::put('change-password', [LoginController::class, 'handleChangePassword']);
         Route::resource('advance-applications', AdvanceLoanApplicationApiController::class);
         //generate advance no based on selection of advance type
-        Route::get('generate-advancenumber/{id}', [AjaxRequestController::class,'getAdvanceNumber']);
+        Route::get('generate-advancenumber/{id}', [AjaxRequestController::class, 'getAdvanceNumber']);
         Route::resource('advance_approval', 'AdvanceLoanApprovalController');
     });
 
@@ -65,7 +69,6 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('approval_count', 'GeneralApporvalController');
         Route::resource('my_team', 'TeamApiController');
         Route::post('/profile-pic', [UserController::class, 'updateProfilePic']);
-
     });
 
     Route::namespace('Api\v1\Asset')->middleware('auth:sanctum')->group(function () {
@@ -108,7 +111,10 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('travel_authorization', 'TravelAuthorizationApplicationController');
         Route::resource('travel_authorization_approval', 'TravelAuthorizationApprovalController');
         Route::get('travel_authorization_number/{id}', [TravelAuthorizationApplicationController::class, 'fetchTravelAuthorizationNumber']);
+    });
 
+    Route::namespace('Api\Delegation')->middleware('auth:sanctum')->group(function () {
+        Route::resource('delegations', 'DelegationApiController')->except(['show']);
     });
 
 
@@ -116,8 +122,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('gadget-emi/employees/', [AdvanceLoanGadgetEmiController::class, 'getEmployees']);
         Route::get('gadget-emi/{id}', [AdvanceLoanGadgetEmiController::class, 'index']);
         Route::get('gadget-emi/details/{id}', [AdvanceLoanGadgetEmiController::class, 'getDetailsByAdvance'])
-    ->where('id', '.*');
-
+            ->where('id', '.*');
     });
 
     Route::namespace('Api\Anniversary')->prefix('anniversary')->group(function () {
@@ -148,7 +153,6 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('leave_encashment_approval', 'LeaveEncashmentApprovalController');
         Route::post('leave_encashment_approval/bulk', [LeaveEncashmentApprovalController::class, 'bulkApprovalRejection']);
         Route::resource('leave_approval', 'LeaveApprovalController');
-
     });
 
     // incoming data from SAP ERP to save store and item as SAP team will be pushing data
@@ -158,11 +162,10 @@ Route::middleware('api.access.log')->group(function () {
         Route::post('save-grn-items', [ApiController::class, 'saveGrnItemMapping']);
         Route::post('save-goods-issued', [ApiController::class, 'saveGoodsIssued']);
     });
-Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
-    Route::resource('holidays', 'HolidayListController');
-    Route::get('notifications', [HolidayListController::class, 'notification']);
-
-});
+    Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
+        Route::resource('holidays', 'HolidayListController');
+        Route::get('notifications', [HolidayListController::class, 'notification']);
+    });
     // Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('advance-applications', [AdvanceLoanApplicationApiController::class, 'index']);
     //     Route::get('advance-applications/{id}', [AdvanceLoanApplicationApiController::class, 'show']);

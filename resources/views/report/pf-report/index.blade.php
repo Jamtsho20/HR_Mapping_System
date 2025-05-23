@@ -32,6 +32,10 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID ID">
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -82,24 +86,37 @@
                                                 </thead>
                                                 <tbody>
 
-                                                    @forelse ($pfDeductionsWithPF as $pf)
-                                                        <tr>
-                                                            <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $pf['employee_name'] }}</td>
-                                                            <td>{{ $pf['pf_number'] }}</td>
-                                                            <td>{{ $pf['CID'] ?? '-' }}</td>
-                                                            <td>{{ $pf['basic_pay'] ?? '-' }}</td>
-                                                            <td>{{ $pf['details']['deductions']['PF Contr'] ?? 0 }}</td>
-                                                            <td>{{ $pf['employer_pf_amount'] ?? 0 }}</td>
-                                                            <td>{{ $pf['total'] ?? 0 }}</td>
-                                                        </tr>
-                                                    @empty
+                                                    @php $hasRecords = false; @endphp
 
+                                                    @forelse ($pfDeductionsWithPF as $pf)
+                                                        @php
+                                                            $pfContr = $pf['details']['deductions']['PF Contr'] ?? 0;
+                                                        @endphp
+
+                                                        @if ($pfContr > 0)
+                                                            @php $hasRecords = true; @endphp
+                                                            <tr>
+                                                                <td>{{ $loop->iteration }}</td>
+                                                                <td>{{ $pf['employee_name'] }}</td>
+                                                                <td>{{ $pf['pf_number'] }}</td>
+                                                                <td>{{ $pf['CID'] ?? '-' }}</td>
+                                                                <td>{{ formatAmount($pf['basic_pay'] ?? 0, false) }}</td>
+                                                                <td>{{ formatAmount($pfContr, false) }}</td>
+                                                                <td>{{ formatAmount($pf['employer_pf_amount'] ?? 0, false) }}
+
+                                                                <td>{{ formatAmount($pf['total'] ?? 0, false) }}</td>
+                                                            </tr>
+                                                        @endif
+                                                    @empty
+                                                    @endforelse
+
+                                                    @if (!$hasRecords)
                                                         <tr>
-                                                            <td colspan="6" class="text-center text-danger">No PF Reports
+                                                            <td colspan="8" class="text-center text-danger">No PF Reports
                                                                 found</td>
                                                         </tr>
-                                                    @endforelse
+                                                    @endif
+
 
                                                 </tbody>
                                             </table>

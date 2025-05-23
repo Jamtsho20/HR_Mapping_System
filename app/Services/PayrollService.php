@@ -289,7 +289,7 @@ class PayrollService
             if ($payHeadId === 11) {
                 $amount = EmployeeSalarySaving::whereEmployeeId($employee->id)->whereRaw("pay_head_id = ?", [$payHeadId])->sum('amount');
             } else {
-                $amount = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? and is_paid_off <> 1 and end_date >= ?", [$payHeadId, date("Y-m-01")])->sum('amount');
+                $amount = LoanEMIDeduction::whereMasEmployeeId($employee->id)->whereRaw("mas_pay_head_id = ? AND is_paid_off <> 1 AND start_date <= ? AND end_date >= ?", [$payHeadId, date("Y-m-01"), date("Y-m-01")])->sum('amount');
             }
 
             return $amount ?? 0;

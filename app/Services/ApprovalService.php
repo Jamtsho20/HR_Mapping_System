@@ -9,20 +9,25 @@ use App\Models\MasApprovalRuleConditionOperator;
 use App\Models\MasEmployeeJob;
 use App\Models\SystemHierarchy;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class ApprovalService
 {
 	public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
 	{
-		$loggedInUserRoleId = Auth::user()->roles->collect();
+		$userRoles = auth()->user()->roles()->pluck('role_id')->toArray();
 		// incase if employee has this two roles then it will be different from normal hierarchy
-		// Filter and collect the desired roles
-		$desiredRoles = $loggedInUserRoleId->filter(function ($role) {
-			return $role['id'] === IMMEDIATE_HEAD || $role['id'] === DEPARTMENT_HEAD;
-		})->pluck('id')->toArray(); // Get role IDs as an array
-		// $departmentHead = $loggedInUserRoleId->firstWhere('id', DEPARTMENT_HEAD);
+		// Filter and collect the desired roles delegatedRole function defined in helpers.php to make use in other part of the application
+		$delegatedRole = delegatedRole(auth()->user()->id); // should return array of role IDs
 
+		$allRoles = collect(array_unique(array_merge($userRoles, $delegatedRole)));
+
+		$desiredRoles = $allRoles->filter(function ($roleId) {
+			return in_array($roleId, [IMMEDIATE_HEAD, DEPARTMENT_HEAD]);
+		})->values()->all();
+		// $desiredRoles = $allRoles->filter(function ($role) {
+		// 	return $role['id'] === IMMEDIATE_HEAD || $role['id'] === DEPARTMENT_HEAD;
+		// })->pluck('id')->toArray(); // Get role IDs as an array
+		// dd($desiredRoles);
 		$approvalRule = MasApprovalRule::with('approvalConditions')
 			->where('approvable_id', $approvableId)
 			->where('approvable_type', $approvableType)
@@ -43,7 +48,7 @@ class ApprovalService
 
 				// Match condition field and evaluate condition
 				if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id']) {
-
+					// now here need to get delegatee if incase has_employee_field is true
 					$conditionValue = !$conditionfields[0]['has_employee_field'] ? (float)$conditionfields[0]['value'] : $conditionfields[0]['value'];
 					// Dynamically evaluate the condition
 					if ($this->evaluateCondition(!$conditionfields[0]['has_employee_field'] ? (float)$conditionValue : $conditionValue, $operatorSymbol, !$conditionfields[0]['has_employee_field'] ? (float)$appvlCondition->value : $appvlCondition->value)) {
@@ -150,13 +155,13 @@ class ApprovalService
 	public function applicationForwardedTo($id, $applicationType)
 	{
 		$applicationHistory = ApplicationHistory::where('application_type', $applicationType)->where('application_id', $id)->where('approver_emp_id', auth()->user()->id)->first();
+		
 		if ($applicationHistory && $applicationHistory->approval_option == HIERARCHICAL_APPVL_OPTION) {
 			$systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function ($query) {
 				$query->whereStatus(1)->orderBy('sequence');
 			}])
 				->where('id', $applicationHistory->hierarchy_id)->first();
 			if ($systemHierarchy) {
-
 				$currentLevel = $applicationHistory->next_level_id;
 				$currentLevelSequence = $systemHierarchy->hierarchyLevels
 					->where('id', $currentLevel)
@@ -220,9 +225,11 @@ class ApprovalService
 	{
 		//if next level donot have has_employee_field
 		$approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)->pluck('role_id')[0];
+		//check for delegated user function defined in helper.php  to make use in other part of the application
+		$delegatedUserId = delegatedUser($approvingAuthorityRoleId);
 		// incase if $approvingAuthorityRoleId is Managing Director
 		if ($approvingAuthorityRoleId == MANAGING_DIRECTOR) {
-			$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
+			$userWithApprovingRole = User::find($delegatedUserId) ?? User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
 				$query->where('roles.id', $approvingAuthorityRoleId);
 			})->first();
 
@@ -234,7 +241,7 @@ class ApprovalService
 		//incase if there is no mas_employee_id in $next level, need to find the associated employee using department and section
 		if (!$nextLevel->mas_employee_id) {
 			$loggedInUserDeptIdAndSecId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->get(['mas_department_id', 'mas_section_id'])[0];
-			$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
+			$userWithApprovingRole = User::find($delegatedUserId) ?? User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
 				$query->where('roles.id', $approvingAuthorityRoleId);
 			})
 				->whereHas('empJob', function ($query) use ($loggedInUserDeptIdAndSecId) {
@@ -247,10 +254,12 @@ class ApprovalService
 				})
 				->first();
 		} else {
-			$userWithApprovingRole = User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
+			$userWithApprovingRole = User::find($delegatedUserId) ?? User::whereHas('roles', function ($query) use ($approvingAuthorityRoleId) {
 				$query->where('roles.id', $approvingAuthorityRoleId);
 			})->where('id', $nextLevel->mas_employee_id)->first();
 		}
+		// dd($userWithApprovingRole);
 		return ['user_with_approving_role' => $userWithApprovingRole, 'approver_role_id' => $approvingAuthorityRoleId];
 	}
+
 }

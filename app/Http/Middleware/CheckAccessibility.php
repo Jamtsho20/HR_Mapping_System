@@ -23,9 +23,19 @@ class CheckAccessibility
             abort(403);
         }
 
+        // $today = now()->toDateString();
+        // $userId = auth()->user()->id;
         $userRoles = auth()->user()->roles()->pluck('role_id')->toArray();
+
+        // Delegated roles (common function in helpers.php)
+        $delegatedRole = delegatedRole(auth()->user()->id);
+        
+        // Merge and unique
+        $allRoles = array_unique(array_merge($userRoles, $delegatedRole));
+
         $menuId = SystemSubMenu::where('route', $route)->pluck('id')->first();
-        $accessibility = RolePermission::where('system_sub_menu_id', $menuId)->whereIn('role_id', $userRoles)->select('view', 'create', 'edit', 'delete')->first();
+        $accessibility = RolePermission::where('system_sub_menu_id', $menuId)->whereIn('role_id', $allRoles)->select('view', 'create', 'edit', 'delete')->first();
+        // $accessibility = RolePermission::where('system_sub_menu_id', $menuId)->whereIn('role_id', $userRoles)->select('view', 'create', 'edit', 'delete')->first();
 
         if (!$accessibility) {
             abort(404);

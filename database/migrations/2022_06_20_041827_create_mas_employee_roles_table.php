@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mas_employee_id')->index()->constrained();
             $table->foreignId('role_id')->index()->constrained();
+            $table->boolean('has_delegation')->index()->default(0)->comment('0 => no deleagtion for role associated with empId, 1 => has delegation for role associated with empId');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->nullable()->index()->constrained('mas_employees');
             $table->timestamps();

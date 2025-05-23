@@ -38,7 +38,7 @@ class FinalPaySlip extends Model
         }
 
         if ($request->has('bank_location') && $request->get('bank_location')) {
-            
+
             $query->whereHas('employee.empJob', function ($query) use ($request) {
                 $query->where('bank', $request->get('bank_location')); // Changed 'bank' to 'bank_location'
             });
@@ -46,6 +46,12 @@ class FinalPaySlip extends Model
 
         if ($request->has('mas_pay_head_id') && $request->get('mas_pay_head_id')) {
             $query->where('loan_e_m_i_deductions.mas_pay_head_id', $request->get('mas_pay_head_id'));
+        }
+
+        if ($request->has('cid_no') && $request->query('cid_no') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('cid_no', $request->query('cid_no'));
+            });
         }
 
         // Add more filters here if needed
