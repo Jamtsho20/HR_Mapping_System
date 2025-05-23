@@ -85,8 +85,7 @@
         <tbody>
             @forelse($sifaContributions as $sifa)
                 @php
-                    $sifaAmount = $sifa->details['deductions']['SIFA'] ?? 0;
-                @endphp
+                $sifaAmount = $sifa->details['deductions']['SIFA'] ?? $sifa->sifa_contr; @endphp
 
                 @if ($sifaAmount > 0)
                     @php $hasRecords = true; @endphp
