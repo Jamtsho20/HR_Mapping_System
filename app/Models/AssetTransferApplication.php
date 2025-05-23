@@ -102,15 +102,50 @@ class AssetTransferApplication extends Model
     protected static function booted()
     {
         static::updated(function ($transfer) {
+
+            // Reset transferred flags if status is -1
             if ($transfer->isDirty('status') && $transfer->status == -1) {
                 $transfer->load('details.receivedSerial');
                 foreach ($transfer->details as $detail) {
                     if ($detail->receivedSerial) {
-                        $detail->receivedSerial->update(['is_transfered' => 0]);
-                        $detail->receivedSerial->update(['is_transfered_to' => null]);
+                        $detail->receivedSerial->update([
+                            'is_transfered' => 0,
+                            'is_transfered_to' => null
+                        ]);
+                    }
+                }
+            }
+
+            // Update MasAssets if received_acknowledged is now true
+            if ($transfer->isDirty('received_acknowledged') && $transfer->received_acknowledged == 1) {
+                $transfer->load('details');
+                foreach ($transfer->details as $detail) {
+                    if (!$detail->received_serial_id) {
+                        continue;
+                    }
+
+                    $masAsset = \App\Models\MasAssets::where('received_serial_id', $detail->received_serial_id)->first();
+
+                    if ($masAsset) {
+                       $updateData = [
+                            'current_employee_id' => $transfer->to_employee_id,
+                            'asset_transfer_detail_id' => $detail->id,
+                            'status' => 2,
+                            'updated_by' => auth()->user()->id,
+                            'updated_at' => now(),
+                        ];
+
+                        // Only update current_site_id if it's provided
+                        if (!is_null($transfer->to_site_id)) {
+                            $updateData['current_site_id'] = $transfer->to_site_id;
+                        }
+
+                        $masAsset->update($updateData);
+
                     }
                 }
             }
         });
     }
+
 }

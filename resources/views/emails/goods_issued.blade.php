@@ -8,6 +8,7 @@
     <p>Greetings for the day!!</p>
 
     <p>The goods for your requisition application have been successfully issued.</p>
+    <p>Please log in to acknowledge the goods you have received.</p>
     <p><strong>Requisition No:</strong> {{ $requisitionNo->transaction_no ?? '-'}}</p>
     <p><strong>Issued Date:</strong> {{ now()->format('Y-m-d H:i') }}</p>
 

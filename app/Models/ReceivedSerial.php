@@ -17,6 +17,8 @@ class ReceivedSerial extends Model
         'is_transfered_to',
         'is_transfered',
         'amount',
+        'remark',
+        'is_received',
     ];
 
     public function requisitionDetail()

@@ -386,7 +386,7 @@
                                 $row.find('input[id="category"]').val(data.asset_description || '');
                                 $row.find('input[id="description"]').val(grnDetail?.description || '');
                                 $row.find('input[id="asset_type"]').val(''); // You can assign logic if available
-                                $row.find('input[id="uom"]').val(data?.requisition_detail?unitOfMeasurement?.name || item?.uom || '');
+                                $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || '');
                                 $row.find('input[id="quantity"]').val(data.quantity || '');
                                 $row.find('input[id="date_placed_in_service"]').val(data.commission_detail?.date_placed_in_service || '');
                                 updateTotalQuantity();

@@ -52,6 +52,7 @@ use App\Models\AssetReturnApplication;
 use App\Models\MasGrnItem;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MasGrnItemDetail;
+use Illuminate\Support\Facades\DB;
 class AjaxRequestController extends Controller
 {
     /* write code related to ajax request */
@@ -567,6 +568,57 @@ class AjaxRequestController extends Controller
         return response()->json($vehicleDetailType);
     }
 
+
+    public function getAssetNumberByRequisitionId($id)
+    {
+        try {
+        $reqApplicaiton = RequisitionApplication::whereId($id)->first();
+
+
+         $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
+                $query->where('status', '!=', -1);
+            })->pluck('received_serial_id')->toArray();
+
+        $flatSerials = $reqApplicaiton->details()
+            ->whereHas('serials', function ($query) use ($existingSerials) {
+                $query->where('is_commissioned', 0)
+                    ->where('is_received', 1);
+                if (!empty($existingSerials)) {
+                    $query->whereNotIn('id', $existingSerials);
+                }
+            })
+            ->with(['serials' => function ($query) use ($existingSerials) {
+                $query->where('is_commissioned', 0)
+                    ->where('is_received', 1);
+                if (!empty($existingSerials)) {
+                    $query->whereNotIn('id', $existingSerials);
+                }
+                $query->select('id', 'requisition_detail_id', 'asset_serial_no');
+            }])
+            ->get()
+            ->pluck('serials')   // Collect all serial arrays
+            ->flatten(1)         // Flatten into one array
+            ->values();          // Reset index
+
+        // Wrap into a single object for JS compatibility
+        $assetNos = [
+            [
+                'serials' => $flatSerials
+            ]
+        ];
+
+        if (empty($assetNos[0]['serials'])) {
+            return $this->errorResponse('No asset numbers found for the provided GRN number.');
+        } else {
+            $dzongkhags = MasDzongkhag::get(['id', 'dzongkhag']);
+        }
+
+        return $this->successResponse(['assetNos' => $assetNos, 'dzongkhags' => $dzongkhags]);
+
+    } catch (\Exception $e) {
+        return $this->errorResponse('Something went wrong while trying to fetch details, please try again.' . $e->getMessage());
+    }
+    }
     public function getAssetNoByGrnId($grnId)
     {
         //only those serial whose status is not -1
@@ -578,9 +630,11 @@ class AjaxRequestController extends Controller
             $assetNosQuery = RequisitionDetail::where('id', $grnId)
                 ->whereHas('serials', function ($query) {
                     $query->where('is_commissioned', 0);
+                    $query->where('is_received', 1);
                 })
                 ->with(['serials' => function ($query) use ($existingSerials) {
                         $query->where('is_commissioned', 0);
+                        $query->where('is_received', 1);
                         if(!empty($existingSerials)){
                             $query->whereNotIn('id', $existingSerials);
                         }
@@ -730,6 +784,46 @@ class AjaxRequestController extends Controller
                 'message' => 'Failed to acknowledge receipt.',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function receive(Request $request){
+        try {
+
+            DB::beginTransaction();
+            $received = $request->childData;
+
+            foreach ($received as $item) {
+                $receivedSerial = ReceivedSerial::find($item['id']);
+                if(!$receivedSerial) return $this->errorResponse('Serial number .'.$item['serial_no'].' not found in the system.');
+                $receivedSerial->is_received = $item['received'];
+                $receivedSerial->remark = $item['remark'] ?? null;
+                $receivedSerial->save();
+            }
+
+            $reqDetail = RequisitionDetail::find($request->grnId);
+            $reqDetail->is_received = 1;
+            $reqDetail->received_quantity = $request->quantity;
+            $reqDetail->save();
+
+            $requisitionId = $reqDetail->requisition_id;
+
+            $allReceived = RequisitionDetail::where('requisition_id', $requisitionId)
+                ->where('is_received', '!=', 1)
+                ->doesntExist();
+
+            if ($allReceived) {
+                $requisition = RequisitionApplication::find($requisitionId);
+                $requisition->is_received = 1;
+                $requisition->save();
+            }
+
+            DB::commit();
+            return $this->successResponse('Asset received successfully.');
+
+        }catch(\Exception $e) {
+            DB::rollBack();
+            return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.'. $e->getMessage());
         }
     }
 }
