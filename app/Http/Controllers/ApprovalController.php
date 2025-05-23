@@ -321,7 +321,7 @@ class ApprovalController extends Controller
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
-                        "UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
+                        //"UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
                         "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
                         "ProjectCode" => (string) $detail->site->code
                     ];
