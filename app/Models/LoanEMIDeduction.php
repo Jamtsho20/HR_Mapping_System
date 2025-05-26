@@ -9,7 +9,17 @@ class LoanEMIDeduction extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'mas_pay_head_id', 'mas_employee_id', 'start_date', 'end_date', 'amount', 'loan_number',   'loan_type_id',  'recurring', 'recurring_months', 'remark', 'is_paid_of'
+        'mas_pay_head_id',
+        'mas_employee_id',
+        'start_date',
+        'end_date',
+        'amount',
+        'loan_number',
+        'loan_type_id',
+        'recurring',
+        'recurring_months',
+        'remark',
+        'is_paid_of'
     ];
 
     public function employee()
@@ -22,10 +32,15 @@ class LoanEMIDeduction extends Model
         return $this->belongsTo(MasPayHead::class, 'mas_pay_head_id');
     }
 
-    public function loanType() {
+    public function loanType()
+    {
         return $this->belongsTo(MasLoanType::class, 'loan_type_id', 'id');
     }
 
+    public function advanceApplication()
+    {
+        return $this->belongsTo(AdvanceApplication::class, 'loan_number', 'transaction_no');
+    }
     //filters
     public function scopeFilter($query, $request)
     {
@@ -45,6 +60,5 @@ class LoanEMIDeduction extends Model
                 $q->where('cid_no', '=', $request->query('cid_no'));
             });
         }
-
     }
 }

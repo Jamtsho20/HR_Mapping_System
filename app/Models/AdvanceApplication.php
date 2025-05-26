@@ -93,6 +93,10 @@ class AdvanceApplication extends Model
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
     }
 
+    public function emiDeductions()
+    {
+        return $this->hasMany(LoanEMIDeduction::class, 'loan_number', 'transaction_no');
+    }
 
     //scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
@@ -165,7 +169,7 @@ class AdvanceApplication extends Model
     {
         parent::boot();
         static::updated(function ($advance) {
-            if ($advance->type_id == GADGET_EMI && $advance->status == 3) {
+            if (($advance->type_id == GADGET_EMI || $advance->type_id == SIFA_LOAN) && $advance->status == 3) {
                 $payHeadId = \DB::table('mas_pay_heads')
                     ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
                     ->where('mas_advance_types.id', $advance->type_id)
@@ -175,13 +179,33 @@ class AdvanceApplication extends Model
                     $advance->insertInToLoanEmiDeductions($payHeadId);
                 }
             }
+
+            // if($advance->status == 4) {
+            //     ApplicationAuditLog::create([
+            //         'application_type' => $advance->application_type,
+            //         'application_id' => $advance->application_id,
+            //         'approval_option' => $advance->approval_option,
+            //         'hierarchy_id' => $advance->hierarchy_id,
+            //         'status' => $advance->status,
+            //         'remarks' => $advance->remarks,
+            //         'action_performed_by' => auth()->user()->id,
+            //         'edited_by' => null,
+            //         'sap_response' => $advance->sap_response,
+            // ]);
+            // }
         });
     }
 
     public function insertInToLoanEmiDeductions($payHeadId)
     {
-        $startDate = Carbon::parse($this->deduction_from_period); // Ensure Carbon instance
+        $startDate = Carbon::parse($this->deduction_from_period);
         $endDate = $startDate->copy()->addMonths($this->no_of_emi)->subDay();
+
+        // Map your advance type_id to loan_type_id in loan_emi_deductions table
+        $loanTypeMap = [
+            GADGET_EMI => 4,
+            SIFA_LOAN => 11,
+        ];
 
         \App\Models\LoanEMIDeduction::create([
             'mas_pay_head_id' => $payHeadId,
@@ -190,7 +214,7 @@ class AdvanceApplication extends Model
             'end_date' => $endDate,
             'amount' => $this->monthly_emi_amount,
             'loan_number' => $this->transaction_no,
-            'loan_type_id' => 4,
+            'loan_type_id' => $loanTypeMap[$this->type_id] ?? null, // dynamically assign
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,
             'remarks' => $this->remark ?? null,

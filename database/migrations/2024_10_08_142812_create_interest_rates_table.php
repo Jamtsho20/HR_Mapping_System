@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('advance_type_id')->constrained('mas_advance_types')->onDelete('cascade'); // Foreign key referencing mas_advance_types
             $table->decimal('rate', 12, 2)->nullable(); 
+            $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees'); 
             $table->timestamps();

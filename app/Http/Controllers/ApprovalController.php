@@ -531,6 +531,18 @@ class ApprovalController extends Controller
                 ->pluck('closing_balance')
                 ->first();
         }
+        //net pay for advance sifa loan
+        $employeeId = $data->created_by;
+        $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
+
+        $netPay = DB::table('final_pay_slips')
+            ->where('mas_employee_id', $employeeId)
+            ->where('for_month', $lastMonth)
+            ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
+
+        $netPay = floatval($netPay); // cast safely
+        $eligibilityAmount = min($netPay * 3, 100000);
+        $data->netPay = $netPay;
 
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
@@ -540,7 +552,7 @@ class ApprovalController extends Controller
             ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
         // Pass the reject remarks to the view
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance', 'eligibilityAmount', 'netPay', 'lastMonth'));
     }
 
     public function edit(Request $request, $id)

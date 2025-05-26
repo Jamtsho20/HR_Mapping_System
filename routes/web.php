@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Advance\AdvanceSifaLoanController;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\AssetReport\CommissionReportController;
 use App\Http\Controllers\AssetReport\RequisitionReportController;
@@ -40,6 +41,7 @@ use App\Models\User;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -247,6 +249,10 @@ Route::middleware('auth')->group(function () {
     Route::namespace('Advance')->prefix('advance-loan')->group(function () {
         Route::resource('types', 'AdvanceTypesController');
         Route::resource('apply', 'AdvanceLoanApplicationController');
+        Route::resource('sifa-disburse', 'AdvanceSifaLoanController');
+        Route::put('advance-loan/sifa-disburse/{id}/disburse', [AdvanceSifaLoanController::class, 'disburse'])
+            ->name('sifa-disburse.disburse');
+
         // Route::resource('advance-loan-approval', 'AdvanceLoanApprovalController')->except('create');
         // Route::post('approval/bulk', 'AdvanceLoanApprovalController@bulkApprovalRejection')->name('advance.bulk-approval-rejection');
     });
