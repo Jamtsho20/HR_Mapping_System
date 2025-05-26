@@ -23,11 +23,12 @@
                             <select class="form-control select2" name="grn" id="grn">
                                 <option value="" disabled selected hidden>Select Your Option</option>
                                 @foreach ($grnItems as $grnItem)
-                                    @foreach ($grnItem->details as $detail)
+                                    <option value="{{ $grnItem->id }}">{{ $grnItem->transaction_no ?? config('global.null_value') }}</option>
+                                    {{-- @foreach ($grnItem->details as $detail)
                                         <option value="{{ $detail->id }}">
                                             {{ $detail->grnItem->grn_no ?? config('global.null_value') }} ({{ $grnItem->transaction_no ?? config('global.null_value') }})
                                         </option>
-                                    @endforeach
+                                    @endforeach --}}
                                 @endforeach
                             </select>
                         </div>
@@ -191,14 +192,45 @@
                 let grnId = $(this).val(); // Get selected GRN ID
                 if (grnId && grnId != '') {
                     $.ajax({
-                        url: "/getassetnobygrnid/" + grnId,
+                        url: "/getassetnobyreqid/" + grnId,
                         dataType: "JSON",
                         type: "GET",
                         success: function(data) {
-                            if (data.data.assetNos && data.data.assetNos.length > 0) {
-                                populateAssetDetails(data.data.assetNos);
-                                populateDzongkhags(data.data.dzongkhags);
-                            }
+
+                            const assetNos = data.data.assetNos || [];
+                            const dzongkhags = data.data.dzongkhags || [];
+                            populateAssetDetails(assetNos);
+                            populateDzongkhags(dzongkhags);
+
+                            if (assetNos.length > 0 && assetNos[0].serials?.length > 1) {
+                                    const matchingItems = assetNos[0].serials;
+
+                                    showConfirmationMessage(
+                                        `This GRN has ${matchingItems.length} asset item(s). Do you want to auto-select all of them?`,
+                                        () => {
+                                            matchingItems.forEach((serial, index) => {
+                                                setTimeout(() => {
+                                                    let lastRow = $('#details tbody tr').not('.notremovefornew').last();
+
+                                                    const assetSelect = lastRow.find('select[name^="details"][name$="[asset_no]"]');
+
+                                                    if (assetSelect.length) {
+                                                        assetSelect.val(serial.id).trigger('change');
+                                                    }
+
+                                                    // Add a new row if it's not the last one
+                                                    if (index < matchingItems.length - 1) {
+                                                        $('.add-table-row').trigger('click');
+                                                    }
+                                                }, 10);
+                                            });
+                                        },
+                                        () => {
+                                            // fallback: only populate dropdowns, not auto-select
+
+                                        }
+                                    );
+                                }
                         },
                         error: function(error) {
                             showErrorMessage(error.responseJSON.message ||
@@ -225,6 +257,31 @@
                 }
             }
 
+            $(document).on('change', "select[name^='details'][name$='[asset_no]']", function () {
+                checkForDuplicateSerials();
+            });
+
+            function checkForDuplicateSerials() {
+                let selected = [];
+                let duplicatesFound = false;
+
+                $("select[name^='details'][name$='[asset_no]']").each(function () {
+                    let value = $(this).val();
+
+                    if (value) {
+                        if (selected.includes(value)) {
+                            duplicatesFound = true;
+                            $(this).val('').trigger('change');
+                        } else {
+                            selected.push(value);
+                        }
+                    }
+                });
+
+                if (duplicatesFound) {
+                    showErrorMessage('Item already selected');
+                }
+            }
             //populate asset description and uom based on selection of asset no
             $(document).on('change', '.asset-number-selector', function() {
                 var serialId = $(this).val();
@@ -238,6 +295,7 @@
                         type: "GET",
                         success: function(data) {
                             let serialData = data?.data?.serial[0];
+
                             if (serialData) {
                                 row.find("input[name^='details'][name$='[description]']").val(
                                     serialData.asset_description ?? serialData
@@ -247,7 +305,7 @@
                                     serialData?.requisition_detail?.unitOfMeasurement?.code
                                     ?? serialData?.requisition_detail?.grn_item_detail?.item?.uom
                                 );
-                                row.find("input[name^='details'][name$='[qty]']").val(serialData?.requisition_detail?.grn_item_detail.item.quantity ?? 1);
+                                row.find("input[name^='details'][name$='[qty]']").val(serialData?.quantity ?? 1);
                                 row.find("input[name^='details'][name$='[amount]']").val(
                                     serialData.amount ?? 0.00
                                 );
@@ -274,6 +332,7 @@
                         '</option>');
                 });
             }
+
 
             // Populate sites based on the selection of dzongkhag
             $(document).on('change', '.dzongkhag-selector', function() {

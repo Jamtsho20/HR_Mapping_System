@@ -94,8 +94,6 @@ class RequisitionApplicationController extends Controller
       */
      public function store(Request $request)
      {
-
-
          $requisition = new RequisitionApplication();
          $this->validate($request, $this->rules, $this->messages);
          $conditionFields = approvalHeadConditionFields(REQUISITION_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
@@ -123,9 +121,6 @@ class RequisitionApplicationController extends Controller
                 $this->saveDetails($request->details, $requisition->id, $request->type_id);
             }
 
-
-            // Create a corresponding history record for advance
-            // Create a history record
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($requisition->histories(), $approverByHierarchy, $request->remarks);
 
@@ -159,7 +154,12 @@ class RequisitionApplicationController extends Controller
 
       public function show(string $id)
      {
-        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
+        $requisition = RequisitionApplication::with([
+                'histories',
+                'details.serials' => function ($query) {
+                    $query->where('is_received', 1);
+                }
+            ])->find($id);
         $approvalDetail = getApplicationLogs(\App\Models\RequisitionApplication::class, $requisition->id);
         return view('asset.requisition-apply.show', compact('requisition', 'approvalDetail'));
      }
@@ -204,10 +204,10 @@ class RequisitionApplicationController extends Controller
 
                 // Handle GRN-based requisition (type_id == 1)
                 if (!empty($detail['grn_no'])) {
-                    $grnData = json_decode($detail['grn_no'], true);
+                    $grnData = $detail['grn_no'];
 
-                    if ($grnData && isset($grnData['id'])) {
-                        $grn_item = MasGrnItemDetail::where('grn_id', $grnData['id'])
+                    if ($grnData) {
+                        $grn_item = MasGrnItemDetail::where('grn_id', $grnData)
                         ->where('store_id', $detail['store'])
                         ->where('item_id', $detail['item_description'])
                         ->first();

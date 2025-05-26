@@ -29,7 +29,8 @@
                  <div class="col-md-6 mb-3">
 
                      <div class="form-group file-upload-border">
-                         <label for="input-file1"><strong>Copies of Citizen Identity Card(s) of dependent(s) and
+                         <label for="input-file1"><strong>Copies of Citizen Identity Card(s) of Applicant(s),
+                                 Dependent(s) and
                                  nominee(s) of the member</strong> <span class="text-danger">*</span></label>
 
                          <div class="file-uploader">

@@ -32,7 +32,7 @@
                     @endforeach
                 </select>
             </div>
-             <div class="col-3 form-group">
+            <div class="col-3 form-group">
                 <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
                     placeholder="CID ID">
             </div>
@@ -100,10 +100,11 @@
                                                                 <td>{{ $pf['employee_name'] }}</td>
                                                                 <td>{{ $pf['pf_number'] }}</td>
                                                                 <td>{{ $pf['CID'] ?? '-' }}</td>
-                                                                <td>{{ $pf['basic_pay'] ?? '-' }}</td>
-                                                                <td>{{ $pfContr }}</td>
-                                                                <td>{{ $pf['employer_pf_amount'] ?? 0 }}</td>
-                                                                <td>{{ $pf['total'] ?? 0 }}</td>
+                                                                <td>{{ formatAmount($pf['basic_pay'] ?? 0, false) }}</td>
+                                                                <td>{{ formatAmount($pfContr, false) }}</td>
+                                                                <td>{{ formatAmount($pf['employer_pf_amount'] ?? 0, false) }}
+
+                                                                <td>{{ formatAmount($pf['total'] ?? 0, false) }}</td>
                                                             </tr>
                                                         @endif
                                                     @empty

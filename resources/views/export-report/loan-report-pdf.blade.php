@@ -73,6 +73,7 @@
                 </th>
                 <th> loan type
                 </th>
+
                 <th> Branch Code
                 </th>
                 <th>
@@ -92,11 +93,10 @@
                     <td>{{ $loan->employee->name }}</td>
                     <td>{{ $loan->pay_head_name }}</td>
                     <td>{{ $loan->loan_number }}</td>
-                    <td>{{ $loan->branch_code, }}</td>
                     <td>{{ $loan->loan_type }}</td>
+                    <td>{{ $loan->branch_code ?? '-' }}</td>
                     <td>{{ $loan->amount }}</td>
-                    <td>{{ $loan->for_month }}</td>
-
+                    <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
                 </tr>
             @empty
                 <tr>
@@ -104,7 +104,7 @@
                 </tr>
             @endforelse
             <tr>
-                <td colspan="5" style="text-align:right">Total:</td>
+                <td colspan="6" style="text-align:right">Total:</td>
                 <td>{{ $totalLoans }}</td>
                 <td></td>
             </tr>

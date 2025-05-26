@@ -143,7 +143,7 @@ class ApprovalController extends Controller
 
                 if ($action === 'approve' && $applicationHistory) {
                     $applicationForwardedTo = $approvalService->applicationForwardedTo($id, $model);
-                    
+
                     if ($applicationForwardedTo && isset($applicationForwardedTo['next_level'])) {
                         $updateData = array_merge($updateData, [
                             'next_level_id' => $applicationForwardedTo['next_level']->id,
@@ -169,8 +169,7 @@ class ApprovalController extends Controller
                         $item_code = isset($application->need_by_date) ? $application->need_by_date : null;
                         $required_date = null;
                         // field required for commission api in SAP
-
-                        $grnNo = isset($application->requisitionDetail) ? $application->requisitionDetail->grnItem->grn_no : null;
+                        $commission = $application->histories->first()->application_type =='App\Models\AssetCommissionApplication' ? true : null;
 
                         $assetFlag = false;
                         if ($item_code) {
@@ -192,10 +191,10 @@ class ApprovalController extends Controller
 
                             // Post to SAP after final Approval
                             $officeLocation = $application->employee->empJob->office->code ?? null;
-                            //comment this when yo have to approve yet not post to sap 
-                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $grnNo, $transactionNumber, $advanceCode);
+                            $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $commission, $transactionNumber, $advanceCode);
+
                             Log::info($postFields);
-                            if($grnNo){
+                            if($commission){
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
                             }else{
                             $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
@@ -276,7 +275,7 @@ class ApprovalController extends Controller
     }
 
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $grnNo = null, $transactionNo=null, $advanceCode = null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $commission = null, $transactionNo=null, $advanceCode = null)
     {
         if ($tax_amount) {
             return $postFields = '{
@@ -322,7 +321,7 @@ class ApprovalController extends Controller
                         "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
                         "ItemDescription" => $detail->grnItemDetail->item->item_description,
                         "Quantity" => $detail->requested_quantity,
-                        "UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
+                        //"UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
                         "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
                         "ProjectCode" => (string) $detail->site->code
                     ];
@@ -330,7 +329,7 @@ class ApprovalController extends Controller
                 "RequriedDate" => $required_date
                        ];
 
-                    
+
             }else {
                 $name_empid =$application->employee->username ." ".$application->employee->name;
                 $postFields = [
@@ -352,11 +351,11 @@ class ApprovalController extends Controller
             }
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         }
-        elseif($grnNo) {  // sap data for asset commissioning
+        elseif($commission) {  // sap data for asset commissioning
             $postFields = [
                 "Items" => $application->details->map(function ($detail) use ($application) {
                     return [
-                        "ItemCode" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$detail->receivedSerial->asset_serial_no,
+                        "ItemCode" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no . '-' . now()->format('ym-Hi'),
                         "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
                         "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
                         "ItemsGroupCode" => 102,
@@ -364,14 +363,23 @@ class ApprovalController extends Controller
                         "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
                         "AssetGroup" => null,
                         "InventoryNumber"=> null,
-                        "Employee"=> null,
+                        "U_Employee"=> $application->employee->username ." ".$application->employee->name,
+                        "AssetSerialNumber" => $detail->receivedSerial->asset_serial_no,
                         "Location"=> null,
+
+                        "ItemProjects" =>[
+                            [
+                                "LineNumber" => 0,
+                                "ValidFrom" => date('Y-m-d'),
+                                "ValidTo" => null,
+                                "Project" => $detail->site->name
+                        ]]
                     ];
                 })->toArray(),
                 "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
                     return [
-                        "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$detail->receivedSerial->asset_serial_no,
-                        "Quantity" => 1,
+                        "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no . '-' . now()->format('ym-Hi'),
+                        "Quantity" => $detail->receivedSerial->quantity ?? 1,
                         "TotalLC" => $detail->receivedSerial->amount
                     ];
                 })->toArray(),
@@ -833,18 +841,10 @@ class ApprovalController extends Controller
 
         // Helper method to apply common query logic
         $applyQuery = function ($modelClass, $user, $request) use ($statuses) {
-            // get list of deleagtee from delegations table when delegator was absence via helper function 
-            $delegatee = getDelegatee($user->id); 
+            return $modelClass::whereHas('audit_logs', function ($query) use ($user, $modelClass, $statuses) {
+                $query->where('application_type', $modelClass)
 
-            return $modelClass::where(function ($query) use ($user, $delegatee, $modelClass, $statuses) {
-                $query->whereHas('audit_logs', function ($q) use ($user, $modelClass, $statuses) {
-                    $q->where('application_type', $modelClass)
-                    ->where('action_performed_by', $user->id)
-                    ->whereIn('status', $statuses);
-                });
-
-                // get delegatee record via helper (those record approved by delegatee in absence of delegator)
-                getDelegateeRecords($query, $delegatee, $modelClass, $statuses);
+                    ->where('action_performed_by', $user->id);
             })
             ->whereIn('status', $statuses)
             ->filter($request, false)

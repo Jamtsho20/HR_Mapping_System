@@ -90,28 +90,31 @@
         <tbody>
 
             @forelse ($pfDeductionsWithPF as $pf)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $pf['employee_name'] }}</td>
-                    <td>{{ $pf['pf_number'] }}</td>
-                    <td>{{ $pf['CID'] ?? '-' }}</td>
-                    <td>{{ $pf['basic_pay'] ?? '-' }}</td>
-                    <td>{{ $pf['details']['deductions']['PF Contr'] ?? 0 }}</td>
-                    <td>{{ $pf['employer_pf_amount'] ?? 0 }}</td>
-                    <td>{{ $pf['total'] ?? 0 }}</td>>
-                </tr>
-            @empty
+                @php
+                    $pfContr = $pf['details']['deductions']['PF Contr'] ?? 0;
+                @endphp
 
-                <tr>
-                    <td colspan="6" class="text-center text-danger">No PF Reports found</td>
-                </tr>
+                @if ($pfContr > 0)
+                    @php $hasRecords = true; @endphp
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $pf['employee_name'] }}</td>
+                        <td>{{ $pf['pf_number'] }}</td>
+                        <td>{{ $pf['CID'] ?? '-' }}</td>
+                        <td>{{ formatAmount($pf['basic_pay'] ?? 0, false) }}</td>
+                        <td>{{ formatAmount($pfContr, false) }}</td>
+                        <td>{{ formatAmount($pf['employer_pf_amount'] ?? 0, false) }}</td>
+                        <td>{{ $pf['total'] ?? 0 }}</td>
+                    </tr>
+                @endif
+            @empty
             @endforelse
 
             <tr>
                 <td colspan="5" style="text-align:right">Total:</td>
-                <td>{{ $totalEmployeeAmount }}</td>
-                <td>{{ $totalEmployerAmount }}</td>
-                <td>{{ $totalEmployeeAmount + $totalEmployerAmount }}</td>
+                <td>{{ formatAmount($totalEmployeeAmount, false) }}</td>
+                <td>{{ formatAmount($totalEmployerAmount, false) }}</td>
+                <td>{{ formatAmount($totalEmployeeAmount + $totalEmployerAmount, 0) }}</td>
             </tr>
 
         </tbody>

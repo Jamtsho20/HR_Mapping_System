@@ -57,6 +57,17 @@ class AssetCommissionDetail extends Model
                     'is_commissioned' => 1,
                     'updated_at' => now()
                 ]);
+
+            // $commissionDetail->loadMissing('receivedSerial.requisitionDetail');
+            // \App\Models\MasAssets::create([
+            //     'serial_number' => $commissionDetail->receivedSerial->asset_serial_no,
+            //     'current_employee_id' => $commissionDetail->assetCommission->created_by,
+            //     'item_id' => $commissionDetail->receivedSerial->requisitionDetail->item_id ?? $commissionDetail->receivedSerial->requisitionDetail->grnItemDetail->item->id,
+            //     'current_site_id' => $commissionDetail->site_id,
+            //     'received_serial_id' => $commissionDetail->received_serial_id,
+            //     'commission_detail_id' => $commissionDetail->id,
+            //     'initial_owner_id' => $commissionDetail->assetCommission->created_by
+            // ]);
         });
     }
 }

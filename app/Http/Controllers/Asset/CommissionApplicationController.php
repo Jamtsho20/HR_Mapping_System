@@ -55,9 +55,26 @@ class CommissionApplicationController extends Controller
     public function create()
     {
         // only fixed asset can be commissioned
-        $grnItems = RequisitionApplication::with(['details.grnItem'])->where('type_id', FIXED_ASSET)
+      $grnItems = RequisitionApplication::with([
+            'details' => function ($q) {
+                $q->whereHas('serials', function ($query) {
+                    $query->where('is_received', 1)
+                        ->where('is_commissioned', '<>', 1);
+                });
+            },
+            'details.grnItem',
+            'details.serials' => function ($query) {
+                $query->where('is_received', 1)
+                    ->where('is_commissioned', '<>', 1);
+                }
+            ])
+            ->where('type_id', FIXED_ASSET)
             ->where('is_received', 1)
             ->where('created_by', auth()->user()->id)
+            ->whereHas('details.serials', function ($query) {
+                $query->where('is_received', 1)
+                    ->where('is_commissioned', '<>', 1);
+            })
             ->get();
 
         $empDetails = empDetails(auth()->user()->id);
@@ -69,6 +86,7 @@ class CommissionApplicationController extends Controller
      */
     public function store(Request $request)
     {
+
         // Add file validation only if a file is uploaded
         if ($request->hasFile('attachments')) {
             $this->rules['attachments'] = 'array'; // Ensure attachments is an array
@@ -99,7 +117,7 @@ class CommissionApplicationController extends Controller
                 'type_id' => COMMISSION_TYPE,
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
-                'requisition_detail_id' => $request->grn,
+                'requisition_id' => $request->grn,
                 // 'file' => $attachments,
                 'file' => json_encode($attachments),
                 'status' => $approverByHierarchy['application_status'],
