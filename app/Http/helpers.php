@@ -499,7 +499,7 @@ if (!function_exists('getDelegations')) {
             ->where('status', 1)
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
-            ->first();
+            ->get();
 
         return $delegations;
     }

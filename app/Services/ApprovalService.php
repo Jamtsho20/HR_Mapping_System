@@ -227,34 +227,21 @@ class ApprovalService
             ->pluck('role_id')
             ->first();
 
-        $delegation = getDelegations($approvingAuthorityRoleId);
-        $delegatorId = $delegation->delegator_id ?? null;
-        $delegateeId = $delegation->delegatee_id ?? null;
+        $delegations = getDelegations($approvingAuthorityRoleId);
+        $originalApprover = null;
 
-        $userWithApprovingRole = null;
-
-        // Case 1: MANAGING DIRECTOR (special logic)
+        // Special handling for MANAGING DIRECTOR
         if ($approvingAuthorityRoleId == MANAGING_DIRECTOR) {
-            $userWithApprovingRole = User::find($delegateeId)
-                ?? User::whereHas('roles', fn($q) => $q->where('roles.id', $approvingAuthorityRoleId))
+            $originalApprover = User::whereHas('roles', fn($q) =>
+            $q->where('roles.id', $approvingAuthorityRoleId))
                 ->first();
-            // If it's the delegator, fall back to delegatee
-            // if ($userWithApprovingRole && $userWithApprovingRole->id == $delegatorId) {
-            //   $userWithApprovingRole = User::find($delegateeId);
-            // }
-            return [
-                'user_with_approving_role' => $userWithApprovingRole,
-                'approver_role_id' => $approvingAuthorityRoleId,
-            ];
-        }
-
-        // Case 2: No assigned employee — fallback to department/section match
-        if (!$nextLevel->mas_employee_id) {
+        } elseif (!$nextLevel->mas_employee_id) {
+            // No direct employee — fallback to department/section
             $job = MasEmployeeJob::where('mas_employee_id', auth()->id())
                 ->select('mas_department_id', 'mas_section_id')
                 ->first();
 
-            $userWithApprovingRole = User::whereHas('roles', fn($q) =>
+            $originalApprover = User::whereHas('roles', fn($q) =>
             $q->where('roles.id', $approvingAuthorityRoleId))
                 ->whereHas('empJob', function ($q) use ($job) {
                     $q->where('mas_department_id', $job->mas_department_id)
@@ -265,19 +252,26 @@ class ApprovalService
                 })
                 ->first();
         } else {
-            // Case 3: Employee assigned directly
-            $userWithApprovingRole = User::where('id', $nextLevel->mas_employee_id)
+            // Direct employee assigned
+            $originalApprover = User::where('id', $nextLevel->mas_employee_id)
                 ->whereHas('roles', fn($q) => $q->where('roles.id', $approvingAuthorityRoleId))
                 ->first();
         }
 
-        // Delegation override logic
-        if ($userWithApprovingRole && $userWithApprovingRole->id == $delegatorId && $delegateeId) {
-            $userWithApprovingRole = User::find($delegateeId);
+        // Now check for matching delegation
+        $delegatedUser = null;
+        if ($originalApprover) {
+            $matchedDelegation = $delegations->firstWhere('delegator_id', $originalApprover->id);
+            if ($matchedDelegation) {
+                $delegatedUser = User::find($matchedDelegation->delegatee_id);
+            }
         }
 
+        // If delegated user exists, override original
+        $approverToUse = $delegatedUser ?? $originalApprover;
+
         return [
-            'user_with_approving_role' => $userWithApprovingRole,
+            'user_with_approving_role' => $approverToUse,
             'approver_role_id' => $approvingAuthorityRoleId,
         ];
     }
