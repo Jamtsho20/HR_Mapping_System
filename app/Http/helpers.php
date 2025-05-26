@@ -3,6 +3,7 @@
 use App\Models\ApplicationAuditLog;
 use App\Models\ApplicationHistory;
 use App\Models\LeaveApplication;
+use App\Models\MasAttendanceFeature;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use Carbon\Carbon;
@@ -565,6 +566,14 @@ if(!function_exists('getDeleagteeList')){
             });
         }
         return $employees;
+    }
+}
+
+if(!!function_exists('getAttendanceParams')){
+    function getAttendanceParams($userId){
+        $attendanceFeatures = MasAttendanceFeature::whereIn('id', [1, 2])->get();
+        $userDetails = User::with(['employeeInShifts'])->where('id', $userId)->get();
+        dd();
     }
 }
 

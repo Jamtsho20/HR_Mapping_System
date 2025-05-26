@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_statuses', function (Blueprint $table) {
+        Schema::create('mas_shift_types', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->index(); // attendance status code
-            $table->string('description')->index(); // attendance status description to display in frontend
+            $table->string('name')->comment('Morning Shift, Evening Shift, Night Shift');
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_statuses');
+        Schema::dropIfExists('mas_shift_types');
     }
 };

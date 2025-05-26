@@ -19,6 +19,7 @@ class UserController extends Controller
     public function updateProfilePic(Request $request)
     {
         $validator = \Validator::make($request->all(), $this->rules, $this->messages);
+        
         $user = $request->user();
         // Check if the user exists
         if (!$user) {

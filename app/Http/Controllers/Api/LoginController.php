@@ -50,9 +50,10 @@ class LoginController extends Controller
                     'message' => 'Invalid username or password.'
                 ], 401);
             }
-
+            
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
-
+            $attendanceParams = getAttendanceParams($user->id);
+            dd($attendanceParams);
             $token = $user->createToken($request->username)->plainTextToken;
 
             return response()->json([

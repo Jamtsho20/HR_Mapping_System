@@ -50,6 +50,12 @@ return [
         3 => 'Approved'
     ],
 
+    'attendance_status' => [
+        1 => 'Submission Pending',
+        2 => 'Submitted',
+        3 => 'Finalized'
+    ],
+
     'gender' => [
         1 => 'Male',
         2 => 'Female',
@@ -275,6 +281,13 @@ return [
         1 => 'Beyond Economic Repair',
         2 => 'Absolete',
         3 => 'Working',
+    ],
+
+    'seasons' => [
+        1 => 'Spring',
+        2 => 'Summer', 
+        3=> 'Autumn', 
+        4 => 'Winter'
     ],
 
 ];

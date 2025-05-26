@@ -51,6 +51,9 @@ class CreditEmpLeaveYearly extends Command
                         // Calculate leave balances based on leave type
                         $openingBalance = $record->closing_balance ?? 0;
                         $entitlement = $leaveTypes[$record->mas_leave_type_id] ?? 0;
+                        if ($record->mas_leave_type_id == CASUAL_LEAVE){
+                            $entitlement = $record->current_entitlement ?? 0;
+                        }
                         $closingBalance = $openingBalance + $entitlement;
 
                         if ($record->mas_leave_type_id == EARNED_LEAVE) {

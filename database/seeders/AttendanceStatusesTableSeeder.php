@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceStatusesTableSeeder extends Seeder
 {
@@ -22,6 +23,10 @@ class AttendanceStatusesTableSeeder extends Seeder
                 'description' => 'Absent'
             ],
             [
+                'code' => 'H',
+                'description' => 'Holiday'
+            ],
+            [
                 'code' => 'E',
                 'description' => 'Event'
             ],
@@ -34,16 +39,48 @@ class AttendanceStatusesTableSeeder extends Seeder
                 'description' => 'Second Half Day Present'
             ],
             [
-                'code' => 'L',
-                'description' => 'Leave'
-            ],
-            [
                 'code' => 'SHDP',
                 'description' => 'Second Half Day Present'
             ],
             [
-                'code' => 'L',
-                'description' => 'Leave'
+                'code' => 'CL',
+                'description' => 'Casual Leave'
+            ],
+            [
+                'code' => 'FHCL',
+                'description' => 'First Halfday Casual Leave'
+            ],
+            [
+                'code' => 'SHCL',
+                'description' => 'First Halfday Casual Leave'
+            ],
+            [
+                'code' => 'EL',
+                'description' => 'Earned Leave'
+            ],
+            [
+                'code' => 'MedL',
+                'description' => 'Medical/Sick Leave'
+            ],
+            [
+                'code' => 'ML',
+                'description' => 'Maternity Leave'
+            ],
+            [
+                'code' => 'PL',
+                'description' => 'Paternity Leave'
+            ],
+            [
+                'code' => 'EOL',
+                'description' => 'Extra Ordinary Leave'
+            ],
+            [
+                'code' => 'SL',
+                'description' => 'Study Leave'
+            ],
+            [
+                'code' => 'BL',
+                'description' => 'Bereavement Leave'
             ],
             [
                 'code' => 'M',

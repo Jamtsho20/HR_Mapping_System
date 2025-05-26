@@ -87,7 +87,7 @@ class LeaveApplicationController extends Controller
         $conditionFields = approvalHeadConditionFields(LEAVE_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->leave_type, \App\Models\MasLeaveType::class, $conditionFields ?? []);
-        // dd($approverByHierarchy);
+        
         try {
             DB::beginTransaction();
 
@@ -104,7 +104,6 @@ class LeaveApplicationController extends Controller
             ]);
             // Create a history record
             $historyService = new ApplicationHistoriesService();
-
             $historyService->saveHistory($leaveApplication->histories(), $approverByHierarchy, $request->remarks);
 
             // Fetch the approver dynamically using ApprovalService and sent email to notify approver accordingly
