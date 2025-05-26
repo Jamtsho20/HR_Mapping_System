@@ -32,6 +32,10 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID ID">
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -76,25 +80,40 @@
 
                                                     </tr>
                                                 </thead>
+                                                @php $hasRecords = false; @endphp
+
                                                 <tbody>
                                                     @forelse($sifaContributions as $sifa)
-                                                        <tr>
-                                                            <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $sifa->employee->username }}</td>
-                                                            <td>{{ $sifa->employee->name }}</td>
-                                                            <td>{{ $sifa->employee->empJob->designation->name }}</td>
-                                                            <td>{{ $sifa->employee->empJob->empType->name }}</td>
-                                                            <td>{{ $sifa->details['deductions']['SIFA'] ?? '0' }}</td>
-                                                            <td>{{ $sifa->for_month }}</td>
+                                                        @php
+                                                            $sifaAmount =
+                                                                $sifa->details['deductions']['SIFA'] ??
+                                                                $sifa->sifa_contr;
+                                                        @endphp
 
-                                                        </tr>
+                                                        @if ($sifaAmount > 0)
+                                                            @php $hasRecords = true; @endphp
+                                                            <tr>
+                                                                <td>{{ $loop->iteration }}</td>
+                                                                <td>{{ $sifa->employee->username }}</td>
+                                                                <td>{{ $sifa->employee->name }}</td>
+                                                                <td>{{ $sifa->employee->empJob->designation->name }}</td>
+                                                                <td>{{ $sifa->employee->empJob->empType->name }}</td>
+                                                                <td>{{ $sifaAmount }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($sifa->for_month)->format('F Y') }}
+                                                                </td>
+                                                            </tr>
+                                                        @endif
                                                     @empty
-                                                        <tr>
-                                                            <td colspan="5" class="text-center text-danger">No SIFA
-                                                                contributon Reports found</td>
-                                                        </tr>
                                                     @endforelse
+
+                                                    @if (!$hasRecords)
+                                                        <tr>
+                                                            <td colspan="7" class="text-center text-danger">No SIFA
+                                                                contribution Reports found</td>
+                                                        </tr>
+                                                    @endif
                                                 </tbody>
+
                                             </table>
                                         </div>
                                     </div>

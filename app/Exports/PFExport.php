@@ -19,18 +19,29 @@ class PFExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        return collect($this->pfDeductionsWithPF->map(function ($pf) {
-            return [
-                $pf['employee_name'],
-                $pf['pf_number'],
-                $pf['CID'] ?? '-',
-                $pf['basic_pay'] ?? '-',
-                $pf['details']['deductions']['PF Contr'] ?? 0,
-                $pf['employer_pf_amount'] ?? 0,
-                $pf['total'] ?? 0,
-            ];
-        }));
+        $serialNo = 1;
+
+        return collect(
+            $this->pfDeductionsWithPF
+                ->filter(function ($pf) {
+                    return ($pf['details']['deductions']['PF Contr'] ?? 0) > 0;
+                })
+                ->map(function ($pf) use (&$serialNo) {
+                    return [
+                        $serialNo++, // Serial number
+                        $pf['employee_name'],
+                        $pf['pf_number'],
+                        $pf['CID'] ?? '-',
+                        $pf['basic_pay'] ?? '-',
+                        $pf['details']['deductions']['PF Contr'] ?? 0,
+                        $pf['employer_pf_amount'] ?? 0,
+                        $pf['total'] ?? 0,
+                    ];
+                })
+        );
     }
+
+
 
     /**
      * Return the headings for the Excel sheet.

@@ -1092,10 +1092,31 @@ function showSuccessMessage(message, reload = true, documentReferrer = null, ite
     });
 }
 
+function showValidationMessage(message, documentReferrer = null){
+    Swal.fire({
+        icon: 'warning',
+        text: message,
+        width: '400px', // Set a smaller width for the popup
+        customClass: {
+            popup: 'p-3 border-warning', // Add padding and Bootstrap border class
+            title: 'text-warning fw-bold', // Yellow and bold title
+            confirmButton: 'btn btn-success btn-sm', // Small Bootstrap danger button
+            cancelButton: 'btn btn-danger btn-sm' // Small Bootstrap secondary button
+        },
+        showCancelButton: false,
+        confirmButtonText: 'Ok',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (documentReferrer) {
+                window.location.href = documentReferrer;
+            }
+        }
+    });
+}
+
 function showConfirmationMessage(message, confirmCallback, cancelCallback = null) {
     Swal.fire({
         icon: 'warning',
-        title: 'Are you sure?',
         text: message,
         width: '400px', // Set a smaller width for the popup
         customClass: {
@@ -1199,7 +1220,7 @@ function reloadActiveTab(itemType) {
 function handleAcknowledgment(checkbox, transferId) {
     // Only proceed if data type is 'assettransfer'
     const dataType = checkbox.dataset.type;
-    console.log(dataType);
+
     // if (dataType !== 'assettransfer') return;
 
     // Show the confirmation message

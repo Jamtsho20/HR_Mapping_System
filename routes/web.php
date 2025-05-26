@@ -311,6 +311,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('tax-schedule-report', 'TaxScheduleReportController')->except('create', 'show', 'edit');
         Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
         Route::resource('payslip-report', 'PayslipReportController')->except('create', 'show', 'edit');
+        Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
     });
 
     //reportexport routes
@@ -490,12 +491,14 @@ Route::middleware('auth')->group(function () {
     Route::get('getdetailsbyreceipt/{receipt_no}', 'AjaxRequestController@getDetailsByReceipt')->name('get.details.by.receipt');
     Route::get('getvehicledetailtypebyid/{id}', 'AjaxRequestController@getVehicleDetailTypeById');
     Route::get('getassetnobygrnid/{grnId}', 'AjaxRequestController@getAssetNoByGrnId');
+    Route::get('getassetnobyreqid/{reqId}', 'AjaxRequestController@getAssetNumberByRequisitionId');
     Route::get('getdescriptionanduombyserialid/{serialId}', 'AjaxRequestController@getDescriptionAndUomBySerialId');
     Route::get('getsitesbydzongkhagid/{dzongkhagId}', 'AjaxRequestController@getSitesByDzongkhagId');
     Route::get('assetNosBySiteEmployee/{empID}/{siteID?}', 'AjaxRequestController@getAssetNoBySiteEmployee');
     Route::get('itemByAssetId/{assetNo}', 'AjaxRequestController@getItemByAssetId');
     Route::post('assets/acknowledge/{id}', 'AjaxRequestController@acknowledge');
     // Route::get('getdelegateeemployee/{roleId}', 'AjaxRequestController@getDelegateeEmployee');
+    Route::post('assets/receive', 'AjaxRequestController@receive');
 });
 
 

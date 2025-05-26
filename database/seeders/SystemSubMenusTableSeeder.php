@@ -147,6 +147,7 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 16, 'name' => 'Tax Schedule Report', 'route' => 'report/tax-schedule-report', 'display_order' => 20],
             ['system_menu_id' => 16, 'name' => 'Eteeru Remittance', 'route' => 'report/eteeru-remittance-report', 'display_order' => 21],
             ['system_menu_id' => 16, 'name' => 'Payslip Report', 'route' => 'report/payslip-report', 'display_order' => 22],
+            ['system_menu_id' => 17, 'name' => 'Delegation Report', 'route' => 'report/delegation-report', 'display_order' => 22],
 
 
             //submenu for Travel Authorization

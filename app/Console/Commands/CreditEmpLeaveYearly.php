@@ -44,13 +44,17 @@ class CreditEmpLeaveYearly extends Command
                         if (EmployeeLeave::where('mas_employee_id', $record->mas_employee_id)
                             ->where('mas_leave_type_id', $record->mas_leave_type_id)
                             ->whereYear('created_at', $currentYear)
-                            ->exists()) {
+                            ->exists()
+                        ) {
                             continue;
                         }
 
                         // Calculate leave balances based on leave type
                         $openingBalance = $record->closing_balance ?? 0;
                         $entitlement = $leaveTypes[$record->mas_leave_type_id] ?? 0;
+                        if ($record->mas_leave_type_id == CASUAL_LEAVE) {
+                            $entitlement = $record->current_entitlement ?? 0;
+                        }
                         $closingBalance = $openingBalance + $entitlement;
 
                         if ($record->mas_leave_type_id == EARNED_LEAVE) {

@@ -121,14 +121,12 @@ class SifaRegistrationController extends Controller
                     $nominationModel->cid_number = $nomination['cid_number'] ?? null;
                     $nominationModel->percentage_of_share = $nomination['percentage_of_share'] ?? null;
                     $nominationModel->save();
-
                 }
             } else {
                 // If "Yes", set is_registered to 1 (default behavior)
 
                 $sifaRegistration->sifa_type_id = $sifaTypeId;
                 $sifaRegistration->is_registered = 1;
-
             }
 
             $sifaRegistration->save(); // Save the SifaRegistration record
@@ -155,7 +153,6 @@ class SifaRegistrationController extends Controller
                     $sifaDependent->relation_with_employee = $dependentData['relation_with_employee'];
                     $sifaDependent->cid_number = $dependentData['cid_number'];
                     $sifaDependent->save();
-
                 }
 
                 // Store SIFA Documents Data
@@ -223,8 +220,8 @@ class SifaRegistrationController extends Controller
         $user = auth()->user();
         // Find the SifaRegistration by id
         $sifaRegistration = SifaRegistration::with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
-        $sifaNominations = SifaNomination::all();
-        $sifaDependents = SifaDependent::all();
+        $sifaNominations = $sifaRegistration->SifaNomination;
+        $sifaDependents = $sifaRegistration->SifaDependent;
         $sifaDocuments = SifaDocument::where('sifa_registration_id', $id)->first();
 
         // You can also pass other data, such as employee data, if needed

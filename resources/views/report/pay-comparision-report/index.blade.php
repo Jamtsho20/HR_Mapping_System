@@ -86,13 +86,13 @@
                                                             <td>{{ $data->employee->username }}</td>
 
                                                             {{-- Current Salary Details --}}
-                                                            <td>{{ formatAmount($data['basic_pay']) }}</td>
+                                                            <td>{{ formatAmount($data['basic_pay'], false) }}</td>
                                                             <td>
                                                                 {{ $data['total_allowance'] }}</td>
                                                             <td>{{ $data['gross_pay'] }}</td>
 
                                                             {{-- Previous Salary Details --}}
-                                                            <td>{{ formatAmount($previousData['details']['basic_pay']) ?? config('global_null') }}
+                                                            <td>{{ formatAmount($previousData['details']['basic_pay'] ?? config('global_null'), false) }}
                                                             </td>
                                                             <td>{{ $previousData['total_allowances'] ?? 0 }}</td>
                                                             <td>{{ $previousData['details']['gross_pay'] ?? config('global_null') }}
