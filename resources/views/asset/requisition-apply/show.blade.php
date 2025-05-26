@@ -22,7 +22,7 @@
                                 <td style="padding-left:25px;"> {{ $requisition->transaction_no }}</td>
                             </tr>
                             <tr>
-                                <th style="width:35%;">Travel Type <span class="pull-right d-none d-sm-block">:</span>
+                                <th style="width:35%;">Requisition Type <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $requisition->type->name }}</td>
                             </tr>
@@ -191,7 +191,6 @@
          button.addEventListener("click", function() {
              let targetId = this.getAttribute("data-bs-target");
              let target = document.querySelector(targetId);
-             console.log(target);
              target.addEventListener("shown.bs.collapse", () => {
                  this.innerHTML = "-"; // Change to minus when expanded
              });

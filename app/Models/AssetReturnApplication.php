@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class AssetReturnApplication extends Model
 {
     use HasFactory, CreatedByTrait;
-     
+
     protected $fillable = ['type_id','transaction_no','transaction_date','attachment','doc_no','status'];
 
     public function type()
@@ -41,6 +41,23 @@ class AssetReturnApplication extends Model
 
             $query->where('type_id', $request->query('type_id'));
         }
+    }
+
+    public static function booted(){
+            static::updated(function ($assetReturn) {
+                if ($assetReturn->isDirty('received_acknowledged') && $assetReturn->received_acknowledged == 1) {
+                    foreach ($assetReturn->details as $detail) {
+                        $masAsset = \App\Models\MasAssets::where('received_serial_id', $detail->received_serial_id)->first();
+
+                        if ($masAsset) {
+                            $masAsset->update([
+                                'return_detail_id' => $detail->id,
+                                'status' => 3
+                            ]);
+                        }
+                    }
+                }
+            });
     }
 
 }

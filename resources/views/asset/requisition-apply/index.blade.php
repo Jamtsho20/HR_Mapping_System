@@ -86,7 +86,7 @@
 
                                                             <td>
                                                                 <input type="checkbox" style="accent-color: primary; pointer-events: none;"
-                                                                    {{ $requisition->status == 3 && $requisition->good_issue_doc_no != null ? 'checked' : '' }}>
+                                                                    {{ $requisition->status == 3 && $requisition->is_received==1 && $requisition->status == 3 && $requisition->good_issue_doc_no != null ? 'checked' : '' }}>
                                                             </td>
 
                                                             <td class="text-center">
@@ -95,12 +95,12 @@
                                                                         class="btn btn-sm btn-outline-secondary"><i
                                                                             class="fa fa-list"></i> Detail</a>
 
-                                                                        {{-- @if ($requisition->status == 3 && $requisition->good_issue_doc_no != null)
+                                                                        @if ($requisition->status == 3 && $requisition->is_received!=1 && $requisition->good_issue_doc_no != null)
                                                                     <a href="{{ url('asset/requisition/' . $requisition->id . '/receive') }}"
                                                                         class="btn btn-sm btn-rounded btn-outline-success">
                                                                         <i class="bi bi-box-arrow-in-down"></i> Receive
                                                                     </a>
-                                                                    @endif --}}
+                                                                    @endif
                                                                     @endif
                                                                 @if ($privileges->delete)
                                                                     <a href="#"

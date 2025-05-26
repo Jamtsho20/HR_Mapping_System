@@ -263,7 +263,7 @@ class ApiController extends BaseController
 
             $reqApplication = RequisitionApplication::where('doc_no', $request->purchase_req_doc_no)->firstOrFail();
             $reqApplication->good_issue_doc_no = $request->doc_no;
-            $reqApplication->is_received = 1;
+            //$reqApplication->is_received = 1;
             $reqApplication->save();
             \Log::info('requestCheck', ['RequestData' => $request->details]);
             foreach ($request->details as $detail) {
@@ -277,14 +277,13 @@ class ApiController extends BaseController
                         ->where('store_id', $store_id)
                         ->where('grn_id', $grn_id)
                         ->value('id');
+                        if (!$grn_item_detail_id) {
+                            // DB::rollBack();
+                            return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
+                        }
 
-                    if (!$grn_item_detail_id) {
-                        // DB::rollBack();
-                        return $this->errorResponse("GRN item detail not found for item_code: {$line['item_code']} and store_code: {$line['store_code']}");
-                    }
 
-
-                    $requisition_detail = RequisitionDetail::where('requisition_id', $reqApplication->id)
+                        $requisition_detail = RequisitionDetail::where('requisition_id', $reqApplication->id)
                         ->where('grn_item_id', $grn_id)
                         ->where('grn_item_detail_id', $grn_item_detail_id)
                         ->first();
@@ -295,7 +294,7 @@ class ApiController extends BaseController
                     }
 
                     $requisition_detail->received_quantity = $line['received_quantity'];
-                    $requisition_detail->is_received = 1;
+                    //$requisition_detail->is_received = 1;
                     $requisition_detail->received_at = now();
                     $requisition_detail->received_by = $reqApplication->created_by;
                     $requisition_detail->save();
@@ -636,7 +635,7 @@ class ApiController extends BaseController
                         ]
                     ];
                 }
-                dd($postField);
+           
                 $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
                 if ($response['status'] !== 201) {
                     return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
@@ -659,11 +658,11 @@ class ApiController extends BaseController
                     ]
                 ];
 
-                dd($postField, $url);
-                $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
-                if ($response['status'] !== 201) {
-                    return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
-                }
+                // dd($postField, $url);
+                // $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
+                // if ($response['status'] !== 201) {
+                //     return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                // }
 
                 $responseArray = $response;
                 return response()->json(['success' => true, 'data' => $responseArray], 201);
@@ -808,7 +807,6 @@ class ApiController extends BaseController
 
     public function postEmployeeToSap($data)
     {
-        // dd(json_encode($data));
         $response = $this->startSession();
 
         if (json_last_error() === JSON_ERROR_NONE) {
@@ -846,7 +844,6 @@ class ApiController extends BaseController
         $response = curl_exec($curl);
         $responseArray = json_decode($response, true);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        // dd('http_code:' . $httpCode, $response);
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
             curl_close($curl);
@@ -860,7 +857,7 @@ class ApiController extends BaseController
             \Log::info($errorMessage);
             return response()->json(['msg_error' => $errorMessage], $httpCode);
         }
-        // dd($responseArray);
+
         \Log::info('sap response: ' . json_encode($responseArray));
         return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
