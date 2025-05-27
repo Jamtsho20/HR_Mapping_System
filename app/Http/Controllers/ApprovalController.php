@@ -364,7 +364,7 @@ class ApprovalController extends Controller
                         "AssetGroup" => null,
                         "InventoryNumber"=> null,
                         "U_Employee"=> $application->employee->username ." ".$application->employee->name,
-                        "AssetSerialNumber" => $detail->receivedSerial->asset_serial_no,
+                        "AssetSerialNumber" => (int) $detail->receivedSerial->asset_serial_no,
                         "Location"=> null,
 
                         "ItemProjects" =>[
