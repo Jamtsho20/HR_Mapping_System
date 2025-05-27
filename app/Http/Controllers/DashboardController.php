@@ -12,6 +12,7 @@ use App\Models\SystemNotification;
 use App\Models\User;
 use App\Models\WorkHolidayList;
 use App\Models\RequisitionDetail;
+use App\Models\MasAssets;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -168,15 +169,7 @@ class DashboardController extends Controller
     }
 
     private function getAssetData(){
-        $assets = RequisitionDetail::with(['serials' => function ($query) {
-            $query->where('is_transfered', '!=', 1)
-                  ->where('is_returned', '!=', 1);
-        }])
-        ->whereHas('requisition', function ($query) {
-            $query->where('created_by', auth()->id()); // Filter by logged-in user's ID
-        })
-        ->where('is_received', 1)
-        ->get();
+        $assets = MasAssets::where('current_employee_id', auth()->user()->id)->with('receivedSerial')->get();
         return $assets;
     }
 
