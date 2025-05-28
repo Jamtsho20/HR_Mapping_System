@@ -129,8 +129,12 @@
                     </div>
                     <div class="modal-body">
                         Are you sure you want to proceed with disbursement?<br><br>
-                        <strong>Net Payable:</strong> {{ formatAmount($advance->net_payable) }}
+                        <strong>Net Payable: </strong> {{ formatAmount($advance->net_payable) }}
                     </div>
+                    <div class="modal-body">
+                        <strong>Remarks: </strong><br> <textarea name="remarks" class="form-control" row="2" placeholder="Remark"></textarea>
+                    </div>
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-success">Yes, Disburse</button>

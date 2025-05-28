@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Advance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
+use App\Models\ApplicationAuditLog;
 use App\Models\MasAdvanceTypes;
 use App\Services\ApplicationHistoriesService;
 use Illuminate\Http\Request;
@@ -50,25 +51,38 @@ class AdvanceSifaLoanController extends Controller
         return view('advance-loan.sifa-disburse.show', compact('advance', 'advanceTypes', 'approvalDetail', 'empDetails', 'eligibilityAmount', 'netPay', 'lastMonth'));
     }
 
-    // public function update(Request $request, $id)
-    // {
-
-    //     $advanceApplication = AdvanceApplication::findOrFail($id);
-    //     $advanceApplication->status = $request->status;
-    //     $advanceApplication->save();
-    // }
-    public function disburse($id)
+    public function disburse(Request $request, $id)
     {
+        //here transaction is used since on update aplication audit log also gets updtaed/create
+        $disbursedStatus = 4;
         $application = AdvanceApplication::findOrFail($id);
+        $auditData = ApplicationAuditLog::where('application_id', $id)->where('application_type', \App\Models\AdvanceApplication::class)->first();
 
-        if ($application->status != 3) {
-            return redirect()->back()->with('error', 'Only applications with status 3 can be disbursed.');
+        try{
+            DB::beginTransaction();
+            $application->update([
+                'status' => $disbursedStatus,
+                // 'remarks' => $request->remarks
+            ]);
+
+            ApplicationAuditLog::create([
+                'application_type' => $auditData->application_type,
+                'application_id' => $auditData->application_id,
+                'approval_option' => $auditData->approval_option ?? null,
+                'hierarchy_id' => $auditData->hierarchy_id ?? null,
+                'status' => $disbursedStatus,
+                'remarks' => $request->remarks ?? null,
+                'action_performed_by' => auth()->user()->id,
+                'edited_by' => $auditData->edited_by ?? null,
+                'sap_response' => $auditData->sap_response ?? null,
+            ]);
+            DB::commit();
+        }catch(\Exception $e){
+            DB::rollBack();
+            // \Log::error($e->getMessage());
+            return back()->with('msg_error', 'Something went wrong. Please try again.');
         }
-
-        $application->status = 4;
-        $application->save();
-
-        return redirect()->route('sifa-disburse.show', $id)
-            ->with('success', 'Application successfully disbursed.');
+        return redirect()->route('sifa-disburse.index')
+            ->with('success', 'SIFA Loan Payment has been successfully disbursed.');
     }
 }

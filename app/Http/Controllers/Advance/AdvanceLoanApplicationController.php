@@ -132,10 +132,10 @@ class AdvanceLoanApplicationController extends Controller
         $emi = LoanEMIDeduction::where('mas_employee_id', $employeeId)->where('is_paid_off', 0)->orderByDesc('id')->first();
         //  dd($advance,$emi);
         $advance = AdvanceApplication::where('created_by', $employeeId)
-            ->where('status', 3)
+            ->where('status', 4)
             ->orderByDesc('id')
             ->first();
-
+// dd($advance);
         $remainingOutstanding = 0;
 
         if ($advance) {
@@ -155,6 +155,7 @@ class AdvanceLoanApplicationController extends Controller
             } else {
                 $remainingOutstanding = $totalAmount; // no deductions yet
             }
+            // dd('remainingOutstanding', $remainingOutstanding);
         }
         return view(
             'advance-loan.apply.create',
@@ -184,11 +185,12 @@ class AdvanceLoanApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
         $attachment = "";
         //dd($approverByHierarchy, $conditionFields, $request->advance_type);
-
+        
         $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
         $lastTransaction = AdvanceApplication::latest('id')->first();
         $advanceNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
-
+        
+        // dd($approverByHierarchy);
 
 
 
@@ -219,7 +221,7 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;
-            $advanceApplication->remark = $request->remark ?? null;
+            $advanceApplication->remarks = $request->remarks ?? null;
             $advanceApplication->interest_rate = $request->interest_rate ?? null;
             $advanceApplication->net_payable = $request->net_payable ?? null;
             $advanceApplication->status = $approverByHierarchy['application_status'];
@@ -228,20 +230,21 @@ class AdvanceLoanApplicationController extends Controller
             if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
                 $this->saveAdvanceDetails($request->details, $advanceApplication->id);
             }
-
+            
             // Create a corresponding history record for advance
             // Create a history record it detail code resides in ApplicationHistoriesService classs
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
-
+            
             DB::commit();
-
+            
             if (isset($approverByHierarchy['approver_details'])) {
                 $advanceType = MasAdvanceTypes::where('id', $request->advance_type)->value('name');
                 $emailContent = 'has applied ' . $advanceType . ' for your endorsement.';
                 $emailSubject = 'Advance';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
+            // dd('advanceApplication', $advanceApplication);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -262,7 +265,7 @@ class AdvanceLoanApplicationController extends Controller
         $advance->mode_of_travel_name = $this->travelModes[$advance->mode_of_travel] ?? 'Unknown';
 
         $approvalDetail = getApplicationLogs(\App\Models\AdvanceApplication::class, $advance->id);
-
+        
         $employeeId = loggedInUser();
         $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
 

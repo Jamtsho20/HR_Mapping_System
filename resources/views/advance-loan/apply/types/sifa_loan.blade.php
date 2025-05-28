@@ -7,6 +7,7 @@
             <!-- <input type="number" class="form-control" value="{{ number_format($remainingOutstanding, 2) }}" readonly /> -->
             <input type="number" id="remaining_outstanding" class="form-control info-green p-3 pt-0 fw-bold" value="{{ number_format($remainingOutstanding, 2, '.', '') }}" readonly />
 
+
         </div>
         @endif
         <div class="col-md-4">
@@ -74,7 +75,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="purpose">Remark</label>
-                <textarea rows="2" class="form-control" name="remark" id="remark">{{ old('remark') }}</textarea>
+                <textarea rows="2" class="form-control" name="remarks" id="remark">{{ old('remarks') }}</textarea>
             </div>
         </div>
 

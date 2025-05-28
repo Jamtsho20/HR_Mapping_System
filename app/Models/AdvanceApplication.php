@@ -6,6 +6,7 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 
 class AdvanceApplication extends Model
@@ -25,7 +26,7 @@ class AdvanceApplication extends Model
         'from_date',
         'to_date',
         'amount',
-        'remark',
+        'remarks',
         'attachment',
         'interest_rate',
         'total_amount',
@@ -179,19 +180,21 @@ class AdvanceApplication extends Model
                     $advance->insertInToLoanEmiDeductions($payHeadId);
                 }
             }
-
+            // dd($advance);
             // if($advance->status == 4) {
+            //     dd($request->all());
+            //     $auditData = ApplicationAuditLog::where('application_id', $advance->id)->where('application_type', \App\Models\AdvanceApplication::class)->first();
             //     ApplicationAuditLog::create([
-            //         'application_type' => $advance->application_type,
-            //         'application_id' => $advance->application_id,
-            //         'approval_option' => $advance->approval_option,
-            //         'hierarchy_id' => $advance->hierarchy_id,
+            //         'application_type' => $auditData->application_type,
+            //         'application_id' => $auditData->application_id,
+            //         'approval_option' => $auditData->approval_option ?? null,
+            //         'hierarchy_id' => $auditData->hierarchy_id ?? null,
             //         'status' => $advance->status,
-            //         'remarks' => $advance->remarks,
+            //         'remarks' => $advance->remarks ?? null,
             //         'action_performed_by' => auth()->user()->id,
-            //         'edited_by' => null,
-            //         'sap_response' => $advance->sap_response,
-            // ]);
+            //         'edited_by' => $auditData->edited_by ?? null,
+            //         'sap_response' => $advance->sap_response ?? null,
+            //     ]);
             // }
         });
     }
@@ -217,7 +220,7 @@ class AdvanceApplication extends Model
             'loan_type_id' => $loanTypeMap[$this->type_id] ?? null, // dynamically assign
             'recurring' => 1,
             'recurring_months' => $this->no_of_emi,
-            'remarks' => $this->remark ?? null,
+            'remarks' => $this->remarks ?? null,
             'is_paid_off' => 0,
             'created_at' => now(),
         ]);
