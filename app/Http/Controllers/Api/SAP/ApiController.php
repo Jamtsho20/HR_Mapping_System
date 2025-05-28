@@ -635,7 +635,7 @@ class ApiController extends BaseController
                         ]
                     ];
                 }
-           
+
                 $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
                 if ($response['status'] !== 201) {
                     return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
@@ -706,12 +706,23 @@ class ApiController extends BaseController
                 "AssetClass" => $item['AssetClass'] ?? "Furnitures",  // default to "Furnitures"
                 "AssetGroup" => $item['AssetGroup'] ?? null,
                 "InventoryNumber" => $item['InventoryNumber'] ?? null,
-                "Employee" => $item['Employee'] ?? null,
+                "U_Employee" => $item['U_Employee'] ?? null,
+                "AssetSerialNumber" => $item['AssetSerialNumber'] ?? null,
                 "Location" => $item['Location'] ?? null,
+
+                "ItemProjects" => [
+                        [
+                            "LineNumber" => 0,
+                            "ValidFrom" => $item['ItemProjects'][0]['ValidFrom'] ?? null,
+                            "ValidTo" => $item['ItemProjects'][0]['ValidTo'] ?? null,
+                            "Project" => $item['ItemProjects'][0]['Project'] ?? null,
+                        ]
+                    ]
             ];
 
             // Convert each item to JSON format
             $jsonFormattedItem = json_encode($formattedItem, JSON_PRETTY_PRINT);
+  
             $url1='/b1s/v1/Items';
             $response = $this->sendPostRequest($url1,$jsonFormattedItem, $sessionId);
 

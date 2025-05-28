@@ -1,9 +1,10 @@
 @extends('layouts.app')
 @section('page-title', 'Commission')
 @section('content')
+@include('layouts.includes.loader')
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
-    <form action="{{ route('commission.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('commission.store') }}" method="POST" enctype="multipart/form-data" id="commissionForm">
         @csrf
         <div class="card">
             <div class="card-body">
@@ -188,6 +189,15 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+
+            const loader = document.getElementById('loader');
+            const form = document.getElementById('commissionForm');
+
+             form.addEventListener('submit', function(e) {
+                                    // Show loader
+                                    loader.style.display = 'flex';
+                                });
+
             $('#grn').change(function() {
                 let grnId = $(this).val(); // Get selected GRN ID
                 if (grnId && grnId != '') {
