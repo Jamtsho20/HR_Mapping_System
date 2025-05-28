@@ -227,53 +227,52 @@ class ApprovalService
 			->pluck('role_id')
 			->first();
 
-		$delegations = getDelegations($approvingAuthorityRoleId);
-		$originalApprover = null;
+        $delegations = getDelegations($approvingAuthorityRoleId);
+        $originalApprover = null;
 
-		// Special handling for MANAGING DIRECTOR
-		if ($approvingAuthorityRoleId == MANAGING_DIRECTOR) {
-			$originalApprover = User::whereHas('roles', fn($q) =>
-				$q->where('roles.id', $approvingAuthorityRoleId))
-				->first();
-		} elseif (!$nextLevel->mas_employee_id) {
-			// No direct employee — fallback to department/section
-			$job = MasEmployeeJob::where('mas_employee_id', auth()->id())
-				->select('mas_department_id', 'mas_section_id')
-				->first();
+        // Special handling for MANAGING DIRECTOR
+        if ($approvingAuthorityRoleId == MANAGING_DIRECTOR) {
+            $originalApprover = User::whereHas('roles', fn($q) =>
+            $q->where('roles.id', $approvingAuthorityRoleId))
+                ->first();
+        } elseif (!$nextLevel->mas_employee_id) {
+            // No direct employee — fallback to department/section
+            $job = MasEmployeeJob::where('mas_employee_id', auth()->id())
+                ->select('mas_department_id', 'mas_section_id')
+                ->first();
 
-			$originalApprover = User::whereHas('roles', fn($q) =>
-				$q->where('roles.id', $approvingAuthorityRoleId))
-				->whereHas('empJob', function ($q) use ($job) {
-					$q->where('mas_department_id', $job->mas_department_id)
-						->where(function ($sub) use ($job) {
-							$sub->where('mas_section_id', $job->mas_section_id)
-								->orWhereNull('mas_section_id');
-						});
-				})
-				->first();
-		} else {
-			// Direct employee assigned
-			$originalApprover = User::where('id', $nextLevel->mas_employee_id)
-				->whereHas('roles', fn($q) => $q->where('roles.id', $approvingAuthorityRoleId))
-				->first();
-		}
+            $originalApprover = User::whereHas('roles', fn($q) =>
+            $q->where('roles.id', $approvingAuthorityRoleId))
+                ->whereHas('empJob', function ($q) use ($job) {
+                    $q->where('mas_department_id', $job->mas_department_id)
+                        ->where(function ($sub) use ($job) {
+                            $sub->where('mas_section_id', $job->mas_section_id)
+                                ->orWhereNull('mas_section_id');
+                        });
+                })
+                ->first();
+        } else {
+            // Direct employee assigned
+            $originalApprover = User::where('id', $nextLevel->mas_employee_id)
+                ->whereHas('roles', fn($q) => $q->where('roles.id', $approvingAuthorityRoleId))
+                ->first();
+        }
 
-		// Now check for matching delegation
-		$delegatedUser = null;
-		if ($originalApprover) {
-			$matchedDelegation = $delegations->firstWhere('delegator_id', $originalApprover->id);
-			if ($matchedDelegation) {
-				$delegatedUser = User::find($matchedDelegation->delegatee_id);
-			}
-		}
+        // Now check for matching delegation
+        $delegatedUser = null;
+        if ($originalApprover) {
+            $matchedDelegation = $delegations->firstWhere('delegator_id', $originalApprover->id);
+            if ($matchedDelegation) {
+                $delegatedUser = User::find($matchedDelegation->delegatee_id);
+            }
+        }
 
-		// If delegated user exists, override original
-		$approverToUse = $delegatedUser ?? $originalApprover;
-		
-		return [
-			'user_with_approving_role' => $approverToUse,
-			'approver_role_id' => $approvingAuthorityRoleId,
-		];
-	}
+        // If delegated user exists, override original
+        $approverToUse = $delegatedUser ?? $originalApprover;
 
+        return [
+            'user_with_approving_role' => $approverToUse,
+            'approver_role_id' => $approvingAuthorityRoleId,
+        ];
+    }
 }

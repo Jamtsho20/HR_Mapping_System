@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
-    }
+        
 
     /**
      * Reverse the migrations.

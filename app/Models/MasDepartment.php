@@ -23,6 +23,10 @@ class MasDepartment extends Model
         return $this->hasMany(MasSection::class, 'mas_department_id');
     }
 
+    public function departmentWiseShifts(){
+        return $this->hasMany(DepartmentWiseShift::class, 'department_id');
+    }
+
     //filters
     public function scopeFilter($query, $request)
     {

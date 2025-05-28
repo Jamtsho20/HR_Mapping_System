@@ -501,7 +501,7 @@ if (!function_exists('getDelegations')) {
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
             ->get();
-        
+
         return $delegations;
     }
 }
@@ -572,13 +572,15 @@ if (!function_exists('getDeleagteeList')) {
     }
 }
 
-if(!!function_exists('getAttendanceParams')){
-    function getAttendanceParams($userId){
-        $attendanceFeatures = MasAttendanceFeature::whereIn('id', [1, 2])->get();
-        $userDetails = User::with(['employeeInShifts'])->where('id', $userId)->get();
-        dd();
-    }
-}
+// if(!!function_exists('getAttendanceParams')){
+//     function getAttendanceParams($userId){
+//         $attendanceFeatures = MasAttendanceFeature::whereIn('id', [1, 2])->get();
+//         $userDetails = null;
+
+//         $userDetails = User::with(['employeeInShifts'])->where('id', $userId)->get();
+//         dd();
+//     }
+// }
 
 
 

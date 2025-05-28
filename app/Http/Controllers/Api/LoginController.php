@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasAttendanceFeature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
@@ -29,13 +30,16 @@ class LoginController extends Controller
                 'empJob.gradeStep:id,name',       // Only load the grade step name
                 'empJob.empType:id,name',         // Only load the employment type name
                 'empJob.supervisor:id,name,username', // Only load the supervisor's name
+                // 'empJob.office:id,name,latitude,longitude,raidus',           // Only load the office name
                 'empJob.office:id,name',           // Only load the office name
                 'roles:id,name'
             ])->where('email', $request->username)
                 ->orWhere('username', $request->username)
                 ->first();
+
             $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
-            
+            // $attendanceFeatures = MasAttendanceFeature::whereIn('id', [1, 2])->get();
+
             // If user found, return as JSON
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
@@ -52,14 +56,13 @@ class LoginController extends Controller
             }
             
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
-            $attendanceParams = getAttendanceParams($user->id);
-            dd($attendanceParams);
             $token = $user->createToken($request->username)->plainTextToken;
 
             return response()->json([
                 'message' => 'Authenticated',
                 'user' => $user,
                 'menus' => $menus,
+                // 'attendance_features' => $attendanceFeatures,
                 'token' => $token,
             ], 200);
         } catch (\Exception $e) {
