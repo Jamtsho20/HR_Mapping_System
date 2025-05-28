@@ -6,6 +6,6 @@ Greetings for the day!! <br/>
 The attached file contains your pay slip for the month of {{$monthFriendly}}. <br/><br/>
 
 Sincerely <br/>
-SAS Section
+HRMS
 
 </x-mail::message>
