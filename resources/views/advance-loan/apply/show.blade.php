@@ -6,7 +6,7 @@
 @section('content')
 
 <div class="row">
-
+@include('components.employee-details', ['empDetails' => $empDetails])
     <div class="col-lg-12">
         <div class="col-sm-12 card" style="padding-top: 16px;padding-bottom: 18px;">
             <div class="row">
@@ -39,9 +39,7 @@
                             @if ($advance->advance_type_id == 6)
                             @include('advance-loan.approval.details.salary')
                             @endif
-                            @if ($advance->advance_type_id == 7)
-                            @include('advance-loan.approval.details.sifa')
-                            @endif
+                          
 
 
 
@@ -61,6 +59,9 @@
                                 @endif
                             </td>
                             </tr>
+                              @if ($advance->type_id == 7)
+                            @include('advance-loan.approval.details.sifa')
+                            @endif
                             <!-- <tr>
                                 <th style="width:35%;">Total Amount<span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>

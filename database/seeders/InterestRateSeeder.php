@@ -31,6 +31,7 @@ class InterestRateSeeder extends Seeder
             DB::table('interest_rates')->insert([
                 'advance_type_id' => $type->id,
                 'rate' => $interestRates[$type->name] ?? null, 
+                'status' => 1,
                 'created_by' => 1, 
                 'updated_by' => null,
                 'created_at' => now(),

@@ -57,7 +57,7 @@
                                 @forelse ($approvalRules as $rule)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $rule->approvable->name }}</td>
+                                    <td>{{ $rule->approvable->name ?? 0}}</td>
                                     <td>{{ $rule->name }}</td>
                                     <td>{{ $rule->start_date }}</td>
                                     <td>{{ $rule->end_date }}</td>

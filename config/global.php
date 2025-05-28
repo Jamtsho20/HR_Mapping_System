@@ -47,7 +47,8 @@ return [
         0 => 'Cancelled',
         1 => 'Approval Pending',
         2 => 'Approval Pending',
-        3 => 'Approved'
+        3 => 'Approved',
+        4 => 'Disbursed',
     ],
 
     'attendance_status' => [
@@ -167,6 +168,9 @@ return [
         9 => '9 Months',
         12 => '12 Months',
     ],
+    'no_of_emis' => [
+        12 => '12 Months',
+    ],
 
     'rate_limits' => [
         1 => 'Daily',
@@ -209,7 +213,7 @@ return [
             'post_to_sap' => true,
             'email_subject' => 'Advance',
             'approver_mail_content' => 'has applied {type} for your endorsement.',
-            'initiator_mail_content' => 'Your Loan has been'
+            'initiator_mail_content' => 'Your Loan has been'   
         ],
         4 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
@@ -224,6 +228,7 @@ return [
             'email_subject' => 'Requisition',
             'approver_mail_content' => 'has applied Requisition of {type} for your endorsement.',
             'initiator_mail_content' => 'Your Requisition has been'
+            
         ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,

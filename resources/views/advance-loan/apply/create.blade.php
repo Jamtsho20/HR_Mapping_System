@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('apply_advance');
     const loader = document.getElementById('loader');
     const submitBtn = document.getElementById('submitBtn');
+ const isSifaRegistered = {{ (int) $isSifaRegistered }};
 
     // Pass the user's employment type ID dynamically
     var employmentTypeId = {{ auth()->user()->empJob && auth()->user()->empJob->empType ? auth()->user()->empJob->empType->id : 'null' }};
@@ -135,9 +136,13 @@ document.addEventListener('DOMContentLoaded', function () {
             section.style.display = 'block';
             enableFormFields(section);
         } else if (selectedType === '7') {
-            var section = document.getElementById('sifa-loan-form');
-            section.style.display = 'block';
-            enableFormFields(section);
+            if (!isSifaRegistered) {
+        showErrorMessage('You are not a registered SIFA member.');
+    } else {
+        var section = document.getElementById('sifa-loan-form');
+        section.style.display = 'block';
+        enableFormFields(section);
+    }
         }
     });
 

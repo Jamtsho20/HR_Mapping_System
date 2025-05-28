@@ -3,31 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\SAP\ApiController;
-use App\Models\MasApprovalHead;
-use App\Services\ApprovalService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use App\Mail\AdvanceSifaloanMail;
 use App\Mail\ApprovalNotificationMail;
+use App\Mail\AssetTransferMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Mail\TravelApprovalMail;
-use App\Models\User;
-use App\Models\EmployeeLeave;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
-use App\Models\ApplicationHistory;
-use App\Models\TravelAuthorizationApplication;
-use App\Models\DsaClaimApplication;
 use App\Models\AdvanceApplication;
-use Illuminate\Support\Facades\Auth;
-use App\Models\DailyAllowance;
-use App\Models\DsaClaimMappings;
-use App\Models\DsaClaimDetail;
-use App\Traits\JsonResponseTrait;
-use App\Models\MasAdvanceTypes;
-use App\Mail\AssetTransferMail;
+use App\Models\ApplicationHistory;
 use App\Models\AssetReturnApplication;
+use App\Models\DailyAllowance;
+use App\Models\DsaClaimApplication;
+use App\Models\DsaClaimDetail;
+use App\Models\DsaClaimMappings;
+use App\Models\EmployeeLeave;
+use App\Models\MasAdvanceTypes;
+use App\Models\MasApprovalHead;
+use App\Models\TravelAuthorizationApplication;
+use App\Models\User;
+use App\Services\ApprovalService;
+use App\Traits\JsonResponseTrait;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 
 class ApprovalController extends Controller
@@ -37,7 +38,7 @@ class ApprovalController extends Controller
 
     public function __construct(ApiController $sap)
     {
-        $this->middleware('permission:approval/applications,view')->only('index','approveReject','show');
+        $this->middleware('permission:approval/applications,view')->only('index', 'approveReject', 'show');
         $this->sap = $sap;
     }
 
@@ -59,7 +60,7 @@ class ApprovalController extends Controller
                 $query->where('approver_emp_id', $user->id)
                     ->where('application_type', $modelClass);
             })
-                ->whereNotIn('status', [-1, 3])
+                ->whereNotIn('status', [-1, 3, 4])
                 ->filter($request, false)
                 ->orderByDesc('created_at')
                 ->paginate(config('global.pagination'))
@@ -169,7 +170,7 @@ class ApprovalController extends Controller
                         $item_code = isset($application->need_by_date) ? $application->need_by_date : null;
                         $required_date = null;
                         // field required for commission api in SAP
-                        $commission = $application->histories->first()->application_type =='App\Models\AssetCommissionApplication' ? true : null;
+                        $commission = $application->histories->first()->application_type == 'App\Models\AssetCommissionApplication' ? true : null;
 
                         $assetFlag = false;
                         if ($item_code) {
@@ -194,10 +195,10 @@ class ApprovalController extends Controller
                             $postFields = $this->preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount, $item_code, $required_date, $application, $commission, $transactionNumber, $advanceCode);
 
                             Log::info($postFields);
-                            if($commission){
+                            if ($commission) {
                                 $postJournalEntriesResponse = $this->sap->postCommission($postFields);
-                            }else{
-                            $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
+                            } else {
+                                $postJournalEntriesResponse = $this->sap->postJournalEntries($postFields, $assetFlag);
                             }
                             $statusCode = $postJournalEntriesResponse->getStatusCode();
                             $postJournalEntriesResponse = json_decode($postJournalEntriesResponse->getContent(), true);
@@ -275,7 +276,7 @@ class ApprovalController extends Controller
     }
 
 
-    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $commission = null, $transactionNo=null, $advanceCode = null)
+    private function preparePostFields($memo, $shortName, $accountCode, $costingCode, $costingCode2, $amount, $officeLocation, $contactNo, $tax_amount = null, $item_code = null, $required_date = null, $application = null, $commission = null, $transactionNo = null, $advanceCode = null)
     {
         if ($tax_amount) {
             return $postFields = '{
@@ -310,28 +311,26 @@ class ApprovalController extends Controller
 
                 ]
             }';
-        } elseif ($item_code){
-            if($application->type_id == FIXED_ASSET) {
-            $postFields = [
-                "DocDate" => date('Y-m-d'),
-                "U_REQ" => $transactionNo,
-                "DocumentLines" => $application->details->map(function ($detail) {
-                    return [
-                        "U_GRNEntry"=> (string) $detail->grnItem->grn_no,
-                        "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
-                        "ItemDescription" => $detail->grnItemDetail->item->item_description,
-                        "Quantity" => $detail->requested_quantity,
-                        //"UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
-                        "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
-                        "ProjectCode" => (string) $detail->site->code
-                    ];
-                })->toArray(),
-                "RequriedDate" => $required_date
-                       ];
-
-
-            }else {
-                $name_empid =$application->employee->username ." ".$application->employee->name;
+        } elseif ($item_code) {
+            if ($application->type_id == FIXED_ASSET) {
+                $postFields = [
+                    "DocDate" => date('Y-m-d'),
+                    "U_REQ" => $transactionNo,
+                    "DocumentLines" => $application->details->map(function ($detail) {
+                        return [
+                            "U_GRNEntry" => (string) $detail->grnItem->grn_no,
+                            "ItemCode" => (string) $detail->grnItemDetail->item->item_no,
+                            "ItemDescription" => $detail->grnItemDetail->item->item_description,
+                            "Quantity" => $detail->requested_quantity,
+                            //"UoMEntry" => (string) $detail->unitOfMeasurement->uom_entry ?? $detail->grnItemDetail->item->uom,
+                            "WarehouseCode" => (string) $detail->grnItemDetail->store->code,
+                            "ProjectCode" => (string) $detail->site->code
+                        ];
+                    })->toArray(),
+                    "RequriedDate" => $required_date
+                ];
+            } else {
+                $name_empid = $application->employee->username . " " . $application->employee->name;
                 $postFields = [
                     "DocDate" => date('Y-m-d'),
                     "U_REQ" => $transactionNo,
@@ -347,11 +346,10 @@ class ApprovalController extends Controller
                         ];
                     })->toArray(),
                     "RequriedDate" => $required_date
-                           ];
+                ];
             }
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        }
-        elseif($commission) {  // sap data for asset commissioning
+        } elseif ($commission) {  // sap data for asset commissioning
             $postFields = [
                 "Items" => $application->details->map(function ($detail) use ($application) {
                     return [
@@ -362,18 +360,19 @@ class ApprovalController extends Controller
                         "ItemType" => "F",
                         "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
                         "AssetGroup" => null,
-                        "InventoryNumber"=> null,
-                        "U_Employee"=> $application->employee->username ." ".$application->employee->name,
+                        "InventoryNumber" => null,
+                        "U_Employee" => $application->employee->username . " " . $application->employee->name,
                         "AssetSerialNumber" => $detail->receivedSerial->asset_serial_no,
-                        "Location"=> null,
+                        "Location" => null,
 
-                        "ItemProjects" =>[
+                        "ItemProjects" => [
                             [
                                 "LineNumber" => 0,
                                 "ValidFrom" => date('Y-m-d'),
                                 "ValidTo" => null,
                                 "Project" => $detail->site->name
-                        ]]
+                            ]
+                        ]
                     ];
                 })->toArray(),
                 "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
@@ -383,14 +382,14 @@ class ApprovalController extends Controller
                         "TotalLC" => $detail->receivedSerial->amount
                     ];
                 })->toArray(),
-                "AssetValueDate"=> date('Y-m-d'),
+                "AssetValueDate" => date('Y-m-d'),
                 "DocumentDate" => date('Y-m-d'),
                 "PostingDate" => date('Y-m-d')
 
-                ];
-                return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+            ];
+            return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } elseif ($accountCode == DSA_ACCOUNT_CODE) {
-            if ($application->advance_amount > 0){
+            if ($application->advance_amount > 0) {
                 $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
                             "Memo": "' . $memo . '",
@@ -421,7 +420,7 @@ class ApprovalController extends Controller
                                 }
                             ]
                         }';
-            }else{
+            } else {
                 $postFields = '{
                     "ReferenceDate":"' . date('Y-m-d') . '",
                     "Memo": "' . $memo . '",
@@ -446,8 +445,7 @@ class ApprovalController extends Controller
                 }';
             }
             return $postFields;
-        }
-        else {
+        } else {
             return $postFields = '{
                             "ReferenceDate":"' . date('Y-m-d') . '",
                             "Memo": "' . $memo . '",
@@ -539,6 +537,18 @@ class ApprovalController extends Controller
                 ->pluck('closing_balance')
                 ->first();
         }
+        //net pay for advance sifa loan
+        $employeeId = $data->created_by;
+        $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
+
+        $netPay = DB::table('final_pay_slips')
+            ->where('mas_employee_id', $employeeId)
+            ->where('for_month', $lastMonth)
+            ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
+
+        $netPay = floatval($netPay); // cast safely
+        $eligibilityAmount = min($netPay * 3, 100000);
+        $data->netPay = $netPay;
 
         $approvalDetail = getApplicationLogs($mappedModel['name'], $data->id);
         // dd($approvalDetail);
@@ -548,7 +558,7 @@ class ApprovalController extends Controller
             ->value('remarks'); // Assuming `reject_remarks` is the column name
         $data->reject_remarks = $rejectRemarks;
         // Pass the reject remarks to the view
-        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance'));
+        return view('approval.show', compact('data', 'tab', 'empDetails', 'approvalDetail', 'no_of_days', 'privileges', 'oldDataFlag', 'travelNosString', 'advanceNosString', 'leaveBalance', 'eligibilityAmount', 'netPay', 'lastMonth'));
     }
 
     public function edit(Request $request, $id)
@@ -755,7 +765,7 @@ class ApprovalController extends Controller
             $initiatorMailContent .= ' approved.';
 
 
-            if ($applicationModel['name'] == 'App\Models\AssetTransferApplication'){
+            if ($applicationModel['name'] == 'App\Models\AssetTransferApplication') {
                 $requestingUserId = $applicationData->fromEmployee->name;
                 $receiverUserId = $applicationData->toEmployee->id;
                 $receiverEmail = $applicationData->toEmployee->email;
@@ -768,7 +778,7 @@ class ApprovalController extends Controller
                     log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
                 }
             }
-            if ($applicationModel['name'] == 'App\Models\AssetReturnApplication'){
+            if ($applicationModel['name'] == 'App\Models\AssetReturnApplication') {
                 $requestingUserId = $applicationData->employee->name;
                 $receiverUserId = $applicationData->details;
                 $receiverEmail = $applicationData->employee->email;
@@ -809,6 +819,32 @@ class ApprovalController extends Controller
                     log::error('Failed to send email: ' . $e->getMessage());
                 }
             }
+            if ($appType['name'] == 'SIFA LOAN') {
+
+                $applierId = $applicationData->created_by;
+                $applier = User::where('id', $applierId)->with('empJob')->first();
+                $approverId = $applicationData->updated_by;
+
+                $roleId = 15; // Payment Manager role
+
+                $pm = User::whereHas('roles', function ($query) use ($roleId) {
+                    $query->where('roles.id', $roleId);
+                })->first();
+
+                $requestingUserId = $applierId;
+                $approvingUserId = $approverId;
+                $emailSubject = 'Advance SIFA Loan Application';
+
+                if ($pm) {
+                    try {
+                        Mail::to([$pm->email])->send(new AdvanceSifaloanMail($requestingUserId, $approvingUserId, $emailSubject, $pm));
+                    } catch (\Exception $e) {
+                        Log::error('Error sending mail for application ID ' . $applicationData->id . ': ' . $e->getMessage());
+                    }
+                } else {
+                    Log::warning('No Payment Manager (role ID 15) found.');
+                }
+            }
         } else if ($status == -1) {
             $preparedMail = prepareMail($applicationModel, $applicationData, $appType, $status);
             $initiatorMailContent .= ' rejected.';
@@ -846,12 +882,12 @@ class ApprovalController extends Controller
 
                     ->where('action_performed_by', $user->id);
             })
-            ->whereIn('status', $statuses)
-            ->filter($request, false)
-            ->whereYear('created_at', Carbon::now()->year)
-            ->orderBy('created_at')
-            ->paginate(config('global.pagination'))
-            ->withQueryString();
+                ->whereIn('status', $statuses)
+                ->filter($request, false)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->orderBy('created_at')
+                ->paginate(config('global.pagination'))
+                ->withQueryString();
         };
 
 

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->tinyInteger('status')->index()->comment('-1 => rejected, 1 => new, 2 => verified, 3 => approved');
             $table->string('doc_no')->index()->nullable();
             $table->string('good_issue_doc_no')->index()->nullable();
-           
+            $table->tinyInteger('is_received')->default(0);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
