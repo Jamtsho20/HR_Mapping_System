@@ -205,7 +205,7 @@ class SifaRegistrationController extends Controller
     public function show($id, Request $request)
     {
         $user = auth()->user();
-        $sifaRegistration = SifaRegistration::with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
+        $sifaRegistration = SifaRegistration::where('mas_employee_id', $user->id)->with(['SifaNomination', 'SifaDependent', 'SifaDocument'])->findOrFail($id);
         $sifaDocuments = SifaDocument::where('sifa_registration_id', $id)->first();
         //dd($sifaRegistration->sifaDocument);
 

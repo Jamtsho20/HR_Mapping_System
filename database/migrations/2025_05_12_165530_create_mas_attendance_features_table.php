@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_offices', function (Blueprint $table) {
+        Schema::create('mas_attendance_features', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('mas_dzongkhag_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
-            $table->decimal('radius', 5,2)->default(100); // Radius in meters
-            $table->boolean('status')->default(1);
+            $table->string('name')->comment('Feature name like Check-in, Check-out, Geofencing, QR Code Scan, Approval Process');
+            $table->text('description')->nullable()->comment('Description/Explanation for each features');
+            $table->boolean('is_mandatory')->default(false)->comment('Is this feature mandatory?');
+            $table->boolean('status')->default(true)->comment('1 => Active, 0 => Inactive');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_offices');
+        Schema::dropIfExists('mas_attendance_features');
     }
 };

@@ -44,7 +44,9 @@ class ApplicationHistory extends Model
     protected static function booted()
     {
         static::created(function ($application) {
+            // dd($application);
             // \Log::info($application);
+            
             ApplicationAuditLog::create([
                 'application_type' => $application->application_type,
                 'application_id' => $application->application_id,

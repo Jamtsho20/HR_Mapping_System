@@ -54,7 +54,7 @@ class UserController extends Controller
             ])->where('email', $user->username)
                 ->orWhere('username', $user->username)
                 ->first();
-
+            
             return response()->json([
                 'message' => 'Profile picture updated successfully.',
                 'user' => $userDetail,

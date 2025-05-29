@@ -6,13 +6,7 @@ use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InterestRate extends Model
+class MasAttendanceFeature extends Model
 {
     use HasFactory, CreatedByTrait;
-    
-    protected $fillable = [
-        'advance_type_id',
-        'rate',
-        'status',
-    ];
 }

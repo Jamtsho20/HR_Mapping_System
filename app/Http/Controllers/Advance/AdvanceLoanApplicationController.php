@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers\Advance;
 
+use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Controller;
-use App\Models\TravelAuthorizationApplication;
 use App\Mail\ApplicationForwardedMail;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
 use App\Models\AdvanceApplication;
 use App\Models\AdvanceDetail;
 use App\Models\BudgetCode;
-use App\Services\ApprovalService;
-use App\Services\ApplicationHistoriesService;
+use App\Models\InterestRate;
+use App\Models\LoanEMIDeduction;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasDzongkhag;
-use Illuminate\Http\Request;
+use App\Models\TravelAuthorizationApplication;
+use App\Services\ApplicationHistoriesService;
+use App\Services\ApprovalService;
 use Carbon\Carbon;
-use App\Http\Controllers\AjaxRequestController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class AdvanceLoanApplicationController extends Controller
 {
@@ -95,6 +98,7 @@ class AdvanceLoanApplicationController extends Controller
         $advanceTypes = MasAdvanceTypes::where('status', 1)->get();
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
+        $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
         $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
         $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
             ->where('status', 3)
@@ -103,11 +107,76 @@ class AdvanceLoanApplicationController extends Controller
             })
             ->get(['id', 'transaction_no']); // Always fetch after conditions are applied
 
-        return view('advance-loan.apply.create', compact('advanceTypes', 'travelAuthorizations', 'budgetCodes', 'dzongkhags'));
+        $isSifaRegistered = DB::table('sifa_registrations')
+            ->where('mas_employee_id', loggedInUser())
+            ->value('is_registered');
+
+        //To calculate last month net pay
+        $employeeId = loggedInUser();
+
+        // Get the first day of last month formatted as 'Y-m-d'
+        $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
+
+        $netPay = DB::table('final_pay_slips')
+            ->where('mas_employee_id', $employeeId)
+            ->where('for_month', $lastMonth)
+            ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
+
+        $netPay = floatval($netPay); // Cast to float safely
+        $eligibilityAmount = min($netPay * 3, 100000); // Cap at 100,000 if needed
+
+        // Fetch advance
+        $advance = AdvanceApplication::where('created_by', $employeeId)->where('status', 3)->orderByDesc('id')->first();
+        // dd($advance);
+        // Fetch active loan EMI
+        $emi = LoanEMIDeduction::where('mas_employee_id', $employeeId)->where('is_paid_off', 0)->orderByDesc('id')->first();
+        //  dd($advance,$emi);
+        $advance = AdvanceApplication::where('created_by', $employeeId)
+            ->where('status', 4)
+            ->orderByDesc('id')
+            ->first();
+// dd($advance);
+        $remainingOutstanding = 0;
+
+        if ($advance) {
+            $totalAmount = $advance->total_amount ?? 0;
+            $monthlyEmi = $advance->monthly_emi_amount ?? 0;
+            $deductionFrom = $advance->deduction_from_period;
+
+            if ($deductionFrom && $monthlyEmi > 0) {
+                $deductionFromDate = Carbon::parse($deductionFrom);
+                $now = Carbon::now();
+
+                // $monthsElapsed = $deductionFromDate->diffInMonths($now) + 1; // include current month
+                $monthsElapsed = $deductionFromDate->diffInMonths($now); // exclude current month
+                $deductedAmount = $monthlyEmi * $monthsElapsed;
+
+                $remainingOutstanding = max(0, $totalAmount - $deductedAmount);
+            } else {
+                $remainingOutstanding = $totalAmount; // no deductions yet
+            }
+            // dd('remainingOutstanding', $remainingOutstanding);
+        }
+        return view(
+            'advance-loan.apply.create',
+            compact(
+                'advanceTypes',
+                'travelAuthorizations',
+                'budgetCodes',
+                'dzongkhags',
+                'sifaInterestRate',
+                'eligibilityAmount',
+                'netPay',
+                'isSifaRegistered',
+                'remainingOutstanding',
+                'advance'
+            )
+        );
     }
 
     public function store(Request $request)
     {
+        //dd($request->all());
         //define validation rules when advance to staff is applied for detail section
         $advanceApplication = new AdvanceApplication();
         $this->validate($request, $this->rules, $this->messages);
@@ -115,14 +184,15 @@ class AdvanceLoanApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
         $attachment = "";
-
- 
+        //dd($approverByHierarchy, $conditionFields, $request->advance_type);
+        
         $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
         $lastTransaction = AdvanceApplication::latest('id')->first();
         $advanceNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
-      
-      
         
+        // dd($approverByHierarchy);
+
+
 
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
@@ -151,28 +221,30 @@ class AdvanceLoanApplicationController extends Controller
             $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
             $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
             $advanceApplication->item_type = $request->item_type ?? null;
-            $advanceApplication->remark = $request->remark ?? null;
+            $advanceApplication->remarks = $request->remarks ?? null;
             $advanceApplication->interest_rate = $request->interest_rate ?? null;
+            $advanceApplication->net_payable = $request->net_payable ?? null;
             $advanceApplication->status = $approverByHierarchy['application_status'];
 
             $advanceApplication->save();
             if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
                 $this->saveAdvanceDetails($request->details, $advanceApplication->id);
             }
-
+            
             // Create a corresponding history record for advance
             // Create a history record it detail code resides in ApplicationHistoriesService classs
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
-
+            
             DB::commit();
-
+            
             if (isset($approverByHierarchy['approver_details'])) {
                 $advanceType = MasAdvanceTypes::where('id', $request->advance_type)->value('name');
                 $emailContent = 'has applied ' . $advanceType . ' for your endorsement.';
                 $emailSubject = 'Advance';
                 Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
             }
+            // dd('advanceApplication', $advanceApplication);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
@@ -188,11 +260,25 @@ class AdvanceLoanApplicationController extends Controller
     {
         $instance = $request->instance();
         $advance = AdvanceApplication::with('advanceType')->findOrFail($id);
+        $empDetails = empDetails($advance->created_by);
         $advanceTypes = MasAdvanceTypes::all();
         $advance->mode_of_travel_name = $this->travelModes[$advance->mode_of_travel] ?? 'Unknown';
 
         $approvalDetail = getApplicationLogs(\App\Models\AdvanceApplication::class, $advance->id);
-        return view('advance-loan.apply.show', compact('advance', 'advanceTypes','approvalDetail'));
+        
+        $employeeId = loggedInUser();
+        $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
+
+        $netPay = DB::table('final_pay_slips')
+            ->where('mas_employee_id', $employeeId)
+            ->where('for_month', $lastMonth)
+            ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
+
+        $netPay = floatval($netPay); // cast safely
+        $eligibilityAmount = min($netPay * 3, 100000);
+        $advance->netPay = $netPay;
+
+        return view('advance-loan.apply.show', compact('advance', 'advanceTypes', 'approvalDetail', 'empDetails', 'eligibilityAmount', 'netPay', 'lastMonth'));
     }
 
 

@@ -11,25 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mas_offices', function (Blueprint $table) {
+        Schema::create('employee_shifts', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('mas_dzongkhag_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
-            $table->decimal('radius', 5,2)->default(100); // Radius in meters
-            $table->boolean('status')->default(1);
+            $table->foreignId('mas_employee_id')->index()->constrained('mas_employees')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('department_shift_id')->index()->constrained('department_wise_shifts')->cascadeOnUpdate()->restrictOnDelete();
+            $table->json('off_days')->nullable()->comment('Array of weekly off days like ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satuarday"]');
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
-    }
+        
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('mas_offices');
+        Schema::dropIfExists('employee_shifts');
     }
 };
