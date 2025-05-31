@@ -90,6 +90,11 @@ class RequisitionDetail extends Model
                     $grnItemDetail->increment('quantity', $remainingQty);
                 }
             }
+
+            if ($requisitionDetail->received_quantity == 0) {
+                $requisitionDetail->is_received = 1;
+                $requisitionDetail->save();
+            }
         });
     }
 }

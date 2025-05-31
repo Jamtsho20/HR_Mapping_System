@@ -270,7 +270,16 @@ class ApiController extends BaseController
                 $reqDetail->save();
             }
 
+
+            $employee = User::find($requisitionAppliciaiton->created_by); // Ensure employee_id exists in requisition
+            if ($employee && $employee->email) {
+                Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $requisitionAppliciaiton));
+            } else {
+                \Log::warning("Email not sent: No email found for user ID {$requisitionAppliciaiton->created_by}");
+            }
+
             DB::commit();
+
             return $this->successResponse($requisitionAppliciaiton, 'Good issue document number saved successfully.');
         }
         catch(\Exception $e){
