@@ -22,7 +22,7 @@ class AdvanceLoanGadgetEmiController extends Controller
 
         try {
 
-            $expenseApplications = AdvanceApplication::where('created_by', $id)->where('type_id', GADGET_EMI)->selectRaw("transaction_no as advance_no")->get();
+            $expenseApplications = AdvanceApplication::where('status', 3)->where('created_by', $id)->where('type_id', GADGET_EMI)->selectRaw("transaction_no as advance_no")->get();
 
 
             return $this->successResponse($expenseApplications, 'Gadget EMI applications retrieved successfully');
