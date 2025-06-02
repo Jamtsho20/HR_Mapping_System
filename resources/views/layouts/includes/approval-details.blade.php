@@ -5,79 +5,129 @@
 
             <td>
                 @foreach ($approvalDetail as $log)
-                    @if ($log->status == 2)
-                        <strong><i class="fa fa-check text-info"></i> Verified By
-                            {{ $log->approver->title }}
-                            {{ $log->approver ? $log->approver->name : 'N/A' }}
-                            on
-                            {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
-                            </strong>
+                @if ($log->status == 2)
+                <strong><i class="fa fa-check text-info"></i> Verified By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
 
-                    @endif
+                @endif
                 @endforeach
             </td>
         </tr>
-            <tr>
-                <td>
-                    @foreach ($approvalDetail as $log)
-                        @if ($log->status == 3)
-                            <strong><i class="fa fa-check text-success"></i> Approved By
-                                {{ $log->approver->title }}
-                                {{ $log->approver ? $log->approver->name : 'N/A' }}
-                                on
-                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
-</strong>
-                        @endif
+        <tr>
+            <td>
+                @foreach ($approvalDetail as $log)
+                @if ($log->status == 3)
+                <strong><i class="fa fa-check text-success"></i> Approved By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
+                @endif
 
-                    @endforeach
-                </td>
-            </tr>
+                @endforeach
+            </td>
+        </tr>
         @elseif ($applicationStatus == -1)
-            <tr>
-                <td>
-                    @foreach ($approvalDetail as $log)
-                        @if ($log->status == -1)
-                            <strong><i class="fa fa-close text-danger"></i> Rejected By
-                                {{ $log->approver->title }}
-                                {{ $log->approver ? $log->approver->name : 'N/A' }}
-                                on
-                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
-</strong>
-                                </td>
-            </tr>
-            <tr>
-                <td style="padding-left:16px;"><strong>Remarks:</strong>
-                    {{ $log->remarks ? $log->remarks : 'N/A' }}</td></tr>
-                        @endif
+        <tr>
+            <td>
+                @foreach ($approvalDetail as $log)
+                @if ($log->status == -1)
+                <strong><i class="fa fa-close text-danger"></i> Rejected By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left:16px;"><strong>Remarks:</strong>
+                {{ $log->remarks ? $log->remarks : 'N/A' }}
+            </td>
+        </tr>
+        @endif
 
-                    @endforeach
+        @endforeach
 
 
         @elseif($applicationStatus == 2)
-            <tr>
+        <tr>
 
-                <td>
-                    @foreach ($approvalDetail as $log)
-                        @if ($log->status == 2)
-                            <strong><i class="fa fa-check text-info"></i> Verified By
-                                {{ $log->approver->title }}
-                                {{ $log->approver ? $log->approver->name : 'N/A' }}
-                                on
-                                {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
-                                </strong>
+            <td>
+                @foreach ($approvalDetail as $log)
+                @if ($log->status == 2)
+                <strong><i class="fa fa-check text-info"></i> Verified By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
 
-                        @endif
-                    @endforeach
-                </td>
-            </tr>
+                @endif
+                @endforeach
+            </td>
+        </tr>
+        @elseif($applicationStatus == 4)
+        <tr>
+
+            <td>
+                @foreach ($approvalDetail as $log)
+                @if ($log->status == 2)
+                <strong><i class="fa fa-check text-info"></i> Verified By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
+
+                @endif
+                @endforeach
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @foreach ($approvalDetail as $log)
+                @if ($log->status == 3)
+                <strong><i class="fa fa-check text-success"></i> Approved By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
+                @endif
+
+                @endforeach
+            </td>
+        </tr>
+        <tr>
+
+            <td>
+                @foreach ($approvalDetail as $log)
+                @if ($log->status == 4)
+                <strong><i class="fa fa-check text-info"></i> Disbursed By
+                    {{ $log->approver->title }}
+                    {{ $log->approver ? $log->approver->name : 'N/A' }}
+                    on
+                    {{ $log->created_at->format('d-m-Y') }} at {{ $log->created_at->format('h:i A') }}
+                </strong>
+
+                @endif
+                @endforeach
+            </td>
+        </tr>
         @else
-            <tr>
-                <th style="width:35%;">Status <span class="pull-right d-none d-sm-block">:</span>
-                    &nbsp;&nbsp;</th>
-                <td style="padding-left:25px;">
-                    Submitted for Approval
-                </td>
-            </tr>
+        <tr>
+            <th style="width:35%;">Status <span class="pull-right d-none d-sm-block">:</span>
+                &nbsp;&nbsp;</th>
+            <td style="padding-left:25px;">
+                Submitted for Approval
+            </td>
+        </tr>
 
         @endif
 

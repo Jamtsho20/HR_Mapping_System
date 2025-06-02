@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('attendance_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->index();
-            $table->string('description')->index();
+            $table->string('code')->index(); // attendance status code
+            $table->string('description')->index(); // attendance status description to display in frontend
             $table->timestamps();
         });
     }

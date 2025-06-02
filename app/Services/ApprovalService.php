@@ -222,10 +222,10 @@ class ApprovalService
     }
 
     private function getApproverDetail($nextLevel)
-    {
-        $approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)
-            ->pluck('role_id')
-            ->first();
+	{
+		$approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)
+			->pluck('role_id')
+			->first();
 
         $delegations = getDelegations($approvingAuthorityRoleId);
         $originalApprover = null;

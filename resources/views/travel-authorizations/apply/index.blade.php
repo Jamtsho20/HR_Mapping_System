@@ -45,7 +45,7 @@
                                                 <th>APPLIED ON</th>
                                                 <th>Travel Authorization number</th>
                                                 <th>Travel Type</th>
-                                                <th>Date</th>
+                                                {{-- <th>Date</th> --}}
                                                 <th>ESTIMATED EXPENSES</th>
                                                 <!-- <th>ADVANCE REQUIRED</th> -->
                                                 <th>STATUS</th>
@@ -62,7 +62,7 @@
                                                 </td>
                                                 <td>{{ $travelAuthorization->transaction_no }}</td>
                                                 <td>{{ $travelAuthorization->travelType->name }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-M-Y') }}</td>
+                                                {{-- <td>{{ \Carbon\Carbon::parse($travelAuthorization->date)->format('d-M-Y') }}</td> --}}
 
                                                 <!-- <td>{{ config('global.travel_modes')[$travelAuthorization->mode_of_travel] ?? 'Unknown' }}</td>  -->
                                                 <td class="text-right">{{ formatAmount($travelAuthorization->estimated_travel_expenses )}}</td>

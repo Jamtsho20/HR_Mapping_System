@@ -228,6 +228,67 @@ class ApiController extends BaseController
         }
     }
 
+
+    public function saveGoodIssueConsumable(Request $request){
+        $rules = [
+            'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
+            'doc_no' => 'required|string',
+        ];
+
+        $messages=[
+            'purchase_req_doc_no.required' => 'Purchase request document number is required',
+            'doc_no.required' => 'Document number is required'
+        ];
+
+         $validator = \Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            \Log::error("Validation error in saveGrnItemMapping: " . json_encode($validator->errors()));
+            return $this->validationErrorResponse($validator->errors());
+        }
+
+        DB::beginTransaction();
+        try {
+
+            $requisitionAppliciaiton = RequisitionApplication::where('doc_no', $request->purchase_req_doc_no)->first();
+            if(!$requisitionAppliciaiton){
+                return $this->errorResponse('Purchase request document number not found.');
+            }
+            $requisitionAppliciaiton->good_issue_doc_no = $request->doc_no;
+
+            $requisitionAppliciaiton->save();
+
+            foreach ($request->details as $detail) {
+
+                $item_id = MasItem::where('item_no', $detail['item_no'])->pluck('id');
+                $store_id = MasStore::where('code', $detail['store'])->pluck('id');
+
+                $reqDetail = RequisitionDetail::where('requisition_id', $requisitionAppliciaiton->id)->where('item_id', $item_id)->where('store_id', $store_id)->first();
+                if (!$reqDetail) {
+                    return $this->errorResponse('Requisition detail not found for item ' . $detail['item_no'] . ' and store ' . $detail['store']);
+                }
+                $reqDetail->received_quantity = $detail['quantity'];
+                $reqDetail->save();
+            }
+
+
+            $employee = User::find($requisitionAppliciaiton->created_by); // Ensure employee_id exists in requisition
+            if ($employee && $employee->email) {
+                Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $requisitionAppliciaiton));
+            } else {
+                \Log::warning("Email not sent: No email found for user ID {$requisitionAppliciaiton->created_by}");
+            }
+
+            DB::commit();
+
+            return $this->successResponse($requisitionAppliciaiton, 'Good issue document number saved successfully.');
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage());
+        }
+
+
+    }
     public function saveGoodsIssued(Request $request)
     {
 
@@ -265,7 +326,6 @@ class ApiController extends BaseController
             $reqApplication->good_issue_doc_no = $request->doc_no;
             //$reqApplication->is_received = 1;
             $reqApplication->save();
-            \Log::info('requestCheck', ['RequestData' => $request->details]);
             foreach ($request->details as $detail) {
                 $grn_id = MasGrnItem::where('grn_no', $detail['grn_no'])->value('id');
 
@@ -301,7 +361,6 @@ class ApiController extends BaseController
 
 
                     if (!empty($line['serials'])) {
-                        \Log::info('checking serials data', ['serials' => $line['serials']]);
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
 
@@ -322,8 +381,6 @@ class ApiController extends BaseController
                             ];
                         }
                         if(!empty($serialsData)){
-                            \Log::info('Inserting serials data', ['serialsData' => $serialsData]);
-                            // \Log::info('Inserting serials data: ' . json_encode($serialsData));
                             ReceivedSerial::insert($serialsData);
                         }
                     }
@@ -635,7 +692,7 @@ class ApiController extends BaseController
                         ]
                     ];
                 }
-           
+
                 $response = $this->sendPostRequest($url, json_encode($postField), $sessionId);
                 if ($response['status'] !== 201) {
                     return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
@@ -706,12 +763,23 @@ class ApiController extends BaseController
                 "AssetClass" => $item['AssetClass'] ?? "Furnitures",  // default to "Furnitures"
                 "AssetGroup" => $item['AssetGroup'] ?? null,
                 "InventoryNumber" => $item['InventoryNumber'] ?? null,
-                "Employee" => $item['Employee'] ?? null,
+                "U_Employee" => $item['U_Employee'] ?? null,
+                "AssetSerialNumber" => $item['AssetSerialNumber'] ?? null,
                 "Location" => $item['Location'] ?? null,
+
+                "ItemProjects" => [
+                        [
+                            "LineNumber" => 0,
+                            "ValidFrom" => $item['ItemProjects'][0]['ValidFrom'] ?? null,
+                            "ValidTo" => $item['ItemProjects'][0]['ValidTo'] ?? null,
+                            "Project" => $item['ItemProjects'][0]['Project'] ?? null,
+                        ]
+                    ]
             ];
 
             // Convert each item to JSON format
             $jsonFormattedItem = json_encode($formattedItem, JSON_PRETTY_PRINT);
+
             $url1='/b1s/v1/Items';
             $response = $this->sendPostRequest($url1,$jsonFormattedItem, $sessionId);
 

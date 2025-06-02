@@ -333,11 +333,9 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>
-                                         @foreach ($asset->serials as $serial)
-                                        {{ $serial->asset_serial_no }}<br>
-                                        @endforeach
+                                        {{ $asset->receivedSerial->asset_serial_no ?? config('global.null_value') }}
                                     </td>
-                                    <td>{{ $asset->grnItemDetail->item->item_description }}</td>
+                                    <td>{{ $asset->item->item_description }}</td>
                                 </tr>
                                 @empty
                                 <tr>

@@ -132,6 +132,11 @@ class User extends Authenticatable
         return $this->hasOne(SystemHierarchyLevel::class, 'mas_employee_id');
     }
 
+    public function employeeInShifts()
+    {
+        return $this->hasMany(EmployeeShift::class, 'mas_employee_id');
+    }
+
     public function isActive()
     {
         return $this->is_active == 1;

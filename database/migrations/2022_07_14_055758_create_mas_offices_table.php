@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('mas_dzongkhag_id')->index()->constrained()->restrictOnDelete()->cascadeOnUpdate();
-            $table->decimal('latitude', 10, 7);
-            $table->decimal('longitude', 10, 7);
-            $table->integer('radius')->default(100); // Radius in meters
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->decimal('radius', 5,2)->default(100); // Radius in meters
             $table->boolean('status')->default(1);
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');

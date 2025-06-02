@@ -57,7 +57,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="purpose">Remark</label>
-                <textarea rows="2" class="form-control" name="remark" id="remark">{{ old('remark') }}</textarea>
+                <textarea rows="2" class="form-control" name="remarks" id="remarks">{{ old('remarks') }}</textarea>
             </div>
         </div>
         <div class="col-md-4">

@@ -53,6 +53,15 @@
                     <option value="-1" {{ request()->get('status') == -1 ? 'selected' : '' }}>Rejected</option>
                 </select>
             </div>
+            <div class="col-md-3 form-group">
+                <label for="">Received:</label>
+                <select class="form-control select" name="is_received" id="">
+                    <option value="" disabled {{ request()->get('is_received') === null ? 'selected' : '' }}>Select Received</option>
+                    <option value="1" {{ request()->get('is_received') === '1' ? 'selected' : '' }}>Received</option>
+                    <option value="0" {{ request()->get('is_received') === '0' ? 'selected' : '' }}>Not Received</option>
+                </select>
+
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -123,6 +132,9 @@
                                                 <th>
                                                     Approved By
                                                 </th>
+                                                <th>
+                                                    Is Received
+                                                </th>
                                                 {{-- <th>
                                                     Action
                                                 </th> --}}
@@ -147,7 +159,7 @@
                                                         </td>
                                                         <td title="{{ $detail->grnItemDetail?->item?->item_description }}">
                                                             {{ \Illuminate\Support\Str::limit($detail->grnItemDetail?->item?->item_description, 25, '...') }}
-                                                        </td>                                                        
+                                                        </td>
                                                         <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}
                                                         </td>
                                                         <td>{{ $detail->grnItemDetail?->store?->name }}</td>
@@ -164,6 +176,13 @@
                                                         <td>{{ config("global.application_status.{$req->status}", 'Unknown') }}
                                                         </td>
                                                         <td>{{ $req->approvedBy->emp_id_name ?? '-' }}</td>
+                                                        <td>
+                                                            @if ($detail->is_received)
+                                                                Received
+                                                            @else
+                                                               Not Received
+                                                            @endif
+                                                        </td>
                                                         {{-- <td>
                                                             @if ($privileges->view)
                                                                 <a href="{{ url('asset-report/commission-report/' . $comm->id) }}"
