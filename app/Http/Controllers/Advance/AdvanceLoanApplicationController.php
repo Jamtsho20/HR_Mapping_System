@@ -185,11 +185,11 @@ class AdvanceLoanApplicationController extends Controller
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->advance_type, \App\Models\MasAdvanceTypes::class, $conditionFields ?? []);
         $attachment = "";
         //dd($approverByHierarchy, $conditionFields, $request->advance_type);
-        
+
         $reqType = MasAdvanceTypes::where('id', $request->advance_type)->first();
         $lastTransaction = AdvanceApplication::latest('id')->first();
         $advanceNo = generateTransactionNumber1($reqType, $lastTransaction, 'transaction_no');
-        
+
         // dd($approverByHierarchy);
 
 
@@ -230,14 +230,14 @@ class AdvanceLoanApplicationController extends Controller
             if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
                 $this->saveAdvanceDetails($request->details, $advanceApplication->id);
             }
-            
+
             // Create a corresponding history record for advance
             // Create a history record it detail code resides in ApplicationHistoriesService classs
             $historyService = new ApplicationHistoriesService();
             $historyService->saveHistory($advanceApplication->histories(), $approverByHierarchy, $request->remarks);
-            
+
             DB::commit();
-            
+
             if (isset($approverByHierarchy['approver_details'])) {
                 $advanceType = MasAdvanceTypes::where('id', $request->advance_type)->value('name');
                 $emailContent = 'has applied ' . $advanceType . ' for your endorsement.';
@@ -265,7 +265,7 @@ class AdvanceLoanApplicationController extends Controller
         $advance->mode_of_travel_name = $this->travelModes[$advance->mode_of_travel] ?? 'Unknown';
 
         $approvalDetail = getApplicationLogs(\App\Models\AdvanceApplication::class, $advance->id);
-        
+
         $employeeId = loggedInUser();
         $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
 
