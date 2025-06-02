@@ -13,7 +13,8 @@ class DsaClaimMappings extends Model
     protected $guarded = [];
 
     protected $fillable = [
-        'travel_authorization_id','dsa_claim_id',
+        'travel_authorization_id',
+        'dsa_claim_id',
         'advance_application_id',
         'ta_amount',
         'advance_amount',

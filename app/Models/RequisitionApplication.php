@@ -77,6 +77,11 @@ class RequisitionApplication extends Model
         if($request->status){
             $query->where('status', $request->status);
         }
+        if($request->is_received !== null){
+        $query->with(['details' => function ($q) use ($request) {
+                $q->where('is_received', $request->is_received);
+            }]);
+        }
 
         if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);

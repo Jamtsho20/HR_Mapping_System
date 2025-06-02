@@ -72,7 +72,11 @@ class RequisitionApplicationController extends Controller
      public function receive(string $id)
      {
         $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
-        return view('asset.requisition-apply.receive', compact('requisition'));
+        if($requisition->type_id == 1){
+            return view('asset.requisition-apply.receive', compact('requisition'));
+        }else{
+            return view('asset.requisition-apply.receive-consumable', compact('requisition'));
+        }
      }
      /**
       * Show the form for creating a new resource.

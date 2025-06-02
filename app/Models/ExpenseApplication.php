@@ -60,11 +60,13 @@ class ExpenseApplication extends Model
         return $this->belongsTo(MasTravelType::class, 'travel_type');
     }
 
-    public function details() {
+    public function details()
+    {
         return $this->hasMany(ExpenseFuelClaimDetail::class, 'expense_id');
     }
 
-    public function vehicle() {
+    public function vehicle()
+    {
         return $this->belongsTo(MasVehicle::class, 'mas_vehicle_id');
     }
 
@@ -79,14 +81,14 @@ class ExpenseApplication extends Model
         if ($request->has('manager') && $request->query('manager') !== '') {
             $query->where('updated_by', $request->query('manager'));
         }
-        
+
         $sapTransNo = trim($request->query('sap_trans_no'));
         if (!empty($sapTransNo)) {
             $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
                 $q->where('status', 3)
-                ->whereNotNull('sap_response')
-                ->whereRaw("JSON_VALID(sap_response)")
-                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
+                    ->whereNotNull('sap_response')
+                    ->whereRaw("JSON_VALID(sap_response)")
+                    ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
             });
         }
 
@@ -103,8 +105,25 @@ class ExpenseApplication extends Model
 
             // Filter by year and month
             $query->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month);
+                ->whereMonth('created_at', $month);
         }
+
+        if ($request->get('date')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('date'));
+
+            // Step 2: Convert each date to Y-m-d format using Carbon
+            $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->format('Y-m-d');
+
+            // Step 3: Apply the date range filter
+            if ($startDate === $endDate) {
+                $query->whereDate('created_at', $startDate);
+            } else {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
+        }
+
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('employee.empJob.department', function ($q) use ($request) {
                 $q->where('id', $request->query('department'));
@@ -116,10 +135,11 @@ class ExpenseApplication extends Model
             });
         }
         if ($request->has('region') && $request->query('region') != '') {
-            $query->whereHas('employee.region', function ($q) use ($request) {
-                $q->where('id', $request->query('region'));
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('mas_region_id', $request->query('region'));
             });
         }
+
         if ($request->has('office') && $request->query('office') != '') {
             $query->whereHas('employee.empJob.office', function ($q) use ($request) {
                 $q->where('id', $request->query('office'));
@@ -132,7 +152,7 @@ class ExpenseApplication extends Model
             });
         }
 
-        if($onesOwnRecord){
+        if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }
     }

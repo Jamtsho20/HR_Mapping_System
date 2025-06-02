@@ -30,7 +30,8 @@ class TravelAuthorizationApplication extends Model
         'date' => 'date',
     ];
 
-    public function employee(){
+    public function employee()
+    {
         return $this->belongsTo(User::class, 'created_by');
     }
 
@@ -40,9 +41,9 @@ class TravelAuthorizationApplication extends Model
     }
 
     public function details()
-{
-    return $this->hasMany(TravelAuthorizationDetails::class, 'travel_authorization_id');
-}
+    {
+        return $this->hasMany(TravelAuthorizationDetails::class, 'travel_authorization_id');
+    }
 
     public function histories()
     {
@@ -63,17 +64,29 @@ class TravelAuthorizationApplication extends Model
         return $this->belongsTo(MasTravelType::class, 'type_id');
     }
 
-     public function dsaadvance() {
+    public function dsaadvance()
+    {
         return $this->hasMany(DsaClaimApplication::class, 'travel_authorization_id');
-     }
+    }
 
-     public function travel_approved_by()
-     {
-         return $this->belongsTo(User::class, 'updated_by');
-     }
+    public function dsaClaim()
+    {
+        return $this->hasMany(DsaClaimApplication::class, 'travel_authorization_id');
+    }
+
+    public function travel_approved_by()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function dsaClaimMappings()
+    {
+        return $this->hasMany(DsaClaimMappings::class, 'travel_authorization_id');
+    }
 
     //accessors and mutations
-    public function getStatusNameAttribute() {
+    public function getStatusNameAttribute()
+    {
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
@@ -88,7 +101,8 @@ class TravelAuthorizationApplication extends Model
     }
 
     // scope filter
-    public function scopeFilter($query, $request, $onesOwnRecord = true){
+    public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
         if ($request->has('status') && $request->query('status') !== '') {
             $query->where('status', '=', $request->query('status'));
         }
@@ -101,7 +115,7 @@ class TravelAuthorizationApplication extends Model
         //     $query->where('date', '=', $request->from_date);
         // }
 
-        if($onesOwnRecord){
+        if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }
         if ($request->get('year')) {
@@ -117,23 +131,22 @@ class TravelAuthorizationApplication extends Model
 
             // Filter by year and month
             $query->whereYear('transaction_date', $year)
-            ->whereMonth('transaction_date', $month);
+                ->whereMonth('transaction_date', $month);
         }
-    // elseif ($request->filled('to_date')) {
-    //     $query->where('date', '<=', $request->to_date);
-    // }
+        // elseif ($request->filled('to_date')) {
+        //     $query->where('date', '<=', $request->to_date);
+        // }
 
-    if ($request->filled('travel_type')) {
-        $query->whereHas('travelType', function ($subQuery) use ($request) {
-            $subQuery->where('name', 'like', '%' . $request->travel_type . '%');
-        });
-    }
+        if ($request->filled('travel_type')) {
+            $query->whereHas('travelType', function ($subQuery) use ($request) {
+                $subQuery->where('name', 'like', '%' . $request->travel_type . '%');
+            });
+        }
 
-    if ($request->has('name') && $request->get('name') != '') {
-        $query->whereHas('employee', function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->get('name') . '%');
-        });
+        if ($request->has('name') && $request->get('name') != '') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('name') . '%');
+            });
+        }
     }
-    }
-
 }

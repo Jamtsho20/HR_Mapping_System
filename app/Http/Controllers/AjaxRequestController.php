@@ -801,6 +801,31 @@ class AjaxRequestController extends Controller
     //     }
     // }
 
+
+    public function receiveConsumable(Request $request)
+        {
+            try{
+                $detail = RequisitionDetail::findOrFail($request->req_detail_id);
+                $detail->received_quantity = $request->quantity;
+                $detail->is_received = true;
+                $detail->save();
+
+                $requisitionId = $detail->requisition_id;
+                 $allReceived = RequisitionDetail::where('requisition_id', $requisitionId)
+                ->where('is_received', '!=', 1)
+                ->doesntExist();
+
+                if ($allReceived) {
+                    $requisition = RequisitionApplication::find($requisitionId);
+                    $requisition->is_received = true;
+                    $requisition->save();
+                }
+                return $this->successResponse($detail);
+            }catch(\Exception $e){
+                return $this->errorResponse($e->getMessage());
+            }
+        }
+
     public function receive(Request $request){
         try {
 

@@ -29,6 +29,22 @@ class FinalPaySlip extends Model
             $query->whereYear('for_month', $year)
                 ->whereMonth('for_month', $month);
         }
+
+        if ($request->get('date')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('date'));
+
+            // Step 2: Convert each date to Y-m-d format using Carbon
+            $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->format('Y-m-d');
+
+            // Step 3: Apply the date range filter
+            if ($startDate === $endDate) {
+                $query->whereDate('for_month', $startDate);
+            } else {
+                $query->whereBetween('for_month', [$startDate, $endDate]);
+            }
+        }
         //specify table name final_pay_slip for loan report where tables are joined
         if ($request->has('employee_id') && $request->get('employee_id')) {
             $query->where('final_pay_slips.mas_employee_id', $request->get('employee_id'));

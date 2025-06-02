@@ -128,6 +128,22 @@ class AdvanceApplication extends Model
             $query->whereYear('transaction_date', $year)
                 ->whereMonth('transaction_date', $month);
         }
+
+        if ($request->get('date')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('date'));
+
+            // Step 2: Convert each date to Y-m-d format using Carbon
+            $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->format('Y-m-d');
+
+            // Step 3: Apply the date range filter
+            if ($startDate === $endDate) {
+                $query->whereDate('transaction_date', $startDate);
+            } else {
+                $query->whereBetween('transaction_date', [$startDate, $endDate]);
+            }
+        }
         if ($request->has('employee') && $request->get('employee')) {
             $query->where('created_by', $request->get('employee'));
         }

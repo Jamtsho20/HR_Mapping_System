@@ -706,6 +706,22 @@ var hrms = function () {
                 });
         });
 
+        // date range picker
+        $('#date-range-picker').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: 'Clear'
+            },
+            maxDate: moment() // set maxDate to current date
+        });
+
+        $('#date-range-picker').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        });
+
+        $('#date-range-picker').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
 
     }
     return {
@@ -1076,7 +1092,7 @@ function showSuccessMessage(message, reload = true, documentReferrer = null, ite
         showCloseButton: false,
 
         willClose: () => {
-            if(itemType){
+            if (itemType) {
                 reloadActiveTab(itemType);
             }
         }
@@ -1092,7 +1108,7 @@ function showSuccessMessage(message, reload = true, documentReferrer = null, ite
     });
 }
 
-function showValidationMessage(message, documentReferrer = null){
+function showValidationMessage(message, documentReferrer = null) {
     Swal.fire({
         icon: 'warning',
         text: message,
@@ -1238,33 +1254,33 @@ function handleAcknowledgment(checkbox, transferId) {
                 body: JSON.stringify({ type: dataType })
 
             })
-            .then(response => {
-                // Ensure the response is JSON
-                $('#loader').hide();
-                if (!response.ok) {
-                    throw new Error('Server responded with status: ' + response.status);
-                }
-
-                return response.json(); // Parse the JSON response
-            })
-            .then(data => {
-                // Check the success field in the response
-                if (data.success) {
-                    checkbox.checked = true;
+                .then(response => {
+                    // Ensure the response is JSON
                     $('#loader').hide();
-                    showSuccessMessage(data.message); // Show success message from the response
-                } else {
-                    showErrorMessage(data.message); // Show error message from the response
-                }
-            })
-            .catch(error => {
-                let errorMessage = 'Failed to acknowledge receipt.';
-                if (error && error.message) {
-                    errorMessage += ' ' + error.message;
-                }
-                $('#loader').hide();
-                showErrorMessage(errorMessage);
-            });
+                    if (!response.ok) {
+                        throw new Error('Server responded with status: ' + response.status);
+                    }
+
+                    return response.json(); // Parse the JSON response
+                })
+                .then(data => {
+                    // Check the success field in the response
+                    if (data.success) {
+                        checkbox.checked = true;
+                        $('#loader').hide();
+                        showSuccessMessage(data.message); // Show success message from the response
+                    } else {
+                        showErrorMessage(data.message); // Show error message from the response
+                    }
+                })
+                .catch(error => {
+                    let errorMessage = 'Failed to acknowledge receipt.';
+                    if (error && error.message) {
+                        errorMessage += ' ' + error.message;
+                    }
+                    $('#loader').hide();
+                    showErrorMessage(errorMessage);
+                });
         },
         () => {
             // If canceled, uncheck the checkbox

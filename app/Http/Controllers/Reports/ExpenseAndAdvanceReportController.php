@@ -102,7 +102,9 @@ class ExpenseAndAdvanceReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $expenses = ExpenseApplication::filter($request, false)->get();
+        $expenses = ExpenseApplication::with(['audit_logs' => function ($query) {
+            $query->where('status', 3);
+        }])->filter($request, false)->whereStatus(3)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.expense-report-pdf', compact('expenses'))->setPaper('a4', 'landscape');;
@@ -117,7 +119,9 @@ class ExpenseAndAdvanceReportController extends Controller
 
     public function printExpense(Request $request)
     {
-        $expenses = ExpenseApplication::filter($request, false)->get();
+        $expenses = ExpenseApplication::with(['audit_logs' => function ($query) {
+            $query->where('status', 3);
+        }])->filter($request, false)->whereStatus(3)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.expense-report-pdf', compact('expenses'))

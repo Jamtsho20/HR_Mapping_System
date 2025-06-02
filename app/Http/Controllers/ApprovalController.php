@@ -360,10 +360,10 @@ class ApprovalController extends Controller
                         "ItemType" => "F",
                         "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
                         "AssetGroup" => null,
-                        "InventoryNumber" => null,
-                        "U_Employee" => $application->employee->username . " " . $application->employee->name,
-                        "AssetSerialNumber" => $detail->receivedSerial->asset_serial_no,
-                        "Location" => null,
+                        "InventoryNumber"=> null,
+                        "U_Employee"=> $application->employee->username ." ".$application->employee->name,
+                        "AssetSerialNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' .$detail->receivedSerial->asset_serial_no,
+                        "Location"=> null,
 
                         "ItemProjects" => [
                             [

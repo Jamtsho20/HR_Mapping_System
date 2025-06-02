@@ -58,9 +58,9 @@
                                                     <th>Dzongkhang*</th>
                                                     <th>Site Name*</th>
                                                     <th>Remark</th>
-                                                    @if ($requisition->type_id == 1)
+
                                                     <th>Quantity Received</th>
-                                                    @endif
+
 
 
                                                 </tr>
@@ -108,11 +108,11 @@
                                                     <td>
                                                         {{$detail->remark ?? config('global.null_value')}}
                                                     </td>
-                                                    @if ($requisition->type_id == 1)
+
                                                     <td>
-                                                        {{ $detail->received_quantity }}
+                                                        {{ $detail->received_quantity ?? config('global.null_value') }}
                                                     </td>
-                                                    @endif
+
 
 
                                                 </tr>

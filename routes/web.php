@@ -504,6 +504,7 @@ Route::middleware('auth')->group(function () {
     Route::post('assets/acknowledge/{id}', 'AjaxRequestController@acknowledge');
     // Route::get('getdelegateeemployee/{roleId}', 'AjaxRequestController@getDelegateeEmployee');
     Route::post('assets/receive', 'AjaxRequestController@receive');
+    Route::post('assets/receive-consumable', 'AjaxRequestController@receiveConsumable');
 });
 
 

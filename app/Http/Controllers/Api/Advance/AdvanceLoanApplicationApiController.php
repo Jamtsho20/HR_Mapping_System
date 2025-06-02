@@ -145,7 +145,7 @@ class AdvanceLoanApplicationApiController extends Controller
                 $advanceApplication->monthly_emi_amount = $request->monthly_emi_amount ?? null;
                 $advanceApplication->deduction_from_period = $request->deduction_from_period ?? null;
                 $advanceApplication->item_type = $request->item_type ?? null;
-                $advanceApplication->remark = $request->remark ?? null;
+                $advanceApplication->remarks = $request->remark ?? null;
                 $advanceApplication->interest_rate = $request->interest_rate ?? null;
                 $advanceApplication->status = $approverByHierarchy['application_status'];
 

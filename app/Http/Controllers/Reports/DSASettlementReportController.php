@@ -40,10 +40,8 @@ class DSASettlementReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $dsaClaim = DsaClaimApplication::with([
-            'audit_logs' => function ($query) {
-                $query->where('status', 3);
-            },
+        $dsaClaim = DsaClaimApplication::whereIn('status', [3, -1])->with([
+            'audit_logs',
             'dsaClaimDetails',
             'dsaClaimMappings.dsaDetails',
             'dsaClaimMappings.travelAuthorization',
@@ -52,7 +50,7 @@ class DSASettlementReportController extends Controller
         ])->filter($request, false)
             ->paginate(config('global.pagination'))
             ->withQueryString();
-
+        // dd($dsaClaim->first());
         return view('report.dsa-settlement-report.index', compact('privileges', 'dsaClaim', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers'));
     }
 
@@ -108,7 +106,7 @@ class DSASettlementReportController extends Controller
 
                 $newDays = $mapping->number_of_days ?? 0; // Ensure total_days is available for each mapping
                 // Replace with actual daily allowance from config or DB
-                $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance;
+                $DAILY_ALLOWANCE = $mapping->dsaDetails->first()->daily_allowance ?? 0;
                 if ($newDays <= 15) {
                     $mapping->formula = "$DAILY_ALLOWANCE * $newDays day(s)";
                 } else {
