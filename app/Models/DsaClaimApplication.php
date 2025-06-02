@@ -29,11 +29,13 @@ class DsaClaimApplication extends Model
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
-    public function dsaClaimDetails() {
+    public function dsaClaimDetails()
+    {
         return $this->hasMany(DsaClaimDetail::class, 'dsa_claim_id');
     }
 
-    public function dsaClaimMappings() {
+    public function dsaClaimMappings()
+    {
         return $this->hasMany(DsaClaimMappings::class, 'dsa_claim_id');
     }
     public function dsaadvance()
@@ -72,12 +74,12 @@ class DsaClaimApplication extends Model
         if (!empty($sapTransNo)) {
             $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
                 $q->where('status', 3)
-                ->whereNotNull('sap_response')
-                ->whereRaw("JSON_VALID(sap_response)")
-                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
+                    ->whereNotNull('sap_response')
+                    ->whereRaw("JSON_VALID(sap_response)")
+                    ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
             });
         }
-        
+
 
         if ($request->get('year')) {
             // Step 1: Split the date range into two parts
@@ -92,7 +94,23 @@ class DsaClaimApplication extends Model
 
             // Filter by year and month
             $query->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month);
+                ->whereMonth('created_at', $month);
+        }
+
+        if ($request->get('date')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('date'));
+
+            // Step 2: Convert each date to Y-m-d format using Carbon
+            $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->format('Y-m-d');
+
+            // Step 3: Apply the date range filter
+            if ($startDate === $endDate) {
+                $query->whereDate('created_at', $startDate);
+            } else {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
         }
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('employee.empJob.department', function ($q) use ($request) {
@@ -122,7 +140,7 @@ class DsaClaimApplication extends Model
         }
 
 
-        if($onesOwnRecord){
+        if ($onesOwnRecord) {
             $query->where('created_by', auth()->user()->id);
         }
     }

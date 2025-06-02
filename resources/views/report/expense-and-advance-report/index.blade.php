@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @section('page-title', 'Expense Report')
 @section('content')
-
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
             <a href="{{ route('expense-excel.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
@@ -19,14 +18,22 @@
     <br>
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-md-2 form-group">
+            {{-- <div class="col-md-2 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-            </div>
+            </div> --}}
             <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Expense" name="expense_type">
+                <input type="text" class="form-control" name="date" id="date-range-picker"
+                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+            </div>
+
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Expense"
+                    name="expense_type">
                     <option value="" disabled="" selected="" hidden="">Select Expense</option>
                     @foreach ($expenses as $expense)
-                        <option value="{{ $expense->id }}" {{ request()->get('expense_type') == $expense->id ? 'selected' : '' }}>
+                        <option value="{{ $expense->id }}"
+                            {{ request()->get('expense_type') == $expense->id ? 'selected' : '' }}>
                             {{ $expense->name }}
                         </option>
                     @endforeach
@@ -107,7 +114,8 @@
             </div>
 
             <div class="col-md-2 form-group">
-                <input class="form-control" type="text" name="sap_trans_no" value="{{ request()->get('sap_trans_no') }}" placeholder="SAP Trans No">
+                <input class="form-control" type="text" name="sap_trans_no" value="{{ request()->get('sap_trans_no') }}"
+                    placeholder="SAP Trans No">
             </div>
         @endcomponent
         <div class="row row-sm">
@@ -278,6 +286,7 @@
                             </div>
                         </div>
                     </div>
+
                     @if ($expenseApplications->hasPages())
                         <div class="card-footer">
                             {{ $expenseApplications->links() }}
@@ -288,11 +297,17 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
-
 @endsection
+@push('page_scripts')
+    {{-- <script>
+        $(function() {
+            $('#date-range-picker').daterangepicker({
+                    opens: 'left'
+                },
+                function(start, end, label) {
+                    console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end
+                        .format('YYYY-MM-DD'));
+                });
+        });
+    </script> --}}
+@endpush

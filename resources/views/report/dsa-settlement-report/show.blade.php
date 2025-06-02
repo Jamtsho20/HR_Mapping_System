@@ -16,7 +16,6 @@
                         <h6>DSA Details</h6>
                     </div>
                 </div>
-
                 @if ($oldDataFlag)
                     <div class="row">
                         <div class="col-md-12">
@@ -43,18 +42,18 @@
                                     <tr>
                                         <th style="width:35%;">Advance Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;">
-                                            {{ $dsa->total_amount ?? config('global.null_value') }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->advance_amount ?? 0) }}</td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Net Payable Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->net_payable_amount ?? '-' }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? '-') }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th style="width:35%;">Balance Amount <span
                                                 class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
-                                        <td style="padding-left:25px;"> {{ $dsa->balance_amount }}</td>
+                                        <td style="padding-left:25px;"> {{ formatAmount($dsa->balance_amount) }}</td>
                                     </tr>
 
 
@@ -111,7 +110,7 @@
                                                 @foreach ($dsa->dsaClaimDetails as $detail)
                                                     <tr>
                                                         <td class="text-center">
-                                                            {{ $loop->iteration }}
+                                                            {{ $detail->id }}
                                                         </td>
                                                         <td>
                                                             {{ \Carbon\Carbon::parse($detail->from_date)->format('d-M-Y') }}
@@ -174,32 +173,40 @@
                             <tr>
                                 <th style="width:35%;">Total Amount <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->amount ?? config('global.null_value') }}</td>
+                                <td style="padding-left:25px;"> {{ formatAmount($dsa->amount ?? 0) }}</td>
                             </tr>
                             <tr>
                             <tr>
                                 <th style="width:35%;">Advance Amount <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->advance_amount ?? config('global.null_value') }}
-                                </td>
+                                <td style="padding-left:25px;">
+                                    {{ formatAmount($dsa->advance_amount ?? config('global.null_value')) }}</td>
                             </tr>
 
                             <tr>
                                 <th style="width:35%;">Net Payable Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;">
-                                    {{ $dsa->net_payable_amount ?? config('global.null_value') }}</td>
+                                    {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Balance Amount <span class="pull-right d-none d-sm-block">:</span>
                                     &nbsp;&nbsp;</th>
-                                <td style="padding-left:25px;"> {{ $dsa->balance_amount ?? config('global.null_value') }}
-                                </td>
+                                <td style="padding-left:25px;">
+                                    {{ formatAmount($dsa->balance_amount ?? config('global.null_value')) }}</td>
                             </tr>
                             <tr>
                                 <th style="width:35%;">Total Number of Days <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ $dsa->total_number_of_days ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:35%;">Applied On <span
+                                        class="pull-right d-none d-sm-block">:</span>&nbsp;&nbsp;</th>
+                                <td style="padding-left:25px;">
+                                    {{ \Carbon\Carbon::parse($dsa->created_at)->format('d-M-Y') }} at
+                                    {{ \Carbon\Carbon::parse($dsa->created_at)->format('h:i A') }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -207,9 +214,7 @@
                     <br>
                     <p class="info-green p-3 pt-0" style="text-indent: -.01em; padding-left: 1em;">
                         <span style="">*</span>
-                        For each travel authorization application, the total number of days,
-                        the formula used for calculating the amount, and the final amount will be
-                        displayed at the end of each application.
+                        The "0.5" in the number of days represents either a half-day duration or a half-day allowance.
                     </p>
                     <div class="dataTables_scroll">
                         <div class="dataTables_scrollHead"
@@ -242,17 +247,20 @@
                                                     <span
                                                         name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]"
                                                         data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                                        Travel Authorization Number: {{ $detail->transaction_no }}
+                                                        Travel Authorization Number:
+                                                        {{ $detail->travelAuthorization->transaction_no }}
                                                     </span>
                                                 </td>
                                                 <td colspan="4" class="text-center"
                                                     style="color: black; font-weight: bold;">
                                                     <span
                                                         name="dsa_claim_detail[{{ $detail->travel_authorization_id ?? '' }}][advance_detail_id]"
-                                                        data-value="{{ $detail->transaction_no ? $detail->transaction_no : '' }}">
-                                                        {{ $detail->transaction_no
-                                                            ? "Advance Number: {$detail->transaction_no}, Advance Amount: " . ($detail->advance_amount ?? 'N/A')
+                                                        data-value="{{ $detail->advanceApplication?->transaction_no ?? '' }}">
+                                                        {{ $detail->advanceApplication
+                                                            ? "Advance Number: {$detail->advanceApplication->transaction_no}, Advance Amount: " .
+                                                                ($detail->advanceApplication->amount ?? 'N/A')
                                                             : 'Advance Number: N/A, Advance Amount: N/A' }}
+
                                                     </span>
                                                 </td>
 
@@ -321,11 +329,6 @@
                                                         value="{{ $detail->number_of_days }}">
                                                 </td>
                                                 <td colspan="5" class="text-center" style="color: black; ">
-                                                    <span style="font-weight: bold;">Formula:</span>
-                                                    <span class="formula-span">
-                                                        {{ $detail->formula }}
-                                                    </span>
-                                                </td>
                                                 <td colspan="1" class="text-center"
                                                     style="color: black;  font-weight: bold;">
                                                     <span>
