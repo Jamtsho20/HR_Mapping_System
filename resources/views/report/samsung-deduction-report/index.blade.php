@@ -20,6 +20,10 @@
             <div class="col-3 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
+            <div class="col-md-2 form-group">
+                <input type="text" class="form-control" name="date" id="date-range-picker"
+                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+            </div>
             <div class="col-3 form-group">
                 <select name="employee_id" class="form-control select2 select2-hidden-accessible"
                     data-placeholder="Select Employee">

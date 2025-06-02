@@ -20,6 +20,10 @@
             <div class="col-3 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
+            <div class="col-md-2 form-group">
+                <input type="text" class="form-control" name="date" id="date-range-picker"
+                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+            </div>
 
 
             <div class="col-md-2 form-group">
@@ -147,10 +151,10 @@
                                                         </th>
 
                                                         <th>
-                                                            DA
+                                                            Daily Allowance
                                                         </th>
                                                         <th>
-                                                            TA
+                                                            Travel Allowance
                                                         </th>
 
                                                         <th>
@@ -195,11 +199,16 @@
                                                                 {{ optional(json_decode(optional($claim->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
                                                             </td>
                                                             <td>{{ $claim->transaction_no }}</td>
-                                                            <td>{{ $claim->total_number_of_days ?? config('global.null_value') }}
+
+                                                            <td>{{ $claim->total_number_of_days ?? $claim->dsaClaimDetails[0]->total_days }}
                                                             </td>
                                                             <td>
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
-                                                                    {{ $claim->dsaClaimMappings->first()->dsaDetails->first()->daily_allowance }}
+                                                                    @php $totalDa = 0; @endphp
+                                                                    @foreach ($claim->dsaClaimMappings as $data)
+                                                                        @php $totalDa += $data->travelAuthorization->daily_allowance; @endphp
+                                                                    @endforeach
+                                                                    {{ $totalDa }}
                                                                 @else
                                                                     {{ $claim->dsaClaimDetails->first()->daily_allowance ?? '-' }}
                                                                 @endif
@@ -219,17 +228,34 @@
                                                                     {{ $claim->travel->transaction_no ?? '-' }}
                                                                 @endif
                                                             </td>
-
-                                                            </td>
                                                             <td>
+                                                                {{-- {{ $claim->dsaadvance->transaction_no ?? $claim->dsaClaimDetails->dsaClaimMapping->advanceApplication->transaction_no }} --}}
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
-                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.transaction_no')->filter()->toArray()) }}
+                                                                    @if ($claim->dsaClaimMappings == null)
+                                                                        {{ config('global.null_value') }}
+                                                                    @else
+                                                                        {{ implode(', ', $claim->dsaClaimMappings->pluck('advanceApplication.transaction_no')->filter()->toArray()) ?? '-' }}
+                                                                    @endif
                                                                 @else
                                                                     {{ $claim->dsaadvance->transaction_no ?? '-' }}
                                                                 @endif
                                                             </td>
 
-                                                            <td>{{ $claim->advance_amount ?? '-' }}</td>
+                                                            <td>
+                                                                @if ($claim->dsaClaimMappings->isNotEmpty())
+                                                                    @php $totalAdvanceAmount = 0; @endphp
+                                                                    @foreach ($claim->dsaClaimMappings as $data)
+                                                                        @php
+                                                                            $totalAdvanceAmount +=
+                                                                                $data->advance_amount;
+                                                                        @endphp
+                                                                    @endforeach
+
+                                                                    {{ $totalAdvanceAmount }}
+                                                                @else
+                                                                    {{ $claim->advance_amount ?? '-' }}
+                                                                @endif
+                                                            </td>
                                                             <td>{{ $claim->net_payable_amount }}</td>
                                                             @php
                                                                 $statusClasses = [
