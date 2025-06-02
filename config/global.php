@@ -192,6 +192,12 @@ return [
         2 => 'badge bg-primary',
         3 => 'badge bg-info',
     ],
+    'season' => [
+        1 => 'Spring',
+        2 => 'Summer',
+        3 => 'Autumn',
+        4 => 'Winter',
+    ],
 
     'applications' => [
         1 => [
@@ -213,7 +219,7 @@ return [
             'post_to_sap' => true,
             'email_subject' => 'Advance',
             'approver_mail_content' => 'has applied {type} for your endorsement.',
-            'initiator_mail_content' => 'Your Loan has been'   
+            'initiator_mail_content' => 'Your Loan has been'
         ],
         4 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
@@ -228,7 +234,7 @@ return [
             'email_subject' => 'Requisition',
             'approver_mail_content' => 'has applied Requisition of {type} for your endorsement.',
             'initiator_mail_content' => 'Your Requisition has been'
-            
+
         ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,
@@ -290,8 +296,8 @@ return [
 
     'seasons' => [
         1 => 'Spring',
-        2 => 'Summer', 
-        3=> 'Autumn', 
+        2 => 'Summer',
+        3 => 'Autumn',
         4 => 'Winter'
     ],
 

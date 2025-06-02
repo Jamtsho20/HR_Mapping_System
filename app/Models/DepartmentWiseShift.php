@@ -21,4 +21,10 @@ class DepartmentWiseShift extends Model
     public function shiftType(){
         return $this->belongsTo(MasShiftType::class, 'type_id');
     }
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('name') && $request->query('name') != '') {
+            $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
+        }
+    }
 }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamps();
         });
         
-
+    }
     /**
      * Reverse the migrations.
      */
@@ -29,4 +29,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('employee_shifts');
     }
+    
 };

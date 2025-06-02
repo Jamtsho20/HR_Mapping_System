@@ -19,10 +19,12 @@ return new class extends Migration
             $table->time('start_time'); // start time
             $table->time('lunch_time_from');
             $table->time('lunch_time_to');
-            $table->time('end_time');// end time
+            $table->time('end_time'); // end time
+            $table->foreignId('created_by')->index()->constrained('mas_employees');
+            $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             // $table->string('start_meridiem', 30)->nullable()->comment('AM/PM');
             // $table->string('end_meridiem', 30)->nullable()->comment('AM/PM');
-            $table->timestamps();
+            $table->$table->timestamps();
         });
     }
 
