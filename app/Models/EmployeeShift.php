@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeShift extends Model
 {
     use HasFactory, CreatedByTrait;
-
     protected $fillable = [
         'mas_employee_id',
         'department_shift_id',
@@ -36,4 +35,5 @@ class EmployeeShift extends Model
         }
         
     }
+
 }

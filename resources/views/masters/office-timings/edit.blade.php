@@ -13,10 +13,7 @@
                         <label for="season">Season <span class="text-danger">*</span></label>
                         <select class="form-control" name="season" id="season" required>
                             <option value="" disabled>Select Season</option>
-                            @php
-                                $seasons = [1 => 'Spring', 2 => 'Summer', 3 => 'Autumn', 4 => 'Winter'];
-                            @endphp
-                            @foreach ($seasons as $key => $label)
+                            @foreach (config('global.seasons') as $key => $label)
                                 <option value="{{ $key }}" {{ old('season', $timing->season) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
@@ -27,12 +24,9 @@
                     <div class="form-group">
                         <label for="start_month">Start Month <span class="text-danger">*</span></label>
                         <select class="form-control" name="start_month" id="start_month" required>
-                            @php
-                                $months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-                            @endphp
                             <option value="" disabled>Select Start Month</option>
-                            @foreach ($months as $month)
-                                <option value="{{ $month }}" {{ old('start_month', $timing->start_month) == $month ? 'selected' : '' }}>{{ $month }}</option>
+                            @foreach (config('global.months') as $key => $label)
+                                <option value="{{ $key }}" {{ old('start_month', $timing->start_month) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -43,8 +37,8 @@
                         <label for="end_month">End Month <span class="text-danger">*</span></label>
                         <select class="form-control" name="end_month" id="end_month" required>
                             <option value="" disabled>Select End Month</option>
-                            @foreach ($months as $month)
-                                <option value="{{ $month }}" {{ old('end_month', $timing->end_month) == $month ? 'selected' : '' }}>{{ $month }}</option>
+                            @foreach (config('global.months') as $key => $label)
+                                <option value="{{ $key }}" {{ old('end_month', $timing->end_month) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>

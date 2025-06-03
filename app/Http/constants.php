@@ -105,7 +105,6 @@ const SITE_SITE=2;
 
 const ASSET_RETURN_TYPE =1;
 
-
 //SAP account constants
 
 

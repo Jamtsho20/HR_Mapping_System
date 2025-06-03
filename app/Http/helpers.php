@@ -6,6 +6,7 @@ use App\Models\LeaveApplication;
 use App\Models\MasAttendanceFeature;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
+use App\Models\MasOfficeTiming;
 use Carbon\Carbon;
 use App\Models\User;
 use Intervention\Image\Facades\Image as Image;
@@ -572,15 +573,42 @@ if (!function_exists('getDeleagteeList')) {
     }
 }
 
-// if(!!function_exists('getAttendanceParams')){
-//     function getAttendanceParams($userId){
-//         $attendanceFeatures = MasAttendanceFeature::whereIn('id', [1, 2])->get();
-//         $userDetails = null;
+if(!function_exists('getMappedMonth')){
+    function getMappedMonth(){
+        $currentMonthStr = strtoupper(Carbon::now()->format('M')); // 'JUN'
+        $currentMonthNum = config('global.months')[$currentMonthStr];
+        return $currentMonthNum;
+    }
+}
 
-//         $userDetails = User::with(['employeeInShifts'])->where('id', $userId)->get();
-//         dd();
-//     }
-// }
+if(!function_exists('getEffectiveOfficeTiming')){
+    function getEffectiveOfficeTiming($userData){
+        $currentMonthNum = getMappedMonth();
+        $officeTiming = [];
+        $office = $userData->empJob->office;
+        $officeTiming['longitude'] = $office->longitude;
+        $officeTiming['latitude'] = $office->latitude;
+        // $officeTiming['raidus'] = $office->raidus . ' ' . config('global.raidus_unit');
+        $officeTiming['raidus'] = $office->raidus;
+        $officeTiming['attendance_buffer_mins'] = config('global.attendance_buffer_mins');
+        if (isset($userData['employeeInShifts']) && isset($userData['employeeInShifts'][0]['departmentShift'])) {
+            $officeTiming['start_time'] = $userData['employeeInShifts'][0]['departmentShift']->start_time;
+            $officeTiming['end_time'] = $userData['employeeInShifts'][0]['departmentShift']->end_time;
+            $officeTiming['shift_name'] = $userData['employeeInShifts'][0]['departmentShift']['shiftType']->name;
+        }else{
+            $defaultOfficeTiming = MasOfficeTiming::where(function ($query) use ($currentMonthNum) {
+                $query->whereRaw('? BETWEEN start_month AND end_month', [$currentMonthNum])
+                    ->orWhereRaw('start_month > end_month AND (? >= start_month OR ? <= end_month)', [$currentMonthNum, $currentMonthNum]);
+            })->select('start_time', 'end_time')->first();
+
+            $officeTiming['start_time'] = $defaultOfficeTiming->start_time;
+            $officeTiming['end_time'] = $defaultOfficeTiming->end_time;
+            $officeTiming['shift_name'] = 'Regular';
+        }
+
+        return $officeTiming;
+    }
+}
 
 
 

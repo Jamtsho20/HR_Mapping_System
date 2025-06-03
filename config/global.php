@@ -11,6 +11,10 @@ return [
 
     'pagination' => 50,
 
+    'attendance_buffer_mins' => 5,
+
+    'raidus_unit' => 'm',
+
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2', 'level 3'],
@@ -192,12 +196,6 @@ return [
         2 => 'badge bg-primary',
         3 => 'badge bg-info',
     ],
-    'season' => [
-        1 => 'Spring',
-        2 => 'Summer',
-        3 => 'Autumn',
-        4 => 'Winter',
-    ],
 
     'applications' => [
         1 => [
@@ -299,6 +297,12 @@ return [
         2 => 'Summer',
         3 => 'Autumn',
         4 => 'Winter'
+    ],
+
+    'months' => [
+        1 => 'JAN', 2 => 'FEB', 3 => 'MAR', 4 =>'APR',
+        5 => 'MAY', 6 => 'JUN', 7 => 'JUL', 8 => 'AUG',
+        9 => 'SEP', 10 => 'OCT', 11 => 'NOV', 12 => 'DEC',
     ],
 
 ];
