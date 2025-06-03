@@ -576,7 +576,7 @@ if (!function_exists('getDeleagteeList')) {
 if(!function_exists('getMappedMonth')){
     function getMappedMonth(){
         $currentMonthStr = strtoupper(Carbon::now()->format('M')); // 'JUN'
-        $currentMonthNum = config('global.months')[$currentMonthStr];
+        $currentMonthNum = array_flip(config('global.months'))[$currentMonthStr];
         return $currentMonthNum;
     }
 }
