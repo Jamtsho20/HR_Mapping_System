@@ -105,6 +105,9 @@ const SITE_SITE=2;
 
 const ASSET_RETURN_TYPE =1;
 
+//Season Constant
+CONST SUMMER = 2;
+CONST WINTER = 4;
 
 //SAP account constants
 

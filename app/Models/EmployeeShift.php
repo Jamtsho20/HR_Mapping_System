@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeShift extends Model
 {
     use HasFactory, CreatedByTrait;
-
     protected $fillable = [
         'mas_employee_id', 'department_shift_id', 'off_days'
     ];
@@ -21,5 +20,9 @@ class EmployeeShift extends Model
     public function masEmployee()
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
+    }
+
+    public function departmentShift(){
+        return $this->belongsTo(DepartmentWiseShift::class, 'department_shift_id');
     }
 }

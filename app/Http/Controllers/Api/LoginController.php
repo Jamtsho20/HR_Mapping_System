@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasAttendanceFeature;
+use App\Models\MasOfficeTiming;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\SystemMenu;
+use Carbon\Carbon;
 
 class LoginController extends Controller
 {
@@ -18,9 +20,8 @@ class LoginController extends Controller
             'username' => 'required',
             'password' => 'required'
         ]);
-
+       
         try {
-            // $user = User::with('empJob')->where('email', $request->username)->orWhere('username', $request->username)->first();
             $user = User::with([
                 'empJob.department:id,name,mas_employee_id',      // Only load the department name
                 'empJob.department.departmentHead:id,name',
@@ -30,17 +31,17 @@ class LoginController extends Controller
                 'empJob.gradeStep:id,name',       // Only load the grade step name
                 'empJob.empType:id,name',         // Only load the employment type name
                 'empJob.supervisor:id,name,username', // Only load the supervisor's name
-                // 'empJob.office:id,name,latitude,longitude,raidus',           // Only load the office name
-                'empJob.office:id,name',           // Only load the office name
-                'roles:id,name'
+                'empJob.office:id,name,latitude,longitude,raidus',           // Only load the office name
+                // 'empJob.office:id,name',           // Only load the office name
+                'roles:id,name',
+                // 'employeeInShifts.departmentShift:id,start_time,end_time',
             ])->where('email', $request->username)
                 ->orWhere('username', $request->username)
                 ->first();
 
             $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
-            // $attendanceFeatures = MasAttendanceFeature::whereIn('id', [1, 2])->get();
-
-            // If user found, return as JSON
+            $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
+            
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
@@ -54,7 +55,8 @@ class LoginController extends Controller
                     'message' => 'Invalid username or password.'
                 ], 401);
             }
-            
+            $officeTiming = getEffectiveOfficeTiming($user);
+
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
             $token = $user->createToken($request->username)->plainTextToken;
 
@@ -62,7 +64,8 @@ class LoginController extends Controller
                 'message' => 'Authenticated',
                 'user' => $user,
                 'menus' => $menus,
-                // 'attendance_features' => $attendanceFeatures,
+                'attendance_features' => $attendanceFeatures,
+                'office_timings' => $officeTiming,
                 'token' => $token,
             ], 200);
         } catch (\Exception $e) {

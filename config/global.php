@@ -11,6 +11,10 @@ return [
 
     'pagination' => 50,
 
+    'attendance_buffer_mins' => 5,
+
+    'raidus_unit' => 'm',
+
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2', 'level 3'],
@@ -293,6 +297,12 @@ return [
         2 => 'Summer', 
         3=> 'Autumn', 
         4 => 'Winter'
+    ],
+
+    'months' => [
+        'JAN' => 1, 'FEB' => 2, 'MAR' => 3, 'APR' => 4,
+        'MAY' => 5, 'JUN' => 6, 'JUL' => 7, 'AUG' => 8,
+        'SEP' => 9, 'OCT' => 10, 'NOV' => 11, 'DEC' => 12,
     ],
 
 ];

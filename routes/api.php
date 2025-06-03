@@ -155,6 +155,10 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('leave_approval', 'LeaveApprovalController');
     });
 
+    Route::namespace('Api\Attendance')->middleware('auth:sanctum')->group(function () {
+        Route::resource('attendance', 'AttendanceController');
+    });
+
     // incoming data from SAP ERP to save store and item as SAP team will be pushing data
     Route::namespace('Api\SAP')->middleware('auth:sanctum')->group(function () {
         Route::post('save-stores', [ApiController::class, 'saveStore']);
