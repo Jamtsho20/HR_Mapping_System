@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
 use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
 use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
 use App\Http\Controllers\Api\HolidayListController;
+use App\Http\Controllers\Api\Attendance\AttendanceApiController;
 use App\Http\Controllers\Api\Leave\LeaveApplicationController;
 use App\Http\Controllers\Api\Leave\LeaveEncashmentApplicationController;
 use App\Http\Controllers\Api\Leave\LeaveEncashmentApprovalController;
@@ -156,7 +157,8 @@ Route::middleware('api.access.log')->group(function () {
     });
 
     Route::namespace('Api\Attendance')->middleware('auth:sanctum')->group(function () {
-        Route::resource('attendance', 'AttendanceController');
+        Route::resource('attendance', 'AttendanceApiController');
+        // Route::get('get-attendance-initial-data', [AttendanceApiController::class, 'getAttendanceInitialData']);
     });
 
     // incoming data from SAP ERP to save store and item as SAP team will be pushing data

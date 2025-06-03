@@ -45,6 +45,7 @@ class DelegationApiController extends Controller
             return $this->errorResponse($e->getMessage());
         }
     }
+    
     public function create()
     {
         try {
