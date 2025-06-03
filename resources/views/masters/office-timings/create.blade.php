@@ -11,7 +11,7 @@
                     <label for="season" class="form-label">Season <span class="text-danger">*</span></label>
                     <select name="season" id="season" class="form-select" required>
                         <option value="" disabled selected>-- Select Season --</option>
-                        @foreach(config('global.season') as $key => $value)
+                        @foreach(config('global.seasons') as $key => $value)
                         <option value="{{ $key }}">{{ $value }}</option>
                         @endforeach
                     </select>

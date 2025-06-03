@@ -59,9 +59,9 @@
                                                 @forelse($officeTimings as $timing)
                                                 <tr>
                                                     <td>{{ $officeTimings->firstItem() + ($loop->iteration - 1) }}</td>
-                                                    <td>{{ config('global.season')[$timing->season] ?? 'N/A' }}</td>
-                                                    <td>{{ $timing->start_month }}</td>
-                                                    <td>{{ $timing->end_month }}</td>
+                                                    <td>{{ $timing->season_name }}</td>
+                                                    <td>{{ $timing->start_month_name }}</td>
+                                                    <td>{{ $timing->end_month_name }}</td>
                                                     <td>{{ $timing->start_time }}</td>
                                                     <td>{{ $timing->lunch_time_from }}</td>
                                                     <td>{{ $timing->end_time }}</td>
