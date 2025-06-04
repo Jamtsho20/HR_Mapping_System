@@ -18,10 +18,10 @@ class SamsungDeductionReportController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:report/loan-report,view')->only('index');
-        $this->middleware('permission:report/loan-report,create')->only('store');
-        $this->middleware('permission:report/loan-report,edit')->only('update');
-        $this->middleware('permission:report/loan-report,delete')->only('destroy');
+        $this->middleware('permission:report/samsung-deduction-report,view')->only('index');
+        $this->middleware('permission:report/samsung-deduction-report,create')->only('store');
+        $this->middleware('permission:report/samsung-deduction-report,edit')->only('update');
+        $this->middleware('permission:report/samsung-deduction-report,delete')->only('destroy');
     }
     public function index(Request $request)
     {
