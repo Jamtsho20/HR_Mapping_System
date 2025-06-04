@@ -31,7 +31,7 @@
                     <div class="form-group">
                         <label for="requisition_date">Requisition Date <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="requisition_date"
-                            value="{{ old('requisition_date', date('Y-m-d')) }}" readonly>
+                            value="{{ old('requisition_date', date('Y-m-d')) }}" required>
 
                             <input type="hidden" name="total_quantity_required" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
 
