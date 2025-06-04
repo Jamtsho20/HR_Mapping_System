@@ -193,11 +193,18 @@ class RequisitionApplicationController extends Controller
      }
 
 
+     public function inventory(Request $request)
+     {
+         $grns = MasGrnItem::with('detail')->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+         return view('asset.requisition-apply.inventory', compact('grns'));
+     }
+
+
      private function saveDetails($details, $requisitionId, $typeId)
      {
          $existingIds = [];
          foreach ($details as $detail) {
-           
+
              $grn_item = null;
              $grn_item_id = null;
              $grn_item_detail_id = null;

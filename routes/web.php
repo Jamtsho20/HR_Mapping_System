@@ -416,6 +416,7 @@ Route::middleware('auth')->group(function () {
         Route::get('requisition/{id}/receive', 'RequisitionApplicationController@receive')->name('requisition.receive');
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
+        Route::get('inventory', 'RequisitionApplicationController@inventory')->name('asset.inventory');
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
 
 
