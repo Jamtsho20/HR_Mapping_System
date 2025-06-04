@@ -22,6 +22,7 @@ use App\Models\MasGrnItem;
 use App\Models\MasGrnItemDetail;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationForwardedMail;
+use App\Models\AssetUnitOfMeasurement;
 use App\Http\Controllers\Api\SAP\ApiController;
 
 class RequisitionApplicationApiController extends Controller
@@ -49,7 +50,7 @@ class RequisitionApplicationApiController extends Controller
          ];
 
          protected $messages = [
-            'details.*.item_description.required' => 'The item description is required for each detail item.',
+            'details.*.item_id.required' => 'The item id is required for each detail item.',
             'details.*.store.required' => 'The store is required for each detail item.',
             // 'details.*.stock_status.required' => 'The stock status is required for each detail item.',
             'details.*.quantity_required.required' => 'The quantity is required for each detail item.',
@@ -84,7 +85,7 @@ class RequisitionApplicationApiController extends Controller
             $items = MasItem::where('is_fixed_asset', 0)->select('id','item_no', 'item_description', 'uom')->get();
            $stores = MasStore::where('status', 1)->select('id', 'name', 'code')->get();
            $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Leave applications retrieved successfully');
+           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Requisition applications retrieved successfully');
             }catch(\Exception $e){
                 return $this->errorResponse($e->getMessage());
             }
@@ -179,42 +180,57 @@ class RequisitionApplicationApiController extends Controller
              $grn_item = null;
              $grn_item_id = null;
              $grn_item_detail_id = null;
+             $newStock = null;
+             $uomId = AssetUnitofMeasurement::where('name', $detail['uom'])->firstOrFail()->id;
+             if($uomId == null){
+                 return $this->errorResponse('Selected uom not found, contact admin.');
+                }
 
-             // Handle GRN-based requisition (type_id == 1)
-             if (!empty($detail['grn_item_id'])) {
-                 $grnId = $detail['grn_item_id'];
+                // Handle GRN-based requisition (type_id == 1)
+                if (!empty($detail['grn_item_id'])) {
+                    $grnData = $detail['grn_item_id'];
 
-                 if ($grnId) {
-                    $grn_item = MasGrnItemDetail::where('id', $grnId)
-                    ->firstOrFail();
-                         if (!$grn_item) {
-                            throw new \Exception('GRN item not found');
-                        } else {
-                            $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
-                            $grn_item->update(['quantity' => $newStock]);
+                    if ($grnData) {
+                        $grn_item = MasGrnItemDetail::where('grn_id', $grnData)
+                        ->where('store_id', $detail['store'])
+                        ->where('item_id', $detail['item_id'])
+                        ->first();
 
+                        $conversionFlag = isset($detail['conversion']) && strtolower($detail['conversion']) !== 'false';
+
+                        if ($grn_item) {
+                            $newStock=0;
+                            if($conversionFlag == false){
+                                $newStock = max(0, $grn_item->quantity - $detail['quantity_required']);
+                                $grn_item->update(['quantity' => $newStock]);
+                            }
                             $grn_item_id = $grn_item->grn_id;
                             $grn_item_detail_id = $grn_item->id;
+                        }else{
+                            return $this->errorResponse('GRN item not found, contact admin.');
                         }
-                 }
-             }
+                    }
+                }
 
-             $data = [
-                 'requisition_id' => $requisitionId,
-                 'status' => 1,
-                 'requested_quantity' => $detail['quantity_required'],
-                 'dzongkhag_id' => $detail['dzongkhag'],
-                 'site_id' => $detail['site_name'],
-                 'remark' => $detail['remark'],
-             ];
+                $data = [
+                    'requisition_id' => $requisitionId,
+                    'status' => 1,
+                    'requested_quantity' => $detail['quantity_required'],
+                    'dzongkhag_id' => $detail['dzongkhag'],
+                    'site_id' => $detail['site_name'],
+                    'uom' => $uomId,
+                    'remark' => $detail['remark'],
+                ];
 
-             if ($typeId == 1) {
-                 $data['grn_item_id'] = $grn_item_id;
+                if ($typeId == 1) {
+                    $data['grn_item_id'] = $grn_item_id;
                  $data['grn_item_detail_id'] = $grn_item_detail_id;
-             } else {
-                 $data['item_id'] = $detail['item_description'];
+                 $data['current_stock'] = $newStock;
+
+                } else {
+                 $data['item_id'] = $detail['item_id'];
                  $data['store_id'] = $detail['store'];
-                 $data['current_stock'] = $detail['stock_status'];
+                 $data['current_stock'] = $detail['stock_status'] - $detail['quantity_required'];
              }
 
 
@@ -223,19 +239,21 @@ class RequisitionApplicationApiController extends Controller
                  if ($existingDetail) {
                      $existingDetail->update($data);
                      $existingIds[] = $existingDetail->id;
-                 }
-             } else {
-                 $newDetail = RequisitionDetail::create($data);
-                 if ($newDetail) {
-                     $existingIds[] = $newDetail->id;
-                 }
-             }
-         }
+                    }
+                } else {
+                    $newDetail = RequisitionDetail::create($data);
+                    if ($newDetail) {
+                        $existingIds[] = $newDetail->id;
+                    }
+                }
+            }
 
-         // Cleanup: delete details that are no longer present
-         RequisitionDetail::where('requisition_id', $requisitionId)
-             ->whereNotIn('id', $existingIds)
-             ->delete();
+            // Cleanup: delete details that are no longer present
+            RequisitionDetail::where('requisition_id', $requisitionId)
+            ->whereNotIn('id', $existingIds)
+            ->delete();
+
+
      }catch(\Exception $e){
          return $this->errorResponse($e->getMessage());
      }

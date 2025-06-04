@@ -79,12 +79,15 @@ class TransferClaimApplicationController extends Controller
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->transfer_claim, \App\Models\MasTransferClaim::class, $conditionFields ?? []);
 
-        $transferClaimType = MasTransferClaim::where('id', $request->expense_type)->first();
+        // $transferClaimType = MasTransferClaim::where('id', $request->expense_type)->first();
+        $transferClaimType = MasTransferClaim::where('id', $request->transfer_claim)->first();
+
+       // dd($request->all());
         $lastTransaction = TransferClaimApplication::latest()->first();
+        //dd($transferClaimType, $lastTransaction);
         $transferClaimNo = generateTransactionNumber1($transferClaimType, $lastTransaction, 'transaction_no');
 
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
-
         if (TransferClaimApplication::where('transaction_no', $transferClaimNo)->exists()) {
             // If the travel number already exists, throw an exception or return an error
             return back()->withInput()->with('msg_error', 'Transfer Claim Application Number already exists. Please try again.');

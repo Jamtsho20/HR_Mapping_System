@@ -37,13 +37,13 @@ class CommissionApplicationApiController extends Controller
         'commission_date' => 'required',
         'grn' => 'required',
         // 'attachments' => 'nullable|file|mimes:pdf,jpg,png,docx|max:2048',
-        'details.*.asset_no' => 'required',
+        'details.*.asset_id' => 'required',
         'details.*.date_placed_in_service' => 'required',
         'details.*.site' => 'required',
      ];
 
      protected $messages = [
-        'details.*.asset_no.required' => 'The asset no is required for each detail item.',
+        'details.*.asset_id.required' => 'The asset no is required for each detail item.',
         'details.*.date_placed_in_service.required' => 'The date placed in service is required for each detail item.',
         'details.*.site.required' => 'The site is required for each detail item.',
     ];
@@ -54,7 +54,7 @@ class CommissionApplicationApiController extends Controller
     public function index(Request $request)
     {
         try {
-            $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->orderBy('created_at', 'desc')->get();
+            $commissions = AssetCommissionApplication::filter($request)->orderByDesc('created_at')->get();
             $mappedModel = 'App\Models\AssetCommissionApplication';
             $commissions->map(function ($commission) use ($mappedModel) {
                 return loadApplicationDetails($commission, $mappedModel);
@@ -70,28 +70,52 @@ class CommissionApplicationApiController extends Controller
     {
         try{
         // only fixed asset can be commissioned
-        $requisitions = RequisitionApplication::with(['details.grnItem','details.grnItemDetail.item',  'details.serials'])->where('type_id', FIXED_ASSET)
-            ->where('is_received', 1)
-            ->where('created_by', auth()->user()->id)
-            ->get();
+        $requisitions = RequisitionApplication::with([
+                'details' => function ($q) {
+                    $q->whereHas('serials', function ($query) {
+                        $query->where('is_received', 1)
+                            ->where('is_commissioned', '<>', 1);
+                    });
+                },
+                'details.grnItem',
+                'details.serials' => function ($query) {
+                    $query->where('is_received', 1)
+                        ->where('is_commissioned', '<>', 1);
+                    }
+                ])
+                ->where('type_id', FIXED_ASSET)
+                ->where('is_received', 1)
+                ->where('created_by', auth()->user()->id)
+                ->whereHas('details.serials', function ($query) {
+                    $query->where('is_received', 1)
+                        ->where('is_commissioned', '<>', 1);
+                })
+                ->get();
+
+        $response = $requisitions->map(function ($requisition) {
+            return [
+                'id' => $requisition->id,
+                'transaction_no' => $requisition->transaction_no,
+                'details' => $requisition->details->map(function ($detail) {
+                    return ['id' => $detail->id];
+                })->values(),
+            ];
+        });
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-        $simplifiedRequisitions = $requisitions->flatMap(function ($req) {
-            $transactionNo = $req->transaction_no;
-            return collect($req->details)->map(function ($detail) use ($transactionNo) {
-                return [
-                    'req_no' => $transactionNo,
-                    'id' => $detail->id,
-                    'grn_item' => $detail->grnItem ?? null,
-                ];
-            });
-        })->values();
+            // $simplifiedRequisitions = $requisitions->flatMap(function ($req) {
+            //     $transactionNo = $req->transaction_no;
+            //     return collect($req->details)->map(function ($detail) use ($transactionNo) {
+            //         return [
+            //             'req_no' => $transactionNo,
+            //             'id' => $detail->id,
+            //             'grn_item' => $detail->grnItem ?? null,
+            //         ];
+            //     });
+            // })->values();
 
+            return $this->successResponse([
 
-        $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-
-        return $this->successResponse([
-
-            'grns' => $simplifiedRequisitions, 'dzongkhags'=>$dzongkhags], 'Commission applications retrieved successfully');
+                'grns' => $response, 'dzongkhags'=>$dzongkhags], 'Commission applications retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -100,6 +124,7 @@ class CommissionApplicationApiController extends Controller
 
     public function store(Request $request)
     {
+
         // Add file validation only if a file is uploaded
         if ($request->hasFile('attachments')) {
             $this->rules['attachments'] = 'array'; // Ensure attachments is an array
@@ -136,8 +161,8 @@ class CommissionApplicationApiController extends Controller
                 'type_id' => COMMISSION_TYPE,
                 'transaction_no' => $transactionNo,
                 'transaction_date' => $request->commission_date,
-                'requisition_detail_id' => $request->grn,
-                'file' => !empty($attachments) ? json_encode($attachments) : [],
+                 'requisition_id' => $request->grn,
+                'file' => !empty($attachments) ? json_encode($attachments) : null,
                 'status' => $approverByHierarchy['application_status'],
             ]);
 
@@ -145,7 +170,7 @@ class CommissionApplicationApiController extends Controller
             if ($request->has('details')) {
                 foreach ($request->details as $detail) {
                     $commissionApplication->details()->create([
-                        'received_serial_id' => $detail['asset_no'],
+                        'received_serial_id' => $detail['asset_id'],
                         'date_placed_in_service' => $detail['date_placed_in_service'],
                         'dzongkhag_id' => $detail['dzongkhag'],
                         'office_id' => $detail['office'] ?? null,

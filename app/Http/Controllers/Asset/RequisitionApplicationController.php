@@ -138,7 +138,7 @@ class RequisitionApplicationController extends Controller
                 try{
                     Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
                 }catch(\Exception $e){
-                    \Log::error('Error sending mail for DSA Claim/Settlement' . $e->getMessage());
+                    \Log::error('Error sending mail for requisition application: ' . $e->getMessage());
                 }
            }
 
@@ -197,6 +197,7 @@ class RequisitionApplicationController extends Controller
      {
          $existingIds = [];
          foreach ($details as $detail) {
+           
              $grn_item = null;
              $grn_item_id = null;
              $grn_item_detail_id = null;
