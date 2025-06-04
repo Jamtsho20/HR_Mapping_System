@@ -144,6 +144,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('approval-head', 'ApprovalHeadController');
         Route::resource('approving-authorities', 'ApprovingAuthorityController')->except('show');
         Route::resource('condition-fields', 'ConditionFieldController');
+        Route::resource('mas-attendance-features', 'MasAttendanceFeaturesController');
 
 
         // Approval Conditions
@@ -179,6 +180,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('vehicles', 'VehicleController');
         Route::resource('budget-code', 'BudgetCodeController');
         Route::resource('loan-types', 'MasLoanTypeController');
+        Route::resource('office-timings', 'MasOfficeTimingsController');
+        Route::resource('shift-types', 'MasShiftTypesController');
+        Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
 
     // WORK STRUCTURE
@@ -275,6 +279,7 @@ Route::middleware('auth')->group(function () {
     // Eployee
     Route::namespace('Employee')->prefix('employee')->group(function () {
         Route::resource('employee-lists', 'EmployeeController');
+        Route::resource('shift-employee', 'ShiftEmployeeController');
         Route::get('/employee/details', [EmployeeController::class, 'showEmployeeDetails'])->name('employee.details');
         Route::get('regularize-employee', [EmployeeController::class, 'showRegularizeDetails'])->name('employee.regularize');
         Route::patch('regularize-toggle-status', 'EmployeeController@toggleStatus')->name('employee-regularize.toggles-status');

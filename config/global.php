@@ -11,6 +11,10 @@ return [
 
     'pagination' => 50,
 
+    'attendance_buffer_mins' => 5,
+
+    'raidus_unit' => 'm',
+
     'holiday_types' => ['Government', 'Private'],
 
     'level' => ['level 1', 'level 2', 'level 3'],
@@ -213,7 +217,7 @@ return [
             'post_to_sap' => true,
             'email_subject' => 'Advance',
             'approver_mail_content' => 'has applied {type} for your endorsement.',
-            'initiator_mail_content' => 'Your Loan has been'   
+            'initiator_mail_content' => 'Your Loan has been'
         ],
         4 => [
             'name' => App\Models\LeaveEncashmentApplication::class,
@@ -228,7 +232,7 @@ return [
             'email_subject' => 'Requisition',
             'approver_mail_content' => 'has applied Requisition of {type} for your endorsement.',
             'initiator_mail_content' => 'Your Requisition has been'
-            
+
         ],
         6 => [
             'name' => App\Models\TransferClaimApplication::class,
@@ -290,9 +294,15 @@ return [
 
     'seasons' => [
         1 => 'Spring',
-        2 => 'Summer', 
-        3=> 'Autumn', 
+        2 => 'Summer',
+        3 => 'Autumn',
         4 => 'Winter'
+    ],
+
+    'months' => [
+        1 => 'JAN', 2 => 'FEB', 3 => 'MAR', 4 =>'APR',
+        5 => 'MAY', 6 => 'JUN', 7 => 'JUL', 8 => 'AUG',
+        9 => 'SEP', 10 => 'OCT', 11 => 'NOV', 12 => 'DEC',
     ],
 
 ];

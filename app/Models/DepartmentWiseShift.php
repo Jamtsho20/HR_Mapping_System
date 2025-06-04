@@ -21,4 +21,14 @@ class DepartmentWiseShift extends Model
     public function shiftType(){
         return $this->belongsTo(MasShiftType::class, 'type_id');
     }
+
+    public function deptShiftEmployees(){
+        return $this->hasMany(EmployeeShift::class, 'department_shift_id');
+    }
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('name') && $request->query('name') != '') {
+            $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
+        }
+    }
 }
