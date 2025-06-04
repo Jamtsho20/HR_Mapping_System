@@ -43,7 +43,7 @@ class TransferClaimReportController extends Controller
         $claimTypes = MasTransferClaim::whereStatus(1)->get(['id', 'name']);
         $trasferClaims = TransferClaimApplication::with(['audit_logs' => function($query){
             $query->where('status', 3); 
-        }])->filter($request, false)->paginate(config('global.pagination'))->withQueryString();
+        }])->where('status', 3)->filter($request, false)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.transfer-claim-report.index', compact('privileges', 'trasferClaims', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers', 'claimTypes'));
     }

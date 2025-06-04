@@ -205,7 +205,7 @@
 
                                                                 {{ $statusText }}
                                                             </td>
-                                                            <td>{{ $transfer->transfer_approved_by->name }}</td>
+                                                            <td>{{ $transfer->transfer_approved_by->name ?? '-' }}</td>
                                                             <td>{{ $transfer->updated_at->format('m-d-y') }}</td>
                                                         </tr>
                                                     @empty
