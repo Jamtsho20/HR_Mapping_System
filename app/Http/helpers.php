@@ -536,9 +536,13 @@ if (!function_exists('getDeleagteeList')) {
     {
         $employees = [];
         if ($roleId == DEPARTMENT_HEAD) {
-            $departmentId = MasEmployeeJob::where('mas_emloyee_id', auth()->user()->id)->value('mas_department_id');
+            $departmentId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('mas_department_id');
             $employees = User::whereHas('empJob', function ($query) use ($departmentId) {
-                $query->where('mas_section_id', $departmentId);
+                $query->where('mas_department_id', $departmentId);
+            })
+            //if they want all user from department then comment out this below query where it checks for role
+            ->whereHas('roles', function ($query1) {
+                $query1->where('roles.id', IMMEDIATE_HEAD); // assuming role has `name` column
             })
                 ->get()->map(function ($user) {
                     return [
@@ -569,6 +573,7 @@ if (!function_exists('getDeleagteeList')) {
                     ];
                 });
         }
+
         return $employees;
     }
 }
