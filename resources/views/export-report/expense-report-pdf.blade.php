@@ -69,10 +69,13 @@
                 </th>
 
                 <th>
-                    Employee ID
+                    Applied On
                 </th>
                 <th>
                     Employee NAME
+                </th>
+                <th>
+                    Employee ID
                 </th>
                 <th>
                     DESIGNATION
@@ -81,7 +84,16 @@
                     Department
                 </th>
                 <th>
+                    Region
+                </th>
+                <th>
+                    Office Location
+                </th>
+                <th>
                     Expense Type
+                </th>
+                <th>
+                    Sap Trans No
                 </th>
                 <th>
                     Vehicle No
@@ -90,7 +102,7 @@
                     Expense No
                 </th>
                 <th>
-                    Expense Amount
+                    Expense Amount (Nu.)
                 </th>
                 <th>
                     Travel Type
@@ -111,7 +123,7 @@
                     Travel To
                 </th>
                 <th>
-                    Travel Distance
+                    Travel Distance (km)
                 </th>
 
                 <th>
@@ -123,27 +135,36 @@
                 <th>
                     Approved By
                 </th>
+                <th>
+                    Approved On
+                </th>
             </tr>
         </thead>
         <tbody>
             @forelse($expenses as $application)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td style="text-align: right;">{{ $loop->iteration }}</td>
+                    <td style="text-align: right;">{{ getDisplayDateFormat($application->created_at) }}</td>
+                    <td>{{ $application->employee->emp_name }}</td>
                     <td>{{ $application->employee->username }}</td>
-                    <td>{{ $application->employee->name }}</td>
                     <td>{{ $application->employee->empJob->designation->name }}</td>
                     <td>{{ $application->employee->empJob->department->name }}</td>
+                    <td>{{ $application->employee->empJob->office->region->name }}</td>
+                    <td>{{ $application->employee->empJob->office->name }}</td>
                     <td>{{ $application->type->name }}</td>
+                    <td style="text-align: right;">
+                        {{ optional(json_decode(optional($application->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                    </td>
                     <td>{{ $application->vehicle->vehicle_no ?? '-' }}</td>
                     <td>{{ $application->transaction_no }}</td>
-                    <td>{{ $application->amount }}</td>
+                    <td style="text-align: right;">{{ formatAmount($application->amount, false) }}</td>
                     <td>{{ $application->travel_type }}</td>
                     <td>{{ $application->travel_mode }}</td>
-                    <td>{{ $application->travel_from_date }}</td>
-                    <td>{{ $application->travel_to_date }}</td>
+                    <td style="text-align: right;">{{ getDisplayDateFormat($application->travel_from_date) }}</td>
+                    <td style="text-align: right;">{{ getDisplayDateFormat($application->travel_to_date) }}</td>
                     <td>{{ $application->travel_from }}</td>
                     <td>{{ $application->travel_to }}</td>
-                    <td>{{ $application->travel_disatnce }}</td>
+                    <td style="text-align: right;">{{ $application->travel_distance }}</td>
                     <td>{{ $application->description }}</td>
                     @php
                         $statusClasses = [
@@ -160,7 +181,8 @@
 
                         {{ $statusText }}
                     </td>
-                    <td>{{ $application->expense_approved_by->name ?? '-' }}</td>
+                    <td>{{ $application->expense_approved_by->emp_name ?? config('global.null_value') }}</td>
+                    <td style="text-align: right;">{{ getDisplayDateFormat($application->updated_at) ?? config('global.null_value') }}</td>
                 </tr>
             @empty
                 <tr>

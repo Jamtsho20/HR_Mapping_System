@@ -242,6 +242,11 @@ class User extends Authenticatable
         return $this->username . ' - ' . $this->title . ' ' . $this->name;
     }
 
+    public function getEmpNameAttribute() //combination of title and full name while display
+    {
+        return $this->title . ' ' . $this->name;
+    }
+
     public function getMaritalStatusNameAttribute()
     {
         $maritalStatusMapping = config('global.marital_status');

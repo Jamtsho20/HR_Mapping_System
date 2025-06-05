@@ -99,7 +99,9 @@ class TransferClaimReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $trasferClaims = TransferClaimApplication::filter($request, false)->get();
+        $trasferClaims = TransferClaimApplication::with(['audit_logs' => function($query){
+            $query->where('status', 3); 
+        }])->whereStatus(3)->filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.transfer-claim-report-pdf', compact('trasferClaims'))->setPaper('a4', 'landscape');;
@@ -114,7 +116,7 @@ class TransferClaimReportController extends Controller
 
     public function printTransferClaim(Request $request)
     {
-        $trasferClaims = TransferClaimApplication::filter($request, false)->get();
+        $trasferClaims = TransferClaimApplication::whereStatus(3)->filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.transfer-claim-report-pdf', compact('trasferClaims'))

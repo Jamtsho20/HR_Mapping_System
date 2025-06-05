@@ -63,57 +63,77 @@
                     #
                 </th>
                 <th>
-                    Employee name
+                    Applied On
                 </th>
                 <th>
-                    designation
+                    Employee Name
                 </th>
                 <th>
-                    department
+                    Employee Id
                 </th>
                 <th>
-                    Transfer Claim type
+                    Designation
                 </th>
                 <th>
-                    from location
+                    Department
+                </th>
+                <th>
+                    Region
+                </th>
+                <th>
+                    Office Location
+                </th>
+                <th>
+                    Transfer Claim Type
+                </th>
+                <th>
+                    Sap Trans No
+                </th>
+                <th>
+                    From Location
                 </th>
 
                 <th>
-                    distance
+                    Distance (km)
                 </th>
 
                 <th>
-                    current location
+                    Current Location
                 </th>
                 <th>
-                    expense amount
+                    Expense Amount (Nu.)
                 </th>
                 <th>
                     Status
                 </th>
 
                 <th>
-                    approved by
+                    Approved By
                 </th>
                 <th>
-                    approved date
+                    Approved On
                 </th>
-
-
             </tr>
         </thead>
         <tbody>
             @forelse($trasferClaims as $transfer)
             <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{$transfer->employee->name}}</td>
-                <td>{{$transfer->employee->empJob->designation->name}}</td>
-                <td>{{$transfer->employee->empJob->department->name}}</td>
-                <td>{{$transfer->type->name}}</td>
-                <td>{{$transfer->current_location}}</td>
-                <td>{{$transfer->distance_travelled}}</td>
-                <td>{{$transfer->new_location}}</td>
-                <td>{{$transfer->amount}}</td>
+                <td style="text-align: right;">{{ $loop->iteration }}</td>
+                <td style="text-align: right;">{{ getDisplayDateFormat($transfer->created_at) }}</td>
+                <td>{{ $transfer->employee->emp_name }}</td>
+                <td>{{ $transfer->employee->username }}</td>
+                <td>{{ $transfer->employee->empJob->designation->name }}</td>
+                <td>{{ $transfer->employee->empJob->department->name }}</td>
+                <td>{{ $transfer->employee->empJob->office->region->name }}</td>
+                <td>{{ $transfer->employee->empJob->office->name }}</td>
+                <td>{{ $transfer->type->name }}</td>
+                <td style="text-align: right;">
+                    {{ optional(json_decode(optional($transfer->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
+                </td>
+                <td>{{ $transfer->current_location }}</td>
+                <td style="text-align: right;">{{ $transfer->distance_travelled ?? config('global.null_value') }}</td>
+                <td>{{ $transfer->new_location }}</td>
+                <td style="text-align: right;">{{ formatAmount($transfer->amount, false) }}</td>
                 @php
                 $statusClasses = [
                 -1 => 'Rejected',
@@ -129,12 +149,12 @@
 
                     {{ $statusText }}
                 </td>
-                <td>{{$transfer->transfer_approved_by->name}}</td>
-                <td>{{$transfer->updated_at->format('m-d-y')}}</td>
+                <td>{{$transfer->transfer_approved_by->name ?? config('global.null_value')}}</td>
+                <td style="text-align: right;">{{ getDisplayDateFormat($transfer->updated_at) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="11" class="text-center text-danger">No Transfer Claim Reports found</td>
+                <td colspan="17" class="text-center text-danger">No Data Found.</td>
             </tr>
             @endforelse
         </tbody>

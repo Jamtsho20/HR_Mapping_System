@@ -34,15 +34,19 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
             ->get()->map(function ($loans) use (&$serialNo) {
                 return [
                     $serialNo++,
-                    $loans->employee->name,
+                    $loans->employee->emp_name,
                     $loans->employee->username,
                     $loans->pay_head_name,
                     $loans->loan_number,
-                    $loans->amount,
-                    $loans->for_month,
+                    getDisplayDateFormat($loans->start_date),
+                    getDisplayDateFormat($loans->end_date),
+                    $loans->recurring_months,
+                    \Carbon\Carbon::parse($loans->for_month)->format('F Y'),
+                    formatAmount($loans->amount, false),
                 ];
             });
     }
+                                                        
     public function headings(): array
     {
         return [
@@ -51,8 +55,11 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
             'Employee ID',
             'Loan Type',
             'Loan Number',
-            'Monthly Installment',
-            'Date'
+            'Start Date',
+            'End Date',
+            'No of Installments (Months)',
+            'For Month',
+            'Monthly Installment (Nu.)'
         ];
     }
 }

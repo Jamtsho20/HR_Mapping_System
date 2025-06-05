@@ -3,7 +3,6 @@
 use App\Models\ApplicationAuditLog;
 use App\Models\ApplicationHistory;
 use App\Models\LeaveApplication;
-use App\Models\MasAttendanceFeature;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use App\Models\MasOfficeTiming;
@@ -284,6 +283,7 @@ if (!function_exists('generateTransactionNumber1')) {
         return $type['code'] . '/' . $datePart . '/' . $currentSequence;
     }
 }
+
 if (!function_exists('loadApplicationDetails')) {
     function loadApplicationDetails($expenseApplication, $mappedModel)
     {
@@ -607,6 +607,13 @@ if(!function_exists('getEffectiveOfficeTiming')){
         }
 
         return $officeTiming;
+    }
+}
+
+//customize date format for display for user (customize according to the needs)
+if(!function_exists('getDisplayDateFormat')){
+    function getDisplayDateFormat($date){
+        return \Carbon\Carbon::parse($date)->format('d-m-y');
     }
 }
 
