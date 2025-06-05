@@ -5,6 +5,7 @@
         <div class="form-group info-green p-3 pt-0 fw-bold">
             <label>Previous Loan Outstanding Amount</label>
             <!-- <input type="number" class="form-control" value="{{ number_format($remainingOutstanding, 2) }}" readonly /> -->
+            <input type="hidden" name="advance_loan_number" value="{{$advance->transaction_no}}" readonly />  
             <input type="number" id="remaining_outstanding" class="form-control info-green p-3 pt-0 fw-bold" value="{{ number_format($remainingOutstanding, 2, '.', '') }}" readonly />
 
 
@@ -69,7 +70,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
-                <input type="month" class="form-control" name="deduction_from_period" value="{{ old('deduction_from_period') }}" required />
+                <input type="month" class="form-control" id="deduction_from_period" name="deduction_from_period" value="{{ old('deduction_from_period') }}" required readonly />
             </div>
         </div>
         <div class="col-md-4">
@@ -84,6 +85,23 @@
 @push('page_scripts')
 <script>
     $(document).ready(function() {
+
+
+        const deductionFromPeriod = $('#deduction_from_period');
+        const dateToday = $('#hidden-date').val();
+        let year = parseInt(dateToday.split('-')[0]);
+        let month = parseInt(dateToday.split('-')[1]);
+        let day = parseInt(dateToday.split('-')[2]);
+        if (day > 15) {
+            month += 1;
+            if (month > 12) {
+                month = 1;
+                year += 1;
+            }
+        }
+
+        const formattedMonth = `${year}-${month.toString().padStart(2, '0')}`;
+        deductionFromPeriod.val(formattedMonth);
 
         // Get netPay from the readonly input (number)
         const netPay = parseFloat($('#net_pay').val()) || 0;
@@ -103,6 +121,7 @@
                 $(this).val(''); // Clear the invalid input
             }
             if (!isNaN(amount) && amount < outstandingAmount) {
+                console.log(outstandingAmount);
                 showErrorMessage(`You can claim up to ${outstandingAmount.toLocaleString()}. Please enter an amount greater than or equal to this.`);
                 $(this).val(''); // Clear the invalid input
             }
@@ -144,7 +163,7 @@
                 $('#monthly_emi_amount_sifa').val(emi.toFixed(2));
 
                 const totalPayment = emi * n;
-                $('#sifa_total_amount').val(totalPayment.toFixed(2));
+                // $('#sifa_total_amount').val(totalPayment.toFixed(2));
             } else {
                 $('#monthly_emi_amount_sifa').val('');
                 $('#sifa_total_amount').val('');
