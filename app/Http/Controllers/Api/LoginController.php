@@ -31,7 +31,8 @@ class LoginController extends Controller
                 'empJob.gradeStep:id,name',       // Only load the grade step name
                 'empJob.empType:id,name',         // Only load the employment type name
                 'empJob.supervisor:id,name,username', // Only load the supervisor's name
-                'empJob.office:id,name,latitude,longitude,raidus',           // Only load the office name
+                // 'empJob.office:id,name,latitude,longitude,raidus',           // Only load the office name
+                'empJob.office:id,name',           // Only load the office name
                 // 'empJob.office:id,name',           // Only load the office name
                 'roles:id,name',
                 // 'employeeInShifts.departmentShift:id,start_time,end_time',
@@ -40,7 +41,7 @@ class LoginController extends Controller
                 ->first();
 
             $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
-            $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
+            // $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
             
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
@@ -55,7 +56,7 @@ class LoginController extends Controller
                     'message' => 'Invalid username or password.'
                 ], 401);
             }
-            $officeTiming = getEffectiveOfficeTiming($user);
+            // $officeTiming = getEffectiveOfficeTiming($user);
 
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
             $token = $user->createToken($request->username)->plainTextToken;
@@ -64,8 +65,8 @@ class LoginController extends Controller
                 'message' => 'Authenticated',
                 'user' => $user,
                 'menus' => $menus,
-                'attendance_features' => $attendanceFeatures,
-                'office_timings' => $officeTiming,
+                // 'attendance_features' => $attendanceFeatures,
+                // 'office_timings' => $officeTiming,
                 'token' => $token,
             ], 200);
         } catch (\Exception $e) {

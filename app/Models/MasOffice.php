@@ -20,6 +20,10 @@ class MasOffice extends Model
         return $this->belongsTo(MasDzongkhag::class, 'mas_dzongkhag_id'); 
     }
 
+    public function region(){
+        return $this->belongsTo(MasRegion::class, 'mas_region_id');
+    }
+
     public function reqDetail()
     {
         return $this->hasOne(RequisitionDetail::class, 'office_id');

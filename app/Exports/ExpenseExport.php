@@ -40,12 +40,15 @@ class ExpenseExport implements FromCollection, WithHeadings
             return $expense->details->map(function ($detail) use (&$serialNo, $expense, $statusClasses) {
                 return [
                     $serialNo++,
+                    getDisplayDateFormat($expense->created_at),
+                    $expense->employee->emp_name,
                     $expense->employee->username,
-                    $expense->employee->name,
                     $expense->employee->empJob->designation->name,
                     $expense->employee->empJob->department->name,
+                    $expense->employee->empJob->office->region->name,
+                    $expense->employee->empJob->office->name,
                     $expense->type->name,
-                    \Carbon\Carbon::parse($expense->transaction_date)->format('d-F-Y'),
+                    optional(json_decode(optional($expense->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value'),
                     $expense->vehicle->vehicleType->name ?? '-',
                     $expense->vehicle->vehicle_no ?? '-',
                     $expense->transaction_no,
@@ -53,20 +56,19 @@ class ExpenseExport implements FromCollection, WithHeadings
                     $detail->final_reading,
                     $detail->quantity,
                     $detail->rate,
-                    $detail->amount ?? $expense->amount,
+                    formatAmount($detail->amount, false) ?? formatAmount($expense->amount, false),
                     $detail->mileage,
                     $expense->travel_type,
                     $expense->travel_mode,
-                    $expense->travel_from_date,
-                    $expense->travel_to_date,
+                    getDisplayDateFormat($expense->travel_from_date),
+                    getDisplayDateFormat($expense->travel_to_date),
                     $expense->travel_from,
                     $expense->travel_to,
-                    $expense->travel_disatnce,
+                    $expense->travel_distance,
                     $expense->description,
                     $statusClasses[$expense->status],
-                    $expense->expense_approved_by->name ?? '-',
-
-
+                    $expense->expense_approved_by->emp_name ?? config('global.null_value'),
+                    getDisplayDateFormat($expense->updated_at) ?? config('global.null_value'),
                 ];
             });
         });
@@ -75,20 +77,23 @@ class ExpenseExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
-            'Employee ID',
+            'Applied On',
             'Employee Name',
+            'Employee ID',
             'Designation',
             'Department',
+            'Region',
+            'Office Location',
             'Expense Type',
-            'Date',
+            'SAP Trans No',
             'Vechicle Type',
             'Vehicle No',
             'Expense No',
-            'Initial Reading',
-            'FInal Reading',
-            'Qty',
+            'Initial Reading (km)',
+            'Final Reading (km)',
+            'Qty (ltrs)',
             'Rate',
-            'Amount',
+            'Amount (Nu.)',
             'Mileage',
             'Travel Type',
             'Travel Mode',
@@ -96,10 +101,11 @@ class ExpenseExport implements FromCollection, WithHeadings
             'Travel To Date',
             'Travel From',
             'Travel To',
-            'Travel Distance',
+            'Travel Distance (km)',
             'Description',
             'Status',
             'Approved By',
+            'Approved On'
         ];
     }
 }

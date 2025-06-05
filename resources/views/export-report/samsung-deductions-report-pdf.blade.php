@@ -67,17 +67,28 @@
                     Employee Name
                 </th>
                 <th>
+                    EMP ID
+                </th>
+                <th>
                     loan type
                 </th>
                 <th>
                     Loan number
                 </th>
-
                 <th>
-                    Monthly Installment
+                    Start Date
                 </th>
                 <th>
-                    Date
+                    End Date
+                </th>
+                <th>
+                    No of Installments (Months)
+                </th>
+                <th>
+                    For Month
+                </th>
+                <th>
+                    Monthly Installment (Nu.)
                 </th>
 
             </tr>
@@ -87,21 +98,24 @@
             @forelse($samsungDeductions as $loan)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $loan->employee->name }}</td>
+                    <td>{{ $loan->employee->emp_name }}</td>
+                    <td>{{ $loan->employee->username }}</td>
                     <td>{{ $loan->pay_head_name }}</td>
                     <td>{{ $loan->loan_number }}</td>
-                    <td>{{ formatAmount($loan->amount, false) }}</td>
-                    <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
-                    </td>
+                    <td>{{ getDisplayDateFormat($loan->start_date) }}</td>
+                    <td>{{ getDisplayDateFormat($loan->end_date) }}</td>
+                    <td style="text-align: right;">{{ $loan->recurring_months}}</td>
+                    <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
+                    <td style="text-align: right;">{{ formatAmount($loan->amount, false) }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="21" class="text-center text-danger">No Samsung Deduction Reports found</td>
+                    <td colspan="10" class="text-center text-danger">No Data Found.</td>
                 </tr>
             @endforelse
             <tr>
-                <td colspan="4" style="text-align: right">Total:</td>
-                <td>{{ $totalSamsung }}</td>
+                <td colspan="9" style="text-align: right">Total:</td>
+                <td style="text-align: right;">{{ formatAmount($totalSamsung, false) }}</td>
                 <td></td>
             </tr>
         </tbody>
