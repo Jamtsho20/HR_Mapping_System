@@ -349,7 +349,7 @@
 
             $(document).on('change', 'input[name^="details"][name$="[grn_no]"]', function () {
                 let grnData = $(this).val();
-                console.log(grnData);
+             
                 if (!grnData) return;
 
                 let selectedGRN = grnData
@@ -397,7 +397,7 @@
                         storeDropdown.trigger('change');
 
                     }else{
-                        showErrorMessage('GRN Number not found in grnDatas:', grnData);
+                        showErrorMessage('GRN Number not found in grnData');
                     }
                 });
 
@@ -478,7 +478,7 @@
                             grnInput.val(grnNo);
                         }
 
-                        console.log(grnSelect, grnInput);
+                       
                         if (storeSelect.length) {
 
                             storeSelect.val(detail.store.id);
