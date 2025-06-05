@@ -55,7 +55,7 @@ class DelegationController extends Controller
     public function create()
     {
         $delegatorRoles = $this->delegatorRoles();
-        $roleNames = $delegatorRoles->pluck('name')->toArray(); // Convert to array of names
+        $roleNames = $delegatorRoles->pluck('id')->toArray(); // Convert to array of names
         $roleId = null;
         // Define constants or replace them with actual values
         $priorityRoles = [
@@ -70,7 +70,9 @@ class DelegationController extends Controller
                 break;
             }
         }
+
         $employees = getDeleagteeList($roleId);
+        
         return view('delegation.create',compact('delegatorRoles', 'employees'));
 
     }
