@@ -38,6 +38,7 @@ class ExpenseExport implements FromCollection, WithHeadings
         }])->filter($this->request, false)->whereStatus(3)->get()->flatMap(function ($expense) use (&$serialNo, $statusClasses) {
         return $expense->details->isNotEmpty()
             ? $expense->details->map(function ($detail) use (&$serialNo, $expense, $statusClasses) {
+                // dd($this->buildRow($detail, $expense, $serialNo, $statusClasses));
                 return $this->buildRow($detail, $expense, $serialNo, $statusClasses);
             })
             : collect([
@@ -103,7 +104,7 @@ class ExpenseExport implements FromCollection, WithHeadings
             $detail->quantity ?? config('global.null_value'),
             $detail->rate ?? config('global.null_value'),
             formatAmount(optional($detail)->amount ?? $expense->amount, false) ?? config('global.null_value'),
-            getDisplayDateFormat($detail)->date,
+            getDisplayDateFormat(optional($detail)->date),
             $detail->mileage ?? config('global.null_value'),
             $expense->travel_type ?? config('global.null_value'),
             $expense->travel_mode ?? config('global.null_value'),
