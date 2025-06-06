@@ -158,7 +158,7 @@
                                                         <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}
                                                         </td>
                                                         <td title="{{ $detail->grnItemDetail?->item?->item_description }}">
-                                                            {{ \Illuminate\Support\Str::limit($detail->grnItemDetail?->item?->item_description, 25, '...') }}
+                                                            {{ truncateText($detail->grnItemDetail?->item?->item_description) }}
                                                         </td>
                                                         <td>{{ $detail->grnItemDetail->item->uom ?? config('global.null_value') }}
                                                         </td>
@@ -169,7 +169,7 @@
                                                         <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}
                                                         </td>
                                                         <td>{{ $detail->site->name ?? config('global.null_value') }}</td>
-                                                        <td>{{ $detail->remark ?? config('global.null_value') }}</td>
+                                                        <td>{{ truncateText($detail->remark) ?? config('global.null_value') }}</td>
 
                                                         {{-- Parent-level status & approver repeated per row --}}
 

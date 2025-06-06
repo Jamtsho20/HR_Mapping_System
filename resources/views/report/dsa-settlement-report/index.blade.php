@@ -133,7 +133,13 @@
                                                             #
                                                         </th>
                                                         <th>
+                                                            Applied On
+                                                        </th>
+                                                        <th>
                                                             Employee name
+                                                        </th>
+                                                        <th>
+                                                            Employee Id
                                                         </th>
                                                         <th>
                                                             designation
@@ -142,23 +148,30 @@
                                                             department
                                                         </th>
                                                         <th>
-                                                            SAP TRANS NO
+                                                            Region
+                                                        </th>
+                                                        <th>
+                                                            Office Location
                                                         </th>
                                                         <th>
                                                             DSA Settlement Number
+                                                        </th>
+                                                        <th>
+                                                            SAP TRANS NO
+                                                        </th>
                                                         <th>
                                                             Total days
                                                         </th>
 
                                                         <th>
-                                                            Daily Allowance
+                                                            Daily Allowance (Nu.)
                                                         </th>
                                                         <th>
-                                                            Travel Allowance
+                                                            Travel Allowance (Nu.)
                                                         </th>
 
                                                         <th>
-                                                            Total amount
+                                                            Total amount (Nu.)
                                                         </th>
 
                                                         <th>
@@ -168,10 +181,10 @@
                                                             advance number
                                                         </th>
                                                         <th>
-                                                            advance amount
+                                                            advance amount (Nu.)
                                                         </th>
                                                         <th>
-                                                            net amount
+                                                            net amount (Nu.)
                                                         </th>
                                                         <th>
                                                             Status </th>
@@ -179,7 +192,7 @@
                                                             approved by
                                                         </th>
                                                         <th>
-                                                            approved date
+                                                            approved on
                                                         </th>
                                                         <th>
                                                             Action
@@ -191,45 +204,48 @@
 
                                                     @forelse ($dsaClaim as $claim)
                                                         <tr>
-                                                            <td>{{ $serialNumber++ }}</td>
-                                                            <td>{{ $claim->employee->name }}</td>
+                                                            <td style="text-align: right;">{{ $serialNumber++ }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($claim->created_at) }}</td>
+                                                            <td>{{ $claim->employee->emp_name }}</td>
+                                                            <td>{{ $claim->employee->username }}</td>
                                                             <td>{{ $claim->employee->empJob->designation->name }}</td>
                                                             <td>{{ $claim->employee->empJob->department->name }}</td>
-                                                            <td>
+                                                            <td>{{ $claim->employee->empJob->office->region->name }}</td>
+                                                            <td>{{ $claim->employee->empJob->office->name }}</td>
+                                                            <td>{{ $claim->transaction_no }}</td>
+                                                            <td style="text-align: right;">
                                                                 {{ optional(json_decode(optional($claim->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
                                                             </td>
-                                                            <td>{{ $claim->transaction_no }}</td>
-
-                                                            <td>{{ $claim->total_number_of_days ?? $claim->dsaClaimDetails[0]->total_days }}
+                                                            <td style="text-align: right;">{{ $claim->total_number_of_days ?? $claim->dsaClaimDetails[0]->total_days }}
                                                             </td>
-                                                            <td>
+                                                            <td style="text-align: right;">
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
                                                                     @php $totalDa = 0; @endphp
                                                                     @foreach ($claim->dsaClaimMappings as $data)
                                                                         @php $totalDa += $data->travelAuthorization->daily_allowance; @endphp
                                                                     @endforeach
-                                                                    {{ $totalDa }}
+                                                                    {{ formatAmount($totalDa, false) }}
                                                                 @else
-                                                                    {{ $claim->dsaClaimDetails->first()->daily_allowance ?? '-' }}
+                                                                    {{ formatAmount($claim->dsaClaimDetails->first()->daily_allowance, false) ?? config('global.null_value') }}
                                                                 @endif
                                                             </td>
-                                                            <td>
+                                                            <td style="text-align: right;">
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
-                                                                    {{ $claim->dsaClaimMappings->pluck('dsaDetails')->flatten()->sum('travel_allowance') }}
+                                                                    {{ formatAmount($claim->dsaClaimMappings->pluck('dsaDetails')->flatten()->sum('travel_allowance'), false) }}
                                                                 @else
-                                                                    {{ $claim->dsaClaimDetails->sum('travel_allowance') ?? '-' }}
+                                                                    {{ formatAmount($claim->dsaClaimDetails->sum('travel_allowance'), false) ?? config('global.null_value') }}
                                                                 @endif
                                                             </td>
-                                                            <td>{{ $claim->amount }}</td>
-                                                            <td>
+                                                            <td style="text-align: right;">{{ formatAmount($claim->amount, false) }}</td>
+                                                            
+                                                            <td title="{{ $claim->dsaClaimMappings->isNotEmpty() ? implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.transaction_no')->filter()->toArray()) : ($claim->travel->transaction_no ?? config('global.null_value'))}}">
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
-                                                                    {{ implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.transaction_no')->filter()->toArray()) }}
+                                                                    {{ truncateText(implode(', ', $claim->dsaClaimMappings->pluck('travelAuthorization.transaction_no')->filter()->toArray())) }}
                                                                 @else
-                                                                    {{ $claim->travel->transaction_no ?? '-' }}
+                                                                    {{ $claim->travel->transaction_no ?? config('global.null_value') }}
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                {{-- {{ $claim->dsaadvance->transaction_no ?? $claim->dsaClaimDetails->dsaClaimMapping->advanceApplication->transaction_no }} --}}
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
                                                                     @if ($claim->dsaClaimMappings == null)
                                                                         {{ config('global.null_value') }}
@@ -241,7 +257,7 @@
                                                                 @endif
                                                             </td>
 
-                                                            <td>
+                                                            <td style="text-align: right;">
                                                                 @if ($claim->dsaClaimMappings->isNotEmpty())
                                                                     @php $totalAdvanceAmount = 0; @endphp
                                                                     @foreach ($claim->dsaClaimMappings as $data)
@@ -251,12 +267,12 @@
                                                                         @endphp
                                                                     @endforeach
 
-                                                                    {{ $totalAdvanceAmount }}
+                                                                    {{ formatAmount($totalAdvanceAmount, false) }}
                                                                 @else
-                                                                    {{ $claim->advance_amount ?? '-' }}
+                                                                    {{ formatAmount($claim->advance_amount, false) ?? config('global.null_value') }}
                                                                 @endif
                                                             </td>
-                                                            <td>{{ $claim->net_payable_amount }}</td>
+                                                            <td style="text-align: right;">{{ formatAmount($claim->net_payable_amount, false) }}</td>
                                                             @php
                                                                 $statusClasses = [
                                                                     -1 => 'Rejected',
@@ -274,9 +290,9 @@
                                                                     'badge bg-secondary';
                                                             @endphp
                                                             <td>{{ $statusText }}</td>
-                                                            <td>{{ $claim->expense_approved_by->name ?? config('global.null_value') }}
+                                                            <td>{{ $claim->expense_approved_by->emp_name ?? config('global.null_value') }}
                                                             </td>
-                                                            <td>{{ $claim->updated_at->format('m-d-y') }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($claim->updated_at) }}</td>
                                                             <td>
                                                                 @if ($privileges->view)
                                                                     <a href="{{ url('report/dsa-settlement-report/' . $claim->id) }}"
@@ -287,8 +303,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="17" class="text-center text-danger">No DSA
-                                                                Settlement Details found for this claim</td>
+                                                            <td colspan="22" class="text-center text-danger">No Data Found.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
