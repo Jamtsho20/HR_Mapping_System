@@ -5,6 +5,10 @@
     <div class="block-header block-header-default">
     @component('layouts.includes.filter')
         <div class="col-6 form-group">
+            <input type="text" name="grn_no" class="form-control" value="{{ request()->get('grn_no') }}" placeholder="Search based on GRN">
+        </div>
+
+         <div class="col-6 form-group">
             <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
         </div>
     @endcomponent
@@ -51,7 +55,7 @@
                                                         </tr>
 
                                                         <!-- Collapsible Row -->
-                                                        <tr class = "collapse" id="collapseDetails{{ $key}}">
+                                                        <tr class = "collapse thead-light" id="collapseDetails{{ $key}}">
                                                             <th colspan="1"></th>
                                                             <th colspan="1">Item No.</th>
                                                             <th colspan="1">Item Description</th>
@@ -62,7 +66,7 @@
 
                                                         <tr class="collapse" id="collapseDetails{{ $key}}"  style="background-color: white;">
                                                             <td colspan="1">
-                                                                
+
                                                             </td>
                                                             <td colspan="1">{{$detail->item->item_no}}</td>
                                                             <td colspan="1">{{$detail->item_description ?? $detail->item->item_description}}</td>

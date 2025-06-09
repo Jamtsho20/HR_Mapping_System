@@ -125,7 +125,7 @@
                                                         <td>{{ $comm->transaction_date }}</td>
 
                                                         {{-- Detail-specific data --}}
-                                                        <td>{{ $detail->receivedSerial?->asset_serial_no }}</td>
+                                                        <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->item_no .'-'. $detail->receivedSerial?->asset_serial_no }}</td>
                                                         {{-- <td>{{ $detail->receivedSerial->asset_description }}</td> --}}
                                                         <td title="{{ $detail->receivedSerial?->asset_description }}">
                                                             {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 25, '...') }}

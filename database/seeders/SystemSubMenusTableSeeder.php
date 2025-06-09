@@ -108,12 +108,13 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 11, 'name' => 'Sifa Registered User', 'route' => 'sifa/sifa-registered-user', 'display_order' => 3],
 
             //submenu for asset
-            ['system_menu_id' => 13, 'name' => 'Store Master', 'route' => 'asset/mas-store', 'display_order' => 1],
-            ['system_menu_id' => 13, 'name' => 'Requisiton', 'route' => 'asset/requisition', 'display_order' => 2],
-            ['system_menu_id' => 13, 'name' => 'Commission', 'route' => 'asset/commission', 'display_order' => 3],
-            ['system_menu_id' => 13, 'name' => 'Asset Transfer', 'route' => 'asset/asset-transfer', 'display_order' => 4],
-            ['system_menu_id' => 13, 'name' => 'Asset Return', 'route' => 'asset/asset-return', 'display_order' => 5],
-            ['system_menu_id' => 14, 'name' => 'Mas-Item', 'route' => 'asset/mas-item', 'display_order' => 6],
+            ['system_menu_id' => 13, 'name' => 'Inventory (GRN-Based)', 'route' => 'asset/inventory', 'display_order' => 1],
+            ['system_menu_id' => 13, 'name' => 'Store Master', 'route' => 'asset/mas-store', 'display_order' => 2],
+            ['system_menu_id' => 13, 'name' => 'Requisiton', 'route' => 'asset/requisition', 'display_order' => 3],
+            ['system_menu_id' => 13, 'name' => 'Commission', 'route' => 'asset/commission', 'display_order' => 4],
+            ['system_menu_id' => 13, 'name' => 'Asset Transfer', 'route' => 'asset/asset-transfer', 'display_order' => 5],
+            ['system_menu_id' => 13, 'name' => 'Asset Return', 'route' => 'asset/asset-return', 'display_order' => 6],
+            ['system_menu_id' => 14, 'name' => 'Mas-Item', 'route' => 'asset/mas-item', 'display_order' => 7],
 
             //submenu for payroll
             ['system_menu_id' => 14, 'name' => 'Annual Increment', 'route' => 'payroll/annual-increment', 'display_order' => 1],

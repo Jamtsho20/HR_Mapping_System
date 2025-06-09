@@ -582,26 +582,44 @@ class AjaxRequestController extends Controller
                 $query->where('status', '!=', -1);
             })->pluck('received_serial_id')->toArray();
 
-        $flatSerials = $reqApplicaiton->details()
-            ->whereHas('serials', function ($query) use ($existingSerials) {
-                $query->where('is_commissioned', 0)
-                    ->where('is_received', 1);
-                if (!empty($existingSerials)) {
-                    $query->whereNotIn('id', $existingSerials);
+       $flatSerials = $reqApplicaiton->details()
+        ->whereHas('serials', function ($query) use ($existingSerials) {
+            $query->where('is_commissioned', 0)
+                ->where('is_received', 1);
+
+            if (!empty($existingSerials)) {
+                $query->whereNotIn('id', $existingSerials);
+            }
+        })
+        ->with(['serials' => function ($query) use ($existingSerials) {
+            $query->where('is_commissioned', 0)
+                ->where('is_received', 1);
+
+            if (!empty($existingSerials)) {
+                $query->whereNotIn('id', $existingSerials);
+            }
+
+            // Include all required foreign keys in select
+            $query->select('id', 'requisition_detail_id', 'asset_serial_no');
+
+            $query->with([
+                'requisitionDetail' => function ($q) {
+                    $q->select('id', 'grn_item_detail_id')->with([
+                        'grnItemDetail' => function ($g) {
+                            $g->select('id', 'item_id')->with([
+                                'item' => function ($i) {
+                                    $i->select('id', 'item_no');
+                                }
+                            ]);
+                        }
+                    ]);
                 }
-            })
-            ->with(['serials' => function ($query) use ($existingSerials) {
-                $query->where('is_commissioned', 0)
-                    ->where('is_received', 1);
-                if (!empty($existingSerials)) {
-                    $query->whereNotIn('id', $existingSerials);
-                }
-                $query->select('id', 'requisition_detail_id', 'asset_serial_no');
-            }])
-            ->get()
-            ->pluck('serials')   // Collect all serial arrays
-            ->flatten(1)         // Flatten into one array
-            ->values();          // Reset index
+            ]);
+        }])
+        ->get()
+        ->pluck('serials')
+        ->flatten(1)
+        ->values();
 
         // Wrap into a single object for JS compatibility
         $assetNos = [

@@ -43,7 +43,7 @@
                                             <td>{{ $requisition->type->name }}</td>
                                             <td>{{ $requisition->transaction_date }}</td>
                                             <td>{{ $requisition->employee->empJob->department->name }}</td>
-                                            <td>{{ $requisition->employee->empJob->section->name }}</td>
+                                            <td>{{ $requisition->employee->empJob->section->name ?? 'N/A' }}</td>
                                             <td>{{ $requisition->need_by_date }}</td>
 
                                             <td class="text-center">
