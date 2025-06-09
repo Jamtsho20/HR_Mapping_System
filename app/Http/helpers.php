@@ -3,7 +3,6 @@
 use App\Models\ApplicationAuditLog;
 use App\Models\ApplicationHistory;
 use App\Models\LeaveApplication;
-use App\Models\MasAttendanceFeature;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use App\Models\MasOfficeTiming;
@@ -284,6 +283,7 @@ if (!function_exists('generateTransactionNumber1')) {
         return $type['code'] . '/' . $datePart . '/' . $currentSequence;
     }
 }
+
 if (!function_exists('loadApplicationDetails')) {
     function loadApplicationDetails($expenseApplication, $mappedModel)
     {
@@ -536,9 +536,13 @@ if (!function_exists('getDeleagteeList')) {
     {
         $employees = [];
         if ($roleId == DEPARTMENT_HEAD) {
-            $departmentId = MasEmployeeJob::where('mas_emloyee_id', auth()->user()->id)->value('mas_department_id');
+            $departmentId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('mas_department_id');
             $employees = User::whereHas('empJob', function ($query) use ($departmentId) {
-                $query->where('mas_section_id', $departmentId);
+                $query->where('mas_department_id', $departmentId);
+            })
+            //if they want all user from department then comment out this below query where it checks for role
+            ->whereHas('roles', function ($query1) {
+                $query1->where('roles.id', IMMEDIATE_HEAD); // assuming role has `name` column
             })
                 ->get()->map(function ($user) {
                     return [
@@ -569,6 +573,7 @@ if (!function_exists('getDeleagteeList')) {
                     ];
                 });
         }
+
         return $employees;
     }
 }
@@ -607,6 +612,22 @@ if(!function_exists('getEffectiveOfficeTiming')){
         }
 
         return $officeTiming;
+    }
+}
+
+//customize date format for display for user (customize according to the needs)
+if(!function_exists('getDisplayDateFormat')){
+    function getDisplayDateFormat($date){
+        if (empty($date)) { // this is check because if date value is null it will take current date
+            return config('global.null_value'); // Or return null or '' as per your needs
+        }
+        return \Carbon\Carbon::parse($date)->format('d-m-y');
+    }
+}
+
+if(!function_exists('truncateText')){
+    function truncateText($text){
+        return \Illuminate\Support\Str::limit($text, 25, '...');
     }
 }
 

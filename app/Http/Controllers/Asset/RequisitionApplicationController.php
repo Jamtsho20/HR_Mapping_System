@@ -202,6 +202,7 @@ class RequisitionApplicationController extends Controller
 
      private function saveDetails($details, $requisitionId, $typeId)
      {
+        
          $existingIds = [];
          foreach ($details as $detail) {
 
@@ -219,11 +220,16 @@ class RequisitionApplicationController extends Controller
                     $grnData = $detail['grn_no'];
 
                     if ($grnData) {
-                        $grn_item = MasGrnItemDetail::where('grn_id', $grnData)
+                        $grn = MasGrnItem::where('grn_no', $grnData)->first();
+
+                        if (!$grn) {
+                            return back()->withInput()->with('msg_error', 'GRN Number not found in grnData');
+                        }
+                        $grn_item = MasGrnItemDetail::where('grn_id', $grn->id)
                         ->where('store_id', $detail['store'])
                         ->where('item_id', $detail['item_description'])
                         ->first();
-
+                      
                         $conversionFlag = isset($detail['conversion']) && strtolower($detail['conversion']) !== 'false';
 
 

@@ -17,13 +17,15 @@
 
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-3 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-            </div>
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <input type="text" class="form-control" name="date" id="date-range-picker"
                     value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
             </div>
+
+            <div class="col-3 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+            </div>
+            
             <div class="col-3 form-group">
                 <select name="employee_id" class="form-control select2 select2-hidden-accessible"
                     data-placeholder="Select Employee">
@@ -35,6 +37,7 @@
                     @endforeach
                 </select>
             </div>
+            
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -70,12 +73,20 @@
                                                         <th>
                                                             Loan number
                                                         </th>
-
                                                         <th>
-                                                            Monthly Installment
+                                                            Start Date
                                                         </th>
                                                         <th>
-                                                            Date
+                                                            End Date
+                                                        </th>
+                                                        <th>
+                                                            No of Installments (Months)
+                                                        </th>
+                                                        <th>
+                                                            For Month
+                                                        </th>
+                                                        <th>
+                                                            Monthly Installment (Nu.)
                                                         </th>
 
                                                     </tr>
@@ -84,21 +95,22 @@
                                                 <tbody>
                                                     @forelse($samsungDeductions as $loan)
                                                         <tr>
-                                                            <td>{{ $loop->iteration }}</td>
-                                                            <td>{{ $loan->employee->name }}</td>
-                                                            <td>{{ $loan->employee->employee_id }}</td>
+                                                            <td style="text-align: right;">{{ $loop->iteration }}</td>
+                                                            <td>{{ $loan->employee->emp_name }}</td>
+                                                            <td>{{ $loan->employee->username }}</td>
                                                             <td>{{ $loan->pay_head_name }}</td>
                                                             <td>{{ $loan->loan_number }}</td>
-                                                            <td>{{ formatAmount($loan->amount, false) }}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}
-                                                            </td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($loan->start_date) }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($loan->end_date) }}</td>
+                                                            <td style="text-align: right;">{{ $loan->recurring_months}}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
+                                                            <td style="text-align: right;">{{ formatAmount($loan->amount, false) }}</td>
 
 
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="21" class="text-center text-danger">No Samsung
-                                                                Deduction Reports found</td>
+                                                            <td colspan="10" class="text-center text-danger">No Data Found.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>

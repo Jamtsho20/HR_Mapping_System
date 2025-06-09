@@ -56,6 +56,8 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2();
+        // placeholder: 'Select All',
+        // allowClear: true // Enables the option to clear (shows 'x')
     });
 </script>
 

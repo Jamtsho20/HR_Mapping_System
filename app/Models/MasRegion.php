@@ -21,6 +21,10 @@ class MasRegion extends Model
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
 
+    public function offices(){
+        return $this->hasMany(MasOffice::class, 'mas_region_id');
+    }
+
     //accessors & mutators
     public function setRegionNameAttribute($value)
     {

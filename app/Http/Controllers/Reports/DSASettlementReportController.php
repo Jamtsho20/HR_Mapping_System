@@ -40,7 +40,7 @@ class DSASettlementReportController extends Controller
         })->select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
 
-        $dsaClaim = DsaClaimApplication::whereIn('status', [3, -1])->with([
+        $dsaClaim = DsaClaimApplication::whereIn('status', [3])->with([
             'audit_logs',
             'dsaClaimDetails',
             'dsaClaimMappings.dsaDetails',
@@ -157,7 +157,7 @@ class DSASettlementReportController extends Controller
     {
 
         // Load all bookings with their dzongkhag names
-        $dsaClaim = DsaClaimApplication::filter($request, false)->get();
+        $dsaClaim = DsaClaimApplication::whereStatus(3)->filter($request, false)->get();
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.dsa-settlement-report-pdf', compact('dsaClaim'))->setPaper('a4', 'landscape');;

@@ -65,7 +65,13 @@
                     #
                 </th>
                 <th>
-                    Employee name
+                    Applied On
+                </th>
+                <th>
+                    Employee Name
+                </th>
+                <th>
+                    Employee Id
                 </th>
                 <th>
                     designation
@@ -73,52 +79,58 @@
                 <th>
                     department
                 </th>
+                <th>
+                    Region 
+                </th>
+                <th>
+                    Office Location
+                </th>
 
                 <th>
-                    from location
+                    From location
                 </th>
                 <th>
-                    to location
+                    To location
                 </th>
                 <th>
-                    from Date
+                    From Date
                 </th>
                 <th>
                     To Date
                 </th>
                 <th>
-                    Total days
+                    Total Day (s)
                 </th>
 
                 <th>
-                    DA
+                    Daily Allowance (Nu.)
                 </th>
                 <th>
-                    TA
-                </th>
-
-                <th>
-                    Total amount
+                    Travel Allowance (Nu.)
                 </th>
 
                 <th>
-                    travel auth no
+                    Total Amount (Nu.)
                 </th>
 
                 <th>
-                    advance amount
+                    Travel Authorization No
+                </th>
+
+                <th>
+                    Advance Amount (Nu.)
                 </th>
                 <th>
-                    net amount
+                    Net Amount (Nu.)
                 </th>
                 <th>
                     Status </th>
 
                 <th>
-                    approved by
+                    Approved By
                 </th>
                 <th>
-                    approved date
+                    Approved On
                 </th>
 
 
@@ -128,21 +140,25 @@
             @foreach($dsaClaim as $claim)
             @forelse($claim->dsaClaimDetails as $dsa)
             <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{$claim->employee->name}}</td>
-                <td>{{$claim->employee->empJob->designation->name}}</td>
-                <td>{{$claim->employee->empJob->department->name}}</td>
-                <td>{{$dsa->from_location}}</td>
-                <td>{{$dsa->to_location}}</td>
-                <td>{{$dsa->from_date}}</td>
-                <td>{{$dsa->to_date}}</td>
-                <td>{{$dsa->total_days}}</td>
-                <td>{{$dsa->daily_allowance}}</td>
-                <td>{{$dsa->travel_allowance}}</td>
-                <td>{{$dsa->total_amount}}</td>
-                <td>{{$claim->travel->transaction_no??'-'}}</td>
-                <td>{{$claim->dsaadvance->amount??'-'}}</td>
-                <td>{{$claim->net_payable_amount}}</td>
+                <td class="text-align: right;">{{ $loop->iteration }}</td>
+                <td>{{ getDisplayDateFormat($claim->created_at) }}</td>
+                <td>{{ $claim->employee->emp_name }}</td>
+                <td>{{ $claim->employee->username }}</td>
+                <td>{{ $claim->employee->empJob->designation->name }}</td>
+                <td>{{ $claim->employee->empJob->department->name }}</td>
+                <td>{{ $claim->employee->empJob->office->region->name }}</td>
+                <td>{{ $claim->employee->empJob->office->name }}</td>
+                <td>{{ $dsa->from_location }}</td>
+                <td>{{ $dsa->to_location }}</td>
+                <td class="text-align: right;">{{ getDisplayDateFormat($dsa->from_date) }}</td>
+                <td class="text-align: right;">{{ getDisplayDateFormat($dsa->to_date) }}</td>
+                <td class="text-align: right;">{{ $dsa->total_days }}</td>
+                <td class="text-align: right;">{{ formatAmount($dsa->daily_allowance, false) }}</td>
+                <td class="text-align: right;">{{ formatAmount($dsa->travel_allowance, false) }}</td>
+                <td class="text-align: right;">{{ formatAmount($dsa->total_amount, false) }}</td>
+                <td>{{ $claim->travel->transaction_no ?? config('global.null_value') }}</td>
+                <td class="text-align: right;">{{ formatAmount($claim->dsaadvance->amount, false) ?? config('global.null_value') }}</td>
+                <td class="text-align: right;">{{ formatAmount($claim->net_payable_amount, false) }}</td>
                 @php
                 $statusClasses = [
                 -1 => 'Rejected',
@@ -155,12 +171,12 @@
                 $statusClass = $statusClasses[$claim->status] ?? 'badge bg-secondary';
                 @endphp
                 <td>{{ $statusText }}</td>
-                <td>{{$claim->expense_approved_by->name}}</td>
-                <td>{{$claim->updated_at->format('m-d-y')}}</td>
+                <td>{{ $claim->expense_approved_by->emp_name }}</td>
+                <td class="text-align: right;">{{ getDisplayDateFormat($claim->updated_at) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="12" class="text-center text-danger">No DSA Settlement Details found for this claim</td>
+                <td colspan="22" class="text-center text-danger">No Data Found.</td>
             </tr>
             @endforelse
             @endforeach

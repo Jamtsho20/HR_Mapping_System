@@ -10,6 +10,7 @@ use App\Models\MasExpenseType;
 use App\Models\MasOffice;
 use App\Models\MasRegion;
 use App\Models\MasSection;
+use App\Models\MasVehicle;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class ExpenseAndAdvanceReportController extends Controller
         $departments = MasDepartment::select('name', 'id')->get();
         $offices = MasOffice::select('name', 'id')->get();
         $regions = MasRegion::select('name', 'id')->get();
+        $vehicles = MasVehicle::get(['id', 'vehicle_no']);
         $employeeLists = employeeList();
         $managers = User::whereHas('roles', function ($query) {
             $query->whereIn('roles.id', [7, 8]);  // Fetch users with roles 6 or 7
@@ -44,7 +46,7 @@ class ExpenseAndAdvanceReportController extends Controller
             $query->where('status', 3);
         }])->filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
 
-        return view('report.expense-and-advance-report.index', compact('privileges', 'expenseApplications', 'regions', 'departments', 'sections', 'expenses', 'employeeLists', 'offices', 'managers'));
+        return view('report.expense-and-advance-report.index', compact('privileges', 'expenseApplications', 'regions', 'departments', 'sections', 'expenses', 'employeeLists', 'offices', 'managers', 'vehicles'));
     }
 
 

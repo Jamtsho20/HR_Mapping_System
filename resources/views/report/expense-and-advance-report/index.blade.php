@@ -18,14 +18,14 @@
     <br>
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            {{-- <div class="col-md-2 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-            </div> --}}
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <input type="text" class="form-control" name="date" id="date-range-picker"
-                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+                value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
             </div>
-
+            
+            <div class="col-md-2 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+            </div>
 
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Expense"
@@ -90,7 +90,7 @@
                 </select>
             </div>
             <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Location"
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Office Location"
                     name="office">
                     <option value="" disabled selected hidden>Select Location</option>
                     @foreach ($offices as $office)
@@ -108,6 +108,19 @@
                     @foreach ($managers as $manager)
                         <option value="{{ $manager->id }}" {{ request()->get('manager') == $manager->id ? 'selected' : '' }}>
                             {{ $manager->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Vehicle No" name="vehicle_no">
+                    <option value="" disabled selected hidden>Select Vehicle No</option>
+                    {{-- <option value="">All Vehicles</option> --}}
+
+                    @foreach ($vehicles as $vehicle)
+                        <option value="{{ $vehicle->id }}" {{ request()->get('vehicle_no') == $vehicle->id ? 'selected' : '' }}>
+                            {{ $vehicle->vehicle_no }}
                         </option>
                     @endforeach
                 </select>
@@ -141,18 +154,30 @@
                                                                 <th>
                                                                     #
                                                                 </th>
+                                                                <th>
+                                                                    Applied On
+                                                                </th>
 
                                                                 <th>
-                                                                    Employee ID
+                                                                    Employee Name
                                                                 </th>
                                                                 <th>
-                                                                    Employee Name
+                                                                    Employee ID
                                                                 </th>
                                                                 <th>
                                                                     Designation
                                                                 </th>
                                                                 <th>
                                                                     Department
+                                                                </th>
+                                                                <th>
+                                                                    Region
+                                                                </th>
+                                                                <th>
+                                                                    Office Location
+                                                                </th>
+                                                                <th>
+                                                                    Expense No
                                                                 </th>
                                                                 <th>
                                                                     Expense Type
@@ -164,10 +189,7 @@
                                                                     Vehicle No
                                                                 </th>
                                                                 <th>
-                                                                    Expense No
-                                                                </th>
-                                                                <th>
-                                                                    Expense Amount
+                                                                    Expense Amount (Nu.)
                                                                 </th>
                                                                 <th>
                                                                     Travel Type
@@ -188,7 +210,7 @@
                                                                     Travel To
                                                                 </th>
                                                                 <th>
-                                                                    Travel Distance
+                                                                    Travel Distance (Km)
                                                                 </th>
 
                                                                 <th>
@@ -201,6 +223,9 @@
                                                                     Approved By
                                                                 </th>
                                                                 <th>
+                                                                    Approved On
+                                                                </th>
+                                                                <th>
                                                                     Action
                                                                 </th>
                                                             </tr>
@@ -208,36 +233,37 @@
                                                         <tbody>
                                                             @forelse($expenseApplications as $application)
                                                                 <tr>
-                                                                    <td>{{ $loop->iteration }}</td>
-                                                                    <td>{{ $application->employee->username }}</td>
+                                                                    <td style="text-align: right;">{{ $loop->iteration }}</td>
                                                                     {{-- <td>@dd(json_decode($application->audit_logs, true))</td> --}}
-                                                                    <td>{{ $application->employee->name }}</td>
-                                                                    <td>{{ $application->employee->empJob->designation->name }}
-                                                                    </td>
-                                                                    <td>{{ $application->employee->empJob->department->name }}
-                                                                    </td>
+                                                                    <td style="text-align: right;">{{ getDisplayDateFormat($application->created_at) }}</td>
+                                                                    <td>{{ $application->employee->emp_name }}</td>
+                                                                    <td>{{ $application->employee->username }}</td>
+                                                                    <td>{{ $application->employee->empJob->designation->name }}</td>
+                                                                    <td>{{ $application->employee->empJob->department->name }}</td>
+                                                                    <td>{{ $application->employee->empJob->office->region->name }}</td>
+                                                                    <td>{{ $application->employee->empJob->office->name }}</td>
+                                                                    <td>{{ $application->transaction_no }}</td>
                                                                     <td>{{ $application->type->name }}</td>
                                                                     {{-- <td>{{ json_decode($expenseApplications[0]->audit_logs[0]->sap_response, true)['data']['JdtNum'] ?? config('global.null_value') }}</td> --}}
-                                                                    <td>
+                                                                    <td style="text-align: right;">
                                                                         {{ optional(json_decode(optional($application->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $application->vehicle->vehicle_no ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $application->transaction_no }}</td>
-                                                                    <td>{{ $application->amount }}</td>
+                                                                    <td style="text-align: right;">{{ formatAmount($application->amount, false) }}</td>
                                                                     <td>{{ $application->travel_type ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $application->travel_mode ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $application->travel_from_date ?? config('global.null_value') }}
+                                                                    <td style="text-align: right;">{{ getDisplayDateFormat($application->travel_from_date) ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $application->travel_to_date ?? config('global.null_value') }}
+                                                                    <td style="text-align: right;">{{ getDisplayDateFormat($application->travel_to_date) ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $application->travel_from ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $application->travel_to ?? config('global.null_value') }}
                                                                     </td>
-                                                                    <td>{{ $application->travel_disatnce ?? config('global.null_value') }}
+                                                                    <td style="text-align: right;">{{ $application->travel_distance ?? config('global.null_value') }}
                                                                     </td>
                                                                     <td>{{ $application->description ?? config('global.null_value') }}
                                                                     </td>
@@ -260,8 +286,8 @@
                                                                     <td>
                                                                         {{ $statusText }}
                                                                     </td>
-                                                                    <td>{{ $application->expense_approved_by->name ?? '-' }}
-                                                                    </td>
+                                                                    <td>{{ $application->expense_approved_by->emp_name ?? config('global.null_value') }}</td>
+                                                                    <td style="text-align: right;">{{ getDisplayDateFormat($application->updated_at) ?? config('global.null_value') }}</td>
                                                                     <td>
                                                                         @if ($privileges->view)
                                                                             <a href="{{ url('report/expense-and-advance-report/' . $application->id) }}"
@@ -272,8 +298,7 @@
                                                                 </tr>
                                                             @empty
                                                                 <tr>
-                                                                    <td colspan="10" class="text-center text-danger">No
-                                                                        Expense report found</td>
+                                                                    <td colspan="25" class="text-center text-danger">No Data Found.</td>
                                                                 </tr>
                                                             @endforelse
                                                         </tbody>

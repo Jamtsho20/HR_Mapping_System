@@ -469,7 +469,7 @@ class AjaxRequestController extends Controller
         $travelAuthorizationDetails = TravelAuthorizationApplication::with('details')
             ->whereIn('id', $ids)
             ->get(); // Get multiple travel authorizations
-        $advanceDetail = AdvanceApplication::whereIn('travel_authorization_id', $ids)->get();
+        $advanceDetail = AdvanceApplication::where('status', 3)->whereIn('travel_authorization_id', $ids)->get();
         // Check if any travel authorizations were found
         if ($travelAuthorizationDetails->isEmpty()) {
             return response()->json(['message' => 'No travel authorizations found for the given IDs'], 404);

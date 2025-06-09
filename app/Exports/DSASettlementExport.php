@@ -68,26 +68,30 @@ class DSASettlementExport implements FromCollection, WithHeadings
 
                 return [
                     $serialNo++,
+                    getDisplayDateFormat($claim->created_at),
+                    $claim->employee->emp_name,
                     $claim->employee->username,
-                    $claim->employee->name,
                     $claim->employee->empJob->designation->name,
                     $claim->employee->empJob->department->name,
+                    $claim->employee->empJob->office->region->name,
+                    $claim->employee->empJob->office->name,
                     $claim->transaction_no,
                     $dsa->from_location,
                     $dsa->to_location,
-                    $dsa->from_date,
-                    $dsa->to_date,
+                    getDisplayDateFormat($dsa->from_date),
+                    getDisplayDateFormat($dsa->to_date),
                     $dsa->total_days,
                     $dsa->daily_allowance,
                     $dsa->travel_allowance,
                     $dsa->total_amount,
                     $mapping->travelAuthorization->transaction_no ?? $claim->travel->transaction_no, // Mapped or '-'
                     $mapping->advanceApplication->transaction_no ?? $claim->dsaadvance->transaction_no ?? '-',          // Mapped or '-'
-                    $mapping->advanceApplication->amount ?? $claim->dsaadvance->amount ?? '-',          // Mapped or '-'
-                    $claim->net_payable_amount,
+                    formatAmount(optional($mapping->advanceApplication)->amount, false) ?? formatAmount(optional($claim->dsaadvance)->amount, false) ?? config('global.null_value'),
+                    // formatAmount($mapping->advanceApplication->amount, false) ?? (formatAmount($claim->dsaadvance->amount, false) ?? config('global.null_value')),          // Mapped or '-'
+                    formatAmount($claim->net_payable_amount, false),
                     $statusClasses[$claim->status] ?? 'Unknown Status',
-                    $claim->expense_approved_by->name ?? '-',
-                    $claim->updated_at->format('m-d-Y'),
+                    $claim->expense_approved_by->emp_name ?? '-',
+                    getDisplayDateFormat($claim->updated_at),
                 ];
             });
         });
@@ -101,26 +105,29 @@ class DSASettlementExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
-            'Employee Id',
+            'Applied On',
             'Employee Name',
+            'Employee Id',
             'Designation',
             'Department',
+            'Region',
+            'Office Location',
             'DSA Claim No',
             'From Location',
             'To Location',
             'From Date',
             'To Date',
-            'Total Days',
-            'Daily Allowance',
-            'Travel Allowance',
-            'Total Amount',
+            'Total Day (s)',
+            'Daily Allowance (Nu.)',
+            'Travel Allowance (Nu.)',
+            'Total Amount (Nu.)',
             'Travel Authorization No',
             'Advance No',
-            'Advance Amount',
-            'Net Payable Amount',
+            'Advance Amount (Nu.)',
+            'Net Payable Amount (Nu.)',
             'Status',
             'Approved By',
-            'Approved Date     ',
+            'Approved On',
         ];
     }
 }

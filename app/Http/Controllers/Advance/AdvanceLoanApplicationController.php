@@ -99,7 +99,7 @@ class AdvanceLoanApplicationController extends Controller
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
-        $excludedTravelAuthorizationIds = AdvanceApplication::pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
+        $excludedTravelAuthorizationIds = AdvanceApplication::whereNot('status', -1)->pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
         $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
             ->where('status', 3)
             ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {

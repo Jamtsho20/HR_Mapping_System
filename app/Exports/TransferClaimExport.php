@@ -31,38 +31,52 @@ class TransferClaimExport implements FromCollection,WithHeadings
         ];
 
         // Access the request data to apply filters
-        return TransferClaimApplication::filter($this->request, false)->get()->map(function ($transfer) use (&$serialNo, $statusClasses) {
+        return TransferClaimApplication::with(['audit_logs' => function($query){
+            $query->where('status', 3); 
+        }])->whereStatus(3)->filter($this->request, false)->get()->map(function ($transfer) use (&$serialNo, $statusClasses) {
             return [
                 $serialNo++,
-                $transfer->employee->name,
+                getDisplayDateFormat($transfer->created_at),
+                $transfer->employee->emp_name,
+                $transfer->employee->username,
                 $transfer->employee->empJob->designation->name,
                 $transfer->employee->empJob->department->name,
+                $transfer->employee->empJob->office->region->name,
+                $transfer->employee->empJob->office->name,
                 $transfer->type->name,
+                optional(json_decode(optional($transfer->audit_logs->first())->sap_response, true))['data']['JdtNum'] ?? config('global.null_value'),
                 $transfer->current_location,
                 $transfer->distance_travelled,
                 $transfer->new_location,
-                $transfer->expense_amount,
+                formatAmount($transfer->amount, false),
                 $statusClasses[$transfer->status],
-                $transfer->transfer_approved_by->name,
+                $transfer->transfer_approved_by->emp_name ?? config('global.null_value'),
+                getDisplayDateFormat($transfer->updated_at),
 
             ];
         });
     }
+
     public function headings(): array
     {
         return [
             'Sl No',
+            'Applied On',
             'Employee Name',
+            'Employee Id',
             'Designation',
             'Department',
+            'Region',
+            'Ofiice Location',
             'Transfer Claim Type',
+            'SAP Trans No',
             'From Location',
-            'Distance',
+            'Distance (KM)',
             'Current Location',
-            'Expense Amount',
+            'Expense Amount (Nu.)',
             'Status',
             'Approved By',
-            'Date'
+            'Approved On'
 
         ];
     }

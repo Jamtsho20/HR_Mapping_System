@@ -81,6 +81,9 @@ class ExpenseApplication extends Model
         if ($request->has('manager') && $request->query('manager') !== '') {
             $query->where('updated_by', $request->query('manager'));
         }
+        if ($request->has('vehicle_no') && $request->query('vehicle_no') !== '') {
+            $query->where('mas_vehicle_id', $request->query('vehicle_no'));
+        }
 
         $sapTransNo = trim($request->query('sap_trans_no'));
         if (!empty($sapTransNo)) {

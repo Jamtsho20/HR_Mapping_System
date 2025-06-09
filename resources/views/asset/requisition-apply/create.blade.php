@@ -80,9 +80,10 @@
                                             class="fa fa-times"></i></a>
                                 </td>
                                 <td class="grn-td">
-                                    <select class="grn-select form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]" id="grn-select" required />
+                                    <input type="text" name="details[AAAAA][grn_no]" class="form-control form-control-sm resetKeyForNew grn-no" id="grn-no" required>
+                                    <!-- <select class="grn-select form-control form-control-sm resetKeyForNew select2" name="details[AAAAA][grn_no]" id="grn-select" required />
                                         <option value="" disabled selected hidden>Select GRN</option>
-                                    </select>
+                                    </select> -->
                                 </td>
                                 <td>
                                     <select class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][store]" required />
@@ -154,6 +155,7 @@
             const typeSelect = document.getElementById('requisition_type');
             const grnHeader = document.getElementById('grn-header');
             const grnSelect = document.getElementById('grn-select');
+            const grnsIput = document.getElementById('grn-no');
             const colspace = document.getElementById('colspace');
             let itemData = @json($items);
 
@@ -310,13 +312,13 @@
                             (selectedType !== '1' && detail.item.is_fixed_asset !== 1))
                         );
 
-                        if (filteredDetails.length > 0) {
-                            // Add the GRN option if it contains filtered items
-                            let grnOption = document.createElement('option');
-                            grnOption.value = grn.id;
-                            grnOption.textContent = grn.grn_no;
-                            grnItemDropdown.appendChild(grnOption);
-                        }
+                        // if (filteredDetails.length > 0) {
+                        //     // Add the GRN option if it contains filtered items
+                        //     let grnOption = document.createElement('option');
+                        //     grnOption.value = grn.id;
+                        //     grnOption.textContent = grn.grn_no;
+                        //     grnItemDropdown.appendChild(grnOption);
+                        // }
                     }
                 });
             }else{
@@ -344,14 +346,15 @@
 
 
             let selectedGrn =[];
-            $(document).on('change', 'select[name^="details"][name$="[grn_no]"]', function () {
+
+            $(document).on('change', 'input[name^="details"][name$="[grn_no]"]', function () {
                 let grnData = $(this).val();
+             
                 if (!grnData) return;
 
                 let selectedGRN = grnData
                 let row = $(this).closest('tr');
-                let grnDetails = grnDatas.find(grn => grn.id == selectedGRN);
-
+                let grnDetails = grnDatas.find(grn => grn.grn_no == selectedGRN);
 
                     row.find('select[name^="details"][name$="[item_description]"]').empty();
                     row.find('select[name^="details"][name$="[store]"]').empty();
@@ -393,6 +396,8 @@
 
                         storeDropdown.trigger('change');
 
+                    }else{
+                        showErrorMessage('GRN Number not found in grnData');
                     }
                 });
 
@@ -450,6 +455,7 @@
                         });
 
                     let grnIdIn = row.find('select[name^="details"][name$="[grn_no]"]').val();
+                    let grnNo = row.find('input[name^="details"][name$="[grn_no]"]').val();
 
                     if (selectedGrn.includes(grnIdIn)) return;
                         selectedGrn.push(grnIdIn);
@@ -464,12 +470,15 @@
                         const itemSelect = lastRow.find('select[name^="details"][name$="[item_description]"]');
                         const storeSelect = lastRow.find('select[name^="details"][name$="[store]"]');
                         const grnSelect = lastRow.find('select[name^="details"][name$="[grn_no]"]');
-
-                        if (grnSelect.length) {
-
-                            grnSelect.val(grnId);
+                        const grnInput = lastRow.find('input[name^="details"][name$="[grn_no]"]');
+                        
+                        // if (grnSelect.length) {
+                        if(grnInput){
+                            // grnSelect.val(grnId);
+                            grnInput.val(grnNo);
                         }
 
+                       
                         if (storeSelect.length) {
 
                             storeSelect.val(detail.store.id);
