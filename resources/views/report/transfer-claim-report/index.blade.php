@@ -17,13 +17,13 @@
 
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-3 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-            </div>
-
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <input type="text" class="form-control" name="date" id="date-range-picker"
                     value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+            </div>
+
+            <div class="col-3 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
 
             <div class="col-md-2 form-group">
@@ -47,8 +47,8 @@
                         </option>
                     @endforeach
                 </select>
-
             </div>
+
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
                     name="department">
@@ -60,7 +60,6 @@
                         </option>
                     @endforeach
                 </select>
-
             </div>
 
             <div class="col-md-2 form-group">
@@ -110,9 +109,7 @@
                 <input class="form-control" type="text" name="sap_trans_no" value="{{ request()->get('sap_trans_no') }}"
                     placeholder="SAP Trans No">
             </div>
-            {{-- <div class="col-md-2 form-group">
-                <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
-            </div> --}}
+            
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
