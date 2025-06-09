@@ -10,7 +10,7 @@ $(function(e) {
 	
 	//______Select2 
 	$('.select2').select2({
-		minimumResultsForSearch: Infinity
+		minimumResultsForSearch: Infinity,
 	});
 	
  });

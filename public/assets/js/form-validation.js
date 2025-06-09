@@ -2,7 +2,8 @@
     'use strict';
     // Select2
     $('.select2').select2({
-        minimumResultsForSearch: Infinity
+        minimumResultsForSearch: Infinity,
+        // allowClear: true
     });
     window.addEventListener('load', function() {
         // Fetch all the forms we want to apply custom Bootstrap validation styles to

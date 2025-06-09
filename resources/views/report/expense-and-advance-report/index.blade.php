@@ -114,6 +114,19 @@
             </div>
 
             <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Vehicle No" name="vehicle_no">
+                    <option value="" disabled selected hidden>Select Vehicle No</option>
+                    {{-- <option value="">All Vehicles</option> --}}
+
+                    @foreach ($vehicles as $vehicle)
+                        <option value="{{ $vehicle->id }}" {{ request()->get('vehicle_no') == $vehicle->id ? 'selected' : '' }}>
+                            {{ $vehicle->vehicle_no }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-2 form-group">
                 <input class="form-control" type="text" name="sap_trans_no" value="{{ request()->get('sap_trans_no') }}"
                     placeholder="SAP Trans No">
             </div>

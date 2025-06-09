@@ -9,7 +9,6 @@ use App\Models\MasOffice;
 use App\Models\MasRegion;
 use App\Models\MasSection;
 use App\Models\MasTransferClaim;
-use App\Models\MasTransferType;
 use App\Models\TransferClaimApplication;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -43,7 +42,7 @@ class TransferClaimReportController extends Controller
         $claimTypes = MasTransferClaim::whereStatus(1)->get(['id', 'name']);
         $trasferClaims = TransferClaimApplication::with(['audit_logs' => function($query){
             $query->where('status', 3); 
-        }])->where('status', 3)->filter($request, false)->paginate(config('global.pagination'))->withQueryString();
+        }])->filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.transfer-claim-report.index', compact('privileges', 'trasferClaims', 'regions', 'departments', 'sections', 'employeeLists', 'offices', 'managers', 'claimTypes'));
     }

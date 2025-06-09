@@ -21,6 +21,21 @@
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
 
+            <div class="col-md-2 form-group">
+                <input type="text" class="form-control" name="date" id="date-range-picker"
+                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+            </div>
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Claim Type" name="type_id">
+                    <option value="" disabled selected hidden>Select Claim Type</option>
+                    @foreach ($claimTypes as $type)
+                        <option value="{{ $type->id }}" {{ request()->get('type_id') == $type->id ? 'selected' : '' }}>
+                            {{ $type->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Employee"
@@ -62,9 +77,9 @@
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Region" name="region">
                     <option value="" disabled selected hidden>Select Region</option>
-                    @foreach ($regions as $section)
-                        <option value="{{ $section->id }}" {{ request()->get('region') == $section->id ? 'selected' : '' }}>
-                            {{ $section->name }}
+                    @foreach ($regions as $region)
+                        <option value="{{ $region->id }}" {{ request()->get('region') == $region->id ? 'selected' : '' }}>
+                            {{ $region->name }}
                         </option>
                     @endforeach
                 </select>
@@ -92,18 +107,12 @@
                 </select>
             </div>
             <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Claim Type" name="type_id">
-                    <option value="" disabled selected hidden>Select Claim Type</option>
-                    @foreach ($claimTypes as $type)
-                        <option value="{{ $type->id }}" {{ request()->get('type_id') == $type->id ? 'selected' : '' }}>
-                            {{ $type->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <input class="form-control" type="text" name="sap_trans_no" value="{{ request()->get('sap_trans_no') }}"
+                    placeholder="SAP Trans No">
             </div>
-            <div class="col-md-2 form-group">
+            {{-- <div class="col-md-2 form-group">
                 <input class="form-control" type="text" name="sap_trans_no" placeholder="SAP Trans No" value="{{ request()->get('sap_trans_no') }}" />
-            </div>
+            </div> --}}
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
