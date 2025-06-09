@@ -133,7 +133,7 @@
                                 </td>
 
                                         <td colspan="2">
-                                            <p>{{$serial->asset_serial_no}}</p>
+                                            <p>{{$serial->requisitionDetail->grnItemDetail->item->item_no. '-' .$serial->asset_serial_no}}</p>
                                             <input type="hidden" name="details[{{$key}}][serials][id]" value="{{$serial->id}}" class="form-control form-control-sm">
                                             <input type="hidden" name="details[{{$key}}][serials][serial_no]" value="{{$serial->asset_serial_no}}" class="form-control form-control-sm" readonly required />
                                         </td>

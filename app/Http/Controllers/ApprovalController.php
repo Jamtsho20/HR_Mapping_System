@@ -313,9 +313,12 @@ class ApprovalController extends Controller
             }';
         } elseif ($item_code) {
             if ($application->type_id == FIXED_ASSET) {
+                $name_empid = $application->employee->username . " " . $application->employee->name;
                 $postFields = [
                     "DocDate" => date('Y-m-d'),
                     "U_REQ" => $transactionNo,
+                    "RequesterName" => $name_empid,
+                    "RequesterDepartment" => $application->employee->empJob->department->sap_id,
                     "DocumentLines" => $application->details->map(function ($detail) {
                         return [
                             "U_GRNEntry" => (string) $detail->grnItem->grn_no,

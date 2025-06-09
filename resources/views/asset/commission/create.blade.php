@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="grn">GRN <span class="text-danger">*</span></label>
+                            <label for="grn">Requisition No. <span class="text-danger">*</span></label>
                             <select class="form-control select2" name="grn" id="grn">
                                 <option value="" disabled selected hidden>Select Your Option</option>
                                 @foreach ($grnItems as $grnItem)
@@ -206,7 +206,6 @@
                         dataType: "JSON",
                         type: "GET",
                         success: function(data) {
-
                             const assetNos = data.data.assetNos || [];
                             const dzongkhags = data.data.dzongkhags || [];
                             populateAssetDetails(assetNos);
@@ -262,7 +261,7 @@
                 if (assetNos[0]?.serials?.length > 0) {
                     assetNos[0].serials.forEach(function(serial) {
                         assetDropdown.append(
-                            `<option value="${serial.id}">${serial.asset_serial_no}</option>`);
+                            `<option value="${serial.id}">${serial.requisition_detail.grn_item_detail.item.item_no} - ${serial.asset_serial_no}</option>`);
                     });
                 }
             }

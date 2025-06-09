@@ -40,7 +40,7 @@
                                             <td>{{ $commission->transaction_no }}</td>
                                             <td>{{ $commission->transaction_date }}</td>
                                             <td>{{ $commission->employee->empJob->department->name }}</td>
-                                            <td>{{ $commission->employee->empJob->section->name }}</td>
+                                            <td>{{ $commission->employee->empJob->section->name ?? 'N/A' }}</td>
                                             <td class="text-center">
                                                 @php
                                                 $statusClasses = [
