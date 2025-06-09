@@ -12,6 +12,21 @@ class FinalPaySlip extends Model
 
     protected $fillable = ['mas_employee_id', 'for_month', 'details'];
 
+    public function getDetailsAttribute()
+    {
+        return is_array($this->attributes['details']) ? $this->attributes['details'] : json_decode($this->attributes['details'], true);
+    }
+
+    public function emiDeductions()
+    {
+        return $this->hasMany(LoanEMIDeduction::class, 'mas_employee_id', 'mas_employee_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->get('year')) {
@@ -73,13 +88,5 @@ class FinalPaySlip extends Model
         // Add more filters here if needed
         return $query;
     }
-    public function getDetailsAttribute()
-    {
-        return is_array($this->attributes['details']) ? $this->attributes['details'] : json_decode($this->attributes['details'], true);
-    }
 
-    public function employee()
-    {
-        return $this->belongsTo(User::class, 'mas_employee_id');
-    }
 }

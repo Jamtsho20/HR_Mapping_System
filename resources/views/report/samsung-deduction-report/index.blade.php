@@ -37,7 +37,7 @@
                     @endforeach
                 </select>
             </div>
-            
+
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -62,16 +62,34 @@
                                                             #
                                                         </th>
                                                         <th>
+                                                            Applied On
+                                                        </th>
+                                                        <th>
                                                             Employee Name
                                                         </th>
                                                         <th>
-                                                            EMP ID
+                                                            Employee ID
+                                                        </th>
+                                                        <th>
+                                                            Designation
+                                                        </th>
+                                                        <th>
+                                                            Department
+                                                        </th>
+                                                        <th>
+                                                            Region 
+                                                        </th>
+                                                        <th>
+                                                            Office Location
                                                         </th>
                                                         <th>
                                                             loan type
                                                         </th>
                                                         <th>
                                                             Loan number
+                                                        </th>
+                                                        <th>
+                                                            Item Type/Device Code
                                                         </th>
                                                         <th>
                                                             Start Date
@@ -88,29 +106,53 @@
                                                         <th>
                                                             Monthly Installment (Nu.)
                                                         </th>
-
+                                                        <th>
+                                                            Amount Paid (Nu.)
+                                                        </th>
+                                                        <th>
+                                                            Approved By
+                                                        </th>
+                                                        <th>
+                                                            Approved On
+                                                        </th>
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
-                                                    @forelse($samsungDeductions as $loan)
-                                                        <tr>
-                                                            <td style="text-align: right;">{{ $loop->iteration }}</td>
-                                                            <td>{{ $loan->employee->emp_name }}</td>
-                                                            <td>{{ $loan->employee->username }}</td>
-                                                            <td>{{ $loan->pay_head_name }}</td>
-                                                            <td>{{ $loan->loan_number }}</td>
-                                                            <td style="text-align: right;">{{ getDisplayDateFormat($loan->start_date) }}</td>
-                                                            <td style="text-align: right;">{{ getDisplayDateFormat($loan->end_date) }}</td>
-                                                            <td style="text-align: right;">{{ $loan->recurring_months}}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
-                                                            <td style="text-align: right;">{{ formatAmount($loan->amount, false) }}</td>
-
-
-                                                        </tr>
+                                                    @php $iteration = 1; @endphp
+                                                    @forelse($paySlips as $paySlip)
+                                                        @foreach($paySlip->emiDeductions as $deduction)
+                                                            <tr>
+                                                                <td style="text-align: right;">{{ $iteration++ }}</td>
+                                                                <td style="text-align: right;">{{ getDisplayDateFormat(optional($deduction->advanceApplication)->created_at) ?? config('global.null_value') }}</td>
+                                                                <td>{{ $deduction->employee->emp_name }}</td>
+                                                                <td>{{ $deduction->employee->username }}</td>
+                                                                <td>{{ $deduction->employee->empJob->designation->name }}</td>
+                                                                <td>{{ $deduction->employee->empJob->department->name }}</td>
+                                                                <td>{{ $deduction->employee->empJob->office->region->name ?? config('global.null_value') }}</td>
+                                                                <td>{{ $deduction->employee->empJob->office->name }}</td>
+                                                                <td>{{ $deduction->loanType->name }}</td>
+                                                                <td>{{ $deduction->loan_number }}</td>
+                                                                <td>{{ $deduction->advanceApplication->item_type ?? config('global.null_value') }}</td>
+                                                                <td style="text-align: right;">{{ getDisplayDateFormat($deduction->start_date) }}</td>
+                                                                <td style="text-align: right;">{{ getDisplayDateFormat($deduction->end_date) }}</td>
+                                                                <td style="text-align: right;">{{ $deduction->recurring_months}}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($paySlip->for_month)->format('F Y') }}</td>
+                                                                <td style="text-align: right;">{{ formatAmount($deduction->amount, false) }}</td>
+                                                                <td style="text-align: right;">
+                                                                    @php
+                                                                        $details = is_string($paySlip->details) ? json_decode($paySlip->details, true) : $paySlip->details;
+                                                                        $samsungDeduction = $details['deductions']['Samsung Ded'] ?? 0;
+                                                                    @endphp
+                                                                    {{ formatAmount($samsungDeduction, false) }}
+                                                                </td>
+                                                                <td>{{ $deduction->advanceApplication->advance_approved_by->emp_name ?? config('global.null_value') }}</td>
+                                                                <td style="text-align: right;">{{ getDisplayDateFormat(optional($deduction->advanceApplication)->updated_at) }}</td>
+                                                            </tr>
+                                                        @endforeach
                                                     @empty
                                                         <tr>
-                                                            <td colspan="10" class="text-center text-danger">No Data Found.</td>
+                                                            <td colspan="18" class="text-center text-danger">No Data Found.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
@@ -121,9 +163,9 @@
                             </div>
                         </div>
                     </div>
-                    @if ($samsungDeductions->hasPages())
+                    @if ($paySlips->hasPages())
                         <div class="card-footer">
-                            {{ $samsungDeductions->links() }}
+                            {{ $paySlips->links() }}
                         </div>
                     @endif
                 </div>

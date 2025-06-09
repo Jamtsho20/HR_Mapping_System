@@ -94,9 +94,9 @@ class AdvanceApplication extends Model
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
     }
 
-    public function emiDeductions()
+    public function emiDeduction()
     {
-        return $this->hasMany(LoanEMIDeduction::class, 'loan_number', 'transaction_no');
+        return $this->hasOne(LoanEMIDeduction::class, 'loan_number', 'transaction_no');
     }
 
     //scope filter
