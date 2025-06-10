@@ -41,6 +41,11 @@ class LoanEMIDeduction extends Model
     {
         return $this->belongsTo(AdvanceApplication::class, 'loan_number', 'transaction_no');
     }
+
+    public function paySlip(){
+        return $this->belongsTo(FinalPaySlip::class, 'mas_employee_id', 'mas_employee_id');
+    }
+
     //filters
     public function scopeFilter($query, $request)
     {
