@@ -17,15 +17,13 @@
 
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-md-3 form-group">
-                <input type="text" class="form-control" name="date" id="date-range-picker"
-                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
-            </div>
-
             <div class="col-3 form-group">
                 <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
-            
+            <div class="col-md-2 form-group">
+                <input type="text" class="form-control" name="date" id="date-range-picker"
+                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+            </div>
             <div class="col-3 form-group">
                 <select name="employee_id" class="form-control select2 select2-hidden-accessible"
                     data-placeholder="Select Employee">
@@ -37,44 +35,6 @@
                     @endforeach
                 </select>
             </div>
-
-            <div class="col-md-3 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
-                    name="department">
-                    <option value="" disabled="" selected="" hidden="">Select Department</option>
-                    @foreach ($departments as $department)
-                        <option value="{{ $department->id }}"
-                            {{ request()->get('department') == $department->id ? 'selected' : '' }}>
-                            {{ $department->name }}
-                        </option>
-                    @endforeach
-                </select>
-
-            </div>
-
-            <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Region" name="region">
-                    <option value="" disabled selected hidden>Select Region</option>
-                    @foreach ($regions as $section)
-                        <option value="{{ $section->id }}" {{ request()->get('region') == $section->id ? 'selected' : '' }}>
-                            {{ $section->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="col-md-2 form-group">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Office Location"
-                    name="office">
-                    <option value="" disabled selected hidden>Select Office Location</option>
-                    @foreach ($offices as $office)
-                        <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
-                            {{ $office->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -99,34 +59,16 @@
                                                             #
                                                         </th>
                                                         <th>
-                                                            Applied On
-                                                        </th>
-                                                        <th>
                                                             Employee Name
                                                         </th>
                                                         <th>
-                                                            Employee ID
-                                                        </th>
-                                                        <th>
-                                                            Designation
-                                                        </th>
-                                                        <th>
-                                                            Department
-                                                        </th>
-                                                        <th>
-                                                            Region 
-                                                        </th>
-                                                        <th>
-                                                            Office Location
+                                                            EMP ID
                                                         </th>
                                                         <th>
                                                             loan type
                                                         </th>
                                                         <th>
                                                             Loan number
-                                                        </th>
-                                                        <th>
-                                                            Item Type/Device Code
                                                         </th>
                                                         <th>
                                                             Start Date
@@ -138,58 +80,32 @@
                                                             No of Installments (Months)
                                                         </th>
                                                         <th>
-                                                            For Month
-                                                        </th>
-                                                        <th>
                                                             Monthly Installment (Nu.)
                                                         </th>
                                                         <th>
-                                                            Installment Paid (Nu.)
+                                                            For Month
                                                         </th>
-                                                        <th>
-                                                            Approved By
-                                                        </th>
-                                                        <th>
-                                                            Approved On
-                                                        </th>
+
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
-                                                    @php $iteration = 1; @endphp
                                                     @forelse($paySlips as $paySlip)
-                                                        @foreach($paySlip->emiDeductions as $deduction)
-                                                            <tr>
-                                                                <td style="text-align: right;">{{ $iteration++ }}</td>
-                                                                <td style="text-align: right;">{{ getDisplayDateFormat(optional($deduction->advanceApplication)->created_at) ?? config('global.null_value') }}</td>
-                                                                <td>{{ $deduction->employee->emp_name }}</td>
-                                                                <td>{{ $deduction->employee->username }}</td>
-                                                                <td>{{ $deduction->employee->empJob->designation->name }}</td>
-                                                                <td>{{ $deduction->employee->empJob->department->name }}</td>
-                                                                <td>{{ $deduction->employee->empJob->office->region->name ?? config('global.null_value') }}</td>
-                                                                <td>{{ $deduction->employee->empJob->office->name }}</td>
-                                                                <td>{{ $deduction->loanType->name }}</td>
-                                                                <td>{{ $deduction->loan_number }}</td>
-                                                                <td>{{ $deduction->advanceApplication->item_type ?? config('global.null_value') }}</td>
-                                                                <td style="text-align: right;">{{ getDisplayDateFormat($deduction->start_date) }}</td>
-                                                                <td style="text-align: right;">{{ getDisplayDateFormat($deduction->end_date) }}</td>
-                                                                <td style="text-align: right;">{{ $deduction->recurring_months}}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($paySlip->for_month)->format('F Y') }}</td>
-                                                                <td style="text-align: right;">{{ formatAmount($deduction->amount, false) }}</td>
-                                                                <td style="text-align: right;">
-                                                                    @php
-                                                                        $details = is_string($paySlip->details) ? json_decode($paySlip->details, true) : $paySlip->details;
-                                                                        $samsungDeduction = $details['deductions']['Samsung Ded'] ?? 0;
-                                                                    @endphp
-                                                                    {{ formatAmount($samsungDeduction, false) }}
-                                                                </td>
-                                                                <td>{{ $deduction->advanceApplication->advance_approved_by->emp_name ?? config('global.null_value') }}</td>
-                                                                <td style="text-align: right;">{{ getDisplayDateFormat(optional($deduction->advanceApplication)->updated_at) }}</td>
-                                                            </tr>
-                                                        @endforeach
+                                                        <tr>
+                                                            <td style="text-align: right;">{{ $loop->iteration }}</td>
+                                                            <td>{{ $paySlip->employee->emp_name }}</td>
+                                                            <td>{{ $paySlip->employee->username }}</td>
+                                                            <td>{{ $paySlip->pay_head_name }}</td>
+                                                            <td>{{ $paySlip->loan_number }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($paySlip->start_date) }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($paySlip->end_date) }}</td>
+                                                            <td style="text-align: right;">{{ $paySlip->recurring_months }}</td>
+                                                            <td style="text-align: right;">{{ formatAmount($paySlip->amount, false) }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($paySlip->for_month)->format('F Y') }}</td>
+                                                        </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="18" class="text-center text-danger">No Data Found.</td>
+                                                            <td colspan="7" class="text-center text-danger">No Data Found.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>

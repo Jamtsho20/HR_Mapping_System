@@ -66,10 +66,13 @@
                     #
                 </th>
                 <th>
-                    CODE
+                    Applied On
                 </th>
                 <th>
-                    NAME
+                    Employee Name
+                </th>
+                <th>
+                    Employee Id
                 </th>
                 <th>
                     DESIGNATION
@@ -78,7 +81,7 @@
                     DEPARTMENT
                 </th>
                 <th>
-                    LOCATION
+                    OFFICE LOCATION
                 </th>
                 <th>
                     ADVANCE LOAN TYPE
@@ -90,7 +93,7 @@
                     DATE OF CLAIM
                 </th>
                 <th>
-                    AMOUNT
+                    AMOUNT (Nu.)
                 </th>
                 <th>
                     Deduction Period From
@@ -102,14 +105,14 @@
                     EMI End Date
                 </th>
                 <th>
-                    EMI Amount
+                    EMI Amount (Nu.)
                 </th>
 
                 <th>
                     APPROVED BY
                 </th>
                 <th>
-                    APPROVAL DATE
+                    Approved On
                 </th>
 
 
@@ -118,36 +121,38 @@
         <tbody>
             @forelse($advanceReports as $reports)
                 <tr>
-                    <td>{{ $loop->iteration }}
+                    <td style="text-align: right">{{ $loop->iteration }}
                     </td>
+                    <td style="text-align: right">{{ getDisplayDateFormat($reports->created_at) }}</td>
+                    <td>{{ $reports->employee->emp_name }}</td>
                     <td>{{ $reports->employee->username }}</td>
-                    <td>{{ $reports->employee->name }}</td>
                     <td>{{ $reports->employee->empJob->designation->name }}
                     </td>
                     <td>{{ $reports->employee->empJob->department->name }}
                     </td>
+                    <td>{{ $reports->employee->empJob->office->region->name }}
+                    </td>
                     <td>{{ $reports->employee->empJob->office->name }}</td>
                     <td>{{ $reports->type->name }}</td>
                     <td>{{ $reports->item_type }}</td>
-                    <td>{{ \Carbon\Carbon::parse($reports->date)->format('d-M-Y') }}
+                    <td style="text-align: right">{{ getDisplayDateFormat($reports->date) }}
                     </td>
-                    <td>{{ $reports->amount }}</td>
-                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}
+                    <td style="text-align: right">{{ formatAmount($reports->amount, false) }}</td>
+                    <td style="text-align: right">{{ getDisplayDateFormat($reports->deduction_from_period) }}
                     </td>
-                    <td>{{ $reports->no_of_emi }}</td>
-                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi - 1)->format('d-F-Y') }}
+                    <td style="text-align: right">{{ $reports->no_of_emi }}</td>
+                    <td style="text-align: right">{{ getDisplayDateFormat(\Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi - 1)) }}
                     </td>
-                    <td>{{ $reports->monthly_emi_amount }}</td>
-                    <td>{{ $reports->advance_approved_by->name ?? '-' }}
+                    <td style="text-align: right">{{ formatAmount($reports->monthly_emi_amount, false) }}</td>
+                    <td>{{ $reports->advance_approved_by->emp_name ?? '-' }}
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}
+                    <td style="text-align: right">{{ getDisplayDateFormat($reports->updated_at) }}
                     </td>
 
                 </tr>
             @empty
                 <tr>
-                    <td colspan="14" class="text-center text-danger">No
-                        Advance Loan report found</td>
+                    <td colspan="14" class="text-center text-danger">No Data Found.</td>
                 </tr>
             @endforelse
         </tbody>

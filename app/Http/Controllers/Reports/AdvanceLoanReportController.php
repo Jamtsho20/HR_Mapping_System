@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasDepartment;
+use App\Models\MasRegion;
 use App\Models\MasSection;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -30,11 +31,12 @@ class AdvanceLoanReportController extends Controller
         $employeeLists = employeeList();
         $advanceType = MasAdvanceTypes::whereIn('id', [2, 4])->get();
         $departments = MasDepartment::select('name', 'id')->get();
+        $regions = MasRegion::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
         $advanceReports = AdvanceApplication::filter($request, false)->whereStatus(3)->paginate(config('global.pagination'))->withQueryString();
 
 
-        return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'sections', 'advanceReports', 'advanceType'));
+        return view('report.advance-loan-report.index', compact('privileges', 'employeeLists', 'departments', 'regions', 'sections', 'advanceReports', 'advanceType'));
     }
 
     /**
