@@ -55,6 +55,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
                     $deduction->recurring_months,
                     \Carbon\Carbon::parse($paySlip->for_month)->format('F Y'),
                     formatAmount($deduction->amount, false),
+                    //need to check for weather below line is correct or not 2maro
                     formatAmount(is_string($paySlip->details) ? json_decode($paySlip->details, true)['deductions']['Samsung Ded'] : $paySlip->details['deductions']['Samsung Ded'], false),
                     $deduction->advanceApplication->advance_approved_by->emp_name ?? config('global.null_value'),
                     getDisplayDateFormat(optional($deduction->advanceApplication)->updated_at)
@@ -63,6 +64,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
         }
 
         return $data;
+
         // return FinalPaySlip::leftJoin('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
         //     ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
         //     ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
@@ -106,7 +108,7 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
             'No of Installments (Months)',
             'For Month',
             'Monthly Installment (Nu.)',
-            'Amount Paid (Nu.)',
+            'Installment Paid (Nu.)',
             'Approved By',
             'Approved On'
         ];

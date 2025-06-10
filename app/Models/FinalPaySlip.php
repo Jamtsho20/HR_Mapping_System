@@ -84,6 +84,28 @@ class FinalPaySlip extends Model
                 $q->where('cid_no', $request->query('cid_no'));
             });
         }
+        // added filter option
+        if ($request->has('department') && $request->query('department') != '') {
+            $query->whereHas('employee.empJob.department', function ($q) use ($request) {
+                $q->where('id', $request->query('department'));
+            });
+        }
+        if ($request->has('section') && $request->query('section') != '') {
+            $query->whereHas('employee.empJob.section', function ($q) use ($request) {
+                $q->where('id', $request->query('section'));
+            });
+        }
+        if ($request->has('region') && $request->query('region') != '') {
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('mas_region_id', $request->query('region'));
+            });
+        }
+
+        if ($request->has('office') && $request->query('office') != '') {
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('id', $request->query('office'));
+            });
+        }
 
         // Add more filters here if needed
         return $query;

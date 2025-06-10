@@ -38,6 +38,43 @@
                 </select>
             </div>
 
+            <div class="col-md-3 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
+                    name="department">
+                    <option value="" disabled="" selected="" hidden="">Select Department</option>
+                    @foreach ($departments as $department)
+                        <option value="{{ $department->id }}"
+                            {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                            {{ $department->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+            </div>
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Region" name="region">
+                    <option value="" disabled selected hidden>Select Region</option>
+                    @foreach ($regions as $section)
+                        <option value="{{ $section->id }}" {{ request()->get('region') == $section->id ? 'selected' : '' }}>
+                            {{ $section->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Office Location"
+                    name="office">
+                    <option value="" disabled selected hidden>Select Office Location</option>
+                    @foreach ($offices as $office)
+                        <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
+                            {{ $office->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -107,7 +144,7 @@
                                                             Monthly Installment (Nu.)
                                                         </th>
                                                         <th>
-                                                            Amount Paid (Nu.)
+                                                            Installment Paid (Nu.)
                                                         </th>
                                                         <th>
                                                             Approved By

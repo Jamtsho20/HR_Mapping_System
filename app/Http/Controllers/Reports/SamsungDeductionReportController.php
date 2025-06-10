@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\SamsungDeductionExport;
 use App\Http\Controllers\Controller;
 use App\Models\FinalPaySlip;
+use App\Models\MasDepartment;
+use App\Models\MasOffice;
+use App\Models\MasRegion;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -26,6 +29,9 @@ class SamsungDeductionReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
+        $departments = MasDepartment::select('name', 'id')->get();
+        $offices = MasOffice::select('name', 'id')->get();
+        $regions = MasRegion::select('name', 'id')->get();
         $paySlips = FinalPaySlip::with(['emiDeductions' => function ($query) {
         $query->where('mas_pay_head_id', 16)
             ->where('is_paid_off', 0)
@@ -52,7 +58,7 @@ class SamsungDeductionReportController extends Controller
         //     return $device->amount ?? 0;
         // });
 
-        return view('report.samsung-deduction-report.index', compact('privileges', 'paySlips', 'employee'));
+        return view('report.samsung-deduction-report.index', compact('privileges', 'paySlips', 'employee', 'departments', 'offices', 'regions'));
     }
 
     /**
