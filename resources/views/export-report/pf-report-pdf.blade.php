@@ -88,16 +88,17 @@
             </tr>
         </thead>
         <tbody>
-
+            @php $serial = 1; @endphp
             @forelse ($pfDeductionsWithPF as $pf)
                 @php
                     $pfContr = $pf['details']['deductions']['PF Contr'] ?? 0;
+
                 @endphp
 
                 @if ($pfContr > 0)
                     @php $hasRecords = true; @endphp
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $serial++ }}</td>
                         <td>{{ $pf['employee_name'] }}</td>
                         <td>{{ $pf['pf_number'] }}</td>
                         <td>{{ $pf['CID'] ?? '-' }}</td>
