@@ -368,7 +368,7 @@
                     row.find('select[name^="details"][name$="[store]"]').empty();
                     row.find('input[name^="details"][name$="[uom]"]').val('');
                     row.find('input[name^="details"][name$="[stock_status]"]').val('');
-console.log(grnDetails, responseData.data);
+
                     if (grnDetails && grnDetails.length > 0) {
                         const selectedType = type.value; // Get the selected requisition type again
                         const itemDropdown = row.find('select[name^="details"][name$="[item_description]"]');
