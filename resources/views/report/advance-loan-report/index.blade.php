@@ -19,39 +19,13 @@
 
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            <div class="col-3 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-            </div>
-
             <div class="col-md-2 form-group">
                 <input type="text" class="form-control" name="date" id="date-range-picker"
                     value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
             </div>
 
-            <div class="col-md-2">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Employee"
-                    name="employee">
-                    <option value="" disabled="" selected="" hidden="">Select Employee</option>
-                    @foreach ($employeeLists as $employee)
-                        <option value="{{ $employee->id }}" {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
-                            {{ $employee->name }}
-                        </option>
-                    @endforeach
-                </select>
-
-            </div>
-            <div class="col-md-3">
-                <select name="department" class="form-control select2 select2-hidden-accessible"
-                    data-placeholder="Select Department">
-                    <option value="" disabled="" selected="" hidden="">Select Department</option>
-                    @foreach ($departments as $department)
-                        <option value="{{ $department->id }}"
-                            {{ request()->get('department') == $department->id ? 'selected' : '' }}>
-                            {{ $department->name }}
-                        </option>
-                    @endforeach
-                </select>
-
+            <div class="col-3 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
             </div>
 
             <div class="col-md-3">
@@ -65,7 +39,49 @@
                         </option>
                     @endforeach
                 </select>
+            </div>
 
+            <div class="col-md-2">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Employee"
+                    name="employee">
+                    <option value="" disabled="" selected="" hidden="">Select Employee</option>
+                    @foreach ($employeeLists as $employee)
+                        <option value="{{ $employee->id }}" {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID ID">
+            </div>
+
+            <div class="col-md-3">
+                <select name="department" class="form-control select2 select2-hidden-accessible"
+                    data-placeholder="Select Department">
+                    <option value="" disabled="" selected="" hidden="">Select Department</option>
+                    @foreach ($departments as $department)
+                        <option value="{{ $department->id }}"
+                            {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                            {{ $department->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select name="region" class="form-control select2 select2-hidden-accessible"
+                    data-placeholder="Select Region">
+                    <option value="" disabled="" selected="" hidden="">Select Region</option>
+                    @foreach ($regions as $region)
+                        <option value="{{ $region->id }}"
+                            {{ request()->get('region') == $region->id ? 'selected' : '' }}>
+                            {{ $region->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="col-md-2">
@@ -86,10 +102,7 @@
                     <option value="-1" {{ request()->get('status') == -1 ? 'selected' : '' }}>Rejected</option>
                 </select>
             </div>
-            <div class="col-md-3 form-group">
-                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
-                    placeholder="CID ID">
-            </div>
+            
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -117,10 +130,13 @@
                                                                     #
                                                                 </th>
                                                                 <th>
-                                                                    CODE
+                                                                    Applied On
                                                                 </th>
                                                                 <th>
-                                                                    NAME
+                                                                    Employee Id
+                                                                </th>
+                                                                <th>
+                                                                    EMPLOYEE NAME
                                                                 </th>
                                                                 <th>
                                                                     DESIGNATION
@@ -129,7 +145,10 @@
                                                                     DEPARTMENT
                                                                 </th>
                                                                 <th>
-                                                                    LOCATION
+                                                                    REGION
+                                                                </th>
+                                                                <th>
+                                                                    OFFICE LOCATION
                                                                 </th>
                                                                 <th>
                                                                     ADVANCE LOAN TYPE
@@ -141,7 +160,7 @@
                                                                     DATE OF CLAIM
                                                                 </th>
                                                                 <th>
-                                                                    AMOUNT
+                                                                    AMOUNT (NU.)
                                                                 </th>
                                                                 <th>
                                                                     Deduction Period From
@@ -153,7 +172,7 @@
                                                                     EMI End Date
                                                                 </th>
                                                                 <th>
-                                                                    EMI Amount
+                                                                    EMI Amount (NU.)
                                                                 </th>
                                                                 <th>
                                                                     Status
@@ -162,36 +181,37 @@
                                                                     APPROVED BY
                                                                 </th>
                                                                 <th>
-                                                                    APPROVAL DATE
+                                                                    APPROVED ON
                                                                 </th>
                                                                 <th>
-                                                                    Action </th>
-
+                                                                    Action 
+                                                                </th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             @forelse($advanceReports as $reports)
                                                                 <tr>
-                                                                    <td>{{ ($advanceReports->currentPage() - 1) * $advanceReports->perPage() + $loop->iteration }}
+                                                                    <td style="text-align: right">{{ ($advanceReports->currentPage() - 1) * $advanceReports->perPage() + $loop->iteration }}
                                                                     </td>
+                                                                    <td style="text-align: right">{{ getDisplayDateFormat($reports->created_at) }}</td>
+                                                                    <td>{{ $reports->employee->emp_name }}</td>
                                                                     <td>{{ $reports->employee->username }}</td>
-                                                                    <td>{{ $reports->employee->name }}</td>
                                                                     <td>{{ $reports->employee->empJob->designation->name }}
                                                                     </td>
-                                                                    <td>{{ $reports->employee->empJob->department->name }}
-                                                                    </td>
+                                                                    <td>{{ $reports->employee->empJob->department->name }}</td>
+                                                                    <td>{{ $reports->employee->empJob->office->region->name }}</td>
                                                                     <td>{{ $reports->employee->empJob->office->name }}</td>
                                                                     <td>{{ $reports->type->name }}</td>
                                                                     <td>{{ $reports->item_type }}</td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reports->date)->format('d-M-Y') }}
+                                                                    <td style="text-align: right">{{ getDisplayDateFormat($reports->date) }}
                                                                     </td>
-                                                                    <td>{{ $reports->amount }}</td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->format('d-M-Y') }}
+                                                                    <td style="text-align: right">{{ formatAmount($reports->amount, false) }}</td>
+                                                                    <td style="text-align: right">{{ getDisplayDateFormat($reports->deduction_from_period) }}
                                                                     </td>
-                                                                    <td>{{ $reports->no_of_emi }}</td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi - 1)->format('d-F-Y') }}
+                                                                    <td style="text-align: right">{{ $reports->no_of_emi }}</td>
+                                                                    <td style="text-align: right">{{ getDisplayDateFormat(\Carbon\Carbon::parse($reports->deduction_from_period)->addMonths($reports->no_of_emi - 1)) }}
                                                                     </td>
-                                                                    <td>{{ $reports->monthly_emi_amount }}</td>
+                                                                    <td style="text-align: right">{{ formatAmount($reports->monthly_emi_amount, false) }}</td>
                                                                     </td>
                                                                     @php
                                                                         $statusClasses = [
@@ -213,9 +233,9 @@
 
                                                                         {{ $statusText }}
                                                                     </td>
-                                                                    <td>{{ $reports->advance_approved_by->name ?? '-' }}
+                                                                    <td>{{ $reports->advance_approved_by->emp_name ?? '-' }}
                                                                     </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reports->updated_at)->format('d-M-Y') }}
+                                                                    <td style="text-align: right">{{ getDisplayDateFormat($reports->updated_at) }}
                                                                     </td>
                                                                     <td>
                                                                         @if ($privileges->view)
@@ -227,8 +247,7 @@
                                                                 </tr>
                                                             @empty
                                                                 <tr>
-                                                                    <td colspan="14" class="text-center text-danger">No
-                                                                        Advance Loan report found</td>
+                                                                    <td colspan="14" class="text-center text-danger">No Data Found.</td>
                                                                 </tr>
                                                             @endforelse
                                                         </tbody>
@@ -253,11 +272,5 @@
         </div>
 
     </div>
-
-
-
-
-
-
 
 @endsection

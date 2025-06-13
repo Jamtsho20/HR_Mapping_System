@@ -373,7 +373,7 @@ class ApprovalController extends Controller
                                 "LineNumber" => 0,
                                 "ValidFrom" => date('Y-m-d'),
                                 "ValidTo" => null,
-                                "Project" => $detail->site->name
+                                "Project" => $detail->site->code
                             ]
                         ]
                     ];

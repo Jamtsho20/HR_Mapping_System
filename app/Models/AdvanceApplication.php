@@ -152,6 +152,11 @@ class AdvanceApplication extends Model
                 $q->where('id', $request->query('department'));
             });
         }
+        if ($request->has('region') && $request->query('region') != '') {
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('mas_region_id', $request->query('region'));
+            });
+        }
         if ($request->has('section') && $request->query('section') != '') {
             $query->whereHas('employee.empJob.section', function ($q) use ($request) {
                 $q->where('id', $request->query('section'));

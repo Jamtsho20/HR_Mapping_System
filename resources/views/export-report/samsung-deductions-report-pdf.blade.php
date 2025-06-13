@@ -102,8 +102,8 @@
                     <td>{{ $loan->employee->username }}</td>
                     <td>{{ $loan->pay_head_name }}</td>
                     <td>{{ $loan->loan_number }}</td>
-                    <td>{{ getDisplayDateFormat($loan->start_date) }}</td>
-                    <td>{{ getDisplayDateFormat($loan->end_date) }}</td>
+                    <td style="text-align: right;">{{ getDisplayDateFormat($loan->start_date) }}</td>
+                    <td style="text-align: right;">{{ getDisplayDateFormat($loan->end_date) }}</td>
                     <td style="text-align: right;">{{ $loan->recurring_months}}</td>
                     <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
                     <td style="text-align: right;">{{ formatAmount($loan->amount, false) }}</td>

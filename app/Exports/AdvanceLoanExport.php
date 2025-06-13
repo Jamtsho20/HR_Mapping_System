@@ -25,20 +25,22 @@ class AdvanceLoanExport implements FromCollection, WithHeadings
         return AdvanceApplication::whereStatus(3)->filter($this->request, false)->get()->map(function ($AdvanceReports) use (&$serialNo) {
             return [
                 $serialNo++,
+                getDisplayDateFormat($AdvanceReports->created_at),
+                $AdvanceReports->employee->emp_name,
                 $AdvanceReports->employee->username,
-                $AdvanceReports->employee->name,
                 $AdvanceReports->employee->empJob->designation->name,
                 $AdvanceReports->employee->empJob->department->name,
+                $AdvanceReports->employee->empJob->office->region->name,
                 $AdvanceReports->employee->empJob->office->name,
                 $AdvanceReports->advanceType->name,
-                \Carbon\Carbon::parse($AdvanceReports->date)->format('d-F-Y'),
-                $AdvanceReports->amount,
-                \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->format('d-F-Y'),
+                getDisplayDateFormat($AdvanceReports->date),
+                formatAmount($AdvanceReports->amount, false),
+                getDisplayDateFormat($AdvanceReports->deduction_from_period),
                 $AdvanceReports->no_of_emi,
-                $AdvanceReports->monthly_emi_amount,
-                \Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->addMonths($AdvanceReports->no_of_emi - 1)->format('d-F-Y'), // Adding months
-                $AdvanceReports->advance_approved_by->name,
-                \Carbon\Carbon::parse($AdvanceReports->updated_at)->format('d-F-Y')
+                formatAmount($AdvanceReports->monthly_emi_amount, false),
+                getDisplayDateFormat(\Carbon\Carbon::parse($AdvanceReports->deduction_from_period)->addMonths($AdvanceReports->no_of_emi - 1)), // Adding months
+                $AdvanceReports->advance_approved_by->emp_name,
+                getDisplayDateFormat($AdvanceReports->updated_at)
             ];
         });
     }
@@ -46,21 +48,23 @@ class AdvanceLoanExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'SL No',
-            'CODE',
-            'NAME',
-            'DESIGNATION',
-            'DEPARTMENT',
-            'LOCATION',
-            'ADVANCE LOAN TYPE',
-            'DATE OF CLAIM',
-            'AMOUNT',
-            'EMI START DATE',
-            'NO OF EMI',
-            'EMI Amount',
-            'EMI END DATE',
-            'APPROVED BY',
-            'APPROVAL DATE'
+            'Sl No',
+            'Applied On',
+            'Employee Name',
+            'Employee Id',
+            'Designation',
+            'Department',
+            'Region',
+            'Office Location',
+            'Advance Loan Type',
+            'Date of Claim',
+            'Amount (Nu.)',
+            'EMI Start Date',
+            'No of EMI',
+            'EMI Amount (Nu.)',
+            'EMI End Date',
+            'Approved By',
+            'Approved On'
         ];
     }
 }
