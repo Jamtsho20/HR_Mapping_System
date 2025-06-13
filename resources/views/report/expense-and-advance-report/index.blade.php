@@ -92,7 +92,7 @@
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Office Location"
                     name="office">
-                    <option value="" disabled selected hidden>Select Location</option>
+                    <option value="" disabled selected hidden>Select Office Location</option>
                     @foreach ($offices as $office)
                         <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
                             {{ $office->name }}

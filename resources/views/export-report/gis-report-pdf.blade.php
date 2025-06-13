@@ -69,6 +69,9 @@
                     Policy Number
                 </th>
                 <th>
+                    Contact Number
+                </th>
+                <th>
                     CID
                 </th>
                 <th>
@@ -98,6 +101,7 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $gis->employee->name ?? '-' }}</td>
                         <td>{{ $gis->employee->empJob->gis_policy_number ?? '-' }}
+                        <td>{{ $gis->employee->contact_number ?? '-' }}
                         </td>
                         <td>{{ $gis->employee->cid_no ?? '-' }}</td>
                         <td>{{ $gis->employee->dob ?? '-' }}</td>

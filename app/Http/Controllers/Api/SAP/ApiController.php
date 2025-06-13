@@ -11,6 +11,8 @@ use App\Models\MasItem;
 use App\Models\MasStore;
 use App\Models\User;
 use App\Mail\GoodsIssuedMail;
+use App\Models\MasDzongkhag;
+use App\Models\MasSite;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
@@ -286,9 +288,8 @@ class ApiController extends BaseController
             DB::rollBack();
             return $this->errorResponse($e->getMessage());
         }
-
-
     }
+
     public function saveGoodsIssued(Request $request)
     {
 
@@ -400,6 +401,47 @@ class ApiController extends BaseController
             DB::rollBack();
             \Log::error("Failed to save data for {$request->doc_no}: " . $e->getMessage());
             return $this->errorResponse("Failed to save data for {$request->doc_no}: " . $e->getMessage());
+        }
+    }
+
+    public function saveSite(Request $request)
+    {
+        
+        $validator = \Validator::make($request->all(), [
+            'PrjCode' => 'required',
+            'PrjName' => 'required',
+            'U_Dzongkhag' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            \Log::error("Validation error while saving sites: " . json_encode($validator->errors()));
+            return $this->validationErrorResponse($validator->errors());
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $dzongkhagId = MasDzongkhag::where('dzongkhag', $request->U_Dzongkhag)->value('id');
+
+            if (!$dzongkhagId) {
+                throw new \Exception("Dzongkhag '{$request->U_Dzongkhag}' not found.");
+            }
+
+            $site = MasSite::updateOrCreate(
+                ['code' => $request->PrjCode], // Search condition
+                [                            // Fields to update or insert
+                    'name' => $request->PrjName,
+                    'dzongkhag_id' => $dzongkhagId,
+                ]
+            );
+           
+            DB::commit();
+
+            return $this->successResponse('Site saved successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Error saving site: " . $e->getMessage());
+            return $this->errorResponse($e->getMessage());
         }
     }
 
