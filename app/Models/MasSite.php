@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MasSite extends Model
 {
-    use HasFactory, CreatedByTrait;
+    use HasFactory;
 
-    protected $fillable = [ 'code', 'name', 'description', 'created_by', 'updated_by'];
+    protected $fillable = [ 'code', 'name', 'description'];
 
     public function reqDetail()
     {

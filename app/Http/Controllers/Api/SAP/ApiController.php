@@ -406,10 +406,11 @@ class ApiController extends BaseController
 
     public function saveSite(Request $request)
     {
+        
         $validator = \Validator::make($request->all(), [
-            'code' => 'required',
-            'name' => 'required',
-            'dzongkhag' => 'required',
+            'PrjCode' => 'required',
+            'PrjName' => 'required',
+            'U_Dzongkhag' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -420,25 +421,20 @@ class ApiController extends BaseController
         DB::beginTransaction();
 
         try {
-            $dzongkhagId = MasDzongkhag::where('dzongkhag', $request->dzongkhag)->value('id');
+            $dzongkhagId = MasDzongkhag::where('dzongkhag', $request->U_Dzongkhag)->value('id');
 
             if (!$dzongkhagId) {
-                throw new \Exception("Dzongkhag '{$request->dzongkhag}' not found.");
+                throw new \Exception("Dzongkhag '{$request->U_Dzongkhag}' not found.");
             }
 
-            MasSite::updateOrCreate(
-                ['code' => $request->code], // Search condition
+            $site = MasSite::updateOrCreate(
+                ['code' => $request->PrjCode], // Search condition
                 [                            // Fields to update or insert
-                    'name' => $request->name,
+                    'name' => $request->PrjName,
                     'dzongkhag_id' => $dzongkhagId,
                 ]
             );
-            // if ($site->wasRecentlyCreated) {
-            //     $site->created_by = $this->sapUser;
-            // } else {
-            //     $site->updated_by = $this->sapUser;
-            // }
-            // $site->save();
+           
             DB::commit();
 
             return $this->successResponse('Site saved successfully.');
