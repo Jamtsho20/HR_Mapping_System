@@ -33,7 +33,7 @@ class GISExport implements FromCollection, WithHeadings
                     $serialNo++,
                     $gis->employee->name ?? '-',
                     $gis->employee->empJob->gis_policy_number ?? '-',
-                    $gis->employee->empJob->contact_number ?? '-',
+                    $gis->employee->contact_number ?? '-',
                     $gis->employee->cid_no ?? '-',
                     $gis->employee->dob ?? '-',
                     $gis->employee->empJob->basic_pay ?? 0,
