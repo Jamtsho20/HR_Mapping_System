@@ -31,7 +31,7 @@ class EmployeeExport implements FromCollection, WithHeadings
                 $employee->name,
                 $employee->cid_no,
                 $employee->gender_name,
-                $employee->empJob->department->name,
+                $employee->empJob->department->name ?? '-',
                 $employee->empJob->section->name ?? '-',
                 $employee->empJob->designation->name,
                 $employee->empJob->gradeStep->name,
