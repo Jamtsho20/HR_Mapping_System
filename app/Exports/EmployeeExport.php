@@ -33,12 +33,12 @@ class EmployeeExport implements FromCollection, WithHeadings
                 $employee->gender_name,
                 $employee->empJob->department->name ?? '-',
                 $employee->empJob->section->name ?? '-',
-                $employee->empJob->designation->name,
-                $employee->empJob->gradeStep->name,
-                $employee->empJob->office->name,
-                $employee->date_of_appointment,
-                $employee->contact_number,
-                $employee->email,
+                $employee->empJob->designation->name ?? '-',
+                $employee->empJob->gradeStep->name ?? '-',
+                $employee->empJob->office->name ?? '-',
+                $employee->date_of_appointment ?? '-',
+                $employee->contact_number ?? '-',
+                $employee->email ?? '-',
                 $employee->is_active ? 'Active' : 'Inactive',
 
             ];
