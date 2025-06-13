@@ -883,4 +883,30 @@ class AjaxRequestController extends Controller
             return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again.'. $e->getMessage());
         }
     }
+
+    public function getGrnDetailByGrnNo($grnNo)
+        {
+            try {
+                // Fetch all active GRNs
+                $grns = MasGrnItem::with(['detail.store:id,name', 'detail.item:id,item_description,uom,is_fixed_asset', 'detail'])
+                    ->whereStatus(1)
+                    ->get();
+
+                // Filter GRNs by extracting the last segment and comparing
+                $matchedGrn = $grns->first(function ($grn) use ($grnNo) {
+                    $parts = explode('-', $grn->grn_no);
+                    $lastSegment = ltrim(end($parts), '0'); // Remove leading zeros
+                    return $lastSegment == $grnNo;
+                });
+
+                if (!$matchedGrn) {
+                    return $this->errorResponse('GRN Number not found in HRMS.');
+                }
+
+                return $this->successResponse($matchedGrn);
+            } catch (\Exception $e) {
+                return $this->errorResponse('Something went wrong while fetching asset numbers. Please try again. ' . $e->getMessage());
+            }
+        }
+
 }

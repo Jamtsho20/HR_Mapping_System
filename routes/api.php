@@ -82,6 +82,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('/get-asset/{id}', [CommissionApplicationApiController::class, 'getAssetNoByGrnId']);
         Route::resource('commission', 'CommissionApplicationApiController');
         Route::get('commission_approval', [CommissionApplicationApiController::class, 'indexCommissionApproval']);
+        Route::get('getGrnDetails/{grnNo}', [AjaxRequestController::class, 'getGrnDetailByGrnNo']);
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {

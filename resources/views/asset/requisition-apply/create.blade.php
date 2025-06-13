@@ -348,45 +348,61 @@
             let selectedGrn =[];
 
             $(document).on('change', 'input[name^="details"][name$="[grn_no]"]', function () {
-                let grnData = $(this).val();
-             
-                if (!grnData) return;
+            let grnData = $(this).val();
 
-                let selectedGRN = grnData
-                let row = $(this).closest('tr');
-                let grnDetails = grnDatas.find(grn => grn.grn_no == selectedGRN);
+            if (!grnData) return;
+            $('#loader').show();
+
+            let row = $(this).closest('tr');
+            let grnDetails;
+
+            fetch(`/assets/getGrnDetails/${grnData}`)
+            .then(response => response.json())
+            .then(responseData => {
+                if (responseData.status === "success") {
+                    // Corrected line: grnDetails should be fetched from responseData.data
+                    grnDetails = responseData.data.detail;
+
 
                     row.find('select[name^="details"][name$="[item_description]"]').empty();
                     row.find('select[name^="details"][name$="[store]"]').empty();
                     row.find('input[name^="details"][name$="[uom]"]').val('');
                     row.find('input[name^="details"][name$="[stock_status]"]').val('');
-                    if (grnDetails) {
+console.log(grnDetails, responseData.data);
+                    if (grnDetails && grnDetails.length > 0) {
                         const selectedType = type.value; // Get the selected requisition type again
                         const itemDropdown = row.find('select[name^="details"][name$="[item_description]"]');
                         const storeDropdown = row.find('select[name^="details"][name$="[store]"]');
+
                         // Clear existing options before appending new ones
                         itemDropdown.html('');
                         storeDropdown.html('');
+
                         // Add the placeholder as the first option
                         const storePlaceholderOption = $('<option>', {
                             text: 'Select Store',
                             disabled: true,
-                            selected: true
-                        })
+                            selected: false
+                        });
+
+                        storeDropdown.append(storePlaceholderOption); // Append placeholder to store dropdown
 
                         const uniqueStoresMap = new Map();
-                        grnDetails.detail.forEach(detail => {
 
-                             const store = detail.store;
-
-                                if (!uniqueStoresMap.has(store.id)) {
-                                    uniqueStoresMap.set(store.id, { id: store.id, name: store.name, grnId: grnDetails.id });
-                                }
+                       grnDetails.forEach(detail => {
+                        const store = detail.store;
+                        if (store && !uniqueStoresMap.has(store.id)) {
+                            uniqueStoresMap.set(store.id, {
+                            id: store.id,
+                            name: store.name,
+                            grnId: responseData.data.id
+                            });
+                        }
                         });
 
                         const uniqueStores = Array.from(uniqueStoresMap.values());
 
-                      uniqueStores.forEach((store, index) => {
+                        uniqueStores.forEach((store, index) => {
                             storeDropdown.append(
                                 `<option value="${store.id}" data-grnid="${store.grnId}" ${index === 0 ? 'selected' : ''}>
                                     ${store.name}
@@ -395,11 +411,26 @@
                         });
 
                         storeDropdown.trigger('change');
+                        $(this).val(responseData.data.grn_no);
+                        $('#loader').hide();
 
-                    }else{
-                        showErrorMessage('GRN Number not found in grnData');
+
+                    } else {
+                         $('#loader').hide();
+                        showErrorMessage('No details found for the GRN.');
                     }
-                });
+                } else {
+                    $('#loader').hide();
+
+                    showErrorMessage('Failed to fetch GRN details: ' + responseData.message);
+
+                }
+            })
+            .catch(error => {
+                showErrorMessage("Failed to fetch GRN details:"+ error);
+            });
+
+        });
 
 
 
@@ -426,6 +457,7 @@
 
                 const selectedType = type.value; // Get the selected requisition type again
                 const itemDropdown = row.find('select[name^="details"][name$="[item_description]"]');
+
 
                 // Add placeholder
                 const placeholderOption = $('<option>', {
@@ -455,10 +487,11 @@
                         });
 
                     let grnIdIn = row.find('select[name^="details"][name$="[grn_no]"]').val();
-                    let grnNo = row.find('input[name^="details"][name$="[grn_no]"]').val();
+                    let grnNo = grnDetails.grn_no;
 
-                    if (selectedGrn.includes(grnIdIn)) return;
-                        selectedGrn.push(grnIdIn);
+                    if (selectedGrn.includes(grnId)) return;
+                    selectedGrn.push(grnId);
+
                     showConfirmationMessage(
                         `This store has ${matchingItems.length} item(s). Do you want to auto-select all of them?`,
                         () => {
@@ -471,14 +504,14 @@
                         const storeSelect = lastRow.find('select[name^="details"][name$="[store]"]');
                         const grnSelect = lastRow.find('select[name^="details"][name$="[grn_no]"]');
                         const grnInput = lastRow.find('input[name^="details"][name$="[grn_no]"]');
-                        
+
                         // if (grnSelect.length) {
                         if(grnInput){
                             // grnSelect.val(grnId);
                             grnInput.val(grnNo);
                         }
 
-                       
+
                         if (storeSelect.length) {
 
                             storeSelect.val(detail.store.id);
