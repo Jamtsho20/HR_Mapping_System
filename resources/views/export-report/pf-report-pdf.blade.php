@@ -69,6 +69,9 @@
                     PF Number
                 </th>
                 <th>
+                    Contact Number
+                </th>
+                <th>
                     CID
                 </th>
                 <th>
@@ -101,6 +104,7 @@
                         <td>{{ $serial++ }}</td>
                         <td>{{ $pf['employee_name'] }}</td>
                         <td>{{ $pf['pf_number'] }}</td>
+                        <td>{{ $pf['Contact'] }}</td>
                         <td>{{ $pf['CID'] ?? '-' }}</td>
                         <td>{{ formatAmount($pf['basic_pay'] ?? 0, false) }}</td>
                         <td>{{ formatAmount($pfContr, false) }}</td>

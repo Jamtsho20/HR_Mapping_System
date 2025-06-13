@@ -386,13 +386,7 @@
             const anyReceived = Array.from(receiveToggles).some(toggle => toggle.checked);
 
              if (anyReceived) {
-                receiveToggles.forEach(toggle => {
-                    toggle.readOnly = true;
-                    toggle.addEventListener('click', function (e) {
-                        e.preventDefault(); // Prevent toggling
-                    });
-                });
-
+                 receiveAll.disabled = true;
                 if (receiveAll) {
                     receiveAll.readOnly = true;
                     receiveAll.addEventListener('click', function (e) {
