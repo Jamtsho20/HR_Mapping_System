@@ -96,9 +96,6 @@ class CommissionApplicationApiController extends Controller
             return [
                 'id' => $requisition->id,
                 'transaction_no' => $requisition->transaction_no,
-                'details' => $requisition->details->map(function ($detail) {
-                    return ['id' => $detail->id];
-                })->values(),
             ];
         });
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
@@ -246,7 +243,7 @@ class CommissionApplicationApiController extends Controller
                     if (!empty($existingSerials)) {
                         $query->whereNotIn('id', $existingSerials);
                     }
-                    $query->selectRaw("id, requisition_detail_id, asset_serial_no, asset_description, amount");
+                    $query->selectRaw("id, requisition_detail_id, asset_serial_no, asset_description, amount, quantity");
                 }
             ])
             ->first();
