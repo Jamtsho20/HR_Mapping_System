@@ -70,6 +70,7 @@ class DepartmentController extends Controller
         $department = MasDepartment::findOrFail($id);
         return view('masters.department.edit', compact('department'));
     }
+    
     public function update(Request $request, $id)
     {
         
