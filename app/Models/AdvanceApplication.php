@@ -180,7 +180,10 @@ class AdvanceApplication extends Model
         $statusNameMapping = config('global.application_status');
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
-
+    public function loanRepaymentSchedules()
+    {
+        return $this->hasMany(SifaLoanRepayment::class);
+    }
     //insert to loan_e_m_i_deductions table as when advance for device emi gets approved
     protected static function boot()
     {
@@ -238,6 +241,7 @@ class AdvanceApplication extends Model
             'recurring_months' => $this->no_of_emi,
             'remarks' => $this->remarks ?? null,
             'is_paid_off' => 0,
+            'advance_application_id' => $this->id,
             'created_at' => now(),
         ]);
     }

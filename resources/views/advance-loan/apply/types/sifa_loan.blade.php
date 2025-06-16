@@ -1,14 +1,15 @@
 <!-- Dynamic Form Sections -->
 <div id="sifa-loan-form" class="dynamic-form" style="display: none; ">
     <div class="row">
-        @if(isset($advance) && $advance)
-        <div class="form-group info-green p-3 pt-0 fw-bold">
-            <label>Previous Loan Outstanding Amount</label>
-            <!-- <input type="number" class="form-control" value="{{ number_format($remainingOutstanding, 2) }}" readonly /> -->
-            <input type="hidden" name="advance_loan_number" value="{{$advance->transaction_no}}" readonly />  
-            <input type="number" id="remaining_outstanding" class="form-control info-green p-3 pt-0 fw-bold" value="{{ number_format($remainingOutstanding, 2, '.', '') }}" readonly />
-
-
+        @if(isset($outstandingAmount) && $outstandingAmount > 0)
+        <div class="">
+            <p class="info-green">
+                <strong>Outstanding SIFA Loan:</strong><br>
+                Closing Balance ({{ \Carbon\Carbon::parse($latestRepayment->month)->format('F Y') }}): Nu. {{ number_format($remainingPrincipal, 2) }}<br>
+                Accrued Interest (till {{ now()->format('d M, Y') }}): Nu. {{ number_format($accruedInterest, 2) }}<br>
+                <strong>Total Outstanding:</strong> Nu. {{ number_format($outstandingAmount, 2) }}<br><br>
+            </p>
+            <input type="hidden" id="remaining_outstanding" class="form-control info-green p-3 pt-0 fw-bold" value="{{ number_format($outstandingAmount, 2, '.', '') }}" readonly />
         </div>
         @endif
         <div class="col-md-4">
@@ -92,7 +93,7 @@
         let year = parseInt(dateToday.split('-')[0]);
         let month = parseInt(dateToday.split('-')[1]);
         let day = parseInt(dateToday.split('-')[2]);
-        if (day > 15) {
+        if (day > 26) {
             month += 1;
             if (month > 12) {
                 month = 1;

@@ -12,6 +12,7 @@ use App\Models\InterestRate;
 use App\Models\LoanEMIDeduction;
 use App\Models\MasAdvanceTypes;
 use App\Models\MasDzongkhag;
+use App\Models\SifaLoanRepayment;
 use App\Models\TravelAuthorizationApplication;
 use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
@@ -126,37 +127,76 @@ class AdvanceLoanApplicationController extends Controller
         $eligibilityAmount = min($netPay * 3, 100000); // Cap at 100,000 if needed
 
         // Fetch advance
-        $advance = AdvanceApplication::where('created_by', $employeeId)->where('status', 3)->orderByDesc('id')->first();
+        // $advance = AdvanceApplication::where('created_by', $employeeId)->where('status', 3)->orderByDesc('id')->first();
+        // // dd($advance);
+        // // Fetch active loan EMI
+        // $emi = LoanEMIDeduction::where('mas_employee_id', $employeeId)->where('is_paid_off', 0)->orderByDesc('id')->first();
+        // //  dd($advance,$emi);
+        // $advance = AdvanceApplication::where('created_by', $employeeId)
+        //     ->where('status', 4)
+        //     ->orderByDesc('id')
+        //     ->first();
         // dd($advance);
-        // Fetch active loan EMI
-        $emi = LoanEMIDeduction::where('mas_employee_id', $employeeId)->where('is_paid_off', 0)->orderByDesc('id')->first();
-        //  dd($advance,$emi);
-        $advance = AdvanceApplication::where('created_by', $employeeId)
-            ->where('status', 4)
+        // $remainingOutstanding = 0;
+
+        // if ($advance) {
+        //     $totalAmount = $advance->total_amount ?? 0;
+        //     $monthlyEmi = $advance->monthly_emi_amount ?? 0;
+        //     $deductionFrom = $advance->deduction_from_period;
+
+        //     if ($deductionFrom && $monthlyEmi > 0) {
+        //         $deductionFromDate = Carbon::parse($deductionFrom);
+        //         $now = Carbon::now();
+
+        //         // $monthsElapsed = $deductionFromDate->diffInMonths($now) + 1; // include current month
+        //         $monthsElapsed = $deductionFromDate->diffInMonths($now); // exclude current month
+        //         $deductedAmount = $monthlyEmi * $monthsElapsed;
+
+        //         $remainingOutstanding = max(0, $totalAmount - $deductedAmount);
+        //     } else {
+        //         $remainingOutstanding = $totalAmount; // no deductions yet
+        //     }
+
+        //     // dd('remainingOutstanding', $remainingOutstanding);
+        // }
+        // Fetch any current advance (for use/display if needed)
+
+        // Check for active SIFA loan and latest repayment
+        $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
+            ->where('status', 4) // approved
+            ->where('type_id', 7) // SIFA loan
             ->orderByDesc('id')
             ->first();
-// dd($advance);
-        $remainingOutstanding = 0;
 
-        if ($advance) {
-            $totalAmount = $advance->total_amount ?? 0;
-            $monthlyEmi = $advance->monthly_emi_amount ?? 0;
-            $deductionFrom = $advance->deduction_from_period;
+        $remainingPrincipal = 0;
+        $accruedInterest = 0;
+        $outstandingAmount = 0;
+        $netPayable = null;
+        $latestRepayment = null;
 
-            if ($deductionFrom && $monthlyEmi > 0) {
-                $deductionFromDate = Carbon::parse($deductionFrom);
-                $now = Carbon::now();
+        if ($lastApprovedSifaLoan) {
+            $latestRepayment = DB::table('sifaloanrepayment')
+                ->where('advance_application_id', $lastApprovedSifaLoan->id)
+                ->orderByDesc('month')
+                ->first();
+            if ($latestRepayment) {
+                $closingBalance = floatval($latestRepayment->closing_balance);
+                $remainingPrincipal = $closingBalance;
 
-                // $monthsElapsed = $deductionFromDate->diffInMonths($now) + 1; // include current month
-                $monthsElapsed = $deductionFromDate->diffInMonths($now); // exclude current month
-                $deductedAmount = $monthlyEmi * $monthsElapsed;
+                $lastMonthEnd = Carbon::parse($latestRepayment->month)->subMonth()->endOfMonth(); // end of May 2025
+                $today = Carbon::today();     
+                $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
 
-                $remainingOutstanding = max(0, $totalAmount - $deductedAmount);
-            } else {
-                $remainingOutstanding = $totalAmount; // no deductions yet
+
+                $daysInYear = Carbon::now()->daysInYear;
+                $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
+
+                $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+
+                //dd($daysElapsed,$netPayable);
             }
-            // dd('remainingOutstanding', $remainingOutstanding);
         }
+
         return view(
             'advance-loan.apply.create',
             compact(
@@ -168,8 +208,12 @@ class AdvanceLoanApplicationController extends Controller
                 'eligibilityAmount',
                 'netPay',
                 'isSifaRegistered',
-                'remainingOutstanding',
-                'advance'
+                'remainingPrincipal',
+                'accruedInterest',
+                'outstandingAmount',
+                'lastApprovedSifaLoan',
+                'latestRepayment'
+
             )
         );
     }
@@ -230,6 +274,9 @@ class AdvanceLoanApplicationController extends Controller
             if ($request->advance_type == ADVANCE_TO_STAFF && $request->details) {
                 $this->saveAdvanceDetails($request->details, $advanceApplication->id);
             }
+
+
+
 
             // Create a corresponding history record for advance
             // Create a history record it detail code resides in ApplicationHistoriesService classs
