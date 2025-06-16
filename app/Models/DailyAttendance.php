@@ -2,10 +2,23 @@
 
 namespace App\Models;
 
+use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DailyAttendance extends Model
 {
-    use HasFactory;
+    use HasFactory, CreatedByTrait;
+
+    protected $fillable = [
+        'attendance_id', 'department_id', 'section_id', 'day', 'status'
+    ];
+
+    public function empAttendance(){
+        return $this->belongsTo(EmployeeAttendance::class, 'attendance_id');
+    }
+
+    public function details(){
+        return $this->hasMany(AttendanceDetail::class, 'daily_attendance_id');
+    }
 }

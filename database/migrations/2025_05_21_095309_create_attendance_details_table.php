@@ -22,6 +22,9 @@ return new class extends Migration
             $table->ipAddress('check_out_ip')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            //if this required uncomment this two column
+            // $table->foreignId('updated_by_head')->index()->nullable()->constrained('mas_employees');
+            // $table->foreignId('updated_by_hr')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
         });
     }

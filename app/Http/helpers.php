@@ -2,12 +2,17 @@
 
 use App\Models\ApplicationAuditLog;
 use App\Models\ApplicationHistory;
+use App\Models\AttendanceDetail;
+use App\Models\EmployeeAttendance;
+use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
 use App\Models\MasOfficeTiming;
+use App\Models\TravelAuthorizationApplication;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\WorkHolidayList;
 use Intervention\Image\Facades\Image as Image;
 
 /**
@@ -628,6 +633,106 @@ if(!function_exists('getDisplayDateFormat')){
 if(!function_exists('truncateText')){
     function truncateText($text){
         return \Illuminate\Support\Str::limit($text, 25, '...');
+    }
+}
+
+if(!function_exists('getAttendanceStatus')){
+    function getAttendanceStatus($empId, $empRegion){
+        $currentDate = Carbon::now();
+        //checks Mon, Tues, Wed, in full name as this need to be checked off days for shift employee
+        $today = Carbon::now()->format('l'); 
+        $attendanceStatus = CREATED_STATUS;
+        // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
+        $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
+
+        // 1. check if employee is on tour
+        $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
+            $query->where('from_date', '<=', $currentDate)
+                ->where('to_date', '>=', $currentDate);
+            }])
+            ->where('status', '<>', -1)
+            ->first();
+
+        if($isOnTour && $isOnTour->details->isNotEmpty()){
+            return ON_TOUR_STATUS;
+        }
+        // 2. check if employee is on leave priority over other
+        $isOnLeave = LeaveApplication::where('created_by', $empId)
+            ->where('from_date', '<=', $currentDate)
+            ->where('to_date', '>=', $currentDate)
+            ->where('status', '<>', -1)
+            ->first();
+
+        if ($isOnLeave) {
+            switch ($isOnLeave->type_id) {
+                case CASUAL_LEAVE:
+                    return match ($isOnLeave->from_day) {
+                        1 => CASUAL_LEAVE_STATUS,
+                        2 => FHCL_LEAVE_STATUS,
+                        3 => SHCL_LEAVE_STATUS,
+                        default => CASUAL_LEAVE_STATUS,
+                    };
+                case EARNED_LEAVE: return EARNED_LEAVE_STATUS;
+                case MEDICAL_LEAVE: return MEDICAL_LEAVE_STATUS;
+                case MATERNITY_LEAVE: return MATERNITY_LEAVE_STATUS;
+                case PATERNITY_LEAVE: return PATERNITY_LEAVE_STATUS;
+                case BEREAVEMENT_LEAVE: return BEREAVEMENT_LEAVE_STATUS;
+                case STUDY_LEAVE: return STUDY_LEAVE_STATUS;
+                case EXTRA_ORDINARY_LEAVE: return EOL_LEAVE_STATUS;
+            }
+        }
+
+        // check if employee is in shift as they will have different sets of off days
+        if ($isShiftEmp && is_array($isShiftEmp->off_days) && in_array($today, $isShiftEmp->off_days)) {
+            return WEEKLY_OFF_STATUS;
+        }
+
+        // 3. Check if it's a holiday first (priority over weekends)
+        $matchingHoliday = WorkHolidayList::whereJsonContains('region_id', $empRegion)
+            ->whereDate('start_date', '<=', $currentDate)
+            ->whereDate('end_date', '>=', $currentDate)
+            ->first();
+
+        if ($matchingHoliday && !$isShiftEmp) {
+            return HOLIDAY_STATUS;
+        }
+
+        // 4. Check for Sunday
+        if ($currentDate->isSunday() && !$isShiftEmp) {
+            return WEEKLY_OFF_STATUS;
+        }
+
+        // 5. Check for Saturday
+        if ($currentDate->isSaturday() && $isShiftEmp) {
+            return HALF_DAY_WEEKEND_STATUS;
+        }
+
+        return $attendanceStatus;
+    }
+}
+
+// Get daily attendance entry for logged in user/employee
+if(!function_exists('empAttendanceEntry')){ 
+    function empAttendanceEntry($loggedInUser)
+    {
+        $currentMonth = Carbon::now()->format('m-Y');
+        $currentDay = Carbon::now()->day;
+        $sectionId = $loggedInUser->empJob->mas_section_id;
+
+        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($sectionId, $currentDay) {
+            $query->where('section_id', $sectionId)
+                  ->where('day', $currentDay);
+        }])->where('for_month', $currentMonth)->first();
+
+        $dailyAttendance = $empAttendance?->dailyAttendances;
+
+        if (!$dailyAttendance) {
+            return null;
+        }
+
+        return AttendanceDetail::where('daily_attendance_id', $dailyAttendance->id)
+            ->where('employee_id', $loggedInUser->id)
+            ->first();
     }
 }
 
