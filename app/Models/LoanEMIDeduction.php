@@ -19,7 +19,8 @@ class LoanEMIDeduction extends Model
         'recurring',
         'recurring_months',
         'remark',
-        'is_paid_of'
+        'is_paid_of',
+        'advance_application_id',
     ];
 
     public function employee()

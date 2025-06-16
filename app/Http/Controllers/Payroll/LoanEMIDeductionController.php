@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdvanceApplication;
+use App\Models\InterestRate;
 use App\Models\LoanEMIDeduction;
 use App\Models\MasLoanType;
 use App\Models\MasPayHead;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LoanEMIDeductionController extends Controller
@@ -133,8 +136,53 @@ class LoanEMIDeductionController extends Controller
         $loanEMIDeduction = LoanEMIDeduction::findOrFail($id);
         $loanTypes = MasLoanType::pluck('name', 'id');
 
-        return view('payroll.loan-emi-deductions.edit', compact('loanEMIDeduction', 'loanTypes'));
+        // Step 1: Get the employee ID
+        $employeeId = $loanEMIDeduction->mas_employee_id;
+
+        // Step 2: Find last approved SIFA loan
+        $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
+            ->where('status', 4) // approved
+            ->where('type_id', 7) // SIFA loan
+            ->orderByDesc('id')
+            ->first();
+
+        // Initialize variables
+        $remainingPrincipal = 0;
+        $accruedInterest = 0;
+        $outstandingAmount = 0;
+        $sifaInterestRate = InterestRate::where('advance_type_id', [7,4])->value('rate');
+        $latestRepayment = null;
+        
+        if ($lastApprovedSifaLoan) {
+            $latestRepayment = DB::table('sifaloanrepayment')
+                ->where('advance_application_id', $lastApprovedSifaLoan->id)
+                ->orderByDesc('month')
+                ->first();
+
+            if ($latestRepayment) {
+                $closingBalance = floatval($latestRepayment->closing_balance);
+                $remainingPrincipal = $closingBalance;
+
+                $lastMonthEnd = Carbon::parse($latestRepayment->month)->subMonth()->endOfMonth(); // end of May 2025
+                $today = Carbon::today();     
+                $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
+
+                $daysInYear = \Carbon\Carbon::now()->daysInYear;
+                $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
+
+                $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+            }
+        }
+
+        return view('payroll.loan-emi-deductions.edit', compact(
+            'loanEMIDeduction',
+            'loanTypes',
+            'remainingPrincipal',
+            'accruedInterest',
+            'outstandingAmount','lastApprovedSifaLoan', 'sifaInterestRate','latestRepayment'
+        ));
     }
+
 
     /**
      * Update the specified resource in storage.
