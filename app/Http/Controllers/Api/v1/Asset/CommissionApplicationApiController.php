@@ -225,40 +225,61 @@ class CommissionApplicationApiController extends Controller
 
 
 
-    public function getAssetNoByGrnId($grnId)
-    {
-        //only those serial whose status is not -1
-        $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
-            $query->where('status', '!=', -1);
-        })->pluck('received_serial_id')->toArray();
-        // dd($existingSerials);
-        try {
-            $assetNosQuery = RequisitionDetail::where('id', $grnId)
-                ->whereHas('serials', function ($query) {
+   public function getAssetNoByGrnId($grnId)
+{
+    // Only those serials whose status is not -1
+    $existingSerials = AssetCommissionDetail::whereHas('assetCommission', function ($query) {
+        $query->where('status', '!=', -1);
+    })->pluck('received_serial_id')->toArray();
+
+    try {
+        $assetNosQuery = RequisitionApplication::where('id', $grnId)
+            ->whereHas('details.serials', function ($query) {
+                $query->where('is_commissioned', 0);
+            })
+            ->with([
+
+                'details.grnItemDetail:id,item_id',
+                'details.grnItemDetail.item:id,item_no,item_description,uom',
+                'details.serials' => function ($query) use ($existingSerials) {
                     $query->where('is_commissioned', 0);
-                })
-                ->with('grnItemDetail:id,item_id', 'grnItemDetail.item:id,item_no,item_description,uom')
-                ->with(['serials' => function ($query) use ($existingSerials) {
-                        $query->where('is_commissioned', 0);
-                        if(!empty($existingSerials)){
-                            $query->whereNotIn('id', $existingSerials);
-                        }
-                        $query->selectRaw("id, requisition_detail_id, asset_serial_no, asset_description, amount");
-                    },
-                ])->selectRaw("id, requisition_id, grn_item_id, grn_item_detail_id");
-                // dd($assetNosQuery->toSql(), $assetNosQuery->getBindings());
+                    if (!empty($existingSerials)) {
+                        $query->whereNotIn('id', $existingSerials);
+                    }
+                    $query->selectRaw("id, requisition_detail_id, asset_serial_no, asset_description, amount");
+                }
+            ])
+            ->first();
 
-            $assetNos = $assetNosQuery->first();
+        if (!$assetNosQuery) {
+            return $this->errorResponse('No asset numbers found for the provided Requisition number.');
+        }
 
-            if (!$assetNos) {
-                return $this->errorResponse('No asset numbers found for the provided GRN number.');
+         $result = [];
+
+        foreach ($assetNosQuery->details as $detail) {
+            $itemNo = optional(optional($detail->grnItemDetail)->item)->item_no;
+
+            // Append item_no to each serial number if type_id == 1
+            if ($assetNosQuery->type_id == 1 && $itemNo) {
+                foreach ($detail->serials as $serial) {
+                    $serial->asset_serial_no = $itemNo . '-' . $serial->asset_serial_no;
+                }
             }
 
-            return $this->successResponse( $assetNos);
-        } catch(\Exception $e) {
-            return $this->errorResponse('Something went wrong while fetching asset numbers'. $e->getMessage());
+            $result[] = [
+                'current_stock' => $detail->current_stock,
+                'grn_item_detail' => $detail->grnItemDetail,
+                'serials' => $detail->serials,
+            ];
         }
+
+        return $this->successResponse($result, 'Asset numbers fetched successfully');
+    } catch (\Exception $e) {
+        return $this->errorResponse('Something went wrong while fetching asset numbers. ' . $e->getMessage());
     }
+}
+
 
 
     public function indexCommissionApproval(Request $request)
