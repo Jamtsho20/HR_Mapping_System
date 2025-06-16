@@ -9,12 +9,28 @@ use App\Models\MasApprovalRuleConditionOperator;
 use App\Models\MasEmployeeJob;
 use App\Models\SystemHierarchy;
 use App\Models\User;
-
+use Illuminate\Validation\ValidationException;
 class ApprovalService
 {
     public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
     {
         $userRoles = auth()->user()->roles()->pluck('role_id')->toArray();
+        //checking for section
+        $noSectionFlag = false;
+
+        foreach($userRoles as $role){
+            if ($role == DEPARTMENT_HEAD || $role == MANAGING_DIRECTOR) {
+                $noSectionFlag = true;
+            }
+        }
+
+        if(!auth()->user()->empJob->mas_section_id && !$noSectionFlag){
+            throw ValidationException::withMessages([
+                'section' => 'You have not been assigned to any section, please contact your admin.',
+            ]);
+
+        }
+
         // incase if employee has this two roles then it will be different from normal hierarchy
         // Filter and collect the desired roles delegatedRole function defined in helpers.php to make use in other part of the application
         $delegatedRole = delegatedRole(auth()->user()->id); // should return array of role IDs

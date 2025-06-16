@@ -47,6 +47,7 @@ class TransferClaimApplication extends Model
 
     public function scopeFilter($query, $request, $onesOwnRecord = true)
     {
+        // dd($request->all());
         if ($request->has('type_id') && $request->query('type_id') != '') {
             $query->where('type_id', $request->query('type_id'));
         }
@@ -56,11 +57,14 @@ class TransferClaimApplication extends Model
         if ($request->has('manager') && $request->query('manager') !== '') {
             $query->where('updated_by', $request->query('manager'));
         }
-        if ($request->has('sap_trans_no') && $request->query('sap_trans_no') !== '') {
-            $sapTransNo = $request->query('sap_trans_no');
-        
+
+        $sapTransNo = trim($request->query('sap_trans_no'));
+        if (!empty($sapTransNo)) {
             $query->whereHas('audit_logs', function ($q) use ($sapTransNo) {
-                $q->where('status', 3)->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
+                $q->where('status', 3)
+                    ->whereNotNull('sap_response')
+                    ->whereRaw("JSON_VALID(sap_response)")
+                    ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sap_response, '$.data.JdtNum')) = ?", [$sapTransNo]);
             });
         }
 
@@ -79,6 +83,23 @@ class TransferClaimApplication extends Model
             $query->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month);
         }
+
+        if ($request->get('date')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('date'));
+
+            // Step 2: Convert each date to Y-m-d format using Carbon
+            $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->format('Y-m-d');
+
+            // Step 3: Apply the date range filter
+            if ($startDate === $endDate) {
+                $query->whereDate('created_at', $startDate);
+            } else {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
+        }
+        
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('employee.empJob.department', function ($q) use ($request) {
                 $q->where('id', $request->query('department'));
@@ -90,8 +111,8 @@ class TransferClaimApplication extends Model
             });
         }
         if ($request->has('region') && $request->query('region') != '') {
-            $query->whereHas('employee.region', function ($q) use ($request) {
-                $q->where('id', $request->query('region'));
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('mas_region_id', $request->query('region'));
             });
         }
         if ($request->has('office') && $request->query('office') != '') {

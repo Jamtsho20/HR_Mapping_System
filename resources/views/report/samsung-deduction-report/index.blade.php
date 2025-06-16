@@ -80,34 +80,32 @@
                                                             No of Installments (Months)
                                                         </th>
                                                         <th>
-                                                            For Month
+                                                            Monthly Installment (Nu.)
                                                         </th>
                                                         <th>
-                                                            Monthly Installment (Nu.)
+                                                            For Month
                                                         </th>
 
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
-                                                    @forelse($samsungDeductions as $loan)
+                                                    @forelse($paySlips as $paySlip)
                                                         <tr>
                                                             <td style="text-align: right;">{{ $loop->iteration }}</td>
-                                                            <td>{{ $loan->employee->emp_name }}</td>
-                                                            <td>{{ $loan->employee->username }}</td>
-                                                            <td>{{ $loan->pay_head_name }}</td>
-                                                            <td>{{ $loan->loan_number }}</td>
-                                                            <td style="text-align: right;">{{ getDisplayDateFormat($loan->start_date) }}</td>
-                                                            <td style="text-align: right;">{{ getDisplayDateFormat($loan->end_date) }}</td>
-                                                            <td style="text-align: right;">{{ $loan->recurring_months}}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
-                                                            <td style="text-align: right;">{{ formatAmount($loan->amount, false) }}</td>
-
-
+                                                            <td>{{ $paySlip->employee->emp_name }}</td>
+                                                            <td>{{ $paySlip->employee->username }}</td>
+                                                            <td>{{ $paySlip->pay_head_name }}</td>
+                                                            <td>{{ $paySlip->loan_number }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($paySlip->start_date) }}</td>
+                                                            <td style="text-align: right;">{{ getDisplayDateFormat($paySlip->end_date) }}</td>
+                                                            <td style="text-align: right;">{{ $paySlip->recurring_months }}</td>
+                                                            <td style="text-align: right;">{{ formatAmount($paySlip->amount, false) }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($paySlip->for_month)->format('F Y') }}</td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="10" class="text-center text-danger">No Data Found.</td>
+                                                            <td colspan="7" class="text-center text-danger">No Data Found.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
@@ -118,9 +116,9 @@
                             </div>
                         </div>
                     </div>
-                    @if ($samsungDeductions->hasPages())
+                    @if ($paySlips->hasPages())
                         <div class="card-footer">
-                            {{ $samsungDeductions->links() }}
+                            {{ $paySlips->links() }}
                         </div>
                     @endif
                 </div>

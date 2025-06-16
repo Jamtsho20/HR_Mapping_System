@@ -618,7 +618,16 @@ if(!function_exists('getEffectiveOfficeTiming')){
 //customize date format for display for user (customize according to the needs)
 if(!function_exists('getDisplayDateFormat')){
     function getDisplayDateFormat($date){
+        if (empty($date)) { // this is check because if date value is null it will take current date
+            return config('global.null_value'); // Or return null or '' as per your needs
+        }
         return \Carbon\Carbon::parse($date)->format('d-m-y');
+    }
+}
+
+if(!function_exists('truncateText')){
+    function truncateText($text){
+        return \Illuminate\Support\Str::limit($text, 25, '...');
     }
 }
 

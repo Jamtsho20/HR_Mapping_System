@@ -94,9 +94,9 @@ class AdvanceApplication extends Model
         return $this->belongsTo(TravelAuthorizationApplication::class, 'travel_authorization_id');
     }
 
-    public function emiDeductions()
+    public function emiDeduction()
     {
-        return $this->hasMany(LoanEMIDeduction::class, 'loan_number', 'transaction_no');
+        return $this->hasOne(LoanEMIDeduction::class, 'loan_number', 'transaction_no');
     }
 
     //scope filter
@@ -150,6 +150,11 @@ class AdvanceApplication extends Model
         if ($request->has('department') && $request->query('department') != '') {
             $query->whereHas('employee.empJob.department', function ($q) use ($request) {
                 $q->where('id', $request->query('department'));
+            });
+        }
+        if ($request->has('region') && $request->query('region') != '') {
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('mas_region_id', $request->query('region'));
             });
         }
         if ($request->has('section') && $request->query('section') != '') {

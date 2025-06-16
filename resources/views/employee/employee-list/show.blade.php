@@ -199,8 +199,15 @@
                                     class="pull-right">{{ $employee->empJob->salary_disbursement_name }}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Bank</b> <a class="pull-right">{{ $employee->empJob->bank }}
-                                    ({{ $employee->empJob->account_number ?? config('global.null_value')}}) </a>
+                                <b>Bank</b> 
+                                <a class="pull-right">{{ $employee->empJob->bank }}
+                                    (
+                                        <span><strong>Acc No:</strong> {{ $employee->empJob->account_number ?? config('global.null_value') }}</span>
+                                        @if($employee->empJob->bank == config('global.bank')['T Bank'])
+                                            <span><strong>Code:</strong> {{ $employee->empJob->bank_code ?? config('global.null_value') }}</span>
+                                        @endif
+                                    ) 
+                                </a>
                             </li>
                             <li class="list-group-item">
                                 <b>PF Number</b> <a class="pull-right">{{ $employee->empJob->pf_number }}</a>

@@ -18,14 +18,14 @@
     <br>
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
-            {{-- <div class="col-md-2 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
-            </div> --}}
-            <div class="col-md-2 form-group">
+            <div class="col-md-3 form-group">
                 <input type="text" class="form-control" name="date" id="date-range-picker"
-                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
+                value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
             </div>
-
+            
+            <div class="col-md-2 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+            </div>
 
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Expense"
@@ -92,7 +92,7 @@
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Office Location"
                     name="office">
-                    <option value="" disabled selected hidden>Select Location</option>
+                    <option value="" disabled selected hidden>Select Office Location</option>
                     @foreach ($offices as $office)
                         <option value="{{ $office->id }}" {{ request()->get('office') == $office->id ? 'selected' : '' }}>
                             {{ $office->name }}
@@ -108,6 +108,19 @@
                     @foreach ($managers as $manager)
                         <option value="{{ $manager->id }}" {{ request()->get('manager') == $manager->id ? 'selected' : '' }}>
                             {{ $manager->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-2 form-group">
+                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Vehicle No" name="vehicle_no">
+                    <option value="" disabled selected hidden>Select Vehicle No</option>
+                    {{-- <option value="">All Vehicles</option> --}}
+
+                    @foreach ($vehicles as $vehicle)
+                        <option value="{{ $vehicle->id }}" {{ request()->get('vehicle_no') == $vehicle->id ? 'selected' : '' }}>
+                            {{ $vehicle->vehicle_no }}
                         </option>
                     @endforeach
                 </select>

@@ -12,6 +12,21 @@ class FinalPaySlip extends Model
 
     protected $fillable = ['mas_employee_id', 'for_month', 'details'];
 
+    public function getDetailsAttribute()
+    {
+        return is_array($this->attributes['details']) ? $this->attributes['details'] : json_decode($this->attributes['details'], true);
+    }
+
+    public function emiDeductions()
+    {
+        return $this->hasMany(LoanEMIDeduction::class, 'mas_employee_id', 'mas_employee_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'mas_employee_id');
+    }
+
     public function scopeFilter($query, $request)
     {
         if ($request->get('year')) {
@@ -69,17 +84,31 @@ class FinalPaySlip extends Model
                 $q->where('cid_no', $request->query('cid_no'));
             });
         }
+        // added filter option
+        if ($request->has('department') && $request->query('department') != '') {
+            $query->whereHas('employee.empJob.department', function ($q) use ($request) {
+                $q->where('id', $request->query('department'));
+            });
+        }
+        if ($request->has('section') && $request->query('section') != '') {
+            $query->whereHas('employee.empJob.section', function ($q) use ($request) {
+                $q->where('id', $request->query('section'));
+            });
+        }
+        if ($request->has('region') && $request->query('region') != '') {
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('mas_region_id', $request->query('region'));
+            });
+        }
+
+        if ($request->has('office') && $request->query('office') != '') {
+            $query->whereHas('employee.empJob.office', function ($q) use ($request) {
+                $q->where('id', $request->query('office'));
+            });
+        }
 
         // Add more filters here if needed
         return $query;
     }
-    public function getDetailsAttribute()
-    {
-        return is_array($this->attributes['details']) ? $this->attributes['details'] : json_decode($this->attributes['details'], true);
-    }
 
-    public function employee()
-    {
-        return $this->belongsTo(User::class, 'mas_employee_id');
-    }
 }

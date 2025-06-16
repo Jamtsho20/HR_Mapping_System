@@ -23,6 +23,48 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
     public function collection()
     {
         $serialNo = 1;
+        // $samsungDeductions = FinalPaySlip::with(['employee', 'emiDeductions' => function ($query) {
+        // $query->where('mas_pay_head_id', 16)
+        //     ->where('is_paid_off', 0)
+        //     ->whereDate('start_date', '<=', now()->startOfMonth())
+        //     ->whereDate('end_date', '>=', now()->startOfMonth())
+        //     ->with(['advanceApplication']);
+        // }])
+        // ->filter($this->request, false)
+        // ->get();
+
+        // // Flatten each emiDeduction into a row
+        // $data = collect();
+
+        // foreach ($samsungDeductions as $paySlip) {
+        //     foreach ($paySlip->emiDeductions as $deduction) {
+        //         $data->push([
+        //             $serialNo++,
+        //             getDisplayDateFormat(optional($deduction->advanceApplication)->created_at) ?? config('global.null_value'),
+        //             $paySlip->employee->emp_name,
+        //             $paySlip->employee->username,
+        //             // $deduction->employee->empJob->designation->name,
+        //             // $deduction->employee->empJob->department->name,
+        //             // $deduction->employee->empJob->office->region->name ?? config('global.null_value'),
+        //             // $deduction->employee->empJob->office->name,
+        //             $deduction->loanType->name,
+        //             $deduction->loan_number,
+        //             $deduction->advanceApplication->item_type ?? config('global.null_value'),
+        //             getDisplayDateFormat($deduction->start_date),
+        //             getDisplayDateFormat($deduction->end_date),
+        //             $deduction->recurring_months,
+        //             \Carbon\Carbon::parse($paySlip->for_month)->format('F Y'),
+        //             formatAmount($deduction->amount, false),
+        //             //need to check for weather below line is correct or not 2maro
+        //             // formatAmount(is_string($paySlip->details) ? json_decode($paySlip->details, true)['deductions']['Samsung Ded'] : $paySlip->details['deductions']['Samsung Ded'], false),
+        //             // $deduction->advanceApplication->advance_approved_by->emp_name ?? config('global.null_value'),
+        //             // getDisplayDateFormat(optional($deduction->advanceApplication)->updated_at)
+        //         ]);
+        //     }
+        // }
+
+        // return $data;
+
         return FinalPaySlip::leftJoin('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
             ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
@@ -51,15 +93,24 @@ class SamsungDeductionExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
+            // 'Applied On',
             'Employee Name',
             'Employee ID',
+            // 'Designation',
+            // 'Department',
+            // 'Region',
+            // 'Office Location',
             'Loan Type',
             'Loan Number',
+            // 'Item Type/Device Code',
             'Start Date',
             'End Date',
             'No of Installments (Months)',
             'For Month',
-            'Monthly Installment (Nu.)'
+            'Monthly Installment (Nu.)',
+            // 'Installment Paid (Nu.)',
+            // 'Approved By',
+            // 'Approved On'
         ];
     }
 }

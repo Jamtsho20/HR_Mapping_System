@@ -82,6 +82,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('/get-asset/{id}', [CommissionApplicationApiController::class, 'getAssetNoByGrnId']);
         Route::resource('commission', 'CommissionApplicationApiController');
         Route::get('commission_approval', [CommissionApplicationApiController::class, 'indexCommissionApproval']);
+        Route::get('getGrnDetails/{grnNo}', [AjaxRequestController::class, 'getGrnDetailByGrnNo']);
     });
 
     Route::namespace('Api\Expense')->middleware('auth:sanctum')->group(function () {
@@ -168,6 +169,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::post('save-grn-items', [ApiController::class, 'saveGrnItemMapping']);
         Route::post('save-goods-issued', [ApiController::class, 'saveGoodsIssued']);
         Route::post('save-goods-issued-consumable', [ApiController::class, 'saveGoodIssueConsumable']);
+        Route::post('save-site', [ApiController::class, 'saveSite']);
     });
     Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
         Route::resource('holidays', 'HolidayListController');

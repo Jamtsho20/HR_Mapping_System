@@ -429,6 +429,7 @@ class EmployeeController extends Controller
                 'basic_pay' => $job['basic_pay'],
                 'salary_disbursement_mode' => $job['salary_disbursement_mode'],
                 'bank' => $job['bank'] ?? null,
+                'bank_code' => $job['bank_code'] ?? null,
                 'account_number' => $job['account_number'] ?? null,
                 'pf_number' => $job['pf_number'],
                 'tpn_number' => $job['tpn_number'],
