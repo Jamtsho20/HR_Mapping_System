@@ -339,5 +339,25 @@ class RequisitionApplicationApiController extends Controller
 
      }
 
+
+     public function receive(string $id)
+     {
+        try{
+            $requisition = RequisitionApplication::with('details.grnItem:id,grn_no','details.grnItemDetail.item:id,item_no,item_description','details.serials')->find($id);
+            if($requisition->type_id == 1){
+                 foreach ($requisition->details as $detail) {
+                $itemCode = $detail->grnItemDetail->item?->item_no ?? '';
+                foreach ($detail->serials as $serial) {
+                    $serial->asset_serial_no = $itemCode . '-' . $serial->asset_serial_no;
+                }
+            }
+            }
+            return $this->successResponse($requisition, 'Requisition application retrieved successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
+
+     }
+
 }
 
