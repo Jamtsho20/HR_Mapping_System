@@ -76,6 +76,8 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('requisition', 'RequisitionApplicationApiController');
         Route::get('requisition/get_item/{id}', [AjaxRequestController::class, 'getItemByGrnId']);
         Route::get('requisition_approval', [RequisitionApplicationApiController::class, 'indexRequisitionApproval']);
+        Route::get('receive/{id}', [RequisitionApplicationApiController::class, 'receive']);
+        Route::post('receive', [AjaxRequestController::class, 'receive']);
 
         Route::get('get_sites/{id}', [AjaxRequestController::class, 'getSitesByDzongkhagId']);
         Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);

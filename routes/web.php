@@ -41,7 +41,7 @@ use App\Models\User;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Advance\AdvanceLoanApplicationController;
 
 
 
@@ -317,6 +317,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('eteeru-remittance-report', 'eTeeruRemittanceReportController')->except('create', 'show', 'edit');
         Route::resource('payslip-report', 'PayslipReportController')->except('create', 'show', 'edit');
         Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
+        Route::resource('advance-sifa-loan-report', 'AdvanceSifaLoanReportController')->except('create', 'edit');
     });
 
     //reportexport routes
@@ -506,6 +507,7 @@ Route::middleware('auth')->group(function () {
     // Route::get('getdelegateeemployee/{roleId}', 'AjaxRequestController@getDelegateeEmployee');
     Route::post('assets/receive', 'AjaxRequestController@receive');
     Route::post('assets/receive-consumable', 'AjaxRequestController@receiveConsumable');
+    // Route::get('aaa/{employeeID}', [AdvanceLoanApplicationController::class, 'repaymentSchedule']);
     Route::get('assets/getGrnDetails/{grnNo}', 'AjaxRequestController@getGrnDetailByGrnNo');
 });
 

@@ -79,13 +79,13 @@ class RequisitionApplicationApiController extends Controller
         {
             try{
             $reqTypes = MasRequisitionType::where('status', 1)->orderBy('id', 'desc')->select('id', 'name')->get();
-            $grnNos = MasGrnItem::whereStatus(1)
-            ->select('id', 'grn_no')
-            ->get();
+            // $grnNos = MasGrnItem::whereStatus(1)
+            // ->select('id', 'grn_no')
+            // ->get();
             $items = MasItem::where('is_fixed_asset', 0)->select('id','item_no', 'item_description', 'uom')->get();
            $stores = MasStore::where('status', 1)->select('id', 'name', 'code')->get();
            $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
-           return $this->successResponse(['reqTypes' => $reqTypes, 'grnNos' => $grnNos,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Requisition applications retrieved successfully');
+           return $this->successResponse(['reqTypes' => $reqTypes,  'dzongkhags' => $dzongkhags, 'items' => $items, 'stores' => $stores], 'Requisition applications retrieved successfully');
             }catch(\Exception $e){
                 return $this->errorResponse($e->getMessage());
             }
@@ -336,6 +336,26 @@ class RequisitionApplicationApiController extends Controller
              return $this->errorResponse($e->getMessage());
          }
 
+
+     }
+
+
+     public function receive(string $id)
+     {
+        try{
+            $requisition = RequisitionApplication::with('details.grnItem:id,grn_no','details.grnItemDetail.item:id,item_no,item_description','details.serials')->find($id);
+            if($requisition->type_id == 1){
+                 foreach ($requisition->details as $detail) {
+                $itemCode = $detail->grnItemDetail->item?->item_no ?? '';
+                foreach ($detail->serials as $serial) {
+                    $serial->asset_serial_no = $itemCode . '-' . $serial->asset_serial_no;
+                }
+            }
+            }
+            return $this->successResponse($requisition, 'Requisition application retrieved successfully');
+        }catch(\Exception $e){
+            return $this->errorResponse($e->getMessage());
+        }
 
      }
 

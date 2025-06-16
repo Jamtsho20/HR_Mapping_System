@@ -829,7 +829,8 @@ class AjaxRequestController extends Controller
                 $detail->save();
 
                 $requisitionId = $detail->requisition_id;
-                 $allReceived = RequisitionDetail::where('requisition_id', $requisitionId)
+
+                $allReceived = RequisitionDetail::where('requisition_id', $requisitionId)
                 ->where('is_received', '!=', 1)
                 ->doesntExist();
 
@@ -849,6 +850,7 @@ class AjaxRequestController extends Controller
 
             DB::beginTransaction();
             $received = $request->childData;
+            if(empty($received)) return $this->errorResponse('Please select at least one serial number.');
 
             foreach ($received as $item) {
                 $receivedSerial = ReceivedSerial::find($item['id']);

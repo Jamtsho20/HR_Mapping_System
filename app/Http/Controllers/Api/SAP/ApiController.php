@@ -406,7 +406,7 @@ class ApiController extends BaseController
 
     public function saveSite(Request $request)
     {
-        
+
         $validator = \Validator::make($request->all(), [
             'PrjCode' => 'required',
             'PrjName' => 'required',
@@ -434,7 +434,7 @@ class ApiController extends BaseController
                     'dzongkhag_id' => $dzongkhagId,
                 ]
             );
-           
+
             DB::commit();
 
             return $this->successResponse('Site saved successfully.');
@@ -805,7 +805,7 @@ class ApiController extends BaseController
                 "AssetClass" => $item['AssetClass'] ?? "Furnitures",  // default to "Furnitures"
                 "AssetGroup" => $item['AssetGroup'] ?? null,
                 "InventoryNumber" => $item['InventoryNumber'] ?? null,
-                "U_Employee" => $item['U_Employee'] ?? null,
+                // "U_Employee" => $item['U_Employee'] ?? null,
                 "AssetSerialNumber" => $item['AssetSerialNumber'] ?? null,
                 "Location" => $item['Location'] ?? null,
 
