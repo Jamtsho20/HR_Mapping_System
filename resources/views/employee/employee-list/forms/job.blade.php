@@ -196,12 +196,19 @@
                 @endforeach
             </select>
         </div>
+         <div id="bank_code" style="display: none;" class="form-group col-md-4">
+            <label for="">Bank Code</label>
+            <input type="text" class="form-control form-control-sm" name="job[bank_code]"
+                value="{{ old('job.bank_code', isset($employee->empJob) ? $employee->empJob->bank_code : '') }}">
+        </div>
+
         <div id="account_number" style="display: none;" class="form-group col-md-4">
             <label for="">Account Number <span class="text-danger">*</span></label>
             <input type="text" class="form-control form-control-sm" name="job[account_number]"
                 value="{{ old('job.account_number', isset($employee->empJob) ? $employee->empJob->account_number : '') }}"
                 required>
         </div>
+
         {{-- </div> --}}
         <div class="form-group col-md-4">
             <label for="">PF Number </label>
@@ -231,14 +238,17 @@
 
         document.getElementById('salary_disbursement_mode').addEventListener('change', function() {
             var bank = document.getElementById('bank');
+            var bankCode = document.getElementById('bank_code');
             var accountNumber = document.getElementById('account_number');
             if (this.value ===
                 '2') { // Replace 'saving_account' with the actual value for Savings Account in your config
                 bank.style.display = 'block';
                 accountNumber.style.display = 'block';
+                bankCode.style.display = 'block';
             } else {
                 bank.style.display = 'none';
                 accountNumber.style.display = 'none';
+                bankCode.style.display = 'none';
             }
         });
 
