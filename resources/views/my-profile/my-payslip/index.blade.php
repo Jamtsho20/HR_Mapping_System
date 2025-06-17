@@ -4,7 +4,7 @@
 <div class="col-md-12">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Payslips</h3>
+            <h3 class="card-title">PaySlips</h3>
         </div>
         <div class="card-body">
             <div class="row">
@@ -16,16 +16,29 @@
                             <th>File</th>
                         </tr>
                         @forelse ($payslips as $payslip)
+                        @if(is_array($payslip))
                         <tr>
                             <td>{{ $payslip['year'] }}</td>
                             <td>{{ $payslip['month'] }}</td>
-                            <td><a href="{{ url('/payslips/view/' . urlencode($payslip['filename'])) }}" target="_blank">{{ $payslip['filename'] }}</a></td>
+                            <td>
+                                <a href="{{ url('/payslips/view/' . urlencode($payslip['filename'])) }}" target="_blank">
+                                    {{ $payslip['filename'] }}
+                                </a>
+                            </td>
                         </tr>
+                        @else
+                        <tr>
+                            <td colspan="3" class="text-danger text-center">
+                                Invalid payslip data format.
+                            </td>
+                        </tr>
+                        @endif
                         @empty
                         <tr>
-                            <td span="3" class="text-danger text-center">No payslips found</td>
+                            <td colspan="3" class="text-danger text-center">No payslips found</td>
                         </tr>
                         @endforelse
+
                     </table>
                 </div>
             </div>
