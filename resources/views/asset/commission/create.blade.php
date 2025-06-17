@@ -199,6 +199,7 @@
                                 });
 
             $('#grn').change(function() {
+                $('#loader').show();
                 let grnId = $(this).val(); // Get selected GRN ID
                 if (grnId && grnId != '') {
                     $.ajax({
@@ -211,9 +212,9 @@
                             populateAssetDetails(assetNos);
                             populateDzongkhags(dzongkhags);
 
+                            $('#loader').hide();
                             if (assetNos.length > 0 && assetNos[0].serials?.length > 1) {
                                     const matchingItems = assetNos[0].serials;
-
                                     showConfirmationMessage(
                                         `This GRN has ${matchingItems.length} asset item(s). Do you want to auto-select all of them?`,
                                         () => {
@@ -242,6 +243,7 @@
                                 }
                         },
                         error: function(error) {
+                            $('#loader').hide();
                             showErrorMessage(error.responseJSON.message ||
                                 'An error occurred.');
                             $('#grn').val('');

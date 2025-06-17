@@ -146,7 +146,10 @@ class AjaxRequestController extends Controller
 
                 // If the gender and balance are valid, check leave limits and attachment requirements
                 $leaveLimits = $leavePolicy && $leavePolicy->leavePolicyPlan ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true) : [];
-                $isHalfDay = in_array(4, $leaveLimits); // Check if half day leave is allowed
+                $isHalfDay = false;
+                if($leaveLimits){
+                    $isHalfDay = in_array(4, $leaveLimits); // Check if half day leave is allowed
+                }
                 $attachmentRequired = $leavePolicy && $leavePolicy->leavePolicyPlan ? $leavePolicy->leavePolicyPlan->attachment_required : 0;
 
                 return $this->successResponse([
@@ -244,7 +247,6 @@ class AjaxRequestController extends Controller
             $leaveLimits = $leavePolicy->leavePolicyPlan
                 ? json_decode($leavePolicy->leavePolicyPlan->leave_limits, true)
                 : [];
-
             // Calculate initial days
             $dayDifference = $toDate->diff($fromDate)->days;
             $fromDayAdjustment = ($leaveTypeId == 2) ? 1 : (($fromDay === 2 || $fromDay === 3) ? 0.5 : 1);

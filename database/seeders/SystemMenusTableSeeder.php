@@ -36,6 +36,7 @@ class SystemMenusTableSeeder extends Seeder
             ['id' => 18, 'name' => 'Approval', 'icon' => 'fa-check', 'display_order' => 18],
             ['id' => 19, 'name' => 'Team', 'icon' => 'fa-users', 'display_order' => 19],
             ['id' => 20, 'name' => 'Asset Report', 'icon' => 'fa-users', 'display_order' => 20],
+            ['id' => 21, 'name' => 'My Profile', 'icon' => 'fa-users', 'display_order' => 21],
         ]);
     }
 }
