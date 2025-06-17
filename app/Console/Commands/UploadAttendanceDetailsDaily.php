@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\AttendanceDetail;
 use App\Models\EmployeeAttendance;
 use App\Models\User;
+use App\Services\AttendanceService;
 use Illuminate\Console\Command;
 
 class UploadAttendanceDetailsDaily extends Command
@@ -58,8 +59,9 @@ class UploadAttendanceDetailsDaily extends Command
                     if (!$dailyAttendance) {
                         continue; // skip if no matching daily attendance
                     }
-
-                    $attendanceStatus = getAttendanceStatus($employee->id, $regionId);
+                    
+                    $attendanceService = new AttendanceService();
+                    $attendanceStatus = $attendanceService->getAttendanceStatus($employee->id, $regionId);
 
                     $insertData[] = [
                         'daily_attendance_id' => $dailyAttendance->id,
