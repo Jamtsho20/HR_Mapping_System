@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\SystemSubMenu;
 use App\Models\RolePermission;
+use App\Services\DelegationService;
 use Closure;
 
 class CheckAccessibility
@@ -19,16 +20,17 @@ class CheckAccessibility
      */
     public function handle($request, Closure $next, $route, $verb)
     {
+        $delegationService = new DelegationService();
+
         if (!$route && !$verb) {
             abort(403);
         }
-
         // $today = now()->toDateString();
         // $userId = auth()->user()->id;
         $userRoles = auth()->user()->roles()->pluck('role_id')->toArray();
 
-        // Delegated roles (common function in helpers.php)
-        $delegatedRole = delegatedRole(auth()->user()->id);
+        // Delegated roles (common function in DeleagtionService.php)
+        $delegatedRole = $delegationService->delegatedRole(auth()->user()->id);
         
         // Merge and unique
         $allRoles = array_unique(array_merge($userRoles, $delegatedRole));

@@ -810,18 +810,6 @@ class AjaxRequestController extends Controller
         }
     }
 
-    // public function getDelegateeEmployee($roleId)
-    // {
-    //     try{
-    //         return $this->successResponse(getDeleagteeList($roleId));
-    //     }catch(\Exception $e){
-    //         Log::error('Delegatee Fetch Error: ' . $e->getMessage());
-    //         return $this->errorResponse('Something went wrong while fetching delegatee. Please try again.');
-    //         // return $this->errorResponse($e->getMessage());
-    //     }
-    // }
-
-
     public function receiveConsumable(Request $request)
         {
             try{

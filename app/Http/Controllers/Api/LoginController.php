@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\SystemMenu;
+use App\Services\DelegationService;
 use Carbon\Carbon;
 
 class LoginController extends Controller
@@ -154,9 +155,10 @@ class LoginController extends Controller
 
     private function menuAccessibleByRole($role, $userId)
     {
+        $delegationService = new DelegationService();
         $userRoles = $role->toArray();
-        // Delegated roles (common function in helpers.php)
-        $delegatedRole = delegatedRole($userId);
+        // Delegated roles (common function in DelegationService.php)
+        $delegatedRole = $delegationService->delegatedRole($userId);
         // Merge and unique role that is original role and delegated role
         $allRoles = array_unique(array_merge($userRoles, $delegatedRole));
 
