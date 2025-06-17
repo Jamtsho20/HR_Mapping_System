@@ -188,7 +188,7 @@ Route::middleware('auth')->group(function () {
     //MY PROFILE
     Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
         Route::resource('my-profile', 'MyProfileController');
-        Route::resource('my-payslip', 'MyPayslipController');
+        Route::resource('my-payslip', 'MyPaySlipController');
         Route::resource('my-asset', 'MyAssetController');
     });
 
