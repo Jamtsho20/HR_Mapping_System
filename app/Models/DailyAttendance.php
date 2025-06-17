@@ -11,7 +11,7 @@ class DailyAttendance extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'attendance_id', 'department_id', 'section_id', 'day', 'status'
+        'attendance_id', 'department_id', 'section_id', 'day', 'status', 'created_by'
     ];
 
     public function empAttendance(){

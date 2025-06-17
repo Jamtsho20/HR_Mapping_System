@@ -10,7 +10,7 @@ class EmployeeAttendance extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = ['for_month'];
+    protected $fillable = ['for_month','created_by','updated_by'];
 
     public function details()
     {
