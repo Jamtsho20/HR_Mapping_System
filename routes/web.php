@@ -185,6 +185,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
 
+    //MY PROFILE
+    Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
+        Route::resource('my-profile', 'MyProfileController');
+        Route::resource('my-payslip', 'MyPayslipController');
+        Route::resource('my-asset', 'MyAssetController');
+    });
+
     // WORK STRUCTURE
     Route::namespace('WorkStructure')->prefix('work-structure')->group(function () {
         Route::resource('holiday-lists', 'HolidayListController')->except('create', 'show', 'edit');
