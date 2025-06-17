@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MyProfile;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -17,40 +18,40 @@ class MyPaySlipController extends Controller
     }
     public function index(Request $request)
     {
-        $privileges = $request->instance();
-        $employee = auth()->user(); // or $request->user();
-
+        $employee = auth()->user(); // or however you're getting the current user
         $employeeId = $employee->employee_id;
         $directory = storage_path('payslips');
+
         $payslipData = [];
 
         if (is_dir($directory)) {
             $files = array_diff(scandir($directory), ['.', '..']);
 
-            // Filter files for the given employee ID
             $payslips = array_filter($files, function ($file) use ($employeeId) {
                 return preg_match("/\({$employeeId}\)_\d{4}_\d{2}\.pdf$/", $file);
             });
 
-            // Extract year and month from filename
             foreach ($payslips as $payslip) {
                 if (preg_match("/\({$employeeId}\)_(\d{4})_(\d{2})\.pdf$/", $payslip, $matches)) {
                     $year = $matches[1];
                     $month = $matches[2];
-
-                    $monthName = \Carbon\Carbon::createFromFormat('Y-m-d', "2025-$month-01")->format('F');
+                    $monthName = Carbon::createFromFormat('Y-m-d', "2025-$month-01")->format('F');
 
                     $payslipData[] = [
                         'filename' => $payslip,
                         'year' => $year,
-                        'month' => $monthName
+                        'month' => $monthName,
                     ];
                 }
             }
         }
 
-        return view('my-profile.my-payslip.index', compact('privileges', 'employee', 'payslipData','payslips'));
+        return view('my-profile.my-payslip.index', [
+            'employee' => $employee,
+            'payslips' => $payslipData,
+        ]);
     }
+
 
 
     public function viewPayslip($filename)
