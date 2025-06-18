@@ -28,8 +28,9 @@ class AttendanceService {
             }])
             ->where('status', '<>', -1)
             ->first();
-
-        if($isOnTour && $isOnTour->details->isNotEmpty()){
+            
+        if($isOnTour && $isOnTour->details){
+            dd("a");
             return ON_TOUR_STATUS;
         }
         // 2. check if employee is on leave priority over other
