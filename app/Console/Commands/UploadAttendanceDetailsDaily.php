@@ -39,16 +39,16 @@ class UploadAttendanceDetailsDaily extends Command
                 $insertData = [];
 
                 foreach ($employees as $employee) {
-                    $sectionId = optional($employee->empJob)->mas_section_id;
+                    $departmentId = optional($employee->empJob)->mas_department_id;
                     $regionId = optional(optional($employee->empJob)->office)->mas_region_id;
 
-                    if (!$sectionId || !$regionId) {
+                    if (!$departmentId || !$regionId) {
                         continue; // skip if necessary data is missing
                     }
 
                     // fetch daily emp attendance  based on employee section
-                    $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($sectionId, $currentDay) {
-                        $query->where('section_id', $sectionId)
+                    $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $currentDay) {
+                        $query->where('department_id', $departmentId)
                             ->where('day', $currentDay);
                     }])
                     ->where('for_month', $currentMonth)
@@ -70,7 +70,7 @@ class UploadAttendanceDetailsDaily extends Command
                         'check_out_at'        => null,
                         'check_in_ip'         => null,
                         'check_out_ip'        => null,
-                        'attendance_status'   => $attendanceStatus,
+                        'attendance_status_id'   => $attendanceStatus,
                         'created_by'          => 1,
                         'created_at'          => now(),
                     ];
