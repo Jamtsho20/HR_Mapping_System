@@ -14,7 +14,7 @@ use Carbon\Carbon;
 class AttendanceService {
 
     public function getAttendanceStatus($empId, $empRegion){
-        $currentDate = Carbon::now()->toDateString();
+        $currentDate = Carbon::now();
         //checks Mon, Tues, Wed, in full name as this need to be checked off days for shift employee
         $today = Carbon::now()->format('l'); 
         $attendanceStatus = CREATED_STATUS;
@@ -23,8 +23,8 @@ class AttendanceService {
 
         // 1. check if employee is on tour
         $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
-            $query->whereDate('from_date', '<=', $currentDate)
-                ->whereDate('to_date', '>=', $currentDate);
+            $query->whereDate('from_date', '<=', $currentDate->toDateString())
+                ->whereDate('to_date', '>=', $currentDate->toDateString());
             }])
             ->where('status', '<>', -1)
             ->first();
@@ -34,8 +34,8 @@ class AttendanceService {
         }
         // 2. check if employee is on leave priority over other
         $isOnLeave = LeaveApplication::where('created_by', $empId)
-            ->whereDate('from_date', '<=', $currentDate)
-            ->whereDate('to_date', '>=', $currentDate)
+            ->whereDate('from_date', '<=', $currentDate->toDateString())
+            ->whereDate('to_date', '>=', $currentDate->toDateString())
             ->where('status', '<>', -1)
             ->first();
 
@@ -65,8 +65,8 @@ class AttendanceService {
 
         // 3. Check if it's a holiday first (priority over weekends)
         $matchingHoliday = WorkHolidayList::whereJsonContains('region_id', $empRegion)
-            ->whereDate('start_date', '<=', $currentDate)
-            ->whereDate('end_date', '>=', $currentDate)
+            ->whereDate('start_date', '<=', $currentDate->toDateString())
+            ->whereDate('end_date', '>=', $currentDate->toDateString())
             ->first();
 
         if ($matchingHoliday && !$isShiftEmp) {
