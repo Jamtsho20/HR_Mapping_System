@@ -29,7 +29,7 @@ class UploadAttendanceDetailsDaily extends Command
      */
     public function handle()
     {
-        $currentDay = (int) now()->format('d');
+        $currentDay = (int) now()->format('d'); // eg. 17
         $currentMonth = now()->format('m-Y');
 
         User::with(['empJob.office'])
@@ -76,7 +76,7 @@ class UploadAttendanceDetailsDaily extends Command
                     ];
                 }
 
-                if (!empty($insertData)) {
+                if (!empty($insertData)) {  
                     AttendanceDetail::insert($insertData);
                 }
             });

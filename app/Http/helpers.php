@@ -473,6 +473,7 @@ if (!function_exists('formatAmount')) {
     }
 }
 
+// convert month to corresponding number from global.php
 if(!function_exists('getMappedMonth')){
     function getMappedMonth(){
         $currentMonthStr = strtoupper(Carbon::now()->format('M')); // 'JUN'

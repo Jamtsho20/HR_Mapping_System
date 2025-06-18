@@ -30,7 +30,8 @@ class UploadMonthlyAttendance extends Command
     public function handle()
     {
         $currentMonth = Carbon::now()->format('m-Y');
-        $daysInMonth = Carbon::now()->daysInMonth; 
+        // total number of days in a month
+        $daysInMonth = daysInMonth(now()); 
 
         //only create attendance for month if attendance for month is not created.
         $currentMonthAttendance = EmployeeAttendance::where('for_month', '=', $currentMonth)->first();
@@ -65,10 +66,10 @@ class UploadMonthlyAttendance extends Command
             }
 
             $this->info('Attendance for month ' . $currentMonth . ' created successfully');
-            \Log::info('Attendance for month ' . $currentMonth . ' created successfully');
+            // \Log::info('Attendance for month ' . $currentMonth . ' created successfully');
         }else{
             $this->info('Attendance for month ' . $currentMonth . ' already exists.');
-            \Log::info('Attendance for month ' . $currentMonth . ' already exists.');
+            // \Log::info('Attendance for month ' . $currentMonth . ' already exists.');
         }
     }
 }

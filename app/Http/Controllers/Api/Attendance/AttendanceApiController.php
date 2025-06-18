@@ -33,11 +33,11 @@ class AttendanceApiController extends Controller
         $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
         $attendanceService = new AttendanceService();
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
-        $attendanceEntry = $attendanceService->empAttendanceEntry($user);
+        $attendanceEntry = $attendanceService->empAttendanceEntry($user) ?? [];
         $attendanceStatuses = AttendanceStatus::get(['id', 'code', 'name']);
-        if(!$officeTiming){
-            return $this->errorResponse('Something went wrong while fetching effective office timing and geo location. Please try again or ask system admin for further information.');
-        }
+        // if(!$officeTiming){
+        //     return $this->errorResponse('Something went wrong while fetching effective office timing and geo location. Please try again or ask system admin for further information.');
+        // }
 
         if(!$attendanceEntry){
             return $this->errorResponse('Attendance entry for date ' . now() . ' has not been created. Please try again or ask system admin for further information.');
