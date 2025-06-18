@@ -148,7 +148,7 @@ if (!function_exists('daysInMonth')) {
      */
     function daysInMonth($date)
     {
-        $date = Carbon\Carbon::parse($date);
+        $date = Carbon::parse($date);
         return $date->daysInMonth;
     }
 }
