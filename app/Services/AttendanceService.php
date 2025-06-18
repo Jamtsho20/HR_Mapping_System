@@ -125,12 +125,12 @@ class AttendanceService {
         }])->where('for_month', $currentMonth)->first();
 
         $dailyAttendance = $empAttendance?->dailyAttendances;
-
+        
         if (!$dailyAttendance) {
             return null;
         }
 
-        return AttendanceDetail::where('daily_attendance_id', $dailyAttendance->id)
+        return AttendanceDetail::where('daily_attendance_id', $dailyAttendance[0]->id)
             ->where('employee_id', $loggedInUser->id)
             ->first();
     }

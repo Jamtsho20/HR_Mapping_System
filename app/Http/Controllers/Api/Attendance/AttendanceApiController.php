@@ -34,14 +34,14 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
         $attendanceEntry = $attendanceService->empAttendanceEntry($user) ?? [];
-        $attendanceStatuses = AttendanceStatus::get(['id', 'code', 'name']);
-        // if(!$officeTiming){
-        //     return $this->errorResponse('Something went wrong while fetching effective office timing and geo location. Please try again or ask system admin for further information.');
-        // }
-
-        if(!$attendanceEntry){
-            return $this->errorResponse('Attendance entry for date ' . now() . ' has not been created. Please try again or ask system admin for further information.');
+        $attendanceStatuses = AttendanceStatus::get(['id', 'code', 'description']);
+        if(!$officeTiming){
+            return $this->errorResponse('Something went wrong while fetching effective office timing and geo location. Please try again or ask system admin for further information.');
         }
+
+        // if(!$attendanceEntry){
+        //     return $this->errorResponse('Attendance entry for date ' . now() . ' has not been created. Please try again or ask system admin for further information.');
+        // }
 
         return $this->successResponse([
             // 'user' => $user,
