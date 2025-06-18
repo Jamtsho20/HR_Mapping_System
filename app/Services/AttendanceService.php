@@ -14,7 +14,7 @@ use Carbon\Carbon;
 class AttendanceService {
 
     public function getAttendanceStatus($empId, $empRegion){
-        $currentDate = Carbon::now();
+        $currentDate = Carbon::now()->toDateString();
         //checks Mon, Tues, Wed, in full name as this need to be checked off days for shift employee
         $today = Carbon::now()->format('l'); 
         $attendanceStatus = CREATED_STATUS;
@@ -23,8 +23,8 @@ class AttendanceService {
 
         // 1. check if employee is on tour
         $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
-            $query->where('from_date', '<=', $currentDate)
-                ->where('to_date', '>=', $currentDate);
+            $query->whereDate('from_date', '<=', $currentDate)
+                ->whereDate('to_date', '>=', $currentDate);
             }])
             ->where('status', '<>', -1)
             ->first();
@@ -34,8 +34,8 @@ class AttendanceService {
         }
         // 2. check if employee is on leave priority over other
         $isOnLeave = LeaveApplication::where('created_by', $empId)
-            ->where('from_date', '<=', $currentDate)
-            ->where('to_date', '>=', $currentDate)
+            ->whereDate('from_date', '<=', $currentDate)
+            ->whereDate('to_date', '>=', $currentDate)
             ->where('status', '<>', -1)
             ->first();
 
@@ -117,16 +117,16 @@ class AttendanceService {
     {
         $currentMonth = Carbon::now()->format('m-Y');
         $currentDay = Carbon::now()->day;
-        $sectionId = $loggedInUser->empJob->mas_section_id;
+        $departmentId = $loggedInUser->empJob->mas_section_id;
 
-        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($sectionId, $currentDay) {
-            $query->where('section_id', $sectionId)
+        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $currentDay) {
+            $query->where('department_id', $departmentId)
                   ->where('day', $currentDay);
         }])->where('for_month', $currentMonth)->first();
 
         $dailyAttendance = $empAttendance?->dailyAttendances;
-        
-        if (!$dailyAttendance) {
+       
+        if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
 
