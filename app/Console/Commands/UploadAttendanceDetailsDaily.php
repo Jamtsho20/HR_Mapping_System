@@ -31,25 +31,32 @@ class UploadAttendanceDetailsDaily extends Command
     {
         $currentDay = (int) now()->format('d'); // eg. 17
         $currentMonth = now()->format('m-Y');
+        $attendanceService = new AttendanceService();
 
         User::with(['empJob.office'])
             ->whereNotIn('id', [1, 2])
             ->whereIsActive(1)
-            ->chunk(100, function ($employees) use ($currentDay, $currentMonth) {
+            ->chunk(100, function ($employees) use ($currentDay, $currentMonth, $attendanceService) {
                 $insertData = [];
 
                 foreach ($employees as $employee) {
                     $departmentId = optional($employee->empJob)->mas_department_id;
+                    $sectionId = optional($employee->empJob)->mas_section_id;
                     $regionId = optional(optional($employee->empJob)->office)->mas_region_id;
 
-                    if (!$departmentId || !$regionId) {
+                    if ((!$departmentId && !$sectionId) || !$regionId) {
                         continue; // skip if necessary data is missing
                     }
 
-                    // fetch daily emp attendance  based on employee section
-                    $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $currentDay) {
-                        $query->where('department_id', $departmentId)
-                            ->where('day', $currentDay);
+                    // fetch daily emp attendance  based on employee section or department
+                    $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $sectionId, $currentDay) {
+                        $query->where('day', $currentDay);
+                        
+                        if ($sectionId) {
+                            $query->where('section_id', $sectionId);
+                        } else {
+                            $query->whereNull('section_id')->where('department_id', $departmentId);
+                        }
                     }])
                     ->where('for_month', $currentMonth)
                     ->first();
@@ -60,7 +67,6 @@ class UploadAttendanceDetailsDaily extends Command
                         continue; // skip if no matching daily attendance
                     }
                     
-                    $attendanceService = new AttendanceService();
                     $attendanceStatus = $attendanceService->getAttendanceStatus($employee->id, $regionId);
 
                     $insertData[] = [

@@ -44,21 +44,35 @@ class UploadMonthlyAttendance extends Command
             ]);
 
             $departments = MasDepartment::whereStatus(1)->get();
+            $sections = MasSection::whereStatus(1)->get();
             $insertData = [];
-            // create day wise attendance for each section for each days in a current month.
-            foreach($departments as $department){
-                for($day = 1; $day <= $daysInMonth; $day++){
+            // loop for each day of the month
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                // here daily attendance is inserted for ection as well as for department since attendance submission need to done section wise while some employee donot have section
+                // insert data for each section for the day
+                foreach ($sections as $section) {
                     $insertData[] = [
                         'attendance_id' => $monthlyAttendance->id,
-                        'department_id' => $department->id,
-                        'section_id' => null,
-                        'day' => $day,
-                        'status' => 1,
-                        'created_by' => 1,
-                        'created_at' => now()
+                        'department_id' => $section->id,
+                        'section_id'    => $section->mas_department_id,
+                        'day'           => $day,
+                        'status'        => 1,
+                        'created_by'    => 1,
+                        'created_at'    => now(),
                     ];
                 }
-
+                // insert daily attendance for each department wise so that it can also handle for those employee who donot have sections like dept head, MD
+                foreach($departments as $department){
+                    $insertData[] = [
+                        'attendance_id' => $monthlyAttendance->id,
+                        'department_id' => $department->id ?? null,
+                        'section_id'    => null,
+                        'day'           => $day,
+                        'status'        => 1,
+                        'created_by'    => 1,
+                        'created_at'    => now(),
+                    ];
+                }
             }
 
             //bulk insert into daily_attendance table after preparing data for every section and for each day in a month
