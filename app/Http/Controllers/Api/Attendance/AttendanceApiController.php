@@ -25,8 +25,8 @@ class AttendanceApiController extends Controller
     ];
 
     public function index(){
-        // $attendanceService = new AttendanceService();
-        // dd($attendanceService->getAttendanceStatus(365, 7));
+        $attendanceService = new AttendanceService();
+        dd($attendanceService->getAttendanceStatus(365, 7));
     }
 
     public function create(){

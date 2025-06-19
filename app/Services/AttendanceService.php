@@ -49,6 +49,7 @@ class AttendanceService
         if ($isOnTour && $isOnTour->details->isNotEmpty()) {
             return ON_TOUR_STATUS;
         }
+
         // 2. check if employee is on leave priority over other
         $isOnLeave = LeaveApplication::where('created_by', $empId)
             ->whereDate('from_date', '<=', $currentDate->toDateString())
@@ -88,11 +89,11 @@ class AttendanceService
         }
 
         // 3. Check if it's a holiday first (priority over weekends)
-        $matchingHoliday = WorkHolidayList::whereJsonContains('region_id', $empRegion)
+        $matchingHoliday = WorkHolidayList::whereJsonContains('region_id', (string) $empRegion)
             ->whereDate('start_date', '<=', $currentDate->toDateString())
             ->whereDate('end_date', '>=', $currentDate->toDateString())
             ->first();
-
+        
         if ($matchingHoliday && !$isShiftEmp) {
             return HOLIDAY_STATUS;
         }
