@@ -22,7 +22,7 @@ class AttendanceService
         $attendanceStatus = CREATED_STATUS;
         // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
         $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
-
+        
         // 1. check if employee is on tour
         // $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
         //     $query->whereDate('from_date', '<=', $currentDate->toDateString())
@@ -46,6 +46,7 @@ class AttendanceService
                     ->whereDate('to_date', '>=', $currentDate->toDateString());
             }])
             ->first();
+
         if ($isOnTour && $isOnTour->details->isNotEmpty()) {
             return ON_TOUR_STATUS;
         }
@@ -84,7 +85,8 @@ class AttendanceService
         }
 
         // check if employee is in shift as they will have different sets of off days
-        if ($isShiftEmp && is_array($isShiftEmp->off_days) && in_array($today, $isShiftEmp->off_days)) {
+        $offDays = $isShiftEmp ? json_decode($isShiftEmp->off_days, true) : [];
+        if ($isShiftEmp && is_array($offDays) && in_array($today, $offDays)) {
             return WEEKLY_OFF_STATUS;
         }
 

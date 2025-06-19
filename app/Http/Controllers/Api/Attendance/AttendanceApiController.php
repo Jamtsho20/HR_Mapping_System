@@ -26,7 +26,7 @@ class AttendanceApiController extends Controller
 
     public function index(){
         $attendanceService = new AttendanceService();
-        dd($attendanceService->getAttendanceStatus(365, 7));
+        dd($attendanceService->getAttendanceStatus(3, 7));
     }
 
     public function create(){
@@ -45,7 +45,6 @@ class AttendanceApiController extends Controller
         // }
 
         return $this->successResponse([
-            // 'user' => $user,
             'attendance_features' => $attendanceFeatures,
             'office_timings' => $officeTiming,
             // 'attendance_entry' => $attendanceEntry,
