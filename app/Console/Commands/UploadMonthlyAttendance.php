@@ -53,8 +53,8 @@ class UploadMonthlyAttendance extends Command
                 foreach ($sections as $section) {
                     $insertData[] = [
                         'attendance_id' => $monthlyAttendance->id,
-                        'department_id' => $section->id,
-                        'section_id'    => $section->mas_department_id,
+                        'department_id' => $section->mas_department_id,
+                        'section_id'    => $section->id,
                         'day'           => $day,
                         'status'        => 1,
                         'created_by'    => 1,
