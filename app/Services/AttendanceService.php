@@ -142,12 +142,20 @@ class AttendanceService
     {
         $currentMonth = Carbon::now()->format('m-Y');
         $currentDay = Carbon::now()->day;
-        $departmentId = $loggedInUser->empJob->mas_section_id;
+        $departmentId = $loggedInUser->empJob->mas_department_id;
+        $sectionId = $loggedInUser->empJob->mas_section_id;
 
-        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $currentDay) {
-            $query->where('department_id', $departmentId)
-                ->where('day', $currentDay);
-        }])->where('for_month', $currentMonth)->first();
+        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $sectionId, $currentDay) {
+                        $query->where('day', $currentDay);
+                        
+                        if ($sectionId) {
+                            $query->where('section_id', $sectionId);
+                        } else {
+                            $query->whereNull('section_id')->where('department_id', $departmentId);
+                        }
+                    }])
+                    ->where('for_month', $currentMonth)
+                    ->first();
 
         $dailyAttendance = $empAttendance?->dailyAttendances;
 

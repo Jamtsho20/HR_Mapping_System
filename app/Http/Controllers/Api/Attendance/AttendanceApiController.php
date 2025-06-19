@@ -34,8 +34,8 @@ class AttendanceApiController extends Controller
         $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
         $attendanceService = new AttendanceService();
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
-        $attendanceEntry = $attendanceService->empAttendanceEntry($user) ?? [];
-        $attendanceStatuses = AttendanceStatus::get(['id', 'code', 'description']);
+        // $attendanceEntry = $attendanceService->empAttendanceEntry($user) ?? [];
+        // $attendanceStatuses = AttendanceStatus::get(['id', 'code', 'description']);
         // if(!$officeTiming){
         //     return $this->errorResponse('Something went wrong while fetching effective office timing and geo location. Please try again or ask system admin for further information.');
         // }
@@ -48,8 +48,8 @@ class AttendanceApiController extends Controller
             // 'user' => $user,
             'attendance_features' => $attendanceFeatures,
             'office_timings' => $officeTiming,
-            'attendance_entry' => $attendanceEntry,
-            'attendance_statuses' => $attendanceStatuses
+            // 'attendance_entry' => $attendanceEntry,
+            // 'attendance_statuses' => $attendanceStatuses
         ]);
     }
 
