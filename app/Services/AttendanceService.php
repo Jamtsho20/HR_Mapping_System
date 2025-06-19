@@ -141,6 +141,10 @@ class AttendanceService
         return $officeTiming;
     }
 
+    public function currentMonthAttendanceId() {
+        $currentMonth = Carbon::now()->format('m-Y');
+    }
+
     public function empAttendanceEntry($loggedInUser)
     {
         $currentMonth = Carbon::now()->format('m-Y');
