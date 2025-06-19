@@ -106,7 +106,7 @@ class AttendanceService
         }
 
         // 5. Check for Saturday
-        if ($currentDate->isSaturday() && $isShiftEmp) {
+        if ($currentDate->isSaturday() && !$isShiftEmp) {
             return HALF_DAY_WEEKEND_STATUS;
         }
 
