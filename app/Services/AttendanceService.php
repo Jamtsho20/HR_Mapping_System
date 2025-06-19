@@ -11,26 +11,42 @@ use App\Models\TravelAuthorizationApplication;
 use App\Models\WorkHolidayList;
 use Carbon\Carbon;
 
-class AttendanceService {
+class AttendanceService
+{
 
-    public function getAttendanceStatus($empId, $empRegion){
+    public function getAttendanceStatus($empId, $empRegion)
+    {
         $currentDate = Carbon::now();
         //checks Mon, Tues, Wed, in full name as this need to be checked off days for shift employee
-        $today = Carbon::now()->format('l'); 
+        $today = Carbon::now()->format('l');
         $attendanceStatus = CREATED_STATUS;
         // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
         $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
 
         // 1. check if employee is on tour
-        $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
-            $query->whereDate('from_date', '<=', $currentDate->toDateString())
-                ->whereDate('to_date', '>=', $currentDate->toDateString());
+        // $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
+        //     $query->whereDate('from_date', '<=', $currentDate->toDateString())
+        //         ->whereDate('to_date', '>=', $currentDate->toDateString());
+        //     }])
+        //     ->where('status', '<>', -1)
+        //     ->first();
+
+        // if($isOnTour && $isOnTour->details){
+        //     dd("a");
+        //     return ON_TOUR_STATUS;
+        // }
+        $isOnTour = TravelAuthorizationApplication::where('status', '<>', -1)
+            ->where('created_by', $empId)
+            ->whereHas('details', function ($query) use ($currentDate) {
+                $query->whereDate('from_date', '<=', $currentDate->toDateString())
+                    ->whereDate('to_date', '>=', $currentDate->toDateString());
+            })
+            ->with(['details' => function ($query) use ($currentDate) {
+                $query->whereDate('from_date', '<=', $currentDate->toDateString())
+                    ->whereDate('to_date', '>=', $currentDate->toDateString());
             }])
-            ->where('status', '<>', -1)
             ->first();
-            
-        if($isOnTour && $isOnTour->details){
-            dd("a");
+        if ($isOnTour && $isOnTour->details->isNotEmpty()) {
             return ON_TOUR_STATUS;
         }
         // 2. check if employee is on leave priority over other
@@ -49,13 +65,20 @@ class AttendanceService {
                         3 => SHCL_LEAVE_STATUS,
                         default => CASUAL_LEAVE_STATUS,
                     };
-                case EARNED_LEAVE: return EARNED_LEAVE_STATUS;
-                case MEDICAL_LEAVE: return MEDICAL_LEAVE_STATUS;
-                case MATERNITY_LEAVE: return MATERNITY_LEAVE_STATUS;
-                case PATERNITY_LEAVE: return PATERNITY_LEAVE_STATUS;
-                case BEREAVEMENT_LEAVE: return BEREAVEMENT_LEAVE_STATUS;
-                case STUDY_LEAVE: return STUDY_LEAVE_STATUS;
-                case EXTRA_ORDINARY_LEAVE: return EOL_LEAVE_STATUS;
+                case EARNED_LEAVE:
+                    return EARNED_LEAVE_STATUS;
+                case MEDICAL_LEAVE:
+                    return MEDICAL_LEAVE_STATUS;
+                case MATERNITY_LEAVE:
+                    return MATERNITY_LEAVE_STATUS;
+                case PATERNITY_LEAVE:
+                    return PATERNITY_LEAVE_STATUS;
+                case BEREAVEMENT_LEAVE:
+                    return BEREAVEMENT_LEAVE_STATUS;
+                case STUDY_LEAVE:
+                    return STUDY_LEAVE_STATUS;
+                case EXTRA_ORDINARY_LEAVE:
+                    return EOL_LEAVE_STATUS;
             }
         }
 
@@ -87,7 +110,8 @@ class AttendanceService {
         return $attendanceStatus;
     }
 
-    public function getEffectiveOfficeTiming($userData){
+    public function getEffectiveOfficeTiming($userData)
+    {
         $currentMonthNum = getMappedMonth();
         $officeTiming = [];
         $office = $userData->empJob->office;
@@ -100,7 +124,7 @@ class AttendanceService {
             $officeTiming['start_time'] = $userData['employeeInShifts'][0]['departmentShift']->start_time;
             $officeTiming['end_time'] = $userData['employeeInShifts'][0]['departmentShift']->end_time;
             $officeTiming['shift_name'] = $userData['employeeInShifts'][0]['departmentShift']['shiftType']->name;
-        }else{
+        } else {
             $defaultOfficeTiming = MasOfficeTiming::where(function ($query) use ($currentMonthNum) {
                 $query->whereRaw('? BETWEEN start_month AND end_month', [$currentMonthNum])
                     ->orWhereRaw('start_month > end_month AND (? >= start_month OR ? <= end_month)', [$currentMonthNum, $currentMonthNum]);
@@ -122,11 +146,11 @@ class AttendanceService {
 
         $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $currentDay) {
             $query->where('department_id', $departmentId)
-                  ->where('day', $currentDay);
+                ->where('day', $currentDay);
         }])->where('for_month', $currentMonth)->first();
 
         $dailyAttendance = $empAttendance?->dailyAttendances;
-       
+
         if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
