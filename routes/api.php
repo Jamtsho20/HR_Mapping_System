@@ -160,8 +160,8 @@ Route::middleware('api.access.log')->group(function () {
     });
 
     Route::namespace('Api\Attendance')->middleware('auth:sanctum')->group(function () {
-        Route::resource('attendance', 'AttendanceApiController');
-        // Route::get('get-attendance-initial-data', [AttendanceApiController::class, 'getAttendanceInitialData']);
+        Route::resource('attendance', 'AttendanceApiController')->except(['update', 'store']);
+        Route::put('/attendance/entry', [AttendanceApiController::class, 'attendanceEntry']);
     });
 
     // incoming data from SAP ERP to save store and item as SAP team will be pushing data

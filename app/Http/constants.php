@@ -106,6 +106,8 @@ const SITE_SITE = 2;
 const ASSET_RETURN_TYPE =1;
 
 //Attendance Status
+const PRESENT_STATUS = 1;
+const ABSENT_STATUS = 2;
 const WEEKLY_OFF_STATUS = 23;
 const HALF_DAY_HOLIDAY_STATUS = 24;
 const HALF_DAY_WEEKEND_STATUS = 25;

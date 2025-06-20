@@ -438,8 +438,8 @@ Route::middleware('auth')->group(function () {
     Route::namespace('AssetReport')->prefix('asset-report')->group(function () {
         Route::resource('requisition-report', 'RequisitionReportController')->except('create', 'edit');
         Route::resource('commission-report', 'CommissionReportController')->except('create', 'edit');
-        Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
-        Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
+        // Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
+        // Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
     });
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
