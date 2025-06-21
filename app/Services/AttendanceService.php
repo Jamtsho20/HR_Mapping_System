@@ -122,7 +122,7 @@ class AttendanceService
         $officeTiming['longitude'] = $office->longitude;
         $officeTiming['latitude'] = $office->latitude;
         // $officeTiming['raidus'] = $office->raidus . ' ' . config('global.raidus_unit');
-        $officeTiming['raidus'] = $office->raidus;
+        $officeTiming['radius'] = $office->radius;
         $officeTiming['attendance_buffer_mins'] = config('global.attendance_buffer_mins');
         if (isset($userData['employeeInShifts']) && isset($userData['employeeInShifts'][0]['departmentShift'])) {
             $officeTiming['start_time'] = $userData['employeeInShifts'][0]['departmentShift']->start_time;
@@ -140,10 +140,6 @@ class AttendanceService
 
         return $officeTiming;
     }
-
-    // public function currentMonthAttendanceId() {
-    //     $currentMonth = Carbon::now()->format('m-Y');
-    // }
 
     public function empAttendanceEntry($loggedInUser)
     {
