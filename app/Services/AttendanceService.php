@@ -174,4 +174,34 @@ class AttendanceService
             ->where('employee_id', $loggedInUser->id)
             ->first();
     }
+
+    public function getAttendanceLeaveStatus($leave){
+        switch ($leave->type_id) {
+                case CASUAL_LEAVE:
+                    return match ($leave->from_day) {
+                        1 => CASUAL_LEAVE_STATUS,
+                        2 => FHCL_LEAVE_STATUS,
+                        3 => SHCL_LEAVE_STATUS,
+                        default => CASUAL_LEAVE_STATUS,
+                    };
+                case EARNED_LEAVE:
+                    return EARNED_LEAVE_STATUS;
+                case MEDICAL_LEAVE:
+                    return MEDICAL_LEAVE_STATUS;
+                case MATERNITY_LEAVE:
+                    return MATERNITY_LEAVE_STATUS;
+                case PATERNITY_LEAVE:
+                    return PATERNITY_LEAVE_STATUS;
+                case BEREAVEMENT_LEAVE:
+                    return BEREAVEMENT_LEAVE_STATUS;
+                case STUDY_LEAVE:
+                    return STUDY_LEAVE_STATUS;
+                case EXTRA_ORDINARY_LEAVE:
+                    return EOL_LEAVE_STATUS;
+            }
+    }
+
+    // public function getAttendanceTravelStatus($data){
+
+    // }
 }

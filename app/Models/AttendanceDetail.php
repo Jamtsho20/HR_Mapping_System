@@ -10,9 +10,15 @@ class AttendanceDetail extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip', ];
+    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip',];
 
-    public function dailyAttendance(){
+    public function dailyAttendance()
+    {
         return $this->belongsTo(DailyAttendance::class, 'daily_attendance_id');
     }
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'employee_id', 'id');
+    }
+    
 }

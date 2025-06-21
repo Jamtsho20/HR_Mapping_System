@@ -108,16 +108,16 @@ class LeaveApplication extends Model
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
 
-    protected static function booted()
-    {
-        static::created(function ($leaveApplication) {
-            $leaveApplication->updateLeaveBalance($leaveApplication);
-        });
+    // protected static function booted()
+    // {
+    //     static::created(function ($leaveApplication) {
+    //         $leaveApplication->updateLeaveBalance($leaveApplication);
+    //     });
 
-        static::updated(function ($leaveApplication) {
-            if ($leaveApplication->isDirty('status') && $leaveApplication->status == -1) {
-                $leaveApplication->updateLeaveBalance($leaveApplication);
-            }
-        });
-    }
+    //     static::updated(function ($leaveApplication) {
+    //         if ($leaveApplication->isDirty('status') && $leaveApplication->status == -1) {
+    //             $leaveApplication->updateLeaveBalance($leaveApplication);
+    //         }
+    //     });
+    // }
 }

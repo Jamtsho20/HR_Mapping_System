@@ -91,14 +91,14 @@ class TravelAuthorizationApplication extends Model
         return $statusNameMapping[$this->status] ?? config('global.null_value');
     }
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::deleting(function ($travelAuthorization) {
-            $travelAuthorization->details()->delete();
-        });
-    }
+    //     static::deleting(function ($travelAuthorization) {
+    //         $travelAuthorization->details()->delete();
+    //     });
+    // }
 
     // scope filter
     public function scopeFilter($query, $request, $onesOwnRecord = true)
