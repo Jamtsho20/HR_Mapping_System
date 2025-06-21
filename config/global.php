@@ -13,7 +13,7 @@ return [
 
     'attendance_buffer_mins' => 5,
 
-    'raidus_unit' => 'm',
+    'radius_unit' => 'm',
 
     'holiday_types' => ['Government', 'Private'],
 

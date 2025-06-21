@@ -51,10 +51,9 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $user = auth()->user();
 
-        if($request->check_in === 'check-in' && !$request->check_in_at){
+        if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
-        }
-        if($request->check_out === 'check_out' && !$request->check_out_at){
+        }else if($request->check_type === 'check-out' && !$request->check_out_at){
             $this->rules['check_out_at'] = 'required';
         }
 
@@ -70,16 +69,17 @@ class AttendanceApiController extends Controller
         // }
         // $checkInDate = carbon::parse($request->check_in_at)->format('d-m-y');
         // $checkOutDate = carbon::parse($request->check_out_at)->format('d-m-y');
-        $checkInAt = $request->check_in_at ? Carbon::parse($request->check_in_at)->format('H:i:s') : null;
-        $checkOutAt = $request->check_out_at ? Carbon::parse($request->check_out_at)->format('H:i:s') : null;
-        $checkInIp = $request->check_in === 'check-in' ? $request->ip() : null;
-        $checkOutIp = $request->check_out === 'check-out' ? $request->ip() : null;
+        $checkInAt = $request->check_type === 'check-in'  ? $request->check_in_at : null;
+        $checkOutAt = $request->check_type === 'check-out' ? $request->check_out_at : null;
+        $checkInIp = $request->check_type === 'check-in' ? $request->ip() : null;
+        $checkOutIp = $request->check_type === 'check-out' ? $request->ip() : null;
 
         if(!$loggedInUserAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
         }
 
-        $attendanceStatus = ($request->check_in && $request->check_in_at) ? PRESENT_STATUS : $loggedInUserAttendanceEntry->attendance_status_id;
+        $attendanceStatus = ($request->check_in === 'check-in' && $request->check_in_at) || ($request->check_in === 'check-out' && $request->check_out_at) ? PRESENT_STATUS : $loggedInUserAttendanceEntry->attendance_status_id;
+        
 
         AttendanceDetail::where('id', $loggedInUserAttendanceEntry->id)->update([
             'daily_attendance_id' => $loggedInUserAttendanceEntry->daily_attendance_id,
