@@ -145,12 +145,13 @@ class AttendanceService
     {
         $year = $year;
         $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
+
         $currentDay = Carbon::now()->day;
         $departmentId = $loggedInUser->empJob->mas_department_id;
         $sectionId = $loggedInUser->empJob->mas_section_id;
 
         $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $departmentId, $sectionId, $currentDay) {
-                        if($flag === 'daily'){
+                        if($flag == 'daily'){
                             $query->where('day', $currentDay);
                         }
                         if ($sectionId) {
@@ -162,11 +163,10 @@ class AttendanceService
                     ->year($year)         // optional filter by year
                     ->forMonth($monthYear)
                     ->first();
-        // if(!$empAttendance){
-        //     throw(\Exception )
-        // }
+        
+                  
         $dailyAttendance = $empAttendance?->dailyAttendances;
-        // dd($dailyAttendance);
+        
         if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
@@ -205,7 +205,7 @@ class AttendanceService
                     'attendance_date' => $detail->created_at->format('d-m-y'),
                 ];
             }
-
+            
             return $attendances;
         }
         // dd($dailyAttendance[0]->id);

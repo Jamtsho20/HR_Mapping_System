@@ -39,7 +39,7 @@ class AttendanceController extends Controller
 
             $startDate = Carbon::createFromFormat('m-Y', $yearMonth)->startOfMonth();
             $daysInMonth = $startDate->daysInMonth;
-
+            
             $attendances = $attendanceService->empAttendanceEntry($user, $year, $yearMonth);
 
             $attendanceMap = collect($attendances)->keyBy(function ($item) {

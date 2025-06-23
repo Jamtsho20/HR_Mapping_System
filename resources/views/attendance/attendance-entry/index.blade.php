@@ -7,12 +7,13 @@
             @component('layouts.includes.filter')
                 @php
                     $selectedYear = request()->get('year') ?? now()->year;
+                    $currentYear = now()->year;
                 @endphp
                 <div class="col-md-4 form-group">
                     <select class="form-control" name="year">
                         <option value="" disabled selected hidden>Select Year</option>
                         @foreach (config('global.years') as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }} {{ $year > $currentYear ? 'disabled' : '' }}>{{ $year }}</option>
                         @endforeach
                     </select>
                 </div>
