@@ -27,7 +27,7 @@ class AttendanceApiController extends Controller
         if($attendances == null){
             return $this->errorResponse('Attendance for the selected month is not availaible');
         }
-        
+
         return $this->successResponse([
             'attendances' => $attendances,
             'year_month' => $yearMonth
@@ -69,8 +69,14 @@ class AttendanceApiController extends Controller
             return $this->validationErrorResponse($validator->errors());
         }
 
-        $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, 'daily');
-        $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
+        $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
+        // return $this->successResponse($loggedInUserDailyAttendanceEntry);
+        if(!$loggedInUserDailyAttendanceEntry){
+            return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
+        }
+
+        $attendanceStatus = $loggedInUserDailyAttendanceEntry ? $loggedInUserDailyAttendanceEntry->attendance_status_id : [];
+
         //need to do later
         // if(carbon::parse($request->check_in_at)->format('d-m-y') != carbon::now()->format('d-m-y') ||  carbon::parse($request->check_out_at)->format('d-m-y') != carbon::now()->format('d-m-y')){
         //     return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
@@ -81,10 +87,6 @@ class AttendanceApiController extends Controller
         $checkOutAt = $request->check_type === 'check-out' ? $request->check_out_at : null;
         $checkInIp = $request->check_type === 'check-in' ? $request->ip() : null;
         $checkOutIp = $request->check_type === 'check-out' ? $request->ip() : null;
-
-        if(!$loggedInUserDailyAttendanceEntry){
-            return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
-        }
 
         if(($request->check_in_date && $request->check_in_date != Carbon::now()->toDateString()) || ($request->check_out_date && $request->check_out_date != Carbon::now()->toDateString())){
             return $this->errorResponse('Please make attendance entry (check-in/check-out) for today`s date i.e, ' . carbon::now()->format('d-m-y') . '.');
