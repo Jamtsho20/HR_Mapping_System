@@ -2,10 +2,7 @@
 
 use App\Http\Controllers\AjaxRequestController;
 use App\Http\Controllers\Api\Advance\AdvanceLoanApplicationApiController;
-use App\Http\Controllers\Api\Advance\AdvanceLoanApprovalController;
 use App\Http\Controllers\Api\Anniversary\AnniversaryController;
-use App\Http\Controllers\Api\Delegation\DelegationApiController;
-use App\Http\Controllers\Api\DummyApi;
 use App\Http\Controllers\Api\Expense\DSAClaimApplicationController;
 use App\Http\Controllers\Api\Expense\ExpenseApplicationController;
 use App\Http\Controllers\Api\Expense\ExpenseApprovalController;
@@ -13,7 +10,6 @@ use App\Http\Controllers\Api\Expense\TransferClaimApplicationController;
 use App\Http\Controllers\Api\HolidayListController;
 use App\Http\Controllers\Api\Attendance\AttendanceApiController;
 use App\Http\Controllers\Api\Leave\LeaveApplicationController;
-use App\Http\Controllers\Api\Leave\LeaveEncashmentApplicationController;
 use App\Http\Controllers\Api\Leave\LeaveEncashmentApprovalController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\SAP\ApiController;
@@ -22,13 +18,9 @@ use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
 use App\Http\Controllers\Api\v1\Asset\RequisitionApplicationApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
-use App\Http\Controllers\Api\v1\TeamApiController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
-use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApprovalController;
 use App\Http\Controllers\Api\v1\UserController;
 use App\Http\Controllers\ApprovalController;
-use App\Http\Controllers\DashboardController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -159,8 +151,14 @@ Route::middleware('api.access.log')->group(function () {
         Route::resource('leave_approval', 'LeaveApprovalController');
     });
 
-    Route::namespace('Api\Attendance')->middleware('auth:sanctum')->group(function () {
-        Route::resource('attendance', 'AttendanceApiController')->except(['update', 'store']);
+    // Route::namespace('Api\Attendance')->middleware('auth:sanctum')->group(function () {
+    //     Route::resource('attendance', 'AttendanceApiController')->except(['update', 'store']);
+    //     Route::put('/attendance/entry', 'AttendanceApiController@attendanceEntry');
+    // });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::resource('attendance', AttendanceApiController::class)->except(['update', 'store']);
+        // Route::get('/attendance/monthly', [AttendanceApiController::class, 'getEmpAttendance']);
         Route::put('/attendance/entry', [AttendanceApiController::class, 'attendanceEntry']);
     });
 

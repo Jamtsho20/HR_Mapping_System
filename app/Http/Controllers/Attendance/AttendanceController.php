@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasDepartment;
-use App\Models\MasDzongkhag;
 use App\Models\MasRegion;
 use Illuminate\Http\Request;
+use App\Services\AttendanceService;
+use Carbon\Carbon;
 
-class AttendanceEntryController extends Controller
+class AttendanceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,15 +23,47 @@ class AttendanceEntryController extends Controller
         $this->middleware('permission:attendance/attendance-entry,edit')->only('update');
         $this->middleware('permission:attendance/attendance-entry,delete')->only('destroy');
     }
+
     public function index(Request $request)
     {
         $privileges = $request->instance();
-  
-        $departments = MasDepartment::select('id', 'name')->get();
-        $regions = MasRegion::select('id', 'name')->get();
-               
-        return view('attendance.attendance-entry.index', compact( 'privileges','departments','regions'));
+        $attendanceService = new AttendanceService(); 
+        $user = auth()->user();
+        $year = $request->year ?? Carbon::now()->year; // or allow filtering: $request->get('year', Carbon::now()->year);
+        $monthlyAttendances = [];
+        $maxDays = 31;
+
+        for ($month = 1; $month <= 12; $month++) {
+            $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $yearMonth = "{$monthStr}-{$year}";
+
+            $startDate = Carbon::createFromFormat('m-Y', $yearMonth)->startOfMonth();
+            $daysInMonth = $startDate->daysInMonth;
+
+            $attendances = $attendanceService->empAttendanceEntry($user, $year, $yearMonth);
+
+            $attendanceMap = collect($attendances)->keyBy(function ($item) {
+                return str_pad($item['for_day'], 2, '0', STR_PAD_LEFT);
+            });
+
+            $monthlyAttendances[] = [
+                'month' => $startDate->format('F'), // e.g., January
+                'attendanceMap' => $attendanceMap,
+                'days_in_month' => $daysInMonth
+            ];
+
+            $maxDays = max($maxDays, $daysInMonth);
+        }
+
+        // Build fixed day headers from 01 to max (typically 31)
+        $days = [];
+        for ($i = 1; $i <= $maxDays; $i++) {
+            $days[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+        }
+        
+        return view('attendance.attendance-entry.index', compact('privileges', 'monthlyAttendances', 'days', 'year'));
     }
+
 
     /**
      * Show the form for creating a new resource.

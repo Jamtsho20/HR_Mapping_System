@@ -141,33 +141,77 @@ class AttendanceService
         return $officeTiming;
     }
 
-    public function empAttendanceEntry($loggedInUser)
+    public function empAttendanceEntry($loggedInUser, $year = null, $monthYear = null, $flag = null)
     {
-        $currentMonth = Carbon::now()->format('m-Y');
+        $year = $year;
+        $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
         $currentDay = Carbon::now()->day;
         $departmentId = $loggedInUser->empJob->mas_department_id;
         $sectionId = $loggedInUser->empJob->mas_section_id;
 
-        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $sectionId, $currentDay) {
-                        $query->where('day', $currentDay);
-                        
+        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $departmentId, $sectionId, $currentDay) {
+                        if($flag === 'daily'){
+                            $query->where('day', $currentDay);
+                        }
                         if ($sectionId) {
                             $query->where('section_id', $sectionId);
                         } else {
                             $query->whereNull('section_id')->where('department_id', $departmentId);
                         }
                     }])
-                    ->where('for_month', $currentMonth)
+                    ->year($year)         // optional filter by year
+                    ->forMonth($monthYear)
                     ->first();
-
+        // if(!$empAttendance){
+        //     throw(\Exception )
+        // }
         $dailyAttendance = $empAttendance?->dailyAttendances;
-
+        // dd($dailyAttendance);
         if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
 
+        if($flag != 'daily'){
+            $attendances = [];
+            foreach($dailyAttendance as $attendance){
+                $detail = AttendanceDetail::where('daily_attendance_id', $attendance->id)
+                    ->where('employee_id', $loggedInUser->id)
+                    ->first();
+                // dd($detail);
+                if (!$detail) {
+                    $attendances[] = [
+                        'check_in_at' => config('global.null_value'),
+                        'check_out_at' => config('global.null_value'),
+                        'attendance_status_code' => config('global.null_value'),
+                        'attendance_status_description' => config('global.null_value'),
+                        'worked_hours' => config('global.null_value'),
+                        'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
+                        'attendance_date' => $attendance->date ?? config('global.null_value'),
+                    ];
+                    continue; // Skip to the next attendance
+                }
+
+                $workedHours = ($detail->check_in_at != null && $detail->check_out_at !=null)
+                    ? $detail->check_in_at->diff($detail->check_out_at)->format('%H:%I')
+                    : config('global.null_value');
+
+                $attendances[] = [
+                    'check_in_at' => $detail->check_in_at ?? config('global.null_value'),
+                    'check_out_at' => $detail->check_out_at ?? config('global.null_value'),
+                    'attendance_status_code' => $detail->attendanceStatus->code ?? config('global.null_value'),
+                    'attendance_status_description' => $detail->attendanceStatus->description ?? config('global.null_value'),
+                    'worked_hours' => $workedHours,
+                    'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
+                    'attendance_date' => $detail->created_at->format('d-m-y'),
+                ];
+            }
+
+            return $attendances;
+        }
+        // dd($dailyAttendance[0]->id);
         return AttendanceDetail::where('daily_attendance_id', $dailyAttendance[0]->id)
             ->where('employee_id', $loggedInUser->id)
             ->first();
     }
+
 }

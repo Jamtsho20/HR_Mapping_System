@@ -15,4 +15,8 @@ class AttendanceDetail extends Model
     public function dailyAttendance(){
         return $this->belongsTo(DailyAttendance::class, 'daily_attendance_id');
     }
+
+    public function attendanceStatus(){
+        return $this->belongsTo(AttendanceStatus::class, 'attendance_status_id');
+    }
 }

@@ -202,7 +202,7 @@ Route::middleware('auth')->group(function () {
 
     // ATTENDANCE
     Route::namespace('Attendance')->prefix('attendance')->group(function () {
-        Route::resource('attendance-entry', 'AttendanceEntryController')->except('create', 'show', 'edit');
+        Route::resource('attendance-entry', 'AttendanceController')->except('create', 'show', 'edit');
         Route::resource('attendance-register', 'AttendanceRegisterController')->except('create', 'show', 'edit');
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
     });
