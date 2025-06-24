@@ -96,4 +96,5 @@ class AttendanceSummaryController extends Controller
     {
         //
     }
+    
 }
