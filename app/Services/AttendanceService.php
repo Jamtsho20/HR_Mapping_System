@@ -191,9 +191,11 @@ class AttendanceService
                     continue; // Skip to the next attendance
                 }
 
-                $workedHours = ($detail->check_in_at != null && $detail->check_out_at !=null)
-                    ? $detail->check_in_at->diff($detail->check_out_at)->format('%H:%I')
-                    : config('global.null_value');
+                $workedHours = ($detail->check_in_at && $detail->check_out_at)
+                                ? Carbon::createFromFormat('H:i:s', $detail->check_in_at)
+                                    ->diff(Carbon::createFromFormat('H:i:s', $detail->check_out_at))
+                                    ->format('%Hh:%Im:%Ss')
+                                : config('global.null_value');
 
                 $attendances[] = [
                     'check_in_at' => $detail->check_in_at ?? config('global.null_value'),
