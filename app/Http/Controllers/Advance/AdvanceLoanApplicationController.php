@@ -175,26 +175,32 @@ class AdvanceLoanApplicationController extends Controller
         $latestRepayment = null;
 
         if ($lastApprovedSifaLoan) {
-            $latestRepayment = DB::table('sifaloanrepayment')
-                ->where('advance_application_id', $lastApprovedSifaLoan->id)
-                ->orderByDesc('month')
-                ->first();
-            if ($latestRepayment) {
-                $closingBalance = floatval($latestRepayment->closing_balance);
-                $remainingPrincipal = $closingBalance;
+    // Check if the loan is not paid off
+    $isActiveLoan = DB::table('loan_e_m_i_deductions')
+        ->where('advance_application_id', $lastApprovedSifaLoan->id)
+        ->where('is_paid_off', 0)
+        ->first();
 
-                $lastMonthEnd = Carbon::parse($latestRepayment->month)->subMonth()->endOfMonth(); // end of May 2025
-                $today = Carbon::today();     
-                $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
+    if ($isActiveLoan) {
+        $latestRepayment = DB::table('sifaloanrepayment')
+            ->where('advance_application_id', $lastApprovedSifaLoan->id)
+            ->orderByDesc('month')
+            ->first();
 
+        if ($latestRepayment) {
+            $closingBalance = floatval($latestRepayment->closing_balance);
+            $remainingPrincipal = $closingBalance;
 
-                $daysInYear = Carbon::now()->daysInYear;
-                $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
+            $lastMonthEnd = Carbon::parse($latestRepayment->month)->subMonth()->endOfMonth(); // end of May 2025
+            $today = Carbon::today();     
+            $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
 
-                $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+            $daysInYear = Carbon::now()->daysInYear;
+            $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
 
-                //dd($daysElapsed,$netPayable);
-            }
+            $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+        }
+    }
         }
 
         return view(
