@@ -31,16 +31,10 @@ use App\Http\Controllers\Reports\SamsungDeductionReportController;
 use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TaxScheduleReportController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
-use App\Http\Controllers\Sifa\SifaRegistrationController;
-use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Http\Controllers\WorkStructure\BusinessUnitController;
-use App\Jobs\SendEmployeeCredentialsJob;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
-use App\Models\ExpenseApplication;
-use App\Models\PaySlip;
 use App\Models\User;
-use App\Services\PayrollService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 

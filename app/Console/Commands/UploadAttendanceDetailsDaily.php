@@ -40,23 +40,25 @@ class UploadAttendanceDetailsDaily extends Command
                 $insertData = [];
 
                 foreach ($employees as $employee) {
-                    $departmentId = optional($employee->empJob)->mas_department_id;
-                    $sectionId = optional($employee->empJob)->mas_section_id;
+                    // $departmentId = optional($employee->empJob)->mas_department_id;
+                    // $sectionId = optional($employee->empJob)->mas_section_id;
                     $regionId = optional(optional($employee->empJob)->office)->mas_region_id;
 
-                    if ((!$departmentId && !$sectionId) || !$regionId) {
+                    // if ((!$departmentId && !$sectionId) || !$regionId) {
+                    if (!$regionId) {
                         continue; // skip if necessary data is missing
                     }
 
                     // fetch daily emp attendance  based on employee section or department
-                    $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $sectionId, $currentDay) {
+                    // $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $sectionId, $currentDay) {
+                    $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($currentDay) {
                         $query->where('day', $currentDay);
                         
-                        if ($sectionId) {
-                            $query->where('section_id', $sectionId);
-                        } else {
-                            $query->whereNull('section_id')->where('department_id', $departmentId);
-                        }
+                        // if ($sectionId) {
+                        //     $query->where('section_id', $sectionId);
+                        // } else {
+                        //     $query->whereNull('section_id')->where('department_id', $departmentId);
+                        // }
                     }])
                     ->where('for_month', $currentMonth)
                     ->first();
