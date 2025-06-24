@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Advance\AdvanceLoanApplicationController;
 use App\Http\Controllers\Advance\AdvanceSifaLoanController;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\AssetReport\CommissionReportController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\AdvanceLoanReportController;
+use App\Http\Controllers\Reports\AdvanceSifaLoanReportController;
 use App\Http\Controllers\Reports\CashReportController;
 use App\Http\Controllers\Reports\ChequeReportController;
 use App\Http\Controllers\Reports\DSASettlementReportController;
@@ -41,7 +43,7 @@ use App\Models\User;
 use App\Services\PayrollService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Advance\AdvanceLoanApplicationController;
+
 
 
 
@@ -326,6 +328,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
         Route::resource('advance-sifa-loan-report', 'AdvanceSifaLoanReportController')->except('create', 'edit');
     });
+    Route::get('/advance-sifa-loan-report', [AdvanceSifaLoanReportController::class, 'exportSifaLoanReport'])
+    ->name('advance-sifa-loan-report.export');
 
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
