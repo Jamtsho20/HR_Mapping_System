@@ -24,6 +24,10 @@ class AttendanceApiController extends Controller
         $yearMonth = $request->get('year_month') ?? carbon::now()->format('m-Y');
         $attendances = $attendanceService->empAttendanceEntry($user, $year = null, $yearMonth);
         
+        if($attendances == null){
+            return $this->errorResponse('Attendance for the selected month is not availaible');
+        }
+        
         return $this->successResponse([
             'attendances' => $attendances,
             'year_month' => $yearMonth
