@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Attendance;
 use App\Http\Controllers\Controller;
 use App\Models\MasDepartment;
 use App\Models\MasRegion;
+use App\Models\MasSection;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AttendanceSummaryController extends Controller
@@ -24,11 +26,17 @@ class AttendanceSummaryController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-  
+        $yearMonth = $request->year_month;
         $departments = MasDepartment::select('id', 'name')->get();
-        $regions = MasRegion::select('id', 'region_name')->get();
+        $sections = MasSection::select('id', 'name')->get();
+        $employees = User::get();
+        $maxDays = daysInMonth($yearMonth);
+        $days = [];
+        for ($i = 1; $i <= $maxDays; $i++) {
+            $days[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+        }
                
-        return view('attendance.attendance-summary.index', compact( 'privileges','departments','regions'));
+        return view('attendance.attendance-summary.index', compact( 'privileges','departments','sections', 'employees', 'days'));
     }
 
     /**
