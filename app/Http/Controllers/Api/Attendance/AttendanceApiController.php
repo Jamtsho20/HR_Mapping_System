@@ -76,16 +76,6 @@ class AttendanceApiController extends Controller
         }
 
         $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
-        //need to do later
-        // if(carbon::parse($request->check_in_at)->format('d-m-y') != carbon::now()->format('d-m-y') ||  carbon::parse($request->check_out_at)->format('d-m-y') != carbon::now()->format('d-m-y')){
-        //     return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
-        // }
-        // $checkInDate = carbon::parse($request->check_in_at)->format('d-m-y');
-        // $checkOutDate = carbon::parse($request->check_out_at)->format('d-m-y');
-        $checkInAt = $request->check_type == 'check-in'  ? $request->check_in_at : null;
-        $checkOutAt = $request->check_type == 'check-out' ? $request->check_out_at : null;
-        $checkInIp = $request->check_type == 'check-in' ? $request->ip() : null;
-        $checkOutIp = $request->check_type == 'check-out' ? $request->ip() : null;
 
         if(($request->check_in_date && $request->check_in_date != Carbon::now()->toDateString()) || ($request->check_out_date && $request->check_out_date != Carbon::now()->toDateString())){
             return $this->errorResponse('Please make attendance entry (check-in/check-out) for today`s date i.e, ' . carbon::now()->format('d-m-y') . '.');
@@ -95,15 +85,22 @@ class AttendanceApiController extends Controller
             $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
         }
 
-        AttendanceDetail::where('id', $loggedInUserDailyAttendanceEntry->id)->update([
+        $updateAttendanceData = [
             'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
             'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
-            'check_in_at' => $checkInAt,
-            'attendance_status_id' => $attendanceStatus,
-            'check_out_at' => $checkOutAt,
-            'check_in_ip' => $checkInIp,
-            'check_out_ip' => $checkOutIp,
-        ]);
+            'attendance_status_id' => $attendanceStatus
+        ];
+
+        // Conditional update based on check type
+        if ($request->check_type === 'check-in') {
+            $updateAttendanceData['check_in_at'] = $request->check_in_at;
+            $updateAttendanceData['check_in_ip'] = $request->ip();
+        } elseif ($request->check_type === 'check-out') {
+            $updateAttendanceData['check_out_at'] = $request->check_out_at;
+            $updateAttendanceData['check_out_ip'] = $request->ip();
+        }
+
+        AttendanceDetail::where('id', $loggedInUserDailyAttendanceEntry->id)->update($updateAttendanceData);
 
         return $this->successResponse('Attendance entry for ' . Carbon::now()->format('d-m-y') . ' made successfully');
     }
