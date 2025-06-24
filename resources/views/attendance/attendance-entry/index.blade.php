@@ -1,6 +1,14 @@
 @extends('layouts.app')
 @section('page-title', 'Attendance Entry')
 @section('content')
+@push('page_styles')
+    <style>
+        .tooltip-inner {
+            text-align: left !important;
+            /* white-space: pre-line; */
+        }
+    </style>
+@endpush
 <div class="block">
     <div class="block">
         <div class="block-header block-header-default">
@@ -66,12 +74,15 @@
                                                                             $data = $attendanceMap[$day] ?? null;
                                                                         @endphp
                                                                         <td class="text-center"
-                                                                            title="Check-In: {{ $data['check_in_at'] ?? config('global.null_value') }}
-                                                                            Check-Out: {{ $data['check_out_at'] ?? config('global.null_value') }}
-                                                                            Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}
-                                                                            Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value')}}
+                                                                            data-bs-toggle="tooltip"
+                                                                            data-bs-html="true"
+                                                                            data-bs-placement="top"
+                                                                            title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}<br>
+                                                                            Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}<br>
+                                                                            Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}<br>
+                                                                            Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}<br>
                                                                             Date: {{ $data['attendance_date'] ?? config('global.null_value') }}">
-                                                                             {{ $data['attendance_status_code'] ?? config('global.null_value') }}
+                                                                            {{ $data['attendance_status_code'] ?? config('global.null_value') }}
                                                                         </td>
                                                                     @endforeach
                                                                 </tr>
