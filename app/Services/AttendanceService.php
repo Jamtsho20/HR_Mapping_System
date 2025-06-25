@@ -145,9 +145,9 @@ class AttendanceService
     {
         $year = $year;
         $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
-
+        
         $now = Carbon::now();
-        if($flag == 'yesterday'){
+        if($flag === 'yesterday'){
             $now->subDay();
         }
         $currentDay = $now->day;
@@ -156,7 +156,7 @@ class AttendanceService
 
         // $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $departmentId, $sectionId, $currentDay) {
         $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $currentDay) {
-                        if($flag == 'daily'){
+                        if($flag === 'daily' || $flag === 'yesterday'){
                             $query->where('day', $currentDay);
                         }
                         // if ($sectionId) {
@@ -171,12 +171,12 @@ class AttendanceService
         
                   
         $dailyAttendance = $empAttendance?->dailyAttendances;
-        
+
         if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
 
-        if($flag != 'daily'){
+        if(!$flag){
             $attendances = [];
             foreach($dailyAttendance as $attendance){
                 $detail = AttendanceDetail::where('daily_attendance_id', $attendance->id)

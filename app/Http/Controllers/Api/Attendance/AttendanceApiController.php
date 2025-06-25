@@ -68,13 +68,13 @@ class AttendanceApiController extends Controller
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
-
-        $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
         
-        if($request->attendance_date && $request->shift_name === 'Night Shift'){
+        if($request->attendance_date && $request->shift_name == 'Night Shift'){
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'yesterday');
+        }else{
+            $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
         }
-
+        
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
