@@ -7,11 +7,11 @@
 @endsection
 @endif
 <div class="block-header block-header-default">
-    @component('layouts.includes.filter')
+    <!-- @component('layouts.includes.filter')
     <div class="col-6 form-group">
         <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
     </div>
-    @endcomponent
+    @endcomponent -->
 
     <div class="row row-sm">
         <div class="col-lg-12">
@@ -28,7 +28,7 @@
                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                             id="basic-datatable table-responsive">
                                             <thead>
-                                                <tr role="row" class="thead-light">
+                                                <tr role="row" class="thead-light" style="text-align: center;">
                                                     <th>
                                                         Sl. No
                                                     </th>
@@ -39,24 +39,49 @@
                                                         Description
                                                     </th>
                                                     <th>
+                                                        Color
+                                                    </th>
+                                                    <th>
                                                         Action
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($statuses as $status)
+                                                @forelse($statuses as $status)
                                                 <tr>
-                                                    <td>{{ $status->code }}</td>
-                                                    <td>{{ $status->description }}</td>
-                                                    <td>
-                                                        <span style="color: {{ $status->color }}">{{ ucfirst($status->color) }}</span>
-                                                        {{-- Or for background --}}
-                                                        {{-- <span style="background-color: {{ $status->color }}; padding: 2px 5px;">&nbsp;</span> --}}
+                                                    <td class="text-center">{{ $statuses->firstItem() + ($loop->iteration - 1) }}</td>
+                                                    <td class="text-center">{{ $status->code }}</td>
+                                                    <td class="text-center">{{ $status->description ?? config('global.null_value') }}</td>
+                                                    <td class="text-center">
+                                                        {{-- Show a color badge --}}
+                                                        <span class="badge" style="background-color: {{ $status->color }}; color: white;">
+                                                            {{ $status->color }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if ($privileges->edit)
+                                                        <a href="{{ url('attendance/attendance-status/' . $status->id . '/edit') }}"
+                                                            class="btn btn-sm btn-rounded btn-outline-success">
+                                                            <i class="fa fa-edit"></i> EDIT
+                                                        </a>
+                                                        @endif
+
+                                                        @if ($privileges->delete)
+                                                        <a href="#"
+                                                            class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
+                                                            data-url="{{ url('attendance/attendance-status/' . $status->id) }}">
+                                                            <i class="fa fa-trash"></i> DELETE
+                                                        </a>
+                                                        @endif
                                                     </td>
                                                 </tr>
-                                                @endforeach
+                                                @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted">No attendance statuses found.</td>
+                                                </tr>
+                                                @endforelse
                                             </tbody>
-                                            </tbody>
+
 
                                         </table>
 
