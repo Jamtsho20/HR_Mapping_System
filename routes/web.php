@@ -201,6 +201,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('attendance-entry', 'AttendanceController')->except('create', 'show', 'edit');
         Route::resource('attendance-register', 'AttendanceRegisterController')->except('create', 'show', 'edit');
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
+        Route::resource('attendance-status', 'AttendanceStatusController');
     });
 
     //EXPENSE

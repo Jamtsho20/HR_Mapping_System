@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->index(); // attendance status code
             $table->string('description')->index(); // attendance status description to display in frontend
+            $table->string('color')->nullable();
             $table->timestamps();
         });
     }
