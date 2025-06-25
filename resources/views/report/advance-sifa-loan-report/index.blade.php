@@ -5,76 +5,29 @@
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('advance-loan.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
-                title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('advance-loan-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('advance-sifa-loan-report.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('advance-loan-print', Request::query()) }}" target="_blank" onclick="openPrintPreview(event)">
-                <span><i class="fa fa-print fa-lg"></i></span>
             </a>
-
         </div>
     </div>
     <br>
-
+    
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
             <div class="col-3 form-group">
-                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+                <input type="month" name="year" class="form-control"
+                    value="{{ request()->get('year', \Carbon\Carbon::now()->format('Y-m')) }}">
             </div>
-
-            <div class="col-md-2 form-group">
-                <input type="text" class="form-control" name="date" id="date-range-picker"
-                    value="{{ request()->get('date') }}" placeholder=" Date (From - To)">
-            </div>
-
-            <div class="col-md-2">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Employee"
-                    name="employee">
-                    <option value="" disabled="" selected="" hidden="">Select Employee</option>
-                    @foreach ($employeeLists as $employee)
-                        <option value="{{ $employee->id }}" {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
-                            {{ $employee->name }}
+            <div class="col-3 form-group">
+                <select name="employee" class="form-control select2 select2-hidden-accessible"
+                    data-placeholder="Select Employee">
+                    <option value="" disabled="" selected="" hidden="">Select Employee ID</option>
+                    @foreach ($employee as $name)
+                        <option value="{{ $name->id }}" {{ request()->get('employee_id') == $name->id ? 'selected' : '' }}>
+                            {{ $name->name }}
                         </option>
                     @endforeach
                 </select>
-
-            </div>
-            <div class="col-md-3">
-                <select name="department" class="form-control select2 select2-hidden-accessible"
-                    data-placeholder="Select Department">
-                    <option value="" disabled="" selected="" hidden="">Select Department</option>
-                    @foreach ($departments as $department)
-                        <option value="{{ $department->id }}"
-                            {{ request()->get('department') == $department->id ? 'selected' : '' }}>
-                            {{ $department->name }}
-                        </option>
-                    @endforeach
-                </select>
-
-            </div>
-
-            <div class="col-md-2">
-                <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Section" name="section">
-                    <option value="" disabled selected hidden>Select Sections</option>
-                    @foreach ($sections as $section)
-                        <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
-                            {{ $section->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-md-2 form-group">
-                <select class="form-control select" data-placeholder="Select Status" name="status">
-                    <option value="" disabled selected hidden>Select Status</option>
-                    <option value="4" {{ request()->get('status') == 4 ? 'selected' : '' }}>Disbursed</option>
-                    <option value="3" {{ request()->get('status') == 3 ? 'selected' : '' }}>Approved</option>
-                </select>
-            </div>
-            <div class="col-md-3 form-group">
-                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
-                    placeholder="CID ID">
             </div>
         @endcomponent
         <div class="row row-sm">

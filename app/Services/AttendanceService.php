@@ -145,14 +145,18 @@ class AttendanceService
     {
         $year = $year;
         $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
-
-        $currentDay = Carbon::now()->day;
+        
+        $now = Carbon::now();
+        if($flag === 'yesterday'){
+            $now->subDay();
+        }
+        $currentDay = $now->day;
         // $departmentId = $loggedInUser->empJob->mas_department_id;
         // $sectionId = $loggedInUser->empJob->mas_section_id;
 
         // $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $departmentId, $sectionId, $currentDay) {
         $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $currentDay) {
-                        if($flag == 'daily'){
+                        if($flag === 'daily' || $flag === 'yesterday'){
                             $query->where('day', $currentDay);
                         }
                         // if ($sectionId) {
@@ -167,12 +171,12 @@ class AttendanceService
         
                   
         $dailyAttendance = $empAttendance?->dailyAttendances;
-        
+
         if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
 
-        if($flag != 'daily'){
+        if(!$flag){
             $attendances = [];
             foreach($dailyAttendance as $attendance){
                 $detail = AttendanceDetail::where('daily_attendance_id', $attendance->id)
@@ -185,6 +189,7 @@ class AttendanceService
                         'check_out_at' => config('global.null_value'),
                         'attendance_status_code' => config('global.null_value'),
                         'attendance_status_description' => config('global.null_value'),
+                        'status_color' => config('global.null_value'),
                         'worked_hours' => config('global.null_value'),
                         'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                         'attendance_date' => $attendance->date ?? config('global.null_value'),
@@ -203,6 +208,7 @@ class AttendanceService
                     'check_out_at' => $detail->check_out_at ?? config('global.null_value'),
                     'attendance_status_code' => $detail->attendanceStatus->code ?? config('global.null_value'),
                     'attendance_status_description' => $detail->attendanceStatus->description ?? config('global.null_value'),
+                    'status_color' => $detail->attendanceStatus->color ?? config('global.null_value'),
                     'worked_hours' => $workedHours,
                     'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                     'attendance_date' => $detail->created_at->format('d-m-y'),
