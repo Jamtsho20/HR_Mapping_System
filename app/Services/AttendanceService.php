@@ -146,7 +146,11 @@ class AttendanceService
         $year = $year;
         $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
 
-        $currentDay = Carbon::now()->day;
+        $now = Carbon::now();
+        if($flag == 'yesterday'){
+            $now->subDay();
+        }
+        $currentDay = $now->day;
         // $departmentId = $loggedInUser->empJob->mas_department_id;
         // $sectionId = $loggedInUser->empJob->mas_section_id;
 

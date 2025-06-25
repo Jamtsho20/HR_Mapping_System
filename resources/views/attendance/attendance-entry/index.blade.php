@@ -73,7 +73,7 @@
                                                                         @php
                                                                             $data = $attendanceMap[$day] ?? null;
                                                                         @endphp
-                                                                        <td class="text-center"
+                                                                        <td class="text-center" style="color: $data['color']"
                                                                             data-bs-toggle="tooltip"
                                                                             data-bs-html="true"
                                                                             data-bs-placement="top"
