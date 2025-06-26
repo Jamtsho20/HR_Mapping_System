@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\SOMs\ApiController as SomsApiComtroller;
 use App\Http\Controllers\Api\v1\Advance\AdvanceLoanGadgetEmiController;
 use App\Http\Controllers\Api\v1\Asset\CommissionApplicationApiController;
 use App\Http\Controllers\Api\v1\Asset\RequisitionApplicationApiController;
+use App\Http\Controllers\Api\v1\Asset\MyAssetApiController;
 use App\Http\Controllers\Api\v1\GeneralApporvalController;
 use App\Http\Controllers\Api\v1\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Http\Controllers\Api\v1\UserController;
@@ -74,6 +75,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::get('get_sites/{id}', [AjaxRequestController::class, 'getSitesByDzongkhagId']);
         Route::get('/get-stock/{itemCode}', [ApiController::class, 'getStock']);
         Route::get('/get-asset/{id}', [CommissionApplicationApiController::class, 'getAssetNoByGrnId']);
+        Route::get('/my-asset', [MyAssetApiController::class, 'getAsset']);
         Route::resource('commission', 'CommissionApplicationApiController');
         Route::get('commission_approval', [CommissionApplicationApiController::class, 'indexCommissionApproval']);
         Route::get('getGrnDetails/{grnNo}', [AjaxRequestController::class, 'getGrnDetailByGrnNo']);
