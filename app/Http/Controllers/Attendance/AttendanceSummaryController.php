@@ -33,16 +33,16 @@ class AttendanceSummaryController extends Controller
     {
         $privileges = $request->instance();
         $loggedInUser = auth()->user();
-        $desiredRoles = $this->preparefilterData($loggedInUser);
+        $filterData = $this->prepareFilterData($loggedInUser);
+        $departments = $filterData['departments'];
+        $sections = $filterData['sections'];
         
         // dd($desiredRoles);
         $yearMonth = $request->query('year_month', now()->format('Y-m'));
         $employeeId = $request->query('employee_id');
         $departmentId = $request->query('department');
         $sectionId = $request->query('section');
-        $departments = MasDepartment::select('id', 'name')->get();
-        $sections = MasSection::select('id', 'name')->get();
-        $employees = User::get();
+        $employees = User::whereIsActive(1)->whereNotIn('id', [1, 2])->get();
         $maxDays = daysInMonth($yearMonth);
         $days = [];
 
@@ -194,15 +194,44 @@ class AttendanceSummaryController extends Controller
         return $this->attendancesData;
     }
 
-    private function preparefilterData($loggedInUser){
+    private function prepareFilterData($loggedInUser)
+    {
         $delegationService = new DelegationService();
+
         $userRoles = $loggedInUser->roles()->pluck('role_id')->toArray();
-        $delegatedRole = $delegationService->delegatedRole(auth()->user()->id);
-        $allRoles = collect(array_unique(array_merge($userRoles, $delegatedRole)));
-        $desiredRoles = $allRoles->filter(function ($roleId) {
-            return in_array($roleId, [ADMIN, IMMEDIATE_HEAD, DEPARTMENT_HEAD, HR, HR_MANAGER, MANAGING_DIRECTOR]);
-        })->values()->all();
-        // dd($desiredRoles);
-        return $desiredRoles;
+        $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
+
+        $allRoles = collect(array_unique(array_merge($userRoles, $delegatedRoles)));
+        $desiredRoles = $allRoles->filter(fn($roleId) => in_array($roleId, [
+            ADMIN, IMMEDIATE_HEAD, DEPARTMENT_HEAD, HR, HR_MANAGER, MANAGING_DIRECTOR
+        ]))->values()->all();
+
+        $loggedInUserSec = $loggedInUser->empJob->mas_section_id ?? null;
+        $loggedInUserDept = $loggedInUser->empJob->mas_department_id ?? null;
+
+        $deptQuery = MasDepartment::select('id', 'name');
+        $secQuery = MasSection::select('id', 'name');
+
+        if (!empty($desiredRoles)) {
+            if (
+                in_array(IMMEDIATE_HEAD, $desiredRoles) &&
+                (in_array(HR, $desiredRoles) || in_array(HR_MANAGER, $desiredRoles))
+            ) {
+                // Show all departments and sections — no filter
+            } elseif (in_array(DEPARTMENT_HEAD, $desiredRoles)) {
+                $deptQuery->where('id', $loggedInUserDept);
+                $secQuery->where('mas_department_id', $loggedInUserDept);
+            } elseif (in_array(IMMEDIATE_HEAD, $desiredRoles)) {
+                $deptQuery->where('id', $loggedInUserDept);
+                $secQuery->where('id', $loggedInUserSec);
+            }
+            // Otherwise: show all departments and sections (no filtering)
+        }
+
+        $departments = $deptQuery->get();
+        $sections = $secQuery->get();
+
+        return compact('departments', 'sections', 'desiredRoles');
     }
+
 }
