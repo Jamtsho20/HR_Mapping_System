@@ -24,7 +24,7 @@ class MyAssetApiController extends Controller
 
         $data = $assets->map(function ($item) {
             return [
-                'serial_number' => $item->serial_number,
+                'serial_number' => $item->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$item->serial_number,
                 'asset_description' => $item->receivedSerial->asset_description ?? null,
                 'quantity' => $item->receivedSerial->quantity ?? null,
                 'amount' => $item->receivedSerial->amount ?? null,
