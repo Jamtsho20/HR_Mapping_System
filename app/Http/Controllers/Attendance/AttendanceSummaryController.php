@@ -36,13 +36,13 @@ class AttendanceSummaryController extends Controller
         $filterData = $this->prepareFilterData($loggedInUser);
         $departments = $filterData['departments'];
         $sections = $filterData['sections'];
+        $employees = User::whereIsActive(1)->whereNotIn('id', [1, 2])->get();
+        // $employees = $filterData['employees'];
         
-        // dd($desiredRoles);
         $yearMonth = $request->query('year_month', now()->format('Y-m'));
         $employeeId = $request->query('employee_id');
         $departmentId = $request->query('department');
         $sectionId = $request->query('section');
-        $employees = User::whereIsActive(1)->whereNotIn('id', [1, 2])->get();
         $maxDays = daysInMonth($yearMonth);
         $days = [];
 
@@ -211,6 +211,7 @@ class AttendanceSummaryController extends Controller
 
         $deptQuery = MasDepartment::select('id', 'name');
         $secQuery = MasSection::select('id', 'name');
+        // $empQuery = User::whereIsActive(1)->whereNotIn('id', [1, 2]);
 
         if (!empty($desiredRoles)) {
             if (
@@ -221,16 +222,22 @@ class AttendanceSummaryController extends Controller
             } elseif (in_array(DEPARTMENT_HEAD, $desiredRoles)) {
                 $deptQuery->where('id', $loggedInUserDept);
                 $secQuery->where('mas_department_id', $loggedInUserDept);
+                // $empQuery->with(['empJob', function ($query) use($loggedInUserDept) {
+                //     $query->where('mas_department_id', $loggedInUserDept);
+                // }]);
             } elseif (in_array(IMMEDIATE_HEAD, $desiredRoles)) {
                 $deptQuery->where('id', $loggedInUserDept);
                 $secQuery->where('id', $loggedInUserSec);
+                // $empQuery->with(['empJob', function ($query) use($loggedInUserSec) {
+                //     $query->where('mas_section_id', $loggedInUserSec);
+                // }]);
             }
             // Otherwise: show all departments and sections (no filtering)
         }
 
         $departments = $deptQuery->get();
         $sections = $secQuery->get();
-
+        // $employees = $empQuery->get();
         return compact('departments', 'sections', 'desiredRoles');
     }
 
