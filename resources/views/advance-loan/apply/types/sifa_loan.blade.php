@@ -71,7 +71,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="deduction_from_period">Deduction from Period <span class="text-danger">*</span></label>
-                <input type="month" class="form-control" id="deduction_from_period" name="deduction_from_period" value="{{ old('deduction_from_period') }}" required readonly />
+                <input type="month" class="form-control"  name="deduction_from_period" value="{{ old('deduction_from_period') }}" required />
             </div>
         </div>
         <div class="col-md-4">

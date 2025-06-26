@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Delegation\DelegationController;
 use App\Models\Delegation;
 use App\Models\User;
+use App\Services\DelegationService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +49,7 @@ class DelegationApiController extends Controller
     
     public function create()
     {
+        $delegationService = new DelegationService();
         try {
             $delegatorRoles = $this->delegatorRoles()->select(['id', 'name', 'description'])->values();
             $roleNames = $delegatorRoles->pluck('name')->toArray(); // Convert to array of names
@@ -65,7 +67,7 @@ class DelegationApiController extends Controller
                     break;
                 }
             }
-            $employees = getDeleagteeList($roleId);
+            $employees = $delegationService->getDeleagteeList($roleId);
             return $this->successResponse(['delegatorRoles' => $delegatorRoles, 'employees' => $employees]);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -130,12 +132,13 @@ class DelegationApiController extends Controller
 
     public function edit($id)
     {
+        $delegationService = new DelegationService();
         try {
             // Find the delegation by ID
             $delegation = Delegation::findOrFail($id);
 
             // Fetch all employees
-            $employees = getDeleagteeList($delegation->role_id);
+            $employees = $delegationService->getDeleagteeList($delegation->role_id);
 
             // Fetch the delegator roles
             $delegatorRoles = $this->delegatorRoles();

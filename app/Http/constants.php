@@ -22,6 +22,9 @@ const DOMESTIC_TRAVEL_TYPE = 1;
 const IMMEDIATE_HEAD = 6;
 const DEPARTMENT_HEAD = 7;
 const MANAGING_DIRECTOR = 8;
+const ADMIN = 1;
+const HR = 3;
+const HR_MANAGER = 11;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;
@@ -106,6 +109,8 @@ const SITE_SITE = 2;
 const ASSET_RETURN_TYPE =1;
 
 //Attendance Status
+const PRESENT_STATUS = 1;
+const ABSENT_STATUS = 2;
 const WEEKLY_OFF_STATUS = 23;
 const HALF_DAY_HOLIDAY_STATUS = 24;
 const HALF_DAY_WEEKEND_STATUS = 25;
@@ -122,5 +127,6 @@ const STUDY_LEAVE_STATUS = 16;
 const BEREAVEMENT_LEAVE_STATUS = 17;
 const ON_TOUR_STATUS = 19;
 const CREATED_STATUS = 27;
+const INFORMED_LATE_STATUS = 26;
 
-
+const SIFA_LOAN_PAY_HEAD = 24;

@@ -14,6 +14,7 @@ class ApprovalService
 {
     public function getApproverByHierarchy($approvableId, $approvableType, $conditionfields)
     {
+        $delegationService = new DelegationService();
         $userRoles = auth()->user()->roles()->pluck('role_id')->toArray();
         //checking for section
         $noSectionFlag = false;
@@ -33,7 +34,7 @@ class ApprovalService
 
         // incase if employee has this two roles then it will be different from normal hierarchy
         // Filter and collect the desired roles delegatedRole function defined in helpers.php to make use in other part of the application
-        $delegatedRole = delegatedRole(auth()->user()->id); // should return array of role IDs
+        $delegatedRole = $delegationService->delegatedRole(auth()->user()->id); // should return array of role IDs
 
         $allRoles = collect(array_unique(array_merge($userRoles, $delegatedRole)));
 
@@ -239,11 +240,12 @@ class ApprovalService
 
     private function getApproverDetail($nextLevel)
 	{
+        $delegationService = new DelegationService();
 		$approvingAuthorityRoleId = ApprovingAuthority::where('id', $nextLevel->approving_authority_id)
 			->pluck('role_id')
 			->first();
 
-        $delegations = getDelegations($approvingAuthorityRoleId);
+        $delegations = $delegationService->getDelegations($approvingAuthorityRoleId);
         $originalApprover = null;
 
         // Special handling for MANAGING DIRECTOR

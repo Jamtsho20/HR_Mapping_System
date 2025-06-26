@@ -41,10 +41,22 @@
                                             <thead>
                                                 <tr role="row" class="thead-light">
                                                     <th>
+                                                        #
+                                                    </th>
+                                                    <th>
                                                         Name
                                                     </th>
                                                     <th>
                                                         Dzongkhag
+                                                    </th>
+                                                    <th>
+                                                        Longitude
+                                                    </th>
+                                                    <th>
+                                                        Latitude
+                                                    </th>
+                                                    <th>
+                                                        Radius (M)
                                                     </th>
                                                     <th>
                                                         Status
@@ -58,8 +70,12 @@
 
                                             @forelse($offices as $office)
                                             <tr>
+                                                <td style="text-align:right;">{{ $loop->iteration }}</td>
                                                 <td>{{ $office->name }}</td>
                                                 <td>{{ $office->dzongkhag->dzongkhag }}</td>
+                                                <td style="text-align:right;">{{ $office->longitude }}</td>
+                                                <td style="text-align:right;">{{ $office->latitude }}</td>
+                                                <td style="text-align:right;">{{ $office->radius }}</td>
                                                 <td>{{ $office->status ? 'Active' : 'Inactive' }}</td>
                                                 <td class="text-center">
                                                     @if ($privileges->edit)

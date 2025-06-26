@@ -29,10 +29,11 @@ class MenuGenerator
 
     public function menuAccessibleByRole()
     {
+        $delegationService = new DelegationService();
         $userRoles = $this->userRolesCastedToArray();
 
         // Delegated roles (common function in helpers.php)
-        $delegatedRole = delegatedRole(auth()->user()->id);
+        $delegatedRole = $delegationService->delegatedRole(auth()->user()->id);
 
         // Merge and unique
         $allRoles = array_unique(array_merge($userRoles, $delegatedRole));

@@ -47,6 +47,11 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        @if($paidOffMessage)
+                        <div class="alert alert-success">
+                            {{ $paidOffMessage }}
+                        </div>
+                        @endif
                     </div>
 
                 </div>

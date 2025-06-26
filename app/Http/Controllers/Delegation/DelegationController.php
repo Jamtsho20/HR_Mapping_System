@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Delegation;
 
 use App\Http\Controllers\Controller;
 use App\Models\Delegation;
-use App\Models\User;
+use App\Services\DelegationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -54,6 +54,7 @@ class DelegationController extends Controller
      */
     public function create()
     {
+        $delegationService = new DelegationService();
         $delegatorRoles = $this->delegatorRoles();
         $roleNames = $delegatorRoles->pluck('id')->toArray(); // Convert to array of names
         $roleId = null;
@@ -71,7 +72,7 @@ class DelegationController extends Controller
             }
         }
 
-        $employees = getDeleagteeList($roleId);
+        $employees = $delegationService->getDeleagteeList($roleId);
         
         return view('delegation.create',compact('delegatorRoles', 'employees'));
 
@@ -138,8 +139,9 @@ class DelegationController extends Controller
      */
     public function edit($id)
     {
+        $delegationService = new DelegationService();
         $delegation = Delegation::findOrFail($id);
-        $employees = getDeleagteeList($delegation->role_id);
+        $employees = $delegationService->getDeleagteeList($delegation->role_id);
         $delegatorRoles = $this->delegatorRoles();
         return view('delegation.edit', compact('delegation', 'delegatorRoles', 'employees'));
     }

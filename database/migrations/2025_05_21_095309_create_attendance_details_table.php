@@ -15,16 +15,18 @@ return new class extends Migration
             $table->id();
             $table->foreignId('daily_attendance_id')->constrained('daily_attendances')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('employee_id')->constrained('mas_employees')->references('id');
+            $table->foreignId('department_id')->index()->nullable()->constrained('mas_departments')->references('id'); // newly added
+            $table->foreignId('section_id')->index()->nullable()->constrained('mas_sections')->references('id'); // newly added
             $table->time('check_in_at')->nullable();
             $table->foreignId('attendance_status_id')->index()->constrained('attendance_statuses')->cascadeOnDelete()->cascadeOnUpdate();
             $table->time('check_out_at')->nullable();
             $table->ipAddress('check_in_ip')->nullable();
             $table->ipAddress('check_out_ip')->nullable();
+            $table->text('remarks', 500)->nullable(); //newly added column
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             //if this required uncomment this two column
-            // $table->foreignId('updated_by_head')->index()->nullable()->constrained('mas_employees');
-            // $table->foreignId('updated_by_hr')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('updated_by_supervisor')->index()->nullable()->constrained('mas_employees'); // newly added
             $table->timestamps();
         });
     }

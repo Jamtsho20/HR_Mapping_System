@@ -2,17 +2,11 @@
 
 use App\Models\ApplicationAuditLog;
 use App\Models\ApplicationHistory;
-use App\Models\AttendanceDetail;
-use App\Models\EmployeeAttendance;
-use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
 use App\Models\MasConditionField;
 use App\Models\MasEmployeeJob;
-use App\Models\MasOfficeTiming;
-use App\Models\TravelAuthorizationApplication;
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\WorkHolidayList;
 use Intervention\Image\Facades\Image as Image;
 
 /**
@@ -154,7 +148,7 @@ if (!function_exists('daysInMonth')) {
      */
     function daysInMonth($date)
     {
-        $date = Carbon\Carbon::parse($date);
+        $date = Carbon::parse($date);
         return $date->daysInMonth;
     }
 }
@@ -479,144 +473,12 @@ if (!function_exists('formatAmount')) {
     }
 }
 
-if (!function_exists('delegatedRole')) {
-    function delegatedRole($userId)
-    {
-        $today = now()->toDateString();
-        // Delegated roles
-        $delegatedRole = \DB::table('delegations')
-            ->where('delegatee_id', $userId)
-            ->where('status', 1)
-            ->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->pluck('role_id')
-            ->toArray();
-
-        return $delegatedRole;
-    }
-}
-
-if (!function_exists('getDelegations')) {
-    function getDelegations($roleId)
-    {
-        $today = now()->toDateString();
-
-        $delegations = \DB::table('delegations')
-            ->where('role_id', $roleId)
-            ->where('status', 1)
-            ->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->get();
-
-        return $delegations;
-    }
-}
-
-if (!function_exists('getDelegatee')) {
-    function getDelegatee($delegatorId)
-    {
-        $delegations = \DB::table('delegations')
-            ->where('delegator_id', $delegatorId)
-            ->get(['delegatee_id', 'start_date', 'end_date']);
-
-        return $delegations;
-    }
-}
-
-if (!function_exists('getDelegateeRecords')) {
-    function getDelegateeRecords($query, $delegatee, $modelClass, $statuses)
-    {
-        foreach ($delegatee as $user) {
-            $query->orWhereHas('audit_logs', function ($q) use ($user, $modelClass, $statuses) {
-                $q->where('application_type', $modelClass)
-                    ->where('action_performed_by', $user->delegatee_id)
-                    ->whereIn('status', $statuses);
-            });
-        }
-    }
-}
-
-if (!function_exists('getDeleagteeList')) {
-    function getDeleagteeList($roleId)
-    {
-        $employees = [];
-        if ($roleId == DEPARTMENT_HEAD) {
-            $departmentId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('mas_department_id');
-            $employees = User::whereHas('empJob', function ($query) use ($departmentId) {
-                $query->where('mas_department_id', $departmentId);
-            })
-            //if they want all user from department then comment out this below query where it checks for role
-            ->whereHas('roles', function ($query1) {
-                $query1->where('roles.id', IMMEDIATE_HEAD); // assuming role has `name` column
-            })
-                ->get()->map(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'emp_id_name' => $user->emp_id_name, // uses accessor safely
-                    ];
-                });
-        } else if ($roleId == MANAGING_DIRECTOR) {
-            $employees = User::whereHas('roles', function ($query) {
-                $query->whereIn('roles.id', [DEPARTMENT_HEAD, IMMEDIATE_HEAD]);
-            })
-                ->get()->map(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'emp_id_name' => $user->emp_id_name
-                    ];
-                });
-        } else {
-
-            $sectionId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('mas_section_id');
-            $employees = User::whereHas('empJob', function ($query) use ($sectionId) {
-                $query->where('mas_section_id', $sectionId);
-            })
-                ->get()->map(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'emp_id_name' => $user->emp_id_name, // uses accessor safely
-                    ];
-                });
-        }
-
-        return $employees;
-    }
-}
-
+// convert month to corresponding number from global.php
 if(!function_exists('getMappedMonth')){
     function getMappedMonth(){
         $currentMonthStr = strtoupper(Carbon::now()->format('M')); // 'JUN'
         $currentMonthNum = array_flip(config('global.months'))[$currentMonthStr];
         return $currentMonthNum;
-    }
-}
-
-if(!function_exists('getEffectiveOfficeTiming')){
-    function getEffectiveOfficeTiming($userData){
-        $currentMonthNum = getMappedMonth();
-        $officeTiming = [];
-        $office = $userData->empJob->office;
-        $officeTiming['longitude'] = $office->longitude;
-        $officeTiming['latitude'] = $office->latitude;
-        // $officeTiming['raidus'] = $office->raidus . ' ' . config('global.raidus_unit');
-        $officeTiming['raidus'] = $office->raidus;
-        $officeTiming['attendance_buffer_mins'] = config('global.attendance_buffer_mins');
-        if (isset($userData['employeeInShifts']) && isset($userData['employeeInShifts'][0]['departmentShift'])) {
-            $officeTiming['start_time'] = $userData['employeeInShifts'][0]['departmentShift']->start_time;
-            $officeTiming['end_time'] = $userData['employeeInShifts'][0]['departmentShift']->end_time;
-            $officeTiming['shift_name'] = $userData['employeeInShifts'][0]['departmentShift']['shiftType']->name;
-        }else{
-            $defaultOfficeTiming = MasOfficeTiming::where(function ($query) use ($currentMonthNum) {
-                $query->whereRaw('? BETWEEN start_month AND end_month', [$currentMonthNum])
-                    ->orWhereRaw('start_month > end_month AND (? >= start_month OR ? <= end_month)', [$currentMonthNum, $currentMonthNum]);
-            })->select('start_time', 'end_time')->first();
-
-            $officeTiming['start_time'] = $defaultOfficeTiming->start_time;
-            $officeTiming['end_time'] = $defaultOfficeTiming->end_time;
-            $officeTiming['shift_name'] = 'Regular';
-        }
-
-        return $officeTiming;
     }
 }
 
@@ -636,105 +498,6 @@ if(!function_exists('truncateText')){
     }
 }
 
-if(!function_exists('getAttendanceStatus')){
-    function getAttendanceStatus($empId, $empRegion){
-        $currentDate = Carbon::now();
-        //checks Mon, Tues, Wed, in full name as this need to be checked off days for shift employee
-        $today = Carbon::now()->format('l'); 
-        $attendanceStatus = CREATED_STATUS;
-        // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
-        $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
-
-        // 1. check if employee is on tour
-        $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
-            $query->where('from_date', '<=', $currentDate)
-                ->where('to_date', '>=', $currentDate);
-            }])
-            ->where('status', '<>', -1)
-            ->first();
-
-        if($isOnTour && $isOnTour->details->isNotEmpty()){
-            return ON_TOUR_STATUS;
-        }
-        // 2. check if employee is on leave priority over other
-        $isOnLeave = LeaveApplication::where('created_by', $empId)
-            ->where('from_date', '<=', $currentDate)
-            ->where('to_date', '>=', $currentDate)
-            ->where('status', '<>', -1)
-            ->first();
-
-        if ($isOnLeave) {
-            switch ($isOnLeave->type_id) {
-                case CASUAL_LEAVE:
-                    return match ($isOnLeave->from_day) {
-                        1 => CASUAL_LEAVE_STATUS,
-                        2 => FHCL_LEAVE_STATUS,
-                        3 => SHCL_LEAVE_STATUS,
-                        default => CASUAL_LEAVE_STATUS,
-                    };
-                case EARNED_LEAVE: return EARNED_LEAVE_STATUS;
-                case MEDICAL_LEAVE: return MEDICAL_LEAVE_STATUS;
-                case MATERNITY_LEAVE: return MATERNITY_LEAVE_STATUS;
-                case PATERNITY_LEAVE: return PATERNITY_LEAVE_STATUS;
-                case BEREAVEMENT_LEAVE: return BEREAVEMENT_LEAVE_STATUS;
-                case STUDY_LEAVE: return STUDY_LEAVE_STATUS;
-                case EXTRA_ORDINARY_LEAVE: return EOL_LEAVE_STATUS;
-            }
-        }
-
-        // check if employee is in shift as they will have different sets of off days
-        if ($isShiftEmp && is_array($isShiftEmp->off_days) && in_array($today, $isShiftEmp->off_days)) {
-            return WEEKLY_OFF_STATUS;
-        }
-
-        // 3. Check if it's a holiday first (priority over weekends)
-        $matchingHoliday = WorkHolidayList::whereJsonContains('region_id', $empRegion)
-            ->whereDate('start_date', '<=', $currentDate)
-            ->whereDate('end_date', '>=', $currentDate)
-            ->first();
-
-        if ($matchingHoliday && !$isShiftEmp) {
-            return HOLIDAY_STATUS;
-        }
-
-        // 4. Check for Sunday
-        if ($currentDate->isSunday() && !$isShiftEmp) {
-            return WEEKLY_OFF_STATUS;
-        }
-
-        // 5. Check for Saturday
-        if ($currentDate->isSaturday() && $isShiftEmp) {
-            return HALF_DAY_WEEKEND_STATUS;
-        }
-
-        return $attendanceStatus;
-    }
-}
-
-// Get daily attendance entry for logged in user/employee
-if(!function_exists('empAttendanceEntry')){ 
-    function empAttendanceEntry($loggedInUser)
-    {
-        $currentMonth = Carbon::now()->format('m-Y');
-        $currentDay = Carbon::now()->day;
-        $sectionId = $loggedInUser->empJob->mas_section_id;
-
-        $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($sectionId, $currentDay) {
-            $query->where('section_id', $sectionId)
-                  ->where('day', $currentDay);
-        }])->where('for_month', $currentMonth)->first();
-
-        $dailyAttendance = $empAttendance?->dailyAttendances;
-
-        if (!$dailyAttendance) {
-            return null;
-        }
-
-        return AttendanceDetail::where('daily_attendance_id', $dailyAttendance->id)
-            ->where('employee_id', $loggedInUser->id)
-            ->first();
-    }
-}
 
 
 

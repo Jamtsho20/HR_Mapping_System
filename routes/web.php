@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Advance\AdvanceLoanApplicationController;
 use App\Http\Controllers\Advance\AdvanceSifaLoanController;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\AssetReport\CommissionReportController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reports\AdvanceLoanReportController;
+use App\Http\Controllers\Reports\AdvanceSifaLoanReportController;
 use App\Http\Controllers\Reports\CashReportController;
 use App\Http\Controllers\Reports\ChequeReportController;
 use App\Http\Controllers\Reports\DSASettlementReportController;
@@ -29,19 +31,13 @@ use App\Http\Controllers\Reports\SamsungDeductionReportController;
 use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TaxScheduleReportController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
-use App\Http\Controllers\Sifa\SifaRegistrationController;
-use App\Http\Controllers\TravelAuthorization\TravelAuthorizationApplicationController;
 use App\Http\Controllers\WorkStructure\BusinessUnitController;
-use App\Jobs\SendEmployeeCredentialsJob;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
-use App\Models\ExpenseApplication;
-use App\Models\PaySlip;
 use App\Models\User;
-use App\Services\PayrollService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Advance\AdvanceLoanApplicationController;
+
 
 
 
@@ -185,6 +181,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('department-wise-shift', 'DepartmentWiseShiftController');
     });
 
+    //MY PROFILE
+    Route::namespace('MyProfile')->prefix('my-profile')->group(function () {
+        Route::resource('my-profile', 'MyProfileController');
+        Route::resource('my-payslip', 'MyPaySlipController');
+        Route::resource('my-asset', 'MyAssetController');
+    });
+
     // WORK STRUCTURE
     Route::namespace('WorkStructure')->prefix('work-structure')->group(function () {
         Route::resource('holiday-lists', 'HolidayListController')->except('create', 'show', 'edit');
@@ -195,9 +198,10 @@ Route::middleware('auth')->group(function () {
 
     // ATTENDANCE
     Route::namespace('Attendance')->prefix('attendance')->group(function () {
-        Route::resource('attendance-entry', 'AttendanceEntryController')->except('create', 'show', 'edit');
+        Route::resource('attendance-entry', 'AttendanceController')->except('create', 'show', 'edit');
         Route::resource('attendance-register', 'AttendanceRegisterController')->except('create', 'show', 'edit');
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
+        Route::resource('attendance-status', 'AttendanceStatusController');
     });
 
     //EXPENSE
@@ -319,6 +323,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
         Route::resource('advance-sifa-loan-report', 'AdvanceSifaLoanReportController')->except('create', 'edit');
     });
+    Route::get('/advance-sifa-loan-report', [AdvanceSifaLoanReportController::class, 'exportSifaLoanReport'])
+    ->name('advance-sifa-loan-report.export');
 
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
@@ -431,8 +437,8 @@ Route::middleware('auth')->group(function () {
     Route::namespace('AssetReport')->prefix('asset-report')->group(function () {
         Route::resource('requisition-report', 'RequisitionReportController')->except('create', 'edit');
         Route::resource('commission-report', 'CommissionReportController')->except('create', 'edit');
-        Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
-        Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
+        // Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
+        // Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
     });
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {

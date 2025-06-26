@@ -44,6 +44,9 @@ class OfficeController extends Controller
         $office = new MasOffice();
         $office->name = $validatedData['name'];
         $office->mas_dzongkhag_id = $validatedData['dzongkhag'];
+        $office->longitude = $validatedData['longitude'];
+        $office->latitude = $validatedData['latitude'];
+        $office->radius = $validatedData['radius'];
         $office->status = $request->input('status.is_active', 0);
 
         // Save the Office instance to the database
@@ -74,6 +77,9 @@ class OfficeController extends Controller
         // Update the office details
         $office->name = $request->input('name');
         $office->mas_dzongkhag_id = $request->input('dzongkhag_id');
+        $office->longitude = $request->input('longitude');
+        $office->latitude = $request->input('latitude');
+        $office->radius = $request->input('radius');
     
         // Handle the status field (default to 0 if not set)
         $office->status = $request->input('status.is_active', 0);
@@ -88,9 +94,9 @@ class OfficeController extends Controller
     {
         try {
             MasOffice::findOrFail($id)->delete();
-            return back()->with('msg_success', 'Region has been deleted');
+            return back()->with('msg_success', 'Office has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Region cannot be deleted as it has been used by other modules. For further information, contact the system admin.');
+            return back()->with('msg_error', 'Office cannot be deleted as it has been used by other modules. For further information, contact the system admin.');
         }
     }
     

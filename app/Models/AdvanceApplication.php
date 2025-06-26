@@ -173,6 +173,9 @@ class AdvanceApplication extends Model
                 $q->where('cid_no', $request->query('cid_no'));
             });
         }
+        if ($request->has('for_month') && $request->query('for_month') != '') {
+            $query->where('for_month', $request->query('for_month'));
+        }
     }
 
     public function setDeductionFromPeriodAttribute($value)

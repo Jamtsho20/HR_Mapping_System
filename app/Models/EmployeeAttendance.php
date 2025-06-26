@@ -5,12 +5,13 @@ namespace App\Models;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class EmployeeAttendance extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = ['for_month'];
+    protected $fillable = ['for_month','created_by','updated_by'];
 
     public function details()
     {
@@ -20,4 +21,27 @@ class EmployeeAttendance extends Model
     public function dailyAttendances(){
         return $this->hasMany(DailyAttendance::class, 'attendance_id');
     }
+
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
+        if($request->year_month != ''){
+            $query->where('for_month', '=', Carbon::parse($request->year_month)->format('m-Y'));
+        }
+    }
+
+    // Scope to filter by year
+    public function scopeYear($query, $year)
+    {
+        if ($year) {
+            $query->where('for_month', 'LIKE', '%-' . $year);
+        }
+    }
+
+    // Scope to filter by for_month (e.g., 05-2025)
+    public function scopeForMonth($query, $monthYear)
+    {
+        if ($monthYear) {
+            $query->where('for_month', $monthYear);
+        }
+    }
+
 }

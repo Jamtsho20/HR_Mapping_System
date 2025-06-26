@@ -4,69 +4,115 @@ namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
-use App\Models\DailyAttendance;
-use App\Models\EmployeeAttendance;
 use App\Models\MasAttendanceFeature;
+use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AttendanceApiController extends Controller
 {
     use JsonResponseTrait;
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
 
-    public function index(){
-        //
+    protected $rules = [
+        
+    ];
+
+    public function index(Request $request){
+        $attendanceService = new AttendanceService();
+        $user = auth()->user();
+        $yearMonth = $request->get('year_month') ?? carbon::now()->format('m-Y');
+        $attendances = $attendanceService->empAttendanceEntry($user, $year = null, $yearMonth);
+        
+        if($attendances == null){
+            return $this->errorResponse('Attendance for the selected month is not availaible');
+        }
+
+        return $this->successResponse([
+            'attendances' => $attendances,
+            'year_month' => $yearMonth
+        ]);
     }
 
     public function create(){
         $user = auth()->user();
         $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
-        $officeTiming = getEffectiveOfficeTiming($user);
-        $attendanceEntry = $this->empAttendanceEntry($user);
-        if(!$officeTiming){
-            return $this->errorResponse('Something went wrong while fetching effective office timing and geo location. Please try again or ask system admin for further information.');
-        }
-
-        if(!$attendanceEntry){
-            return $this->errorResponse('Attendance entry for date ' . now() . ' has not been created. Please try again or ask system admin for further information.');
-        }
+        $attendanceService = new AttendanceService();
+        $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
 
         return $this->successResponse([
-            'user' => $user,
             'attendance_features' => $attendanceFeatures,
             'office_timings' => $officeTiming,
-            'attendance_entry' => $attendanceEntry
         ]);
     }
 
     public function store(Request $request){
-        // $dailyAttendanceId = EmployeeAttendance::with(); //will be current month current date daily attendance id
+        // 
     }
 
     public function show($id){
         //
     }
 
-    public function update(Request $request, $id){
-        $attendanceDetail = AttendanceDetail::findOrFail($id);
-        if(!$attendanceDetail){
-            return $this->errorResponse('Something went wrong while making attendance entry. Please try again.');
+    public function attendanceEntry(Request $request){
+        $attendanceService = new AttendanceService();
+        $user = auth()->user();
+
+        if($request->check_type === 'check-in' && !$request->check_in_at){
+            $this->rules['check_in_at'] = 'required';
+        }else if($request->check_type === 'check-out' && !$request->check_out_at){
+            $this->rules['check_out_at'] = 'required';
         }
 
-        AttendanceDetail::where('id', $id)->update([
-            'daily_attendance_id' => $request->daily_attendance_id,
-            'employee_id' => $request->employee_id,
-            'check_in_at' => $request->check_in_at,
-            'attendance_status_id' => $request->attendance_status_id,
-            'check_out_at' =>$request->check_out_at ?? null,
-            'check_in_ip' => null,
-            'check_out_ip' => null,
-        ]);
-        return $this->successResponse('Attendance entry made successfully,');
+        $validator = \Validator::make($request->all(), $this->rules);
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+        
+        if($request->attendance_date && $request->shift_name == 'Night Shift'){
+            $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'yesterday');
+        }else{
+            $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
+        }
+        
+        // return $this->successResponse($loggedInUserDailyAttendanceEntry);
+        if(!$loggedInUserDailyAttendanceEntry){
+            return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
+        }
+
+        $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
+
+        // if(($request->check_in_date && $request->check_in_date != Carbon::now()->toDateString()) || ($request->check_out_date && $request->check_out_date != Carbon::now()->toDateString())){
+        //     return $this->errorResponse('Please make attendance entry (check-in/check-out) for today`s date i.e, ' . carbon::now()->format('d-m-y') . '.');
+        // }
+
+        if($attendanceStatus == CREATED_STATUS){
+            $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
+        }
+
+        $updateAttendanceData = [
+            'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
+            'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
+            'attendance_status_id' => $attendanceStatus,
+            'updated_by' => $user->id,
+        ];
+
+        // Conditional update based on check type
+        if ($request->check_type === 'check-in') {
+            $updateAttendanceData['check_in_at'] = $request->check_in_at;
+            $updateAttendanceData['check_in_ip'] = $request->ip();
+        } elseif ($request->check_type === 'check-out') {
+            $updateAttendanceData['check_out_at'] = $request->check_out_at;
+            $updateAttendanceData['check_out_ip'] = $request->ip();
+        }
+
+        AttendanceDetail::where('id', $loggedInUserDailyAttendanceEntry->id)->update($updateAttendanceData);
+
+        return $this->successResponse('Attendance entry for ' . Carbon::now()->format('d-m-y') . ' made successfully');
+    }
+
+    public function update(Request $request, $id){
+        //
     }
 
     public function destroy()

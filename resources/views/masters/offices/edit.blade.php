@@ -7,14 +7,14 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="name">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="name" value="{{ old('name', $office->name) }}" required>
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="dzongkhag_id">Dzongkhag <span class="text-danger">*</span></label>
                         <select name="dzongkhag_id" class="form-control" required>
@@ -26,7 +26,25 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-64">
+                    <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="text" class="form-control" name="longitude" value="{{ old('longitude', $office->longitude) }}" required>
+                    </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="latitude">Latitude</label>
+                            <input type="text" class="form-control" name="latitude" value="{{ old('latitude', $office->latitude) }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="radius">Radius</label>
+                            <input type="number" class="form-control" name="radius" value="{{ old('radius', $office->radius) }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-group "></div>
                         <label class="custom-switch">
                             <!-- Hidden input to pass '0' when checkbox is unchecked -->

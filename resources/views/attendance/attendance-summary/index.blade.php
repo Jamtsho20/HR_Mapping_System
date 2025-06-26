@@ -1,197 +1,114 @@
 @extends('layouts.app')
-@section('page-title', 'Dashboard')
-@section('content')
-<style>
-    .col-md-2 {
-        -ms-flex: 0 0 16.666667%;
-        flex: 0 0 16.666667%;
-        max-width: 12.5%;
-    }
 
-    .col-md-1 {
-        padding-top: 25px;
+@section('page-title', 'Attendance Summary')
+
+@push('page_styles')
+<style>
+    .tooltip-inner {
+        text-align: left !important;
+        white-space: pre-line;
     }
 </style>
+@endpush
 
-
-
-<div class="block-header block-header-default">
-    @component('layouts.includes.filter')
-    <div class="form-group row">
-        <div class="row">
-            <div class="col-md-2">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">E.Code</label>
-                    <input type="text" placeholder="Eg. XX12" class="form-control" id="txt_empcode">
+@section('content')
+<div class="block">
+    <div class="block">
+        <div class="block-header block-header-default">
+            @component('layouts.includes.filter')
+                <div class="col-3 form-group">
+                    <input type="month" name="year_month" class="form-control"
+                        value="{{ request()->get('year_month', \Carbon\Carbon::parse($yearMonth)->format('Y-m')) }}">
                 </div>
-            </div>
-            <div class="col-md-2">
-                <div class="form-group form-focus select-focus">
-                    <label class="control-label">E.Name</label>
-                    <input type="text" placeholder="Eg. John" class="form-control " id="txt_empname">
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="form-group form-focus focused">
-                    <label class="control-label">Region </label>
-                    <select class="form-control" name="region">
-                        <option value="" disabled selected hidden>Select</option>
-                        @foreach ($regions as $region)
-                            <option value="{{ $region->id }}">{{ $region->region_name  }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="form-group form-focus focused">
-                    <label class="control-label">Department </label>
-                    <select class="form-control" name="department">
-                        <option value="" disabled selected hidden>Select</option>
+                <div class="col-3 form-group">
+                    <select class="form-control select2" name="department">
+                        <option value="" disabled selected>Select Department</option>
                         @foreach ($departments as $department)
-                            <option value="{{ $department->id }}">{{ $department->name  }}</option>
+                            <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                                {{ $department->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="form-group form-focus focused">
-                    <label class="control-label">Location</label>
-                    <select class="form-control  myclass input_search" id="ddl_location" name="ddl_location">
-                        <option value="0">Select</option>
-                        <option value="1">TICL_Thimphu Head Office</option>
-                        <option value="2">TICL_Autsho Extension</option>
-                        <option value="3">TICL_Babesa Extension</option>
-                        <option value="4">TICL_Bajo Extension</option>
-                        <option value="5">TICL_Bangtar Extension</option>
-                        <option value="6">TICL_Bumthang customer Care Center</option>
+                <div class="col-3 form-group">
+                    <select class="form-control select2" name="section">
+                        <option value="" disabled selected>Select Section</option>
+                        @foreach ($sections as $section)
+                            <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
+                                {{ $section->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="form-group form-focus focused">
-                    <label class="control-label">Year</label>
-                    <select class="form-control  myclass input_search" id="ddl_year">
-                        <option value="0">Select</option>
-                        <option value="2021">2021</option>
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
-                        <option value="2028">2028</option>
+                <div class="col-3 form-group">
+                    <select class="form-control select2" name="employee_id">
+                        <option value="" disabled selected>Select Employee</option>
+                        @foreach ($employees as $employee)
+                            <option value="{{ $employee->id }}" {{ request()->get('employee_id') == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->emp_id_name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="form-group form-focus focused">
-                    <label class="control-label">Select Month</label>
-                    <select class="form-control  myclass input_search" id="ddl_month">
-                        <option value="0">Select </option>
-                        <option value="1">Jan</option>
-                        <option value="2">Feb</option>
-                        <option value="3">Mar</option>
-                        <option value="4">Apr</option>
-                        <option value="5">May</option>
-                        <option value="6">Jun</option>
-                        <option value="7">Jul</option>
-                        <option value="8">Aug</option>
-                        <option value="9">Sep</option>
-                        <option value="10">Oct</option>
-                        <option value="11">Nov</option>
-                        <option value="12">Dec</option>
-                    </select>
-                </div>
-
-            </div>
             @endcomponent
+        </div>
 
-            <div class="row row-sm">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Attendance Summary</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div class="dataTables_length" id="responsive-datatable_length"
-                                                data-select2-id="responsive-datatable_length">
-                                                <label data-select2-id="26">
-                                                    Show
-                                                    <select class="select2">
-                                                        <option value="10">10</option>
-                                                        <option value="25">25</option>
-                                                        <option value="50">50</option>
-                                                        <option value="100">100</option>
-                                                    </select>
-                                                    entries
-                                                </label>
-                                            </div>
-                                            <div class="dataTables_scroll">
-                                                <div class="dataTables_scrollHead"
-                                                    style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                    <div class="dataTables_scrollHeadInner"
-                                                        style="box-sizing: content-box; padding-right: 0px;">
-                                                        <table
-                                                            class="table table-bordered text-nowrap border-bottom dataTable no-footer"
-                                                            id="basic-datatable table-responsive">
-                                                            <thead>
-                                                                <tr role="row">
-                                                                    <th>
-                                                                        Employee
-                                                                    </th>
-                                                                    <th>
-                                                                        Present
-                                                                    </th>
-                                                                    <th>
-                                                                        Leave
-                                                                    </th>
-                                                                    <th>
-                                                                        Holiday
-                                                                    </th>
-                                                                    <th>
-                                                                        Leave WP
-                                                                    </th>
-                                                                    <th>
-                                                                        Weekly off
-                                                                    </th>
-                                                                    <th>
-                                                                        Pay Day
-                                                                    </th>
-                                                                    <th>
-                                                                        Status
-                                                                    </th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Adrian</td>
-                                                                    <td>Terry</td>
-                                                                    <td>Casual</td>
-                                                                    <td>2013/04/21</td>
-                                                                    <td>$543,769</td>
-                                                                    <td>0.5</td>
-                                                                    <td>0.5</td>
-                                                                    <td><span class="badge bg-success">Approved</span>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="row row-sm">
+            <span class="text-primary"># Attendance summary for month {{ request()->get('year_month', \Carbon\Carbon::parse($yearMonth)->format('F Y')) }}.</span>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <div class="dataTables_wrapper">
+                                <table class="table table-bordered text-nowrap border-bottom dataTable">
+                                    <thead>
+                                        <tr class="thead-light">
+                                            <th>#</th>
+                                            <th>Employee</th>
+                                            @foreach($days as $day)
+                                                <th>{{ $day }}</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($attendancesData as $index => $attendance)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $attendance['employee'] ?? config('global.null_value') }}</td>
+
+                                                @foreach ($days as $day)
+                                                    @php
+                                                        $data = $attendance['attendanceMap'][$day] ?? null;
+                                                    @endphp
+                                                    <td class="text-center fw-bold" style="color: {{ $data['status_color'] ?? '#929898' }}"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-html="true"
+                                                        data-bs-placement="top"
+                                                        title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;
+                                                            Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
+                                                            Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}&#10;
+                                                            Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}&#10;
+                                                            Date: {{ $data['attendance_date'] ?? config('global.null_value') }}">
+                                                        {{ $data['attendance_status_code'] ?? config('global.null_value') }}
+                                                    </td>
+                                                @endforeach
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="{{ 2 + count($days) }}" class="text-center text-danger">
+                                                    No Data Found
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                        @if ($attendancesData->hasPages())
+                        <div class="card-footer">
+                            {{ $attendancesData->links() }}
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -199,6 +116,5 @@
     </div>
 </div>
 
-
-
+@include('layouts.includes.delete-modal')
 @endsection
