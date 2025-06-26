@@ -773,6 +773,10 @@ class ApiController extends BaseController
          // Start SAP session and retrieve session ID
          $response = $this->startSession();
 
+          if (is_string($postFields)) {
+                $postFields = json_decode($postFields, true);
+            }
+
          if (json_last_error() === JSON_ERROR_NONE) {
              $session = json_decode($response->getContent(), true);
 
@@ -785,67 +789,66 @@ class ApiController extends BaseController
              return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
          }
 
-         $data = json_decode($postFields, true);
+        foreach ($postFields as $data) {
+                $items = $data['Items'];
+                $assetDocLines = $data['AssetDocumentLineCollection'];
 
-        // Extract items and asset document lines as arrays
-        $items = $data['Items'];
-        $assetDocLines = $data['AssetDocumentLineCollection'];
+                if (empty($items) && empty($assetDocLines)) {
+                    return response()->json(['msg_error' => 'No items found in the payload'], 400);
+                }
 
-         if (empty($items) && empty($assetDocLines)) {
-             return response()->json(['msg_error' => 'No items found in the payload'], 400);
-         }
-         foreach ($items as $item) {
-
-            $formattedItem = [
-                "ItemCode" => $item['ItemCode'] ?? null,
-                "ItemName" => $item['ItemName'] ?? null,
-                "ForeignName" => $item['ForeignName'] ?? null,
-                "ItemsGroupCode" => 102,  // static value (Fixed Asset)
-                "ItemType" => "F",        // static value
-                "AssetClass" => $item['AssetClass'] ?? "Furnitures",  // default to "Furnitures"
-                "AssetGroup" => $item['AssetGroup'] ?? null,
-                "InventoryNumber" => $item['InventoryNumber'] ?? null,
-                // "U_Employee" => $item['U_Employee'] ?? null,
-                "AssetSerialNumber" => $item['AssetSerialNumber'] ?? null,
-                "Location" => $item['Location'] ?? null,
-
-                "ItemProjects" => [
-                        [
-                            "LineNumber" => 0,
-                            "ValidFrom" => $item['ItemProjects'][0]['ValidFrom'] ?? null,
-                            "ValidTo" => $item['ItemProjects'][0]['ValidTo'] ?? null,
-                            "Project" => $item['ItemProjects'][0]['Project'] ?? null,
+                // 1. POST each Item to /Items
+                foreach ($items as $item) {
+                    $formattedItem = [
+                        "ItemCode" => $item['ItemCode'] ?? null,
+                        "ItemName" => $item['ItemName'] ?? null,
+                        "ForeignName" => $item['ForeignName'] ?? null,
+                        "ItemsGroupCode" => 102,
+                        "ItemType" => "F",
+                        "AssetClass" => $item['AssetClass'] ?? "Furnitures",
+                        "AssetGroup" => $item['AssetGroup'] ?? null,
+                        "InventoryNumber" => $item['InventoryNumber'] ?? null,
+                        "AssetSerialNumber" => $item['AssetSerialNumber'] ?? null,
+                        "Location" => $item['Location'] ?? null,
+                        "ItemProjects" => [
+                            [
+                                "LineNumber" => 0,
+                                "ValidFrom" => $item['ItemProjects'][0]['ValidFrom'] ?? null,
+                                "ValidTo" => $item['ItemProjects'][0]['ValidTo'] ?? null,
+                                "Project" => $item['ItemProjects'][0]['Project'] ?? null,
+                            ]
                         ]
-                    ]
-            ];
+                    ];
 
-            // Convert each item to JSON format
-            $jsonFormattedItem = json_encode($formattedItem, JSON_PRETTY_PRINT);
+                    $jsonFormattedItem = json_encode($formattedItem, JSON_PRETTY_PRINT);
+                    $url1 = '/b1s/v1/Items';
+                    $response = $this->sendPostRequest($url1, $jsonFormattedItem, $sessionId);
 
-            $url1='/b1s/v1/Items';
-            $response = $this->sendPostRequest($url1,$jsonFormattedItem, $sessionId);
+                    if ($response['status'] !== 201) {
+                        return response()->json([
+                            'msg_error' => $response['error'] ?? 'Item creation failed in SAP'
+                        ], $response['status']);
+                    }
+                }
 
-         if ($response['status'] !== 201) {
-                return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
+                // 2. POST once to /AssetCapitalization per group
+                $formattedAssetCapitalization = [
+                    "AssetDocumentLineCollection" => $assetDocLines,
+                    "AssetValueDate" => $data['AssetValueDate'],
+                    "DocumentDate" => $data['DocumentDate'],
+                    "PostingDate" => $data['PostingDate']
+                ];
+
+                $jsonFormattedAssetCapitalization = json_encode($formattedAssetCapitalization, JSON_PRETTY_PRINT);
+                $url2 = '/b1s/v1/AssetCapitalization';
+                $response = $this->sendPostRequest($url2, $jsonFormattedAssetCapitalization, $sessionId);
+
+                if ($response['status'] !== 201) {
+                    return response()->json([
+                        'msg_error' => $response['error'] ?? 'Asset capitalization failed in SAP'
+                    ], $response['status']);
+                }
             }
-
-            }
-
-        $formattedAssetCapitalization = [
-            "AssetDocumentLineCollection" => $assetDocLines,
-            "AssetValueDate" => $data['AssetValueDate'],
-            "DocumentDate" => $data['DocumentDate'],
-            "PostingDate" => $data['PostingDate']
-        ];
-        $jsonFormattedAssetCapitalization = json_encode($formattedAssetCapitalization, JSON_PRETTY_PRINT);
-
-
-        $url2='/b1s/v1/AssetCapitalization';
-        $response = $this->sendPostRequest($url2,$jsonFormattedAssetCapitalization, $sessionId);
-
-     if ($response['status'] !== 201) {
-            return response()->json(['msg_error' => $response['error'] ?? 'Something went wrong from SAP API'], $response['status']);
-        }
 
 
         $responseArray = $response;

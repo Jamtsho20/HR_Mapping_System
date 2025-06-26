@@ -353,43 +353,51 @@ class ApprovalController extends Controller
             }
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } elseif ($commission) {  // sap data for asset commissioning
-            $postFields = [
-                "Items" => $application->details->map(function ($detail) use ($application) {
+           $groupedApplications = $application->details->groupBy(function ($detail) {
+                    return $detail->date_placed_in_service;
+                });
+                $timestamp = now()->format('ym-Hi');
+                $postFields = $groupedApplications->map(function ($group, $date) use ($application, $timestamp) {
                     return [
-                        "ItemCode" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no . '-' . now()->format('ym-Hi'),
-                        "ItemName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description,
-                        "ForeignName" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no,
-                        "ItemsGroupCode" => 102,
-                        "ItemType" => "F",
-                        "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
-                        "AssetGroup" => null,
-                        "InventoryNumber"=> null,
-                        "U_Employee"=> $application->employee->username ." ".$application->employee->name,
-                        "AssetSerialNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' .$detail->receivedSerial->asset_serial_no,
-                        "Location"=> null,
+                        "Items" => $group->map(function ($detail) use ($application, $timestamp) {
+                            $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
+                            return [
+                                "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
+                                "ItemName" => $item->item_description,
+                                "ForeignName" => $item->item_no,
+                                "ItemsGroupCode" => 102,
+                                "ItemType" => "F",
+                                "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
+                                "AssetGroup" => null,
+                                "InventoryNumber" => null,
+                                "U_Employee" => $application->employee->username . " " . $application->employee->name,
+                                "AssetSerialNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no,
+                                "Location" => null,
+                                "ItemProjects" => [
+                                    [
+                                        "LineNumber" => 0,
+                                        "ValidFrom" => $detail->date_placed_in_service,
+                                        "ValidTo" => null,
+                                        "Project" => $detail->site->code
+                                    ]
+                                ]
+                            ];
+                        })->toArray(),
 
-                        "ItemProjects" => [
-                            [
-                                "LineNumber" => 0,
-                                "ValidFrom" => date('Y-m-d'),
-                                "ValidTo" => null,
-                                "Project" => $detail->site->code
-                            ]
-                        ]
-                    ];
-                })->toArray(),
-                "AssetDocumentLineCollection" => $application->details->map(function ($detail) {
-                    return [
-                        "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no . '-' . now()->format('ym-Hi'),
-                        "Quantity" => $detail->receivedSerial->quantity ?? 1,
-                        "TotalLC" => $detail->receivedSerial->amount
-                    ];
-                })->toArray(),
-                "AssetValueDate" => date('Y-m-d'),
-                "DocumentDate" => date('Y-m-d'),
-                "PostingDate" => date('Y-m-d')
+                        "AssetDocumentLineCollection" => $group->map(function ($detail) use ($timestamp) {
+                            return [
+                                "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no . '-' . $timestamp,
+                                "Quantity" => $detail->receivedSerial->quantity ?? 1,
+                                "TotalLC" => $detail->receivedSerial->amount
+                            ];
+                        })->toArray(),
 
-            ];
+                        "AssetValueDate" => $date,
+                        "DocumentDate" => $date,
+                        "PostingDate" => $date
+                    ];
+                })->values()->toArray();
+
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } elseif ($accountCode == DSA_ACCOUNT_CODE) {
             if ($application->advance_amount > 0) {
