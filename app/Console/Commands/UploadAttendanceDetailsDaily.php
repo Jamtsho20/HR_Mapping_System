@@ -40,25 +40,19 @@ class UploadAttendanceDetailsDaily extends Command
                 $insertData = [];
 
                 foreach ($employees as $employee) {
-                    // $departmentId = optional($employee->empJob)->mas_department_id;
-                    // $sectionId = optional($employee->empJob)->mas_section_id;
+                    $departmentId = optional($employee->empJob)->mas_department_id;
+                    $sectionId = optional($employee->empJob)->mas_section_id;
                     $regionId = optional(optional($employee->empJob)->office)->mas_region_id;
 
                     // if ((!$departmentId && !$sectionId) || !$regionId) {
-                    if (!$regionId) {
+                    if (!$departmentId || $sectionId ||!$regionId) {
                         continue; // skip if necessary data is missing
                     }
 
                     // fetch daily emp attendance  based on employee section or department
-                    // $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($departmentId, $sectionId, $currentDay) {
+                    
                     $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($currentDay) {
                         $query->where('day', $currentDay);
-                        
-                        // if ($sectionId) {
-                        //     $query->where('section_id', $sectionId);
-                        // } else {
-                        //     $query->whereNull('section_id')->where('department_id', $departmentId);
-                        // }
                     }])
                     ->where('for_month', $currentMonth)
                     ->first();
@@ -74,6 +68,8 @@ class UploadAttendanceDetailsDaily extends Command
                     $insertData[] = [
                         'daily_attendance_id' => $dailyAttendance->id,
                         'employee_id' => $employee->id,
+                        'department_id' => $departmentId ?? null,
+                        '$section_id' => $sectionId ?? null,
                         'check_in_at' => null,
                         'check_out_at' => null,
                         'check_in_ip' => null,

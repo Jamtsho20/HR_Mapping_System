@@ -22,6 +22,9 @@ const DOMESTIC_TRAVEL_TYPE = 1;
 const IMMEDIATE_HEAD = 6;
 const DEPARTMENT_HEAD = 7;
 const MANAGING_DIRECTOR = 8;
+const ADMIN = 1;
+const HR = 3;
+const HR_MANAGER = 11;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;

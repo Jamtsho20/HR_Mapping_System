@@ -29,6 +29,7 @@
         </div>
 
         <div class="row row-sm">
+            <span class="text-primary"># Individual Attendance for year {{ $year }} .</span>
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">

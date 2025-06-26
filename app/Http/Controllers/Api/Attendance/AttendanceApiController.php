@@ -93,7 +93,8 @@ class AttendanceApiController extends Controller
         $updateAttendanceData = [
             'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
             'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
-            'attendance_status_id' => $attendanceStatus
+            'attendance_status_id' => $attendanceStatus,
+            'updated_by' => $user->id,
         ];
 
         // Conditional update based on check type

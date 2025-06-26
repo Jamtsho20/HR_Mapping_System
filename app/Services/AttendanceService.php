@@ -151,19 +151,11 @@ class AttendanceService
             $now->subDay();
         }
         $currentDay = $now->day;
-        // $departmentId = $loggedInUser->empJob->mas_department_id;
-        // $sectionId = $loggedInUser->empJob->mas_section_id;
 
-        // $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $departmentId, $sectionId, $currentDay) {
         $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $currentDay) {
                         if($flag === 'daily' || $flag === 'yesterday'){
                             $query->where('day', $currentDay);
                         }
-                        // if ($sectionId) {
-                        //     $query->where('section_id', $sectionId);
-                        // } else {
-                        //     $query->whereNull('section_id')->where('department_id', $departmentId);
-                        // }
                     }])
                     ->year($year)         // optional filter by year
                     ->forMonth($monthYear)
@@ -182,7 +174,6 @@ class AttendanceService
                 $detail = AttendanceDetail::where('daily_attendance_id', $attendance->id)
                     ->where('employee_id', $loggedInUser->id)
                     ->first();
-                // dd($detail);
                 if (!$detail) {
                     $attendances[] = [
                         'check_in_at' => config('global.null_value'),

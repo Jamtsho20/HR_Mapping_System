@@ -137,6 +137,10 @@ class User extends Authenticatable
         return $this->hasMany(EmployeeShift::class, 'mas_employee_id');
     }
 
+    public function attendanceDetails(){
+        return $this->hasMany(AttendanceDetail::class, 'employee_id');
+    }
+
     public function isActive()
     {
         return $this->is_active == 1;
