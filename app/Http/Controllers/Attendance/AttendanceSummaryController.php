@@ -34,12 +34,12 @@ class AttendanceSummaryController extends Controller
         $privileges = $request->instance();
         $loggedInUser = auth()->user();
         $desiredRoles = $this->preparefilterData($loggedInUser);
-        
-        // dd($desiredRoles);
+        $dummySection = 16;
+        dd($desiredRoles);
         $yearMonth = $request->query('year_month', now()->format('Y-m'));
         $employeeId = $request->query('employee_id');
         $departmentId = $request->query('department');
-        $sectionId = $request->query('section');
+        $sectionId = $request->query('section') ?? $dummySection;
         $departments = MasDepartment::select('id', 'name')->get();
         $sections = MasSection::select('id', 'name')->get();
         $employees = User::get();
