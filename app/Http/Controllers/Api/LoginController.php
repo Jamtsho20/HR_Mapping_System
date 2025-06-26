@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmployeeDevices;
 use App\Models\MasAttendanceFeature;
 use App\Models\MasOfficeTiming;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\SystemMenu;
 use App\Services\DelegationService;
 use Carbon\Carbon;
+use PDO;
 
 class LoginController extends Controller
 {
@@ -62,6 +64,15 @@ class LoginController extends Controller
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
             $token = $user->createToken($request->username)->plainTextToken;
 
+            // if device is not registered then create it
+            $device = EmployeeDevices::firstOrCreate(
+                ['employee_id' => $user->id],
+                [
+                    'device_id' => $request->device_id,
+                    'device_name' => $request->device_name,
+                ]
+            );
+
             return response()->json([
                 'message' => 'Authenticated',
                 'user' => $user,
@@ -69,6 +80,16 @@ class LoginController extends Controller
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
+                'device_id' => $deviceId->device_id ?? null
+            ], 200);
+            return response()->json([
+                'message' => 'Authenticated',
+                'user' => $user,
+                'menus' => $menus,
+                // 'attendance_features' => $attendanceFeatures,
+                // 'office_timings' => $officeTiming,
+                'token' => $token,
+                'device_id' => $device->device_id ?? null
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

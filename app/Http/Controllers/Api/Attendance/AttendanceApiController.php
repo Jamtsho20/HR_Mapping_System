@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
+use App\Models\EmployeeDevices;
 use App\Models\MasAttendanceFeature;
 use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
@@ -57,7 +58,7 @@ class AttendanceApiController extends Controller
     public function attendanceEntry(Request $request){
         $attendanceService = new AttendanceService();
         $user = auth()->user();
-
+        $deviceId = EmployeeDevices::where('employee_id', $user->id)->first();
         if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
         }else if($request->check_type === 'check-out' && !$request->check_out_at){
@@ -75,6 +76,9 @@ class AttendanceApiController extends Controller
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
         }
         
+        if($deviceId != $request->device_id){
+            return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
+        }
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
