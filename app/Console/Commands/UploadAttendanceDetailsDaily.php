@@ -45,7 +45,7 @@ class UploadAttendanceDetailsDaily extends Command
                     $regionId = optional(optional($employee->empJob)->office)->mas_region_id;
 
                     // if ((!$departmentId && !$sectionId) || !$regionId) {
-                    if (!$departmentId || $sectionId ||!$regionId) {
+                    if (!$regionId) {
                         continue; // skip if necessary data is missing
                     }
 
@@ -69,7 +69,7 @@ class UploadAttendanceDetailsDaily extends Command
                         'daily_attendance_id' => $dailyAttendance->id,
                         'employee_id' => $employee->id,
                         'department_id' => $departmentId ?? null,
-                        '$section_id' => $sectionId ?? null,
+                        'section_id' => $sectionId ?? null,
                         'check_in_at' => null,
                         'check_out_at' => null,
                         'check_in_ip' => null,

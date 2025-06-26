@@ -2,6 +2,23 @@
 @section('page-title', 'Commission')
 @section('content')
 @include('layouts.includes.loader')
+
+<style>
+    #details input.w-auto,
+#details select.w-auto,
+#details textarea.w-auto {
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Prevent table cells from wrapping content */
+#details td,
+#details th {
+  white-space: nowrap;
+}
+    </style>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
     <form action="{{ route('commission.store') }}" method="POST" enctype="multipart/form-data" id="commissionForm">
@@ -40,7 +57,7 @@
                             <input type="date" class="form-control" name="commission_date" id="commission_date"
                                 value="{{ old('commission_date', date('Y-m-d')) }}">
 
-                            <input type="hidden" name="total_quantity" value="" id="total-quantity-id" class="form-control form-control-sm resetKeyForNew total-quantity-id" readonly required />
+                            <input type="hidden" name="total_quantity" value="" id="total-quantity-id" class="form-control resetKeyForNew total-quantity-id" readonly required />
                         </div>
                     </div>
 
@@ -96,7 +113,7 @@
                                     <th>Amount (Nu.)*</th>
                                     <th>Dzongkhag*</th>
                                     {{-- <th>Quantity*</th> --}}
-                                    <th>Date Place In Service*</th>
+                                    <th>Date Placed In Service*</th>
                                     <th>Site*</th>
                                     <th>Remark</th>
                                 </tr>
@@ -110,16 +127,16 @@
                                     </td>
                                     <td>
                                         <select
-                                            class="form-control form-control-sm resetKeyForNew select2 asset-number-selector"
+                                            class="form-control resetKeyForNew select2 asset-number-selector"
                                             name="details[AAAAA][asset_no]" required />
                                         <option value="" disabled selected hidden>Select Your Option</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control form-control-sm resetKeyForNew"
+                                        <input type="text" class="form-control  resetKeyForNew"
                                             name="details[AAAAA][description]" readonly required />
                                         {{-- <option value="" disabled selected hidden>Select Your Option</option> --}}
-                                        {{-- <select class="form-control form-control-sm resetKeyForNew select2"
+                                        {{-- <select class="form-control  resetKeyForNew select2"
                                                 name="details[AAAAA][description]" required />
                                                 <option value="" disabled selected hidden>Select Your Option</option>
 
@@ -127,21 +144,21 @@
                                     </td>
                                     <td>
                                         <input type="text" name="details[AAAAA][uom]" value=""
-                                            class="form-control form-control-sm resetKeyForNew" readonly required />
+                                            class="form-control  resetKeyForNew" readonly required />
                                     </td>
                                     <td>
                                         <input type="number" name="details[AAAAA][qty]" value=""
-                                            class="form-control form-control-sm resetKeyForNew quantity-input text-right" readonly
+                                            class="form-control  resetKeyForNew quantity-input text-right" readonly
                                             required />
                                     </td>
                                     <td>
                                         <input type="number" name="details[AAAAA][amount]" value=""
-                                            class="form-control form-control-sm resetKeyForNew text-right" readonly
+                                            class="form-control  resetKeyForNew text-right" readonly
                                             required />
                                     </td>
                                     <td>
                                         <select
-                                            class="form-control form-control-sm resetKeyForNew select2 dzongkhag-selector"
+                                            class="form-control  resetKeyForNew select2 dzongkhag-selector"
                                             name="details[AAAAA][dzongkhag]" required />
                                         <option value="" disabled selected hidden>Select Your Option</option>
 
@@ -149,17 +166,17 @@
                                     </td>
 
                                     <td>
-                                        <input type="date" class="form-control form-control-sm resetKeyForNew"
+                                        <input type="date" class="form-control  resetKeyForNew"
                                             name="details[AAAAA][date_placed_in_service]" required />
                                     </td>
                                     <td>
-                                        <select class="form-control form-control-sm resetKeyForNew select2"
+                                        <select class="form-control  resetKeyForNew select2"
                                             name="details[AAAAA][site]" required />
                                         <option value="" disabled selected hidden>Select Your Option</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <textarea class="form-control form-control-sm resetKeyForNew" name="details[AAAAA][remark]"></textarea>
+                                        <textarea class="form-control  resetKeyForNew" name="details[AAAAA][remark]"></textarea>
                                     </td>
                                 </tr>
 
@@ -213,44 +230,61 @@
                             populateDzongkhags(dzongkhags);
 
                             $('#loader').hide();
-                            if (assetNos.length > 0 && assetNos[0].serials?.length > 1) {
-                                    const matchingItems = assetNos[0].serials;
-                                    showConfirmationMessage(
-                                        `This GRN has ${matchingItems.length} asset item(s). Do you want to auto-select all of them?`,
-                                        () => {
-                                            matchingItems.forEach((serial, index) => {
+                           if (assetNos.length > 0 && assetNos[0].serials?.length > 1) {
+                                const matchingItems = assetNos[0].serials;
+
+                                showConfirmationMessage(
+                                    `This GRN has ${matchingItems.length} asset item(s). Do you want to auto-select all of them?`,
+                                    () => {
+                                        $('#loader').show();
+                                        let bulkLoading = true;
+                                        let index = 0;
+
+                                        const totalItems = matchingItems.length;
+
+                                        function processNext() {
+                                            if (index >= totalItems) {
+                                                // Delay unsetting flag to allow all site loads
                                                 setTimeout(() => {
-                                                    let lastRow = $('#details tbody tr').not('.notremovefornew').last();
+                                                    bulkLoading = false;
+                                                    $('#loader').hide(); // Hide only when all site calls finish
+                                                }, 500);
+                                                return;
+                                            }
 
-                                                    const assetSelect = lastRow.find('select[name^="details"][name$="[asset_no]"]');
+                                            const serial = matchingItems[index];
+                                            let $lastRow = $('#details tbody tr').not('.notremovefornew').last();
+                                            const $assetSelect = $lastRow.find('select[name^="details"][name$="[asset_no]"]');
 
-                                                    if (assetSelect.length) {
-                                                        assetSelect.val(serial.id).trigger('change');
-                                                    }
+                                            if ($assetSelect.length) {
+                                                $assetSelect.val(serial.id).trigger('change');
+                                            }
 
-                                                    // Add a new row if it's not the last one
-                                                    if (index < matchingItems.length - 1) {
-                                                        $('.add-table-row').trigger('click');
-                                                    }
-                                                }, 10);
-                                            });
-                                        },
-                                        () => {
-                                            // fallback: only populate dropdowns, not auto-select
+                                            if (index < totalItems - 1) {
+                                                $('.add-table-row').trigger('click');
+                                            }
 
+                                            index++;
+                                            setTimeout(processNext, 100); // throttled loop
                                         }
-                                    );
+
+                                        processNext();
+                                    },
+                                    () => {
+                                        $('#loader').hide();
+                                    }
+                                );
+                            }
+                                },
+                                error: function(error) {
+                                    $('#loader').hide();
+                                    showErrorMessage(error.responseJSON.message ||
+                                        'An error occurred.');
+                                    $('#grn').val('');
                                 }
-                        },
-                        error: function(error) {
-                            $('#loader').hide();
-                            showErrorMessage(error.responseJSON.message ||
-                                'An error occurred.');
-                            $('#grn').val('');
+                            });
                         }
                     });
-                }
-            });
 
             // Function to populate the asset_no dropdown
             function populateAssetDetails(assetNos) {
@@ -294,42 +328,54 @@
                 }
             }
             //populate asset description and uom based on selection of asset no
-            $(document).on('change', '.asset-number-selector', function() {
-                var serialId = $(this).val();
-                var row = $(this).closest('tr');
+           let bulkLoading = false; // Declare this at the top outside of $(document).ready
 
-                if (serialId) {
-                    $.ajax({
-                        url: "/getdescriptionanduombyserialid/" +
-                            serialId, // Update with your actual API URL
-                        dataType: "JSON",
-                        type: "GET",
-                        success: function(data) {
-                            let serialData = data?.data?.serial[0];
+            $(document).on('change', '.asset-number-selector', function () {
+                if (bulkLoading) return;
 
-                            if (serialData) {
-                                row.find("input[name^='details'][name$='[description]']").val(
-                                    serialData.asset_description ?? serialData
-                                    ?.requisition_detail?.grn_item_detail.item
-                                    .item_description);
-                                row.find("input[name^='details'][name$='[uom]']").val(
-                                    serialData?.requisition_detail?.unitOfMeasurement?.code
-                                    ?? serialData?.requisition_detail?.grn_item_detail?.item?.uom
-                                );
-                                row.find("input[name^='details'][name$='[qty]']").val(serialData?.quantity ?? 1);
-                                row.find("input[name^='details'][name$='[amount]']").val(
-                                    serialData.amount ?? 0.00
-                                );
-                                updateTotalQuantity();
-                            }
-                        },
-                        error: function(error) {
-                            showErrorMessage(error.responseJSON.message ||
-                                'An error occurred.');
+                const serialId = this.value;
+                if (!serialId) return;
+
+                const row = this.closest('tr');
+                const $row = $(row);
+                const $dzongkhagSelect = $row.find("select[name^='details'][name$='[dzongkhag]']");
+                const $siteSelect = $row.find("select[name^='details'][name$='[site]']");
+
+                fetch(`/getdescriptionanduombyserialid/${serialId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const serialData = data?.data?.serial?.[0];
+                        if (!serialData) return;
+
+                        $row.find("input[name^='details'][name$='[description]']").val(
+                            serialData.asset_description || serialData?.requisition_detail?.grn_item_detail?.item?.item_description || ''
+                        );
+
+                        $row.find("input[name^='details'][name$='[uom]']").val(
+                            serialData?.requisition_detail?.unitOfMeasurement?.code ||
+                            serialData?.requisition_detail?.grn_item_detail?.item?.uom || ''
+                        );
+
+                        $row.find("input[name^='details'][name$='[qty]']").val(serialData?.quantity ?? 1);
+                        $row.find("input[name^='details'][name$='[amount]']").val(serialData?.amount ?? 0.00);
+
+                        const dzongkhagId = serialData.requisition_detail?.dzongkhag_id;
+                        const siteId = serialData.requisition_detail?.site_id;
+
+                        if (dzongkhagId) {
+                            $dzongkhagSelect.attr('preselectedSite', siteId).val(dzongkhagId).trigger('change');
+                        } else if (siteId) {
+                            $siteSelect.val(siteId).trigger('change');
                         }
+
+                        updateTotalQuantity();
+                    })
+                    .catch(err => {
+                        const msg = err?.responseJSON?.message || 'An error occurred.';
+                        showErrorMessage(msg);
                     });
-                }
             });
+
 
 
             // Function to populate the dzongkhag dropdown
@@ -345,40 +391,54 @@
             }
 
 
-            // Populate sites based on the selection of dzongkhag
-            $(document).on('change', '.dzongkhag-selector', function() {
-                var dzongkhagId = $(this).val();
-                var row = $(this).closest('tr'); // Get the selected row
+            const siteCache = {};
 
-                if (dzongkhagId) {
-                    $.ajax({
-                        url: "/getsitesbydzongkhagid/" + dzongkhagId, // API endpoint to fetch sites
-                        dataType: "JSON",
-                        type: "GET",
-                        success: function(data) {
-                            if (data.data.sites && data.data.sites.length > 0) {
-                                populateSites(row, data.data.sites); // Pass the selected row
-                            }
-                        },
-                        error: function(error) {
-                            showErrorMessage(error.responseJSON?.message ||
-                                'An error occurred.');
-                        }
-                    });
+            $(document).on('change', '.dzongkhag-selector', function () {
+                const dzongkhagId = this.value;
+                if (!dzongkhagId) return;
+
+                const row = this.closest('tr');
+                const $row = $(row);
+                const $dzongkhagSelect = $row.find("select[name^='details'][name$='[dzongkhag]']");
+                const $siteSelect = $row.find("select[name^='details'][name$='[site]']");
+                const preselectedSite = $dzongkhagSelect.attr('preselectedSite');
+
+                if (siteCache[dzongkhagId]) {
+                    populateSiteOptions($siteSelect, siteCache[dzongkhagId], preselectedSite);
+                } else {
+                    $siteSelect.html('<option disabled selected>Loading...</option>');
+
+                    fetch(`/getsitesbydzongkhagid/${dzongkhagId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const sites = data?.data?.sites || [];
+                            siteCache[dzongkhagId] = sites;
+                            populateSiteOptions($siteSelect, sites, preselectedSite);
+                        })
+                        .catch(() => {
+                            $siteSelect.html('<option disabled selected>No sites</option>');
+                            showErrorMessage('Failed to load sites');
+                        });
                 }
+
+                $dzongkhagSelect.removeAttr('preselectedSite');
             });
 
-            // Function to populate the sites dropdown for the selected row only
-            function populateSites(row, sites) {
-                let siteDropdown = row.find(
-                    "select[name^='details'][name$='[site]']"); // Find the dropdown in the selected row
-                siteDropdown.empty().append(
-                    '<option value="" disabled selected hidden>Select Your Option</option>');
-
-                sites.forEach(function(site) {
-                    siteDropdown.append('<option value="' + site.id + '">' + site.name + '</option>');
-                });
+            function populateSiteOptions($siteSelect, sites, preselectedSite) {
+                if (!sites.length) {
+                    $siteSelect.html('<option disabled selected>No sites</option>');
+                    return;
+                }
+                let options = '<option disabled selected hidden>Select Your Option</option>';
+                for (const site of sites) {
+                    options += `<option value="${site.id}">${site.name}</option>`;
+                }
+                $siteSelect.html(options);
+                if (preselectedSite) {
+                    $siteSelect.val(preselectedSite).trigger('change');
+                }
             }
+
 
             function updateTotalQuantity() {
                 let total = 0;
