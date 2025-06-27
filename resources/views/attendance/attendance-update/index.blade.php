@@ -5,12 +5,17 @@
 
 @endif
 <div class="block-header block-header-default">
-    <!-- @component('layouts.includes.filter')
-    <div class="col-6 form-group">
-        <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
+    @component('layouts.includes.filter')
+    <div class="row">
+        <div class="col-md-12">
+            <select name="day" class="form-control" onchange="this.form.submit()" placeholder="Select Day">
+                <option value="today" {{ $filter == 'today' ? 'selected' : '' }}>Current Day</option>
+                <option value="yesterday" {{ $filter == 'yesterday' ? 'selected' : '' }}>Previous Day</option>
+            </select>
+        </div>
     </div>
-    @endcomponent -->
-
+    @endcomponent
+    <br>
     <div class="row row-sm">
         <div class="col-lg-12">
             <div class="card">
@@ -31,7 +36,7 @@
                                                         Sl. No
                                                     </th>
                                                     <th>
-                                                        Attendance ID
+                                                        Attendance Date
                                                     </th>
                                                     <th>
                                                         Employee
@@ -50,17 +55,32 @@
 
                                             <tbody>
                                                 @foreach($attendanceRecords as $record)
-                                                <tr>
-                                                    <td>{{ $record->employee_id }}</td>
+                                                <tr style="text-align: center;">
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') }}</td>
+                                                    <td>{{ $record->employee->emp_id_name ?? '-' }}</td>
                                                     <td>
-                                                        @php
-                                                        $status = \App\Models\AttendanceStatus::find($record->attendance_status_id)->name ?? 'Unknown';
-                                                        @endphp
-                                                        {{ $status }}
+                                                        @if($record->attendanceStatus)
+                                                        <span class="badge" style="background-color: {{ $record->attendanceStatus->color }}; color: white;">
+                                                            {{ $record->attendanceStatus->code }}
+                                                        </span>
+                                                        @else
+                                                        Unknown
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $record->remarks ?? '-' }}</td>
+                                                    <td class="text-center">
+                                                        @if ($privileges->edit)
+                                                        <a href="{{ url('attendance/attendance-update/' . $record->id . '/edit') }}"
+                                                            class="btn btn-sm btn-rounded btn-outline-success">
+                                                            <i class="fa fa-edit"></i> EDIT
+                                                        </a>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>
+
                                         </table>
 
                                     </div>

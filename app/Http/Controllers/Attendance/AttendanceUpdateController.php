@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceDetail;
+use App\Models\AttendanceStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,19 +26,20 @@ class AttendanceUpdateController extends Controller
     public function index(Request $request)
     {
         $authEmployeeId = auth()->user()->id;
-        $userRoleId = DB::table('mas_employee_roles')
+        $userRoleIds = DB::table('mas_employee_roles')
             ->where('mas_employee_id', $authEmployeeId)
             ->pluck('role_id')
             ->toArray();
+
         $privileges = $request->instance();
         $attendanceRecords = collect();
 
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        //  Get filter from query, fallback to today
+        $filter = $request->get('day', 'today');
+        // $filter = $request->input('day'); // no default, stays null if not selected
+        $filterDate = $filter === 'yesterday' ? Carbon::yesterday() : Carbon::today();
 
-
-        if (in_array(DEPARTMENT_HEAD, $userRoleId)) {
-            // Department Head → Immediate Heads in same department
+        if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
             $departmentId = DB::table('mas_employee_jobs')
                 ->where('mas_employee_id', $authEmployeeId)
                 ->value('mas_department_id');
@@ -48,15 +51,12 @@ class AttendanceUpdateController extends Controller
                     ->where('j.mas_department_id', $departmentId)
                     ->pluck('r.mas_employee_id');
 
-                $attendanceRecords = DB::table('attendance_details')
+                $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $immediateHeadIds)
-                    ->where(function ($q) use ($today, $yesterday) {
-                        $q->whereDate('created_at', $today)
-                            ->orWhereDate('created_at', $yesterday);
-                    })
+                    ->whereDate('created_at', $filterDate)
                     ->get();
             }
-        } elseif (in_array(IMMEDIATE_HEAD, $userRoleId)) {
+        } elseif (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
             $sectionId = DB::table('mas_employee_jobs')
                 ->where('mas_employee_id', $authEmployeeId)
                 ->value('mas_section_id');
@@ -64,33 +64,28 @@ class AttendanceUpdateController extends Controller
             if ($sectionId) {
                 $employeeIds = DB::table('mas_employee_jobs')
                     ->where('mas_section_id', $sectionId)
-                    ->where('mas_employee_id', '!=', $authEmployeeId) // 🔥 exclude self
+                    ->where('mas_employee_id', '!=', $authEmployeeId)
                     ->pluck('mas_employee_id');
 
-                $attendanceRecords = DB::table('attendance_details')
+                $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $employeeIds)
-                    ->where(function ($q) use ($today, $yesterday) {
-                        $q->whereDate('created_at', $today)
-                            ->orWhereDate('created_at', $yesterday);
-                    })
+                    ->whereDate('created_at', $filterDate)
                     ->get();
             }
-        } elseif (in_array(MANAGING_DIRECTOR, $userRoleId)) {
-            // Managing Director → All Department Heads
+        } elseif (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
             $departmentHeadIds = DB::table('mas_employee_roles')
                 ->where('role_id', DEPARTMENT_HEAD)
                 ->pluck('mas_employee_id');
 
-            $attendanceRecords = DB::table('attendance_details')
+            $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                 ->whereIn('employee_id', $departmentHeadIds)
-                ->where(function ($q) use ($today, $yesterday) {
-                    $q->whereDate('created_at', $today)
-                        ->orWhereDate('created_at', $yesterday);
-                })
+                ->whereDate('created_at', $filterDate)
                 ->get();
         }
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords'));
+
+        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter'));
     }
+
 
 
 
@@ -132,22 +127,33 @@ class AttendanceUpdateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    // Show the edit form
     public function edit($id)
     {
-        //
+        $attendanceRecord = AttendanceDetail::with('employee', 'attendanceStatus')->findOrFail($id);
+
+        // Load all possible attendance statuses for a dropdown
+        $attendanceStatuses = AttendanceStatus::all();
+
+        return view('attendance.attendance-update.edit', compact('attendanceRecord', 'attendanceStatuses'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // Process the form submission
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'attendance_status_id' => 'required|exists:attendance_statuses,id',
+            'remarks' => 'nullable|string|max:500',
+        ]);
+
+        $attendanceRecord = AttendanceDetail::findOrFail($id);
+        $attendanceRecord->attendance_status_id = $request->attendance_status_id;
+        $attendanceRecord->remarks = $request->remarks;
+        $attendanceRecord->save();
+
+        return redirect()->route('attendance-update.index')->with('success', 'Attendance updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.
