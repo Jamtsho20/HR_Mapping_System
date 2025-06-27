@@ -24,7 +24,7 @@
                     <select class="form-control select2" name="department">
                         <option value="" disabled selected>Select Department</option>
                         @foreach ($departments as $department)
-                            <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                           <option value="{{ $department->id }}" {{ (string) $departmentId === (string) $department->id ? 'selected' : '' }}>
                                 {{ $department->name }}
                             </option>
                         @endforeach
@@ -34,7 +34,7 @@
                     <select class="form-control select2" name="section">
                         <option value="" disabled selected>Select Section</option>
                         @foreach ($sections as $section)
-                            <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
+                            <option value="{{ $section->id }}" {{ (string) $sectionId == (string) $section->id ? 'selected' : '' }}>
                                 {{ $section->name }}
                             </option>
                         @endforeach
