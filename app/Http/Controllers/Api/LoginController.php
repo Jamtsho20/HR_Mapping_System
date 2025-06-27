@@ -23,7 +23,7 @@ class LoginController extends Controller
             'username' => 'required',
             'password' => 'required'
         ]);
-       
+
         try {
             $user = User::with([
                 'empJob.department:id,name,mas_employee_id',      // Only load the department name
@@ -45,7 +45,7 @@ class LoginController extends Controller
 
             $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
             // $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
-            
+
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
@@ -65,13 +65,13 @@ class LoginController extends Controller
             $token = $user->createToken($request->username)->plainTextToken;
 
             // if device is not registered then create it
-            $device = EmployeeDevices::firstOrCreate(
-                ['employee_id' => $user->id],
-                [
-                    'device_id' => $request->device_id,
-                    'device_name' => $request->device_name,
-                ]
-            );
+            // $device = EmployeeDevices::firstOrCreate(
+            //     ['employee_id' => $user->id],
+            //     [
+            //         'device_id' => $request->device_id,
+            //         'device_name' => $request->device_name,
+            //     ]
+            // );
 
             return response()->json([
                 'message' => 'Authenticated',
@@ -80,17 +80,17 @@ class LoginController extends Controller
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
-                'device_id' => $deviceId->device_id ?? null
+                // 'device_id' => $deviceId->device_id ?? null
             ], 200);
-            return response()->json([
-                'message' => 'Authenticated',
-                'user' => $user,
-                'menus' => $menus,
-                // 'attendance_features' => $attendanceFeatures,
-                // 'office_timings' => $officeTiming,
-                'token' => $token,
-                'device_id' => $device->device_id ?? null
-            ], 200);
+            // return response()->json([
+            //     'message' => 'Authenticated',
+            //     'user' => $user,
+            //     'menus' => $menus,
+            //     // 'attendance_features' => $attendanceFeatures,
+            //     // 'office_timings' => $officeTiming,
+            //     'token' => $token,
+            //     'device_id' => $device->device_id ?? null
+            // ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 // 'message' => 'Something went wrong. Try again later',
@@ -114,7 +114,7 @@ class LoginController extends Controller
         }
 
         $token = $user->createToken($request->username)->plainTextToken;
-        
+
         return response()->json([
             'message' => 'Authenticated',
             'token' => $token,
@@ -202,7 +202,7 @@ class LoginController extends Controller
                 return $menu->systemSubMenus->isNotEmpty();
             });
 
-            
+
         return $menus->values();
     }
 }
