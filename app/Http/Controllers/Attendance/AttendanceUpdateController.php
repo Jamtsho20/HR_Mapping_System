@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Attendance;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
 use App\Models\AttendanceStatus;
+use App\Services\DelegationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,12 +26,16 @@ class AttendanceUpdateController extends Controller
     }
     public function index(Request $request)
     {
+        $delegationService = new DelegationService();
         $authEmployeeId = auth()->user()->id;
         $userRoleIds = DB::table('mas_employee_roles')
             ->where('mas_employee_id', $authEmployeeId)
             ->pluck('role_id')
             ->toArray();
 
+        $delegatedRoles = $delegationService->delegatedRole($authEmployeeId);
+
+        $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
         $privileges = $request->instance();
         $attendanceRecords = collect();
 

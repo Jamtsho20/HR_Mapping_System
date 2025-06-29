@@ -64,7 +64,7 @@ class LoginController extends Controller
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
             $token = $user->createToken($request->username)->plainTextToken;
 
-            // if device is not registered then create it
+            // if device is not registered then create it for attendance validation purpose
             $device = EmployeeDevices::firstOrCreate(
                 ['employee_id' => $user->id],
                 [
@@ -80,20 +80,10 @@ class LoginController extends Controller
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
-                'device_id' => $deviceId->device_id ?? null
-            ], 200);
-            return response()->json([
-                'message' => 'Authenticated',
-                'user' => $user,
-                'menus' => $menus,
-                // 'attendance_features' => $attendanceFeatures,
-                // 'office_timings' => $officeTiming,
-                'token' => $token,
                 'device_id' => $device->device_id ?? null
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                // 'message' => 'Something went wrong. Try again later',
                 'message' => $e->getMessage(),
             ], 500);
         }
