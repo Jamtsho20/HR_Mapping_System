@@ -23,7 +23,7 @@ class LoginController extends Controller
             'username' => 'required',
             'password' => 'required'
         ]);
-       
+
         try {
             $user = User::with([
                 'empJob.department:id,name,mas_employee_id',      // Only load the department name
@@ -45,7 +45,7 @@ class LoginController extends Controller
 
             $roleIds = $user->roles->pluck('id'); // Returns a collection of IDs
             // $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
-            
+
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
@@ -104,7 +104,7 @@ class LoginController extends Controller
         }
 
         $token = $user->createToken($request->username)->plainTextToken;
-        
+
         return response()->json([
             'message' => 'Authenticated',
             'token' => $token,
@@ -192,7 +192,7 @@ class LoginController extends Controller
                 return $menu->systemSubMenus->isNotEmpty();
             });
 
-            
+
         return $menus->values();
     }
 }
