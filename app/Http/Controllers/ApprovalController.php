@@ -836,7 +836,7 @@ class ApprovalController extends Controller
                 $applier = User::where('id', $applierId)->with('empJob')->first();
                 $approverId = $applicationData->updated_by;
 
-                $roleId = 15; // Payment Manager role
+                $roleId = 16; // Payment Manager role
 
                 $pm = User::whereHas('roles', function ($query) use ($roleId) {
                     $query->where('roles.id', $roleId);
