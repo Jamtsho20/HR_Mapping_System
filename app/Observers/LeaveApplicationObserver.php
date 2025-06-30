@@ -27,7 +27,8 @@ class LeaveApplicationObserver
                     ->where('employee_id', $leaveApplication->created_by)
                     ->where(function ($query) {
                         $query->where('attendance_status_id', CREATED_STATUS)
-                            ->orWhere('attendance_status_id', ABSENT_STATUS);
+                            ->orWhere('attendance_status_id', ABSENT_STATUS)
+                            ->orWhere('attendance_status_id', PRESENT_STATUS);
                     })
                     ->update([
                         'attendance_status_id' => $attendanceStatus,
