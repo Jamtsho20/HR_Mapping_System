@@ -23,18 +23,6 @@ class AttendanceService
         // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
         $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
         
-        // 1. check if employee is on tour
-        // $isOnTour = TravelAuthorizationApplication::with(['details' => function ($query) use ($currentDate) {
-        //     $query->whereDate('from_date', '<=', $currentDate->toDateString())
-        //         ->whereDate('to_date', '>=', $currentDate->toDateString());
-        //     }])
-        //     ->where('status', '<>', -1)
-        //     ->first();
-
-        // if($isOnTour && $isOnTour->details){
-        //     dd("a");
-        //     return ON_TOUR_STATUS;
-        // }
         $isOnTour = TravelAuthorizationApplication::where('status', '<>', -1)
             ->where('created_by', $empId)
             ->whereHas('details', function ($query) use ($currentDate) {
@@ -59,29 +47,30 @@ class AttendanceService
             ->first();
 
         if ($isOnLeave) {
-            switch ($isOnLeave->type_id) {
-                case CASUAL_LEAVE:
-                    return match ($isOnLeave->from_day) {
-                        1 => CASUAL_LEAVE_STATUS,
-                        2 => FHCL_LEAVE_STATUS,
-                        3 => SHCL_LEAVE_STATUS,
-                        default => CASUAL_LEAVE_STATUS,
-                    };
-                case EARNED_LEAVE:
-                    return EARNED_LEAVE_STATUS;
-                case MEDICAL_LEAVE:
-                    return MEDICAL_LEAVE_STATUS;
-                case MATERNITY_LEAVE:
-                    return MATERNITY_LEAVE_STATUS;
-                case PATERNITY_LEAVE:
-                    return PATERNITY_LEAVE_STATUS;
-                case BEREAVEMENT_LEAVE:
-                    return BEREAVEMENT_LEAVE_STATUS;
-                case STUDY_LEAVE:
-                    return STUDY_LEAVE_STATUS;
-                case EXTRA_ORDINARY_LEAVE:
-                    return EOL_LEAVE_STATUS;
-            }
+            return $this->prepareLeaveStatus($isOnLeave);
+            // switch ($isOnLeave->type_id) {
+            //     case CASUAL_LEAVE:
+            //         return match ($isOnLeave->from_day) {
+            //             1 => CASUAL_LEAVE_STATUS,
+            //             2 => FHCL_LEAVE_STATUS,
+            //             3 => SHCL_LEAVE_STATUS,
+            //             default => CASUAL_LEAVE_STATUS,
+            //         };
+            //     case EARNED_LEAVE:
+            //         return EARNED_LEAVE_STATUS;
+            //     case MEDICAL_LEAVE:
+            //         return MEDICAL_LEAVE_STATUS;
+            //     case MATERNITY_LEAVE:
+            //         return MATERNITY_LEAVE_STATUS;
+            //     case PATERNITY_LEAVE:
+            //         return PATERNITY_LEAVE_STATUS;
+            //     case BEREAVEMENT_LEAVE:
+            //         return BEREAVEMENT_LEAVE_STATUS;
+            //     case STUDY_LEAVE:
+            //         return STUDY_LEAVE_STATUS;
+            //     case EXTRA_ORDINARY_LEAVE:
+            //         return EOL_LEAVE_STATUS;
+            // }
         }
 
         // check if employee is in shift as they will have different sets of off days
@@ -212,6 +201,32 @@ class AttendanceService
         return AttendanceDetail::where('daily_attendance_id', $dailyAttendance[0]->id)
             ->where('employee_id', $loggedInUser->id)
             ->first();
+    }
+
+    public function prepareLeaveStatus($isOnLeave){
+        switch ($isOnLeave->type_id) {
+            case CASUAL_LEAVE:
+                return match ($isOnLeave->from_day) {
+                    '1' => CASUAL_LEAVE_STATUS,
+                    '2' => FHCL_LEAVE_STATUS,
+                    '3' => SHCL_LEAVE_STATUS,
+                    default => CASUAL_LEAVE_STATUS,
+                };
+            case EARNED_LEAVE:
+                return EARNED_LEAVE_STATUS;
+            case MEDICAL_LEAVE:
+                return MEDICAL_LEAVE_STATUS;
+            case MATERNITY_LEAVE:
+                return MATERNITY_LEAVE_STATUS;
+            case PATERNITY_LEAVE:
+                return PATERNITY_LEAVE_STATUS;
+            case BEREAVEMENT_LEAVE:
+                return BEREAVEMENT_LEAVE_STATUS;
+            case STUDY_LEAVE:
+                return STUDY_LEAVE_STATUS;
+            case EXTRA_ORDINARY_LEAVE:
+                return EOL_LEAVE_STATUS;
+        }
     }
 
 }

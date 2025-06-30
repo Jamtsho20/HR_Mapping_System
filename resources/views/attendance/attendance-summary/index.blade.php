@@ -24,7 +24,7 @@
                     <select class="form-control select2" name="department">
                         <option value="" disabled selected>Select Department</option>
                         @foreach ($departments as $department)
-                            <option value="{{ $department->id }}" {{ request()->get('department') == $department->id ? 'selected' : '' }}>
+                           <option value="{{ $department->id }}" {{ (string) $departmentId === (string) $department->id ? 'selected' : '' }}>
                                 {{ $department->name }}
                             </option>
                         @endforeach
@@ -34,7 +34,7 @@
                     <select class="form-control select2" name="section">
                         <option value="" disabled selected>Select Section</option>
                         @foreach ($sections as $section)
-                            <option value="{{ $section->id }}" {{ request()->get('section') == $section->id ? 'selected' : '' }}>
+                            <option value="{{ $section->id }}" {{ (string) $sectionId == (string) $section->id ? 'selected' : '' }}>
                                 {{ $section->name }}
                             </option>
                         @endforeach
@@ -79,11 +79,23 @@
                                                 @foreach ($days as $day)
                                                     @php
                                                         $data = $attendance['attendanceMap'][$day] ?? null;
+                                                        $isToday = now()->day;
+                                                        // $tooltip = '';
+                                                        // if (!empty($data['attendance_date']) && $data['attendance_date'] != '-') {
+                                                        //     $date = \Carbon\Carbon::createFromFormat('d-m-y', $data['attendance_date']);
+                                                        //     if ($date->lessThanOrEqualTo(now())) {
+                                                        //         $tooltip = "Check-in: " . ($data['check_in_at'] ?? config('global.null_value')) . "&#10;" .
+                                                        //                 "Check-out: " . ($data['check_out_at'] ?? config('global.null_value')) . "&#10;" .
+                                                        //                 "Status: " . ($data['attendance_status_code'] ?? config('global.null_value')) . " - " . ($data['attendance_status_description'] ?? config('global.null_value')) . "&#10;" .
+                                                        //                 "Worked Hours: " . ($data['worked_hours'] ?? config('global.null_value')) . "&#10;" .
+                                                        //                 "Date: " . ($data['attendance_date'] ?? config('global.null_value'));
+                                                        //     }
+                                                        // } 
                                                     @endphp
-                                                    <td class="text-center fw-bold" style="color: {{ $data['status_color'] ?? '#929898' }}"
+                                                    <td class="text-center fw-bold" style="color: {{ $data['status_color'] ?? '#929898' }}; {{ $day == $isToday ? 'background-color: #e2f5ce;' : '' }}"
                                                         data-bs-toggle="tooltip"
                                                         data-bs-html="true"
-                                                        data-bs-placement="top"
+                                                        data-bs-placement="bottom"
                                                         title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;
                                                             Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
                                                             Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}&#10;

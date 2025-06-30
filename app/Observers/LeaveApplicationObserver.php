@@ -6,7 +6,7 @@ use App\Models\AttendanceDetail;
 use App\Models\LeaveApplication;
 use App\Services\AttendanceService;
 use Carbon\Carbon;
-
+use Carbon\CarbonPeriod;
 
 class LeaveApplicationObserver
 {
@@ -16,6 +16,26 @@ class LeaveApplicationObserver
     public function created(LeaveApplication $leaveApplication): void
     {
         $leaveApplication->updateLeaveBalance($leaveApplication);
+        // 2. Recalculate attendance status for affected leave dates
+        $attendanceService = new AttendanceService();
+        $currentDate = Carbon::now()->toDateString();
+        if($leaveApplication->from_date <= $currentDate){
+            $period = CarbonPeriod::create($leaveApplication->from_date, $leaveApplication->to_date);
+            $attendanceStatus = $attendanceService->prepareLeaveStatus($leaveApplication);
+            foreach($period as $date){
+                AttendanceDetail::whereDate('created_at', $date->toDateString())
+                    ->where('employee_id', $leaveApplication->created_by)
+                    ->where(function ($query) {
+                        $query->where('attendance_status_id', CREATED_STATUS)
+                            ->orWhere('attendance_status_id', ABSENT_STATUS)
+                            ->orWhere('attendance_status_id', PRESENT_STATUS);
+                    })
+                    ->update([
+                        'attendance_status_id' => $attendanceStatus,
+                        'updated_by' => $leaveApplication->created_by
+                    ]);
+            }
+        }
     }
 
     /**
@@ -29,39 +49,15 @@ class LeaveApplicationObserver
             $leaveApplication->updateLeaveBalance($leaveApplication);
 
             // 2. Recalculate attendance status for affected leave dates
-            $employeeId = $leaveApplication->created_by;
-            $leaveDates = Carbon::parse($leaveApplication->from_date)->daysUntil($leaveApplication->to_date);
-
-            $attendanceService = new AttendanceService();
-
-            foreach ($leaveDates as $date) {
-                $dateString = Carbon::parse($date)->toDateString();
-
-                $attendanceDetail = AttendanceDetail::where('employee_id', $employeeId)
-                    ->whereDate('created_at', $dateString)
-                    ->first();
-
-                if (!$attendanceDetail) {
-                    continue;
-                }
-
-                $employee = $attendanceDetail->employee;
-
-                // Fetch region id through job and office
-                $regionId = optional(optional($employee?->empJob)?->office)->mas_region_id;
-
-                if (!$regionId) {
-                    continue;
-                }
-
-                // Get new attendance status for this date and region
-                $newStatus = $attendanceService->getAttendanceStatus($employeeId, $regionId, Carbon::parse($date));
-
-
-                if ($attendanceDetail->attendance_status_id != $newStatus) {
-                    $attendanceDetail->attendance_status_id = $newStatus;
-                    $attendanceDetail->save();
-                } else {
+            $currentDate = Carbon::now()->toDateString();
+            if($leaveApplication->from_date <= $currentDate){
+                $period = CarbonPeriod::create($leaveApplication->from_date, $leaveApplication->to_date);
+                foreach($period as $date){
+                    AttendanceDetail::whereDate('created_at', $date->toDateString())
+                        ->where('employee_id', $leaveApplication->created_by)->update([
+                            'attendance_status_id' => ABSENT_STATUS,
+                            'updated_by_supervisor' => auth()->user()->id
+                        ]);
                 }
             }
         }

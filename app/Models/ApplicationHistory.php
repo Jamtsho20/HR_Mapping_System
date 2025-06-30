@@ -46,7 +46,7 @@ class ApplicationHistory extends Model
         static::created(function ($application) {
             // dd($application);
             // \Log::info($application);
-            
+
             ApplicationAuditLog::create([
                 'application_type' => $application->application_type,
                 'application_id' => $application->application_id,
@@ -80,17 +80,29 @@ class ApplicationHistory extends Model
             );
 
             if (
-                $application->application_type === \App\Models\RequisitionApplication::class &&
+                $application->application_type === \App\Models\RequisitionApplication::class  &&
                 $application->isDirty('sap_response') // Ensures sap_response is updated
             ) {
                 // Decode sap_response to extract DocNum (assuming JSON format)
                 $sapResponse = json_decode($application->sap_response, true);
-             
+
                 $docNum = $sapResponse['data']['DocNum'] ?? null;// Get DocNum if it exists
 
                 // Log the extracted DocNum (for debugging)
                 \Log::info('Extracted DocNum from SAP response', ['DocNum' => $docNum]);
                 RequisitionApplication::where('id', $application->application_id)->update(['doc_no' => $docNum]);
+            }
+            elseif(
+                $application->application_type === \App\Models\AssetCommissionApplication::class  &&
+                $application->isDirty('sap_response')
+            ){
+
+                $sapResponse = json_decode($application->sap_response, true);
+
+                $docNum = $sapResponse['data']['data']['DocNum'] ?? null;
+
+                \Log::info('Extracted DocNum from SAP response', ['DocNum' => $docNum]);
+                AssetCommissionApplication::where('id', $application->application_id)->update(['doc_no' => $docNum]);
             }
         });
     }

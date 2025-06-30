@@ -36,34 +36,42 @@ class AttendanceSummaryController extends Controller
         $filterData = $this->prepareFilterData($loggedInUser);
         $departments = $filterData['departments'];
         $sections = $filterData['sections'];
+        $employees = User::whereIsActive(1)
+                    ->whereNotIn('id', [1, 2])
+                    ->when($filterData['departmentId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_department_id', $filterData['departmentId'])))
+                    ->when($filterData['sectionId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_section_id', $filterData['sectionId'])))
+                    ->when($filterData['mdRole'], fn($q) =>
+                            $q->whereHas('roles', fn($q) => $q->where('roles.id', DEPARTMENT_HEAD))
+                        )
+                    ->get();
         
-        // dd($desiredRoles);
         $yearMonth = $request->query('year_month', now()->format('Y-m'));
         $employeeId = $request->query('employee_id');
-        $departmentId = $request->query('department');
-        $sectionId = $request->query('section');
-        $employees = User::whereIsActive(1)->whereNotIn('id', [1, 2])->get();
+        // dd($employeeId);
+        $departmentId = $request->query('department', $filterData['departmentId'] ?? null);
+        $sectionId = $request->query('section', $filterData['sectionId'] ?? null);
+
         $maxDays = daysInMonth($yearMonth);
         $days = [];
 
         for ($i = 1; $i <= $maxDays; $i++) {
             $days[] = str_pad($i, 2, '0', STR_PAD_LEFT);
         }
-
+        // dd($yearMonth);
         $attendance = EmployeeAttendance::with([
             'dailyAttendances'
         ])
-        ->where('for_month', '=', Carbon::parse($yearMonth)->format('m-Y'))
+        ->where('for_month', Carbon::parse($yearMonth)->format('m-Y'))
         ->first();
-
-        if(!$attendance){
+        // dd($attendance->dailyAttendances);
+        if ($attendance && $attendance->dailyAttendances->isEmpty()) {
             return back()->with('msg_error', 'Attendance Data for ' . Carbon::parse($yearMonth)->format('F Y') . ' not found.');
         }
 
-        $this->prepareAttendanceData($attendance['dailyAttendances'], $departmentId, $sectionId, $employeeId);
+        $this->prepareAttendanceData($attendance['dailyAttendances'], $departmentId, $sectionId, $employeeId, $filterData['mdRole']);
 
         if(empty($this->attendancesData)){
-            return back()->with('msg_error', 'Something went wrong while preparing attendance data. Please try again.');
+            return back()->with('msg_error', 'Attendance data for selected parameters not found, Please try againg after correcting the parameters.');
         }
 
 
@@ -78,7 +86,7 @@ class AttendanceSummaryController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
         // dd($attendancesData);
-        return view('attendance.attendance-summary.index', compact( 'privileges','departments','sections', 'employees', 'days', 'attendancesData', 'yearMonth'));
+        return view('attendance.attendance-summary.index', compact( 'privileges','departments','sections', 'employees', 'days', 'attendancesData', 'yearMonth', 'departmentId', 'sectionId'));
     }
 
     /**
@@ -147,7 +155,7 @@ class AttendanceSummaryController extends Controller
         //
     }
 
-    private function prepareAttendanceData($dailyAttendance, $departmentId, $sectionId, $employeeId){
+    private function prepareAttendanceData($dailyAttendance, $departmentId, $sectionId, $employeeId, $mdRole){
         $grouped = [];
         foreach($dailyAttendance as $attendance){
             $details = AttendanceDetail::with(['employee', 'attendanceStatus'])
@@ -155,8 +163,13 @@ class AttendanceSummaryController extends Controller
                         ->when($departmentId, fn($q) => $q->where('department_id', $departmentId))
                         ->when($sectionId, fn($q) => $q->where('section_id', $sectionId))
                         ->when($employeeId, fn($q) => $q->where('employee_id', $employeeId))
+                        ->when($mdRole, function ($query) {
+                            $query->whereHas('employee.roles', function ($q) {
+                                $q->where('role_id', DEPARTMENT_HEAD); // or use role_id: $q->where('id', 3);
+                            });
+                        })
                         ->get();
-           
+            // dd($details);
             foreach($details as $detail){
                 $empId = $detail->employee_id;
                 $workedHours = ($detail->check_in_at && $detail->check_out_at)
@@ -212,26 +225,37 @@ class AttendanceSummaryController extends Controller
         $deptQuery = MasDepartment::select('id', 'name');
         $secQuery = MasSection::select('id', 'name');
 
+        $sectionId = null;
+        $departmentId = null;
+        $mdRole = false;
+
         if (!empty($desiredRoles)) {
-            if (
-                in_array(IMMEDIATE_HEAD, $desiredRoles) &&
-                (in_array(HR, $desiredRoles) || in_array(HR_MANAGER, $desiredRoles))
-            ) {
-                // Show all departments and sections — no filter
-            } elseif (in_array(DEPARTMENT_HEAD, $desiredRoles)) {
+            // IMMEDIATE_HEAD (without HR privileges): restrict to section
+            if (in_array(IMMEDIATE_HEAD, $desiredRoles) && !in_array(HR, $desiredRoles) && !in_array(HR_MANAGER, $desiredRoles)) {
+                $sectionId = $loggedInUserSec;
+                $secQuery->where('id', $loggedInUserSec);
+                $deptQuery->where('id', $loggedInUserDept); // Show only department of section
+            }
+
+            // DEPARTMENT_HEAD (without HR privileges): restrict to department
+            if (in_array(DEPARTMENT_HEAD, $desiredRoles) && !in_array(HR, $desiredRoles) && !in_array(HR_MANAGER, $desiredRoles)) {
+                $departmentId = $loggedInUserDept;
                 $deptQuery->where('id', $loggedInUserDept);
                 $secQuery->where('mas_department_id', $loggedInUserDept);
-            } elseif (in_array(IMMEDIATE_HEAD, $desiredRoles)) {
-                $deptQuery->where('id', $loggedInUserDept);
-                $secQuery->where('id', $loggedInUserSec);
             }
-            // Otherwise: show all departments and sections (no filtering)
+
+            if(in_array(MANAGING_DIRECTOR, $desiredRoles)){
+                $mdRole = true;
+            }
+
+            // HR, HR_MANAGER, MANAGING_DIRECTOR, ADMIN: no filtering (see all)
         }
 
         $departments = $deptQuery->get();
         $sections = $secQuery->get();
 
-        return compact('departments', 'sections', 'desiredRoles');
+        return compact('departments', 'sections', 'desiredRoles', 'departmentId', 'sectionId', 'mdRole');
     }
+
 
 }
