@@ -19,16 +19,32 @@ class TravelAuthDetailObserver
         if($travelAuthorizationDetails->from_date <= $currentDate){
             $period = CarbonPeriod::create($travelAuthorizationDetails->from_date, $travelAuthorizationDetails->to_date);
             foreach($period as $date){
-                AttendanceDetail::whereDate('created_at', $date->toDateString())
+                $attendanceRecords = AttendanceDetail::whereDate('created_at', $date->toDateString())
                     ->where('employee_id', auth()->user()->id)
                     ->where(function ($query) {
                         $query->where('attendance_status_id', CREATED_STATUS)
                             ->orWhere('attendance_status_id', ABSENT_STATUS);
-                    })
-                    ->update([
-                        'attendance_status_id' => ON_TOUR_STATUS,
-                        'updated_by' => auth()->user()->id
-                    ]);
+                    })->get();
+
+                foreach ($attendanceRecords as $attendance) {
+                    // Update main fields
+                    $attendance->attendance_status_id = ON_TOUR_STATUS;
+                    $attendance->updated_by = auth()->user()->id;
+
+                    // Handle update history
+                    $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
+
+                    $history[] = [
+                        'date' => now()->toDateTimeString(),
+                        'attendance_status_id' => ABSENT_STATUS,
+                        'remarks' => $travelAuthorizationDetails->purpose,
+                        'updated_by' => auth()->user()->id,
+                    ];
+                    
+                    $attendance->update_history = json_encode($history);
+
+                    $attendance->save();
+                }
             }
         }
     }
@@ -38,17 +54,38 @@ class TravelAuthDetailObserver
      */
     public function updated(TravelAuthorizationDetails $travelAuthorizationDetails): void
     {
-        $travelAuthorization = TravelAuthorizationApplication::where('travel_authorization_id', $travelAuthorizationDetails->travel_authorization_id)->first();
+        $travelAuthorization = TravelAuthorizationApplication::with(['audit_logs' => function($q) {
+            $q->orderBy('created_at', 'desc');
+        }])->where('travel_authorization_id', $travelAuthorizationDetails->travel_authorization_id)->first();
+        $latestLog = $travelAuthorization->audit_logs->first(); //get latest audit logs dso that remarks can be used in attendance
+
         $currentDate = Carbon::now()->toDateString();
         if($travelAuthorizationDetails->from_date <= $currentDate){
             $period = CarbonPeriod::create($travelAuthorizationDetails->from_date, $travelAuthorizationDetails->to_date);
             foreach($period as $date){
-                AttendanceDetail::whereDate('created_at', $date->toDateString())
+                $attendanceRecords = AttendanceDetail::whereDate('created_at', $date->toDateString())
                     ->where('employee_id', $travelAuthorization->created_by)
-                    ->update([
+                    ->get();
+
+                foreach ($attendanceRecords as $attendance) {
+                    // Update main fields
+                    $attendance->attendance_status_id = ABSENT_STATUS;
+                    $attendance->updated_by = auth()->user()->id;
+
+                    // Handle update history
+                    $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
+
+                    $history[] = [
+                        'date' => now()->toDateTimeString(),
                         'attendance_status_id' => ABSENT_STATUS,
-                        'updated_by' => auth()->user()->id
-                    ]);
+                        'remarks' => $latestLog->remarks,
+                        'updated_by' => auth()->user()->id,
+                    ];
+                    
+                    $attendance->update_history = json_encode($history);
+
+                    $attendance->save();
+                }
             }
         }
     }

@@ -54,6 +54,7 @@ class TravelAuthorizationApplication extends Model
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
+
     public function travelType()
     {
         return $this->belongsTo(MasTravelType::class, 'type_id');

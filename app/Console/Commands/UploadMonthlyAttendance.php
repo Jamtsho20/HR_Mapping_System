@@ -57,41 +57,11 @@ class UploadMonthlyAttendance extends Command
     }
 
     private function insertData($monthlyAttendance, $daysInMonth){
-        // $departments = MasDepartment::whereStatus(1)->get();
-        // $sections = MasSection::whereStatus(1)->get();
         $insertData = [];
         // loop for each day of the month
         for ($day = 1; $day <= $daysInMonth; $day++) {
-            // here daily attendance is inserted for ection as well as for department since attendance submission need to done section wise while some employee donot have section
-            // insert data for each section for the day
-            // foreach ($sections as $section) {
-            //     $insertData[] = [
-            //         'attendance_id' => $monthlyAttendance->id,
-            //         'department_id' => $section->mas_department_id ?? null,
-            //         'section_id'    => $section->id,
-            //         'day'           => $day,
-            //         'status'        => 1,
-            //         'created_by'    => 1,
-            //         'created_at'    => now(),
-            //     ];
-            // }
-            // // insert daily attendance for each department wise so that it can also handle for those employee who donot have sections like dept head, MD
-            // foreach($departments as $department){
-            //     $insertData[] = [
-            //         'attendance_id' => $monthlyAttendance->id,
-            //         'department_id' => $department->id,
-            //         'section_id'    => null,
-            //         'day'           => $day,
-            //         'status'        => 1,
-            //         'created_by'    => 1,
-            //         'created_at'    => now(),
-            //     ];
-            // }
-
             $insertData[] = [
                 'attendance_id' => $monthlyAttendance->id,
-                'department_id' => null,
-                'section_id'    => null,
                 'day'           => $day,
                 'status'        => 1,
                 'created_by'    => 1,
