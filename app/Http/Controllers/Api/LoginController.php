@@ -70,7 +70,7 @@ class LoginController extends Controller
             // );
 
             return response()->json([
-                'message' => 'Authenticated',
+                'message' => 'Authenticated', 
                 'user' => $user,
                 'menus' => $menus,
                 // 'attendance_features' => $attendanceFeatures,
