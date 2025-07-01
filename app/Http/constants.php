@@ -25,6 +25,7 @@ const MANAGING_DIRECTOR = 8;
 const ADMIN = 1;
 const HR = 3;
 const HR_MANAGER = 11;
+const ATTENDANCE_MANAGER = 16;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;
