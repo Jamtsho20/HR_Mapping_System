@@ -26,5 +26,13 @@ class AttendanceDetail extends Model
     {
         return $this->belongsTo(User::class, 'employee_id');
     }
+      public function scopeFilter($query, $request)
+    {
+
+        if ($request->has('employee') && $request->query('employee') != '') {
+            $query->where('mas_employee_id', $request->query('employee'));
+        }
+        
+    }
     
 }

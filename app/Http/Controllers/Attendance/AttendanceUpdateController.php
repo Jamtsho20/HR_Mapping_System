@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Attendance;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
 use App\Models\AttendanceStatus;
+use App\Models\User;
 use App\Services\DelegationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -43,6 +44,8 @@ class AttendanceUpdateController extends Controller
         $filter = $request->get('day', 'today');
         // $filter = $request->input('day'); // no default, stays null if not selected
         $filterDate = $filter === 'yesterday' ? Carbon::yesterday() : Carbon::today();
+        $employeeFilter = $request->get('employee');
+        
 
         if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
             $departmentId = DB::table('mas_employee_jobs')
@@ -58,6 +61,9 @@ class AttendanceUpdateController extends Controller
 
                 $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $immediateHeadIds)
+                    ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                        $query->where('employee_id', $employeeFilter);
+                    })
                     ->whereDate('created_at', $filterDate)
                     ->get();
             }
@@ -74,6 +80,9 @@ class AttendanceUpdateController extends Controller
 
                 $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $employeeIds)
+                    ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                        $query->where('employee_id', $employeeFilter);
+                    })
                     ->whereDate('created_at', $filterDate)
                     ->get();
             }
@@ -84,13 +93,22 @@ class AttendanceUpdateController extends Controller
 
             $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                 ->whereIn('employee_id', $departmentHeadIds)
+                ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                    $query->where('employee_id', $employeeFilter);
+                })
                 ->whereDate('created_at', $filterDate)
                 ->get();
-        } else{
-            
+        } elseif (in_array(ATTENDANCE_MANAGER, $allRoles)) {
+            $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
+                ->whereDate('created_at', $filterDate)
+                ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                    $query->where('employee_id', $employeeFilter);
+                })
+                ->get();
         }
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter'));
+        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter', 'employees'));
     }
 
 
@@ -152,7 +170,7 @@ class AttendanceUpdateController extends Controller
             'attendance_status_id' => 'required|exists:attendance_statuses,id',
             'remarks' => 'nullable|string|max:500',
         ]);
-        
+
         $attendanceRecord = AttendanceDetail::findOrFail($id);
         // Decode existing JSON, or start with an empty array
         $history = $attendanceRecord->update_history ? json_decode($attendanceRecord->update_history, true) : [];
