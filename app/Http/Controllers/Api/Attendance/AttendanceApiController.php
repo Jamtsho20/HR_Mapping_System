@@ -79,6 +79,7 @@ class AttendanceApiController extends Controller
         if($device->device_id != $request->device_id){
             return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
         }
+
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
@@ -110,7 +111,7 @@ class AttendanceApiController extends Controller
             'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
             'attendance_status_id' => $attendanceStatus,
             'updated_by' => $user->id,
-            'updated_history' => json_encode($history)
+            'update_history' => json_encode($history)
         ];
 
         // Conditional update based on check type
