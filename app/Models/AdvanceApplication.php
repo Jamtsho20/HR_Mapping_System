@@ -197,7 +197,8 @@ class AdvanceApplication extends Model
     {
         parent::boot();
         static::updated(function ($advance) {
-            if (($advance->type_id == GADGET_EMI || $advance->type_id == SIFA_LOAN) && $advance->status == 3) {
+            // For GADGET_EMI, trigger on status == 3
+            if ($advance->type_id == GADGET_EMI && $advance->status == 3) {
                 $payHeadId = \DB::table('mas_pay_heads')
                     ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
                     ->where('mas_advance_types.id', $advance->type_id)
@@ -207,23 +208,35 @@ class AdvanceApplication extends Model
                     $advance->insertInToLoanEmiDeductions($payHeadId);
                 }
             }
-            // dd($advance);
-            // if($advance->status == 4) {
-            //     dd($request->all());
-            //     $auditData = ApplicationAuditLog::where('application_id', $advance->id)->where('application_type', \App\Models\AdvanceApplication::class)->first();
-            //     ApplicationAuditLog::create([
-            //         'application_type' => $auditData->application_type,
-            //         'application_id' => $auditData->application_id,
-            //         'approval_option' => $auditData->approval_option ?? null,
-            //         'hierarchy_id' => $auditData->hierarchy_id ?? null,
-            //         'status' => $advance->status,
-            //         'remarks' => $advance->remarks ?? null,
-            //         'action_performed_by' => auth()->user()->id,
-            //         'edited_by' => $auditData->edited_by ?? null,
-            //         'sap_response' => $advance->sap_response ?? null,
-            //     ]);
-            // }
+
+            // For SIFA_LOAN, trigger on status == 4
+            if ($advance->type_id == SIFA_LOAN && $advance->status == 4) {
+                $payHeadId = \DB::table('mas_pay_heads')
+                    ->join('mas_advance_types', 'mas_pay_heads.general_ledger_code', '=', 'mas_advance_types.code')
+                    ->where('mas_advance_types.id', $advance->type_id)
+                    ->value('mas_pay_heads.id');
+
+                if ($payHeadId) {
+                    $advance->insertInToLoanEmiDeductions($payHeadId);
+                }
+            }
         });
+        // dd($advance);
+        // if($advance->status == 4) {
+        //     dd($request->all());
+        //     $auditData = ApplicationAuditLog::where('application_id', $advance->id)->where('application_type', \App\Models\AdvanceApplication::class)->first();
+        //     ApplicationAuditLog::create([
+        //         'application_type' => $auditData->application_type,
+        //         'application_id' => $auditData->application_id,
+        //         'approval_option' => $auditData->approval_option ?? null,
+        //         'hierarchy_id' => $auditData->hierarchy_id ?? null,
+        //         'status' => $advance->status,
+        //         'remarks' => $advance->remarks ?? null,
+        //         'action_performed_by' => auth()->user()->id,
+        //         'edited_by' => $auditData->edited_by ?? null,
+        //         'sap_response' => $advance->sap_response ?? null,
+        //     ]);
+        // }
     }
 
     public function insertInToLoanEmiDeductions($payHeadId)
