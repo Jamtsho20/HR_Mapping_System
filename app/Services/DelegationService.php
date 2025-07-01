@@ -60,7 +60,7 @@ class DelegationService {
     public function getDeleagteeList($roleId)
     {
         $employees = [];
-        if ($roleId == DEPARTMENT_HEAD) {
+        if ($roleId == DEPARTMENT_HEAD || $roleId == HR) {
             $departmentId = MasEmployeeJob::where('mas_employee_id', auth()->user()->id)->value('mas_department_id');
             $employees = User::whereHas('empJob', function ($query) use ($departmentId) {
                 $query->where('mas_department_id', $departmentId);
