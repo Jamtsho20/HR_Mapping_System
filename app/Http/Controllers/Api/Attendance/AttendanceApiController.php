@@ -94,11 +94,23 @@ class AttendanceApiController extends Controller
             $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
         }
 
+        // Decode existing JSON, or start with an empty array
+        $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
+
+        // Append the new entry
+        $history[] = [
+            'date' => Carbon::now()->toDateTimeString(),
+            'attendance_status_id' => $attendanceStatus,
+            'remarks' => null,
+            'updated_by' => $user->id,
+        ];
+
         $updateAttendanceData = [
             'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
             'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
             'attendance_status_id' => $attendanceStatus,
-            'updated_by' => $user->id
+            'updated_by' => $user->id,
+            'updated_history' => json_encode($history)
         ];
 
         // Conditional update based on check type

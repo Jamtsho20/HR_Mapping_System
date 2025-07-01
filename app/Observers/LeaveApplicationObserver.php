@@ -22,18 +22,35 @@ class LeaveApplicationObserver
         if($leaveApplication->from_date <= $currentDate){
             $period = CarbonPeriod::create($leaveApplication->from_date, $leaveApplication->to_date);
             $attendanceStatus = $attendanceService->prepareLeaveStatus($leaveApplication);
-            foreach($period as $date){
-                AttendanceDetail::whereDate('created_at', $date->toDateString())
+        
+            foreach ($period as $date) {
+                $attendanceRecords = AttendanceDetail::whereDate('created_at', $date->toDateString())
                     ->where('employee_id', $leaveApplication->created_by)
                     ->where(function ($query) {
                         $query->where('attendance_status_id', CREATED_STATUS)
                             ->orWhere('attendance_status_id', ABSENT_STATUS)
                             ->orWhere('attendance_status_id', PRESENT_STATUS);
                     })
-                    ->update([
+                    ->get();
+
+                foreach ($attendanceRecords as $attendance) {
+                    // Update main fields
+                    $attendance->attendance_status_id = $attendanceStatus;
+                    $attendance->updated_by = $leaveApplication->created_by;
+
+                    // Handle update history
+                    $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
+                    $history[] = [
+                        'date' => now()->toDateTimeString(),
                         'attendance_status_id' => $attendanceStatus,
-                        'updated_by' => $leaveApplication->created_by
-                    ]);
+                        'remarks' => $leaveApplication->remarks,
+                        'updated_by' => $leaveApplication->created_by,
+                    ];
+                    
+                    $attendance->update_history = json_encode($history);
+
+                    $attendance->save();
+                }
             }
         }
     }
@@ -53,11 +70,29 @@ class LeaveApplicationObserver
             if($leaveApplication->from_date <= $currentDate){
                 $period = CarbonPeriod::create($leaveApplication->from_date, $leaveApplication->to_date);
                 foreach($period as $date){
-                    AttendanceDetail::whereDate('created_at', $date->toDateString())
-                        ->where('employee_id', $leaveApplication->created_by)->update([
+                    $attendanceRecords = AttendanceDetail::whereDate('created_at', $date->toDateString())
+                        ->where('employee_id', $leaveApplication->created_by)
+                        ->get();
+
+                    foreach ($attendanceRecords as $attendance) {
+                    // Update main fields
+                        $attendance->attendance_status_id = ABSENT_STATUS;
+                        $attendance->updated_by = $leaveApplication->updated_by;
+
+                        // Handle update history
+                        $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
+
+                        $history[] = [
+                            'date' => now()->toDateTimeString(),
                             'attendance_status_id' => ABSENT_STATUS,
-                            'updated_by_supervisor' => auth()->user()->id
-                        ]);
+                            'remarks' => $leaveApplication->remarks,
+                            'updated_by' => $leaveApplication->updated_by,
+                        ];
+                        
+                        $attendance->update_history = json_encode($history);
+
+                        $attendance->save();
+                    }
                 }
             }
         }

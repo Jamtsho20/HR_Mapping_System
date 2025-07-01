@@ -86,6 +86,8 @@ class AttendanceUpdateController extends Controller
                 ->whereIn('employee_id', $departmentHeadIds)
                 ->whereDate('created_at', $filterDate)
                 ->get();
+        } else{
+            
         }
 
         return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter'));
@@ -150,10 +152,22 @@ class AttendanceUpdateController extends Controller
             'attendance_status_id' => 'required|exists:attendance_statuses,id',
             'remarks' => 'nullable|string|max:500',
         ]);
-
+        
         $attendanceRecord = AttendanceDetail::findOrFail($id);
+        // Decode existing JSON, or start with an empty array
+        $history = $attendanceRecord->update_history ? json_decode($attendanceRecord->update_history, true) : [];
+
+        // Append the new entry
+        $history[] = [
+            'date' => Carbon::now()->toDateTimeString(),
+            'attendance_status_id' => $request->attendance_status_id,
+            'remarks' => $request->remarks,
+            'updated_by' => auth()->user()->id,
+        ];
+
         $attendanceRecord->attendance_status_id = $request->attendance_status_id;
         $attendanceRecord->remarks = $request->remarks;
+        $attendanceRecord->update_history = json_encode($history);
         $attendanceRecord->save();
 
         return redirect()->route('attendance-update.index')->with('success', 'Attendance updated successfully.');

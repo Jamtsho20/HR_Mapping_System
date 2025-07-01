@@ -27,7 +27,9 @@ return new class extends Migration
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             //if this required uncomment this two column
             // $table->foreignId('submit_to')->index()->nullable()->constrained('mas_employees'); // newly added
-            $table->foreignId('updated_by_supervisor')->index()->nullable()->constrained('mas_employees'); // newly added
+            // $table->foreignId('updated_by_supervisor')->index()->nullable()->constrained('mas_employees'); // newly added
+            $table->json('update_history')->nullable()->comment('Stores array of updates with date and updated_by');
+            
             $table->timestamps();
         });
     }
