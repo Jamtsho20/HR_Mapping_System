@@ -98,6 +98,11 @@
                                         </table>
 
                                     </div>
+                                    @if ($attendanceRecords->hasPages())
+                                    <div class="card-footer">
+                                        {{ $attendanceRecords->links() }}
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

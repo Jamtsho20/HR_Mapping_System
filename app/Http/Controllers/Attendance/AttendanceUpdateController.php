@@ -65,7 +65,8 @@ class AttendanceUpdateController extends Controller
                         $query->where('employee_id', $employeeFilter);
                     })
                     ->whereDate('created_at', $filterDate)
-                    ->get();
+                    ->paginate(config('global.pagination'));
+                    
             }
         } elseif (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
             $sectionId = DB::table('mas_employee_jobs')
@@ -84,7 +85,7 @@ class AttendanceUpdateController extends Controller
                         $query->where('employee_id', $employeeFilter);
                     })
                     ->whereDate('created_at', $filterDate)
-                    ->get();
+                    ->paginate(config('global.pagination'));
             }
         } elseif (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
             $departmentHeadIds = DB::table('mas_employee_roles')
@@ -97,14 +98,16 @@ class AttendanceUpdateController extends Controller
                     $query->where('employee_id', $employeeFilter);
                 })
                 ->whereDate('created_at', $filterDate)
-                ->get();
+                ->paginate(config('global.pagination'));
+                
         } elseif (in_array(ATTENDANCE_MANAGER, $allRoles)) {
             $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                 ->whereDate('created_at', $filterDate)
                 ->when($employeeFilter, function ($query) use ($employeeFilter) {
                     $query->where('employee_id', $employeeFilter);
                 })
-                ->get();
+                ->paginate(config('global.pagination'));
+                
         }
         $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
