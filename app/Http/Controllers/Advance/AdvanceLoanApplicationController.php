@@ -94,28 +94,126 @@ class AdvanceLoanApplicationController extends Controller
         return view('advance-loan.apply.index', compact('privileges', 'advances', 'advanceTypes'));
     }
 
+    // public function create()
+    // {
+    //     $advanceTypes = MasAdvanceTypes::where('status', 1)->get();
+    //     $budgetCodes = BudgetCode::get();
+    //     $dzongkhags = MasDzongkhag::get();
+    //     $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
+    //     $excludedTravelAuthorizationIds = AdvanceApplication::whereNot('status', -1)->pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
+    //     $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
+    //         ->where('status', 3)
+    //         ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
+    //             $query->whereNotIn('id', $excludedTravelAuthorizationIds);
+    //         })
+    //         ->get(['id', 'transaction_no']); // Always fetch after conditions are applied
+
+    //     $isSifaRegistered = DB::table('sifa_registrations')
+    //         ->where('mas_employee_id', loggedInUser())
+    //         ->value('is_registered');
+
+    //     //To calculate last month net pay
+    //     $employeeId = loggedInUser();
+
+    //     // Get the first day of last month formatted as 'Y-m-d'
+    //     $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
+
+    //     $netPay = DB::table('final_pay_slips')
+    //         ->where('mas_employee_id', $employeeId)
+    //         ->where('for_month', $lastMonth)
+    //         ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
+
+    //     $netPay = floatval($netPay); // Cast to float safely
+    //     $eligibilityAmount = min($netPay * 3, 100000); // Cap at 100,000 if needed
+
+
+    //     // Check for active SIFA loan and latest repayment
+    //     $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
+    //         ->where('status', 4) // approved
+    //         ->where('type_id', 7) // SIFA loan
+    //         ->orderByDesc('id')
+    //         ->first();
+
+    //     $remainingPrincipal = 0;
+    //     $accruedInterest = 0;
+    //     $outstandingAmount = 0;
+    //     $netPayable = null;
+    //     $latestRepayment = null;
+
+    //     if ($lastApprovedSifaLoan) {
+    //         // Check if the loan is not paid off
+    //         $isActiveLoan = DB::table('loan_e_m_i_deductions')
+    //             ->where('advance_application_id', $lastApprovedSifaLoan->id)
+    //             ->where('is_paid_off', 0)
+    //             ->first();
+
+    //         if ($isActiveLoan) {
+    //             $latestRepayment = DB::table('sifaloanrepayment')
+    //                 ->where('advance_application_id', $lastApprovedSifaLoan->id)
+    //                 ->orderByDesc('month')
+    //                 ->first();
+
+    //             if ($latestRepayment) {
+    //                 $closingBalance = floatval($latestRepayment->closing_balance);
+    //                 $remainingPrincipal = $closingBalance;
+
+    //                 $lastMonthEnd = Carbon::parse($latestRepayment->month)->addMonth()->startOfMonth(); // end of May 2025
+    //                 $today = Carbon::today();
+    //                 $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
+
+    //                 $daysInYear = Carbon::now()->daysInYear;
+    //                 $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
+
+    //                 $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+    //             }
+    //         }
+    //     }
+
+    //     return view(
+    //         'advance-loan.apply.create',
+    //         compact(
+    //             'advanceTypes',
+    //             'travelAuthorizations',
+    //             'budgetCodes',
+    //             'dzongkhags',
+    //             'sifaInterestRate',
+    //             'eligibilityAmount',
+    //             'netPay',
+    //             'isSifaRegistered',
+    //             'remainingPrincipal',
+    //             'accruedInterest',
+    //             'outstandingAmount',
+    //             'lastApprovedSifaLoan',
+    //             'latestRepayment'
+
+    //         )
+    //     );
+    // }
     public function create()
     {
         $advanceTypes = MasAdvanceTypes::where('status', 1)->get();
         $budgetCodes = BudgetCode::get();
         $dzongkhags = MasDzongkhag::get();
         $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
-        $excludedTravelAuthorizationIds = AdvanceApplication::whereNot('status', -1)->pluck('travel_authorization_id')->filter()->toArray(); //filter is used incase travel_authorization_id column is null to remove those
+
+        $excludedTravelAuthorizationIds = AdvanceApplication::whereNot('status', -1)
+            ->pluck('travel_authorization_id')
+            ->filter()
+            ->toArray(); // Remove nulls
+
         $travelAuthorizations = TravelAuthorizationApplication::where('created_by', loggedInUser())
             ->where('status', 3)
             ->when(!empty($excludedTravelAuthorizationIds), function ($query) use ($excludedTravelAuthorizationIds) {
                 $query->whereNotIn('id', $excludedTravelAuthorizationIds);
             })
-            ->get(['id', 'transaction_no']); // Always fetch after conditions are applied
+            ->get(['id', 'transaction_no']);
 
         $isSifaRegistered = DB::table('sifa_registrations')
             ->where('mas_employee_id', loggedInUser())
             ->value('is_registered');
 
-        //To calculate last month net pay
+        // To calculate last month's net pay
         $employeeId = loggedInUser();
-
-        // Get the first day of last month formatted as 'Y-m-d'
         $lastMonth = now()->subMonth()->startOfMonth()->format('Y-m-d');
 
         $netPay = DB::table('final_pay_slips')
@@ -123,47 +221,12 @@ class AdvanceLoanApplicationController extends Controller
             ->where('for_month', $lastMonth)
             ->value(DB::raw("JSON_UNQUOTE(JSON_EXTRACT(details, '$.net_pay'))"));
 
-        $netPay = floatval($netPay); // Cast to float safely
-        $eligibilityAmount = min($netPay * 3, 100000); // Cap at 100,000 if needed
-
-        // Fetch advance
-        // $advance = AdvanceApplication::where('created_by', $employeeId)->where('status', 3)->orderByDesc('id')->first();
-        // // dd($advance);
-        // // Fetch active loan EMI
-        // $emi = LoanEMIDeduction::where('mas_employee_id', $employeeId)->where('is_paid_off', 0)->orderByDesc('id')->first();
-        // //  dd($advance,$emi);
-        // $advance = AdvanceApplication::where('created_by', $employeeId)
-        //     ->where('status', 4)
-        //     ->orderByDesc('id')
-        //     ->first();
-        // dd($advance);
-        // $remainingOutstanding = 0;
-
-        // if ($advance) {
-        //     $totalAmount = $advance->total_amount ?? 0;
-        //     $monthlyEmi = $advance->monthly_emi_amount ?? 0;
-        //     $deductionFrom = $advance->deduction_from_period;
-
-        //     if ($deductionFrom && $monthlyEmi > 0) {
-        //         $deductionFromDate = Carbon::parse($deductionFrom);
-        //         $now = Carbon::now();
-
-        //         // $monthsElapsed = $deductionFromDate->diffInMonths($now) + 1; // include current month
-        //         $monthsElapsed = $deductionFromDate->diffInMonths($now); // exclude current month
-        //         $deductedAmount = $monthlyEmi * $monthsElapsed;
-
-        //         $remainingOutstanding = max(0, $totalAmount - $deductedAmount);
-        //     } else {
-        //         $remainingOutstanding = $totalAmount; // no deductions yet
-        //     }
-
-        //     // dd('remainingOutstanding', $remainingOutstanding);
-        // }
-        // Fetch any current advance (for use/display if needed)
+        $netPay = floatval($netPay); // Ensure float
+        $eligibilityAmount = min($netPay * 3, 100000); // Max cap
 
         // Check for active SIFA loan and latest repayment
         $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
-            ->where('status', 4) // approved
+            ->where('status', 4) // Approved
             ->where('type_id', 7) // SIFA loan
             ->orderByDesc('id')
             ->first();
@@ -175,32 +238,43 @@ class AdvanceLoanApplicationController extends Controller
         $latestRepayment = null;
 
         if ($lastApprovedSifaLoan) {
-    // Check if the loan is not paid off
-    $isActiveLoan = DB::table('loan_e_m_i_deductions')
-        ->where('advance_application_id', $lastApprovedSifaLoan->id)
-        ->where('is_paid_off', 0)
-        ->first();
+            $isActiveLoan = DB::table('loan_e_m_i_deductions')
+                ->where('advance_application_id', $lastApprovedSifaLoan->id)
+                ->where('is_paid_off', 0)
+                ->first();
 
-    if ($isActiveLoan) {
-        $latestRepayment = DB::table('sifaloanrepayment')
-            ->where('advance_application_id', $lastApprovedSifaLoan->id)
-            ->orderByDesc('month')
-            ->first();
+            if ($isActiveLoan) {
+                $latestRepayment = DB::table('sifaloanrepayment')
+                    ->where('advance_application_id', $lastApprovedSifaLoan->id)
+                    ->orderByDesc('month')
+                    ->first();
 
-        if ($latestRepayment) {
-            $closingBalance = floatval($latestRepayment->closing_balance);
-            $remainingPrincipal = $closingBalance;
+                if ($latestRepayment) {
+                    $closingBalance = floatval($latestRepayment->closing_balance);
+                    $remainingPrincipal = $closingBalance;
 
-            $lastMonthEnd = Carbon::parse($latestRepayment->month)->subMonth()->endOfMonth(); // end of May 2025
-            $today = Carbon::today();     
-            $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
+                    // Check if current month's payslip is already generated globally
+                    $currentMonth = now()->startOfMonth()->format('Y-m-d');
+                    $payslipExists = DB::table('pay_slips')
+                        ->where('for_month', $currentMonth)
+                        ->exists();
 
-            $daysInYear = Carbon::now()->daysInYear;
-            $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
+                    if ($payslipExists) {
+                        // Payslip exists — interest already handled
+                        $accruedInterest = 0;
+                    } else {
+                        // Payslip not yet generated — calculate interest from start of this month
+                        $accrualStartDate = Carbon::parse($latestRepayment->month)->addMonth()->startOfMonth();
+                        $today = Carbon::today();
+                        $daysElapsed = $accrualStartDate->diffInDays($today) + 1;
 
-            $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
-        }
-    }
+                        $daysInYear = Carbon::now()->daysInYear;
+                        $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
+                    }
+
+                    $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+                }
+            }
         }
 
         return view(
@@ -219,10 +293,10 @@ class AdvanceLoanApplicationController extends Controller
                 'outstandingAmount',
                 'lastApprovedSifaLoan',
                 'latestRepayment'
-
             )
         );
     }
+
 
     public function store(Request $request)
     {
