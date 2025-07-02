@@ -140,50 +140,51 @@ class LoanEMIDeductionController extends Controller
 
         $employeeId = $loanEMIDeduction->mas_employee_id;
 
-        // Step 1: Get last approved SIFA loan
-        $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
-            ->where('status', 4)
-            ->where('type_id', 7)
-            ->orderByDesc('id')
+       // Step 1: Get last approved SIFA loan
+    $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
+        ->where('status', 4)
+        ->where('type_id', 7)
+        ->orderByDesc('id')
+        ->first();
+
+    // Initialize
+    $remainingPrincipal = 0;
+    $accruedInterest = 0;
+    $outstandingAmount = 0;
+    $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
+    $latestRepayment = null;
+
+    if ($lastApprovedSifaLoan) {
+        $latestRepayment = DB::table('sifaloanrepayment')
+            ->where('advance_application_id', $lastApprovedSifaLoan->id)
+            ->orderByDesc('month')
             ->first();
-        // Initialize
-        $remainingPrincipal = 0;
-        $accruedInterest = 0;
-        $outstandingAmount = 0;
-        $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
-        $latestRepayment = null;
 
-        if ($lastApprovedSifaLoan) {
-            $latestRepayment = DB::table('sifaloanrepayment')
-                ->where('advance_application_id', $lastApprovedSifaLoan->id)
-                ->orderByDesc('month')
-                ->first();
+        if ($latestRepayment) {
+            $closingBalance = floatval($latestRepayment->closing_balance);
+            $remainingPrincipal = $closingBalance;
 
-            if ($latestRepayment) {
-                $closingBalance = floatval($latestRepayment->closing_balance);
-                $remainingPrincipal = $closingBalance;
+            // Check if current month's payslip exists
+            $currentMonth = now()->startOfMonth()->format('Y-m-d');
+            $payslipExists = DB::table('pay_slips')
+                ->where('for_month', $currentMonth)
+                ->exists();
 
-                // Check if current month's payslip exists
-                $currentMonth = now()->startOfMonth()->format('Y-m-d');
-                $payslipExists = DB::table('pay_slips')
-                    ->where('for_month', $currentMonth)
-                    ->exists();
+            if ($payslipExists) {
+                // Payslip exists — interest already handled
+                $accruedInterest = 0;
+            } else {
+                // Payslip not generated — calculate accrued interest
+                $accrualStartDate = Carbon::parse($latestRepayment->month)->addMonth()->startOfMonth();
+                $today = Carbon::today();
+                $daysElapsed = $accrualStartDate->diffInDays($today) + 1;
 
-                if ($payslipExists) {
-                    // Payslip exists — interest already handled
-                    $accruedInterest = 0;
-                } else {
-                    // Payslip not generated — calculate accrued interest
-                    $accrualStartDate = Carbon::parse($latestRepayment->month)->addMonth()->startOfMonth();
-                    $today = Carbon::today();
-                    $daysElapsed = $accrualStartDate->diffInDays($today) + 1;
-
-                    $daysInYear = Carbon::now()->daysInYear;
-                    $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
-                }
-
-                $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+                $daysInYear = Carbon::now()->daysInYear;
+                $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
             }
+
+            $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+        }
         }
 
         return view('payroll.loan-emi-deductions.edit', compact(
