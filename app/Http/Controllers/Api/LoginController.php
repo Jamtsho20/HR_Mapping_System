@@ -59,15 +59,20 @@ class LoginController extends Controller
 
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
             $token = $user->createToken($request->username)->plainTextToken;
-
             // if device is not registered then create it for attendance validation purpose uncomment this line
-            // $device = EmployeeDevices::firstOrCreate(
-            //     ['employee_id' => $user->id],
-            //     [
-            //         'device_id' => $request->device_id,
-            //         'device_name' => $request->device_name,
-            //     ]
-            // );
+            // $existingDevice = EmployeeDevices::where('device_id', $request->device_id)
+            //     ->where('employee_id', '<>', $user->id)
+            //     ->first();
+
+            // if(!$existingDevice){
+            //     $device = EmployeeDevices::firstOrCreate(
+            //         ['employee_id' => $user->id],
+            //         [
+            //             'device_id' => $request->device_id,
+            //             'device_name' => $request->device_name,
+            //         ]
+            //     );
+            // }
 
             return response()->json([
                 'message' => 'Authenticated', 
