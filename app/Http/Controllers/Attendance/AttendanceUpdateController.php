@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Attendance;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
 use App\Models\AttendanceStatus;
+use App\Models\User;
+use App\Services\DelegationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,12 +27,16 @@ class AttendanceUpdateController extends Controller
     }
     public function index(Request $request)
     {
+        $delegationService = new DelegationService();
         $authEmployeeId = auth()->user()->id;
         $userRoleIds = DB::table('mas_employee_roles')
             ->where('mas_employee_id', $authEmployeeId)
             ->pluck('role_id')
             ->toArray();
 
+        $delegatedRoles = $delegationService->delegatedRole($authEmployeeId);
+
+        $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
         $privileges = $request->instance();
         $attendanceRecords = collect();
 
@@ -38,6 +44,8 @@ class AttendanceUpdateController extends Controller
         $filter = $request->get('day', 'today');
         // $filter = $request->input('day'); // no default, stays null if not selected
         $filterDate = $filter === 'yesterday' ? Carbon::yesterday() : Carbon::today();
+        $employeeFilter = $request->get('employee');
+        
 
         if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
             $departmentId = DB::table('mas_employee_jobs')
@@ -53,8 +61,12 @@ class AttendanceUpdateController extends Controller
 
                 $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $immediateHeadIds)
+                    ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                        $query->where('employee_id', $employeeFilter);
+                    })
                     ->whereDate('created_at', $filterDate)
-                    ->get();
+                    ->paginate(config('global.pagination'));
+                    
             }
         } elseif (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
             $sectionId = DB::table('mas_employee_jobs')
@@ -69,8 +81,11 @@ class AttendanceUpdateController extends Controller
 
                 $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $employeeIds)
+                    ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                        $query->where('employee_id', $employeeFilter);
+                    })
                     ->whereDate('created_at', $filterDate)
-                    ->get();
+                    ->paginate(config('global.pagination'));
             }
         } elseif (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
             $departmentHeadIds = DB::table('mas_employee_roles')
@@ -79,11 +94,24 @@ class AttendanceUpdateController extends Controller
 
             $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                 ->whereIn('employee_id', $departmentHeadIds)
+                ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                    $query->where('employee_id', $employeeFilter);
+                })
                 ->whereDate('created_at', $filterDate)
-                ->get();
+                ->paginate(config('global.pagination'));
+                
+        } elseif (in_array(ATTENDANCE_MANAGER, $allRoles)) {
+            $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
+                ->whereDate('created_at', $filterDate)
+                ->when($employeeFilter, function ($query) use ($employeeFilter) {
+                    $query->where('employee_id', $employeeFilter);
+                })
+                ->paginate(config('global.pagination'));
+                
         }
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter'));
+        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter', 'employees'));
     }
 
 
@@ -147,8 +175,20 @@ class AttendanceUpdateController extends Controller
         ]);
 
         $attendanceRecord = AttendanceDetail::findOrFail($id);
+        // Decode existing JSON, or start with an empty array
+        $history = $attendanceRecord->update_history ? json_decode($attendanceRecord->update_history, true) : [];
+
+        // Append the new entry
+        $history[] = [
+            'date' => Carbon::now()->toDateTimeString(),
+            'attendance_status_id' => $request->attendance_status_id,
+            'remarks' => $request->remarks,
+            'updated_by' => auth()->user()->id,
+        ];
+
         $attendanceRecord->attendance_status_id = $request->attendance_status_id;
         $attendanceRecord->remarks = $request->remarks;
+        $attendanceRecord->update_history = json_encode($history);
         $attendanceRecord->save();
 
         return redirect()->route('attendance-update.index')->with('success', 'Attendance updated successfully.');

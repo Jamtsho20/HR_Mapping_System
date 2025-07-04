@@ -15,7 +15,7 @@
                     <select name="mas_pay_head_id" id="mas_pay_head_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($payHeads as $payHead)
-                            <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
+                        <option value="{{ $payHead->id }}">{{ $payHead->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -24,10 +24,14 @@
                     <select name="mas_employee_id" id="mas_employee_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}
+                        <option value="{{ $employee->id }}">{{ $employee->emp_id_name }}
                         </option>
                         @endforeach
                     </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="employee_cid">CID No</label>
+                    <input type="text" id="employee_cid" class="form-control" readonly>
                 </div>
                 <div class="form-group col-md-6">
                     <label for="start_date">Start date <span class="text-danger">*</span></label>
@@ -39,8 +43,8 @@
                     <select name="loan_type_id" id="loan_type_id" class="form-control select2" required="required">
                         <option value="">Select</option>
                         @foreach ($loanTypes as $loanType)
-                            <option value="{{ $loanType->id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
-                            {{ $loanType->name }} 
+                        <option value="{{ $loanType->id }}" {{ old('loan_type_id', $loanEMIDeduction->loan_type_id ?? '') == $loanType->id ? 'selected' : '' }}>
+                            {{ $loanType->name }}
                         </option>
                         @endforeach
                     </select>
@@ -55,7 +59,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="branch_code">Branch Code </label>
-                    <input type="text" class="form-control" name="branch_code" >
+                    <input type="text" class="form-control" name="branch_code">
                 </div>
                 <div class="form-group col-md-6">
                     <label class="custom-switch">
@@ -93,6 +97,9 @@
 @endsection
 @push('page_scripts')
 <script>
+    // Create a JS object mapping employee IDs to their CID numbers
+    const employeeCIDs = @json($employees->pluck('cid_no', 'id'));
+
     $(document).ready(function() {
         $('#recurring').change(function() {
             if ($(this).is(':checked')) {
@@ -103,6 +110,16 @@
                 $('#recurring_months').removeAttr('required');
             }
         });
+
+        $('#mas_employee_id').on('change', function() {
+            const empId = $(this).val();
+            if(empId && employeeCIDs[empId]) {
+                $('#employee_cid').val(employeeCIDs[empId]);
+            } else {
+                $('#employee_cid').val('');
+            }
+        });
     });
 </script>
+
 @endpush

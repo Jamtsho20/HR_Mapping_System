@@ -50,7 +50,7 @@ class LoanEMIDeductionController extends Controller
     {
         $loanTypes = MasLoanType::all();
         $payHeads = MasPayHead::whereCalculationMethod(7)->wherePayheadType(2)->whereIn('id', [16, 17, 18, 19, 20, 21, 22, 23, 24])->get(); // only loans
-        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title', 'cid_no'])->get();
 
         return view('payroll.loan-emi-deductions.create', compact('payHeads', 'employees', 'loanTypes'));
     }
@@ -135,54 +135,70 @@ class LoanEMIDeductionController extends Controller
     {
         $loanEMIDeduction = LoanEMIDeduction::findOrFail($id);
         $loanTypes = MasLoanType::pluck('name', 'id');
+        $employees = User::select('id', 'name', 'employee_id', 'cid_no')
+            ->get();
 
-        // Step 1: Get the employee ID
         $employeeId = $loanEMIDeduction->mas_employee_id;
 
-        // Step 2: Find last approved SIFA loan
-        $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
-            ->where('status', 4) // approved
-            ->where('type_id', 7) // SIFA loan
-            ->orderByDesc('id')
+       // Step 1: Get last approved SIFA loan
+    $lastApprovedSifaLoan = AdvanceApplication::where('created_by', $employeeId)
+        ->where('status', 4)
+        ->where('type_id', 7)
+        ->orderByDesc('id')
+        ->first();
+
+    // Initialize
+    $remainingPrincipal = 0;
+    $accruedInterest = 0;
+    $outstandingAmount = 0;
+    $sifaInterestRate = InterestRate::where('advance_type_id', 7)->value('rate');
+    $latestRepayment = null;
+
+    if ($lastApprovedSifaLoan) {
+        $latestRepayment = DB::table('sifaloanrepayment')
+            ->where('advance_application_id', $lastApprovedSifaLoan->id)
+            ->orderByDesc('month')
             ->first();
 
-        // Initialize variables
-        $remainingPrincipal = 0;
-        $accruedInterest = 0;
-        $outstandingAmount = 0;
-        $sifaInterestRate = InterestRate::where('advance_type_id', [7,4])->value('rate');
-        $latestRepayment = null;
-        
-        if ($lastApprovedSifaLoan) {
-            $latestRepayment = DB::table('sifaloanrepayment')
-                ->where('advance_application_id', $lastApprovedSifaLoan->id)
-                ->orderByDesc('month')
-                ->first();
+        if ($latestRepayment) {
+            $closingBalance = floatval($latestRepayment->closing_balance);
+            $remainingPrincipal = $closingBalance;
 
-            if ($latestRepayment) {
-                $closingBalance = floatval($latestRepayment->closing_balance);
-                $remainingPrincipal = $closingBalance;
+            // Check if current month's payslip exists
+            $currentMonth = now()->startOfMonth()->format('Y-m-d');
+            $payslipExists = DB::table('pay_slips')
+                ->where('for_month', $currentMonth)
+                ->exists();
 
-                $lastMonthEnd = Carbon::parse($latestRepayment->month)->subMonth()->endOfMonth(); // end of May 2025
-                $today = Carbon::today();     
-                $daysElapsed = $lastMonthEnd->diffInDays($today) + 1;
+            if ($payslipExists) {
+                // Payslip exists — interest already handled
+                $accruedInterest = 0;
+            } else {
+                // Payslip not generated — calculate accrued interest
+                $accrualStartDate = Carbon::parse($latestRepayment->month)->addMonth()->startOfMonth();
+                $today = Carbon::today();
+                $daysElapsed = $accrualStartDate->diffInDays($today) + 1;
 
-                $daysInYear = \Carbon\Carbon::now()->daysInYear;
+                $daysInYear = Carbon::now()->daysInYear;
                 $accruedInterest = round(($closingBalance * ($sifaInterestRate / 100) * ($daysElapsed / $daysInYear)), 2);
-
-                $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
             }
+
+            $outstandingAmount = round($remainingPrincipal + $accruedInterest, 2);
+        }
         }
 
         return view('payroll.loan-emi-deductions.edit', compact(
             'loanEMIDeduction',
+            'employees',
             'loanTypes',
             'remainingPrincipal',
             'accruedInterest',
-            'outstandingAmount','lastApprovedSifaLoan', 'sifaInterestRate','latestRepayment'
+            'outstandingAmount',
+            'lastApprovedSifaLoan',
+            'sifaInterestRate',
+            'latestRepayment'
         ));
     }
-
 
     /**
      * Update the specified resource in storage.

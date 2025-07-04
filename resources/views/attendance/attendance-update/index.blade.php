@@ -7,10 +7,21 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6 form-group">
             <select name="day" class="form-control" onchange="this.form.submit()" placeholder="Select Day">
                 <option value="today" {{ $filter == 'today' ? 'selected' : '' }}>Current Day</option>
                 <option value="yesterday" {{ $filter == 'yesterday' ? 'selected' : '' }}>Previous Day</option>
+            </select>
+        </div>
+        <div class="col-6 form-group">
+            <select name="employee" class="form-control select2" onchange="this.form.submit()">
+                <option value="">-- Select Employee --</option>
+                @foreach ($employees as $employee)
+                <option value="{{ $employee->id }}"
+                    {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+                    {{ $employee->emp_id_name }}
+                </option>
+                @endforeach
             </select>
         </div>
     </div>
@@ -61,9 +72,12 @@
                                                     <td>{{ $record->employee->emp_id_name ?? '-' }}</td>
                                                     <td>
                                                         @if($record->attendanceStatus)
-                                                        <span class="badge" style="background-color: {{ $record->attendanceStatus->color }}; color: white;">
+                                                        <span class="badge"
+                                                            style="background-color: {{ $record->attendanceStatus->color }}; color: white;"
+                                                            title="{{ $record->attendanceStatus->description }}">
                                                             {{ $record->attendanceStatus->code }}
                                                         </span>
+
                                                         @else
                                                         Unknown
                                                         @endif
@@ -84,6 +98,11 @@
                                         </table>
 
                                     </div>
+                                    @if ($attendanceRecords->hasPages())
+                                    <div class="card-footer">
+                                        {{ $attendanceRecords->links() }}
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

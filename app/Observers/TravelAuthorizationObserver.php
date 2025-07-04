@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\TravelAuthorizationApplication;
+use App\Services\AttendanceService;
+use Carbon\Carbon;
 
 class TravelAuthorizationObserver
 {
@@ -11,7 +13,25 @@ class TravelAuthorizationObserver
      */
     public function created(TravelAuthorizationApplication $travelAuthorizationApplication): void
     {
-        //
+        // dd($travelAuthorizationApplication->details);
+        // $attendanceService = new AttendanceService();
+        // $currentDate = Carbon::now()->toDateString();
+        // if($leaveApplication->from_date <= $currentDate){
+        //     $period = CarbonPeriod::create($leaveApplication->from_date, $leaveApplication->to_date);
+        //     $attendanceStatus = $attendanceService->prepareLeaveStatus($leaveApplication);
+        //     foreach($period as $date){
+        //         AttendanceDetail::whereDate('created_at', $date->toDateString())
+        //             ->where('employee_id', $leaveApplication->created_by)
+        //             ->where(function ($query) {
+        //                 $query->where('attendance_status_id', CREATED_STATUS)
+        //                     ->orWhere('attendance_status_id', ABSENT_STATUS);
+        //             })
+        //             ->update([
+        //                 'attendance_status_id' => $attendanceStatus,
+        //                 'updated_by' => $leaveApplication->created_by
+        //             ]);
+        //     }
+        // }
     }
 
     /**
