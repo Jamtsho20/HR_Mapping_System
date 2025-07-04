@@ -39,10 +39,19 @@
                     </div>
                     <x-input-error :messages="$errors->get('username')" class="mb-2" />
 
-                    <div class="wrap-input100 validate-input" data-bs-validate="Password is required">
+                    {{-- <div class="wrap-input100 validate-input" data-bs-validate="Password is required">
                         <input class="input100" type="password" name="password" placeholder="Password" required>
                         <span class="symbol-input100">
                             <i class="fa fa-lock" aria-hidden="true"></i>
+                        </span>
+                    </div> --}}
+                    <div class="wrap-input100 validate-input" data-bs-validate="Password is required" style="position: relative;">
+                        <input id="passwordInput" class="input100" type="password" name="password" placeholder="Password" required>
+                        <span class="symbol-input100">
+                            <i class="fa fa-lock" aria-hidden="true"></i>
+                        </span>
+                        <span class="toggle-password" onclick="togglePassword()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                            <i class="fa fa-eye" id="toggleIcon"></i>
                         </span>
                     </div>
                     <x-input-error :messages="$errors->get('password')" class="mb-2" />
@@ -74,3 +83,19 @@
 </div>
 <!-- End PAGE -->
 @endsection
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById("passwordInput");
+        const toggleIcon = document.getElementById("toggleIcon");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        }
+    }
+</script>

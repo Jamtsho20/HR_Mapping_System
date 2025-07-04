@@ -29,6 +29,7 @@
         </div>
 
         <div class="row row-sm">
+            <span class="text-primary"># Individual Attendance for year {{ $year }} .</span>
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
@@ -64,19 +65,28 @@
                                                                 @php
                                                                     $attendanceMap = $attendance['attendanceMap'];
                                                                     $monthName = $attendance['month'];
+                                                                    $currentMonthName = now()->format('F'); // "June"
+                                                                    $isCurrentMonth = $monthName === $currentMonthName;
                                                                 @endphp
-                                                                <tr>
+                                                                <tr style="{{ $isCurrentMonth ? 'background-color: #e2f5ce;' : '' }}">
                                                                     <td>{{ $index + 1 }}</td>
                                                                     <td>{{ $monthName }}</td>
 
                                                                     @foreach ($days as $day)
                                                                         @php
                                                                             $data = $attendanceMap[$day] ?? null;
+                                                                            $isTodayCell = false;
+                                                                            // dd($data);
+                                                                            if (!empty($data['attendance_date']) && $data['attendance_date'] != '-') {
+                                                                                $date = \Carbon\Carbon::createFromFormat('d-m-y', $data['attendance_date']);
+                                                                                $isTodayCell = $date->isToday(); // Checks full match (day, month, year)
+                                                                            }
                                                                         @endphp
-                                                                        <td class="text-center" style="color: $data['color']"
+
+                                                                        <td class="text-center fw-bold" style="color: {{ $data['status_color'] ?? '#929898' }}; {{ $isTodayCell ? 'background-color: #8ff72d;' : '' }}"
                                                                             data-bs-toggle="tooltip"
                                                                             data-bs-html="true"
-                                                                            data-bs-placement="top"
+                                                                            data-bs-placement="bottom"
                                                                             title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}<br>
                                                                             Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}<br>
                                                                             Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}<br>

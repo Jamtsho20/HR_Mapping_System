@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class EmployeeAttendance extends Model
 {
@@ -19,6 +20,12 @@ class EmployeeAttendance extends Model
 
     public function dailyAttendances(){
         return $this->hasMany(DailyAttendance::class, 'attendance_id');
+    }
+
+    public function scopeFilter($query, $request, $onesOwnRecord = true){
+        if($request->year_month != ''){
+            $query->where('for_month', '=', Carbon::parse($request->year_month)->format('m-Y'));
+        }
     }
 
     // Scope to filter by year
@@ -37,7 +44,4 @@ class EmployeeAttendance extends Model
         }
     }
 
-    public function scopeFilter($query, $request, $onesOwnRecord = true){
-
-    }
 }

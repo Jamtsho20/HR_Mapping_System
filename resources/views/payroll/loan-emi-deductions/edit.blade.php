@@ -28,6 +28,10 @@
                     </select>
                 </div>
                 <div class="form-group col-md-6">
+                    <label for="employee_cid">CID No</label>
+                    <input type="text" id="employee_cid" class="form-control" value="{{ $loanEMIDeduction->employee->cid_no ?? '' }}" readonly>
+                </div>
+                <div class="form-group col-md-6">
                     <label for="start_date">Start date <span class="text-danger">*</span></label>
                     <input type="date" class="form-control" name="start_date"
                         value="{{ old('start_date', $loanEMIDeduction->start_date) }}" required="required">
@@ -51,15 +55,15 @@
                 </div>
 
                 <div class="form-group col-md-6">
-                   
+
                     <label for="amount">EMI <span class="text-danger">*</span></label>
-                     @if(isset($outstandingAmount) && $outstandingAmount > 0)
+                    @if(isset($outstandingAmount) && $outstandingAmount > 0)
                     <div class="">
                         <p class="info-green">
-                        <strong>Outstanding Amount:</strong><br>
-                        Closing Balance ({{ \Carbon\Carbon::parse($latestRepayment->month)->format('F Y') }}): Nu. {{ number_format($remainingPrincipal, 2) }}<br>
-                        Accrued Interest (till {{ now()->format('d M, Y') }}): Nu. {{ number_format($accruedInterest, 2) }}<br>
-                        <strong>Total Outstanding to be Paid:</strong> Nu. {{ number_format($outstandingAmount, 2) }}<br><br>
+                            <strong>Outstanding Amount:</strong><br>
+                            Closing Balance ({{ \Carbon\Carbon::parse($latestRepayment->month)->format('F Y') }}): Nu. {{ number_format($remainingPrincipal, 2) }}<br>
+                            Accrued Interest (till {{ now()->format('d M, Y') }}): Nu. {{ number_format($accruedInterest, 2) }}<br>
+                            <strong>Total Outstanding to be Paid:</strong> Nu. {{ number_format($outstandingAmount, 2) }}<br><br>
                         </p>
                         <input type="hidden" id="remaining_outstanding" class="form-control info-green p-3 pt-0 fw-bold" value="{{ number_format($outstandingAmount, 2, '.', '') }}" readonly />
                     </div>
@@ -110,6 +114,8 @@
 @endsection
 @push('page_scripts')
 <script>
+    const employeeCIDs = @json($employees->pluck('cid_no', 'id'));
+
     $(document).ready(function() {
         $('#recurring').change(function() {
             if ($(this).is(':checked')) {
@@ -122,6 +128,18 @@
         });
 
         $('#recurring').trigger('change');
+
+        // Set initial CID on load
+        const selectedEmpId = $('#mas_employee_id').val();
+        if (selectedEmpId && employeeCIDs[selectedEmpId]) {
+            $('#employee_cid').val(employeeCIDs[selectedEmpId]);
+        }
+
+        // Update CID on change (if employee dropdown is editable in future)
+        $('#mas_employee_id').on('change', function () {
+            const empId = $(this).val();
+            $('#employee_cid').val(employeeCIDs[empId] ?? '');
+        });
     });
 </script>
 @endpush

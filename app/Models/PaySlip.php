@@ -119,7 +119,7 @@ class PaySlip extends Model
     //     parent::boot();
 
     //     static::updated(function ($paySlip) {
-    //         if ($paySlip->isDirty('status') && $paySlip->getRawOriginal('status') != -1 && $paySlip->status['key'] == -1) {
+    //         if ($paySlip->isDirty('status') && $paySlip->getRawOriginal('status') != 3 && $paySlip->status['key'] == 3) {
     //             $details = $paySlip->details()
     //                 ->whereIn('mas_pay_head_id', [SIFA_LOAN_PAY_HEAD, 16])
     //                 ->where('amount', '!=', 0)

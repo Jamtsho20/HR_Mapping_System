@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
+use App\Models\EmployeeDevices;
 use App\Models\MasAttendanceFeature;
 use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
@@ -57,7 +58,7 @@ class AttendanceApiController extends Controller
     public function attendanceEntry(Request $request){
         $attendanceService = new AttendanceService();
         $user = auth()->user();
-
+        $device = EmployeeDevices::where('employee_id', $user->id)->first();
         if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
         }else if($request->check_type === 'check-out' && !$request->check_out_at){
@@ -74,7 +75,15 @@ class AttendanceApiController extends Controller
         }else{
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
         }
+
+        if(!$device){
+            return $this->errorResponse('This device is not found. Please register your device with the system to proceed.');
+        }
         
+        if($device->device_id != $request->device_id){
+            return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
+        }
+
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
@@ -90,10 +99,23 @@ class AttendanceApiController extends Controller
             $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
         }
 
+        // Decode existing JSON, or start with an empty array
+        $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
+
+        // Append the new entry
+        $history[] = [
+            'date' => Carbon::now()->toDateTimeString(),
+            'attendance_status_id' => $attendanceStatus,
+            'remarks' => null,
+            'updated_by' => $user->id,
+        ];
+
         $updateAttendanceData = [
             'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
             'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
-            'attendance_status_id' => $attendanceStatus
+            'attendance_status_id' => $attendanceStatus,
+            'updated_by' => $user->id,
+            'update_history' => json_encode($history)
         ];
 
         // Conditional update based on check type
