@@ -64,8 +64,10 @@ class AttendanceApiController extends Controller
         $device = EmployeeDevices::where('employee_id', $user->id)->first();
         if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
+            $this->rules['check_in_from'] = 'required';
         }else if($request->check_type === 'check-out' && !$request->check_out_at){
             $this->rules['check_out_at'] = 'required';
+            $this->rules['check_out_from'] = 'required';
         }
 
         $validator = \Validator::make($request->all(), $this->rules);
@@ -129,9 +131,11 @@ class AttendanceApiController extends Controller
         // Conditional update based on check type
         if ($request->check_type === 'check-in') {
             $updateAttendanceData['check_in_at'] = $request->check_in_at;
+            $updateAttendanceData['check_in_office_id'] = $request->check_in_from;
             $updateAttendanceData['check_in_ip'] = $request->ip();
         } elseif ($request->check_type === 'check-out') {
             $updateAttendanceData['check_out_at'] = $request->check_out_at;
+            $updateAttendanceData['check_out_office_id'] = $request->check_out_from;
             $updateAttendanceData['check_out_ip'] = $request->ip();
         }
 
