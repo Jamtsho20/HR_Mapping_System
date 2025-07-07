@@ -840,19 +840,24 @@ class AjaxRequestController extends Controller
 
             DB::beginTransaction();
             $received = $request->childData;
-            if(empty($received)) return $this->errorResponse('Please select at least one serial number.');
 
-            foreach ($received as $item) {
-                $receivedSerial = ReceivedSerial::find($item['id']);
-                if(!$receivedSerial) return $this->errorResponse('Serial number .'.$item['serial_no'].' not found in the system.');
-                $receivedSerial->is_received = $item['received'];
-                $receivedSerial->remark = $item['remark'] ?? null;
-                $receivedSerial->save();
+            if(!empty($received)){
+                foreach ($received as $item) {
+                    ReceivedSerial::where('id', $item['id'])->update([
+                        'is_received' => $item['received'],
+                        'remark' => $item['remark'] ?? null
+                    ]);
+                }
+
             }
 
-            $reqDetail = RequisitionDetail::find($request->grnId);
+           $reqDetail = RequisitionDetail::find($request->grnId);
+            if (!$reqDetail) {
+                return $this->errorResponse('Requisition detail not found.');
+            }
+
             $reqDetail->is_received = 1;
-            $reqDetail->received_quantity = $request->quantity;
+            $reqDetail->received_quantity = (int)$request->quantity;
             $reqDetail->save();
 
             $requisitionId = $reqDetail->requisition_id;

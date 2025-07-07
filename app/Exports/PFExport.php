@@ -30,6 +30,7 @@ class PFExport implements FromCollection, WithHeadings
                     return [
                         $serialNo++, // Serial number
                         $pf['employee_name'],
+                        $pf['pf_number'],
                         $pf['Contact'],
                         $pf['CID'] ?? '-',
                         $pf['basic_pay'] ?? '-',
@@ -49,6 +50,7 @@ class PFExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Sl no',
             'Employee Name',
             'PF Number',
             'Contact Number',
