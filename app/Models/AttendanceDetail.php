@@ -10,7 +10,7 @@ class AttendanceDetail extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip','created_by', 'updated_by', 'update_history'];
+    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip', 'check_in_office_id', 'check_out_office_id', 'created_by', 'updated_by', 'update_history'];
 
     public function dailyAttendance()
     {
@@ -26,13 +26,20 @@ class AttendanceDetail extends Model
     {
         return $this->belongsTo(User::class, 'employee_id');
     }
-      public function scopeFilter($query, $request)
+
+    public function checkedInFrom(){
+        return $this->belongsTo(MasOffice::class, 'check_in_office_id');
+    }
+
+    public function checkedOutFrom(){
+        return $this->belongsTo(MasOffice::class, 'check_out_office_id');
+    }
+
+    public function scopeFilter($query, $request)
     {
 
         if ($request->has('employee') && $request->query('employee') != '') {
             $query->where('mas_employee_id', $request->query('employee'));
         }
-        
     }
-    
 }
