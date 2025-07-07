@@ -25,6 +25,8 @@ return new class extends Migration
             $table->text('remarks', 500)->nullable(); //newly added column
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
+            $table->foreignId('checked_in_office_id')->index()->nullable()->constrained('mas_offices')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('checked_out_office_id')->index()->nullable()->constrained('mas_offices')->cascadeOnUpdate()->restrictOnDelete();
             //if this required uncomment this two column
             // $table->foreignId('submit_to')->index()->nullable()->constrained('mas_employees'); // newly added
             // $table->foreignId('updated_by_supervisor')->index()->nullable()->constrained('mas_employees'); // newly added

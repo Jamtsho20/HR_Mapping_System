@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
 use App\Models\EmployeeDevices;
 use App\Models\MasAttendanceFeature;
+use App\Models\MasOffice;
 use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
@@ -35,15 +36,17 @@ class AttendanceApiController extends Controller
         ]);
     }
 
-    public function create(){
+    public function create(){ 
         $user = auth()->user();
         $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
         $attendanceService = new AttendanceService();
+        $offices = MasOffice::whereStatus(1)->get(['id', 'name', 'longitude', 'latitude', 'radius']);
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
 
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
-            'office_timings' => $officeTiming,
+            'offices' => $offices,
+            'office_timings' => $officeTiming,  
         ]);
     }
 
@@ -96,7 +99,12 @@ class AttendanceApiController extends Controller
         // }
 
         if($attendanceStatus == CREATED_STATUS){
+            $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
+            // if(Carbon::createFromFormat($officeTiming['start_time'] + $officeTiming['attendance_buffer_mins'])->lessThan(Carbon::createFromFormat($request->check_in_at))){
+            //     // $attendanceStatus = LATE_STATUS;
+            // }else{
             $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
+            // }
         }
 
         // Decode existing JSON, or start with an empty array
