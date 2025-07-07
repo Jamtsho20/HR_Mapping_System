@@ -92,8 +92,7 @@ class RequisitionDetail extends Model
             }
 
             if ($requisitionDetail->received_quantity == 0) {
-                $requisitionDetail->is_received = 1;
-                $requisitionDetail->save();
+                 $requisitionDetail->updateQuietly(['is_received' => 1]);
             }
         });
     }

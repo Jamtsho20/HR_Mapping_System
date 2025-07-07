@@ -10,11 +10,12 @@ use App\Models\SifaNomination;
 use App\Models\SifaRegistration;
 use App\Models\SifaRetirementAndNomination;
 use App\Models\User;
+use App\Services\ApplicationHistoriesService;
 use App\Services\ApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use App\Services\ApplicationHistoriesService;
 
 class SifaRegistrationController extends Controller
 {
@@ -240,8 +241,16 @@ class SifaRegistrationController extends Controller
             // Find the SifaRegistration record
             $sifaRegistration = SifaRegistration::findOrFail($id);
             $sifaRegistration->mas_employee_id = $request->employee_id;
+            $sifaRegistration->has_been_edited = true;
             $sifaRegistration->save();
-
+            // Notify approver
+            $approver = User::whereHas('roles', function ($q) {
+                $q->where('role_id', SIFA_MANAGER); 
+            })->first();
+// dd($approver);
+            if ($approver && $approver->email) {
+                Mail::to($approver->email)->send(new \App\Mail\SifaEditedNotificationMail($sifaRegistration, $approver->id));
+            }
             // Delete old nominations and dependents
             SifaNomination::where('sifa_registration_id', $sifaRegistration->id)->delete();
             SifaDependent::where('sifa_registration_id', $sifaRegistration->id)->delete();

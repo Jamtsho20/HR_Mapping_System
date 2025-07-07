@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\AdvanceSifaLoanExport;
 use App\Http\Controllers\Controller;
 use App\Models\AdvanceApplication;
 use App\Models\MasDepartment;
@@ -9,6 +10,7 @@ use App\Models\MasSection;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdvanceSifaLoanReportController extends Controller
 {
@@ -94,4 +96,9 @@ class AdvanceSifaLoanReportController extends Controller
         // Return the PDF stream
         return $pdf->stream('Advance-SIFA-Loan-Report.pdf');
     }
+   public function exportSifaLoanExcel(Request $request)
+    {
+        return Excel::download(new AdvanceSifaLoanExport($request), 'advance-sifa-loan-report.xlsx');
+    }
+    
 }

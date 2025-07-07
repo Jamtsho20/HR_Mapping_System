@@ -23,15 +23,26 @@ class SifaRegisteredUserController extends Controller
         $privileges = $request->instance();
         $query = SifaRegistration::with(['employee.empJob.designation', 'employee.empJob.section', 'employee.empJob.department']);
 
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->whereHas('employee', function ($q) use ($search) {
-                $q->where('username', 'like', '%' . $search . '%');
+        // if ($request->has('search') && $request->search) {
+        //     $search = $request->search;
+        //     $query->whereHas('employee', function ($q) use ($search) {
+        //         $q->where('username', 'like', '%' . $search . '%');
+        //     });
+        // }
+        $employees = User::select('id', 'name', 'employee_id', 'username', 'title')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($emp) {
+                $emp->emp_id_name = $emp->employee_id . ' - ' . $emp->name;
+                return $emp;
             });
+        if ($request->filled('employee')) {
+            $query->where('mas_employee_id', $request->employee);
         }
 
-        $sifaRegistrations = $query->paginate(10); // Adjust pagination as needed
-        return view('sifa.sifa-registered-user.index', compact('privileges', 'sifaRegistrations'));
+
+        $sifaRegistrations = $query->paginate(50); // Adjust pagination as needed
+        return view('sifa.sifa-registered-user.index', compact('privileges', 'sifaRegistrations', 'employees'));
     }
 
     public function show($id, Request $request)

@@ -85,7 +85,7 @@ class DSASettlementExport implements FromCollection, WithHeadings
                     $dsa->travel_allowance,
                     $dsa->total_amount,
                     $mapping->travelAuthorization->transaction_no ?? $claim->travel->transaction_no, // Mapped or '-'
-                    $mapping->advanceApplication->transaction_no ?? $claim->dsaadvance->transaction_no ?? '-',          // Mapped or '-'
+                    $mapping->advanceApplication->transaction_no ?? $claim->dsaadvance->transaction_no ?? '-',       // Mapped or '-'
                     formatAmount(optional(optional($mapping)->advanceApplication)->amount, false) ?? formatAmount(optional($claim->dsaadvance)->amount, false) ?? config('global.null_value'),
                     // formatAmount($mapping->advanceApplication->amount, false) ?? (formatAmount($claim->dsaadvance->amount, false) ?? config('global.null_value')),          // Mapped or '-'
                     formatAmount($claim->net_payable_amount, false),

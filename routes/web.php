@@ -323,8 +323,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('delegation-report', 'DelegationReportController')->except('create', 'show', 'edit');
         Route::resource('advance-sifa-loan-report', 'AdvanceSifaLoanReportController')->except('create', 'edit');
     });
+
+
     Route::get('/advance-sifa-loan-report', [AdvanceSifaLoanReportController::class, 'exportSifaLoanReport'])
     ->name('advance-sifa-loan-report.export');
+
+    Route::get('/advance-sifa-loan-excel-report', [AdvanceSifaLoanReportController::class, 'exportSifaLoanExcel'])
+    ->name('advance-sifa-loan-report-excel.export');
 
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');
