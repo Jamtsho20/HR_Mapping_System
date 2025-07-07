@@ -8,5 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class SifaRegisteredUser extends Model
 {
-    use HasFactory,CreatedByTrait;
+    use HasFactory, CreatedByTrait;
+    public function scopeFilter($query, $request)
+    {
+        if ($request->has('employee') && $request->query('employee') != '') {
+            $query->where('mas_employee_id', $request->query('employee'));
+        }
+    }
 }

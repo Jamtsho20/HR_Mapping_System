@@ -57,7 +57,7 @@
                 <tr class="notremovefornew">
                     <td colspan="4"></td>
                     <td class="text-right">
-                        <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                        <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
                     </td>
                 </tr>
             </tbody>
