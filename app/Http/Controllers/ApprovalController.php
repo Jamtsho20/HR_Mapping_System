@@ -49,6 +49,8 @@ class ApprovalController extends Controller
         $empIdName = LoggedInUserEmpIdName();
         $user = auth()->user();
 
+        $activeTab = $request->query('tab');
+
         $applicationModels = config('global.applications');
 
         $results = collect();
@@ -84,9 +86,9 @@ class ApprovalController extends Controller
 
         // Check for AJAX partial reload
         if ($request->ajax() && $request->get('partial') == 'true') {
-            return response()->view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
+            return response()->view('approval.index', compact('privileges', 'headers', 'results', 'holidays', 'activeTab'));
         }
-        return view('approval.index', compact('privileges', 'headers', 'results', 'holidays'));
+        return view('approval.index', compact('privileges', 'headers', 'results', 'holidays', 'activeTab'));
     }
 
     /**
