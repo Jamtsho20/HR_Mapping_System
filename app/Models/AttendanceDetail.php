@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class AttendanceDetail extends Model
 {
@@ -41,5 +42,19 @@ class AttendanceDetail extends Model
         if ($request->has('employee') && $request->query('employee') != '') {
             $query->where('mas_employee_id', $request->query('employee'));
         }
+    }
+
+    public function getFormattedCheckInAtAttribute()
+    {
+        return $this->check_in_at
+            ? Carbon::createFromFormat('H:i:s', $this->check_in_at)->format('g:i A')
+            : null;
+    }
+
+    public function getFormattedCheckOutAtAttribute()
+    {
+        return $this->check_out_at
+            ? Carbon::createFromFormat('H:i:s', $this->check_out_at)->format('g:i A')
+            : null;
     }
 }
