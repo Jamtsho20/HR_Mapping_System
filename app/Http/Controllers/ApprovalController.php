@@ -49,8 +49,8 @@ class ApprovalController extends Controller
         $empIdName = LoggedInUserEmpIdName();
         $user = auth()->user();
 
-        $activeTab = $request->query('tab');
-
+        // $activeTab = $request->query('tab');
+        $activeTab = $request->query('tab') ?? ($headers->first()?->id ?? null);
         $applicationModels = config('global.applications');
 
         $results = collect();
@@ -874,6 +874,7 @@ class ApprovalController extends Controller
         $privileges = $request->instance();
         $privileges['view'] = 1;
         $headers = MasApprovalHead::all();
+        $activeTab = $request->query('tab') ?? ($headers->first()?->id ?? null);
         $user = auth()->user();
         // $originalActionPerformer = getDelegatedApprovals($user->id);
         $users = User::select('id', 'username', 'name')->whereNotIn('id', [1, 2])->get();
@@ -935,6 +936,6 @@ class ApprovalController extends Controller
                 ->get();
         }
         // dd($results);
-        return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays'));
+        return view('approval.index', compact('privileges', 'headers', 'results', 'users', 'holidays', 'activeTab'));
     }
 }
