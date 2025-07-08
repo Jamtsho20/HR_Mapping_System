@@ -44,8 +44,8 @@ class SifaLoanRepayment extends Model
             $month = $startDate->month;
 
             // Filter by year and month
-            $query->whereYear('for_month', $year)
-                ->whereMonth('for_month', $month);
+            $query->whereYear('month', $year)
+                ->whereMonth('month', $month);
         }
         //specify table name final_pay_slip for loan report where tables are joined
         if ($request->has('employee_id') && $request->get('employee_id')) {
