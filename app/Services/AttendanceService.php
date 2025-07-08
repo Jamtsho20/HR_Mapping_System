@@ -186,8 +186,8 @@ class AttendanceService
                                 : config('global.null_value');
 
                 $attendances[] = [
-                    'check_in_at' => $detail->check_in_at ?? config('global.null_value'),
-                    'check_out_at' => $detail->check_out_at ?? config('global.null_value'),
+                    'check_in_at' => $detail->formatted_check_in_at ?? config('global.null_value'),
+                    'check_out_at' => $detail->formatted_check_out_at ?? config('global.null_value'),
                     'checked_in_from' => $detail->checkedInFrom->name ?? config('global.null_value'),
                     'checked_out_from' => $detail->checkedOutFrom->name ?? config('global.null_value'),
                     'attendance_status_code' => $detail->attendanceStatus->code ?? config('global.null_value'),

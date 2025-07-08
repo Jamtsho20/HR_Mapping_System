@@ -28,13 +28,13 @@ class AttendanceUpdateController extends Controller
     public function index(Request $request)
     {
         $delegationService = new DelegationService();
-        $authEmployeeId = auth()->user()->id;
+        $loggedInUserId = auth()->user()->id;
         $userRoleIds = DB::table('mas_employee_roles')
-            ->where('mas_employee_id', $authEmployeeId)
+            ->where('mas_employee_id', $loggedInUserId)
             ->pluck('role_id')
             ->toArray();
 
-        $delegatedRoles = $delegationService->delegatedRole($authEmployeeId);
+        $delegatedRoles = $delegationService->delegatedRole($loggedInUserId);
 
         $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
         $privileges = $request->instance();
@@ -49,7 +49,7 @@ class AttendanceUpdateController extends Controller
 
         if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
             $departmentId = DB::table('mas_employee_jobs')
-                ->where('mas_employee_id', $authEmployeeId)
+                ->where('mas_employee_id', $loggedInUserId)
                 ->value('mas_department_id');
 
             if ($departmentId) {
@@ -70,14 +70,16 @@ class AttendanceUpdateController extends Controller
             }
         } elseif (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
             $sectionId = DB::table('mas_employee_jobs')
-                ->where('mas_employee_id', $authEmployeeId)
+                ->where('mas_employee_id', $loggedInUserId)
                 ->value('mas_section_id');
 
             if ($sectionId) {
-                $employeeIds = DB::table('mas_employee_jobs')
+                $employees = DB::table('mas_employee_jobs')
                     ->where('mas_section_id', $sectionId)
-                    ->where('mas_employee_id', '!=', $authEmployeeId)
-                    ->pluck('mas_employee_id');
+                    ->where('mas_employee_id', '!=', $loggedInUserId)
+                    ->get();
+                // Extract just the employee IDs
+                $employeeIds = $employees->pluck('mas_employee_id')->toArray();
 
                 $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
                     ->whereIn('employee_id', $employeeIds)
@@ -109,8 +111,9 @@ class AttendanceUpdateController extends Controller
                 ->paginate(config('global.pagination'));
                 
         }
-        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
 
+        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
+        // dd($attendanceRecords);
         return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter', 'employees'));
     }
 

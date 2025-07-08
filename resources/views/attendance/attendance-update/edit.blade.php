@@ -21,7 +21,7 @@
                     <div class="form-group">
                         <label for="attendance_date">Attendance Date</label>
                         <input type="text" class="form-control" id="attendance_date" readonly
-                            value="{{ $attendanceRecord->created_at->format('d-M-Y') }}">
+                            value="{{ getDisplayDateFormat($attendanceRecord->created_at) }}">
                     </div>
                 </div>
                 <div class="col-md-3">
