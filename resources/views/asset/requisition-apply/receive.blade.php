@@ -107,7 +107,7 @@
                                     <textarea class="form-control form-control-sm" name="details[{{$key}}][remark]" readonly>{{$detail->remark ?? config('global.null_value')}}</textarea>
                                 </td>
                                 <td>
-                                    <input type="number" name="details[{{$key}}][received_quantity]" class="form-control form-control-sm" value="{{ $detail->received_quantity }}" min="1" max="{{ $detail->received_quantity }}" required />
+                                    <input type="number" name="details[{{$key}}][received_quantity]" class="form-control form-control-sm" value="{{ $detail->received_quantity }}" min="1" max="{{ $detail->received_quantity }}" required readonly/>
                                 </td>
                                 <td class="text-center align-middle">
                                     <div class="form-check form-switch">
@@ -180,6 +180,7 @@
         'Are you sure you want to receive all the items?',
         function () {
             // Get the toggle element that triggered this, if needed
+             $('#loader').show();
             const receiveAllToggle = document.getElementById('receiveAllToggle');
 
             document.querySelectorAll('.receive-toggle').forEach(function (checkbox) {
@@ -189,15 +190,21 @@
 
                 // Get data-key
                 let requisitionKey = checkbox.getAttribute("data-key");
+
                 if (checkbox.checked) {
                     let childRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
+                    let quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
+                    let grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
+
+                    if (childRows.length === 0) {
+                        receiveSerialItems(requisitionKey, grnId, quantityInput, true);
+                    }
                     childRows.forEach((row) => {
                         let serialCheckbox = row.querySelector("input[type='checkbox']");
                         if (serialCheckbox) {
                             serialCheckbox.checked = true;
                             serialCheckbox.value = 1;
-                            let quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
-                            let grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
+                            quantityInput=document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
                             receiveSerialItems(requisitionKey, grnId, quantityInput, true);
                             serialCheckbox.readOnly = true;
                             serialCheckbox.addEventListener('click', function (e) {
@@ -214,15 +221,15 @@
             }
         },
         function () {
-            // Cancel callback
-            const receiveAllToggle = document.getElementById('receiveAllToggle');
-            if (receiveAllToggle) {
-                receiveAllToggle.checked = false;
-            }
-        }
-    );
+                    // Cancel callback
+                    const receiveAllToggle = document.getElementById('receiveAllToggle');
+                    if (receiveAllToggle) {
+                        receiveAllToggle.checked = false;
+                    }
+                }
+            );
 
-});
+        });
 
         document.querySelectorAll(".select-all").forEach((checkbox) => {
                 checkbox.addEventListener("change", function () {
@@ -445,6 +452,7 @@
         .then(response => response.json())
         .then(data => {
             if(!all){
+            $('#loader').hide();
             showSuccessMessage('Item received successfully.');
             }
             checkIfAllReceived();
@@ -453,6 +461,7 @@
             console.error('Error:', error);
         });
         if(all){
+            $('#loader').hide();
             showSuccessMessage('All Items received successfully.');
         }
     }

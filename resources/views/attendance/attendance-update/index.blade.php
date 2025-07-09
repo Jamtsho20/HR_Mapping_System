@@ -7,11 +7,8 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="row">
-        <div class="col-md-6 form-group">
-            <select name="day" class="form-control" onchange="this.form.submit()" placeholder="Select Day">
-                <option value="today" {{ $filter == 'today' ? 'selected' : '' }}>Current Day</option>
-                <option value="yesterday" {{ $filter == 'yesterday' ? 'selected' : '' }}>Previous Day</option>
-            </select>
+        <div class="col-6 form-group">
+            <input type="date" id="date" name="date" class="form-control" value="{{ $selectedDate }}" onchange="this.form.submit()">
         </div>
         <div class="col-6 form-group">
             <select name="employee" class="form-control select2" onchange="this.form.submit()">
@@ -44,13 +41,25 @@
                                             <thead>
                                                 <tr role="row" class="thead-light" style="text-align: center;">
                                                     <th>
-                                                        Sl. No
+                                                        #
                                                     </th>
                                                     <th>
                                                         Attendance Date
                                                     </th>
                                                     <th>
                                                         Employee
+                                                    </th>
+                                                    <th>
+                                                        Checked-in At
+                                                    </th>
+                                                    <th>
+                                                        Checked-in From
+                                                    </th>
+                                                    <th>
+                                                        Checked-out At
+                                                    </th>
+                                                    <th>
+                                                        Checked-out From
                                                     </th>
                                                     <th>
                                                         Attendance Status
@@ -66,11 +75,15 @@
 
                                             <tbody>
                                                 @foreach($attendanceRecords as $record)
-                                                <tr style="text-align: center;">
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($record->created_at)->format('d-M-Y') }}</td>
-                                                    <td>{{ $record->employee->emp_id_name ?? '-' }}</td>
-                                                    <td>
+                                                <tr>
+                                                    <td style="text-align: right;">{{ $loop->iteration }}</td>
+                                                    <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
+                                                    <td>{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
+                                                    <td style="text-align: right;">{{ $record->formatted_check_in_at ?? config('global.null_value') }}</td>
+                                                    <td title="{{ $record->checkedInFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedInFrom->name ?? config('global.null_value'), 10) }}</td>
+                                                    <td style="text-align: right;">{{ $record->formatted_check_out_at ?? config('global.null_value') }}</td>
+                                                    <td title="{{ $record->checkedOutFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedOutFrom->name ?? config('global.null_value'), 10) }}</td>
+                                                    <td style="text-align: center;">
                                                         @if($record->attendanceStatus)
                                                         <span class="badge"
                                                             style="background-color: {{ $record->attendanceStatus->color }}; color: white;"

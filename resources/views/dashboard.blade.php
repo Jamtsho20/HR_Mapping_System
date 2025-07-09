@@ -293,7 +293,7 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
                                 <td>{{ $index++ }}</td> <!-- Increment index here -->
                                 <td>{{ $alert->lastPart }}</td>
                                 <td>You have {{ $alert->count }} new alerts. <a class="text-primary"
-                                        href="{{ url('approval/applications') }}">Please review
+                                        href="{{ url('approval/applications?tab='.$alert->application_type_id) }}">Please review
                                         them.</a></td>
                             </tr>
                             @endforeach

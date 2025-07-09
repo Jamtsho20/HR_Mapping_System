@@ -1,4 +1,4 @@
-<label for=""><strong>SIFA Dependents</strong></label>
+<label for=""><strong>LIST OF DEPENDENTS</strong></label>
 <small>(s)<i>(I hereby declare that the person(s) mentioned below are my dependent(s) as defined by By-laws of SIFA and that the information provided is true and correct. In the event if the information provided is found to be untruthful and incorrect, then the member shall be held accountable and responsible for any legal and financial damages arising thereafter)</i></small>
 <br><br>
 <div class="tab-pane">
@@ -50,7 +50,7 @@
                 <tr class="notremovefornew">
                     <td colspan="3"></td>
                     <td class="text-right">
-                        <a href="#" class="add-table-row btn btn-sm btn-primary" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
+                        <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
                     </td>
                 </tr>
             </tbody>

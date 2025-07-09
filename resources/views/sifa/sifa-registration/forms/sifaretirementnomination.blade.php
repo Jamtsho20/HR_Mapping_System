@@ -1,4 +1,4 @@
-<label for=""><strong>SIFA Retirement And Nominations</strong></label><small>(s)<i> (I hereby nominate the person(s) mentioned below, who is/are member(s) of my family, to have the conferred right to claim the retirement benefit upon my demise, as per the percentage of shares prescribed)</i></small><span class="text-danger">*</span></label>
+<label for=""><strong>RETIREMENT AND SIFA BENEFIT NOMINATION</strong></label><small>(s)<i> (I hereby nominate the person(s) mentioned below, who is/are member(s) of my family, to have the conferred right to claim the retirement benefit upon my demise, as per the percentage of shares prescribed)</i></small><span class="text-danger">*</span></label>
 <br><br>
 <div class="table-responsive criteria">
     <table id="sifa_retirement_and_nomination" class="table table-condensed table-striped table-bordered table-sm">

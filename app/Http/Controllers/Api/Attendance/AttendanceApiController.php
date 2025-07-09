@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
 use App\Models\EmployeeDevices;
 use App\Models\MasAttendanceFeature;
+use App\Models\MasOffice;
 use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
@@ -28,22 +29,24 @@ class AttendanceApiController extends Controller
         if($attendances == null){
             return $this->errorResponse('Attendance for the selected month is not availaible');
         }
-
+        
         return $this->successResponse([
             'attendances' => $attendances,
             'year_month' => $yearMonth
         ]);
     }
 
-    public function create(){
+    public function create(){ 
         $user = auth()->user();
         $attendanceFeatures = MasAttendanceFeature::whereStatus(1)->get(['id', 'name', 'is_mandatory']);
         $attendanceService = new AttendanceService();
+        $offices = MasOffice::whereStatus(1)->get(['id', 'name', 'longitude', 'latitude', 'radius']);
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
 
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
-            'office_timings' => $officeTiming,
+            'offices' => $offices,
+            'office_timings' => $officeTiming,  
         ]);
     }
 
@@ -58,11 +61,14 @@ class AttendanceApiController extends Controller
     public function attendanceEntry(Request $request){
         $attendanceService = new AttendanceService();
         $user = auth()->user();
+        
         $device = EmployeeDevices::where('employee_id', $user->id)->first();
         if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
+            $this->rules['check_in_from'] = 'required';
         }else if($request->check_type === 'check-out' && !$request->check_out_at){
             $this->rules['check_out_at'] = 'required';
+            $this->rules['check_out_from'] = 'required';
         }
 
         $validator = \Validator::make($request->all(), $this->rules);
@@ -75,7 +81,7 @@ class AttendanceApiController extends Controller
         }else{
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
         }
-
+        
         if(!$device){
             return $this->errorResponse('This device is not found. Please register your device with the system to proceed.');
         }
@@ -83,7 +89,7 @@ class AttendanceApiController extends Controller
         if($device->device_id != $request->device_id){
             return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
         }
-
+        
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
@@ -96,7 +102,12 @@ class AttendanceApiController extends Controller
         // }
 
         if($attendanceStatus == CREATED_STATUS){
+            // $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
+            // if(Carbon::createFromFormat($officeTiming['start_time'] + $officeTiming['attendance_buffer_mins'])->lessThan(Carbon::createFromFormat($request->check_in_at))){
+            //     // $attendanceStatus = LATE_STATUS;
+            // }else{
             $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
+            // }
         }
 
         // Decode existing JSON, or start with an empty array
@@ -121,9 +132,11 @@ class AttendanceApiController extends Controller
         // Conditional update based on check type
         if ($request->check_type === 'check-in') {
             $updateAttendanceData['check_in_at'] = $request->check_in_at;
+            $updateAttendanceData['check_in_office_id'] = $request->check_in_from;
             $updateAttendanceData['check_in_ip'] = $request->ip();
         } elseif ($request->check_type === 'check-out') {
             $updateAttendanceData['check_out_at'] = $request->check_out_at;
+            $updateAttendanceData['check_out_office_id'] = $request->check_out_from;
             $updateAttendanceData['check_out_ip'] = $request->ip();
         }
 

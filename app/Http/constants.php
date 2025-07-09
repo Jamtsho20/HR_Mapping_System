@@ -26,6 +26,7 @@ const ADMIN = 1;
 const HR = 3;
 const HR_MANAGER = 11;
 const ATTENDANCE_MANAGER = 16;
+const SIFA_MANAGER = 17;
 
 //approval head constant from mas_approval_heads table
 const LEAVE_APPVL_HEAD = 1;
@@ -129,5 +130,6 @@ const BEREAVEMENT_LEAVE_STATUS = 17;
 const ON_TOUR_STATUS = 19;
 const CREATED_STATUS = 27;
 const INFORMED_LATE_STATUS = 26;
+// const LATE_STATUS = 30;
 
 const SIFA_LOAN_PAY_HEAD = 24;

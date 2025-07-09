@@ -36,23 +36,45 @@ class DashboardController extends Controller
             ->withQueryString();
 
         //alert for approver
+        $applicationsConfig = config('global.applications');
+
+        // Create a reverse map: 'App\Models\AdvanceApplication' => 3
+        $classToIdMap = collect($applicationsConfig)
+            ->mapWithKeys(fn($item, $key) => [$item['name'] => $key])
+            ->toArray();
+
         $alerts = ApplicationHistory::select('application_type', DB::raw('COUNT(*) as total'))
             ->where('approver_emp_id', auth()->user()->id)
             ->whereIn('status', [1, 2])
             ->groupBy('application_type')
             ->get();
 
-        foreach ($alerts as $alert) {
-            $text = $alert->application_type; // Get application_type
-            $alert->lastPart = Str::afterLast($text, '\\'); // Add last part to the alert object
-            $formattedText = Str::of($alert->lastPart)->replaceMatches('/([a-z])([A-Z])/', '$1 $2')->__toString();
+        $alerts->transform(function ($alert) use ($applicationsConfig, $classToIdMap) {
+            $className = $alert->application_type;
+            $appTypeId = $classToIdMap[$className] ?? null;
 
-            // Remove the last word
-            $formattedTextWithoutLastWord = preg_replace('/\s\w+$/', '', $formattedText);
+            $lastPart = Str::afterLast($className, '\\');
+                $formattedText = Str::of($lastPart)
+                    ->replaceMatches('/([a-z])([A-Z])/', '$1 $2')
+                    ->__toString();
+                $formattedTextWithoutLastWord = preg_replace('/\s\w+$/', '', $formattedText);
 
-            $alert->lastPart = $formattedTextWithoutLastWord; // Add formatted string to the alert object
-            $alert->count = $alert->total;
-        }
+            if ($appTypeId && isset($applicationsConfig[$appTypeId])) {
+                $config = $applicationsConfig[$appTypeId];
+                $alert->application_type_id = $appTypeId;
+                $alert->model_class = $className;
+                $alert->lastPart = $formattedTextWithoutLastWord;
+                $alert->email_subject = $config['email_subject'];
+                $alert->post_to_sap = $config['post_to_sap'];
+                $alert->count = $alert->total;
+            } else {
+                $alert->application_type_id = null;
+                $alert->lastPart = $formattedTextWithoutLastWord;
+                $alert->lastPart = 'Unknown';
+            }
+
+            return $alert;
+        });
 
         // Get all system notifications
         $notifications = SystemNotification::all()->map(function ($notification) {

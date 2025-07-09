@@ -4,8 +4,15 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="col-12 form-group">
-        <input type="text" name="search" class="form-control" value="{{ request()->get('search') }}"
-            placeholder="Enter the Employee ID">
+        <select name="employee" id="employee" class="form-control select2">
+            <option value="">-- Select Employee --</option>
+            @foreach($employees as $employee)
+            <option value="{{ $employee->id }}"
+                {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+                {{ $employee->emp_id_name }}
+            </option>
+            @endforeach
+        </select>
     </div>
     @endcomponent
     <div class="row row-sm">

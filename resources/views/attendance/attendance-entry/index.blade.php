@@ -29,7 +29,7 @@
         </div>
 
         <div class="row row-sm">
-            <span class="text-primary"># Individual Attendance for year {{ $year }} .</span>
+            <span class="text-primary"># Individual Attendance for year {{ $selectedYear }}.</span>
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
@@ -88,6 +88,8 @@
                                                                             data-bs-html="true"
                                                                             data-bs-placement="bottom"
                                                                             title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}<br>
+                                                                            Check-in From: {{ $data['checked_in_from'] ?? config('global.null_value') }}<br>
+                                                                            Check-out From: {{ $data['checked_out_from'] ?? config('global.null_value') }}<br>
                                                                             Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}<br>
                                                                             Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}<br>
                                                                             Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}<br>

@@ -1,6 +1,3 @@
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-12">
             <label for=""><strong>SIFA Documents</strong></label>
             <small>(s) <i>(.pdf, .docx, .doc, scanned image file) [Max File Size: 5MB]</i></small>
             <br><br>
@@ -81,7 +78,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <div class="form-group file-upload-border">
@@ -154,7 +151,12 @@
                     </div>
                 </div>
             </div>
-
-        </div>
-    </div>
-</div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="consent" checked disabled>
+                <label class="form-check-label" for="consent">
+                    <strong>
+                        I give my consent for the company to use and store the information I have submitted for SIFA, as per the SIFA By-Laws.
+                        I understand that my information will be kept confidential and used only when required in relation to any future unforeseen circumstances.
+                    </strong>
+                </label>
+            </div>

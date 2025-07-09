@@ -25,96 +25,145 @@ class AttendanceUpdateController extends Controller
         $this->middleware('permission:attendance/attendance-update,edit')->only('update');
         $this->middleware('permission:attendance/attendance-update,delete')->only('destroy');
     }
-    public function index(Request $request)
-    {
-        $delegationService = new DelegationService();
-        $authEmployeeId = auth()->user()->id;
-        $userRoleIds = DB::table('mas_employee_roles')
-            ->where('mas_employee_id', $authEmployeeId)
-            ->pluck('role_id')
-            ->toArray();
+public function index(Request $request)
+{
+    $delegationService = new DelegationService();
+    $loggedInUser = auth()->user();
+    
+    // Get user roles using the relationship
+    $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
+    
+    $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
+    $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
 
-        $delegatedRoles = $delegationService->delegatedRole($authEmployeeId);
+    $privileges = $request->instance();
+    $filterDate = $this->getFilterDate($request);
+    $employeeFilter = $request->get('employee');
 
-        $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
-        $privileges = $request->instance();
-        $attendanceRecords = collect();
+    $employeeIds = $this->getEmployeeIdsByRole($userRoleIds, $allRoles, $loggedInUser->id);
+    $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter);
+    $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
 
-        //  Get filter from query, fallback to today
-        $filter = $request->get('day', 'today');
-        // $filter = $request->input('day'); // no default, stays null if not selected
-        $filterDate = $filter === 'yesterday' ? Carbon::yesterday() : Carbon::today();
-        $employeeFilter = $request->get('employee');
-        
+    $selectedDate = $filterDate->toDateString();
 
-        if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
-            $departmentId = DB::table('mas_employee_jobs')
-                ->where('mas_employee_id', $authEmployeeId)
-                ->value('mas_department_id');
+    return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees'));
+}
 
-            if ($departmentId) {
-                $immediateHeadIds = DB::table('mas_employee_roles as r')
-                    ->join('mas_employee_jobs as j', 'j.mas_employee_id', '=', 'r.mas_employee_id')
-                    ->where('r.role_id', IMMEDIATE_HEAD)
-                    ->where('j.mas_department_id', $departmentId)
-                    ->pluck('r.mas_employee_id');
+private function getFilterDate(Request $request)
+{
+    $filterDate = $request->get('date', Carbon::today()->toDateString());
 
-                $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
-                    ->whereIn('employee_id', $immediateHeadIds)
-                    ->when($employeeFilter, function ($query) use ($employeeFilter) {
-                        $query->where('employee_id', $employeeFilter);
-                    })
-                    ->whereDate('created_at', $filterDate)
-                    ->paginate(config('global.pagination'));
-                    
-            }
-        } elseif (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
-            $sectionId = DB::table('mas_employee_jobs')
-                ->where('mas_employee_id', $authEmployeeId)
-                ->value('mas_section_id');
+    try {
+        return Carbon::parse($filterDate);
+    } catch (\Exception $e) {
+        return Carbon::today();
+    }
+}
 
-            if ($sectionId) {
-                $employeeIds = DB::table('mas_employee_jobs')
-                    ->where('mas_section_id', $sectionId)
-                    ->where('mas_employee_id', '!=', $authEmployeeId)
-                    ->pluck('mas_employee_id');
-
-                $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
-                    ->whereIn('employee_id', $employeeIds)
-                    ->when($employeeFilter, function ($query) use ($employeeFilter) {
-                        $query->where('employee_id', $employeeFilter);
-                    })
-                    ->whereDate('created_at', $filterDate)
-                    ->paginate(config('global.pagination'));
-            }
-        } elseif (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
-            $departmentHeadIds = DB::table('mas_employee_roles')
-                ->where('role_id', DEPARTMENT_HEAD)
-                ->pluck('mas_employee_id');
-
-            $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
-                ->whereIn('employee_id', $departmentHeadIds)
-                ->when($employeeFilter, function ($query) use ($employeeFilter) {
-                    $query->where('employee_id', $employeeFilter);
-                })
-                ->whereDate('created_at', $filterDate)
-                ->paginate(config('global.pagination'));
-                
-        } elseif (in_array(ATTENDANCE_MANAGER, $allRoles)) {
-            $attendanceRecords = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
-                ->whereDate('created_at', $filterDate)
-                ->when($employeeFilter, function ($query) use ($employeeFilter) {
-                    $query->where('employee_id', $employeeFilter);
-                })
-                ->paginate(config('global.pagination'));
-                
-        }
-        $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
-
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'filter', 'employees'));
+private function getEmployeeIdsByRole(array $userRoleIds, array $allRoles, int $loggedInUserId)
+{
+    if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
+        return $this->getDepartmentHeadEmployees($loggedInUserId);
     }
 
+    if (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
+        return $this->getImmediateHeadEmployees($loggedInUserId);
+    }
 
+    if (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
+        return $this->getManagingDirectorEmployees();
+    }
+
+    if (in_array(ATTENDANCE_MANAGER, $allRoles)) {
+        return []; // Will fetch all employees
+    }
+
+    return [];
+}
+
+private function getDepartmentHeadEmployees(int $loggedInUserId)
+{
+    $loggedInUser = User::with('empJob')->find($loggedInUserId);
+    
+    if (!$loggedInUser || !$loggedInUser->empJob || !$loggedInUser->empJob->mas_department_id) {
+        return [];
+    }
+
+    // Get all users with IMMEDIATE_HEAD role in the same department
+    return User::whereHas('roles', function ($query) {
+            $query->where('role_id', IMMEDIATE_HEAD);
+        })
+        ->whereHas('empJob', function ($query) use ($loggedInUser) {
+            $query->where('mas_department_id', $loggedInUser->empJob->mas_department_id);
+        })
+        ->pluck('id')
+        ->toArray();
+}
+
+private function getImmediateHeadEmployees(int $loggedInUserId)
+{
+    $loggedInUser = User::with('empJob')->find($loggedInUserId);
+    
+    if (!$loggedInUser || !$loggedInUser->empJob || !$loggedInUser->empJob->mas_section_id) {
+        return [];
+    }
+
+    // Get all employees in the same section except the logged-in user
+    return User::whereHas('empJob', function ($query) use ($loggedInUser) {
+            $query->where('mas_section_id', $loggedInUser->empJob->mas_section_id);
+        })
+        ->where('id', '!=', $loggedInUserId)
+        ->pluck('id')
+        ->toArray();
+}
+
+private function getManagingDirectorEmployees()
+{
+    // Get all users with DEPARTMENT_HEAD role
+    return User::whereHas('roles', function ($query) {
+            $query->where('role_id', DEPARTMENT_HEAD);
+        })
+        ->pluck('id')
+        ->toArray();
+}
+
+private function getAttendanceRecords(array $employeeIds, Carbon $filterDate, $employeeFilter)
+{
+    $query = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
+        ->whereDate('created_at', $filterDate)
+        ->when($employeeFilter, function ($query) use ($employeeFilter) {
+            $query->where('employee_id', $employeeFilter);
+        });
+
+    // If employeeIds is empty, it means ATTENDANCE_MANAGER (show all)
+    if (!empty($employeeIds)) {
+        $query->whereIn('employee_id', $employeeIds);
+    }
+
+    return $query->paginate(config('global.pagination'));
+}
+
+private function getEmployeesForFilter(array $userRoleIds, array $allRoles, int $loggedInUserId)
+{
+    $employeeIds = $this->getEmployeeIdsByRole($userRoleIds, $allRoles, $loggedInUserId);
+
+    // If no specific employee IDs (ATTENDANCE_MANAGER), show all employees
+    if (empty($employeeIds) && in_array(ATTENDANCE_MANAGER, $allRoles)) {
+        return User::select(['id', 'name', 'employee_id', 'username', 'title'])
+            ->active() // Using the scope from your User model
+            ->get();
+    }
+
+    // If no employee IDs and not ATTENDANCE_MANAGER, return empty collection
+    if (empty($employeeIds)) {
+        return collect();
+    }
+
+    return User::whereIn('id', $employeeIds)
+        ->select(['id', 'name', 'employee_id', 'username', 'title'])
+        ->active() // Using the scope from your User model
+        ->get();
+}
 
 
     /**
