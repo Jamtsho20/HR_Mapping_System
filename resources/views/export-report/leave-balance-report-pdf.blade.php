@@ -56,7 +56,8 @@
     </div>
     <hr>
     <h1 class="title">Leave Balance Report</h1>
-    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer" id="basic-datatable table-responsive">
+    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+        id="basic-datatable table-responsive">
         <thead class="thead-light">
             <tr role="row">
                 <th>
@@ -96,23 +97,23 @@
         </thead>
         <tbody>
             @forelse($leaveBalances as $balance)
-            <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{$balance->employee->username}}</td>
-                <td>{{$balance->employee->name}}</td>
-                <td>{{$balance->employee->empJob->designation->name}}</td>
-                <td>{{$balance->employee->empJob->department->name}}</td>
-                <td>{{$balance->employee->empJob->office->name}}</td>
-                <td>{{$balance->leaveType->name}}</td>
-                <td>{{$balance->opening_balance}}</td>
-                <td>{{$balance->current_entitlement}}</td>
-                <td>{{$balance->leaves_availed}}</td>
-                <td>{{$balance->closing_balance}}</td>
-            </tr>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $balance->employee->username ?? '-' }}</td>
+                    <td>{{ $balance->employee->name ?? '-' }}</td>
+                    <td>{{ $balance->employee->empJob->designation->name ?? '-' }}</td>
+                    <td>{{ $balance->employee->empJob->department->name ?? '-' }}</td>
+                    <td>{{ $balance->employee->empJob->office->name ?? '-' }}</td>
+                    <td>{{ $balance->leaveType->name ?? '-' }}</td>
+                    <td>{{ $balance->opening_balance ?? '-' }}</td>
+                    <td>{{ $balance->current_entitlement ?? '-' }}</td>
+                    <td>{{ $balance->leaves_availed ?? '-' }}</td>
+                    <td>{{ $balance->closing_balance ?? '-' }}</td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="11" class="text-center text-danger">No Leave balance report found</td>
-            </tr>
+                <tr>
+                    <td colspan="11" class="text-center text-danger">No Leave balance report found</td>
+                </tr>
             @endforelse
         </tbody>
     </table>

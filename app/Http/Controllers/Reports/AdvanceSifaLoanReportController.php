@@ -50,7 +50,7 @@ class AdvanceSifaLoanReportController extends Controller
             $paidOffMessage = "This loan is paid off on " . \Carbon\Carbon::parse($paidOffEntry->updated_at)->format('F d, Y');
         }
 
-        return view('report.advance-sifa-loan-report.show', compact('advance', 'empDetails', 'repayments','paidOffMessage','paidOffEntry'));
+        return view('report.advance-sifa-loan-report.show', compact('advance', 'empDetails', 'repayments', 'paidOffMessage', 'paidOffEntry'));
     }
 
     /**
@@ -80,9 +80,14 @@ class AdvanceSifaLoanReportController extends Controller
     public function exportSifaLoanReport(Request $request)
     {
         // Fetch all approved SIFA advance applications based on filters
-        $advancesifaReports = AdvanceApplication::filter($request, false)
+        $advancesifaReports = AdvanceApplication::with('employee','emiDeduction')->filter($request, false)
             ->whereStatus(4)
             ->get();
+           
+        foreach ($advancesifaReports as $report) {
+            $employee=$report->employee; // or dd($report->employee->emp_name), etc.
+        }
+
 
         // Calculate total approved amount for all fetched reports
         $totalApprovedAmount = $advancesifaReports->sum('approved_amount');
@@ -91,14 +96,13 @@ class AdvanceSifaLoanReportController extends Controller
         $repayments = \App\Models\SifaLoanRepayment::whereIn('advance_application_id', $advancesifaReports->pluck('id'))->get();
 
         // Generate PDF view, pass all necessary data
-        $pdf = Pdf::loadView('export-report.sifa-loan-report-pdf', compact('advancesifaReports', 'repayments', 'totalApprovedAmount'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.sifa-loan-report-pdf', compact('advancesifaReports', 'repayments', 'totalApprovedAmount','employee'))->setPaper('a4', 'landscape');
 
         // Return the PDF stream
         return $pdf->stream('Advance-SIFA-Loan-Report.pdf');
     }
-   public function exportSifaLoanExcel(Request $request)
+    public function exportSifaLoanExcel(Request $request)
     {
         return Excel::download(new AdvanceSifaLoanExport($request), 'advance-sifa-loan-report.xlsx');
     }
-    
 }

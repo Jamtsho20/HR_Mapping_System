@@ -60,17 +60,20 @@
                                             '-',
                                             strtolower($header->name),
                                         );
+                                         $id = $header->id;
+                                        $isActive = ($activeTab == $id) || (!$activeTab && $loop->first);
                                     @endphp
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link {{ $loop->first ? 'active' : '' }} "
-                                            id="tab-{{ $sanitizedName }}" data-bs-toggle="pill"
-                                            data-bs-target="#content-{{ $sanitizedName }}" type="button" role="tab"
+                                        <button class="nav-link {{ $isActive ? 'active' : '' }}"
+                                            id="tab-{{ $sanitizedName }}"
+                                            data-bs-toggle="pill"
+                                            data-bs-target="#content-{{ $sanitizedName }}"
+                                            type="button" role="tab"
                                             aria-controls="content-{{ $sanitizedName }}"
-                                            aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                            aria-selected="{{ $isActive ? 'true' : 'false' }}">
                                             {{ $header->name }}
                                             @if ($header->count != 0)
-                                                &nbsp; <span
-                                                    class="badge bg-danger rounded-pill">{{ $header->count }}</span>
+                                                &nbsp; <span class="badge bg-danger rounded-pill">{{ $header->count }}</span>
                                             @endif
                                         </button>
                                     </li>
@@ -79,15 +82,16 @@
 
                         </div>
                         <div class="tab-content" id="pills-tabContent">
-
                             @foreach ($headers as $header)
                                 @php
                                     $sanitizedName = preg_replace('/[^a-zA-Z0-9]+/', '-', strtolower($header->name));
                                     $id = $header->id;
                                 @endphp
-                                <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
-                                    id="content-{{ $sanitizedName }}" role="tabpanel"
-                                    aria-labelledby="tab-{{ $sanitizedName }}" data-item-name="{{ $header->name }}"
+                               <div class="tab-pane fade {{ $activeTab == $id ? 'show active' : (!$activeTab && $loop->first ? 'show active' : '') }}"
+                                    id="content-{{ $sanitizedName }}"
+                                    role="tabpanel"
+                                    aria-labelledby="tab-{{ $sanitizedName }}"
+                                    data-item-name="{{ $header->name }}"
                                     data-item-type="{{ $id }}">
                                     @if ($id == 1)
                                         @include('approval.approvals.leave_approval')

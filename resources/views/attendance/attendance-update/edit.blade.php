@@ -28,7 +28,7 @@
                     <div class="form-group">
                         <label for="attendance_status_id">Attendance Status <span class="text-danger">*</span></label>
                         <select name="attendance_status_id" id="attendance_status_id"
-                            class="form-control @error('attendance_status_id') is-invalid @enderror select2 select2-hidden-accessible"  required>
+                            class="form-control @error('attendance_status_id') is-invalid @enderror select2 select2-hidden-accessible" required>
                             <option value="">-- Select Status --</option>
                             @foreach($attendanceStatuses as $status)
                             <option value="{{ $status->id }}"
@@ -40,6 +40,39 @@
                         @error('attendance_status_id')
                         <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="check_in_time">Check-In Time</label>
+                        <input type="text" class="form-control" id="check_in_time" readonly
+                            value="{{ $attendanceRecord->formatted_check_in_at ?? config('global.null_value') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="checked_in_from">Checked In From</label>
+                        <input type="text" class="form-control" id="checked_in_from" readonly
+                            title="{{ $attendanceRecord->checkedInFrom->name ?? config('global.null_value') }}"
+                            value="{{ \Str::limit($attendanceRecord->checkedInFrom->name ?? config('global.null_value'), 25) }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="check_out_time">Check-Out Time</label>
+                        <input type="text" class="form-control" id="check_out_time" readonly
+                            value="{{ $attendanceRecord->formatted_check_out_at ?? config('global.null_value') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="checked_out_from">Checked Out From</label>
+                        <input type="text" class="form-control" id="checked_out_from" readonly
+                            title="{{ $attendanceRecord->checkedOutFrom->name ?? config('global.null_value') }}"
+                            value="{{ \Str::limit($attendanceRecord->checkedOutFrom->name ?? config('global.null_value'), 25) }}">
                     </div>
                 </div>
 

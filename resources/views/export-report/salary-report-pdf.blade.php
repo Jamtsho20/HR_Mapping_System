@@ -117,6 +117,7 @@
                 <th>Diff. All.</th>
                 <th>Crit. All.</th>
                 <th>Gross</th>
+                <th>Sal. Advance</th>
                 <th>EMI</th>
                 <th>GIS</th>
                 <th>BNB</th>
@@ -152,6 +153,7 @@
                     <td>{{ $salary->details['allowances']['Difficulty Allowance'] ?? '0' }}</td>
                     <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}</td>
                     <td>{{ $salary->details['gross_pay'] ?? '0' }}</td>
+                    <td>{{ $salary->details['deductions']['Adv. Salary'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['Samsung Ded'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>
                     <td>{{ $salary->details['deductions']['Loan BNB'] ?? '0' }}</td>
@@ -185,6 +187,8 @@
                 <td>{{ $totals['allowances']['difficulty'] }}</td>
                 <td>{{ $totals['allowances']['critical'] }}</td>
                 <td>{{ $totals['gross'] }}</td>
+                <td>{{ $totals['deductions']['adv_salary'] ?? '0' }}</td>
+
                 <td>{{ $totals['deductions']['samsung'] }}</td>
                 <td>{{ $totals['deductions']['gsli'] }}</td>
                 <td>{{ $totals['deductions']['loans']['bnb'] }}</td>

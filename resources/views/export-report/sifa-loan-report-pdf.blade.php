@@ -9,11 +9,13 @@
     <style>
         body {
             font-size: 12px;
+            font-family: Arial, sans-serif;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
 
         .img-container {
@@ -21,15 +23,22 @@
             margin-left: auto;
             margin-right: auto;
             width: 60%;
-
-
         }
 
         .title {
             text-align: center;
-            padding: 10px 10px;
+            padding: 0;
+            margin: 0 0 10px 0;
+            font-size: 18px;
         }
 
+        .section-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin: 20px 0 10px 0;
+            padding: 8px;
+            border-left: 4px;
+        }
 
         table,
         th,
@@ -47,38 +56,61 @@
             background-color: #f2f2f2;
             text-transform: capitalize;
         }
-    </style>
 
+        .center {
+            text-align: center;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+
+        .page-break:last-child {
+            page-break-after: auto;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="img-container">
-        @include('layouts.includes.letter-head')
-    </div>
-    <hr>
-    <h1 class="title">SIFA Loan Report</h1>
-    <table class="table border table-sm text-nowrap text-md-nowrap table-bordered mg-b-0">
+
+    @forelse($advancesifaReports as $advanceReport)
+    <div class="page-break">
+
+        {{-- Letterhead --}}
+        <div class="img-container">
+            @include('layouts.includes.letter-head')
+        </div>
+        <hr>
+
+        <h1 class="title">SIFA Loan Report</h1>
+
         {{-- Employee Details --}}
         <div class="section-title">Employee Details</div>
         <table>
             <tbody>
                 <tr>
                     <th>Name</th>
-                    <td>{{ $empDetails['name'] ?? '-' }}</td>
+                    <td>{{ $advanceReport->employee->name ?? '-' }}</td>
                     <th>Designation</th>
-                    <td>{{ $empDetails['designation'] ?? '-' }}</td>
+                    <td>{{ $advanceReport->employee->empJob->designation->name ?? '-' }}</td>
                 </tr>
                 <tr>
                     <th>Employee ID</th>
-                    <td>{{ $empDetails['emp_id'] ?? '-' }}</td>
+                    <td>{{ $advanceReport->employee->username ?? '-' }}</td>
                     <th>Department</th>
-                    <td>{{ $empDetails['department'] ?? '-' }}</td>
+                    <td>{{ $advanceReport->employee->empJob->department->name ?? '-' }}</td>
                 </tr>
                 <tr>
                     <th>Section</th>
-                    <td>{{ $empDetails['section'] ?? '-' }}</td>
+                    <td>{{ $advanceReport->employee->empJob->section->name ?? '-' }}</td>
                     <th>Contact</th>
-                    <td>{{ $empDetails['contact_no'] ?? '-' }}</td>
+                    <td>{{ $advanceReport->employee->contact_number ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Application Date</th>
+                    <td>{{ $advanceReport->created_at ? $advanceReport->created_at->format('d/m/Y') : '-' }}</td>
+                    <th>Approved Amount</th>
+                    <td>{{ number_format($advanceReport->amount, 2) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -96,10 +128,14 @@
                     <th>Principal Repaid</th>
                     <th>Closing Balance</th>
                     <th>% Outstanding</th>
+                    <th>paid off date</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($repayments as $repayment)
+                @php
+                $applicationRepayments = $repayments->where('advance_application_id', $advanceReport->id);
+                @endphp
+                @forelse($applicationRepayments as $repayment)
                 <tr>
                     <td>{{ $repayment->repayment_number }}</td>
                     <td>{{ \Carbon\Carbon::parse($repayment->month)->format('F Y') }}</td>
@@ -109,19 +145,26 @@
                     <td>{{ number_format($repayment->principal_repaid, 2) }}</td>
                     <td>{{ number_format($repayment->closing_balance, 2) }}</td>
                     <td>{{ number_format($repayment->percentage_outstanding, 2) }}%</td>
+                    <td>{{$repayment->advanceApplication->emiDeduction?->is_paid_off == 1 ? getDisplayDateFormat($repayment->advanceApplication->emiDeduction->updated_at) : '-'}}</td>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="center">No repayment records found.</td>
+                    <td colspan="8" class="center">No repayment records found for this application.</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
 
-        <br><br>
-        @include('layouts.includes.report-footer')
+        {{-- Footer --}}
+        @include('layouts.includes.report-footer-sifa')
+    </div>
+    @empty
+    <div class="center">
+        <p>No SIFA loan applications found.</p>
+    </div>
+    @endforelse
 
-    </table>
 </body>
 
 </html>

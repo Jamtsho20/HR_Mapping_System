@@ -1,4 +1,4 @@
-<label for=""><strong>SIFA Dependents</strong></label>
+<label for=""><strong>LIST OF DEPENDENTS</strong></label>
 <small>(s)<i>(I hereby declare that the person(s) mentioned below are my dependent(s) as defined by By-laws of SIFA and that the information provided is true and correct. In the event if the information provided is found to be untruthful and incorrect, then the member shall be held accountable and responsible for any legal and financial damages arising thereafter)</i></small>
 <br><br>
 <div class="tab-pane">

@@ -91,6 +91,9 @@
                                                         <th>
                                                             gross earning
                                                         </th>
+                                                        <th>
+                                                            Sal. Advance
+                                                        </th>
 
                                                         <th>
                                                             samsung
@@ -153,6 +156,8 @@
                                                             <td>{{ $salary->details['allowances']['Critical Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['gross_pay'] ?? 0 }}</td>
+                                                            <td>{{ $salary->details['deductions']['Adv. Salary'] ?? '0' }}
+                                                            </td>
                                                             <td>{{ $salary->details['deductions']['Samsung Ded'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['deductions']['GSLI'] ?? '0' }}</td>

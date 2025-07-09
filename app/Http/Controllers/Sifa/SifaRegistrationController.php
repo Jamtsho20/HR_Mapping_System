@@ -248,9 +248,8 @@ class SifaRegistrationController extends Controller
                 $q->where('role_id', SIFA_MANAGER); 
             })->first();
 // dd($approver);
-            if ($approver && $approver->email) {
-                Mail::to($approver->email)->send(new \App\Mail\SifaEditedNotificationMail($sifaRegistration, $approver->id));
-            }
+             Mail::to($approver->email)->send(new \App\Mail\SifaEditedNotificationMail($sifaRegistration, $approver->id));
+            
             // Delete old nominations and dependents
             SifaNomination::where('sifa_registration_id', $sifaRegistration->id)->delete();
             SifaDependent::where('sifa_registration_id', $sifaRegistration->id)->delete();
@@ -312,6 +311,7 @@ class SifaRegistrationController extends Controller
             return redirect()->route('sifa-registration.index')->with('msg_success', 'Sifa Registration updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('error for sifa ' . $sifaRegistration->id . ': ' . $e->getMessage());
             return back()->withInput()->with('msg_error', 'Error: ' . $e->getMessage());
         }
     }
