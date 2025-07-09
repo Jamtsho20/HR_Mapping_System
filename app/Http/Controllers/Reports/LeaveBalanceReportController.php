@@ -28,12 +28,12 @@ class LeaveBalanceReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
-        $leaveBalances=EmployeeLeave::filter($request)->paginate(config('global.pagination'))->withQueryString();
+        $leaveBalances = EmployeeLeave::filter($request)->paginate(config('global.pagination'))->withQueryString();
         $leaveTypes = MasLeaveType::select('id', 'name')->get();
         $departments = MasDepartment::select('name', 'id')->get();
         $sections = MasSection::select('name', 'id')->get();
-               
-        return view('report.leave-balance-report.index', compact( 'privileges', 'leaveBalances', 'leaveTypes','departments','sections','employee'));
+
+        return view('report.leave-balance-report.index', compact('privileges', 'leaveBalances', 'leaveTypes', 'departments', 'sections', 'employee'));
     }
 
 
@@ -109,9 +109,9 @@ class LeaveBalanceReportController extends Controller
 
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.leave-balance-report-pdf', compact('leaveBalances'))
-        ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
-        return $pdf->stream('Leave-availed-Report.pdf');
+        return $pdf->stream('Leave-balance-Report.pdf');
     }
 }
