@@ -97,34 +97,43 @@ class AttendanceApiController extends Controller
 
         $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
 
-        // if(($request->check_in_date && $request->check_in_date != Carbon::now()->toDateString()) || ($request->check_out_date && $request->check_out_date != Carbon::now()->toDateString())){
-        //     return $this->errorResponse('Please make attendance entry (check-in/check-out) for today`s date i.e, ' . carbon::now()->format('d-m-y') . '.');
-        // }
+        $remarks = null;
+        //incase of user checks in after 9.05 and 11.00  ( can write a private function to make code lesser in this function)
+        if(!$loggedInUserDailyAttendanceEntry->check_in_at){
+            $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
+            $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
+            $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
+            $maxEligibleTime = $startTime->copy()->addMinutes(120); 
+            $checkInTime = Carbon::parse($request->check_in_at);
 
-        if($attendanceStatus == CREATED_STATUS){
-            // $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
-            // if(Carbon::createFromFormat($officeTiming['start_time'] + $officeTiming['attendance_buffer_mins'])->lessThan(Carbon::createFromFormat($request->check_in_at))){
-            //     // $attendanceStatus = LATE_STATUS;
-            // }else{
-            $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
-            // }
+            if(($request->check_type == 'check-in' && $request->check_in_at) && $maxEligibleTime->lessThan($checkInTime)){
+                $attendanceStatus = ABSENT_STATUS;
+                $diff = $checkInTime->diff($startTime);
+                $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
+            }else if(($request->check_type == 'check-in' && $request->check_in_at) && $bufferedTime->lessThan($checkInTime)){
+                $attendanceStatus = LATE_STATUS;
+                $diff = $checkInTime->diff($bufferedTime);
+                $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated).";
+            }else{
+                $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
+            }
         }
 
         // Decode existing JSON, or start with an empty array
         $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
-
         // Append the new entry
         $history[] = [
             'date' => Carbon::now()->toDateTimeString(),
             'attendance_status_id' => $attendanceStatus,
-            'remarks' => null,
+            'remarks' => $remarks,
             'updated_by' => $user->id,
         ];
-
+        
         $updateAttendanceData = [
             'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
             'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
             'attendance_status_id' => $attendanceStatus,
+            'remarks' => $remarks,
             'updated_by' => $user->id,
             'update_history' => json_encode($history)
         ];
@@ -152,6 +161,21 @@ class AttendanceApiController extends Controller
     public function destroy()
     {
         
+    }
+
+    private function splitTime($diff){
+        $parts = [];
+
+        if ($diff->h > 0) {
+            $parts[] = "{$diff->h} hour" . ($diff->h > 1 ? 's' : '');
+        }
+        if ($diff->i > 0) {
+            $parts[] = "{$diff->i} minute" . ($diff->i > 1 ? 's' : '');
+        }
+        if ($diff->s > 0 || empty($parts)) {
+            $parts[] = "{$diff->s} second" . ($diff->s > 1 ? 's' : '');
+        }
+        return $parts;
     }
 
 }

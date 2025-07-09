@@ -11,7 +11,7 @@ class AttendanceDetail extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip', 'check_in_office_id', 'check_out_office_id', 'created_by', 'updated_by', 'update_history'];
+    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip', 'check_in_office_id', 'check_out_office_id', 'verified_by', 'approved_by', 'created_by', 'updated_by', 'update_history'];
 
     public function dailyAttendance()
     {
@@ -42,6 +42,28 @@ class AttendanceDetail extends Model
         if ($request->has('employee') && $request->query('employee') != '') {
             $query->where('mas_employee_id', $request->query('employee'));
         }
+    }
+
+    // if attendance status is informed late then in report for display show present
+    public function getPresentDisplayStatusAttribute()
+    {
+        return match ($this->attendance_status_id) {
+            INFORMED_LATE_STATUS => 'P'
+        };
+    }
+// if attendance status is informed late then in report for display show present color
+    public function getPresentStatusColorAttribute()
+    {
+        return match ($this->attendance_status_id) {
+            INFORMED_LATE_STATUS => '#2ec158'
+        };
+    }
+// if attendance status is informed late then in report for display show present description
+    public function getPresentStatusDescriptionAttribute()
+    {
+        return match ($this->attendance_status_id) {
+            INFORMED_LATE_STATUS => 'Present'
+        };
     }
 
     public function getFormattedCheckInAtAttribute()

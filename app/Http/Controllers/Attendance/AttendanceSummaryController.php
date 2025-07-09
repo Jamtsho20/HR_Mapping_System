@@ -193,12 +193,13 @@ class AttendanceSummaryController extends Controller
                     'employee' => $detail->employee->emp_id_name ?? config('global.null_value'),
                     'check_in_at' => $detail->formatted_check_in_at ?? config('global.null_value'),
                     'check_out_at' => $detail->formatted_check_out_at ?? config('global.null_value'),
-                    'attendance_status_code' => $detail->attendanceStatus->code ?? config('global.null_value'),
-                    'attendance_status_description' => $detail->attendanceStatus->description ?? config('global.null_value'),
-                    'status_color' => $detail->attendanceStatus->color ?? config('global.null_value'),
+                    'attendance_status_code' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_display_status : $detail->attendanceStatus->code ?? config('global.null_value'),
+                    'attendance_status_description' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_status_description : $detail->attendanceStatus->description ?? config('global.null_value'),
+                    'status_color' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_status_color : $detail->attendanceStatus->color ?? config('global.null_value'),
                     'worked_hours' => $workedHours,
                     'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                     'attendance_date' => getDisplayDateFormat($detail->created_at),
+                    'remarks' => $detail->remarks
                 ];
             }
         }

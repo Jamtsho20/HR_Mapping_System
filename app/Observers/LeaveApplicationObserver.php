@@ -29,7 +29,8 @@ class LeaveApplicationObserver
                     ->where(function ($query) {
                         $query->where('attendance_status_id', CREATED_STATUS)
                             ->orWhere('attendance_status_id', ABSENT_STATUS)
-                            ->orWhere('attendance_status_id', PRESENT_STATUS);
+                            ->orWhere('attendance_status_id', PRESENT_STATUS)
+                            ->orWhere('attendance_status_id', LATE_STATUS);
                     })
                     ->get();
 
