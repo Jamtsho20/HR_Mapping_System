@@ -1,13 +1,19 @@
 @extends('layouts.app')
 @section('page-title', 'SIFA Registration')
 @section('content')
-@if ($privileges->create && !$sifaRegistration)
-<!-- Check if the user has privileges to create and hasn't registered yet -->
-@section('buttons')
-<a href="{{ route('sifa-registration.create') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Sifa
-    Registration</a>
-@endsection
+@if (
+    $privileges->create &&
+    !$sifaRegistration &&
+    auth()->user()->empJob->mas_employment_type_id != 3
+)
+    @section('buttons')
+    <a href="{{ route('sifa-registration.create') }}" class="btn btn-sm btn-primary">
+        <i class="fa fa-plus"></i> New Sifa Registration
+    </a>
+    @endsection
 @endif
+
+
 <div class="block-header block-header-default">
     <div class="row row-sm">
         <div class="col-lg-12">
