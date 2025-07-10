@@ -27,16 +27,16 @@ class LeaveBalanceExport implements FromCollection, WithHeadings
         return EmployeeLeave::filter($this->request)->get()->map(function ($leaveBalance) use (&$serialNo) {
             return [
                 $serialNo++,
-                $leaveBalance->employee->username,
-                $leaveBalance->employee->name,
-                $leaveBalance->employee->empJob->designation->name,
-                $leaveBalance->employee->empJob->department->name,
-                $leaveBalance->employee->empJob->office->name,
-                $leaveBalance->leaveType->name,
-                $leaveBalance->opening_balance,
-                $leaveBalance->current_entitlement,
-                $leaveBalance->leaves_availed,
-                $leaveBalance->closing_balance,
+                $leaveBalance->employee->username ?? '-',
+                $leaveBalance->employee->name ?? '-',
+                $leaveBalance->employee->empJob->designation->name ?? '-',
+                $leaveBalance->employee->empJob->department->name ?? '-',
+                $leaveBalance->employee->empJob->office->name ?? '-',
+                $leaveBalance->leaveType->name ?? '-',
+                $leaveBalance->opening_balance ?? '-',
+                $leaveBalance->current_entitlement ?? '-',
+                $leaveBalance->leaves_availed ?? '-',
+                $leaveBalance->closing_balance ?? '-',
             ];
         });
     }

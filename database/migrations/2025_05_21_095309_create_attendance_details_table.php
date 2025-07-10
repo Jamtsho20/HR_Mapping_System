@@ -28,8 +28,8 @@ return new class extends Migration
             $table->foreignId('checked_in_office_id')->index()->nullable()->constrained('mas_offices')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('checked_out_office_id')->index()->nullable()->constrained('mas_offices')->cascadeOnUpdate()->restrictOnDelete();
             //if this required uncomment this two column
-            // $table->foreignId('submit_to')->index()->nullable()->constrained('mas_employees'); // newly added
-            // $table->foreignId('updated_by_supervisor')->index()->nullable()->constrained('mas_employees'); // newly added
+            $table->foreignId('verified_by')->index()->nullable()->constrained('mas_employees'); // newly added
+            $table->foreignId('approved_by')->index()->nullable()->constrained('mas_employees'); // newly added
             $table->json('update_history')->nullable()->comment('Stores array of updates with date and updated_by');
             
             $table->timestamps();

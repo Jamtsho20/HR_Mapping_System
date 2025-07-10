@@ -86,9 +86,9 @@
                                                     <td style="text-align: center;">
                                                         @if($record->attendanceStatus)
                                                         <span class="badge"
-                                                            style="background-color: {{ $record->attendanceStatus->color }}; color: white;"
-                                                            title="{{ $record->attendanceStatus->description }}">
-                                                            {{ $record->attendanceStatus->code }}
+                                                            style="background-color: {{ $record->attendance_status_id == INFORMED_LATE_STATUS ? $record->present_status_color : $record->attendanceStatus->color }}; color: white;"
+                                                            title="{{ $record->attendance_status_id == INFORMED_LATE_STATUS ? $record->present_status_description : $record->attendanceStatus->description }}">
+                                                            {{ $record->attendance_status_id == INFORMED_LATE_STATUS ? $record->present_display_status : $record->attendanceStatus->code }}
                                                         </span>
 
                                                         @else

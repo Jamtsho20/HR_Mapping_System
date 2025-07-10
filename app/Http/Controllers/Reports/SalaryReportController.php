@@ -237,6 +237,7 @@ class SalaryReportController extends Controller
 
                     // Update deductions
                     $totals['deductions']['adv_salary'] += $details['deductions']['Adv. Salary'] ?? 0;
+
                     $totals['deductions']['gsli'] += $details['deductions']['GSLI'] ?? 0;
                     $totals['deductions']['health'] += $details['deductions']['H/Tax'] ?? 0;
                     $totals['deductions']['pf'] += $details['deductions']['PF Contr'] ?? 0;

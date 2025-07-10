@@ -100,7 +100,8 @@
                                                             Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
                                                             Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}&#10;
                                                             Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}&#10;
-                                                            Date: {{ $data['attendance_date'] ?? config('global.null_value') }}">
+                                                            Date: {{ $data['attendance_date'] ?? config('global.null_value') }}&#10;
+                                                            Remarks: {{ $data['remarks'] ?? config('global.null_value') }}">
                                                         {{ $data['attendance_status_code'] ?? config('global.null_value') }}
                                                     </td>
                                                 @endforeach
