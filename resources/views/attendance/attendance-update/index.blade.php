@@ -7,11 +7,8 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="row">
-        <div class="col-md-6 form-group">
-            <select name="day" class="form-control" onchange="this.form.submit()" placeholder="Select Day">
-                <option value="today" {{ $filter == 'today' ? 'selected' : '' }}>Current Day</option>
-                <option value="yesterday" {{ $filter == 'yesterday' ? 'selected' : '' }}>Previous Day</option>
-            </select>
+        <div class="col-6 form-group">
+            <input type="date" id="date" name="date" class="form-control" value="{{ $selectedDate }}" onchange="this.form.submit()">
         </div>
         <div class="col-6 form-group">
             <select name="employee" class="form-control select2" onchange="this.form.submit()">
@@ -89,9 +86,9 @@
                                                     <td style="text-align: center;">
                                                         @if($record->attendanceStatus)
                                                         <span class="badge"
-                                                            style="background-color: {{ $record->attendanceStatus->color }}; color: white;"
-                                                            title="{{ $record->attendanceStatus->description }}">
-                                                            {{ $record->attendanceStatus->code }}
+                                                            style="background-color: {{ $record->attendance_status_id == INFORMED_LATE_STATUS ? $record->present_status_color : $record->attendanceStatus->color }}; color: white;"
+                                                            title="{{ $record->attendance_status_id == INFORMED_LATE_STATUS ? $record->present_status_description : $record->attendanceStatus->description }}">
+                                                            {{ $record->attendance_status_id == INFORMED_LATE_STATUS ? $record->present_display_status : $record->attendanceStatus->code }}
                                                         </span>
 
                                                         @else

@@ -175,6 +175,7 @@ class AttendanceService
                         'worked_hours' => config('global.null_value'),
                         'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                         'attendance_date' => $attendance->date ?? config('global.null_value'),
+                        'remarks' => config('global.null_value'),
                     ];
                     continue; // Skip to the next attendance
                 }
@@ -190,12 +191,13 @@ class AttendanceService
                     'check_out_at' => $detail->formatted_check_out_at ?? config('global.null_value'),
                     'checked_in_from' => $detail->checkedInFrom->name ?? config('global.null_value'),
                     'checked_out_from' => $detail->checkedOutFrom->name ?? config('global.null_value'),
-                    'attendance_status_code' => $detail->attendanceStatus->code ?? config('global.null_value'),
-                    'attendance_status_description' => $detail->attendanceStatus->description ?? config('global.null_value'),
-                    'status_color' => $detail->attendanceStatus->color ?? config('global.null_value'),
+                    'attendance_status_code' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_display_status : $detail->attendanceStatus->code ?? config('global.null_value'),
+                    'attendance_status_description' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_status_description : $detail->attendanceStatus->description ?? config('global.null_value'),
+                    'status_color' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_status_color : $detail->attendanceStatus->color ?? config('global.null_value'),
                     'worked_hours' => $workedHours,
                     'for_day' => str_pad($attendance->day, 2, '0', STR_PAD_LEFT),
                     'attendance_date' => $detail->created_at->format('d-m-y'),
+                    'remarks' => $detail->remarks ?? config('global.null_value')
                 ];
             }
             

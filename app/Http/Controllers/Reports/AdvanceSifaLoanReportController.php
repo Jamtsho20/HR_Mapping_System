@@ -80,10 +80,10 @@ class AdvanceSifaLoanReportController extends Controller
     public function exportSifaLoanReport(Request $request)
     {
         // Fetch all approved SIFA advance applications based on filters
-        $advancesifaReports = AdvanceApplication::with('employee')->filter($request, false)
+        $advancesifaReports = AdvanceApplication::with('employee','emiDeduction')->filter($request, false)
             ->whereStatus(4)
             ->get();
-
+           
         foreach ($advancesifaReports as $report) {
             $employee=$report->employee; // or dd($report->employee->emp_name), etc.
         }

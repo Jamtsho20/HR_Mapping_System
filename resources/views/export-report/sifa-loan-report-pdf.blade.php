@@ -37,7 +37,7 @@
             font-size: 14px;
             margin: 20px 0 10px 0;
             padding: 8px;
-            border-left: 4px ;
+            border-left: 4px;
         }
 
         table,
@@ -74,92 +74,95 @@
 <body>
 
     @forelse($advancesifaReports as $advanceReport)
-        <div class="page-break">
+    <div class="page-break">
 
-            {{-- Letterhead --}}
-            <div class="img-container">
-                @include('layouts.includes.letter-head')
-            </div>
-            <hr>
-
-            <h1 class="title">SIFA Loan Report</h1>
-
-            {{-- Employee Details --}}
-            <div class="section-title">Employee Details</div>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <td>{{ $advanceReport->employee->name ?? '-' }}</td>
-                        <th>Designation</th>
-                        <td>{{ $advanceReport->employee->empJob->designation->name ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Employee ID</th>
-                        <td>{{ $advanceReport->employee->username ?? '-' }}</td>
-                        <th>Department</th>
-                        <td>{{ $advanceReport->employee->empJob->department->name ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Section</th>
-                        <td>{{ $advanceReport->employee->empJob->section->name ?? '-' }}</td>
-                        <th>Contact</th>
-                        <td>{{ $advanceReport->employee->contact_number ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Application Date</th>
-                        <td>{{ $advanceReport->created_at ? $advanceReport->created_at->format('d/m/Y') : '-' }}</td>
-                        <th>Approved Amount</th>
-                        <td>{{ number_format($advanceReport->amount, 2) }}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            {{-- Repayment Schedule --}}
-            <div class="section-title">SIFA Loan Repayment Schedule</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Repayment #</th>
-                        <th>Month</th>
-                        <th>Opening Balance</th>
-                        <th>EMI Amount</th>
-                        <th>Interest Charged</th>
-                        <th>Principal Repaid</th>
-                        <th>Closing Balance</th>
-                        <th>% Outstanding</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $applicationRepayments = $repayments->where('advance_application_id', $advanceReport->id);
-                    @endphp
-                    @forelse($applicationRepayments as $repayment)
-                        <tr>
-                            <td>{{ $repayment->repayment_number }}</td>
-                            <td>{{ \Carbon\Carbon::parse($repayment->month)->format('F Y') }}</td>
-                            <td>{{ number_format($repayment->opening_balance, 2) }}</td>
-                            <td>{{ number_format($repayment->monthly_emi_amount, 2) }}</td>
-                            <td>{{ number_format($repayment->interest_charged, 2) }}</td>
-                            <td>{{ number_format($repayment->principal_repaid, 2) }}</td>
-                            <td>{{ number_format($repayment->closing_balance, 2) }}</td>
-                            <td>{{ number_format($repayment->percentage_outstanding, 2) }}%</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="center">No repayment records found for this application.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-            {{-- Footer --}}
-            @include('layouts.includes.report-footer-sifa')
+        {{-- Letterhead --}}
+        <div class="img-container">
+            @include('layouts.includes.letter-head')
         </div>
+        <hr>
+
+        <h1 class="title">SIFA Loan Report</h1>
+
+        {{-- Employee Details --}}
+        <div class="section-title">Employee Details</div>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <td>{{ $advanceReport->employee->name ?? '-' }}</td>
+                    <th>Designation</th>
+                    <td>{{ $advanceReport->employee->empJob->designation->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Employee ID</th>
+                    <td>{{ $advanceReport->employee->username ?? '-' }}</td>
+                    <th>Department</th>
+                    <td>{{ $advanceReport->employee->empJob->department->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Section</th>
+                    <td>{{ $advanceReport->employee->empJob->section->name ?? '-' }}</td>
+                    <th>Contact</th>
+                    <td>{{ $advanceReport->employee->contact_number ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Application Date</th>
+                    <td>{{ $advanceReport->created_at ? $advanceReport->created_at->format('d/m/Y') : '-' }}</td>
+                    <th>Approved Amount</th>
+                    <td>{{ number_format($advanceReport->amount, 2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        {{-- Repayment Schedule --}}
+        <div class="section-title">SIFA Loan Repayment Schedule</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Repayment #</th>
+                    <th>Month</th>
+                    <th>Opening Balance</th>
+                    <th>EMI Amount</th>
+                    <th>Interest Charged</th>
+                    <th>Principal Repaid</th>
+                    <th>Closing Balance</th>
+                    <th>% Outstanding</th>
+                    <th>paid off date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                $applicationRepayments = $repayments->where('advance_application_id', $advanceReport->id);
+                @endphp
+                @forelse($applicationRepayments as $repayment)
+                <tr>
+                    <td>{{ $repayment->repayment_number }}</td>
+                    <td>{{ \Carbon\Carbon::parse($repayment->month)->format('F Y') }}</td>
+                    <td>{{ number_format($repayment->opening_balance, 2) }}</td>
+                    <td>{{ number_format($repayment->monthly_emi_amount, 2) }}</td>
+                    <td>{{ number_format($repayment->interest_charged, 2) }}</td>
+                    <td>{{ number_format($repayment->principal_repaid, 2) }}</td>
+                    <td>{{ number_format($repayment->closing_balance, 2) }}</td>
+                    <td>{{ number_format($repayment->percentage_outstanding, 2) }}%</td>
+                    <td>{{$repayment->advanceApplication->emiDeduction?->is_paid_off == 1 ? getDisplayDateFormat($repayment->advanceApplication->emiDeduction->updated_at) : '-'}}</td>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="center">No repayment records found for this application.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        {{-- Footer --}}
+        @include('layouts.includes.report-footer-sifa')
+    </div>
     @empty
-        <div class="center">
-            <p>No SIFA loan applications found.</p>
-        </div>
+    <div class="center">
+        <p>No SIFA loan applications found.</p>
+    </div>
     @endforelse
 
 </body>
