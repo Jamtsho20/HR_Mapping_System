@@ -53,7 +53,7 @@ class CreditEmpEarnedLeaveMonthly extends Command
                 $query->where('is_active', 1) // Only include active employees
                     ->whereHas('empJob', function ($subQuery) {
                     // Apply conditions on empJob here
-                    $subQuery->whereNotIn('mas_employment_type_id', [1, 5, 9, 10]);
+                    $subQuery->whereNotIn('mas_employment_type_id', [6, 7, 8, 10]);
                 });
             })
             ->chunk(100, function ($leaves) {
