@@ -50,7 +50,11 @@ class CreditEmpEarnedLeaveMonthly extends Command
         // Process EmployeeLeave records in batches, only for active employees
         EmployeeLeave::where('mas_leave_type_id', EARNED_LEAVE)
             ->whereHas('employee', function ($query) {
-                $query->where('is_active', 1); // Only include active employees
+                $query->where('is_active', 1) // Only include active employees
+                    ->whereHas('empJob', function ($subQuery) {
+                    // Apply conditions on empJob here
+                    $subQuery->whereNotIn('mas_employment_type_id', [1, 5, 9, 10]);
+                });
             })
             ->chunk(100, function ($leaves) {
                 DB::transaction(function () use ($leaves) {
@@ -61,7 +65,7 @@ class CreditEmpEarnedLeaveMonthly extends Command
                                                     + $leave->current_entitlement 
                                                     - $leave->leaves_availed;
                         $leave->closing_balance = min($calculatedClosingBalance, 90.00);
-                        $leave->save();
+                        $leave->save(); 
                     }
                 });
             });

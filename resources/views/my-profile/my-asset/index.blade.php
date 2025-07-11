@@ -7,7 +7,7 @@
             <h3 class="card-title">Asset List</h3>
         </div>
         <div class="card-body">
-            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <div class="table-responsive" style=" overflow-y: auto;">
                 <table class="table table-condensed table-striped table-bordered table-sm">
                     <thead class="thead-light">
                         <tr>
