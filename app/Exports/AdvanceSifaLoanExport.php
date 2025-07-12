@@ -47,8 +47,10 @@ class AdvanceSifaLoanExport implements FromCollection, WithHeadings
             return [
                 $serialNo++,
                 $advance->employee->emp_name ?? '-',
+                $advance->employee->username ?? '-',
                 $advance->advanceType->name ?? '-',
                 $advance->amount,
+                $advance->net_payable,
                 getDisplayDateFormat($advance->transaction_date),
                 getDisplayDateFormat($advance->deduction_from_period),
                 $advance->no_of_emi,
@@ -69,8 +71,10 @@ class AdvanceSifaLoanExport implements FromCollection, WithHeadings
         return [
             'Sl No',
             'Employee Name',
+            'Employee ID',
             'Advance Type',
             'Principal Amount',
+            'Net Payable Amount',
             'Date of Claim',
             'EMI Start Date',
             'No of EMI',
