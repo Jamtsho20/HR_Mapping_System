@@ -78,6 +78,9 @@
                     Req Date
                 </th>
                 <th>
+                    SAP Doc No
+                </th>
+                <th>
                     GRN
                 </th>
                 <th>
@@ -131,6 +134,7 @@
                         <td>{{ $req->type->name }}</td>
                         <td>{{ $req->transaction_no }}</td>
                         <td>{{ $req->transaction_date }}</td>
+                        <td>{{ $req->doc_no ?? config('global.null_value') }}</td>
 
                         {{-- Detail-specific data --}}
                         <td>{{ $detail->grnItem->grn_no ?? config('global.null_value') }}

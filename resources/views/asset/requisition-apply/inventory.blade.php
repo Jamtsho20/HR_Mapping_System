@@ -33,6 +33,7 @@
                                                         <th>GRN</th>
                                                         <th>LAST SYNCED AT</th>
                                                         <th>CREATED AT</th>
+                                                        <th>STATUS</th>
                                                         <th>ACTION</th>
                                                     </tr>
                                                 </thead>
@@ -43,6 +44,7 @@
                                                             <td>{{ $grn->grn_no }}</td>
                                                             <td>{{ $grn->last_synced_at }}</td>
                                                             <td>{{ $grn->created_at }}</td>
+                                                            <td>{{ $grn->status==1 ? 'Active': 'Inactive' }}</td>
                                                             <td>
                                                         <button type="button" class="btn btn-sm btn-primary toggle-btn"
                                                                 data-bs-toggle="collapse"
