@@ -104,9 +104,10 @@
                     <td>{{ $loan->loan_number }}</td>
                     <td style="text-align: right;">{{ getDisplayDateFormat($loan->start_date) }}</td>
                     <td style="text-align: right;">{{ getDisplayDateFormat($loan->end_date) }}</td>
-                    <td style="text-align: right;">{{ $loan->recurring_months}}</td>
+                    <td style="text-align: right;">{{ $loan->recurring_months }}</td>
                     <td>{{ \Carbon\Carbon::parse($loan->for_month)->format('F Y') }}</td>
-                    <td style="text-align: right;">{{ formatAmount($loan->amount, false) }}</td>
+                    <td style="text-align: right;">
+                        {{ formatAmount($loan->details['deductions']['Samsung Ded'], false) }}</td>
                 </tr>
             @empty
                 <tr>
@@ -116,7 +117,7 @@
             <tr>
                 <td colspan="9" style="text-align: right">Total:</td>
                 <td style="text-align: right;">{{ formatAmount($totalSamsung, false) }}</td>
-                <td></td>
+
             </tr>
         </tbody>
     </table>
