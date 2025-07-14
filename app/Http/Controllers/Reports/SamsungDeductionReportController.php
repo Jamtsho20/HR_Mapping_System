@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FinalPaySlip;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SamsungDeductionReportController extends Controller
@@ -27,32 +28,23 @@ class SamsungDeductionReportController extends Controller
         $privileges = $request->instance();
         $employee = employeeList();
 
-        $paySlips = FinalPaySlip::leftJoin('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-            ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
-            ->where('loan_e_m_i_deductions.is_paid_off', 0)
-            ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.start_date, '%Y-%m-%d') <= ?", [now()->format('Y-m-01')])
-            ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.end_date, '%Y-%m-%d') >= ?", [now()->format('Y-m-01')])  // Compare Year-Month
-            ->filter($request) // Apply the filters
-            ->selectRaw('final_pay_slips.for_month, loan_e_m_i_deductions.*, mas_pay_heads.name as pay_head_name')
-            // ->select('final_pay_slips.for_month', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
-            ->paginate(config('global.pagination')) // Paginate the results
-            ->withQueryString(); // Retain the query string in the pagination links
+        // $paySlips = FinalPaySlip::leftJoin('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+        //     ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+        //     ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
+        //     ->where('loan_e_m_i_deductions.is_paid_off', 0)
+        //     ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.start_date, '%Y-%m-%d') <= ?", [now()->format('Y-m-01')])
+        //     ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.end_date, '%Y-%m-%d') >= ?", [now()->format('Y-m-01')])  // Compare Year-Month
+        //     ->filter($request) // Apply the filters
+        //     ->selectRaw('final_pay_slips.*, loan_e_m_i_deductions.*, mas_pay_heads.name as pay_head_name')
+        //     ->paginate(config('global.pagination')) // Paginate the results
+        //     ->withQueryString(); // Retain the query string in the pagination links
 
-             // $departments = MasDepartment::select('name', 'id')->get();
-            // $offices = MasOffice::select('name', 'id')->get();
-            // $regions = MasRegion::select('name', 'id')->get();
-            // $paySlips = FinalPaySlip::with(['emiDeductions' => function ($query) {
-            // $query->where('mas_pay_head_id', 16)
-            //     ->where('is_paid_off', 0)
-            //     // ->whereDate('start_date', '<=', now()->startOfMonth())
-            //     // ->whereDate('end_date', '>=', now()->startOfMonth())
-            //     ->with(['advanceApplication']); // Load advance application inside
-            // }])
-            // ->filter($request, false)
-            // ->paginate(config('global.pagination'))
-            // ->withQueryString();
-    
+        $paySlips = $this->prepareQuery($request)
+            ->paginate(config('global.pagination'))
+            ->withQueryString();
+
+        // dd($test);
+
         return view('report.samsung-deduction-report.index', compact('privileges', 'paySlips', 'employee'));
     }
 
@@ -107,21 +99,11 @@ class SamsungDeductionReportController extends Controller
     public function exportSamsungDeduction(Request $request)
     {
         // Load all bookings with their dzongkhag names
-        $samsungDeductions = FinalPaySlip::leftJoin('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-            ->Join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
-            ->where('loan_e_m_i_deductions.is_paid_off', 0)
-            ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.start_date, '%Y-%m-%d') <= ?", [now()->format('Y-m-01')])
-            ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.end_date, '%Y-%m-%d') >= ?", [now()->format('Y-m-01')])  // Compare Year-Month
-            ->filter($request) // Apply the filters
-            ->selectRaw('final_pay_slips.for_month, loan_e_m_i_deductions.*,  mas_pay_heads.name as pay_head_name')
-            // ->select('final_pay_slips.for_month', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
+        $samsungDeductions = $this->prepareQuery($request)
             ->get();
 
-
-
         $totalSamsung = $samsungDeductions->sum(function ($device) {
-            return $device->amount ?? 0;
+            return $device->details['deductions']['Samsung Ded'] ?? 0;
         });
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions', 'totalSamsung'))->setPaper('a4', 'landscape');;
@@ -133,23 +115,19 @@ class SamsungDeductionReportController extends Controller
 
     public function exportSamsungDeductionExcel(Request $request)
     {
-        return Excel::download(new SamsungDeductionExport($request), 'samsung-deduction-report.xlsx');
+        $samsungDeductions = $this->prepareQuery($request)
+            ->get();
+
+        return Excel::download(new SamsungDeductionExport($request, $samsungDeductions), 'samsung-deduction-report.xlsx');
     }
+
     public function printSamsungDeduction(Request $request)
     {
-        $samsungDeductions = FinalPaySlip::leftJoin('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
-            ->Join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
-            ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
-            ->where('loan_e_m_i_deductions.is_paid_off', 0)
-            ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.start_date, '%Y-%m-%d') <= ?", [now()->format('Y-m-01')])
-            ->whereRaw("DATE_FORMAT(loan_e_m_i_deductions.end_date, '%Y-%m-%d') >= ?", [now()->format('Y-m-01')])  // Compare Year-Month
-            ->filter($request) // Apply the filters
-            ->selectRaw('final_pay_slips.for_month, loan_e_m_i_deductions.*, mas_pay_heads.name as pay_head_name')
-            // ->select('final_pay_slips.for_month', 'loan_e_m_i_deductions.*', 'mas_pay_heads.name as pay_head_name') // Select the columns you need, including pay_head name
+        $samsungDeductions = $this->prepareQuery($request)
             ->get();
 
         $totalSamsung = $samsungDeductions->sum(function ($device) {
-            return $device->amount ?? 0;
+            return $device->details['deductions']['Samsung Ded'] ?? 0;
         });
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions', 'totalSamsung'))->setPaper('a4', 'landscape');;
@@ -159,4 +137,25 @@ class SamsungDeductionReportController extends Controller
         return $pdf->stream('SamsungDeduction-Report.pdf');
     }
 
+    private function prepareQuery(Request $request)
+    {
+        return FinalPaySlip::join('loan_e_m_i_deductions', function ($join) {
+            $join->on('final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
+                ->where('loan_e_m_i_deductions.mas_pay_head_id', 16)
+                ->where('loan_e_m_i_deductions.is_paid_off', 0)
+                ->whereColumn('final_pay_slips.for_month', '>=', 'loan_e_m_i_deductions.start_date')
+                ->whereColumn('final_pay_slips.for_month', '<=', 'loan_e_m_i_deductions.end_date');
+        })
+            ->leftJoin('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
+            ->select(
+                'final_pay_slips.*',
+                DB::raw('IFNULL(loan_e_m_i_deductions.amount, 0) as emi_amount'),
+                'loan_e_m_i_deductions.loan_number',
+                'loan_e_m_i_deductions.start_date',
+                'loan_e_m_i_deductions.end_date',
+                'loan_e_m_i_deductions.recurring_months',
+                'mas_pay_heads.name as pay_head_name'
+            )
+            ->filter($request);
+    }
 }
