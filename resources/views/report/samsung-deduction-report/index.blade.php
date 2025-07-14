@@ -97,15 +97,24 @@
                                                             <td>{{ $paySlip->employee->username }}</td>
                                                             <td>{{ $paySlip->pay_head_name }}</td>
                                                             <td>{{ $paySlip->loan_number }}</td>
-                                                            <td style="text-align: right;">{{ getDisplayDateFormat($paySlip->start_date) }}</td>
-                                                            <td style="text-align: right;">{{ getDisplayDateFormat($paySlip->end_date) }}</td>
-                                                            <td style="text-align: right;">{{ $paySlip->recurring_months }}</td>
-                                                            <td style="text-align: right;">{{ formatAmount($paySlip->amount, false) }}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($paySlip->for_month)->format('F Y') }}</td>
+                                                            <td style="text-align: right;">
+                                                                {{ getDisplayDateFormat($paySlip->start_date) }}</td>
+                                                            <td style="text-align: right;">
+                                                                {{ getDisplayDateFormat($paySlip->end_date) }}</td>
+                                                            <td style="text-align: right;">{{ $paySlip->recurring_months }}
+                                                            </td>
+                                                            {{-- <td style="text-align: right;">
+                                                                {{ formatAmount($paySlip->amount, false) }}</td> --}}
+                                                            <td style="text-align: right;">
+                                                                {{ formatAmount($paySlip->details['deductions']['Samsung Ded'], false) }}
+                                                            </td>
+                                                            <td>{{ \Carbon\Carbon::parse($paySlip->for_month)->format('F Y') }}
+                                                            </td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="7" class="text-center text-danger">No Data Found.</td>
+                                                            <td colspan="7" class="text-center text-danger">No Data
+                                                                Found.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
