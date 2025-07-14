@@ -29,7 +29,8 @@
         </div>
 
         <div class="row row-sm">
-            <span class="text-primary"># Individual Attendance for year {{ $selectedYear }}.</span>
+            <span class="text-primary"># Individual Attendance for year {{ $selectedYear }}.</span><br />
+            <span class="text-primary"># Please make sure to apply leave accordingly, if you are marked as absent for current day of the month.</span><br />
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">

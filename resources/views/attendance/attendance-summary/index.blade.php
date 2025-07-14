@@ -55,6 +55,7 @@
 
         <div class="row row-sm">
             <span class="text-primary"># Attendance summary for month {{ request()->get('year_month', \Carbon\Carbon::parse($yearMonth)->format('F Y')) }}.</span>
+            <span class="text-primary"># Please make sure to ask employee to apply leave accordingly, if he/she is marked as absent for current day of the month.</span><br />
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
