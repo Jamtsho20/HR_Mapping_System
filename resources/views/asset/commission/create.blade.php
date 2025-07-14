@@ -142,15 +142,19 @@
 
                                             </select> --}}
                                     </td>
-                                    <td>
-                                        <input type="text" name="details[AAAAA][uom]" value=""
-                                            class="form-control  resetKeyForNew" readonly required />
+                                   <td style="min-width: 75px;">
+                                        <div class="form-group mb-0">
+                                            <input type="text" name="details[AAAAA][uom]" value=""
+                                                class="form-control resetKeyForNew w-100" readonly required />
+                                        </div>
                                     </td>
-                                    <td>
-                                        <input type="number" name="details[AAAAA][qty]" value=""
-                                            class="form-control  resetKeyForNew quantity-input text-right" readonly
-                                            required />
+                                    <td style="min-width: 100px;">
+                                        <div class="form-group mb-0">
+                                            <input type="number" name="details[AAAAA][qty]" value=""
+                                                class="form-control resetKeyForNew quantity-input text-right w-100" readonly required />
+                                        </div>
                                     </td>
+
                                     <td>
                                         <input type="number" name="details[AAAAA][amount]" value=""
                                             class="form-control  resetKeyForNew text-right" readonly
