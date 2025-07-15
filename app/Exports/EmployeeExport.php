@@ -39,7 +39,7 @@ class EmployeeExport implements FromCollection, WithHeadings
                 $employee->date_of_appointment ?? '-',
                 $employee->contact_number ?? '-',
                 $employee->email ?? '-',
-                $employee->is_active ? 'Active' : 'Inactive',
+                $employee->is_active
 
             ];
         });
