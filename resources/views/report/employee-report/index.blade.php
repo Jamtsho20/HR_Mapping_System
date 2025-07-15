@@ -140,8 +140,9 @@
                                                     <td>{{ $employee->contact_number }}</td>
                                                     <td>{{ $employee->email }}</td>
                                                     <td>
-                                                        {{ $employee->is_active ? 'Active' : 'Inactive' }}
+                                                        {{ $employee->is_active }}
                                                     </td>
+
 
 
                                                 </tr>
