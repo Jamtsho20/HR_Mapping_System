@@ -114,6 +114,7 @@
                                     <th>Dzongkhag*</th>
                                     {{-- <th>Quantity*</th> --}}
                                     <th>Date Placed In Service*</th>
+                                    <th>Copy/Paste</th>
                                     <th>Site*</th>
                                     <th>Remark</th>
                                 </tr>
@@ -173,6 +174,10 @@
                                         <input type="date" class="form-control  resetKeyForNew"
                                             name="details[AAAAA][date_placed_in_service]" required />
                                     </td>
+
+                                    <td>
+                                        <input type="text" class="form-control  resetKeyForNew" name="details[AAAAA][date_placed_in_service_text]">
+                                    </td>
                                     <td>
                                         <select class="form-control  resetKeyForNew select2"
                                             name="details[AAAAA][site]" required />
@@ -185,7 +190,7 @@
                                 </tr>
 
                                 <tr class="notremovefornew">
-                                    <td colspan="9"></td>
+                                    <td colspan="10"></td>
                                     <td class="text-right">
                                         <a href="#" class="add-table-row btn btn-sm btn-info"
                                             style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
@@ -210,6 +215,35 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+
+
+            $('#details').on('input', "input[name$='[date_placed_in_service]']", function () {
+                        const $row = $(this).closest('tr');
+                        const dateVal = $(this).val();
+                        $row.find("input[name$='[date_placed_in_service_text]']").val(dateVal);
+                    });
+
+                    $('#details').on('blur', "input[name$='[date_placed_in_service_text]']", function () {
+                        const $row = $(this).closest('tr');
+                        const textVal = $(this).val().trim();
+                        const isValid = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+
+                        if (isValid) {
+                            $row.find("input[name$='[date_placed_in_service]']").val(textVal);
+                        }
+                    });
+
+                    $('#details').on('paste', "input[name$='[date_placed_in_service_text]']", function () {
+                        const input = this;
+                        setTimeout(() => {
+                            const $row = $(input).closest('tr');
+                            const textVal = $(input).val().trim();
+                            const isValid = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+                            if (isValid) {
+                                $row.find("input[name$='[date_placed_in_service]']").val(textVal);
+                            }
+                        }, 0);
+                    });
 
             const loader = document.getElementById('loader');
             const form = document.getElementById('commissionForm');
