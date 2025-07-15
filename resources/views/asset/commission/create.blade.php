@@ -332,7 +332,7 @@
                 }
             }
             //populate asset description and uom based on selection of asset no
-           let bulkLoading = false; // Declare this at the top outside of $(document).ready
+           let bulkLoading = false;
 
             $(document).on('change', '.asset-number-selector', function () {
                 if (bulkLoading) return;
@@ -397,9 +397,12 @@
 
             const siteCache = {};
 
+            let pendingDzongkhagFetches = 0;
+
             $(document).on('change', '.dzongkhag-selector', function () {
                 const dzongkhagId = this.value;
                 if (!dzongkhagId) return;
+                $('#loader').show();
 
                 const row = this.closest('tr');
                 const $row = $(row);
@@ -407,9 +410,17 @@
                 const $siteSelect = $row.find("select[name^='details'][name$='[site]']");
                 const preselectedSite = $dzongkhagSelect.attr('preselectedSite');
 
+                const done = () => {
+                    pendingDzongkhagFetches--;
+                    if (pendingDzongkhagFetches <= 0) {
+                        $('#loader').hide();
+                    }
+                };
+
                 if (siteCache[dzongkhagId]) {
-                    populateSiteOptions($siteSelect, siteCache[dzongkhagId], preselectedSite);
+                    populateSiteOptions($siteSelect, siteCache[dzongkhagId], preselectedSite, done);
                 } else {
+                    pendingDzongkhagFetches++;
                     $siteSelect.html('<option disabled selected>Loading...</option>');
 
                     fetch(`/getsitesbydzongkhagid/${dzongkhagId}`)
@@ -417,31 +428,39 @@
                         .then(data => {
                             const sites = data?.data?.sites || [];
                             siteCache[dzongkhagId] = sites;
-                            populateSiteOptions($siteSelect, sites, preselectedSite);
+                            populateSiteOptions($siteSelect, sites, preselectedSite, done);
                         })
                         .catch(() => {
                             $siteSelect.html('<option disabled selected>No sites</option>');
                             showErrorMessage('Failed to load sites');
+                            done(); // Decrement even on error
                         });
                 }
 
                 $dzongkhagSelect.removeAttr('preselectedSite');
             });
 
-            function populateSiteOptions($siteSelect, sites, preselectedSite) {
+            function populateSiteOptions($siteSelect, sites, preselectedSite, callback = () => {}) {
                 if (!sites.length) {
                     $siteSelect.html('<option disabled selected>No sites</option>');
+                    callback();
                     return;
                 }
+
                 let options = '<option disabled selected hidden>Select Your Option</option>';
                 for (const site of sites) {
                     options += `<option value="${site.id}">${site.name}</option>`;
                 }
                 $siteSelect.html(options);
+
                 if (preselectedSite) {
                     $siteSelect.val(preselectedSite).trigger('change');
+                    setTimeout(callback, 100);
+                } else {
+                    callback();
                 }
             }
+
 
 
             function updateTotalQuantity() {
