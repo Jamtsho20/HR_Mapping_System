@@ -52,6 +52,7 @@ class UpdateAbsenteesDaily extends Command
                 $detail->updated_by = 1;
                 $detail->updated_at = now();
                 $detail->update_history = json_encode($history);
+                $detail->save();
             }
         }
         
