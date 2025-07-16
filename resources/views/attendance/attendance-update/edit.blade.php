@@ -44,7 +44,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="check_in_time">Check-In Time</label>
+                        <label for="check_in_time">Clocked-in Time</label>
                         <input type="text" class="form-control" id="check_in_time" readonly
                             value="{{ $attendanceRecord->formatted_check_in_at ?? config('global.null_value') }}">
                     </div>
@@ -52,7 +52,7 @@
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="checked_in_from">Checked In From</label>
+                        <label for="checked_in_from">Clocked-in From</label>
                         <input type="text" class="form-control" id="checked_in_from" readonly
                             title="{{ $attendanceRecord->checkedInFrom->name ?? config('global.null_value') }}"
                             value="{{ \Str::limit($attendanceRecord->checkedInFrom->name ?? config('global.null_value'), 25) }}">
@@ -61,7 +61,7 @@
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="check_out_time">Check-Out Time</label>
+                        <label for="check_out_time">Clocked-out Time</label>
                         <input type="text" class="form-control" id="check_out_time" readonly
                             value="{{ $attendanceRecord->formatted_check_out_at ?? config('global.null_value') }}">
                     </div>
@@ -69,7 +69,7 @@
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="checked_out_from">Checked Out From</label>
+                        <label for="checked_out_from">Checked-out From</label>
                         <input type="text" class="form-control" id="checked_out_from" readonly
                             title="{{ $attendanceRecord->checkedOutFrom->name ?? config('global.null_value') }}"
                             value="{{ \Str::limit($attendanceRecord->checkedOutFrom->name ?? config('global.null_value'), 25) }}">

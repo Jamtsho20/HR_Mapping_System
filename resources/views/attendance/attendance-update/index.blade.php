@@ -50,16 +50,16 @@
                                                         Employee
                                                     </th>
                                                     <th>
-                                                        Checked-in At
+                                                        Clocked-in At
                                                     </th>
                                                     <th>
-                                                        Checked-in From
+                                                        Clocked-in From
                                                     </th>
                                                     <th>
-                                                        Checked-out At
+                                                        Clocked-out At
                                                     </th>
                                                     <th>
-                                                        Checked-out From
+                                                        Clocked-out From
                                                     </th>
                                                     <th>
                                                         Attendance Status
