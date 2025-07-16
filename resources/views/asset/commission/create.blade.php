@@ -114,6 +114,7 @@
                                     <th>Dzongkhag*</th>
                                     {{-- <th>Quantity*</th> --}}
                                     <th>Date Placed In Service*</th>
+                                    <th>Copy/Paste</th>
                                     <th>Site*</th>
                                     <th>Remark</th>
                                 </tr>
@@ -142,15 +143,19 @@
 
                                             </select> --}}
                                     </td>
-                                    <td>
-                                        <input type="text" name="details[AAAAA][uom]" value=""
-                                            class="form-control  resetKeyForNew" readonly required />
+                                   <td style="min-width: 75px;">
+                                        <div class="form-group mb-0">
+                                            <input type="text" name="details[AAAAA][uom]" value=""
+                                                class="form-control resetKeyForNew w-100" readonly required />
+                                        </div>
                                     </td>
-                                    <td>
-                                        <input type="number" name="details[AAAAA][qty]" value=""
-                                            class="form-control  resetKeyForNew quantity-input text-right" readonly
-                                            required />
+                                    <td style="min-width: 100px;">
+                                        <div class="form-group mb-0">
+                                            <input type="number" name="details[AAAAA][qty]" value=""
+                                                class="form-control resetKeyForNew quantity-input text-right w-100" readonly required />
+                                        </div>
                                     </td>
+
                                     <td>
                                         <input type="number" name="details[AAAAA][amount]" value=""
                                             class="form-control  resetKeyForNew text-right" readonly
@@ -169,6 +174,10 @@
                                         <input type="date" class="form-control  resetKeyForNew"
                                             name="details[AAAAA][date_placed_in_service]" required />
                                     </td>
+
+                                    <td>
+                                        <input type="text" class="form-control  resetKeyForNew" name="details[AAAAA][date_placed_in_service_text]">
+                                    </td>
                                     <td>
                                         <select class="form-control  resetKeyForNew select2"
                                             name="details[AAAAA][site]" required />
@@ -181,7 +190,7 @@
                                 </tr>
 
                                 <tr class="notremovefornew">
-                                    <td colspan="9"></td>
+                                    <td colspan="10"></td>
                                     <td class="text-right">
                                         <a href="#" class="add-table-row btn btn-sm btn-info"
                                             style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
@@ -206,6 +215,35 @@
 @push('page_scripts')
     <script>
         $(document).ready(function() {
+
+
+            $('#details').on('input', "input[name$='[date_placed_in_service]']", function () {
+                        const $row = $(this).closest('tr');
+                        const dateVal = $(this).val();
+                        $row.find("input[name$='[date_placed_in_service_text]']").val(dateVal);
+                    });
+
+                    $('#details').on('blur', "input[name$='[date_placed_in_service_text]']", function () {
+                        const $row = $(this).closest('tr');
+                        const textVal = $(this).val().trim();
+                        const isValid = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+
+                        if (isValid) {
+                            $row.find("input[name$='[date_placed_in_service]']").val(textVal);
+                        }
+                    });
+
+                    $('#details').on('paste', "input[name$='[date_placed_in_service_text]']", function () {
+                        const input = this;
+                        setTimeout(() => {
+                            const $row = $(input).closest('tr');
+                            const textVal = $(input).val().trim();
+                            const isValid = /^\d{4}-\d{2}-\d{2}$/.test(textVal);
+                            if (isValid) {
+                                $row.find("input[name$='[date_placed_in_service]']").val(textVal);
+                            }
+                        }, 0);
+                    });
 
             const loader = document.getElementById('loader');
             const form = document.getElementById('commissionForm');
@@ -328,7 +366,7 @@
                 }
             }
             //populate asset description and uom based on selection of asset no
-           let bulkLoading = false; // Declare this at the top outside of $(document).ready
+           let bulkLoading = false;
 
             $(document).on('change', '.asset-number-selector', function () {
                 if (bulkLoading) return;
@@ -393,9 +431,12 @@
 
             const siteCache = {};
 
+            let pendingDzongkhagFetches = 0;
+
             $(document).on('change', '.dzongkhag-selector', function () {
                 const dzongkhagId = this.value;
                 if (!dzongkhagId) return;
+                $('#loader').show();
 
                 const row = this.closest('tr');
                 const $row = $(row);
@@ -403,9 +444,17 @@
                 const $siteSelect = $row.find("select[name^='details'][name$='[site]']");
                 const preselectedSite = $dzongkhagSelect.attr('preselectedSite');
 
+                const done = () => {
+                    pendingDzongkhagFetches--;
+                    if (pendingDzongkhagFetches <= 0) {
+                        $('#loader').hide();
+                    }
+                };
+
                 if (siteCache[dzongkhagId]) {
-                    populateSiteOptions($siteSelect, siteCache[dzongkhagId], preselectedSite);
+                    populateSiteOptions($siteSelect, siteCache[dzongkhagId], preselectedSite, done);
                 } else {
+                    pendingDzongkhagFetches++;
                     $siteSelect.html('<option disabled selected>Loading...</option>');
 
                     fetch(`/getsitesbydzongkhagid/${dzongkhagId}`)
@@ -413,31 +462,39 @@
                         .then(data => {
                             const sites = data?.data?.sites || [];
                             siteCache[dzongkhagId] = sites;
-                            populateSiteOptions($siteSelect, sites, preselectedSite);
+                            populateSiteOptions($siteSelect, sites, preselectedSite, done);
                         })
                         .catch(() => {
                             $siteSelect.html('<option disabled selected>No sites</option>');
                             showErrorMessage('Failed to load sites');
+                            done(); // Decrement even on error
                         });
                 }
 
                 $dzongkhagSelect.removeAttr('preselectedSite');
             });
 
-            function populateSiteOptions($siteSelect, sites, preselectedSite) {
+            function populateSiteOptions($siteSelect, sites, preselectedSite, callback = () => {}) {
                 if (!sites.length) {
                     $siteSelect.html('<option disabled selected>No sites</option>');
+                    callback();
                     return;
                 }
+
                 let options = '<option disabled selected hidden>Select Your Option</option>';
                 for (const site of sites) {
                     options += `<option value="${site.id}">${site.name}</option>`;
                 }
                 $siteSelect.html(options);
+
                 if (preselectedSite) {
                     $siteSelect.val(preselectedSite).trigger('change');
+                    setTimeout(callback, 100);
+                } else {
+                    callback();
                 }
             }
+
 
 
             function updateTotalQuantity() {
