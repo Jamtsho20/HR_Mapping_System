@@ -5,7 +5,7 @@
     <style>
         .tooltip-inner {
             text-align: left !important;
-            /* white-space: pre-line; */
+            white-space: pre-line;
         }
     </style>
 @endpush
@@ -29,7 +29,8 @@
         </div>
 
         <div class="row row-sm">
-            <span class="text-primary"># Individual Attendance for year {{ $selectedYear }}.</span>
+            <span class="text-primary"># Individual Attendance for year {{ $selectedYear }}.</span><br />
+            <span class="text-primary"># Please make sure to apply leave accordingly, if you are marked as absent for current day of the month.</span><br />
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
@@ -87,13 +88,14 @@
                                                                             data-bs-toggle="tooltip"
                                                                             data-bs-html="true"
                                                                             data-bs-placement="bottom"
-                                                                            title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}<br>
-                                                                            Check-in From: {{ $data['checked_in_from'] ?? config('global.null_value') }}<br>
-                                                                            Check-out From: {{ $data['checked_out_from'] ?? config('global.null_value') }}<br>
-                                                                            Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}<br>
-                                                                            Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}<br>
-                                                                            Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}<br>
-                                                                            Date: {{ $data['attendance_date'] ?? config('global.null_value') }}">
+                                                                            title="Clocked-in at: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;                                                                            
+                                                                            Clocked-in From: {{ $data['checked_in_from'] ?? config('global.null_value') }}&#10;
+                                                                            Clocked-out From: {{ $data['checked_out_from'] ?? config('global.null_value') }}&#10;
+                                                                            Clocked-out at: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
+                                                                            Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}&#10;
+                                                                            Total Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}&#10;
+                                                                            Date: {{ $data['attendance_date'] ?? config('global.null_value') }}&#10;
+                                                                            Remarks: {{ $data['remarks'] ?? config('global.null_value') }}">
                                                                             {{ $data['attendance_status_code'] ?? config('global.null_value') }}
                                                                         </td>
                                                                     @endforeach

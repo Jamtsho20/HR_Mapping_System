@@ -48,10 +48,11 @@ class UpdateAbsenteesDaily extends Command
                     'updated_by' => 1,
                 ];
                 $detail->attendance_status_id = ABSENT_STATUS; 
-                $detail->remarks = 'marked absent on ' . now()->toDateTimeString() . ' as he/she didn`t checked in for the day (System generated).';
+                $detail->remarks = 'marked as absent for ' . now()->format('Y-m-d') . ' as he/she didn`t checked in for the day (System generated).';
                 $detail->updated_by = 1;
                 $detail->updated_at = now();
                 $detail->update_history = json_encode($history);
+                $detail->save();
             }
         }
         

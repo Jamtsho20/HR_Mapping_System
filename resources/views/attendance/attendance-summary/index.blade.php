@@ -55,6 +55,7 @@
 
         <div class="row row-sm">
             <span class="text-primary"># Attendance summary for month {{ request()->get('year_month', \Carbon\Carbon::parse($yearMonth)->format('F Y')) }}.</span>
+            <span class="text-primary"># Please make sure to ask employee to apply leave accordingly, if he/she is marked as absent for current day of the month.</span><br />
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
@@ -96,10 +97,12 @@
                                                         data-bs-toggle="tooltip"
                                                         data-bs-html="true"
                                                         data-bs-placement="bottom"
-                                                        title="Check-in: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;
-                                                            Check-out: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
+                                                        title="Clocked-in: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;
+                                                            Clocked-in From: {{ $data['checked_in_from'] ?? config('global.null_value') }}&#10;
+                                                            Clocked-out From: {{ $data['checked_out_from'] ?? config('global.null_value') }}&#10;
+                                                            Clocked-out: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
                                                             Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}&#10;
-                                                            Worked Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}&#10;
+                                                            Total Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}&#10;
                                                             Date: {{ $data['attendance_date'] ?? config('global.null_value') }}&#10;
                                                             Remarks: {{ $data['remarks'] ?? config('global.null_value') }}">
                                                         {{ $data['attendance_status_code'] ?? config('global.null_value') }}

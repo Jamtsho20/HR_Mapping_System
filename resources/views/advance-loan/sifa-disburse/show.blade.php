@@ -134,11 +134,12 @@
                     <div class="modal-body">
                         <strong>Remarks: </strong><br> <textarea name="remarks" class="form-control" row="2" placeholder="Remark"></textarea>
                     </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Yes, Disburse</button>
+
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="submit" name="action" value="disburse" class="btn btn-success">Disburse</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
                     </div>
+
                 </form>
             </div>
         </div>

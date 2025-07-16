@@ -52,37 +52,52 @@ class AdvanceSifaLoanController extends Controller
     }
 
     public function disburse(Request $request, $id)
-    {
-        //here transaction is used since on update aplication audit log also gets updtaed/create
-        $disbursedStatus = 4;
-        $application = AdvanceApplication::findOrFail($id);
-        $auditData = ApplicationAuditLog::where('application_id', $id)->where('application_type', \App\Models\AdvanceApplication::class)->first();
+{
+    $application = AdvanceApplication::findOrFail($id);
+    $auditData = ApplicationAuditLog::where('application_id', $id)
+        ->where('application_type', \App\Models\AdvanceApplication::class)
+        ->first();
 
-        try{
-            DB::beginTransaction();
-            $application->update([
-                'status' => $disbursedStatus,
-                // 'remarks' => $request->remarks
-            ]);
+    $action = $request->input('action');
+    $status = $action === 'reject' ? -1 : 4;
 
-            ApplicationAuditLog::create([
-                'application_type' => $auditData->application_type,
-                'application_id' => $auditData->application_id,
-                'approval_option' => $auditData->approval_option ?? null,
-                'hierarchy_id' => $auditData->hierarchy_id ?? null,
-                'status' => $disbursedStatus,
-                'remarks' => $request->remarks ?? null,
-                'action_performed_by' => auth()->user()->id,
-                'edited_by' => $auditData->edited_by ?? null,
-                'sap_response' => $auditData->sap_response ?? null,
-            ]);
-            DB::commit();
-        }catch(\Exception $e){
-            DB::rollBack();
-            // \Log::error($e->getMessage());
-            return back()->with('msg_error', 'Something went wrong. Please try again.');
-        }
-        return redirect()->route('sifa-disburse.index')
-            ->with('success', 'SIFA Loan Payment has been successfully disbursed.');
+    try {
+        DB::beginTransaction();
+
+        $application->update([
+            'status' => $status,
+            'remarks' => $request->remarks,
+        ]);
+
+        ApplicationAuditLog::create([
+            'application_type' => $auditData->application_type,
+            'application_id' => $auditData->application_id,
+            'approval_option' => $auditData->approval_option ?? null,
+            'hierarchy_id' => $auditData->hierarchy_id ?? null,
+            'status' => $status,
+            'remarks' => $request->remarks ?? null,
+            'action_performed_by' => auth()->user()->id,
+            'edited_by' => $auditData->edited_by ?? null,
+            'sap_response' => $auditData->sap_response ?? null,
+        ]);
+
+        // Also update application_histories table if exists
+        \App\Models\ApplicationHistory::where('application_id', $application->id)
+            ->where('application_type', \App\Models\AdvanceApplication::class)
+            ->update(['status' => $status]);
+
+        DB::commit();
+
+        $message = $action === 'reject'
+            ? 'Application has been rejected successfully.'
+            : 'SIFA Loan Payment has been successfully disbursed.';
+
+        return redirect()->route('sifa-disburse.index')->with('success', $message);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('msg_error', 'Something went wrong. Please try again.');
     }
+}
+
 }
