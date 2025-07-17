@@ -41,11 +41,19 @@
 
             <!-- Remarks for 'NO' selection -->
             <div id="remarks-section" style="display: none;">
-                @include('sifa.sifa-registration.forms.sifaretirementnomination')
                 <div class="form-group">
                     <label for="remarks">Remarks:<span class="text-danger">*</span></label>
                     <textarea name="remarks" id="remarks" class="form-control" rows="4"></textarea>
                 </div>
+            </div>
+
+            <hr>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="consent" required>
+                <label class="form-check-label" for="consent">
+                    <strong> I give my consent for the company to use and store the information I have submitted for SIFA, as per the SIFA By-Laws.
+                        I understand that my information will be kept confidential and used only when required in relation to any future unforeseen circumstances.</strong>
+                </label>
             </div>
 
             <div class="form-group d-flex justify-content-center">
