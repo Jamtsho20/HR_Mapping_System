@@ -8,7 +8,7 @@
 )
     @section('buttons')
     <a href="{{ route('sifa-registration.create') }}" class="btn btn-sm btn-primary">
-        <i class="fa fa-plus"></i> New Sifa Registration
+        <i class="fa fa-plus"></i> New SIFA Registration
     </a>
     @endsection
 @endif
@@ -50,7 +50,7 @@
                                                             </th>
 
                                                             <th>
-                                                                IS SIFA REGISTERED
+                                                                SIFA MEMBER
                                                             </th>
                                                             <th>
                                                                 STATUS
@@ -139,7 +139,7 @@
                                                         @else
                                                         <tr>
                                                             <td colspan="7" class="text-center text-danger">No
-                                                                Sifa Registration record found</td>
+                                                                SIFA Registration record found</td>
                                                         </tr>
                                                         @endif
                                                     </tbody>
