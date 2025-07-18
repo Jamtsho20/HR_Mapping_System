@@ -151,12 +151,4 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="consent" checked disabled>
-                <label class="form-check-label" for="consent">
-                    <strong>
-                        I give my consent for the company to use and store the information I have submitted for SIFA, as per the SIFA By-Laws.
-                        I understand that my information will be kept confidential and used only when required in relation to any future unforeseen circumstances.
-                    </strong>
-                </label>
-            </div>
+           

@@ -12,12 +12,6 @@
         <!-- Personal Information Section -->
         @include('sifa.sifa-registration.forms.personalinfo')
         <hr>
-        <div class="form-group form-check mt-4">
-            <input type="checkbox" class="form-check-input" id="agree" checked disabled>
-            <label class="form-check-label" for="agree">
-                I declare that I have fully read, understood and agree to the <strong>By-laws of SIFA</strong>.
-            </label>
-        </div>
         <!-- Sifa Nomination Section -->
         @include('sifa.sifa-registration.show.sifanomination')
         <hr>
