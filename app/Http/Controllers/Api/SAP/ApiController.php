@@ -101,6 +101,7 @@ class ApiController extends BaseController
             'item_description' => 'required',
             'uom' => 'required',
             'status' => 'required',
+            'asset_class_id' => 'required'
         ];
 
         $validator = \Validator::make($request->all(), $rules);
@@ -120,6 +121,7 @@ class ApiController extends BaseController
                 $item->item_no_old = $request->item_no_old;
                 $item->uom = $request->uom;
                 $item->is_fixed_asset = $request->fa_enabled ?? 1;
+                $item->item_group_id = $request->asset_class_id;
                 $item->status = $request->status ?? 1;
                 $item->updated_by = $this->sapUser; // Track who updated it
                 $item->save();
@@ -134,6 +136,7 @@ class ApiController extends BaseController
                 $item->uom = $request->uom;
                 $item->is_fixed_asset = $request->fa_enabled ?? 1;
                 $item->status = $request->status ?? 1;
+                $item->item_group_id = $request->asset_class_id;
                 $item->created_by = $this->sapUser;
                 $item->save();
                 $message = 'Item master created successfully.';
