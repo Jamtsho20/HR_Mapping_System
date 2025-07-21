@@ -358,22 +358,43 @@ class ApprovalController extends Controller
            $groupedApplications = $application->details->groupBy(function ($detail) {
                     return $detail->date_placed_in_service;
                 });
-                $timestamp = now()->format('ym-Hi');
-                $postFields = $groupedApplications->map(function ($group, $date) use ($application, $timestamp) {
+
+               $allItemsWithTimestamp = collect();
+
+
+                $groupedApplications->each(function ($group) use (&$allItemsWithTimestamp) {
+                    foreach ($group as $detail) {
+                        $allItemsWithTimestamp->push([
+                            'detail' => $detail,
+                            'timestamp' => now()->format('ym-Hi-s-u') . '-' . Str::random(3),
+                            'date' => $detail->date_placed_in_service
+                        ]);
+                        usleep(500);
+                    }
+                });
+
+
+                $groupedWithTimestamps = $allItemsWithTimestamp->groupBy('date');
+
+
+                $postFields = $groupedWithTimestamps->map(function ($itemsWithTimestamp, $date) use ($application) {
                     return [
-                        "Items" => $group->map(function ($detail) use ($application, $timestamp) {
+                        "Items" => $itemsWithTimestamp->map(function ($data) use ($application) {
+                            $detail = $data['detail'];
+                            $timestamp = $data['timestamp'];
                             $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
+
                             return [
                                 "ItemCode" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
                                 "ItemName" => $item->item_description,
                                 "ForeignName" => $item->item_no,
                                 "ItemsGroupCode" => 102,
                                 "ItemType" => "F",
-                                "AssetClass" => $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_group_id,
+                                "AssetClass" => $item->item_group_id,
                                 "AssetGroup" => null,
                                 "InventoryNumber" => null,
                                 "U_Employee" => $application->employee->username . " " . $application->employee->name,
-                                "AssetSerialNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no,
+                                "AssetSerialNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}",
                                 "Location" => null,
                                 "ItemProjects" => [
                                     [
@@ -386,9 +407,13 @@ class ApprovalController extends Controller
                             ];
                         })->toArray(),
 
-                        "AssetDocumentLineCollection" => $group->map(function ($detail) use ($timestamp) {
+                        "AssetDocumentLineCollection" => $itemsWithTimestamp->map(function ($data) {
+                            $detail = $data['detail'];
+                            $timestamp = $data['timestamp'];
+                            $item = $detail->receivedSerial->requisitionDetail->grnItemDetail->item;
+
                             return [
-                                "AssetNumber" => (string) $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no . '-' . $timestamp,
+                                "AssetNumber" => "{$item->item_no}-{$detail->receivedSerial->asset_serial_no}-{$timestamp}",
                                 "Quantity" => $detail->receivedSerial->quantity ?? 1,
                                 "TotalLC" => $detail->receivedSerial->amount
                             ];

@@ -47,7 +47,7 @@
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
                             <strong>Marriage Certificate / Confirmation of Marriage, if married</strong>
-                            <span class="text-danger">*</span>
+                            
                         </label>
                         @if (optional($sifaDocuments)->marriage_certificate)
                         <div class="mt-3">
@@ -64,7 +64,7 @@
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
                             <strong>Certified family tree of spouse of the member, if married</strong>
-                            <span class="text-danger">*</span>
+                            
                         </label>
                         @if (optional($sifaDocuments)->family_tree_spouse)
                         <div class="mt-3">
@@ -84,7 +84,7 @@
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
                             <strong>Copies of Citizenship Identity Cards of the dependent(s) on the spouse's side, if married</strong>
-                            <span class="text-danger">*</span>
+                            
                         </label>
                         @if (optional($sifaDocuments)->spouse_cid)
                         <div class="mt-3">
@@ -101,7 +101,7 @@
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
                             <strong>Birth Certificate(s) of biological children, if married and have children</strong>
-                            <span class="text-danger">*</span>
+                            
                         </label>
                         @if (optional($sifaDocuments)->birth_certificate)
                         <div class="mt-3">
@@ -120,7 +120,7 @@
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
                             <strong>Legal documents in case of foster parents and adopted children of the member</strong>
-                            <span class="text-danger">*</span>
+                            
                         </label>
                         @if (optional($sifaDocuments)->adopted_children)
                         <div class="mt-3">
@@ -137,7 +137,7 @@
                     <div class="form-group file-upload-border">
                         <label for="input-file0">
                             <strong>If divorced, court verdict / legal agreement endorsed by a Royal Court of Justice</strong>
-                            <span class="text-danger">*</span>
+                          
                         </label>
                         @if (optional($sifaDocuments)->if_divorced)
                         <div class="mt-3">
@@ -151,12 +151,4 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="consent" checked disabled>
-                <label class="form-check-label" for="consent">
-                    <strong>
-                        I give my consent for the company to use and store the information I have submitted for SIFA, as per the SIFA By-Laws.
-                        I understand that my information will be kept confidential and used only when required in relation to any future unforeseen circumstances.
-                    </strong>
-                </label>
-            </div>
+           
