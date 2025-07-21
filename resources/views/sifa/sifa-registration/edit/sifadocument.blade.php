@@ -87,7 +87,7 @@
          <div class="form-group file-upload-border">
              <label for="marriage_certificate">
                  <strong>Marriage Certificate / Confirmation of Marriage, if married</strong>
-                 <span class="text-danger">*</span>
+                 
              </label>
              @if (!empty($sifaDocuments->marriage_certificate))
              <div class="mt-3">
@@ -105,7 +105,7 @@
          <div class="form-group file-upload-border">
              <label for="family_tree_spouse">
                  <strong>Certified family tree of spouse of the member, if married</strong>
-                 <span class="text-danger">*</span>
+                 
              </label>
              @if (!empty($sifaDocuments->family_tree_spouse))
              <div class="mt-3">
@@ -127,7 +127,7 @@
              <label for="spouse_cid">
                  <strong>Copies of Citizenship Identity Cards of the dependent(s) on the spouse's side, if
                      married</strong>
-                 <span class="text-danger">*</span>
+                 
              </label>
              @if (!empty($sifaDocuments->spouse_cid))
              <div class="mt-3">
@@ -145,7 +145,7 @@
          <div class="form-group file-upload-border">
              <label for="birth_certificate">
                  <strong>Birth Certificate(s) of biological children, if married and have children</strong>
-                 <span class="text-danger">*</span>
+                 
              </label>
              @if (!empty($sifaDocuments->birth_certificate))
              <div class="mt-3">
@@ -165,7 +165,7 @@
          <div class="form-group file-upload-border">
              <label for="adopted_children">
                  <strong>Legal documents in case of foster parents and adopted children of the member</strong>
-                 <span class="text-danger">*</span>
+                 
              </label>
              @if (!empty($sifaDocuments->adopted_children))
              <div class="mt-3">
@@ -184,7 +184,7 @@
              <label for="if_divorced">
                  <strong>If divorced, court verdict / legal agreement endorsed by a Royal Court of
                      Justice</strong>
-                 <span class="text-danger">*</span>
+                 
              </label>
              @if (!empty($sifaDocuments->if_divorced))
              <div class="mt-3">

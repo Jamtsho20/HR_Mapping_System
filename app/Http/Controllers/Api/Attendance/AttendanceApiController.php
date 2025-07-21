@@ -24,12 +24,27 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $user = auth()->user();
         $yearMonth = $request->get('year_month') ?? carbon::now()->format('m-Y');
+        $currentMonth = now()->format('m-Y');
         $attendances = $attendanceService->empAttendanceEntry($user, $year = null, $yearMonth);
         
         if($attendances == null){
             return $this->errorResponse('Attendance for the selected month is not availaible');
         }
-        
+
+        // Filter out future days
+        if ($yearMonth === $currentMonth) {
+            $currentDay = (int) now()->format('d');
+            // Filter out future days
+            $attendances = array_filter($attendances, function ($item) use ($currentDay) {
+                return (int) $item['for_day'] <= $currentDay;
+            });
+        }
+
+        // Sort descending by day incase in future client wants to have desc sorting only for cuurnt month then put below code in above if block
+        usort($attendances, function ($a, $b) {
+            return (int)$b['for_day'] <=> (int)$a['for_day'];
+        });
+
         return $this->successResponse([
             'attendances' => $attendances,
             'year_month' => $yearMonth

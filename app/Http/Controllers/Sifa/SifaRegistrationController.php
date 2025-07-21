@@ -88,15 +88,7 @@ class SifaRegistrationController extends Controller
         if ($request->is_registered == 'no') {
             $rules['remarks'] = 'required|string';
             // Validate the nominations array
-            $rules['sifa_retirement_and_nomination'] = 'required|array|min:1'; // Ensure at least one nominee is added
 
-            // Loop through each nomination entry for dynamic validation
-            foreach ($request->sifa_retirement_and_nomination as $key => $value) {
-                $rules["sifa_retirement_and_nomination.$key.nominee_name"] = 'required|string|max:255';
-                $rules["sifa_retirement_and_nomination.$key.relation_with_employee"] = 'required|string|max:255';
-                $rules["sifa_retirement_and_nomination.$key.cid_number"] = 'required|digits:11'; // Assuming CID is 11 digits
-                $rules["sifa_retirement_and_nomination.$key.percentage_of_share"] = 'required|numeric|min:1|max:100';
-            }
         } else {
             $this->validate($request, $rules);
         }
@@ -113,16 +105,10 @@ class SifaRegistrationController extends Controller
             $sifaRegistration->save(); // Save the main record first
 
             // Save the sifa_retirement_and_nomination details
-            if ($request->is_registered == 'no' && $request->has('sifa_retirement_and_nomination') && is_array($request->sifa_retirement_and_nomination)) {
-                foreach ($request->sifa_retirement_and_nomination as $key => $nomination) {
-                    $nominationModel = new SifaRetirementAndNomination();
-                    $nominationModel->sifa_registration_id = $sifaRegistration->id; // Reference to the main record
-                    $nominationModel->nominee_name = $nomination['nominee_name'] ?? null;
-                    $nominationModel->relation_with_employee = $nomination['relation_with_employee'] ?? null;
-                    $nominationModel->cid_number = $nomination['cid_number'] ?? null;
-                    $nominationModel->percentage_of_share = $nomination['percentage_of_share'] ?? null;
-                    $nominationModel->save();
-                }
+            if ($request->is_registered == 'no') {
+                // Set is_registered to 0 and save remarks only
+                $sifaRegistration->is_registered = 0;
+                $sifaRegistration->save();
             } else {
                 // If "Yes", set is_registered to 1 (default behavior)
 
@@ -245,11 +231,11 @@ class SifaRegistrationController extends Controller
             $sifaRegistration->save();
             // Notify approver
             $approver = User::whereHas('roles', function ($q) {
-                $q->where('role_id', SIFA_MANAGER); 
+                $q->where('role_id', SIFA_MANAGER);
             })->first();
-// dd($approver);
-             Mail::to($approver->email)->send(new \App\Mail\SifaEditedNotificationMail($sifaRegistration, $approver->id));
-            
+            // dd($approver);
+            Mail::to($approver->email)->send(new \App\Mail\SifaEditedNotificationMail($sifaRegistration, $approver->id));
+
             // Delete old nominations and dependents
             SifaNomination::where('sifa_registration_id', $sifaRegistration->id)->delete();
             SifaDependent::where('sifa_registration_id', $sifaRegistration->id)->delete();

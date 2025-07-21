@@ -10,22 +10,16 @@
             <input type="hidden" name="status" id="status" value="1">
             @include('sifa.sifa-registration.forms.personalinfo')
             <hr>
-            <div class="form-group form-check mt-4">
-                <input type="checkbox" class="form-check-input" id="agree" required>
-                <label class="form-check-label" for="agree">
-                    I declare that I have fully read, understood and agree to the <strong>By-laws of SIFA</strong>.
-                </label>
-            </div>
             <!-- Membership for SIFA Section with Radio Buttons -->
-            <h5 class="mb-4"><strong>Membership for SIFA is purely voluntary. Do you wish to register as a member of SIFA?</strong></h5>
+            <h5 class="mb-4"><strong>Do you wish to register as a member of SIFA?</strong></h5>
             <div class="form-group">
                 <label class="mr-3">
                     <input type="radio" name="is_registered" value="yes" required>
-                    <span><strong>YES: </strong><em>(If you wish to register as a member, you cannot withdraw your membership from SIFA for the entire duration of your service with the company.)</em></span>
+                    <span><strong>YES: </strong><em>(I wish to become a member of Staff Initiative for Financial Assistance (SIFA) by declaring and confirming that I have read and have been briefed on the By-laws for SIFA. I have clearly understood and agree to the By-laws of SIFA. In addition, I give my consent to the company to store and use my information I will submit for the purposes related to SIFA.)</em></span>
                 </label>
                 <label>
                     <input type="radio" name="is_registered" value="no" required>
-                    <span><strong>NO: </strong><em>(If you do not wish to register as a member this time, you cannot become a member for the entire duration of your service with the company.)</em></span>
+                    <span><strong>NO: </strong><em>(I confirm NOT to become a member of Staff Initiative for Financial Assistance (SIFA) by declaring and confirming that I have read and have been briefed on the By-laws for SIFA. I have clearly understood the By-laws of SIFA and do not wish to become a member.)</em></span>
                 </label>
             </div>
             <hr>
@@ -41,13 +35,13 @@
 
             <!-- Remarks for 'NO' selection -->
             <div id="remarks-section" style="display: none;">
-                @include('sifa.sifa-registration.forms.sifaretirementnomination')
                 <div class="form-group">
                     <label for="remarks">Remarks:<span class="text-danger">*</span></label>
                     <textarea name="remarks" id="remarks" class="form-control" rows="4"></textarea>
                 </div>
             </div>
 
+            <hr>
             <div class="form-group d-flex justify-content-center">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
