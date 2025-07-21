@@ -692,7 +692,7 @@ class AjaxRequestController extends Controller
     public function getSitesByDzongkhagId($dzongkhagId)
     {
         try {
-            $sites = MasSite::where('dzongkhag_id', $dzongkhagId)->get(['id', 'name']);
+            $sites = MasSite::where('status', '1')->where('dzongkhag_id', $dzongkhagId)->get(['id', 'name']);
             return $this->successResponse(['sites' => $sites]);
         } catch(\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching sites. Please try again.');

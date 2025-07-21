@@ -189,6 +189,7 @@
                 const grnHeader = document.getElementById('grn-header');
                 const grnTd = document.querySelector('#grn-td');
                 const grnSelect = document.querySelector('#grn-select');
+                const grnsIput = document.getElementById('grn-no');
                 const colspace = document.getElementById('colspace');
 
                 if (grnHeader) {
@@ -217,6 +218,18 @@
                         grnHeader.style.display = 'none';
                         if (grnTd) grnTd.style.opacity = '0.5';
 
+                        if(grnsIput){
+                            grnsIput.disabled = true;
+                            grnsIput.required = false;
+
+                            colspace.setAttribute('colspan', '8');
+                            
+                            const grnTdEl = document.querySelector('.grn-td');
+                            if (grnTdEl) grnTdEl.style.display = 'none';
+
+                            $(grnSelect).val(null).trigger('change');
+
+                        }
                         if (grnSelect) {
                             const select2Container = $(grnSelect).next('.select2-container');
                             if (select2Container.length) select2Container.remove();
@@ -244,6 +257,11 @@
                             const grnTdEl = document.querySelector('.grn-td');
                             if (grnTdEl) grnTdEl.style.display = '';
                             if (grnTd) grnTd.style.opacity = '1';
+
+                            if(grnsIput){
+                                grnsIput.disabled = false;
+                                grnsIput.required = true;
+                            }
 
                             if (grnSelect) {
                                 grnSelect.disabled = false;
