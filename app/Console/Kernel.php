@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
         //as earned leave values get reset every year using the balance from previous year's casual and earned leave balance
         $schedule->command('credit-emp-earned-leaves-monthly')->monthly()->at('00:00');
         $schedule->command('credit-emp-leaves-yearly')->yearly()->at('03:00');
-        $schedule->command('update-absentees-daily')->daily()->at('10:35');
+        $schedule->command('update-absentees-daily')->daily()->at('22:35');
         $schedule->command('holiday:check-alert')->daily()->at('4:00');
         $schedule->command('reset-delegations')->daily()->at('00:35');
         // $schedule->command('upload-monthly-attendance')->monthly()->at('01:00');

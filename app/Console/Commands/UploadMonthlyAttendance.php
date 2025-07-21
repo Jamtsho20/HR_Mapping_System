@@ -4,8 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\DailyAttendance;
 use App\Models\EmployeeAttendance;
-use App\Models\MasDepartment;
-use App\Models\MasSection;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
