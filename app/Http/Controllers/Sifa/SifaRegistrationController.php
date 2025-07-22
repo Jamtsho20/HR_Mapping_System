@@ -41,17 +41,17 @@ class SifaRegistrationController extends Controller
         'sifa_nomination.*.relation_with_employee' => 'required|string|max:255',
         'sifa_nomination.*.cid_number' => 'required|string|max:11',
         'sifa_nomination.*.percentage_of_share' => 'required|numeric|min:1|max:100',
+        'sifa_nomination.*.attachment' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
 
         'sifa_dependents' => 'required|array|min:1',
         'sifa_dependents.*.dependent_name' => 'required|string|max:255',
         'sifa_dependents.*.relation_with_employee' => 'required|string|max:255',
-        'sifa_dependents.*.cid_number' => 'required|string|max:255',
+        'sifa_dependents.*.cid_number' => 'required|string|max:11',
+        'sifa_dependents.*.attachment' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
 
         'family_tree' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'cid_of_dep_nom.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048', // Handle multiple files
         'marriage_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         'family_tree_spouse' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'spouse_cid' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         'birth_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         'adopted_children' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         'if_divorced' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -76,7 +76,7 @@ class SifaRegistrationController extends Controller
 
     public function store(Request $request)
     {
-
+        //dd($request->all());
         // Conditionally apply validation rules
         $sifaTypeId = MasSifaType::first()->id;
         $rules = $this->rules;
@@ -121,24 +121,34 @@ class SifaRegistrationController extends Controller
             // If the user selects "Yes", process the nomination, dependents, and documents
             if ($request->is_registered == 'yes') {
                 // Loop through and store the nominations
-                foreach ($request->sifa_nomination as $nominationData) {
+                foreach ($request->sifa_nomination as $key => $nominationData) {
                     $sifaNomination = new SifaNomination();
-                    $sifaNomination->sifa_registration_id = $sifaRegistration->id; // Link to the SifaRegistration
+                    $sifaNomination->sifa_registration_id = $sifaRegistration->id;
                     $sifaNomination->nominee_name = $nominationData['nominee_name'];
                     $sifaNomination->relation_with_employee = $nominationData['relation_with_employee'];
                     $sifaNomination->cid_number = $nominationData['cid_number'];
                     $sifaNomination->percentage_of_share = $nominationData['percentage_of_share'];
-                    $sifaNomination->save(); // Save nomination data
 
+                    if ($request->hasFile("sifa_nomination.$key.attachment")) {
+                        $file = $request->file("sifa_nomination.$key.attachment");
+                        $sifaNomination->attachment = uploadImageToDirectory($file, $this->filePath);
+                    }
+
+                    $sifaNomination->save();
                 }
-
                 // Store SIFA Dependents Data
-                foreach ($request->sifa_dependents as $dependentData) {
+                foreach ($request->sifa_dependents as $key => $dependentData) {
                     $sifaDependent = new SifaDependent();
-                    $sifaDependent->sifa_registration_id = $sifaRegistration->id; // Link to the SifaRegistration
+                    $sifaDependent->sifa_registration_id = $sifaRegistration->id;
                     $sifaDependent->dependent_name = $dependentData['dependent_name'];
                     $sifaDependent->relation_with_employee = $dependentData['relation_with_employee'];
                     $sifaDependent->cid_number = $dependentData['cid_number'];
+
+                    if ($request->hasFile("sifa_dependents.$key.attachment")) {
+                        $file = $request->file("sifa_dependents.$key.attachment");
+                        $sifaDependent->attachment = uploadImageToDirectory($file, $this->filePath);
+                    }
+
                     $sifaDependent->save();
                 }
 
@@ -147,7 +157,7 @@ class SifaRegistrationController extends Controller
 
 
                 // Loop through fields with single file uploads
-                foreach (['family_tree', 'cid_of_dep_nom', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid', 'birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
+                foreach (['family_tree', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid', 'birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
                     if ($request->hasFile($field)) {
                         if (is_array($request->file($field))) {
                             // Multiple files
@@ -241,35 +251,67 @@ class SifaRegistrationController extends Controller
             SifaDependent::where('sifa_registration_id', $sifaRegistration->id)->delete();
 
             // Update or create new nominations
-            foreach ($request->sifa_nomination as $nominationData) {
+            foreach ($request->sifa_nomination as $index => $nominationData) {
+                $attachmentPath = null;
+
+                // Check for newly uploaded file
+                if ($request->hasFile("sifa_nomination.$index.attachment")) {
+                    $file = $request->file("sifa_nomination.$index.attachment");
+                    $attachmentPath = uploadImageToDirectory($file, $this->filePath);
+                }
+                // Use existing attachment if no new file uploaded
+                elseif (!empty($nominationData['existing_attachment'])) {
+                    $attachmentPath = $nominationData['existing_attachment'];
+                } else {
+                    // If attachment is required, throw exception or return with error
+                    throw new \Exception("Attachment is required for nominee " . ($nominationData['nominee_name'] ?? 'Unknown'));
+                }
+
                 SifaNomination::updateOrCreate(
-                    ['id' => $nominationData['id'] ?? null], // Check if nomination exists
+                    ['id' => $nominationData['id'] ?? null],
                     [
-                        'sifa_registration_id' => $sifaRegistration->id,
-                        'nominee_name' => $nominationData['nominee_name'],
+                        'sifa_registration_id'   => $sifaRegistration->id,
+                        'nominee_name'           => $nominationData['nominee_name'],
                         'relation_with_employee' => $nominationData['relation_with_employee'],
-                        'cid_number' => $nominationData['cid_number'],
-                        'percentage_of_share' => $nominationData['percentage_of_share'],
+                        'cid_number'             => $nominationData['cid_number'],
+                        'percentage_of_share'    => $nominationData['percentage_of_share'],
+                        'attachment'             => $attachmentPath,
                     ]
                 );
             }
 
             // Update or create new dependents
-            foreach ($request->sifa_dependents as $dependentData) {
+            foreach ($request->sifa_dependents as $index => $dependentData) {
+                $attachmentPath = null;
+
+                // Check if new file uploaded
+                if ($request->hasFile("sifa_dependents.$index.attachment")) {
+                    $file = $request->file("sifa_dependents.$index.attachment");
+                    $attachmentPath = uploadImageToDirectory($file, $this->filePath);
+                }
+                // Retain old file if no new file uploaded
+                elseif (!empty($dependentData['existing_attachment'])) {
+                    $attachmentPath = $dependentData['existing_attachment'];
+                } else {
+                    // You can decide whether to throw error if required
+                    throw new \Exception("Attachment is required for dependent " . ($dependentData['dependent_name'] ?? 'Unknown'));
+                }
+
                 SifaDependent::updateOrCreate(
-                    ['id' => $dependentData['id'] ?? null], // Check if dependent exists
+                    ['id' => $dependentData['id'] ?? null],
                     [
-                        'sifa_registration_id' => $sifaRegistration->id,
-                        'dependent_name' => $dependentData['dependent_name'],
+                        'sifa_registration_id'   => $sifaRegistration->id,
+                        'dependent_name'         => $dependentData['dependent_name'],
                         'relation_with_employee' => $dependentData['relation_with_employee'],
-                        'cid_number' => $dependentData['cid_number'],
+                        'cid_number'             => $dependentData['cid_number'],
+                        'attachment'             => $attachmentPath,
                     ]
                 );
             }
 
             // Handle document uploads
             $data = ['sifa_registration_id' => $sifaRegistration->id];
-            foreach (['family_tree', 'cid_of_dep_nom', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid', 'birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
+            foreach (['family_tree', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid','birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
                 if ($request->hasFile($field)) {
                     if (is_array($request->file($field))) {
                         // Multiple files
