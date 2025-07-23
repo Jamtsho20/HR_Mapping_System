@@ -851,10 +851,12 @@ class ApprovalController extends Controller
                 $emailSubject = 'Travel Authorization Application';
 
                 // Send the email
+                if($gm->id != $updatedBy->id){
                 try {
                     Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
                 } catch (\Exception $e) {
                     log::error('Failed to send email: ' . $e->getMessage());
+                }
                 }
             }
             if ($appType['name'] == 'SIFA LOAN') {
