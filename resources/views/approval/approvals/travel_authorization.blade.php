@@ -2,11 +2,11 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-                @if (request()->is('approval/applications'))
+                {{-- @if (request()->is('approval/applications'))
                     <p class="info-green  large" style="text-indent: -0.8em; padding-left: 1.5em;">
                         * The application will be automatically rejected if it exceeds the 3-working-day grace period from the date of submission.
                     </p>
-                @endif
+                @endif --}}
 
                 <div class="table-responsive">
                     <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
@@ -24,9 +24,9 @@
                                     <th>EMPLOYEE</th>
                                     <th>TRAVEL TYPES</th>
                                     <th>ESTIMATED EXPENSES</th>
-                                    @if (request()->is('approval/applications'))
+                                    {{-- @if (request()->is('approval/applications'))
                                         <th>TIME LEFT FOR APPROVAL</th>
-                                    @endif
+                                    @endif --}}
                                     <th>STATUS</th>
                                     <th>VIEW</th>
                                 </tr>
@@ -44,10 +44,10 @@
                                         <td>{{ $travelAuthorization->employee->emp_id_name }}</td>
                                         <td>{{ $travelAuthorization->travelType->name }}</td>
                                         <td class="text-right">{{ formatAmount($travelAuthorization->estimated_travel_expenses )}}</td>
-                                        @if (request()->is('approval/applications'))
+                                        {{-- @if (request()->is('approval/applications'))
                                             <td id="timeLeftForApproval-{{ $travelAuthorization->id }}"
                                                 class=" text-danger"></td>
-                                        @endif
+                                        @endif --}}
                                         <td>@php
                                             $statusClasses = [
                                                 -1 => 'badge bg-danger',
@@ -121,150 +121,150 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const timers = document.querySelectorAll('[id^="timeLeftForApproval-"]');
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     const timers = document.querySelectorAll('[id^="timeLeftForApproval-"]');
 
-        timers.forEach(timer => {
-            const travelAuthorizationId = timer.id.split('-')[1];
-            const row = timer.closest('tr');
-            var flag = 0;
-            const checkbox = row.querySelector('.bulk_checkbox');
-            const detailButton = row.querySelector('.btn-outline-secondary');
-            const createdAtTimestamp = row.getAttribute(
-                'data-created-at'); // Get the timestamp from the data attribute
+    //     timers.forEach(timer => {
+    //         const travelAuthorizationId = timer.id.split('-')[1];
+    //         const row = timer.closest('tr');
+    //         var flag = 0;
+    //         const checkbox = row.querySelector('.bulk_checkbox');
+    //         const detailButton = row.querySelector('.btn-outline-secondary');
+    //         const createdAtTimestamp = row.getAttribute(
+    //             'data-created-at'); // Get the timestamp from the data attribute
 
-            // Convert the timestamp to a JavaScript Date object
-            const createdAt = new Date(createdAtTimestamp * 1000);
+    //         // Convert the timestamp to a JavaScript Date object
+    //         const createdAt = new Date(createdAtTimestamp * 1000);
 
-            // Calculate the deadline (add 3 days to created_at)
-            //const deadline = new Date(createdAt.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from createdAt
-            const holidays = @json($holidays);
-            const holidayDates = holidays.flatMap(holiday => {
-                const startDate = new Date(holiday.start_date);
-                const endDate = new Date(holiday.end_date);
-                const dates = [];
+    //         // Calculate the deadline (add 3 days to created_at)
+    //         //const deadline = new Date(createdAt.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from createdAt
+    //         const holidays = @json($holidays);
+    //         const holidayDates = holidays.flatMap(holiday => {
+    //             const startDate = new Date(holiday.start_date);
+    //             const endDate = new Date(holiday.end_date);
+    //             const dates = [];
 
-                // Clone the startDate to avoid mutating the original object
-                let currentDate = new Date(startDate);
+    //             // Clone the startDate to avoid mutating the original object
+    //             let currentDate = new Date(startDate);
 
-                while (currentDate <= endDate) {
-                    dates.push(currentDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
-                    currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
-                }
+    //             while (currentDate <= endDate) {
+    //                 dates.push(currentDate.toISOString().split('T')[0]); // Format as YYYY-MM-DD
+    //                 currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+    //             }
 
-                return dates;
-            });
-
-
-            function calculateDeadline(startDate) {
-                let workingDays = 0; // Counter for working days
-                let currentDate = new Date(startDate);
-                currentDate.setDate(currentDate.getDate() + 1);
-                // while (currentDate.getDay() === 0 || currentDate.getDay() === 6) { // Skip Sunday (0) and Saturday (6)
-                //     currentDate.setDate(currentDate.getDate() + 1);
-                // }
-
-                while (workingDays < 3) { // Loop until we count 4 working days
-                    const day = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-                    const formattedDate = currentDate.toISOString().split('T')[
-                    0]; // Format as YYYY-MM-DD
-
-                    // Check if the current date is a holiday or a weekend (Saturday or Sunday)
-                    if (!holidayDates.includes(formattedDate) && day !== 0 && day !== 6) {
-                        workingDays++; // Increment the working days counter if it's a valid working day
-
-                    }
+    //             return dates;
+    //         });
 
 
-                    if (workingDays < 3) {
-                        currentDate.setDate(currentDate.getDate() + 1); // Increment day by 1
+    //         function calculateDeadline(startDate) {
+    //             let workingDays = 0; // Counter for working days
+    //             let currentDate = new Date(startDate);
+    //             currentDate.setDate(currentDate.getDate() + 1);
+    //             // while (currentDate.getDay() === 0 || currentDate.getDay() === 6) { // Skip Sunday (0) and Saturday (6)
+    //             //     currentDate.setDate(currentDate.getDate() + 1);
+    //             // }
 
-                    }
-                }
+    //             while (workingDays < 3) { // Loop until we count 4 working days
+    //                 const day = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+    //                 const formattedDate = currentDate.toISOString().split('T')[
+    //                 0]; // Format as YYYY-MM-DD
+
+    //                 // Check if the current date is a holiday or a weekend (Saturday or Sunday)
+    //                 if (!holidayDates.includes(formattedDate) && day !== 0 && day !== 6) {
+    //                     workingDays++; // Increment the working days counter if it's a valid working day
+
+    //                 }
 
 
-                return currentDate;
-            }
+    //                 if (workingDays < 3) {
+    //                     currentDate.setDate(currentDate.getDate() + 1); // Increment day by 1
+
+    //                 }
+    //             }
 
 
+    //             return currentDate;
+    //         }
 
 
 
 
-            // Calculate the deadline
-            const deadline = calculateDeadline(createdAt);
-
-            function updateCountdown() {
-                const now = new Date().getTime(); // Get current time in milliseconds (UTC)
-                const deadlineTime = new Date(deadline)
-                    .getTime(); // Convert deadline to milliseconds (UTC)
-                const timeLeft = deadlineTime - now; // Calculate the remaining time
-
-                if (timeLeft <= 0) {
-                    timer.innerText = 'Expired';
-                    timer.style.color = 'red';
-                    if (checkbox) checkbox.disabled = true; // Disable checkbox
-                    const isApprovalApplications = @json(request()->is('approval/applications'));
-                    if (isApprovalApplications) {
-                        if (detailButton) {
-                            detailButton.classList.add(
-                                'disabled'); // Add a CSS class to style as disabled
-                            detailButton.style.pointerEvents = 'none'; // Disable click action
-                            detailButton.style.opacity =
-                                '0.5'; // Optional: Reduce opacity to indicate disabled state
-                        }
 
 
-                    if (flag == 0) {
-                const id = [row.getAttribute('data-id')];
-                const action = 'reject';
-                const routeUrl = row.getAttribute('data-route');
-                const itemType = 7;
-                const rejectRemarks = "The travel authorization application has been automatically rejected on behalf of the approver as the approval deadline was exceeded.";
-                $('#loader').show();
-                $.ajax({
-                            url: routeUrl,
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                item_ids: id,
-                                action: action,
-                                reject_remarks: rejectRemarks,
-                                item_type_id: itemType
-                            },
+    //         // Calculate the deadline
+    //         const deadline = calculateDeadline(createdAt);
 
-                            success: function(response) {
+    //         function updateCountdown() {
+    //             const now = new Date().getTime(); // Get current time in milliseconds (UTC)
+    //             const deadlineTime = new Date(deadline)
+    //                 .getTime(); // Convert deadline to milliseconds (UTC)
+    //             const timeLeft = deadlineTime - now; // Calculate the remaining time
 
-
-                                // Reload the page
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 100);
-
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error('AJAX Error:', xhr.responseText);
-                                }
+    //             if (timeLeft <= 0) {
+    //                 timer.innerText = 'Expired';
+    //                 timer.style.color = 'red';
+    //                 if (checkbox) checkbox.disabled = true; // Disable checkbox
+    //                 const isApprovalApplications = @json(request()->is('approval/applications'));
+    //                 if (isApprovalApplications) {
+    //                     if (detailButton) {
+    //                         detailButton.classList.add(
+    //                             'disabled'); // Add a CSS class to style as disabled
+    //                         detailButton.style.pointerEvents = 'none'; // Disable click action
+    //                         detailButton.style.opacity =
+    //                             '0.5'; // Optional: Reduce opacity to indicate disabled state
+    //                     }
 
 
-                        });
+    //                 if (flag == 0) {
+    //             const id = [row.getAttribute('data-id')];
+    //             const action = 'reject';
+    //             const routeUrl = row.getAttribute('data-route');
+    //             const itemType = 7;
+    //             const rejectRemarks = "The travel authorization application has been automatically rejected on behalf of the approver as the approval deadline was exceeded.";
+    //             $('#loader').show();
+    //             $.ajax({
+    //                         url: routeUrl,
+    //                         type: 'POST',
+    //                         data: {
+    //                             _token: '{{ csrf_token() }}',
+    //                             item_ids: id,
+    //                             action: action,
+    //                             reject_remarks: rejectRemarks,
+    //                             item_type_id: itemType
+    //                         },
 
-                    }
-                    flag = 1;
-                }
-                } else {
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    //                         success: function(response) {
 
-                    timer.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                }
-            }
 
-            // Update the timer every second
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-        });
-    });
+    //                             // Reload the page
+    //                             setTimeout(() => {
+    //                                 location.reload();
+    //                             }, 100);
+
+    //                             },
+    //                             error: function(xhr, status, error) {
+    //                                 console.error('AJAX Error:', xhr.responseText);
+    //                             }
+
+
+    //                     });
+
+    //                 }
+    //                 flag = 1;
+    //             }
+    //             } else {
+    //                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    //                 const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    //                 const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    //                 const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+    //                 timer.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    //             }
+    //         }
+
+    //         // Update the timer every second
+    //         updateCountdown();
+    //         setInterval(updateCountdown, 1000);
+    //     });
+    // });
 </script>

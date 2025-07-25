@@ -424,7 +424,7 @@ class ApiController extends BaseController
         DB::beginTransaction();
 
         try {
-            $dzongkhagId = MasDzongkhag::where('dzongkhag', $request->U_Dzongkhag)->value('id');
+            $dzongkhagId = MasDzongkhag::where('sap_dzongkhag', $request->U_Dzongkhag)->value('id');
 
             if (!$dzongkhagId) {
                 throw new \Exception("Dzongkhag '{$request->U_Dzongkhag}' not found.");
