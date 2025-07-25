@@ -3,18 +3,15 @@
 Dear {{ $registration->employee->name }},  
 Greetings of the day!
 
-This is a kind reminder to **review and update your SIFA application**.
+Human Resource and Administration Department would like to make this quarterly request and reminder to all the employees to review and update your information and relevant documents related to the following:
 
-We request that you verify and complete the following information as applicable:
-- SIFA NOMINATIONS
-- SIFA DEPENDENTS  
-- Upload of supporting documents
+- Retirement benefit nominee information and relevant documents  
+- SIFA  
+  - Information and relevant documents for dependents  
+  - Information and relevant documents for nominee (in case of demise of the member)  
+  - Information and relevant documents for SIFA benefit payout (in case of demise of the member)
 
-@component('mail::button', ['url' => url('/')])
-Update My SIFA Application
-@endcomponent
-
-If you have recently updated your application, kindly ignore this message.
+Should you need any assistance, feel free to reach out to Human Resource officer, HR Section.
 
 Sincerely,  
 **Tashi InfoComm Private Limited**

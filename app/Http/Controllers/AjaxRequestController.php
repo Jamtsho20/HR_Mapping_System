@@ -3,59 +3,61 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\SAP\ApiController;
-use App\Services\AssetAcknowledgementService;
 use App\Models\AdvanceApplication;
 use App\Models\ApprovingAuthority;
 use App\Models\AssetCommissionDetail;
+use App\Models\AssetReturnApplication;
+use App\Models\AssetTransferApplication;
+use App\Models\DsaClaimMappings;
 use App\Models\DsaClaimType;
 use App\Models\EmployeeLeave;
+use App\Models\LeaveApplication;
 use App\Models\LeaveEncashmentType;
 use App\Models\MasAdvanceTypes;
+use App\Models\MasCommissionTypes;
 use App\Models\MasConditionField;
+use App\Models\MasDepartment;
+use App\Models\MasDzongkhag;
 use App\Models\MasEmployeeJob;
 use App\Models\MasExpensePolicy;
 use App\Models\MasExpenseType;
 use App\Models\MasGewog;
 use App\Models\MasGradeStep;
+use App\Models\MasGrnItem;
+use App\Models\MasGrnItemDetail;
 use App\Models\MasLeavePolicy;
 use App\Models\MasLeaveType;
 use App\Models\MasPayGroupDetail;
 use App\Models\MasPaySlabDetails;
 use App\Models\MasRegionLocation;
 use App\Models\MasRequisitionType;
+use App\Models\MasRetirementBenefitTypes;
+use App\Models\MasReturnType;
 use App\Models\MasSection;
 use App\Models\MasSifaType;
+use App\Models\MasSite;
 use App\Models\MasTransferClaim;
 use App\Models\MasTransferType;
 use App\Models\MasTravelType;
 use App\Models\MasVehicle;
 use App\Models\MasVillage;
+use App\Models\ReceivedSerial;
 use App\Models\RequisitionApplication;
+use App\Models\RequisitionDetail;
 use App\Models\SystemHierarchyLevel;
 use App\Models\TravelAuthorizationApplication;
 use App\Models\User;
 use App\Models\WorkHolidayList;
+use App\Services\AssetAcknowledgementService;
 use App\Traits\JsonResponseTrait;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Models\MasCommissionTypes;
-use App\Models\LeaveApplication;
 use DateTime;
-use App\Models\DsaClaimMappings;
-use App\Models\MasDzongkhag;
-use App\Models\MasReturnType;
-use App\Models\MasSite;
-use App\Models\ReceivedSerial;
-use App\Models\RequisitionDetail;
-use App\Models\AssetTransferApplication;
-use App\Models\AssetReturnApplication;
-use App\Models\MasDepartment;
-use App\Models\MasGrnItem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\MasGrnItemDetail;
-use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 class AjaxRequestController extends Controller
 {
     /* write code related to ajax request */
@@ -385,7 +387,8 @@ class AjaxRequestController extends Controller
             9 => DsaClaimType::class,
             10 => MasCommissionTypes::class,
             11 => MasTransferType::class,
-            12 => MasReturnType::class
+            12 => MasReturnType::class,
+            13 => MasRetirementBenefitTypes::class
         ];
 
         if (isset($modelMap[$id])) {

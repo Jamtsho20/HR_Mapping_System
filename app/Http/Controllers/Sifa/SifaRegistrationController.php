@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Sifa;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ApplicationForwardedMail;
 use App\Models\MasSifaType;
 use App\Models\SifaDependent;
 use App\Models\SifaDocument;
@@ -185,7 +186,11 @@ class SifaRegistrationController extends Controller
 
             // Commit the transaction
             DB::commit();
-
+            if (isset($approverByHierarchy['approver_details'])) {
+                $emailContent = 'has applied SIFA Registration for your endorsement.';
+                $emailSubject = 'Advance';
+                Mail::to([$approverByHierarchy['approver_details']['user_with_approving_role']->email])->send(new ApplicationForwardedMail(auth()->user()->id, $approverByHierarchy['approver_details']['user_with_approving_role']->id, $emailContent, $emailSubject));
+            }
             // Redirect to the index or confirmation page
             return redirect()->route('sifa-registration.index')->with('msg_success', 'Sifa Registration saved successfully!');
         } catch (\Exception $e) {
@@ -311,7 +316,7 @@ class SifaRegistrationController extends Controller
 
             // Handle document uploads
             $data = ['sifa_registration_id' => $sifaRegistration->id];
-            foreach (['family_tree', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid','birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
+            foreach (['family_tree', 'marriage_certificate', 'family_tree_spouse', 'spouse_cid', 'birth_certificate', 'adopted_children', 'if_divorced'] as $field) {
                 if ($request->hasFile($field)) {
                     if (is_array($request->file($field))) {
                         // Multiple files
