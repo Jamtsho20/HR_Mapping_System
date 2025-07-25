@@ -828,7 +828,7 @@ class ApprovalController extends Controller
                 try {
                     Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
                 } catch (\Exception $e) {
-                    log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
+                    log::error('Failed to send email for Asset Return: ' . $e->getMessage());
                 }
             }
             if ($appType['name'] == 'In Country') {
