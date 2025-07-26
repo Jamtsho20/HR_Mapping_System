@@ -70,6 +70,11 @@
         @include('approval.view.asset_transfer', ['transfer' => $data, 'empDetails' => $empDetails])
     @elseif ($tab == 12)
         @include('approval.view.asset_return', ['return' => $data, 'empDetails' => $empDetails])
+    @elseif ($tab == 13)
+     @php
+            $user = empDetails($data->created_by);
+        @endphp
+        @include('approval.view.retirement', ['nomination' => $data, 'user' => $user])
     @endif
 
 @endsection

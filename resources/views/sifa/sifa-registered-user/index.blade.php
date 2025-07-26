@@ -2,6 +2,14 @@
 @section('page-title', 'Sifa Registered Employee List')
 @section('content')
 <div class="block-header block-header-default">
+    @section('buttons')
+    <form action="{{ route('sifa-registered-user.sendMail') }}" method="POST" onsubmit="return confirm('Are you sure you want to send emails to all registered employees?');">
+        @csrf
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-envelope"></i> Send Notifications
+        </button>
+    </form>
+    @endsection
     @component('layouts.includes.filter')
     <div class="col-12 form-group">
         <select name="employee" id="employee" class="form-control select2">

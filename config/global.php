@@ -282,6 +282,13 @@ return [
             'email_subject' => 'Asset Return',
             'approver_mail_content' => 'has applied asset commission for your endorsement.',
             'initiator_mail_content' => 'Your asset commission has been'
+        ],
+        13 => [
+            'name' => App\Models\RetirementBenefit::class,
+            'post_to_sap' => false,
+            'email_subject' => 'Retirement Benefit Nomination',
+            'approver_mail_content' => 'has applied retirement benefit for your endorsement.',
+            'initiator_mail_content' => 'Your retirement benefit has been'
         ]
 
     ],

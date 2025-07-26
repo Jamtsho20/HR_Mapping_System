@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Sifa;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SifaNotificationMail;
 use App\Models\SifaDocument;
 use App\Models\SifaRegistration;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SifaRegisteredUserController extends Controller
 {
@@ -53,5 +55,20 @@ class SifaRegisteredUserController extends Controller
         $sifaDocuments = SifaDocument::where('sifa_registration_id', $id)->first();
 
         return view('sifa.sifa-registered-user.show', compact('user', 'sifaRegistration', 'sifaDocuments'));
+    }
+
+    public function sendMail(Request $request)
+    {
+        $registrations = SifaRegistration::with('employee')->get();
+
+        foreach ($registrations as $registration) {
+            $email = $registration->employee->email ?? null;
+
+            if ($email) {
+                Mail::to($email)->send(new SifaNotificationMail($registration));
+            }
+        }
+
+        return redirect()->back()->with('success', 'Emails have been sent to all SIFA registered employees.');
     }
 }
