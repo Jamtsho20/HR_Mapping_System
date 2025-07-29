@@ -137,7 +137,8 @@ class User extends Authenticatable
         return $this->hasMany(EmployeeShift::class, 'mas_employee_id');
     }
 
-    public function attendanceDetails(){
+    public function attendanceDetails()
+    {
         return $this->hasMany(AttendanceDetail::class, 'employee_id');
     }
 
@@ -243,7 +244,7 @@ class User extends Authenticatable
 
     public function getEmpIdNameAttribute()
     {
-        return $this->username . ' - ' . $this->title . ' ' . $this->name;
+        return $this->username . ' - ' . $this->title . ' ' . $this->name . ' (' . $this->cid_no . ')';
     }
 
     public function getEmpNameAttribute() //combination of title and full name while display
