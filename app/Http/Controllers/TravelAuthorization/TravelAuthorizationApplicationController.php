@@ -96,7 +96,7 @@ class TravelAuthorizationApplicationController extends Controller
         $travelType = MasTravelType::where('id', $request->travel_type)->first();
         $lastTransaction = TravelAuthorizationApplication::latest('id')->first();
         $travelAuthorizationNo = generateTransactionNumber1($travelType, $lastTransaction, 'transaction_no');
-      
+
         // $travelAuthorizationNo = generateTransactionNumber(\App\Models\TravelAuthorizationApplications::class, \App\Models\MasTravelType::class, $request->travel_type);
 
     // dd($travelAuthorizationNo);
@@ -285,6 +285,14 @@ class TravelAuthorizationApplicationController extends Controller
         }
     }
 
-   
+
+    public function details($id)
+        {
+            $travelAuthorization = TravelAuthorizationApplication::with('details')->findOrFail($id);
+            return view('travel-authorizations\approval\travel-details-compact', compact('travelAuthorization'));
+        }
+
+
+
 
 }
