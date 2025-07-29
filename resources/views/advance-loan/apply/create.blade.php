@@ -136,14 +136,26 @@ document.addEventListener('DOMContentLoaded', function () {
             section.style.display = 'block';
             enableFormFields(section);
         } else if (selectedType === '7') {
-            if (!isSifaRegistered) {
+    if (!isSifaRegistered) {
         showErrorMessage('You are not a registered SIFA member.');
     } else {
-        var section = document.getElementById('sifa-loan-form');
-        section.style.display = 'block';
-        enableFormFields(section);
-    }
+        const today = new Date();
+        const currentDay = today.getDate();
+
+        if (currentDay > 30) {
+            showErrorMessage('SIFA Loan applications are only allowed from the 1st to the 21st of each month.');
+            advanceTypeSelect.value = ''; // Reset selection
+            formSections.forEach(function (section) {
+                section.style.display = 'none';
+                disableFormFields(section);
+            });
+        } else {
+            var section = document.getElementById('sifa-loan-form');
+            section.style.display = 'block';
+            enableFormFields(section);
         }
+    }
+}
     });
 
     // Initially hide all dynamic form sections

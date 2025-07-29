@@ -1,0 +1,124 @@
+@extends('layouts.app')
+@section('page-title', 'Retirement Benefit Nomination')
+@section('content')
+@component('layouts.includes.filter')
+<div class="col-12 form-group">
+    <select name="employee" id="employee" class="form-control select2">
+        <option value="">-- Select Employee --</option>
+        @foreach($employees as $employee)
+        <option value="{{ $employee->id }}"
+            {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+            {{ $employee->emp_id_name }}
+        </option>
+        @endforeach
+    </select>
+</div>
+@endcomponent
+<div class="block-header block-header-default">
+    <div class="row row-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div id="basic-datatable_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="dataTables_scroll">
+                                        <div class="dataTables_scrollHead"
+                                            style="overflow: scroll; position: relative; border: 0px; width: 100%;">
+                                            <div class="dataTables_scrollHeadInner"
+                                                style="box-sizing: content-box; padding-right: 0px;">
+                                                <table
+                                                    class="table table-bordered text-nowrap border-bottom dataTable no-footer"
+                                                    id="basic-datatable table-responsive">
+                                                    <thead>
+                                                        <tr role="row" class="thead-light">
+                                                            <th>#</th>
+                                                            <th>APPLIED ON</th>
+                                                            <th>
+                                                                EMPLOYEE NAME
+                                                            </th>
+                                                            <th>
+                                                                DESIGNATION
+                                                            </th>
+                                                            <th>
+                                                                SECTION
+                                                            </th>
+
+                                                            <th>
+                                                                DEPARTMENT
+                                                            </th>
+
+                                                            <th>
+                                                                STATUS
+                                                            </th>
+                                                            <th>
+                                                                VIEW
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody>
+                                                        @forelse($retirementBenefits as $nomination)
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($nomination->created_at)->format('d-M-Y') }}
+                                                            <td>{{ $nomination->employee->emp_id_name ?? 'N/A' }}</td>
+                                                            <td>{{ $nomination->employee->empJob->designation->name ?? 'N/A' }}
+                                                            </td>
+                                                            <td>{{ $nomination->employee->empJob->section->name ?? 'N/A' }}
+                                                            </td>
+                                                            <td>{{ $nomination->employee->empJob->department->name ?? 'N/A' }}
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @php
+                                                                $statusClasses = [
+                                                                -1 => 'badge bg-danger',
+                                                                0 => 'badge bg-warning',
+                                                                1 => 'badge bg-primary',
+                                                                2 => 'badge bg-primary',
+                                                                3 => 'badge bg-success',
+                                                                ];
+                                                                $statusText = config("global.application_status.{$nomination->status}", 'Unknown Status');
+                                                                $statusClass = $statusClasses[$nomination->status] ?? 'badge bg-secondary';
+                                                                @endphp
+
+                                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if ($privileges->view)
+                                                                <a href="{{ route('retirement-benefit-list.show', $nomination->id) }}"
+                                                                    class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fa fa-list"></i> Detail
+                                                                </a>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @empty
+                                                        <tr>
+                                                            <td colspan="11" class="text-center text-danger">No Retirement Benefit Nominations found</td>
+                                                        </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        @if ($retirementBenefits->hasPages())
+                                        <div class="card-footer">
+                                            {{ $retirementBenefits->links() }}
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@include('layouts.includes.delete-modal')
+@endsection
+@push('page_scripts')
+@endpush

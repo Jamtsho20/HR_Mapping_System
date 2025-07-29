@@ -191,6 +191,7 @@ Route::middleware('auth')->group(function () {
     //RETIREMENT BENEFIT NOMINATION
     Route::namespace('RetirementBenefitNomination')->prefix('retirement-benefit-nomination')->group(function () {
         Route::resource('retirement-benefit-nomination', 'RetirementBenefitNominationController');
+        Route::resource('retirement-benefit-list', 'RetirementBenefitUserListController');
     });
 
     // WORK STRUCTURE
