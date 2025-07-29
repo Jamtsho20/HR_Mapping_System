@@ -189,6 +189,11 @@ Route::middleware('auth')->group(function () {
         Route::resource('my-asset', 'MyAssetController');
     });
 
+    //RETIREMENT BENEFIT NOMINATION
+    Route::namespace('RetirementBenefitNomination')->prefix('retirement-benefit-nomination')->group(function () {
+        Route::resource('retirement-benefit-nomination', 'RetirementBenefitNominationController');
+    });
+
     // WORK STRUCTURE
     Route::namespace('WorkStructure')->prefix('work-structure')->group(function () {
         Route::resource('holiday-lists', 'HolidayListController')->except('create', 'show', 'edit');
@@ -273,6 +278,7 @@ Route::middleware('auth')->group(function () {
     // TRAVEL_AUTHORIZATION
     Route::namespace('TravelAuthorization')->prefix('travel-authorization')->group(function () {
         Route::resource('apply-travel-authorization', 'TravelAuthorizationApplicationController');
+        Route::get('/travel-authorizations/{id}/details', 'TravelAuthorizationApplicationController@details')->name('travel-authorizations.details');
         Route::resource('travel-authorization-approval', 'TravelAuthorizationApprovalController');
         Route::post('approval/bulk', 'TravelAuthorizationApprovalController@bulkApprovalRejection')->name('travel-authorization.bulk-approval-rejection');
     });
@@ -284,6 +290,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('sifa-registered-user', 'SifaRegisteredUserController');
         Route::post('approval/bulk', 'SifaApprovalController@bulkApprovalRejection')->name('sifa.bulk-approval-rejection');
     });
+
+    //Mail Sifa users
+    Route::post('/sifa/sifa-registered-user/send-mail', [\App\Http\Controllers\Sifa\SifaRegisteredUserController::class, 'sendMail'])->name('sifa-registered-user.sendMail');
+
 
     // Eployee
     Route::namespace('Employee')->prefix('employee')->group(function () {

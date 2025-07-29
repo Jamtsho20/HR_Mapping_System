@@ -48,29 +48,6 @@ class AttendanceService
 
         if ($isOnLeave) {
             return $this->prepareLeaveStatus($isOnLeave);
-            // switch ($isOnLeave->type_id) {
-            //     case CASUAL_LEAVE:
-            //         return match ($isOnLeave->from_day) {
-            //             1 => CASUAL_LEAVE_STATUS,
-            //             2 => FHCL_LEAVE_STATUS,
-            //             3 => SHCL_LEAVE_STATUS,
-            //             default => CASUAL_LEAVE_STATUS,
-            //         };
-            //     case EARNED_LEAVE:
-            //         return EARNED_LEAVE_STATUS;
-            //     case MEDICAL_LEAVE:
-            //         return MEDICAL_LEAVE_STATUS;
-            //     case MATERNITY_LEAVE:
-            //         return MATERNITY_LEAVE_STATUS;
-            //     case PATERNITY_LEAVE:
-            //         return PATERNITY_LEAVE_STATUS;
-            //     case BEREAVEMENT_LEAVE:
-            //         return BEREAVEMENT_LEAVE_STATUS;
-            //     case STUDY_LEAVE:
-            //         return STUDY_LEAVE_STATUS;
-            //     case EXTRA_ORDINARY_LEAVE:
-            //         return EOL_LEAVE_STATUS;
-            // }
         }
 
         // check if employee is in shift as they will have different sets of off days
@@ -94,10 +71,10 @@ class AttendanceService
             return WEEKLY_OFF_STATUS;
         }
 
-        // 5. Check for Saturday
-        if ($currentDate->isSaturday() && !$isShiftEmp) {
-            return HALF_DAY_WEEKEND_STATUS;
-        }
+        // 5. Check for Saturday  commented as HALF_DAY_WEEKEND_STATUS is not req for now 
+        // if ($currentDate->isSaturday() && !$isShiftEmp) {
+        //     return HALF_DAY_WEEKEND_STATUS;
+        // }
 
         return $attendanceStatus;
     }

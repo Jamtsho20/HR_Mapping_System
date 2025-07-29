@@ -60,9 +60,9 @@ class ApprovalService
                 if (!$operatorData) {
                     continue; // Skip if operator not found
                 }
-
+                
                 $operatorSymbol = $operatorData->value;
-
+                
                 // Match condition field and evaluate condition
                 if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id']) {
                     // now here need to get delegatee if incase has_employee_field is true
@@ -70,7 +70,6 @@ class ApprovalService
                     // Dynamically evaluate the condition
                     if ($this->evaluateCondition(!$conditionfields[0]['has_employee_field'] ? (float)$conditionValue : $conditionValue, $operatorSymbol, !$conditionfields[0]['has_employee_field'] ? (float)$appvlCondition->value : $appvlCondition->value)) {
                         if ($appvlCondition->approval_option == HIERARCHICAL_APPVL_OPTION) {
-
                             $systemHierarchy = SystemHierarchy::with(['hierarchyLevels' => function ($query) {
                                 $query->whereStatus(1)->orderBy('sequence');
                             }, 'hierarchyLevels.approvingAuthority'])->find($appvlCondition->system_hierarchy_id);

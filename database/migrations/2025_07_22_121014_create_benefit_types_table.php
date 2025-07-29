@@ -8,15 +8,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('mas_dzongkhags', function (Blueprint $table) {
+        Schema::create('benefit_types', function (Blueprint $table) {
             $table->id();
-            $table->string('dzongkhag');
-            $table->string('sap_dzongkhag');
+            $table->string('name');
+            $table->string('code');
+            $table->text('remarks')->nullable();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->timestamps();
@@ -25,11 +24,9 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('mas_dzongkhags');
+        Schema::dropIfExists('benefit_types');
     }
 };

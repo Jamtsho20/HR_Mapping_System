@@ -1,13 +1,14 @@
-<label for=""><strong>LIST OF DEPENDENTS</strong></label><small>(s)<i> (I hereby declare that the person(s) mentioned below are my dependent(s) as defined by By-laws of SIFA and that the information provided is true and correct. In the event if the information provided is found to be untruthful and incorrect, then the member shall be held accountable and responsible for any legal and financial damages arising thereafter.)</i></small>
+<label for=""><strong>LIST OF DEPENDENT</strong></label><small>(s)<i> (I hereby declare that the person(s) mentioned below are my dependent(s) as defined by By-laws of SIFA and that the information provided is true and correct. In the event if the information provided is found to be untruthful and incorrect, then the member shall be held accountable and liable and take actions as per the provisions of SIFA By-laws)</i></small>
 <br><br>
 <div class="table-responsive criteria">
     <table id="sifa_dependent" class="table table-condensed table-striped table-bordered table-sm">
         <thead class="thead-light">
             <tr>
                 <th class="text-center">#</th>
-                <th width="25%">Dependent Name</th>
-                <th width="50%">Relationship with Employee</th>
-                <th width="25%">CID</th>
+                <th width="20%">Dependent Name</th>
+                <th width="00%">Relationship with Employee</th>
+                <th width="20%">CID</th>
+                <th width="20%">Attachments</th>
             </tr>
         </thead>
         <tbody>
@@ -25,6 +26,9 @@
                 <td>
                     <input type="text" name="sifa_dependents[AAAAA][cid_number]" class="form-control form-control-sm resetKeyForNew">
                 </td>
+                <td>
+                    <input type="file" name="sifa_dependents[AAAAA][attachment]" class="form-control form-control-sm resetKeyForNew">
+                </td>
             </tr>
             @else
             @foreach (old('sifa_dependent') as $key => $value)
@@ -41,11 +45,14 @@
                 <td>
                     <input type="text" name="sifa_dependents[AAAAA{{ $key }}][cid_number]" class="form-control form-control-sm resetKeyForNew" value="{{ old('sifa_dependents[AAAAA'.$key.'][cid_number]', $value['cid_number'] ?? '') }}">
                 </td>
+                <td>
+                    <input type="file" name="sifa_dependents[AAAAA{{ $key }}][attachment]" class="form-control form-control-sm resetKeyForNew">
+                </td>
             </tr>
             @endforeach
             @endif
             <tr class="notremovefornew">
-                <td colspan="3"></td>
+                <td colspan="4"></td>
                 <td class="text-right">
                     <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
                 </td>

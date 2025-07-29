@@ -1,17 +1,13 @@
 @extends('layouts.app')
-@section('page-title', 'SIFA Registration')
+@section('page-title', 'Retirement Benefit Nomination')
 @section('content')
-@if (
-    $privileges->create &&
-    !$sifaRegistration &&
-    auth()->user()->empJob->mas_employment_type_id != 3
-)
-    @section('buttons')
-    <a href="{{ route('sifa-registration.create') }}" class="btn btn-sm btn-primary">
-        <i class="fa fa-plus"></i> New SIFA Registration
+@section('buttons')
+@if($latestStatus === -1 || is_null($latestStatus))
+    <a href="{{ route('retirement-benefit-nomination.create') }}" class="btn btn-sm btn-primary">
+        <i class="fa fa-plus"></i> New Retirement Benefit Nomination
     </a>
-    @endsection
 @endif
+@endsection
 
 
 <div class="block-header block-header-default">
@@ -50,9 +46,6 @@
                                                             </th>
 
                                                             <th>
-                                                                SIFA MEMBER
-                                                            </th>
-                                                            <th>
                                                                 STATUS
                                                             </th>
                                                             <th>
@@ -60,27 +53,19 @@
                                                             </th>
                                                         </tr>
                                                     </thead>
+
                                                     <tbody>
-                                                        @if ($sifaRegistration)
+                                                        @forelse($retirementNomination as $nomination)
                                                         <tr>
                                                             <td>1</td>
-                                                            <td class="text-center">
-                                                                {{ \Carbon\Carbon::parse($sifaRegistration->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($sifaRegistration->created_at)->format('h:i A') }}
+                                                            <td>{{ \Carbon\Carbon::parse($nomination->created_at)->format('d-M-Y') }}
+                                                            <td>{{ $nomination->employee->emp_id_name ?? 'N/A' }}</td>
+                                                            <td>{{ $nomination->employee->empJob->designation->name ?? 'N/A' }}
                                                             </td>
-                                                            <td>{{ $sifaRegistration->employee->emp_id_name }}</td>
-                                                            <td>{{ $sifaRegistration->employee->empJob->designation->name ?? 'N/A' }}
+                                                            <td>{{ $nomination->employee->empJob->section->name ?? 'N/A' }}
                                                             </td>
-                                                            <td>{{ $sifaRegistration->employee->empJob->section->name ?? 'N/A' }}
+                                                            <td>{{ $nomination->employee->empJob->department->name ?? 'N/A' }}
                                                             </td>
-                                                            <td>{{ $sifaRegistration->employee->empJob->department->name ?? 'N/A' }}
-                                                            </td>
-                                                            <td class="text-center">
-                                                                {!! $sifaRegistration->is_registered == 1
-                                                                ? '<i class="fa fa-check text-success"></i>'
-                                                                : '<i class="fa fa-times text-danger"></i>' !!}
-
-                                                            </td>
-
                                                             <td class="text-center">
                                                                 @php
                                                                 $statusClasses = [
@@ -90,60 +75,40 @@
                                                                 2 => 'badge bg-primary',
                                                                 3 => 'badge bg-success',
                                                                 ];
-                                                                $statusText = config(
-                                                                "global.application_status.{$sifaRegistration->status}",
-                                                                'Unknown Status',
-                                                                );
-                                                                $statusClass =
-                                                                $statusClasses[
-                                                                $sifaRegistration->status
-                                                                ] ?? 'badge bg-secondary';
+                                                                $statusText = config("global.application_status.{$nomination->status}", 'Unknown Status');
+                                                                $statusClass = $statusClasses[$nomination->status] ?? 'badge bg-secondary';
                                                                 @endphp
 
-                                                                <span
-                                                                    class="{{ $statusClass }}">{{ $statusText }}</span>
+                                                                <span class="{{ $statusClass }}">{{ $statusText }}</span>
                                                             </td>
                                                             <td class="text-center">
-                                                                @if ($sifaRegistration->is_registered == 1)
                                                                 @if ($privileges->view)
-                                                                <a href="{{ url('sifa/sifa-registration/' . $sifaRegistration->id) }}"
+                                                                <a href="{{ route('retirement-benefit-nomination.show', $nomination->id) }}"
                                                                     class="btn btn-sm btn-outline-secondary">
                                                                     <i class="fa fa-list"></i> Detail
                                                                 </a>
                                                                 @endif
                                                                 @if ($privileges->edit)
-                                                                <a href="{{ url('sifa/sifa-registration/' . $sifaRegistration->id . '/edit') }}"
-                                                                    class="btn btn-sm btn-rounded btn-outline-success">
+                                                                <a href="{{ route('retirement-benefit-nomination.edit', $nomination->id) }}"
+                                                                    class="btn btn-sm btn-outline-success">
                                                                     <i class="fa fa-edit"></i> Edit
                                                                 </a>
                                                                 @endif
                                                                 @if ($privileges->delete)
                                                                 <a href="#"
-                                                                    class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                                    data-url="{{ route('sifa-registration.destroy', $sifaRegistration->id) }}">
+                                                                    class="delete-btn btn btn-sm btn-outline-danger"
+                                                                    data-url="{{ route('retirement-benefit-nomination.destroy', $nomination->id) }}">
                                                                     <i class="fa fa-trash"></i> Delete
                                                                 </a>
                                                                 @endif
-                                                                @endif
-                                                                @if ($sifaRegistration->is_registered == 0)
-                                                                @if ($privileges->view)
-                                                                <a href="{{ url('sifa/sifa-registration/' . $sifaRegistration->id) }}"
-                                                                    class="btn btn-sm btn-outline-secondary">
-                                                                    <i class="fa fa-list"></i> Detail
-                                                                </a>
-                                                                @endif
-                                                                @endif
                                                             </td>
-
                                                         </tr>
-                                                        @else
+                                                        @empty
                                                         <tr>
-                                                            <td colspan="7" class="text-center text-danger">No
-                                                                SIFA Registration record found</td>
+                                                            <td colspan="11" class="text-center text-danger">No Retirement Benefit Nominations found</td>
                                                         </tr>
-                                                        @endif
+                                                        @endforelse
                                                     </tbody>
-
                                                 </table>
                                             </div>
                                         </div>

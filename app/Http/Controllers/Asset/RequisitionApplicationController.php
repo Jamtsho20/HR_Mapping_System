@@ -88,7 +88,7 @@ class RequisitionApplicationController extends Controller
         $items = MasItem::where('is_fixed_asset', 0)->get();
         $stores = MasStore::where('status', 1)->get();
         $dzongkhags = MasDzongkhag::all();
-        $sites = MasSite::with('dzongkhag')->get();
+        $sites = MasSite::where('status', 1)->with('dzongkhag')->get();
 
         return view('asset.requisition-apply.create', compact('reqTypes', 'grnNos', 'sites', 'dzongkhags', 'items', 'stores'));
      }
@@ -202,7 +202,7 @@ class RequisitionApplicationController extends Controller
 
      private function saveDetails($details, $requisitionId, $typeId)
      {
-        
+
          $existingIds = [];
          foreach ($details as $detail) {
 
@@ -229,7 +229,7 @@ class RequisitionApplicationController extends Controller
                         ->where('store_id', $detail['store'])
                         ->where('item_id', $detail['item_description'])
                         ->first();
-                      
+
                         $conversionFlag = isset($detail['conversion']) && strtolower($detail['conversion']) !== 'false';
 
 

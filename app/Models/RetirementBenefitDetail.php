@@ -5,21 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SifaNomination extends Model
+class RetirementBenefitDetail extends Model
 {
     use HasFactory;
 
+    protected $table = 'retirement_benefit_details';
+
     protected $fillable = [
-        'sifa_registration_id',
+        'retirement_benefit_id',
         'nominee_name',
         'relation_with_employee',
         'cid_number',
         'percentage_of_share',
         'attachment',
+
     ];
-    
-    public function sifaRegistration()
+
+    public function retirementBenefit()
     {
-        return $this->belongsTo(SifaRegistration::class, 'sifa_registration_id');
+        return $this->belongsTo(RetirementBenefit::class);
     }
 }

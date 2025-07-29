@@ -46,8 +46,8 @@ class DepartmentWiseShiftController extends Controller
             'name' => 'required|string|max:255',
             'department_id' => 'required|exists:mas_departments,id',
             'type_id' => 'required|exists:mas_shift_types,id',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required',
+            'end_time' => 'required|after:start_time',
             'status.is_active' => 'boolean',
         ]);
 
@@ -86,8 +86,8 @@ class DepartmentWiseShiftController extends Controller
             'name' => 'required|string|max:255',
             'department_id' => 'required|exists:mas_departments,id',
             'type_id' => 'required|exists:mas_shift_types,id',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required',
+            'end_time' => 'required|after:start_time',
             'status.is_active' => 'boolean',
         ]);
 

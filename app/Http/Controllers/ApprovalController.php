@@ -828,7 +828,7 @@ class ApprovalController extends Controller
                 try {
                     Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
                 } catch (\Exception $e) {
-                    log::error('Failed to send email for Asset Transfer: ' . $e->getMessage());
+                    log::error('Failed to send email for Asset Return: ' . $e->getMessage());
                 }
             }
             if ($appType['name'] == 'In Country') {
@@ -851,10 +851,12 @@ class ApprovalController extends Controller
                 $emailSubject = 'Travel Authorization Application';
 
                 // Send the email
+                if($gm->id != $updatedBy->id){
                 try {
                     Mail::to([$gm->email])->send(new TravelApprovalMail($requestingUserId, $approvingUserId, $emailSubject, $gm));
                 } catch (\Exception $e) {
                     log::error('Failed to send email: ' . $e->getMessage());
+                }
                 }
             }
             if ($appType['name'] == 'SIFA LOAN') {
