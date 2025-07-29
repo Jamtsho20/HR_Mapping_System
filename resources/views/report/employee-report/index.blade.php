@@ -63,6 +63,10 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-md-3 form-group">
+                <input type="text" name="cid_no" class="form-control" value="{{ request()->get('cid_no') }}"
+                    placeholder="CID">
+            </div>
         @endcomponent
         <div class="row row-sm">
             <div class="col-lg-12">
@@ -87,6 +91,9 @@
                                                 </th>
                                                 <th>
                                                     Name
+                                                </th>
+                                                <th>
+                                                    CID
                                                 </th>
                                                 <th>
                                                     Gender
@@ -130,6 +137,7 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $employee->username }}</td>
                                                     <td>{{ $employee->name }}</td>
+                                                    <td>{{ $employee->cid_no }}</td>
                                                     <td>{{ $employee->gender_name }}</td>
                                                     <td>{{ $employee->empJob->department->name }}</td>
                                                     <td>{{ $employee->empJob->section->name ?? '-' }}</td>
