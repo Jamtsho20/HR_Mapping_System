@@ -116,7 +116,7 @@
             @endforelse
 
             <tr>
-                <td colspan="5" style="text-align:right">Total:</td>
+                <td colspan="6" style="text-align:right">Total:</td>
                 <td>{{ formatAmount($totalEmployeeAmount, false) }}</td>
                 <td>{{ formatAmount($totalEmployerAmount, false) }}</td>
                 <td>{{ formatAmount($totalEmployeeAmount + $totalEmployerAmount, 0) }}</td>
