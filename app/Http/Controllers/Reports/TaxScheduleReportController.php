@@ -151,7 +151,7 @@ class TaxScheduleReportController extends Controller
             return $salary->details['deductions']['GSLI'] ?? 0;
         });
         $totalPF = $taxSchedules->sum(function ($salary) {
-            return $salary->details['deductions']['pf'] ?? 0;
+            return $salary->details['deductions']['PF Contr'] ?? 0;
         });
         $totalNet = $taxSchedules->sum(function ($salary) {
             return $salary->details['net_pay'] ?? 0;
