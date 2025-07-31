@@ -90,7 +90,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}
                     </td>
-                    <td>{{ $salary->employee->username }}</td>
+                    <td>{{ $salary->employee->username ?? '-' }}</td>
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->cid_no }}</td>
 
