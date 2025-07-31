@@ -26,9 +26,10 @@ class SSSExport implements FromCollection, WithHeadings
 
 
         // Access the request data to apply filters
-        return EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->when($this->request->employee, function ($query, $name) {
-            return $query->where('employee_salary_savings.employee_id', '=', $name);
-        })
+        return EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+            ->where('mas_employees.is_active', 1)->when($this->request->employee, function ($query, $name) {
+                return $query->where('employee_salary_savings.employee_id', '=', $name);
+            })
 
             // Filter `final_pay_slips` table (e.g., for specific month)
             ->when($this->request->year, function ($query, $month) {

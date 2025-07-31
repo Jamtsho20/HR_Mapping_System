@@ -41,6 +41,8 @@ class ChequeReportController extends Controller
                 $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
                     ->where('mas_pay_group_details.mas_pay_group_id', 4);
             })
+            ->where('mas_employees.is_active', 1)
+
             ->select(
                 'final_pay_slips.*',
                 'mas_employees.name',
@@ -117,6 +119,7 @@ class ChequeReportController extends Controller
                 $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
                     ->where('mas_pay_group_details.mas_pay_group_id', 4);
             })
+            ->where('mas_employees.is_active', 1)
             ->select(
                 'final_pay_slips.*',
                 'mas_employees.name',
@@ -151,6 +154,7 @@ class ChequeReportController extends Controller
                 $join->on('mas_employee_jobs.mas_grade_id', '=', 'mas_pay_group_details.mas_grade_id')
                     ->where('mas_pay_group_details.mas_pay_group_id', 4);
             })
+            ->where('mas_employees.is_active', 1)
             ->select(
                 'final_pay_slips.*',
                 'mas_employees.name',
