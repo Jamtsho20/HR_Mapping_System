@@ -108,7 +108,7 @@
                 </tr>
             @endforelse
             <tr>
-                <td colspan="4" class="text-right">Total:</td>
+                <td colspan="5" class="text-right">Total:</td>
                 <td>{{ $totalAmount }}</td>
             </tr>
 
