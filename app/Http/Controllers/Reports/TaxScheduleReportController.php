@@ -105,6 +105,9 @@ class TaxScheduleReportController extends Controller
         $totalNet = $taxSchedules->sum(function ($salary) {
             return $salary->details['net_pay'] ?? 0;
         });
+        $totalPF = $taxSchedules->sum(function ($salary) {
+            return $salary->details['deductions']['pf'] ?? 0;
+        });
 
         $totalGross = $taxSchedules->sum(function ($salary) {
             return $salary->details['gross_pay'] ?? 0;
@@ -113,7 +116,7 @@ class TaxScheduleReportController extends Controller
 
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('totalGross', 'taxSchedules', 'totalHealth', 'totalSalaryTax', 'totalGIS', 'totalNet', 'totalBasic', 'totalAllowances'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('totalGross', 'taxSchedules', 'totalHealth', 'totalSalaryTax', 'totalGIS', 'totalNet', 'totalBasic', 'totalAllowances', 'totalPF'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF download
@@ -147,6 +150,9 @@ class TaxScheduleReportController extends Controller
         $totalGIS = $taxSchedules->sum(function ($salary) {
             return $salary->details['deductions']['GSLI'] ?? 0;
         });
+        $totalPF = $taxSchedules->sum(function ($salary) {
+            return $salary->details['deductions']['pf'] ?? 0;
+        });
         $totalNet = $taxSchedules->sum(function ($salary) {
             return $salary->details['net_pay'] ?? 0;
         });
@@ -158,7 +164,7 @@ class TaxScheduleReportController extends Controller
 
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('totalGross', 'taxSchedules', 'totalHealth', 'totalSalaryTax', 'totalGIS', 'totalNet', 'totalBasic', 'totalAllowances'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.tax-schedule-report-pdf', compact('totalGross', 'taxSchedules', 'totalHealth', 'totalSalaryTax', 'totalGIS', 'totalNet', 'totalBasic', 'totalAllowances', 'totalPF'))->setPaper('a4', 'landscape');
 
 
         // Return the PDF as a stream to display it in the browser
