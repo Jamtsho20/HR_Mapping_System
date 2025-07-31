@@ -202,8 +202,8 @@
                 <td>{{ $totals['deductions']['pf'] }}</td>
                 <td>{{ $totals['deductions']['sifa'] }}</td>
                 <td>{{ $totals['deductions']['ssss'] }}</td>
-                <td>{{ $totals['deductions']['salary_tax'] }}</td>
                 <td>{{ $totals['deductions']['health'] }}</td>
+                <td>{{ $totals['deductions']['salary_tax'] }}</td>
                 <td>{{ $totals['net'] }}</td>
             </tr>
         </tbody>
