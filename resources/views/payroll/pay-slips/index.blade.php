@@ -116,7 +116,7 @@
                                                                                 $isThisOrNextMonth = $forMonth->isSameMonth(now()) || $forMonth->isSameMonth(now()->copy()->addMonth());
                                                                             @endphp
 
-                                                                            @if ($record->status['key'] == 4 && $isCurrentMonth)
+                                                                            @if ($record->status['key'] == 4 && $isThisOrNextMonth)
                                                                                 <a href="{{ route('pay-slips.mail', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-secondary"
                                                                                     id="email-payslip-btn">
