@@ -113,7 +113,7 @@
 
                                                                             @php
                                                                                 $forMonth = \Carbon\Carbon::parse($record->for_month);
-                                                                                $isThisOrNextMonth = $forMonth->isSameMonth(now()) || $forMonth->isSameMonth(now()->copy()->addMonth());
+                                                                                $isThisOrPreviousMonth = $forMonth->isSameMonth(now()) || $forMonth->isSameMonth(now()->copy()->subMonth());
                                                                             @endphp
 
                                                                             @if ($record->status['key'] == 4 && $isThisOrNextMonth)
