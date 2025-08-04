@@ -707,10 +707,44 @@ class EmployeeController extends Controller
         return User::where('username', '<>', 'SAP000')->max('employee_id');
     }
 
+    // private function postEmployeeToSap($employee)
+    // {
+    //     // dd($employee);
+    //     $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
+    //     $sapData = [
+    //         'CardCode' => $employee->username,
+    //         'CardName' => $employee->name,
+    //         'CardType' => 'S',
+    //         'GroupCode' => 110,
+    //         'Currency' => '',
+    //         'CardForeignName' => $employee->cid_no,
+    //         'Country' => 'BT',
+    //         'DebitorAccount' => '204111',
+    //         'DownPaymentClearAct' => '205144',
+    //         'DownPaymentInterimAccount' => '205144',
+    //         'U_TPN' => $tpnNo,
+    //         "BPFiscalTaxIDCollection" =>
+    //         [
+
+    //             // ["TaxId0" =>  "00" . $tpnNo] // Prefix 00 to Employee ID
+    //             "TaxId0" =>  '0012345697' // static
+    //         ]
+    //     ];
+
+    //     $this->apiController->postEmployeeToSap($sapData);
+    // }
     private function postEmployeeToSap($employee)
     {
         // dd($employee);
-        $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
+        // $tpnNo = MasEmployeeJob::where('mas_employee_id', $employee->id)->value('tpn_number');
+        $jobDetail = MasEmployeeJob::where('mas_employee_id', $employee->id)->first(['tpn_number', 'bank', 'account_number']);
+        $bankCode = '';
+
+        if ($jobDetail && !empty($jobDetail->bank)) {
+            $bankKey = trim($jobDetail->bank); // Remove any extra space
+            $bankCode = config('global.sap_bank_code')[$bankKey] ?? '';
+        }
+
         $sapData = [
             'CardCode' => $employee->username,
             'CardName' => $employee->name,
@@ -722,7 +756,12 @@ class EmployeeController extends Controller
             'DebitorAccount' => '204111',
             'DownPaymentClearAct' => '205144',
             'DownPaymentInterimAccount' => '205144',
-            'U_TPN' => $tpnNo,
+            'DefaultAccount' => $jobDetail->account_number ?? '', //employee individual acc no 
+            'DefaultBankCode' => $bankCode, //Bank Code 
+            'BankCountry' => 'BT', //static 
+            'HouseBank' => '-1', //Bank Code 
+            // 'U_TPN' => $tpnNo,
+            'U_TPN' => $jobDetail->tpn_number,
             "BPFiscalTaxIDCollection" =>
             [
 

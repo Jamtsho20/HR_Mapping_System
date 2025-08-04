@@ -96,6 +96,15 @@ return [
         'T Bank' => 'T Bank',
         'DK Bank' => 'Digital Kidu'
     ],
+    'sap_bank_code' => [
+        'BoB' => 'BOBL',
+        'BNB' => 'BNBL',
+        'BDB' => 'BDBL',
+        'Druk PNB' => 'DPNB-TH1',
+        'T Bank' => 'TBANK-TH',
+        // 'DK Bank' => 'Digital Kidu'
+    ],
+    
     'loan_type' => [
         'Consumer Loan',
         'Personal Loan',
