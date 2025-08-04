@@ -489,6 +489,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/user-profile/{id}/update-image', 'ProfileController@updateImage')->name('user-profile.updateImage');
     });
 
+    //privacy policy
+    Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
+
+
 
     /* route related to ajax */
     Route::get('getgewogbydzongkhag/{id}', 'AjaxRequestController@getGewog');
