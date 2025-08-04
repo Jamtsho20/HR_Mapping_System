@@ -36,12 +36,12 @@ class SSSExport implements FromCollection, WithHeadings
             })->get()->map(function ($sss) use (&$serialNo) {
                 return [
                     $serialNo++,
-                    $sss->employee->username,
-                    $sss->employee->name,
-                    $sss->employee->cid_no,
+                    $sss->employee->username ?? '-',
+                    $sss->employee->name ?? '-',
+                    $sss->employee->cid_no ?? '-',
                     $sss->policy_number ?? '-',
-                    $sss->amount,
-                    $sss->for_month,
+                    $sss->amount ?? '-',
+                    $sss->for_month ?? '-',
 
                 ];
             });

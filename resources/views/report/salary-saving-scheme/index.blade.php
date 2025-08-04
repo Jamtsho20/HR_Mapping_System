@@ -84,12 +84,12 @@
                                                         <tr>
                                                             <td>{{ ($sss->currentPage() - 1) * $sss->perPage() + $loop->iteration }}
                                                             </td>
-                                                            <td>{{ $salary->employee->username }}</td>
-                                                            <td>{{ $salary->employee->name }}</td>
-                                                            <td>{{ $salary->employee->cid_no }}</td>
-                                                            <td>{{ $salary->policy_number }}</td>
-                                                            <td>{{ $salary->amount }}</td>
-                                                            <td>{{ $salary->for_month }}</td>
+                                                            <td>{{ $salary->employee->username ?? '-' }}</td>
+                                                            <td>{{ $salary->employee->name ?? '-' }}</td>
+                                                            <td>{{ $salary->employee->cid_no ?? '-' }}</td>
+                                                            <td>{{ $salary->policy_number ?? '-' }}</td>
+                                                            <td>{{ $salary->amount ?? '-' }}</td>
+                                                            <td>{{ $salary->for_month ?? '-' }}</td>
 
                                                         </tr>
                                                     @empty

@@ -9,7 +9,7 @@ class MasSite extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'code', 'name', 'description'];
+    protected $fillable = [ 'code', 'name', 'description', 'dzongkhag_id'];
 
     public function reqDetail()
     {

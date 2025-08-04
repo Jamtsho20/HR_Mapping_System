@@ -24,6 +24,8 @@ class LoanExport implements FromCollection, WithHeadings
             FinalPaySlip::join('loan_e_m_i_deductions', 'final_pay_slips.mas_employee_id', '=', 'loan_e_m_i_deductions.mas_employee_id')
             ->join('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
             ->join('mas_loan_types', 'loan_e_m_i_deductions.loan_type_id', '=', 'mas_loan_types.id') // Join mas_pay_head with loan_e_m_i_deductions on mas_pay_head_id
+            ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
+            ->where('mas_employees.is_active', 1)
             ->whereIn('loan_e_m_i_deductions.mas_pay_head_id', [17, 18, 19, 20, 21, 22, 23, 24])
             ->where('loan_e_m_i_deductions.is_paid_off', 0)
             ->filter($this->request) // Apply the filters

@@ -15,6 +15,7 @@ class SifaNomination extends Model
         'relation_with_employee',
         'cid_number',
         'percentage_of_share',
+        'attachment',
     ];
     
     public function sifaRegistration()

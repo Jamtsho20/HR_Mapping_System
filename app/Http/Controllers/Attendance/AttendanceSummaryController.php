@@ -9,6 +9,7 @@ use App\Models\MasDepartment;
 use App\Models\MasSection;
 use App\Models\User;
 use App\Services\DelegationService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -37,14 +38,16 @@ class AttendanceSummaryController extends Controller
         $departments = $filterData['departments'];
         $sections = $filterData['sections'];
         $employees = User::whereIsActive(1)
-                    ->whereNotIn('id', [1, 2])
-                    ->when($filterData['departmentId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_department_id', $filterData['departmentId'])))
-                    ->when($filterData['sectionId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_section_id', $filterData['sectionId'])))
-                    ->when($filterData['mdRole'], fn($q) =>
-                            $q->whereHas('roles', fn($q) => $q->where('roles.id', DEPARTMENT_HEAD))
-                        )
-                    ->get();
-        
+            ->whereNotIn('id', [1, 2])
+            ->when($filterData['departmentId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_department_id', $filterData['departmentId'])))
+            ->when($filterData['sectionId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_section_id', $filterData['sectionId'])))
+            ->when(
+                $filterData['mdRole'],
+                fn($q) =>
+                $q->whereHas('roles', fn($q) => $q->where('roles.id', DEPARTMENT_HEAD))
+            )
+            ->get();
+
         $yearMonth = $request->query('year_month', now()->format('Y-m'));
         $employeeId = $request->query('employee_id');
         // dd($employeeId);
@@ -61,8 +64,8 @@ class AttendanceSummaryController extends Controller
         $attendance = EmployeeAttendance::with([
             'dailyAttendances'
         ])
-        ->where('for_month', Carbon::parse($yearMonth)->format('m-Y'))
-        ->first();
+            ->where('for_month', Carbon::parse($yearMonth)->format('m-Y'))
+            ->first();
         // dd($attendance->dailyAttendances);
         if ($attendance && $attendance->dailyAttendances->isEmpty()) {
             return back()->with('msg_error', 'Attendance Data for ' . Carbon::parse($yearMonth)->format('F Y') . ' not found.');
@@ -70,7 +73,7 @@ class AttendanceSummaryController extends Controller
 
         $this->prepareAttendanceData($attendance['dailyAttendances'], $departmentId, $sectionId, $employeeId, $filterData['mdRole']);
 
-        if(empty($this->attendancesData)){
+        if (empty($this->attendancesData)) {
             return back()->with('msg_error', 'Attendance data for selected parameters not found, Please try againg after correcting the parameters.');
         }
 
@@ -78,6 +81,7 @@ class AttendanceSummaryController extends Controller
         $perPage = config('global.pagination');
         $page = $request->get('page', 1);
         $collection = collect($this->attendancesData);
+
         $attendancesData = new LengthAwarePaginator(
             $collection->forPage($page, $perPage),
             $collection->count(),
@@ -85,8 +89,9 @@ class AttendanceSummaryController extends Controller
             $page,
             ['path' => $request->url(), 'query' => $request->query()]
         );
+
         // dd($attendancesData);
-        return view('attendance.attendance-summary.index', compact( 'privileges','departments','sections', 'employees', 'days', 'attendancesData', 'yearMonth', 'departmentId', 'sectionId'));
+        return view('attendance.attendance-summary.index', compact('privileges', 'departments', 'sections', 'employees', 'days', 'attendancesData', 'yearMonth', 'departmentId', 'sectionId'));
     }
 
     /**
@@ -155,28 +160,29 @@ class AttendanceSummaryController extends Controller
         //
     }
 
-    private function prepareAttendanceData($dailyAttendance, $departmentId, $sectionId, $employeeId, $mdRole){
+    private function prepareAttendanceData($dailyAttendance, $departmentId, $sectionId, $employeeId, $mdRole)
+    {
         $grouped = [];
-        foreach($dailyAttendance as $attendance){
+        foreach ($dailyAttendance as $attendance) {
             $details = AttendanceDetail::with(['employee', 'attendanceStatus'])
-                        ->where('daily_attendance_id', $attendance->id)
-                        ->when($departmentId, fn($q) => $q->where('department_id', $departmentId))
-                        ->when($sectionId, fn($q) => $q->where('section_id', $sectionId))
-                        ->when($employeeId, fn($q) => $q->where('employee_id', $employeeId))
-                        ->when($mdRole, function ($query) {
-                            $query->whereHas('employee.roles', function ($q) {
-                                $q->where('role_id', DEPARTMENT_HEAD); // or use role_id: $q->where('id', 3);
-                            });
-                        })
-                        ->get();
+                ->where('daily_attendance_id', $attendance->id)
+                ->when($departmentId, fn($q) => $q->where('department_id', $departmentId))
+                ->when($sectionId, fn($q) => $q->where('section_id', $sectionId))
+                ->when($employeeId, fn($q) => $q->where('employee_id', $employeeId))
+                ->when($mdRole, function ($query) {
+                    $query->whereHas('employee.roles', function ($q) {
+                        $q->where('role_id', DEPARTMENT_HEAD); // or use role_id: $q->where('id', 3);
+                    });
+                })
+                ->get();
             // dd($details);
-            foreach($details as $detail){
+            foreach ($details as $detail) {
                 $empId = $detail->employee_id;
                 $workedHours = ($detail->check_in_at && $detail->check_out_at)
-                                ? Carbon::createFromFormat('H:i:s', $detail->check_in_at)
-                                    ->diff(Carbon::createFromFormat('H:i:s', $detail->check_out_at))
-                                    ->format('%Hh:%Im:%Ss')
-                                : config('global.null_value');
+                    ? Carbon::createFromFormat('H:i:s', $detail->check_in_at)
+                    ->diff(Carbon::createFromFormat('H:i:s', $detail->check_out_at))
+                    ->format('%Hh:%Im:%Ss')
+                    : config('global.null_value');
                 // Format day as 2-digit string (e.g., "01", "02")
                 $forDay = str_pad($attendance->day, 2, '0', STR_PAD_LEFT);
 
@@ -217,7 +223,12 @@ class AttendanceSummaryController extends Controller
 
         $allRoles = collect(array_unique(array_merge($userRoles, $delegatedRoles)));
         $desiredRoles = $allRoles->filter(fn($roleId) => in_array($roleId, [
-            ADMIN, IMMEDIATE_HEAD, DEPARTMENT_HEAD, HR, HR_MANAGER, MANAGING_DIRECTOR
+            ADMIN,
+            IMMEDIATE_HEAD,
+            DEPARTMENT_HEAD,
+            HR,
+            HR_MANAGER,
+            MANAGING_DIRECTOR
         ]))->values()->all();
 
         $loggedInUserSec = $loggedInUser->empJob->mas_section_id ?? null;
@@ -245,7 +256,7 @@ class AttendanceSummaryController extends Controller
                 $secQuery->where('mas_department_id', $loggedInUserDept);
             }
 
-            if(in_array(MANAGING_DIRECTOR, $desiredRoles)){
+            if (in_array(MANAGING_DIRECTOR, $desiredRoles)) {
                 $mdRole = true;
             }
 
@@ -258,5 +269,96 @@ class AttendanceSummaryController extends Controller
         return compact('departments', 'sections', 'desiredRoles', 'departmentId', 'sectionId', 'mdRole');
     }
 
+    public function exportSamsungDeduction(Request $request)
+    {
 
+        $collection = collect($this->attendancesData);
+
+
+
+        $privileges = $request->instance();
+        $loggedInUser = auth()->user();
+        $filterData = $this->prepareFilterData($loggedInUser);
+        $departments = $filterData['departments'];
+        $sections = $filterData['sections'];
+        $employees = User::whereIsActive(1)
+            ->whereNotIn('id', [1, 2])
+            ->when($filterData['departmentId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_department_id', $filterData['departmentId'])))
+            ->when($filterData['sectionId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_section_id', $filterData['sectionId'])))
+            ->when(
+                $filterData['mdRole'],
+                fn($q) =>
+                $q->whereHas('roles', fn($q) => $q->where('roles.id', DEPARTMENT_HEAD))
+            )
+            ->get();
+
+        $yearMonth = $request->query('year_month', now()->format('Y-m'));
+        $employeeId = $request->query('employee_id');
+        // dd($employeeId);
+        $departmentId = $request->query('department', $filterData['departmentId'] ?? null);
+        $sectionId = $request->query('section', $filterData['sectionId'] ?? null);
+
+        $maxDays = daysInMonth($yearMonth);
+        $days = [];
+
+        for ($i = 1; $i <= $maxDays; $i++) {
+            $days[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+        }
+        // dd($yearMonth);
+        $attendance = EmployeeAttendance::with([
+            'dailyAttendances'
+        ])
+            ->where('for_month', Carbon::parse($yearMonth)->format('m-Y'))
+            ->first();
+        // dd($attendance->dailyAttendances);
+        if ($attendance && $attendance->dailyAttendances->isEmpty()) {
+            return back()->with('msg_error', 'Attendance Data for ' . Carbon::parse($yearMonth)->format('F Y') . ' not found.');
+        }
+
+        $this->prepareAttendanceData($attendance['dailyAttendances'], $departmentId, $sectionId, $employeeId, $filterData['mdRole']);
+
+        if (empty($this->attendancesData)) {
+            return back()->with('msg_error', 'Attendance data for selected parameters not found, Please try againg after correcting the parameters.');
+        }
+
+
+        $perPage = config('global.pagination');
+        $page = $request->get('page', 1);
+        $collection = collect($this->attendancesData);
+
+        $attendancesData = new LengthAwarePaginator(
+            $collection->forPage($page, $perPage),
+            $collection->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+
+
+        $yearMonth = $request->query('year_month', now()->format('Y-m'));
+
+        $maxDays = daysInMonth($yearMonth);
+        $days = [];
+
+        for ($i = 1; $i <= $maxDays; $i++) {
+            $days[] = str_pad($i, 2, '0', STR_PAD_LEFT);
+        }
+
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.attendance-summary', compact('attendancesData', 'days'))->setPaper('a4', 'landscape');
+
+
+        // Return the PDF download
+        return $pdf->stream('SamsungDeduction-Report.pdf');
+    }
+
+    public function exportSamsungDeductionExcel(Request $request)
+    {
+        $samsungDeductions = $this->prepareQuery($request)
+            ->get();
+
+        return Excel::download(new SamsungDeductionExport($request, $samsungDeductions), 'samsung-deduction-report.xlsx');
+    }
 }

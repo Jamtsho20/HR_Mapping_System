@@ -228,13 +228,23 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($data->dsaClaimMappings as $index => $detail)
-                                        <tr class="travel-auth-${travelAuthGroupClass} bg-light">
+                                   <tr class="travel-auth-${travelAuthGroupClass} bg-light">
 
-                                            <td colspan="4" class="text-center" style="color: black;  font-weight: bold;">
-                                                <span name="dsa_claim_detail[${travel_authorizations.travelAuthorization.id}][travel_authorization_id]" data-value="${travel_authorizations.travelAuthorization.id}: ${travel_authorizations.advance_details ? travel_authorizations.advance_details.id : ''}">
-                                                    Travel Authorization Number: {{$detail->travelAuthorization->transaction_no}}
+                                           <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
+                                                <span>
+                                                    Travel Authorization Number: {{ $detail->travelAuthorization->transaction_no }}
+                                                    <a href="javascript:void(0);"
+                                                    class="view-travel-details text-primary"
+                                                    style="text-decoration: none;"
+                                                    data-id="{{ $detail->travel_authorization_id }}"
+                                                    data-url="{{ route('travel-authorizations.details', $detail->travel_authorization_id) }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#travelDetailModal">
+                                                        (View Details)
+                                                    </a>
                                                 </span>
                                             </td>
+
                                             <td colspan="4" class="text-center" style="color: black; font-weight: bold;">
                                                 <span
                                                     name="dsa_claim_detail[{{ $detail->travel_authorization_id ?? '' }}][advance_detail_id]"
@@ -330,21 +340,36 @@
                                     @endforeach
                                     <tr style="font-weight: bold; background-color: #f5f5f5">
 
-                                <td colspan="2" style="padding-left:25px;"></td>
-                                <th style="width:35%;">Total Amount <span
+                                <td colspan="1" style="padding-left:25px;"></td>
+                                <th colspan="2" style="width:35%;">Total Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ formatAmount($dsa->amount ?? config('global.null_value') )}}</td>
-                                <th style="width:35%;">Advance Amount <span
+                                <th colspan="2" style="width:35%;">Advance Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{formatAmount($dsa->advance_amount ?? config('global.null_value') )}}</td>
 
-                                <th style="width:35%;">Net Payable Amount <span
+                                <th colspan="2" style="width:35%;">Net Payable Amount <span
                                         class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
                                 <td style="padding-left:25px;"> {{ formatAmount($dsa->net_payable_amount ?? config('global.null_value')) }}</td>
                             </tr>
 
                                     </tbody>
                                 </table>
+                               <!-- Reusable Modal -->
+                                <div class="modal fade" id="travelDetailModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Travel Details</h5>
+                                                <button type="button" class="btn-close text-danger" data-bs-dismiss="modal" aria-label="Close">x</button>
+                                            </div>
+                                            <div class="modal-body" id="travelDetailContent">
+                                                <div class="text-center text-muted">Loading...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -460,6 +485,25 @@
                     });
                 }
             });
+
+
+             document.querySelectorAll('.view-travel-details').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const url = this.getAttribute('data-url');
+                    const modalBody = document.getElementById('travelDetailContent');
+                    modalBody.innerHTML = '<div class="text-center text-muted">Loading...</div>';
+
+                    fetch(url)
+                    .then(res => res.text())
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                    })
+                    .catch(err => {
+                        modalBody.innerHTML = '<div class="text-danger">Failed to load details.</div>';
+                        console.error(err);
+                    });
+                });
+                });
         })
     </script>
 @endpush

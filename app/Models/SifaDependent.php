@@ -14,6 +14,7 @@ class SifaDependent extends Model
         'dependent_name',
         'relation_with_employee',
         'cid_number',
+        'attachment'
     ];
     public function sifaRegistration()
     {

@@ -70,6 +70,9 @@
                     Name
                 </th>
                 <th>
+                    CID
+                </th>
+                <th>
                     Gender
                 </th>
                 <th>
@@ -111,6 +114,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $employee->username }}</td>
                     <td>{{ $employee->name }}</td>
+                    <td>{{ $employee->cid_no }}</td>
                     <td>{{ $employee->gender_name }}</td>
                     <td>{{ $employee->empJob->department->name }}</td>
                     <td>{{ $employee->empJob->section->name ?? '-' }}</td>

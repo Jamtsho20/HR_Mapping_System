@@ -1,14 +1,15 @@
-<label for=""><strong>RETIREMENT AND SIFA BENEFIT NOMINATION</strong></label><small>(s)<i> (I hereby nominate the person(s) mentioned below, who is/are member(s) of my family, to have the conferred right to claim the retirement and SIFA benefit upon my demise, as per the percentage of shares prescribed)</i></small>
+<label for=""><strong>SIFA BENEFIT NOMINATION</strong></label><small>(s)<i> (I hereby nominate the person(s) mentioned below to have the conferred rights to claim my SIFA benefits upon my demise, as per the percentage of shares prescribed)</i></small>
 <br><br>
 <div class="table-responsive criteria">
     <table id="sifa_nomination" class="table table-condensed table-striped table-bordered table-sm">
         <thead class="thead-light">
             <tr>
                 <th class="text-center">#</th>
-                <th width="25%">Name</th>
-                <th width="25%">Relationship</th>
-                <th width="25%">CID</th>
-                <th width="25%">Percentage of Share</th>
+                <th width="20%">Name</th>
+                <th width="20%">Relationship</th>
+                <th width="20%">CID</th>
+                <th width="20%">Percentage of Share</th>
+                <th width="20%">Attachments</th>
             </tr>
         </thead>
         <tbody>
@@ -29,6 +30,10 @@
                 <td>
                     <input type="number" name="sifa_nomination[AAAAA][percentage_of_share]" class="form-control form-control-sm resetKeyForNew">
                 </td>
+                <td>
+                    <input type="file" name="sifa_nomination[AAAAA][attachment]" class="form-control form-control-sm resetKeyForNew">
+                </td>
+
             </tr>
             @else
             @foreach (old('sifa_nomination') as $key => $value)
@@ -48,11 +53,15 @@
                 <td>
                     <input type="number" name="sifa_nomination[AAAAA{{ $key }}][percentage_of_share]" class="form-control form-control-sm resetKeyForNew" value="{{ old('sifa_nomination[AAAAA'.$key.'][percentage_of_share]', $value['percentage_of_share'] ?? '') }}">
                 </td>
+                <td>
+                    <input type="file" name="sifa_nomination[AAAAA{{ $key }}][attachment]" class="form-control form-control-sm resetKeyForNew">
+                </td>
+
             </tr>
             @endforeach
             @endif
             <tr class="notremovefornew">
-                <td colspan="4"></td>
+                <td colspan="5"></td>
                 <td class="text-right">
                     <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 12px"><i class="fa fa-plus"></i> Add New Row</a>
                 </td>
@@ -60,4 +69,3 @@
         </tbody>
     </table>
 </div>
-

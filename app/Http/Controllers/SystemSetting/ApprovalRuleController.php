@@ -15,11 +15,12 @@ use App\Models\MasConditionField;
 use App\Models\MasExpenseType;
 use App\Models\MasLeaveType;
 use App\Models\MasRequisitionType;
+use App\Models\MasRetirementBenefitTypes;
 use App\Models\MasReturnType;
 use App\Models\MasSifaType;
 use App\Models\MasTransferClaim;
-use App\Models\MasTravelType;
 use App\Models\MasTransferType;
+use App\Models\MasTravelType;
 use App\Models\Role;
 use App\Models\SystemHierarchy;
 use App\Models\User;
@@ -90,6 +91,7 @@ class ApprovalRuleController extends Controller
             10 => MasCommissionTypes::class,
             11 => MasTransferType::class,
             12 => MasReturnType::class,
+            13 => MasRetirementBenefitTypes::class,
         ];
 
         if (isset($models[$request->mas_approval_head_id])) {

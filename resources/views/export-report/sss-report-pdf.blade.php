@@ -90,13 +90,13 @@
                 <tr>
                     <td>{{ $loop->iteration }}
                     </td>
-                    <td>{{ $salary->employee->username }}</td>
-                    <td>{{ $salary->employee->name }}</td>
-                    <td>{{ $salary->employee->cid_no }}</td>
+                    <td>{{ $salary->employee->username ?? '-' }}</td>
+                    <td>{{ $salary->employee->name ?? '-' }}</td>
+                    <td>{{ $salary->employee->cid_no ?? '-' }}</td>
 
-                    <td>{{ $salary->policy_number }}</td>
-                    <td>{{ $salary->amount }}</td>
-                    <td>{{ $salary->for_month }}</td>
+                    <td>{{ $salary->policy_number ?? '-' }}</td>
+                    <td>{{ $salary->amount ?? '-' }}</td>
+                    <td>{{ $salary->for_month ?? '-' }}</td>
 
                 </tr>
             @empty
@@ -108,7 +108,7 @@
                 </tr>
             @endforelse
             <tr>
-                <td colspan="4" class="text-right">Total:</td>
+                <td colspan="5" class="text-right">Total:</td>
                 <td>{{ $totalAmount }}</td>
             </tr>
 
