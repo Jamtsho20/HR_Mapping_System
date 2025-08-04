@@ -32,6 +32,9 @@ use App\Http\Controllers\Reports\SIFAContributionController;
 use App\Http\Controllers\Reports\TaxScheduleReportController;
 use App\Http\Controllers\Reports\TransferClaimReportController;
 use App\Http\Controllers\WorkStructure\BusinessUnitController;
+use App\Http\Controllers\AssetReport\GoodIssueReportController;
+use App\Http\Controllers\AssetReport\GoodReceiptReportController;
+use App\Http\Controllers\AssetReport\AssetTransferReportController;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
 use App\Models\User;
@@ -397,6 +400,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-commission-report', [CommissionReportController::class, 'exportCommission'])->name('commission-report-pdf.export');
     Route::get('/export-commission-excel-report', [CommissionReportController::class, 'exportCommissionExcel'])->name('commission-report-excel.export');
 
+    Route::get('/export-good-issue-report', [GoodIssueReportController::class, 'exportGoodIssue'])->name('good-issue-report-pdf.export');
+    Route::get('/export-good-issue-excel-report', [GoodIssueReportController::class, 'exportGoodIssueExcel'])->name('good-issue-report-excel.export');
+
+    Route::get('/export-good-receipt-report', [GoodReceiptReportController::class, 'exportGoodReceiptPdf'])->name('good-receipt-report-pdf.export');
+    Route::get('/export-good-receipt-excel-report', [GoodReceiptReportController::class, 'exportGoodReceiptExcel'])->name('good-receipt-report-excel.export');
+
+    Route::get('/export-good-transfer-report', [AssetTransferReportController::class, 'exportPdf'])->name('good-transfer-report-pdf.export');
+    Route::get('/export-good-transfer-excel-report', [AssetTransferReportController::class, 'exportExcel'])->name('good-transfer-report-excel.export');
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
@@ -422,9 +433,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/print-requisition-report', [RequisitionReportController::class, 'printRequisitionReport'])->name('requisition-report-print');
     Route::get('/print-commission-report', [CommissionReportController::class, 'printCommissionReport'])->name('commission-report-print');
-
-
-
+    Route::get('/print-good-issue-report', [GoodIssueReportController::class, 'printGoodIssue'])->name('good-issue-report-print');
+    Route::get('/print-good-receipt-report', [GoodReceiptReportController::class, 'printGoodReceipt'])->name('good-receipt-report-print');
+    Route::get('/print-good-transfer-report', [AssetTransferReportController::class, 'print'])->name('good-transfer-report-print');
     //Assets
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
@@ -439,6 +450,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('requisition-history', 'RequisitionHistoryController')->except('create', 'show', 'edit');
         Route::resource('requisition-approval', 'RequisitionApprovalController')->except('create', 'delete');
         Route::get('inventory', 'RequisitionApplicationController@inventory')->name('asset.inventory');
+        Route::get('sites', 'RequisitionApplicationController@sites')->name('asset.sites');
         // Route::post('approval/bulk', 'AjaxRequestController@bulkApprovalRejection')->name('requisition.bulk-approval-rejection');
 
 
@@ -452,8 +464,10 @@ Route::middleware('auth')->group(function () {
     Route::namespace('AssetReport')->prefix('asset-report')->group(function () {
         Route::resource('requisition-report', 'RequisitionReportController')->except('create', 'edit');
         Route::resource('commission-report', 'CommissionReportController')->except('create', 'edit');
-        // Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
-        // Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
+        Route::resource('good-issue-report', 'GoodIssueReportController')->except('create', 'show', 'edit');
+        Route::resource('good-receipt-report', 'GoodReceiptReportController')->except('create', 'show', 'edit');
+        Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
+        Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
     });
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {

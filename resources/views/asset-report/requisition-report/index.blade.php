@@ -82,7 +82,7 @@
                                                     SL no
                                                 </th>
                                                 <th>
-                                                    Employee
+                                                    Applicant
                                                 </th>
                                                 <th>
                                                     Department
@@ -94,7 +94,7 @@
                                                     Req No
                                                 </th>
                                                 <th>
-                                                    Req Date
+                                                    Application Date
                                                 </th>
                                                 <th>
                                                     SAP Doc No
@@ -152,7 +152,7 @@
                                                     <tr>
                                                         <td>{{ $count++ }}</td> {{-- Parent index --}}
                                                         <td>{{ $req->employee->emp_id_name }}</td>
-                                                        <td>{{ $req->employee->empJob->department->name ?? config('global_null_value') }}</td>
+                                                        <td>{{ $req->employee->empJob->department->name ?? config('global.null_value')  }}</td>
                                                         <td>{{ $req->type->name }}</td>
                                                         <td>{{ $req->transaction_no }}</td>
                                                         <td>{{ $req->transaction_date }}</td>

@@ -71,14 +71,14 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                
+
                                                 @forelse ($commission->details as $detail)
                                                     <tr>
                                                         <td class="text-center">
                                                             {{ $loop->iteration }}
                                                         </td>
                                                         <td class="text-center">
-                                                            {{ $detail->receivedSerial->asset_serial_no }}
+                                                            {{  $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->item_no .'-'. $detail->receivedSerial?->asset_serial_no }}
                                                         </td>
                                                         <td class="text-center">
                                                             {{ $detail->receivedSerial->asset_description }}
@@ -86,7 +86,7 @@
                                                         <td class="text-center">
                                                             {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
                                                         </td>
-                                                        <td class="text-right">1</td>
+                                                        <td class="text-right">{{ $detail->receivedSerial?->quantity ?? 1 }}</td>
                                                         <td class="text-right">
                                                             {{ $detail->receivedSerial->amount }}
                                                         </td>

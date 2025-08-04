@@ -41,6 +41,11 @@ class ApplicationHistory extends Model
         return $this->belongsTo(User::class, 'action_performed_by');
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approver_emp_id');
+    }
+
     protected static function booted()
     {
         static::created(function ($application) {
