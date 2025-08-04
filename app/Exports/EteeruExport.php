@@ -21,6 +21,7 @@ class EteeruExport implements FromCollection, WithHeadings
             ->join('mas_employee_jobs', 'mas_pay_group_details.mas_grade_id', '=', 'mas_employee_jobs.mas_grade_id')
             ->join('mas_employees', 'mas_employee_jobs.mas_employee_id', '=', 'mas_employees.id')
             ->join('final_pay_slips', 'mas_employees.id', '=', 'final_pay_slips.mas_employee_id')
+            ->where('mas_employees.is_active', 1)
             ->select(
                 'mas_employees.name',
                 'mas_employees.contact_number',

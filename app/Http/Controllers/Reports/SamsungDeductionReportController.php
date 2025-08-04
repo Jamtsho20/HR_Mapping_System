@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Exports\SamsungDeductionExport;
 use App\Http\Controllers\Controller;
 use App\Models\FinalPaySlip;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -103,7 +104,7 @@ class SamsungDeductionReportController extends Controller
             ->get();
 
         $totalSamsung = $samsungDeductions->sum(function ($device) {
-            return $device->details['deductions']['Samsung Ded'] ?? 0;
+            return $device->emi_amount ?? 0;
         });
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions', 'totalSamsung'))->setPaper('a4', 'landscape');;
@@ -115,8 +116,9 @@ class SamsungDeductionReportController extends Controller
 
     public function exportSamsungDeductionExcel(Request $request)
     {
-        $samsungDeductions = $this->prepareQuery($request)
+        $samsungDeductions =  $this->prepareQuery($request)
             ->get();
+
 
         return Excel::download(new SamsungDeductionExport($request, $samsungDeductions), 'samsung-deduction-report.xlsx');
     }
@@ -125,9 +127,10 @@ class SamsungDeductionReportController extends Controller
     {
         $samsungDeductions = $this->prepareQuery($request)
             ->get();
+        // dd($samsungDeductions->first());
 
         $totalSamsung = $samsungDeductions->sum(function ($device) {
-            return $device->details['deductions']['Samsung Ded'] ?? 0;
+            return $device->emi_amount ?? 0;
         });
         // Generate the PDF view and pass the data
         $pdf = Pdf::loadView('export-report.samsung-deductions-report-pdf', compact('samsungDeductions', 'totalSamsung'))->setPaper('a4', 'landscape');;
@@ -146,6 +149,8 @@ class SamsungDeductionReportController extends Controller
                 ->whereColumn('final_pay_slips.for_month', '>=', 'loan_e_m_i_deductions.start_date')
                 ->whereColumn('final_pay_slips.for_month', '<=', 'loan_e_m_i_deductions.end_date');
         })
+            ->join('mas_employees', 'loan_e_m_i_deductions.mas_employee_id', '=', 'mas_employees.id')
+            ->where('mas_employees.is_active', 1)
             ->leftJoin('mas_pay_heads', 'loan_e_m_i_deductions.mas_pay_head_id', '=', 'mas_pay_heads.id')
             ->select(
                 'final_pay_slips.*',

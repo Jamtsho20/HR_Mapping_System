@@ -141,6 +141,7 @@
                 <td>{{ $totalBasic }}</td>
                 <td>{{ $totalAllowances }}</td>
                 <td>{{ $totalGross }}</td>
+                <td>{{ $totalPF }}</td>
                 <td>{{ $totalGIS }}</td>
                 <td>{{ $totalNet }}</td>
                 <td>{{ $totalHealth }}</td>
