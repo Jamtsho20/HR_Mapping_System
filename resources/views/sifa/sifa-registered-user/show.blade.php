@@ -10,7 +10,7 @@
     <div class="card-body">
         @if ($sifaRegistration && $sifaRegistration->is_registered == 1)
         <!-- Personal Information Section -->
-        @include('sifa.sifa-registration.forms.personalinfo')
+        @include('sifa.sifa-registered-user.sifalist',['employee' => $sifaRegistration->employee])
         <hr>
        
         <!-- Sifa Nomination Section -->

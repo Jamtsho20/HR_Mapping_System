@@ -28,6 +28,7 @@ class SalarySavingSchemeController extends Controller
         $employee = employeeList();
 
         $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')
+
             ->when($request->employee, function ($query, $name) {
                 return $query->where('employee_salary_savings.employee_id', '=', $name);
             })
@@ -97,6 +98,7 @@ class SalarySavingSchemeController extends Controller
     {
 
         $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')
+
             ->when($request->employee, function ($query, $name) {
                 return $query->where('employee_salary_savings.employee_id', '=', $name);
             })
@@ -114,7 +116,8 @@ class SalarySavingSchemeController extends Controller
 
 
 
-        // Return the PDF download
+        // Return the PDF download      // ->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+        // ->where('mas_employees.is_active', 1)
         return $pdf->download('SSS.pdf');
     }
 
@@ -128,9 +131,12 @@ class SalarySavingSchemeController extends Controller
     public function printSSS(Request $request)
     {
         // Load all bookings with their dzongkhag names
-        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')->when($request->employee, function ($query, $name) {
-            return $query->where('employee_salary_savings.employee_id', '=', $name);
-        })
+        $sss = EmployeeSalarySaving::join('final_pay_slips', 'final_pay_slips.mas_employee_id', '=', 'employee_salary_savings.employee_id')
+            // ->join('mas_employees', 'final_pay_slips.mas_employee_id', '=', 'mas_employees.id')
+            // ->where('mas_employees.is_active', 1)
+            ->when($request->employee, function ($query, $name) {
+                return $query->where('employee_salary_savings.employee_id', '=', $name);
+            })
 
             // Filter `final_pay_slips` table (e.g., for specific month)
             ->when($request->year, function ($query, $month) {

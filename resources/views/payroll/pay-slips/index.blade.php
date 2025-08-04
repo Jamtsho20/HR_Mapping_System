@@ -113,10 +113,10 @@
 
                                                                             @php
                                                                                 $forMonth = \Carbon\Carbon::parse($record->for_month);
-                                                                                $isCurrentMonth = $forMonth->isSameMonth(now());
+                                                                                $isThisOrPreviousMonth = $forMonth->isSameMonth(now()) || $forMonth->isSameMonth(now()->copy()->subMonth());
                                                                             @endphp
 
-                                                                            @if ($record->status['key'] == 4 && $isCurrentMonth)
+                                                                            @if ($record->status['key'] == 4 && $isThisOrPreviousMonth)
                                                                                 <a href="{{ route('pay-slips.mail', $record->id) }}"
                                                                                     class="btn btn-sm btn-rounded btn-outline-secondary"
                                                                                     id="email-payslip-btn">

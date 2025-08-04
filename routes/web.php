@@ -5,6 +5,7 @@ use App\Http\Controllers\Advance\AdvanceSifaLoanController;
 use App\Http\Controllers\Api\SAP\ApiController;
 use App\Http\Controllers\AssetReport\CommissionReportController;
 use App\Http\Controllers\AssetReport\RequisitionReportController;
+use App\Http\Controllers\Attendance\AttendanceSummaryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Profile\ProfileController;
@@ -117,6 +118,8 @@ Route::get('/sentpasemail', function () {
     return "Email sent successfully!";
 });
 
+//privacy policy
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
 
@@ -194,6 +197,7 @@ Route::middleware('auth')->group(function () {
     //RETIREMENT BENEFIT NOMINATION
     Route::namespace('RetirementBenefitNomination')->prefix('retirement-benefit-nomination')->group(function () {
         Route::resource('retirement-benefit-nomination', 'RetirementBenefitNominationController');
+        Route::resource('retirement-benefit-list', 'RetirementBenefitUserListController');
     });
 
     // WORK STRUCTURE
@@ -211,6 +215,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
         Route::resource('attendance-status', 'AttendanceStatusController');
     });
+
+    // attendance report
+    Route::get('/attendance-summary-pdf', [AttendanceSummaryController::class, 'exportSamsungDeduction'])
+        ->name('attendance-summary-pdf.export');
 
     //EXPENSE
     Route::namespace('Expense')->prefix('expense')->group(function () {
@@ -339,10 +347,12 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/advance-sifa-loan-report', [AdvanceSifaLoanReportController::class, 'exportSifaLoanReport'])
-    ->name('advance-sifa-loan-report.export');
+        ->name('advance-sifa-loan-report.export');
+
+
 
     Route::get('/advance-sifa-loan-excel-report', [AdvanceSifaLoanReportController::class, 'exportSifaLoanExcel'])
-    ->name('advance-sifa-loan-report-excel.export');
+        ->name('advance-sifa-loan-report-excel.export');
 
     //reportexport routes
     Route::get('/export-salary-report', [SalaryReportController::class, 'exportSalary'])->name('salary-report-pdf.export');

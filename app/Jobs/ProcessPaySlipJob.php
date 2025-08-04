@@ -39,7 +39,6 @@ class ProcessPaySlipJob implements ShouldQueue
     {
         $this->payslip = $payslip;
         $this->status = $status;
-
     }
 
     /**
@@ -54,7 +53,7 @@ class ProcessPaySlipJob implements ShouldQueue
             $paySlipId = $payslip->id;
 
             PaySlipDetail::whereRaw("pay_slip_id = ?", [$paySlipId])->delete();
-            $employees = User::active()->completed()->whereNotIn('id', [1, 2])->get();
+            $employees = User::active()->whereNotIn('id', [1, 2])->get();
             $userId = 185;
             $attendance = EmployeeAttendance::whereForMonth(date('m-Y'))->first();
 
