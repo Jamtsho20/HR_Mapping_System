@@ -115,6 +115,8 @@ Route::get('/sentpasemail', function () {
     return "Email sent successfully!";
 });
 
+//privacy policy
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
 
 Route::get('login-as-employee/{id}', 'Auth\AuthenticatedSessionController@loginAs')->name('login-as-employee');
 
