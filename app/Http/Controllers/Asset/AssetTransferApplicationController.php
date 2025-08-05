@@ -27,8 +27,7 @@ class AssetTransferApplicationController extends Controller
     public function __construct()
     {
         $this->middleware('permission:asset/asset-transfer,view')->only('index', 'show');
-
-        $this->middleware('permission:asset/assets,view')->only('myAssetIndex', 'show');
+        $this->middleware('permission:asset/assets,view')->only('myAssetIndex');
         $this->middleware('permission:asset/asset-transfer,create')->only('store');
         $this->middleware('permission:asset/asset-transfer,edit')->only('update');
         $this->middleware('permission:asset/asset-transfer,delete')->only('destroy');
@@ -85,8 +84,6 @@ class AssetTransferApplicationController extends Controller
     {
         $privileges = $request->instance();
         $assetTransfer = AssetTransferApplication::filter($request)->where('created_by', auth()->user()->id)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-
-
         $transferTypes = MasTransferType::get(['id', 'name']);
         return view('asset.asset-transfer.index',compact('privileges', 'assetTransfer', 'transferTypes'));
     }
@@ -141,9 +138,9 @@ class AssetTransferApplicationController extends Controller
         }
 
         $conditionFields = approvalHeadConditionFields(ASSET_TRANSFER_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasTransferType::class, $conditionFields ?? []);
+
         // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
 
         $transferType = MasTransferType::where('id', $request->type_id)->first();
@@ -200,7 +197,7 @@ class AssetTransferApplicationController extends Controller
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
-        return redirect('asset/asset-transfer')->with('msg_success', 'Asset commissioned successfully!');
+        return redirect('asset/asset-transfer')->with('msg_success', 'Asset transfer successfully!');
 
         //
     }
@@ -212,6 +209,7 @@ class AssetTransferApplicationController extends Controller
     {
      $transfer = AssetTransferApplication::with('details')->findOrFail($id);
      $approvalDetail = getApplicationLogs(\App\Models\AssetTransferApplication::class, $transfer->id);
+
      return view('asset.asset-transfer.show', compact('transfer', 'approvalDetail'));
     }
 

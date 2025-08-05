@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commission Report</title>
+    <title>Asset Transfer Report</title>
     <style>
         @page {
             size: A4 landscape;
@@ -85,13 +85,16 @@
     <div class="page-container">
     @include('layouts.includes.generated-on-header', ['fromDate' => $fromDate, 'toDate' => $toDate])
         <hr>
-    <h1 class="title">Commission Report</h1>
+    <h1 class="title">Asset Transfer Report</h1>
     <div class="table-container">
-    <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
+     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
         <thead class="thead-light">
             <tr role="row">
                 <th>
                     SL no
+                </th>
+                <th>
+                    Transfer Type
                 </th>
                 <th>
                     Applicant
@@ -100,7 +103,7 @@
                     Department
                 </th>
                 <th>
-                    Comm No
+                    Transfer No
                 </th>
                 <th>
                     Application Date
@@ -121,13 +124,25 @@
                     Amount (Nu.)
                 </th>
                 <th>
-                    Dzongkhag
+                    From Employee
                 </th>
                 <th>
-                    Site
+                    To Employee
+                </th>
+                <th>
+                    From Site
+                </th>
+                <th>
+                    To Site
                 </th>
                 <th>
                     Capitalization Date
+                </th>
+                <th>
+                    Reason of Transfer
+                </th>
+                <th>
+                    Transfer Acknowledgement
                 </th>
                 <th>
                     Status
@@ -135,44 +150,45 @@
                 <th>
                     Approved By
                 </th>
-                {{-- <th>
-                                                    Action
-                                                </th> --}}
 
 
             </tr>
         </thead>
         <tbody>
             @php $count = 1; @endphp
-            @forelse($commissions as $comm)
-                @foreach ($comm->details as $detail)
+            @forelse($assetTransferApplication as $transfer)
+                @foreach ($transfer->details as $detail)
                     <tr>
                         <td>{{ $count++ }}</td> {{-- Parent index --}}
-                        <td>{{ $comm->employee->emp_id_name }}</td>
-                        <td>{{ $comm->employee->empJob->department->name ?? config('global_null_value') }}</td>
-                        <td>{{ $comm->transaction_no }}</td>
-                        <td>{{ $comm->transaction_date }}</td>
+                        <td>{{ $transfer->type_id === 1 ? 'Employee-Employee' : 'Site-Site' }}</td>
+                        <td>{{ $transfer->employee->emp_id_name }}</td>
+                        <td>{{ $transfer->employee->empJob->department->name ?? config('global.null_value')  }}</td>
+                        <td>{{ $transfer->transaction_no }}</td>
+                        <td>{{ $transfer->transaction_date }}</td>
 
+                        {{-- Detail-specific data --}}
                         <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->item_no .'-'. $detail->receivedSerial?->asset_serial_no }}</td>
                         {{-- <td>{{ $detail->receivedSerial->asset_description }}</td> --}}
-                        <td title="{{ $detail->receivedSerial->asset_description }}">
-                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 75, '...') }}
+                        <td title="{{ $detail->receivedSerial?->asset_description }}">
+                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 50, '...') }}
                         </td>
 
                         <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->uom ?? '-' }}
                         </td>
-                        <td class="text-right">{{$detail->receivedSerial?->quantity ?? 1 }}</td>
+                        <td class="text-right">{{$detail->receivedSerial?->quantity ?? 1}}</td>
                         <td class="text-right">{{ $detail->receivedSerial?->amount }}</td>
-                        <td>{{ $detail->dzongkhag?->dzongkhag }}</td>
-
-                        <td>{{ $detail->site->name ?? '-' }}</td>
-
-                        <td>{{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}
-                                                </td>
-                        {{-- Parent-level status & approver repeated per row --}}
-                        <td>{{ config("global.application_status.{$comm->status}", 'Unknown') }}
+                        <td class="text-right">{{ $transfer->fromEmployee->name ?? config('global.null_value')  }}</td>
+                        <td class="text-right">{{ $transfer->toEmployee->name ?? config('global.null_value') }}</td>
+                        <td class="text-right">{{ $transfer->fromSite->name ?? config('global.null_value')  }}</td>
+                        <td class="text-right">{{ $transfer->toSite->name ?? config('global.null_value')  }}</td>
+                        <td>{{ \Carbon\Carbon::parse($detail->receivedSerial->commissionDetail->date_placed_in_service)->format('d-M-Y') ?? config('global.null_value')  }}
                         </td>
-                        <td>{{ $comm->approvedBy->emp_id_name ?? '-' }}</td>
+                        <td>{{ $transfer->reason_of_transfer ?? '-' }}</td>
+                        <td>{{ $transfer->received_acknowledged ? 'Acknowledged' : 'Not Acknowledged' }}</td>
+                        {{-- Parent-level status & approver repeated per row --}}
+                        <td>{{ config("global.application_status.{$transfer->status}", 'Unknown') }}
+                        </td>
+                        <td>{{$transfer->histories->last()->approvedBy->emp_id_name ?? '-'  }}</td>
                     </tr>
                 @endforeach
             @empty

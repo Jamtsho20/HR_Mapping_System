@@ -1,14 +1,14 @@
 @extends('layouts.app')
-@section('page-title', 'FA Commission Report')
+@section('page-title', 'Asset Transfer Report')
 @section('content')
 
     <div class="col-md-12 d-flex justify-content-end gap-2">
         <div class="d-flex gap-2">
-            <a href="{{ route('commission-report-excel.export', Request::query()) }}" data-toggle="tooltip"
+            <a href="{{ route('good-transfer-report-excel.export', Request::query()) }}" data-toggle="tooltip"
                 data-placement="top" title="Excel"><span><i class="fa fa-file-excel-o fa-lg"></i></span></a>
-            <a href="{{ route('commission-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
+            <a href="{{ route('good-transfer-report-pdf.export', Request::query()) }}" data-toggle="tooltip" data-placement="top"
                 title="PDF"><span><i class="fa fa-file-pdf-o fa-lg"></i></span></a>
-            <a href="{{ route('commission-report-print', Request::query()) }}" target="_blank"
+            <a href="{{ route('good-transfer-report-print', Request::query()) }}" target="_blank"
                 onclick="openPrintPreview(event)">
                 <span><i class="fa fa-print fa-lg"></i></span>
             </a>
@@ -30,9 +30,17 @@
                     placeholder="To Date">
             </div>
             <div class="col-md-3 form-group">
-                <label for="">Commission No:</label>
-                <input type="text" class="form-control" name="comm_no"
-                    value="{{ old('comm_no', request()->get('comm_no')) }}" placeholder="Comm No" />
+                <label for="">Transfer Type:</label>
+                <select class="form-control select" data-placeholder="Select Stores" name="type_id">
+                    <option value="" disabled="" selected="" hidden="">Select Transfer Type</option>
+                    <option value="1" {{ request()->get('type_id') == 1 ? 'selected' : '' }}>Employee-Employee</option>
+                    <option value="2" {{ request()->get('type_id') == 2 ? 'selected' : '' }}>Site-Site</option>
+                </select>
+            </div>
+            <div class="col-md-3 form-group">
+                <label for="">Asset Transfer No:</label>
+                <input type="text" class="form-control" name="transfer_no"
+                    value="{{ old('transfer_no', request()->get('transfer_no')) }}" placeholder="Transfer No" />
             </div>
             <div class="col-md-3 form-group">
                 <label for="">Status:</label>
@@ -47,7 +55,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">FA Commission Report</h3>
+                        <h3 class="card-title">Asset Transfer Report</h3>
                     </div>
                     <div class="card-body">
                         <div class="dataTables_scroll">
@@ -62,13 +70,16 @@
                                                     SL no
                                                 </th>
                                                 <th>
+                                                    Transfer Type
+                                                </th>
+                                                <th>
                                                    Applicant
                                                 </th>
                                                 <th>
                                                     Department
                                                 </th>
                                                 <th>
-                                                    Comm No
+                                                    Transfer No
                                                 </th>
                                                 <th>
                                                     Application Date
@@ -89,16 +100,25 @@
                                                     Amount (Nu.)
                                                 </th>
                                                 <th>
-                                                    Dzongkhag
+                                                    From Employee
+                                                </th>
+                                                <th>
+                                                    To Employee
+                                                </th>
+                                                <th>
+                                                    From Site
+                                                </th>
+                                                <th>
+                                                    To Site
                                                 </th>
                                                 <th>
                                                     Capitalization Date
                                                 </th>
                                                 <th>
-                                                    Site
+                                                    Reason of Transfer
                                                 </th>
                                                 <th>
-                                                    Remark
+                                                    Transfer Acknowledgement
                                                 </th>
                                                 <th>
                                                     Status
@@ -106,48 +126,48 @@
                                                 <th>
                                                     Approved By
                                                 </th>
-                                                {{-- <th>
-                                                    Action
-                                                </th> --}}
 
 
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @php $count = 1; @endphp
-                                            @forelse($commissions as $comm)
-                                                @foreach ($comm->details as $detail)
+                                            @forelse($assetTransferApplication as $transfer)
+                                                @foreach ($transfer->details as $detail)
                                                     <tr>
                                                         <td>{{ $count++ }}</td> {{-- Parent index --}}
-                                                        <td>{{ $comm->employee->emp_id_name }}</td>
-                                                        <td>{{ $comm->employee->empJob->department->name ?? config('global.null_value')  }}</td>
-                                                        <td>{{ $comm->transaction_no }}</td>
-                                                        <td>{{ $comm->transaction_date }}</td>
+                                                        <td>{{ $transfer->type_id === 1 ? 'Employee-Employee' : 'Site-Site' }}</td>
+                                                        <td>{{ $transfer->employee->emp_id_name }}</td>
+                                                        <td>{{ $transfer->employee->empJob->department->name ?? config('global.null_value')  }}</td>
+                                                        <td>{{ $transfer->transaction_no }}</td>
+                                                        <td>{{ $transfer->transaction_date }}</td>
 
                                                         {{-- Detail-specific data --}}
                                                         <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->item_no .'-'. $detail->receivedSerial?->asset_serial_no }}</td>
                                                         {{-- <td>{{ $detail->receivedSerial->asset_description }}</td> --}}
                                                         <td title="{{ $detail->receivedSerial?->asset_description }}">
-                                                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 25, '...') }}
+                                                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 50, '...') }}
                                                         </td>
 
                                                         <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->uom ?? '-' }}
                                                         </td>
                                                         <td class="text-right">{{$detail->receivedSerial?->quantity ?? 1}}</td>
                                                         <td class="text-right">{{ $detail->receivedSerial?->amount }}</td>
-                                                        <td>{{ $detail->dzongkhag?->dzongkhag }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}
+                                                        <td class="text-right">{{ $transfer->fromEmployee->name ?? config('global.null_value')  }}</td>
+                                                        <td class="text-right">{{ $transfer->toEmployee->name ?? config('global.null_value') }}</td>
+                                                        <td class="text-right">{{ $transfer->fromSite->name ?? config('global.null_value')  }}</td>
+                                                        <td class="text-right">{{ $transfer->toSite->name ?? config('global.null_value')  }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($detail->receivedSerial->commissionDetail->date_placed_in_service)->format('d-M-Y') ?? config('global.null_value')  }}
                                                         </td>
-                                                        <td>{{ $detail->site->name ?? '-' }}</td>
-                                                        <td>{{ $detail->remark ?? '-' }}</td>
-
+                                                        <td>{{ $transfer->reason_of_transfer ?? '-' }}</td>
+                                                        <td>{{ $transfer->received_acknowledged ? 'Acknowledged' : 'Not Acknowledged'}}</td>
                                                         {{-- Parent-level status & approver repeated per row --}}
-                                                        <td>{{ config("global.application_status.{$comm->status}", 'Unknown') }}
+                                                        <td>{{ config("global.application_status.{$transfer->status}", 'Unknown') }}
                                                         </td>
-                                                        <td>{{ $comm->approvedBy->emp_id_name ?? '-' }}</td>
+                                                        <td>{{ $transfer->histories->last()->approvedBy->emp_id_name ?? '-' }}</td>
                                                         {{-- <td>
                                                             @if ($privileges->view)
-                                                                <a href="{{ url('asset-report/commission-report/' . $comm->id) }}"
+                                                                <a href="{{ url('asset-report/asset-transfer-report/' . $comm->id) }}"
                                                                     class="btn btn-sm btn-outline-secondary"><i
                                                                         class="fa fa-list"></i> Detail</a>
                                                             @endif
@@ -166,9 +186,9 @@
                             </div>
                         </div>
                     </div>
-                    @if ($commissions->hasPages())
+                    @if ($assetTransferApplication->hasPages())
                         <div class="card-footer">
-                            {{ $commissions->links() }}
+                            {{ $assetTransferApplication->links() }}
                         </div>
                     @endif
                 </div>

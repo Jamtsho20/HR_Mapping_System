@@ -98,9 +98,11 @@ class RequisitionReportController extends Controller
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->get();
+        $fromDate = $request->query('from_date') ?? null;
+        $toDate = $request->query('to_date') ?? null;
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.requisition-report-pdf', compact('requisitions'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.requisition-report-pdf', compact('requisitions', 'fromDate', 'toDate'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Requisition.pdf');
@@ -119,7 +121,11 @@ class RequisitionReportController extends Controller
             ->get();
 
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.requisition-report-pdf', compact('requisitions'))->setPaper('a4', 'landscape');
+        $fromDate = $request->query('from_date') ?? null;
+        $toDate = $request->query('to_date') ?? null;
+
+        // Generate the PDF view and pass the data
+        $pdf = Pdf::loadView('export-report.requisition-report-pdf', compact('requisitions', 'fromDate', 'toDate'))->setPaper('a4', 'landscape');
 
         // Return the PDF as a stream to display it in the browser
         return $pdf->stream('Requisition.pdf');

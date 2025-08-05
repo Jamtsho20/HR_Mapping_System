@@ -403,6 +403,14 @@ class ApprovalController extends Controller
                                         "ValidTo" => null,
                                         "Project" => $detail->site->code
                                     ]
+                                    ],
+                                "ItemDistributionRules" => [
+                                    [
+                                        "LineNumber" => 0,
+                                        "ValidFrom" => $detail->date_placed_in_service,
+                                        "ValidTo" => null,
+                                        "DistributionRule4" => $application->employee->username
+                                    ]
                                 ]
                             ];
                         })->toArray(),
@@ -424,7 +432,7 @@ class ApprovalController extends Controller
                         "PostingDate" => $date
                     ];
                 })->values()->toArray();
-
+                
             return json_encode($postFields, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         } elseif ($accountCode == DSA_ACCOUNT_CODE) {
             if ($application->advance_amount > 0) {

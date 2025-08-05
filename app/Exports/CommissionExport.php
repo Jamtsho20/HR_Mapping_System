@@ -46,7 +46,7 @@ class CommissionExport implements FromCollection, WithHeadings
                     $detail->receivedSerial->asset_serial_no ?? '-',
                     \Illuminate\Support\Str::limit($detail->receivedSerial->asset_description ?? '', 25, '...'),
                     $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom ?? '-',
-                    1, // Quantity is always 1
+                    $detail->receivedSerial?->quantity ?? 1,
                     $detail->receivedSerial->amount ?? 0,
                     $detail->dzongkhag->dzongkhag ?? '-',
                     \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y'),
@@ -64,16 +64,16 @@ class CommissionExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
-            'Employee Name',
+            'Applicant',
             'Comm No.',
-            'Comm Date',
+            'Application Date',
             'Asset No.',
             'Item Description',
             'UOM',
             'Quantity',
             'Amount',
             'Dzongkhag',
-            'Date Placed In Service',
+            'Capitalization Date',
             'Site',
             'Remarks',
             'Status',

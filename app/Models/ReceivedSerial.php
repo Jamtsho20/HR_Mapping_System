@@ -40,4 +40,51 @@ class ReceivedSerial extends Model
     {
         return $this->hasOne(AssetReturnDetail::class, 'received_serial_id');
     }
+
+
+     public function scopeFilter($query, $request, $onesOwnRecord = true)
+    {
+
+       if ($request->from_date && $request->to_date) {
+            $toDate = $request->to_date . ' 23:59:59';
+            $query->where('created_at', '>=', $request->from_date)
+                ->where('created_at', '<=', $toDate);
+        } elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
+
+
+        if($request->is_received !== null){
+        $query->where('is_received', $request->is_received);
+        }
+
+        if($request->gin){
+            $query->whereHas('requisitionDetail.requisition', function ($q) use ($request) {
+                $q->whereRaw("SUBSTRING_INDEX(good_issue_doc_no, '-', -1) = ?", [$request->gin]);
+            });
+        }
+
+        if($request->req_no){
+            $query->whereHas('requisitionDetail.requisition', function ($q) use ($request) {
+                $q->whereRaw("SUBSTRING_INDEX(transaction_no, '/', -1) = ?", [$request->req_no]);
+            });
+        }
+
+
+        if ($request->get('year')) {
+            // Step 1: Split the date range into two parts
+            $dates = explode(' - ', $request->get('year'));
+
+            // Step 2: Convert each date to Y-m format using Carbon
+            $startDate = Carbon::createFromFormat('Y-m', trim($dates[0]));
+
+            // Extract year and month
+            $year = $startDate->year;
+            $month = $startDate->month;
+
+            // Filter by year and month
+            $query->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month);
+        }
+    }
 }

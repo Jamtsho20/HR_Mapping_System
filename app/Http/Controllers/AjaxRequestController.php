@@ -742,7 +742,7 @@ class AjaxRequestController extends Controller
 
             $loggedInUserId = Auth::id();
 
-            $assetNos = ReceivedSerial::whereNotIn('id', $transferedSerials)
+            $assetNos = ReceivedSerial::with('requisitionDetail.grnItemDetail.item')->whereNotIn('id', $transferedSerials)
             ->whereNotIn('id', $returnedSerials)
             ->where('is_commissioned', 1)
             ->where('is_returned', 0)
@@ -787,7 +787,7 @@ class AjaxRequestController extends Controller
 
     public function getItemByAssetId($assetNo){
         try {
-            $item = ReceivedSerial::where('id', $assetNo)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
+            $item = ReceivedSerial::where('id', $assetNo)->with('requisitionDetail.grnItemDetail.item:id,item_no,item_description,uom,item_group', 'requisitionDetail.grnItemDetail.store:id,name,code', 'commissionDetail')->first();
             return $this->successResponse($item);
         }catch(\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching items. Please try again.'. $e->getMessage());

@@ -78,7 +78,7 @@ const CASUAL_LEAVE_CREDIT_AMOUNT = 10;
 // const DSA_ACCOUNT_CODE = 55511;
 
 
-// SAP constants for LIVE;
+// // SAP constants for LIVE;
 const SAP_BASE_URL = "https://192.168.196.20";
 const SAP_PORT = 50000;
 const SAP_CONPANY_DB = "TICL_DB_PRD";

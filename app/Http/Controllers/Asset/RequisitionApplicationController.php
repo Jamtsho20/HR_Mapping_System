@@ -199,6 +199,10 @@ class RequisitionApplicationController extends Controller
          return view('asset.requisition-apply.inventory', compact('grns'));
      }
 
+     public function sites(Request $request){
+         $sites = MasSite::filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+         return view('asset.requisition-apply.sites', compact('sites'));
+     }
 
      private function saveDetails($details, $requisitionId, $typeId)
      {
