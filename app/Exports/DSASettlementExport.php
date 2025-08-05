@@ -92,6 +92,7 @@ class DSASettlementExport implements FromCollection, WithHeadings
                     $statusClasses[$claim->status] ?? 'Unknown Status',
                     $claim->expense_approved_by->emp_name ?? '-',
                     getDisplayDateFormat($claim->updated_at),
+                    $dsa->remark,
                 ];
             });
         });
@@ -128,6 +129,7 @@ class DSASettlementExport implements FromCollection, WithHeadings
             'Status',
             'Approved By',
             'Approved On',
+            'Remarks'
         ];
     }
 }
