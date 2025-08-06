@@ -4,7 +4,7 @@
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <link href="{{ asset('assets/css/document.css') }}" rel="stylesheet">
-<form action="{{ route('asset-return.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('asset-return.store') }}" method="POST" enctype="multipart/form-data" id="returnForm">
     @csrf
     <div class="block-header block-header-default">
         <div class="col-lg-12">
@@ -89,6 +89,9 @@
                                             Dzongkhag*
                                         </th>
                                         <th>
+                                            Site*
+                                        </th>
+                                        <th>
                                             Store*
                                         </th>
                                         <th>
@@ -121,13 +124,10 @@
                                                 class="form-control form-control-sm resetKeyForNew quantity-input text-right" disabled required>
                                         </td>
                                         <td>
-                                            <select class="form-control form-control-sm select2 resetKeyForNew" name="details[AAAAA][dzongkhag_id]">
-                                                <option value="" disabled selected hidden>Select</option>
-                                                @foreach ($dzongkhags as $dzongkhag)
-                                                <option value="{{ $dzongkhag->id }}">{{ $dzongkhag->dzongkhag }}</option>
-                                                @endforeach
-                                            </select>
-
+                                           <input type="text" name="details[AAAAA][dzongkhag_id]" class="form-control form-control-sm resetKeyForNew" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="details[AAAAA][site_id]" class="form-control form-control-sm resetKeyForNew" readonly>
                                         </td>
                                         <td>
                                             <select class="form-control form-control-sm select2 resetKeyForNew" name="details[AAAAA][store_id]">
@@ -152,7 +152,7 @@
 
                                     </tr>
                                     <tr class="notremovefornew">
-                                        <td colspan="8"></td>
+                                        <td colspan="9"></td>
                                         <td class="text-right">
                                             <a href="#" class="add-table-row btn btn-sm btn-info" style="font-size: 13px"><i class="fa fa-plus"></i> Add New Row</a>
                                         </td>
@@ -187,6 +187,16 @@
 
     $(document).ready(function () {
 
+
+        const loader = document.getElementById('loader');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('returnForm');
+
+        form.addEventListener('submit', function(e) {
+                                    // Show loader
+                                    loader.style.display = 'flex';
+                                });
+
         const empId = $('input[name="user_id"]').val();
 
         if (empId) {
@@ -202,7 +212,10 @@
                     assetSelect.append('<option value="" disabled selected hidden>Select</option>');
 
                     response.data.forEach(function(assetNo) {
-                        assetSelect.append('<option value="' + assetNo.id + '">' + assetNo.asset_serial_no + '</option>');
+                        assetSelect.append(
+                            '<option value="' + assetNo.id + '">' +
+                                        ((assetNo.requisition_detail?.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.asset_serial_no) +
+                            '</option>');
                     });
 
                     $('#loader').hide();
@@ -239,6 +252,8 @@
                         );
                         // row.find("input[name^='details'][name$='[qty]']").val(1);
                         row.find("input[name^='details'][name$='[qty]']").val(serialData?.requisition_detail?.grn_item_detail.item.quantity ?? 1);
+                        row.find("input[name^='details'][name$='[dzongkhag_id]']").val(serialData?.requisition_detail?.dzongkhag.dzongkhag);
+                        row.find("input[name^='details'][name$='[site_id]']").val(serialData?.requisition_detail?.site.name);
                         row.find("input[name^='details'][name$='[amount]']").val(
                             serialData.amount ?? 0.00
                         );

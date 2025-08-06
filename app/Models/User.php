@@ -244,7 +244,7 @@ class User extends Authenticatable
 
     public function getEmpIdNameAttribute()
     {
-        return $this->username . ' - ' . $this->title . ' ' . $this->name . ' (' . $this->cid_no . ')';
+        return $this->username . ' - ' . $this->title . ' ' . $this->name ;
     }
 
     public function getEmpNameAttribute() //combination of title and full name while display
