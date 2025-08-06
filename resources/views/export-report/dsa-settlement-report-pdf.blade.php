@@ -80,7 +80,7 @@
                     department
                 </th>
                 <th>
-                    Region 
+                    Region
                 </th>
                 <th>
                     Office Location
@@ -137,48 +137,52 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($dsaClaim as $claim)
-            @forelse($claim->dsaClaimDetails as $dsa)
-            <tr>
-                <td class="text-align: right;">{{ $loop->iteration }}</td>
-                <td>{{ getDisplayDateFormat($claim->created_at) }}</td>
-                <td>{{ $claim->employee->emp_name }}</td>
-                <td>{{ $claim->employee->username }}</td>
-                <td>{{ $claim->employee->empJob->designation->name }}</td>
-                <td>{{ $claim->employee->empJob->department->name }}</td>
-                <td>{{ $claim->employee->empJob->office->region->name }}</td>
-                <td>{{ $claim->employee->empJob->office->name }}</td>
-                <td>{{ $dsa->from_location }}</td>
-                <td>{{ $dsa->to_location }}</td>
-                <td class="text-align: right;">{{ getDisplayDateFormat($dsa->from_date) }}</td>
-                <td class="text-align: right;">{{ getDisplayDateFormat($dsa->to_date) }}</td>
-                <td class="text-align: right;">{{ $dsa->total_days }}</td>
-                <td class="text-align: right;">{{ formatAmount($dsa->daily_allowance, false) }}</td>
-                <td class="text-align: right;">{{ formatAmount($dsa->travel_allowance, false) }}</td>
-                <td class="text-align: right;">{{ formatAmount($dsa->total_amount, false) }}</td>
-                <td>{{ $claim->travel->transaction_no ?? config('global.null_value') }}</td>
-                <td class="text-align: right;">{{ formatAmount($claim->dsaadvance->amount, false) ?? config('global.null_value') }}</td>
-                <td class="text-align: right;">{{ formatAmount($claim->net_payable_amount, false) }}</td>
-                @php
-                $statusClasses = [
-                -1 => 'Rejected',
-                0 => 'Cancelled',
-                1 => 'Submitted',
-                2 => 'Verified',
-                3 => 'Approved',
-                ];
-                $statusText = config("global.application_status.{$claim->status}", 'Unknown Status');
-                $statusClass = $statusClasses[$claim->status] ?? 'badge bg-secondary';
-                @endphp
-                <td>{{ $statusText }}</td>
-                <td>{{ $claim->expense_approved_by->emp_name }}</td>
-                <td class="text-align: right;">{{ getDisplayDateFormat($claim->updated_at) }}</td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="22" class="text-center text-danger">No Data Found.</td>
-            </tr>
-            @endforelse
+            @foreach ($dsaClaim as $claim)
+                @forelse($claim->dsaClaimDetails as $dsa)
+                    <tr>
+                        <td class="text-align: right;">{{ $loop->iteration }}</td>
+                        <td>{{ getDisplayDateFormat($claim->created_at) }}</td>
+                        <td>{{ $claim->employee->emp_name }}</td>
+                        <td>{{ $claim->employee->username }}</td>
+                        <td>{{ $claim->employee->empJob->designation->name }}</td>
+                        <td>{{ $claim->employee->empJob->department->name }}</td>
+                        <td>{{ $claim->employee->empJob->office->region->name }}</td>
+                        <td>{{ $claim->employee->empJob->office->name }}</td>
+                        <td>{{ $dsa->from_location }}</td>
+                        <td>{{ $dsa->to_location }}</td>
+                        <td class="text-align: right;">{{ getDisplayDateFormat($dsa->from_date) }}</td>
+                        <td class="text-align: right;">{{ getDisplayDateFormat($dsa->to_date) }}</td>
+                        <td class="text-align: right;">{{ $dsa->total_days }}</td>
+                        <td class="text-align: right;">
+                            {{ formatAmount($dsa->daily_allowance, false) ?? config('global.null_value') }}</td>
+                        <td class="text-align: right;">
+                            {{ formatAmount($dsa->travel_allowance, false) ?? config('global.null_value') }}</td>
+                        <td class="text-align: right;">
+                            {{ formatAmount($dsa->total_amount, false) ?? config('global.null_value') }}</td>
+                        <td>{{ $claim->travel->transaction_no ?? config('global.null_value') }}</td>
+                        <td class="text-align: right;">
+                            {{ formatAmount($claim->dsaadvance->amount, false) ?? config('global.null_value') }}</td>
+                        <td class="text-align: right;">{{ formatAmount($claim->net_payable_amount, false) }}</td>
+                        @php
+                            $statusClasses = [
+                                -1 => 'Rejected',
+                                0 => 'Cancelled',
+                                1 => 'Submitted',
+                                2 => 'Verified',
+                                3 => 'Approved',
+                            ];
+                            $statusText = config("global.application_status.{$claim->status}", 'Unknown Status');
+                            $statusClass = $statusClasses[$claim->status] ?? 'badge bg-secondary';
+                        @endphp
+                        <td>{{ $statusText }}</td>
+                        <td>{{ $claim->expense_approved_by->emp_name }}</td>
+                        <td class="text-align: right;">{{ getDisplayDateFormat($claim->updated_at) }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="22" class="text-center text-danger">No Data Found.</td>
+                    </tr>
+                @endforelse
             @endforeach
 
 
