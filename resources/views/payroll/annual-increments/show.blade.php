@@ -1,9 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Showing Annual Increment Details')
 @section('buttons')
-    <a href="{{ route('annual-increment.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Annual
-        Increment
-        List</a>
+    <a href="{{ route('annual-increment.index') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to List</a>
 @endsection
 @section('content')
     <div class="row">
@@ -38,34 +36,31 @@
                                                     id="basic-datatable table-responsive">
                                                     <thead>
                                                         <tr role="row">
-                                                            <th>Employee</th>
+                                                            <th></th>
+                                                            <th>Employee (ID - Name (CID))</th>
                                                             <th>Amount</th>
-                                                            <th>Approved</th>
-                                                            <th>Remarks</th>
+                                                            {{-- <th>Remarks</th> --}}
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @forelse ($details as $record)
                                                             <tr>
-                                                                <td>{{ $record->employee->name }} ({{ $record->employee->employee_id }})</td>
-                                                                <td>{{ $record->amount }}</td>
-                                                                <td>
+                                                                <td class="text-center">
                                                                     <label class="custom-switch">
                                                                         <input type="hidden" name="status" value="0">
-                                                                        <input type="checkbox" name="status"
-                                                                            class="custom-switch-input"
-                                                                            value="{{ $record->status }}"
+                                                                        <input type="checkbox" name="status" value="1"
                                                                             data-id="{{ $record->id }}"
                                                                             {{ $record->status ? 'checked' : '' }}
                                                                             onchange="toggleStatus(this)">
-                                                                        <span class="custom-switch-indicator"></span>
                                                                     </label>
                                                                 </td>
-                                                                <td>
+                                                                <td>{{ $record->employee->emp_id_name }}</td>
+                                                                <td>{{ $record->amount }}</td>
+                                                                {{-- <td>
                                                                     <input type="text" class="form-control remarks-input"
                                                                         value="{{ $record->remarks }}"
                                                                         data-id="{{ $record->id }}">
-                                                                </td>
+                                                                </td> --}}
                                                             </tr>
                                                         @empty
                                                             <tr>
@@ -84,6 +79,20 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="card-footer">
+                    @if ($annualIncrement->status['key'] == 0)
+                        <a href="{{ route('annual-increment.index') }}"
+                            class="btn btn-sm btn-rounded btn-outline-danger">
+                            <i class="fa fa-reply"></i>
+                            CANCEL
+                        </a>
+
+                        <a href="{{ route('annual-increment.finalize', $record->id) }}"
+                            class="btn btn-sm btn-rounded btn-outline-primary" id="finalize-btn">
+                            <i class="fa fa-check"></i> FINALIZE
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -104,7 +113,7 @@
                     status: status
                 },
                 success: function(response) {
-                    alert(response.message);
+                    // alert(response.message);
                 },
                 error: function(xhr) {
                     if (xhr.status === 419) {
@@ -138,6 +147,34 @@
                 },
                 error: function(xhr) {
                     alert('Error: ' + xhr.responseText);
+                }
+            });
+        });
+
+        // FINALIZE PAYSLIP
+        $('#finalize-btn').on('click', function() {
+            event.preventDefault();
+
+            var finalizeUrl = $(this).attr('href');
+
+            $.confirm({
+                title: 'Approve Annual Increment',
+                content: "Are you sure to approve the Annual Increment for this month? This will change employee's Basic Pay and cannot be undone.",
+                buttons: {
+                    confirm: {
+                        text: 'Yes, I confirm',
+                        btnClass: 'btn-primary',
+                        action: function() {
+                            window.location.href = finalizeUrl;
+                        }
+                    },
+                    cancel: {
+                        text: 'Cancel',
+                        btnClass: 'btn-danger',
+                        action: function() {
+                            //
+                        }
+                    }
                 }
             });
         });
