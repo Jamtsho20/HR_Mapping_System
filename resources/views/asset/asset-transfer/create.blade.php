@@ -290,7 +290,7 @@
                                 response.data.forEach(function(assetNo) {
                                   assetSelect.append(
                                         '<option value="' + assetNo.id + '">' +
-                                        ((assetNo.requisition_detail?.grn_item_detail?.item?.item_no ?? 'N/A') + ' - ' + assetNo.asset_serial_no) +
+                                        ((assetNo.requisition_detail?.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.asset_serial_no) +
                                         '</option>'
                                     );
                                         });

@@ -60,7 +60,7 @@ class RequisitionExport implements FromCollection, WithHeadings
                     $detail->site->name ?? config('global.null_value'),
                     $detail->remark ?? config('global.null_value'),
                     config("global.application_status.{$req->status}", 'Unknown'),
-                    $req->approvedBy->emp_id_name ?? '-',
+                    $req->histories->last()->approvedBy->emp_id_name ?? '-',
                     $req->is_received ? 'Received' : 'Not Received',
                 ];
             });

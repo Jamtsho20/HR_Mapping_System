@@ -104,7 +104,7 @@ return [
         'T Bank' => 'TBANK-TH',
         // 'DK Bank' => 'Digital Kidu'
     ],
-    
+
     'loan_type' => [
         'Consumer Loan',
         'Personal Loan',
@@ -306,6 +306,7 @@ return [
         1 => 'Beyond Economic Repair',
         2 => 'Absolete',
         3 => 'Working',
+        4 => 'Damaged',
     ],
 
     'seasons' => [
@@ -324,5 +325,5 @@ return [
     'years' => [
         2024, 2025, 2026,
     ],
- 
+
 ];

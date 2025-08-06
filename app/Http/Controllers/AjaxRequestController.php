@@ -685,7 +685,7 @@ class AjaxRequestController extends Controller
     public function getDescriptionAndUomBySerialId($serialId)
     {
         try {
-            $serial = ReceivedSerial::where('id', $serialId)->with(['requisitionDetail.grnItemDetail.item'])->get();
+            $serial = ReceivedSerial::where('id', $serialId)->with(['requisitionDetail.grnItemDetail.item', 'requisitionDetail.dzongkhag', 'requisitionDetail.site'])->get();
             return $this->successResponse(['serial' => $serial]);
         } catch(\Exception $e) {
             return $this->errorResponse('Something went wrong while fetching description and quantity. Please try again.');

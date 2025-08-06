@@ -131,7 +131,7 @@
                                 <td>{{ $detail->dzongkhag->dzongkhag ?? config('global.null_value') }}</td>
                                 <td>{{ $detail->site->name ?? config('global.null_value') }}</td>
                                 <td>{{ config("global.application_status.{$req->status}", 'Unknown') }}</td>
-                                <td>{{ $req->approvedBy->emp_id_name ?? '-' }}</td>
+                                <td>{{ $req->histories->last()->approvedBy->emp_id_name ?? '-' }}</td>
                             </tr>
                         @endforeach
                     @empty

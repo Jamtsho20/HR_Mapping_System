@@ -179,7 +179,7 @@
 
                                                         <td>{{ config("global.application_status.{$req->status}", 'Unknown') }}
                                                         </td>
-                                                        <td>{{ $req->approvedBy->emp_id_name ?? '-' }}</td>
+                                                        <td>{{ $req->histories->last()->approvedBy->emp_id_name ?? '-' }}</td>
                                                         <td>
                                                             @if ($detail->is_received)
                                                                 Received
