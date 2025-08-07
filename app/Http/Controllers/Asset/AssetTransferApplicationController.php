@@ -14,6 +14,7 @@ use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetTransferApplication;
 use App\Models\AssetTransferDetail;
 use App\Models\RequisitionDetail;
+use App\Models\MasSiteSupervisor;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,7 @@ class AssetTransferApplicationController extends Controller
     public function __construct()
     {
         $this->middleware('permission:asset/asset-transfer,view')->only('index', 'show');
-
-        $this->middleware('permission:asset/assets,view')->only('myAssetIndex', 'show');
+        $this->middleware('permission:asset/assets,view')->only('myAssetIndex');
         $this->middleware('permission:asset/asset-transfer,create')->only('store');
         $this->middleware('permission:asset/asset-transfer,edit')->only('update');
         $this->middleware('permission:asset/asset-transfer,delete')->only('destroy');
@@ -85,8 +85,6 @@ class AssetTransferApplicationController extends Controller
     {
         $privileges = $request->instance();
         $assetTransfer = AssetTransferApplication::filter($request)->where('created_by', auth()->user()->id)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-
-
         $transferTypes = MasTransferType::get(['id', 'name']);
         return view('asset.asset-transfer.index',compact('privileges', 'assetTransfer', 'transferTypes'));
     }
@@ -113,7 +111,14 @@ class AssetTransferApplicationController extends Controller
 
         $types = MasTransferType::whereStatus(1)->get(['id', 'name']);
         $employees = User::whereIsActive(1)->whereNotIn('employee_id', [0, 99999])->get();
-        $fromSites = MasSite::where('site_supervisor', auth()->user()->id)->get(['id', 'name']);
+        $fromSites = MasSite::where('site_supervisor',  auth()->user()->id)->get(['id', 'name']);
+
+        if ($fromSites->isEmpty()) {
+            $dzongkhagIds = MasSiteSupervisor::where('employee_id',  auth()->user()->id)
+                ->pluck('dzongkhag_id');
+            $fromSites = MasSite::whereIn('dzongkhag_id', $dzongkhagIds)
+                ->get(['id', 'name']);
+        }
         $sites = MasSite::get(['id', 'name']);
         $assetNos = ReceivedSerial::with('commissionDetail')->where('is_commissioned', 1)->get();
         return view('asset.asset-transfer.create', compact('employees', 'types', 'sites', 'assetNos', 'fromSites'));
@@ -141,17 +146,27 @@ class AssetTransferApplicationController extends Controller
         }
 
         $conditionFields = approvalHeadConditionFields(ASSET_TRANSFER_APPVL_HEAD, $request); // fetching condition field for particular aprroval head
-
         $approvalService = new ApprovalService();
         $approverByHierarchy = $approvalService->getApproverByHierarchy($request->type_id, \App\Models\MasTransferType::class, $conditionFields ?? []);
+
         // $reqType = MasRequisitionType::where('id', $request->type_id)->first();
 
         $transferType = MasTransferType::where('id', $request->type_id)->first();
         $lastTransaction = AssetTransferApplication::latest('id')->first();
         $transactionNo = generateTransactionNumber1($transferType, $lastTransaction, 'transaction_no');
         $to_employee=null;
-        if($request->to_site){
+        if ($request->to_site) {
+            // Try to get direct site_supervisor from mas_sites
             $to_employee = MasSite::where('id', $request->to_site)->pluck('site_supervisor')->first();
+
+            // If not found, fallback to mas_site_supervisors based on dzongkhag
+            if (empty($to_employee)) {
+                $dzongkhag_id = MasSite::where('id', $request->to_site)->pluck('dzongkhag_id')->first();
+
+                $to_employee = \App\Models\MasSiteSupervisor::where('dzongkhag_id', $dzongkhag_id)
+                    ->pluck('employee_id')
+                    ->first();
+            }
         }
 
         try{
@@ -200,7 +215,7 @@ class AssetTransferApplicationController extends Controller
             DB::rollBack();
             return back()->withInput()->with('msg_error', $e->getMessage());
         }
-        return redirect('asset/asset-transfer')->with('msg_success', 'Asset commissioned successfully!');
+        return redirect('asset/asset-transfer')->with('msg_success', 'Asset transfer successfully!');
 
         //
     }
@@ -212,6 +227,7 @@ class AssetTransferApplicationController extends Controller
     {
      $transfer = AssetTransferApplication::with('details')->findOrFail($id);
      $approvalDetail = getApplicationLogs(\App\Models\AssetTransferApplication::class, $transfer->id);
+
      return view('asset.asset-transfer.show', compact('transfer', 'approvalDetail'));
     }
 

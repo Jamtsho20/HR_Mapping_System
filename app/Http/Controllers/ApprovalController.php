@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\SAP\ApiController;
 use App\Mail\AdvanceSifaloanMail;
 use App\Mail\ApprovalNotificationMail;
 use App\Mail\AssetTransferMail;
+use App\Mail\AssetReturnMail;
 use App\Mail\InitiatorNotificationMail;
 use App\Mail\TravelApprovalMail;
 use App\Models\AdvanceApplication;
@@ -259,6 +260,7 @@ class ApprovalController extends Controller
                     // if ($updateData['status'] == 3 || $updateData['status'] == -1) {
                     //     $this->sendMail($applicationModel, $application, $type, $updateData['status'], []);
                     // }
+
                     $this->sendMail($applicationModel, $application, $type, $updateData['status'], $applicationForwardedTo);
                 } catch (\Exception $e) {
                     \Log::error('Error sending mail for application ID ' . $id . ': ' . $e->getMessage());
@@ -402,6 +404,14 @@ class ApprovalController extends Controller
                                         "ValidFrom" => $detail->date_placed_in_service,
                                         "ValidTo" => null,
                                         "Project" => $detail->site->code
+                                    ]
+                                    ],
+                                "ItemDistributionRules" => [
+                                    [
+                                        "LineNumber" => 0,
+                                        "ValidFrom" => $detail->date_placed_in_service,
+                                        "ValidTo" => null,
+                                        "DistributionRule4" => $application->employee->username
                                     ]
                                 ]
                             ];
@@ -809,7 +819,7 @@ class ApprovalController extends Controller
                 $receiverEmail = $applicationData->toEmployee->email;
                 $emailSubject = 'Asset Transfer Application';
                 $type = 'asset transfer';
-                // Send the email
+
                 try {
                     Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
                 } catch (\Exception $e) {
@@ -817,17 +827,28 @@ class ApprovalController extends Controller
                 }
             }
             if ($applicationModel['name'] == 'App\Models\AssetReturnApplication') {
-                $requestingUserId = $applicationData->employee->name;
-                $receiverUserId = $applicationData->details;
+                $receiverIds = [];
+                foreach ($applicationData->details as $detail) {
+                    $incharge = $detail->store?->storeIncharge;
+
+                    if ($incharge && !in_array($incharge->id, $receiverIds)) {
+                        $receiverIds[] = $incharge->id;
+                    }
+                }
+                $requestingUserId = $applicationData->employee->id;
                 $receiverEmail = $applicationData->employee->email;
                 $emailSubject = 'Asset Return Application';
                 $type = 'asset return';
 
-                // dd($requestingUserId, $receiverUserId, $emailSubject, $type);
+
                 // Send the email
                 try {
-                    Mail::to([$receiverEmail])->send(new AssetTransferMail($requestingUserId, $receiverUserId, $emailSubject, $type));
+                    foreach ($receiverIds as $receiverUserId) {
+                        Mail::to([$receiverEmail])->send(new AssetReturnMail($requestingUserId, $receiverUserId, $emailSubject, $type));
+
+                    }
                 } catch (\Exception $e) {
+
                     log::error('Failed to send email for Asset Return: ' . $e->getMessage());
                 }
             }

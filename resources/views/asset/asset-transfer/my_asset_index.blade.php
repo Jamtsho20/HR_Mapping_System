@@ -223,7 +223,6 @@
             checkbox.addEventListener('click', function (e) {
                 e.preventDefault(); // Prevent default behavior
                 const transferId = this.dataset.id; // Get the transfer ID from the checkbox data attribute
-                console.log(transferId, this.dataset.type);
                 handleAcknowledgment(this, transferId); // Call the handler
             });
         });

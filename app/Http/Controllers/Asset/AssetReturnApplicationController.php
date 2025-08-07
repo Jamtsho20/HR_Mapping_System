@@ -31,7 +31,7 @@ class AssetReturnApplicationController extends Controller
         'details.*.received_serial_id' => 'required',
         'details.*.dzongkhag_id' => 'required',
         'details.*.store_id' => 'required',
-        'details.*.condition_code' => 'required|in:1,2,3',
+        'details.*.condition_code' => 'required|in:1,2,3,4',
     ];
     protected $messages = [
 
@@ -51,7 +51,6 @@ class AssetReturnApplicationController extends Controller
     {
         $privileges = $request->instance();
         $assetReturns = AssetReturnApplication::orderByDesc('created_at')->orderBy('created_at', 'desc')->paginate(config('global.pagination'))->withQueryString();
-
         return view('asset.asset-return.index', compact('privileges','assetReturns'));
     }
     /**
@@ -114,7 +113,6 @@ class AssetReturnApplicationController extends Controller
                     $assetReturnApplication->details()->create([
                         'asset_return_id'    => $assetReturnApplication->id,
                         'received_serial_id' => $detail['received_serial_id'],
-                        'dzongkhag_id'       => $detail['dzongkhag_id'],
                         'store_id'           => $detail['store_id'],
                         'condition_code'     => $detail['condition_code'] ?? 1,
                         'remark'             => $detail['remark'] ?? null,

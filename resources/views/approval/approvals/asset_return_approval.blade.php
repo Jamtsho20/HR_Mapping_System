@@ -17,7 +17,9 @@
                                             data-item-class="bulk_checkbox" title="select all">
                                     </th>
                                     @endif
-                                    <th>#</th>
+                                    <th>
+                                        APPLIED ON
+                                    </th>
                                     <th>EMPLOYEE</th>
                                     <th>ASSET RETURN NUMBER</th>
                                     <th>RETURN DATE</th>
@@ -33,7 +35,9 @@
                                             value="{{ $return->id }}">
                                     </td>
                                     @endif
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($return->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($return->created_at)->format('h:i A') }}
+                                    </td>
                                     <td>{{ $return->employee->emp_id_name }}</td>
                                     <td>{{ $return->transaction_no }}</td>
                                     <td>{{ \Carbon\Carbon::parse($return->transaction_date)->format('d-M-Y') }}</td>

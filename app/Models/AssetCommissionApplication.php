@@ -130,26 +130,29 @@ class AssetCommissionApplication extends Model
                         ]);
                 }
             }
-              if ($commissionApplication->isDirty('status') && $commissionApplication->status == 3) {
-            foreach ($commissionApplication->details as $detail) {
-                $detail->loadMissing('receivedSerial.requisitionDetail.grnItemDetail.item');
+              if ($commissionApplication->wasChanged('status') && $commissionApplication->status == 3) {
+                foreach ($commissionApplication->details as $detail) {
+                    $detail->loadMissing('receivedSerial.requisitionDetail.grnItemDetail.item');
 
-                $exists = \App\Models\MasAssets::where('received_serial_id', $detail->received_serial_id)->exists();
-                if ($exists) continue;
+                    $serialId = $detail->received_serial_id;
 
-                \App\Models\MasAssets::create([
-                    'serial_number' => $detail->receivedSerial->asset_serial_no,
-                    'current_employee_id' => $commissionApplication->created_by,
-                    'item_id' => $detail->receivedSerial->requisitionDetail->item_id
-                        ?? optional($detail->receivedSerial->requisitionDetail->grnItemDetail->item)->id,
-                    'current_site_id' => $detail->site_id,
-                    'received_serial_id' => $detail->received_serial_id,
-                    'commission_detail_id' => $detail->id,
-                    'initial_owner_id' => $commissionApplication->created_by,
+                    if (!$serialId || MasAssets::where('received_serial_id', $serialId)->exists()) {
+                        continue;
+                    }
 
-                ]);
+                    \App\Models\MasAssets::create([
+                        'serial_number' => $detail->receivedSerial->asset_serial_no,
+                        'current_employee_id' => $commissionApplication->created_by,
+                        'item_id' => $detail->receivedSerial->requisitionDetail->item_id
+                            ?? optional($detail->receivedSerial->requisitionDetail->grnItemDetail->item)->id,
+                        'current_site_id' => $detail->site_id,
+                        'received_serial_id' => $detail->received_serial_id,
+                        'commission_detail_id' => $detail->id,
+                        'initial_owner_id' => $commissionApplication->created_by,
+
+                    ]);
+                }
             }
-        }
         });
     }
 

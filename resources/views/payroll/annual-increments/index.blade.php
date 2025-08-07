@@ -79,12 +79,6 @@
                                                                                     <i class="fa fa-spinner"></i>
                                                                                     PROCESS
                                                                                 </a>
-                                                                           
-                                                                                <a href="{{ route('annual-increment.finalize', $record->id) }}"
-                                                                                    class="btn btn-sm btn-rounded btn-outline-primary"
-                                                                                    id="finalize-btn">
-                                                                                    <i class="fa fa-check"></i> FINALIZE
-                                                                                </a>
                                                                             @endif
                                                                         @endif
                                                                     </td>

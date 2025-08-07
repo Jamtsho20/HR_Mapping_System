@@ -103,9 +103,10 @@ class CommissionReportController extends Controller
             ->filter($request, false)
             ->orderBy('created_at', 'desc')
             ->get();
-
+        $fromDate = $request->from_date;
+        $toDate = $request->to_date;
         // Generate the PDF view and pass the data
-        $pdf = Pdf::loadView('export-report.commission-report-pdf', compact('commissions'))->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('export-report.commission-report-pdf', compact('commissions', 'fromDate', 'toDate'))->setPaper('a4', 'landscape');
 
         // Return the PDF download
         return $pdf->download('Commission.pdf');
