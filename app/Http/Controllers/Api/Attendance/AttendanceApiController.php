@@ -57,7 +57,7 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $offices = MasOffice::whereStatus(1)->get(['id', 'name', 'longitude', 'latitude', 'radius']);
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
-        dd($officeTiming);
+        // dd($officeTiming);
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
             'offices' => $offices,
