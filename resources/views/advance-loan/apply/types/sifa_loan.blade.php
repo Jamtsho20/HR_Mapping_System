@@ -37,12 +37,6 @@
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
-                <label for="total_amount">Total Amount <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" name="total_amount" value="{{ old('total_amount') }}" id="sifa_total_amount" readonly required />
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
                 <label for="no_of_emi">No of EMI <span class="text-danger">*</span></label>
                 <select class="form-control" id="no_of_emi_sifa" name="no_of_emi" required>
                     <option value="" disabled selected hidden>Select your option</option>
@@ -50,6 +44,12 @@
                     <option value="{{ $key }}" {{ old('no_of_emis') == $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="total_amount">Total Amount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="total_amount" value="{{ old('total_amount') }}" id="sifa_total_amount" readonly required />
             </div>
         </div>
 
@@ -133,21 +133,26 @@
 
 
 
-        $('#sifa_amount').on('change', function() {
-            const amount = parseFloat($(this).val());
-            const interestRate = parseFloat($('#interest_rate_sifa').val());
-            $('#no_of_emi_sifa').val('');
-            $('#monthly_emi_amount_sifa').val('');
-            $('#sifa_total_amount').val('');
+        $('#sifa_amount, #interest_rate_sifa, #no_of_emi_sifa').on('change', function () {
+    const principal = parseFloat($('#sifa_amount').val());
+    const annualInterestRate = parseFloat($('#interest_rate_sifa').val());
+    const numberOfMonths = parseInt($('#no_of_emi_sifa').val());
 
-            // Save principal for later use
-            $('#sifa_amount').data('principal', amount);
+    if (!isNaN(principal) && !isNaN(annualInterestRate) && !isNaN(numberOfMonths) && numberOfMonths > 0) {
+        const monthlyRate = annualInterestRate / 12 / 100;
 
-            if (!isNaN(amount) && !isNaN(interestRate)) {
-                const totalAmount = amount + (amount * (interestRate / 100));
-                $('#sifa_total_amount').val(totalAmount.toFixed(2));
-            }
-        });
+        const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfMonths)) /
+                    (Math.pow(1 + monthlyRate, numberOfMonths) - 1);
+
+        const totalAmount = emi * numberOfMonths;
+
+        $('#monthly_emi_amount_sifa').val(emi.toFixed(2));
+        $('#sifa_total_amount').val(totalAmount.toFixed(2));
+    } else {
+        $('#monthly_emi_amount_sifa').val('');
+        $('#sifa_total_amount').val('');
+    }
+});
 
         $('#no_of_emi_sifa').on('change', function() {
             const noOfEmi = parseFloat($(this).val());
