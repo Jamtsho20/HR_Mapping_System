@@ -44,6 +44,7 @@ class RequisitionExport implements FromCollection, WithHeadings
                 return [
                     $serialNo++,
                     $req->employee->emp_id_name ?? '-',
+                    $req->employee->empJob->department->name ?? config('global_null_value'),
                     $req->type->name ?? '-',
                     $req->transaction_no,
                     $req->transaction_date,
@@ -59,7 +60,8 @@ class RequisitionExport implements FromCollection, WithHeadings
                     $detail->site->name ?? config('global.null_value'),
                     $detail->remark ?? config('global.null_value'),
                     config("global.application_status.{$req->status}", 'Unknown'),
-                    $req->approvedBy->emp_id_name ?? '-',
+                    $req->histories->last()->approvedBy->emp_id_name ?? '-',
+                    $req->is_received ? 'Received' : 'Not Received',
                 ];
             });
         });
@@ -70,10 +72,11 @@ class RequisitionExport implements FromCollection, WithHeadings
     {
         return [
             'Sl No',
-            'Employee Name',
+            'Appplicant',
+            'Department',
             'REQ Type',
             'REQ No.',
-            'REQ Date',
+            'Application Date',
             'SAP Doc No',
             'GRN',
             'Item Description',
@@ -87,6 +90,7 @@ class RequisitionExport implements FromCollection, WithHeadings
             'Remarks',
             'Status',
             'Approved By',
+            'Is Received',
 
         ];
     }

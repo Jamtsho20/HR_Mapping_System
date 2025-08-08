@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commission Report</title>
+    <title>Good Issue Report</title>
     <style>
         @page {
             size: A4 landscape;
@@ -85,7 +85,7 @@
     <div class="page-container">
     @include('layouts.includes.generated-on-header', ['fromDate' => $fromDate, 'toDate' => $toDate])
         <hr>
-    <h1 class="title">Commission Report</h1>
+    <h1 class="title">Good Issue Report</h1>
     <div class="table-container">
     <table class="table table-bordered text-nowrap border-bottom dataTable no-footer">
         <thead class="thead-light">
@@ -94,16 +94,19 @@
                     SL no
                 </th>
                 <th>
-                    Applicant
+                    Goods Issued To
                 </th>
                 <th>
                     Department
                 </th>
                 <th>
-                    Comm No
+                    Req No
                 </th>
                 <th>
-                    Application Date
+                    GIN
+                </th>
+                <th>
+                    Goods Issued From (Store)
                 </th>
                 <th>
                     Asset No
@@ -126,55 +129,46 @@
                 <th>
                     Site
                 </th>
-                <th>
+                {{-- <th>
                     Capitalization Date
                 </th>
                 <th>
-                    Status
-                </th>
+                    Is Received
+                </th> --}}
                 <th>
-                    Approved By
+                    Remark
                 </th>
-                {{-- <th>
-                                                    Action
-                                                </th> --}}
-
 
             </tr>
         </thead>
         <tbody>
             @php $count = 1; @endphp
-            @forelse($commissions as $comm)
-                @foreach ($comm->details as $detail)
+            @forelse($receivedSerials as $serials  )
                     <tr>
-                        <td>{{ $count++ }}</td> {{-- Parent index --}}
-                        <td>{{ $comm->employee->emp_id_name }}</td>
-                        <td>{{ $comm->employee->empJob->department->name ?? config('global_null_value') }}</td>
-                        <td>{{ $comm->transaction_no }}</td>
-                        <td>{{ $comm->transaction_date }}</td>
+                        <td>{{ $count++ }}</td>
+                        <td>{{ $serials->requisitionDetail->requisition->employee->emp_id_name ?? config('global.null_value')   }}</td>
+                        <td>{{ $serials->requisitionDetail->requisition->employee->empJob->department->name ?? config('global.null_value')  }}</td>                                                {{-- Detail-specific data --}}
 
-                        <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->item_no .'-'. $detail->receivedSerial?->asset_serial_no }}</td>
-                        {{-- <td>{{ $detail->receivedSerial->asset_description }}</td> --}}
-                        <td title="{{ $detail->receivedSerial->asset_description }}">
-                            {{ \Illuminate\Support\Str::limit($detail->receivedSerial?->asset_description, 75, '...') }}
+                        <td>{{ $serials?->requisitionDetail?->requisition?->transaction_no ?? config('global.null_value')  }}</td>
+                        <td>{{ $serials?->requisitionDetail?->requisition?->good_issue_doc_no ?? config('global.null_value')  }}</td>
+                        <td>{{ $serials?->requisitionDetail?->grnItemDetail?->store?->name ?? config('global.null_value')  }}</td>
+                        <td>{{ $serials?->requisitionDetail?->grnItemDetail?->item?->item_no .'-'. $serials?->asset_serial_no  ?? config('global.null_value')  }}</td>
+                        <td title="{{ $serials?->asset_description }}">
+                            {{ \Illuminate\Support\Str::limit($serials?->asset_description, 75, '...') }}
                         </td>
 
-                        <td>{{ $detail->receivedSerial?->requisitionDetail?->grnItemDetail?->item?->uom ?? '-' }}
+                        <td>{{ $serials?->requisitionDetail?->grnItemDetail?->item?->uom ?? config('global.null_value')  }}
                         </td>
-                        <td class="text-right">{{$detail->receivedSerial?->quantity ?? 1 }}</td>
-                        <td class="text-right">{{ $detail->receivedSerial?->amount }}</td>
-                        <td>{{ $detail->dzongkhag?->dzongkhag }}</td>
+                        <td class="text-right">{{$serials?->quantity ?? 1}}</td>
+                        <td class="text-right">{{ $serials?->amount ?? config('global.null_value')  }}</td>
+                        <td class="text-right">{{ $serials->requisitionDetail?->dzongkhag->dzongkhag ?? config('global.null_value')  }}</td>
+                        <td class="text-right">{{ $serials->requisitionDetail?->site->name ?? config('global.null_value')  }}</td>
+                        {{-- <td class="text-right">{{ $serials->commissionDetail?->date_placed_in_service ?? config('global.null_value')  }}</td>
+                        <td class="text-right">{{ $serials->is_received ? 'Received' : 'Not Received' ?? config('global.null_value')  }}</td> --}}
+                        <td class="text-right">{{ $serials->remark ?? config('global.null_value')  }}</td>
 
-                        <td>{{ $detail->site->name ?? '-' }}</td>
-
-                        <td>{{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}
-                                                </td>
-                        {{-- Parent-level status & approver repeated per row --}}
-                        <td>{{ config("global.application_status.{$comm->status}", 'Unknown') }}
-                        </td>
-                        <td>{{ $comm->approvedBy->emp_id_name ?? '-' }}</td>
                     </tr>
-                @endforeach
+
             @empty
                 <tr>
                     <td colspan="16" class="text-danger text-center">No Data Found</td>

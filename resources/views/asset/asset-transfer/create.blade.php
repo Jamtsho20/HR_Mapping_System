@@ -157,7 +157,7 @@
                                         QTY*
                                     </th>
                                     <th>
-                                        Date Placed in Service
+                                        Capitalization Date
                                     </th>
                                     {{-- <th>
                                         Property Type
@@ -256,7 +256,6 @@
                 $(".asset_no").each(function () {
                     total += 1;
                 });
-                console.log(total);
                 $("#total-quantity-id").val(total);
             }
 
@@ -289,8 +288,12 @@
 
                                 // Loop through the received asset numbers and populate the dropdown
                                 response.data.forEach(function(assetNo) {
-                                    assetSelect.append('<option value="' + assetNo.id + '">' + assetNo.asset_serial_no + '</option>');
-                                });
+                                  assetSelect.append(
+                                        '<option value="' + assetNo.id + '">' +
+                                        ((assetNo.requisition_detail?.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.asset_serial_no) +
+                                        '</option>'
+                                    );
+                                        });
 
                                 $('#loader').hide();
                         },
@@ -330,7 +333,7 @@
 
                         // Loop through the received asset numbers and populate the dropdown
                         response.data.forEach(function(assetNo) {
-                            assetSelect.append('<option value="' + assetNo.id + '">' + assetNo.asset_serial_no + '</option>');
+                            assetSelect.append('<option value="' + assetNo.id + '">' +assetNo.requisition_detail.grn_item_detail.item.item_no ?? 'N/A' + ' - ' + assetNo.asset_serial_no + '</option>');
                         });
 
                         $('#loader').hide();
@@ -381,9 +384,8 @@
                                 const data = response.data;
                                 const grnDetail = data?.requisition_detail?.grn_item_detail;
                                 const item = grnDetail?.item;
-
                                 const $row = $currentSelect.closest('tr');
-                                $row.find('input[id="category"]').val(data.asset_description || '');
+                                $row.find('input[id="category"]').val(data.requisition_detail.grn_item_detail.item.item_group || '');
                                 $row.find('input[id="description"]').val(grnDetail?.description || '');
                                 $row.find('input[id="asset_type"]').val(''); // You can assign logic if available
                                 $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || '');

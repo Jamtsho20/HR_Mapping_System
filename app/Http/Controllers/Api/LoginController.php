@@ -64,7 +64,7 @@ class LoginController extends Controller
                 // ->where('employee_id', '<>', $user->id)
                 ->first();
 
-            if(!$existingDevice && ($user->username != 'E00000' || $user->username != 'SAP000')){
+            if(!$existingDevice){
                 $device = EmployeeDevices::firstOrCreate(
                     ['employee_id' => $user->id],
                     [

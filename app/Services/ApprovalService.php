@@ -50,19 +50,19 @@ class ApprovalService
             ->where('approvable_type', $approvableType)
             ->whereIsActive(1)
             ->first();
-        if (!$approvalRule) {
-            return [];
-        }
-        if ($approvalRule->approvalConditions && !empty($conditionfields)) {
-            foreach ($approvalRule->approvalConditions as $appvlCondition) {
-                // Fetch operator symbol
-                $operatorData = MasApprovalRuleConditionOperator::find($appvlCondition->operator_id);
-                if (!$operatorData) {
-                    continue; // Skip if operator not found
-                }
-                
+            if (!$approvalRule) {
+                return [];
+            }
+            if ($approvalRule->approvalConditions && !empty($conditionfields)) {
+                foreach ($approvalRule->approvalConditions as $appvlCondition) {
+                    // Fetch operator symbol
+                    $operatorData = MasApprovalRuleConditionOperator::find($appvlCondition->operator_id);
+                    if (!$operatorData) {
+                        continue; // Skip if operator not found
+                    }
+
                 $operatorSymbol = $operatorData->value;
-                
+
                 // Match condition field and evaluate condition
                 if ($appvlCondition->mas_condition_field_id == $conditionfields[0]['id']) {
                     // now here need to get delegatee if incase has_employee_field is true

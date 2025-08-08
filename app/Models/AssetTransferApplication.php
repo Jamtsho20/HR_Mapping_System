@@ -71,6 +71,11 @@ class AssetTransferApplication extends Model
         return $this->morphMany(ApplicationAuditLog::class, 'application');
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function type()
     {
         return $this->belongsTo(MasTransferType::class, 'type_id');
@@ -81,20 +86,18 @@ class AssetTransferApplication extends Model
             $query->where('type_id', $request->type_id);
         }
 
-        if ($request->get('year')) {
-            // Step 1: Split the date range into two parts
-            $dates = explode(' - ', $request->get('year'));
+       if($request->from_date && $request->to_date){
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
 
-            // Step 2: Convert each date to Y-m format using Carbon
-            $startDate = Carbon::createFromFormat('Y-m', trim($dates[0]));
+        if($request->transfer_no){
+            $query->where('transaction_no', $request->transfer_no);
+        }
 
-            // Extract year and month
-            $year = $startDate->year;
-            $month = $startDate->month;
-
-            // Filter by year and month
-            $query->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month);
+        if($request->status){
+            $query->where('status', $request->status);
         }
 
     }

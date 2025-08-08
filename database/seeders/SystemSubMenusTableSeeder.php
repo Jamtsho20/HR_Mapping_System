@@ -166,6 +166,8 @@ class SystemSubMenusTableSeeder extends Seeder
             ['system_menu_id' => 20, 'name' => 'FA Commission Report', 'route' => 'asset-report/commission-report', 'display_order' => 2],
             ['system_menu_id' => 20, 'name' => 'Asset Transfer Report', 'route' => 'asset-report/asset-transfer-report', 'display_order' => 3],
             ['system_menu_id' => 20, 'name' => 'Asset Return Report', 'route' => 'asset-report/asset-return-report', 'display_order' => 4],
+            ['system_menu_id' => 20, 'name' => 'Good Issue Report', 'route' => 'asset-report/good-issue-report', 'display_order' => 5],
+            ['system_menu_id' => 20, 'name' => 'Good Receipt Report', 'route' => 'asset-report/good-receipt-report', 'display_order' => 6],
 
             //submenu for my profile
             ['system_menu_id' => 20, 'name' => 'My Profile', 'route' => 'my-profile/my-profile', 'display_order' => 1],

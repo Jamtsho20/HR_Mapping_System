@@ -820,6 +820,14 @@ class ApiController extends BaseController
                                 "ValidTo" => $item['ItemProjects'][0]['ValidTo'] ?? null,
                                 "Project" => $item['ItemProjects'][0]['Project'] ?? null,
                             ]
+                            ],
+                        "ItemDistributionRules" => [
+                            [
+                                "LineNumber" => 0,
+                                "ValidFrom" => $item['ItemDistributionRules'][0]['ValidFrom'] ?? null,
+                                "ValidTo" => $item['ItemDistributionRules'][0]['ValidTo'] ?? null,
+                                "DistributionRule4" => $item['ItemDistributionRules'][0]['DistributionRule4'] ?? null,
+                            ]
                         ]
                     ];
 
