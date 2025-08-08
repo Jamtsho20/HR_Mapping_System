@@ -20,7 +20,7 @@
         </div>
         <div class="col-md-4">
             <div class="form-group">
-                <label for="amount">Amount <span class="text-danger">*</span></label>
+                <label for="amount">Amount to be claimed<span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="sifa_amount" name="amount" value="{{ old('amount') }}" required />
             </div>
         </div>
