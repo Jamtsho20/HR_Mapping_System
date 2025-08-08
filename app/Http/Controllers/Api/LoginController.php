@@ -64,7 +64,7 @@ class LoginController extends Controller
                 // ->where('employee_id', '<>', $user->id)
                 ->first();
 
-            if(!$existingDevice){
+            if(!$existingDevice && $request->username != 'SAP000' && $request->username != 'E00000'){
                 $device = EmployeeDevices::firstOrCreate(
                     ['employee_id' => $user->id],
                     [
@@ -75,7 +75,7 @@ class LoginController extends Controller
             }
 
             return response()->json([
-                'message' => 'Authenticated', 
+                'message' => 'Authenticated',
                 'user' => $user,
                 'menus' => $menus,
                 // 'attendance_features' => $attendanceFeatures,
