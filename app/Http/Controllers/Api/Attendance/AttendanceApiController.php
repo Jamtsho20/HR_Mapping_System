@@ -57,7 +57,7 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $offices = MasOffice::whereStatus(1)->get(['id', 'name', 'longitude', 'latitude', 'radius']);
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
-
+        // dd($officeTiming);
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
             'offices' => $offices,
@@ -109,12 +109,12 @@ class AttendanceApiController extends Controller
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
         }
-
+        
         $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
-
+        
         $remarks = null;
         //incase of user checks in after 9.05 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
-        if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_code == 'N'){
+        if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_id === CREATED_STATUS){
             $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
             $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
             $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
@@ -133,6 +133,7 @@ class AttendanceApiController extends Controller
                 $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
             }
         }
+        
         // Decode existing JSON, or start with an empty array
         $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
         // Append the new entry
