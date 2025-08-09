@@ -101,9 +101,9 @@ class AttendanceApiController extends Controller
             return $this->errorResponse('This device is not found. Please register your device with the system to proceed.');
         }
         
-        if($device->device_id != $request->device_id){
-            return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
-        }
+        // if($device->device_id != $request->device_id){
+        //     return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
+        // }
         
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
