@@ -60,28 +60,28 @@ class LoginController extends Controller
             $menus = $this->menuAccessibleByRole($roleIds, $user->id);
             $token = $user->createToken($request->username)->plainTextToken;
             // if device is not registered then create it for attendance validation purpose uncomment this line
-            // $existingDevice = EmployeeDevices::where('device_id', $request->device_id)
-            //     ->where('employee_id', '<>', $user->id)
-            //     ->first();
+            $existingDevice = EmployeeDevices::where('device_id', $request->device_id)
+                // ->where('employee_id', '<>', $user->id)
+                ->first();
 
-            // if(!$existingDevice){
-            //     $device = EmployeeDevices::firstOrCreate(
-            //         ['employee_id' => $user->id],
-            //         [
-            //             'device_id' => $request->device_id,
-            //             'device_name' => $request->device_name,
-            //         ]
-            //     );
-            // }
+            if(!$existingDevice && $request->username != 'SAP000' && $request->username != 'E00000'){
+                $device = EmployeeDevices::firstOrCreate(
+                    ['employee_id' => $user->id],
+                    [
+                        'device_id' => $request->device_id,
+                        'device_name' => $request->device_name,
+                    ]
+                );
+            }
 
             return response()->json([
-                'message' => 'Authenticated', 
+                'message' => 'Authenticated',
                 'user' => $user,
                 'menus' => $menus,
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
-                // 'device_id' => $device->device_id ?? null
+                'device_id' => $existingDevice->device_id ?? null
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

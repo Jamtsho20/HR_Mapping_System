@@ -157,7 +157,7 @@
                             @endforeach
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center text-danger">No requisition details found</td>
+                                <td colspan="12" class="text-center text-danger">No requisition details found</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -198,20 +198,21 @@
 
                     if (childRows.length === 0) {
                         receiveSerialItems(requisitionKey, grnId, quantityInput, true);
+                    } else {
+                        childRows.forEach((row) => {
+                            let serialCheckbox = row.querySelector("input[type='checkbox']");
+                            if (serialCheckbox) {
+                                serialCheckbox.checked = true;
+                                serialCheckbox.value = 1;
+                                quantityInput.readOnly = true;
+                                serialCheckbox.addEventListener('click', function (e) {
+                                    e.preventDefault(); // prevent toggling
+                                });
+                            }
+                        });
+                        updateReceivedQuantity(requisitionKey);
+                        receiveSerialItems(requisitionKey, grnId, quantityInput, true);
                     }
-                    childRows.forEach((row) => {
-                        let serialCheckbox = row.querySelector("input[type='checkbox']");
-                        if (serialCheckbox) {
-                            serialCheckbox.checked = true;
-                            serialCheckbox.value = 1;
-                            quantityInput=document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
-                            receiveSerialItems(requisitionKey, grnId, quantityInput, true);
-                            serialCheckbox.readOnly = true;
-                            serialCheckbox.addEventListener('click', function (e) {
-                                e.preventDefault(); // prevent toggling
-                            });
-                        }
-                    });
                 }
             });
 
@@ -455,7 +456,7 @@
             $('#loader').hide();
             showSuccessMessage('Item received successfully.');
             }
-            checkIfAllReceived();
+
         })
         .catch(error => {
             console.error('Error:', error);
@@ -466,7 +467,9 @@
         }
     }
 
+     $('#loader').show();
     checkIfAllReceived();
+    $('#loader').hide();
 });
     </script>
 

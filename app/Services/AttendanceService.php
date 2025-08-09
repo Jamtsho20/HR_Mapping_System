@@ -87,6 +87,8 @@ class AttendanceService
         $officeTiming['office_name'] = $office->name;
         $officeTiming['longitude'] = $office->longitude;
         $officeTiming['latitude'] = $office->latitude;
+        // $officeTiming['longitude'] = substr((string) $office->longitude, 0, 9);
+        // $officeTiming['latitude'] = substr((string) $office->latitude, 0, 9);
         // $officeTiming['raidus'] = $office->raidus . ' ' . config('global.raidus_unit');
         $officeTiming['radius'] = $office->radius;
         $officeTiming['attendance_buffer_mins'] = config('global.attendance_buffer_mins');

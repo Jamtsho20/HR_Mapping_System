@@ -148,7 +148,7 @@
                                                 @endforeach
                                                 @empty
                                                 <tr>
-                                                    <td colspan="9" class="text-center text-danger">No requisition details found</td>
+                                                    <td colspan="12" class="text-center text-danger">No requisition details found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
