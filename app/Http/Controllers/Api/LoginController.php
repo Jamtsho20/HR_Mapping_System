@@ -81,7 +81,7 @@ class LoginController extends Controller
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
-                'device_id' => $device->device_id ?? null
+                'device_id' => $existingDevice->device_id ?? null
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
