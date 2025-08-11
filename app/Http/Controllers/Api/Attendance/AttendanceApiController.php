@@ -111,63 +111,6 @@ class AttendanceApiController extends Controller
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
         }
-        
-        //old code remove it once issue is resolved
-        // $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
-        
-        // $remarks = $loggedInUserDailyAttendanceEntry->remarks; // default to existing
-        // //incase of user checks in after 9.06 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
-        // if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_id === CREATED_STATUS){
-        //     $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
-        //     $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
-        //     $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
-        //     $maxEligibleTime = $startTime->copy()->addMinutes(120); 
-        //     $checkInTime = Carbon::parse($request->check_in_at);
-
-        //     if(($request->check_type == 'check-in' && $request->check_in_at) && $maxEligibleTime->lessThan($checkInTime)){
-        //         $attendanceStatus = ABSENT_STATUS;
-        //         $diff = $checkInTime->diff($startTime);
-        //         $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
-        //     }else if(($request->check_type == 'check-in' && $request->check_in_at) && $bufferedTime->lessThan($checkInTime)){
-        //         $attendanceStatus = LATE_STATUS;
-        //         $diff = $checkInTime->diff($bufferedTime);
-        //         $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated).";
-        //     }else{
-        //         $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
-        //     }
-        // }
-        
-        // // Decode existing JSON, or start with an empty array
-        // $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
-        // // Append the new entry
-        // $history[] = [
-        //     'date' => Carbon::now()->toDateTimeString(),
-        //     'attendance_status_id' => $attendanceStatus,
-        //     'remarks' => $remarks,
-        //     'updated_by' => $user->id,
-        // ];
-        
-        // $updateAttendanceData = [
-        //     'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
-        //     'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
-        //     'attendance_status_id' => $attendanceStatus,
-        //     'remarks' => $remarks,
-        //     'updated_by' => $user->id,
-        //     'update_history' => json_encode($history)
-        // ];
-
-        // // Conditional update based on check type
-        // if ($request->check_type === 'check-in') {
-        //     $updateAttendanceData['check_in_at'] = $request->check_in_at;
-        //     $updateAttendanceData['check_in_office_id'] = $request->check_in_from;
-        //     $updateAttendanceData['check_in_ip'] = $request->ip();
-        // } elseif ($request->check_type === 'check-out') {
-        //     $updateAttendanceData['check_out_at'] = $request->check_out_at;
-        //     $updateAttendanceData['check_out_office_id'] = $request->check_out_from;
-        //     $updateAttendanceData['check_out_ip'] = $request->ip();
-        // }
-
-        // AttendanceDetail::where('id', $loggedInUserDailyAttendanceEntry->id)->update($updateAttendanceData);
 
         //new code here
         // Use transaction with row locking to prevent race conditions
