@@ -74,7 +74,7 @@ class AttendanceApiController extends Controller
     }
 
     public function attendanceEntry(Request $request){
-        \Log::info('attendance request:' . $request->all());
+        \Log::info('attendance request:', $request->all());
         $attendanceService = new AttendanceService();
         $user = auth()->user();
         // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
