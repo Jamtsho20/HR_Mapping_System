@@ -76,7 +76,7 @@ class AttendanceApiController extends Controller
     public function attendanceEntry(Request $request){
         $attendanceService = new AttendanceService();
         $user = auth()->user();
-        
+        // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
         $device = EmployeeDevices::where('employee_id', $user->id)->first();
         if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
