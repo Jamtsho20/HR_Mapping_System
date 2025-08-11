@@ -74,6 +74,7 @@ class AttendanceApiController extends Controller
     }
 
     public function attendanceEntry(Request $request){
+        \Log::info('attendance request:' . $request->all());
         $attendanceService = new AttendanceService();
         $user = auth()->user();
         // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
@@ -112,7 +113,7 @@ class AttendanceApiController extends Controller
         
         $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
         
-        $remarks = null;
+        $remarks = $loggedInUserDailyAttendanceEntry->remarks; // default to existing
         //incase of user checks in after 9.06 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
         if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_id === CREATED_STATUS){
             $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
