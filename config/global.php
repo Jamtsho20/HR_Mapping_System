@@ -11,7 +11,7 @@ return [
 
     'pagination' => 50,
 
-    'attendance_buffer_mins' => 5,
+    'attendance_buffer_mins' => 6,
 
     'radius_unit' => 'm',
 
