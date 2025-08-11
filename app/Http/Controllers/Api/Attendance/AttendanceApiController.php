@@ -113,7 +113,7 @@ class AttendanceApiController extends Controller
         $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
         
         $remarks = null;
-        //incase of user checks in after 9.05 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
+        //incase of user checks in after 9.06 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
         if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_id === CREATED_STATUS){
             $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
             $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);

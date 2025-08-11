@@ -112,10 +112,10 @@
                                                             style="color: {{ $data['status_color'] ?? '#929898' }}; {{ $day == $isToday ? 'background-color: #e2f5ce;' : '' }}"
                                                             data-bs-toggle="tooltip" data-bs-html="true"
                                                             data-bs-placement="bottom"
-                                                            title="Clocked-in: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;
+                                                            title="Clocked-in at: {{ $data['check_in_at'] ?? config('global.null_value') }}&#10;
                                                             Clocked-in From: {{ $data['checked_in_from'] ?? config('global.null_value') }}&#10;
                                                             Clocked-out From: {{ $data['checked_out_from'] ?? config('global.null_value') }}&#10;
-                                                            Clocked-out: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
+                                                            Clocked-out at: {{ $data['check_out_at'] ?? config('global.null_value') }}&#10;
                                                             Status: {{ $data['attendance_status_code'] ?? config('global.null_value') }} - {{ $data['attendance_status_description'] ?? config('global.null_value') }}&#10;
                                                             Total Hours: {{ $data['worked_hours'] ?? config('global.null_value') }}&#10;
                                                             Date: {{ $data['attendance_date'] ?? config('global.null_value') }}&#10;
