@@ -46,32 +46,55 @@ class CreditEmpEarnedLeaveMonthly extends Command
     //     $this->info('Monthly earned leave credit completed successfully in batches.');
     // }
     public function handle()
-    {
-        // Process EmployeeLeave records in batches, only for active employees
-        EmployeeLeave::where('mas_leave_type_id', EARNED_LEAVE)
-            ->whereHas('employee', function ($query) {
-                $query->where('is_active', 1) // Only include active employees
-                    ->whereHas('empJob', function ($subQuery) {
-                    // Apply conditions on empJob here
+{
+    $currentMonth = now()->month;
+    $currentYear = now()->year;
+
+    EmployeeLeave::where('mas_leave_type_id', EARNED_LEAVE)
+        ->whereHas('employee', function ($query) {
+            $query->where('is_active', 1)
+                ->whereHas('empJob', function ($subQuery) {
                     $subQuery->whereNotIn('mas_employment_type_id', [6, 7, 8, 10]);
                 });
-            })
-            ->chunk(100, function ($leaves) {
-                DB::transaction(function () use ($leaves) {
-                    foreach ($leaves as $leave) {
-                        // Credit leave based on type
-                        $leave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT; // Add 2.5 days per month
-                        $calculatedClosingBalance = $leave->opening_balance 
-                                                    + $leave->current_entitlement 
-                                                    - $leave->leaves_availed;
-                        $leave->closing_balance = min($calculatedClosingBalance, 90.00);
-                        $leave->save(); 
+        })
+        ->chunk(100, function ($leaves) use ($currentMonth, $currentYear) {
+            DB::transaction(function () use ($leaves, $currentMonth, $currentYear) {
+                foreach ($leaves as $leave) {
+                    $employeeId = $leave->mas_employee_id; // your table uses mas_employee_id
+
+                    // === Skip if employee is on maternity leave for this month ===
+                    $onMaternityLeave = DB::table('leave_applications')
+                        ->where('created_by', $employeeId)
+                        ->where('mas_leave_type_id', 4) // maternity leave
+                        ->where('status', 3) // Approved
+                        ->where(function ($query) use ($currentMonth, $currentYear) {
+                            $query->whereMonth('from_date', '<=', $currentMonth)
+                                  ->whereYear('from_date', '<=', $currentYear)
+                                  ->whereMonth('to_date', '>=', $currentMonth)
+                                  ->whereYear('to_date', '>=', $currentYear);
+                        })
+                        ->exists();
+
+                    if ($onMaternityLeave) {
+                        // Skip credit for any month that falls inside maternity leave
+                        continue;
                     }
-                });
+
+                    // === Normal earned leave credit logic ===
+                    $leave->current_entitlement += EARNED_LEAVE_CREDIT_AMOUNT; // Add 2.5 days
+                    $calculatedClosingBalance = $leave->opening_balance 
+                        + $leave->current_entitlement 
+                        - $leave->leaves_availed;
+
+                    $leave->closing_balance = min($calculatedClosingBalance, 90.00);
+                    $leave->save();
+                }
             });
-    
-        $this->info('Monthly earned leave credit completed successfully in batches.');
-    }
+        });
+
+    $this->info('Monthly earned leave credit completed, skipping months during maternity leave.');
+}
+
     
     // public function handle()
     // {
