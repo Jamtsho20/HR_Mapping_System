@@ -11,6 +11,7 @@ use App\Services\AttendanceService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceApiController extends Controller
 {
@@ -74,11 +75,9 @@ class AttendanceApiController extends Controller
     }
 
     public function attendanceEntry(Request $request){
-        \Log::info('attendance request:', $request->all());
+        // \Log::info('attendance request:', $request->all());
         $attendanceService = new AttendanceService();
         $user = auth()->user();
-        // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
-        $device = EmployeeDevices::where('employee_id', $user->id)->first();
         if($request->check_type === 'check-in' && !$request->check_in_at){
             $this->rules['check_in_at'] = 'required';
             $this->rules['check_in_from'] = 'required';
@@ -91,6 +90,16 @@ class AttendanceApiController extends Controller
         if ($validator->fails()) {
             return $this->validationErrorResponse($validator->errors());
         }
+        // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
+        // $device = EmployeeDevices::where('employee_id', $user->id)->first();
+        $deviceExists = EmployeeDevices::where('employee_id', $user->id)
+            ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
+            ->exists();
+
+        if (!$deviceExists) {
+            return $this->errorResponse('Device mismatch detected or not registered.');
+        }
+        
         
         if($request->attendance_date && $request->shift_name == 'Night Shift'){
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'yesterday');
@@ -98,75 +107,126 @@ class AttendanceApiController extends Controller
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'daily');
         }
         
-        // if(!$request->device_id && !$device){
-        //     return $this->errorResponse('This device is not found. Please register your device with the system to proceed.');
-        // }
-        
-        // if($device->device_id != $request->device_id){
-        //     return $this->errorResponse('Device mismatch detected. Please register this device with the system.');
-        // }
-        
         // return $this->successResponse($loggedInUserDailyAttendanceEntry);
         if(!$loggedInUserDailyAttendanceEntry){
             return $this->errorResponse('Attendance entry has not been created for ' . Carbon::now()->format('d-m-y') . '. Please ask system admin for further information.');
         }
         
-        $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
+        //old code remove it once issue is resolved
+        // $attendanceStatus = $loggedInUserDailyAttendanceEntry->attendance_status_id;
         
-        $remarks = $loggedInUserDailyAttendanceEntry->remarks; // default to existing
-        //incase of user checks in after 9.06 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
-        if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_id === CREATED_STATUS){
-            $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
-            $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
-            $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
-            $maxEligibleTime = $startTime->copy()->addMinutes(120); 
-            $checkInTime = Carbon::parse($request->check_in_at);
+        // $remarks = $loggedInUserDailyAttendanceEntry->remarks; // default to existing
+        // //incase of user checks in after 9.06 and 11.00  ( can write a private function to make code lesser in this function) here also need to check for status
+        // if(!$loggedInUserDailyAttendanceEntry->check_in_at && $loggedInUserDailyAttendanceEntry->attendance_status_id === CREATED_STATUS){
+        //     $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
+        //     $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
+        //     $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
+        //     $maxEligibleTime = $startTime->copy()->addMinutes(120); 
+        //     $checkInTime = Carbon::parse($request->check_in_at);
 
-            if(($request->check_type == 'check-in' && $request->check_in_at) && $maxEligibleTime->lessThan($checkInTime)){
-                $attendanceStatus = ABSENT_STATUS;
-                $diff = $checkInTime->diff($startTime);
-                $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
-            }else if(($request->check_type == 'check-in' && $request->check_in_at) && $bufferedTime->lessThan($checkInTime)){
-                $attendanceStatus = LATE_STATUS;
-                $diff = $checkInTime->diff($bufferedTime);
-                $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated).";
-            }else{
-                $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
+        //     if(($request->check_type == 'check-in' && $request->check_in_at) && $maxEligibleTime->lessThan($checkInTime)){
+        //         $attendanceStatus = ABSENT_STATUS;
+        //         $diff = $checkInTime->diff($startTime);
+        //         $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
+        //     }else if(($request->check_type == 'check-in' && $request->check_in_at) && $bufferedTime->lessThan($checkInTime)){
+        //         $attendanceStatus = LATE_STATUS;
+        //         $diff = $checkInTime->diff($bufferedTime);
+        //         $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated).";
+        //     }else{
+        //         $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $loggedInUserDailyAttendanceEntry->attendance_status_id;
+        //     }
+        // }
+        
+        // // Decode existing JSON, or start with an empty array
+        // $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
+        // // Append the new entry
+        // $history[] = [
+        //     'date' => Carbon::now()->toDateTimeString(),
+        //     'attendance_status_id' => $attendanceStatus,
+        //     'remarks' => $remarks,
+        //     'updated_by' => $user->id,
+        // ];
+        
+        // $updateAttendanceData = [
+        //     'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
+        //     'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
+        //     'attendance_status_id' => $attendanceStatus,
+        //     'remarks' => $remarks,
+        //     'updated_by' => $user->id,
+        //     'update_history' => json_encode($history)
+        // ];
+
+        // // Conditional update based on check type
+        // if ($request->check_type === 'check-in') {
+        //     $updateAttendanceData['check_in_at'] = $request->check_in_at;
+        //     $updateAttendanceData['check_in_office_id'] = $request->check_in_from;
+        //     $updateAttendanceData['check_in_ip'] = $request->ip();
+        // } elseif ($request->check_type === 'check-out') {
+        //     $updateAttendanceData['check_out_at'] = $request->check_out_at;
+        //     $updateAttendanceData['check_out_office_id'] = $request->check_out_from;
+        //     $updateAttendanceData['check_out_ip'] = $request->ip();
+        // }
+
+        // AttendanceDetail::where('id', $loggedInUserDailyAttendanceEntry->id)->update($updateAttendanceData);
+
+        //new code here
+        // Use transaction with row locking to prevent race conditions
+        DB::transaction(function () use ($loggedInUserDailyAttendanceEntry, $request, $user, $attendanceService) {
+            // Lock the attendance row for update
+            $attendance = AttendanceDetail::lockForUpdate()->find($loggedInUserDailyAttendanceEntry->id);
+
+            $attendanceStatus = $attendance->attendance_status_id;
+            $remarks = $attendance->remarks; // default to existing remarks
+
+            // Calculate attendance status and remarks only if no check-in yet and status is CREATED
+            if (!$attendance->check_in_at && $attendance->attendance_status_id === CREATED_STATUS) {
+                $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
+                $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
+                $bufferedTime = $startTime->copy()->addMinutes($officeTiming['attendance_buffer_mins']);
+                $maxEligibleTime = $startTime->copy()->addMinutes(120);
+                $checkInTime = Carbon::parse($request->check_in_at);
+
+                if ($request->check_type == 'check-in' && $request->check_in_at && $maxEligibleTime->lessThan($checkInTime)) {
+                    $attendanceStatus = ABSENT_STATUS;
+                    $diff = $checkInTime->diff($startTime);
+                    $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . ", thus marked absent (System generated).";
+                } elseif ($request->check_type == 'check-in' && $request->check_in_at && $bufferedTime->lessThan($checkInTime)) {
+                    $attendanceStatus = LATE_STATUS;
+                    $diff = $checkInTime->diff($bufferedTime);
+                    $remarks = "Reported late by " . implode(' ', $this->splitTime($diff)) . " (System generated).";
+                } else {
+                    $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $attendanceStatus;
+                }
             }
-        }
-        
-        // Decode existing JSON, or start with an empty array
-        $history = $loggedInUserDailyAttendanceEntry->update_history ? json_decode($loggedInUserDailyAttendanceEntry->update_history, true) : [];
-        // Append the new entry
-        $history[] = [
-            'date' => Carbon::now()->toDateTimeString(),
-            'attendance_status_id' => $attendanceStatus,
-            'remarks' => $remarks,
-            'updated_by' => $user->id,
-        ];
-        
-        $updateAttendanceData = [
-            'daily_attendance_id' => $loggedInUserDailyAttendanceEntry->daily_attendance_id,
-            'employee_id' => $loggedInUserDailyAttendanceEntry->employee_id,
-            'attendance_status_id' => $attendanceStatus,
-            'remarks' => $remarks,
-            'updated_by' => $user->id,
-            'update_history' => json_encode($history)
-        ];
 
-        // Conditional update based on check type
-        if ($request->check_type === 'check-in') {
-            $updateAttendanceData['check_in_at'] = $request->check_in_at;
-            $updateAttendanceData['check_in_office_id'] = $request->check_in_from;
-            $updateAttendanceData['check_in_ip'] = $request->ip();
-        } elseif ($request->check_type === 'check-out') {
-            $updateAttendanceData['check_out_at'] = $request->check_out_at;
-            $updateAttendanceData['check_out_office_id'] = $request->check_out_from;
-            $updateAttendanceData['check_out_ip'] = $request->ip();
-        }
+            // Update history JSON safely
+            $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
+            $history[] = [
+                'date' => now()->toDateTimeString(),
+                'attendance_status_id' => $attendanceStatus,
+                'remarks' => $remarks,
+                'updated_by' => $user->id,
+            ];
 
-        AttendanceDetail::where('id', $loggedInUserDailyAttendanceEntry->id)->update($updateAttendanceData);
+            // Update fields
+            $attendance->attendance_status_id = $attendanceStatus;
+            $attendance->remarks = $remarks;
+            $attendance->updated_by = $user->id;
+            $attendance->update_history = json_encode($history);
 
+            // Update check-in/out data conditionally
+            if ($request->check_type === 'check-in') {
+                $attendance->check_in_at = $request->check_in_at;
+                $attendance->check_in_office_id = $request->check_in_from;
+                $attendance->check_in_ip = $request->ip();
+            } elseif ($request->check_type === 'check-out') {
+                $attendance->check_out_at = $request->check_out_at;
+                $attendance->check_out_office_id = $request->check_out_from;
+                $attendance->check_out_ip = $request->ip();
+            }
+
+            $attendance->save();
+        });
         return $this->successResponse('Attendance entry for ' . Carbon::now()->format('d-m-y') . ' made successfully');
     }
 
