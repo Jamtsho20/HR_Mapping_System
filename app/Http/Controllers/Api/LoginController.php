@@ -61,7 +61,7 @@ class LoginController extends Controller
             $token = $user->createToken($request->username)->plainTextToken;
             // if device is not registered then create it for attendance validation purpose uncomment this line
             $existingDevice = EmployeeDevices::where('employee_id', $user->id)
-                ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
+                // ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
                 ->first();
             
 

@@ -3,28 +3,18 @@
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
-use App\Models\AttendanceDetail;
-use App\Models\AttendanceStatus;
-use App\Models\User;
 use App\Services\DelegationService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Carbon\Carbon;
 
-class AttendanceUpdateController extends Controller
+class AttendanceDetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function __construct()
     {
-        $this->middleware('permission:attendance/attendance-update,view')->only('index');
-        $this->middleware('permission:attendance/attendance-update,create')->only('store');
-        $this->middleware('permission:attendance/attendance-update,edit')->only('update');
-        $this->middleware('permission:attendance/attendance-update,delete')->only('destroy');
+        $this->middleware('permission:attendance/attendance-detail,view')->only('index');
     }
+
     public function index(Request $request)
     {
         $delegationService = new DelegationService();
@@ -46,7 +36,7 @@ class AttendanceUpdateController extends Controller
 
         $selectedDate = $filterDate->toDateString();
 
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees'));
+        return view('attendance.attendance-detail.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees'));
     }
 
     private function getFilterDate(Request $request)
@@ -90,10 +80,7 @@ class AttendanceUpdateController extends Controller
         }
 
         // Get all users with IMMEDIATE_HEAD role in the same department
-        return User::whereHas('roles', function ($query) {
-            $query->where('role_id', IMMEDIATE_HEAD);
-        })
-            ->whereHas('empJob', function ($query) use ($loggedInUser) {
+        return User::whereHas('empJob', function ($query) use ($loggedInUser) {
                 $query->where('mas_department_id', $loggedInUser->empJob->mas_department_id);
             })
             ->pluck('id')
@@ -165,93 +152,4 @@ class AttendanceUpdateController extends Controller
             ->get();
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    // Show the edit form
-    public function edit($id)
-    {
-        $attendanceRecord = AttendanceDetail::with('employee', 'attendanceStatus')->findOrFail($id);
-
-        // Load all possible attendance statuses for a dropdown
-        $attendanceStatuses = AttendanceStatus::all();
-
-        return view('attendance.attendance-update.edit', compact('attendanceRecord', 'attendanceStatuses'));
-    }
-
-    // Process the form submission
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'attendance_status_id' => 'required|exists:attendance_statuses,id',
-            'remarks' => 'nullable|string|max:500',
-        ]);
-
-        $attendanceRecord = AttendanceDetail::findOrFail($id);
-        // Decode existing JSON, or start with an empty array
-        $history = $attendanceRecord->update_history ? json_decode($attendanceRecord->update_history, true) : [];
-
-        // Append the new entry
-        $history[] = [
-            'date' => Carbon::now()->toDateTimeString(),
-            'attendance_status_id' => $request->attendance_status_id,
-            'remarks' => $request->remarks,
-            'updated_by' => auth()->user()->id,
-        ];
-
-        $attendanceRecord->attendance_status_id = $request->attendance_status_id;
-        $attendanceRecord->remarks = $request->remarks;
-        $attendanceRecord->update_history = json_encode($history);
-        $attendanceRecord->save();
-
-        return redirect()->route('attendance-update.index')->with('success', 'Attendance updated successfully.');
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
