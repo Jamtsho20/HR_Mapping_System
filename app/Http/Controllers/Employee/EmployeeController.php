@@ -67,7 +67,7 @@ class EmployeeController extends Controller
 
         // dd(User::get());
         $employees = User::filter($request)->orderBy('id')->paginate(config('global.pagination'))->withQueryString();
-        return view('employee/employee-list.index', compact('privileges','employees','departments','sections','designations','workLocations','empTypes'));
+        return view('employee/employee-list.index', compact('privileges', 'employees', 'departments', 'sections', 'designations', 'workLocations', 'empTypes'));
     }
     /**
      * Show the form for creating a new resource.
@@ -160,7 +160,7 @@ class EmployeeController extends Controller
             $increment = $gradeStep->increment;
             $points = range(1, $gradeStep->point);
         }
-        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary && $increment ) {
+        if (!is_null($employee->empJob) && $employee->empJob->basic_pay >= $startingSalary && $increment) {
             $selectedPoint = (($employee->empJob->basic_pay - $startingSalary) / $increment) + 1;
         }
         return view('employee.employee-list.edit', compact('employee', 'dzongkhags', 'departments', 'designations', 'grades', 'employmentTypes', 'qualifications', 'offices', 'roles', 'rolesAssigned', 'employeeGroups', 'employeeGroupMaps', 'points', 'selectedPoint'));
@@ -278,12 +278,12 @@ class EmployeeController extends Controller
             'personal.contact_number' => 'required|digits:8',
             'personal.nationality' => 'required',
             'personal.date_of_appointment' => 'required|date',
-            'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png|max:2048',
+            'personal.cid_copy' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ];
         $request->validate($rules);
 
         if (!$user || !isset($personalInfo['cid_copy'])) {
-            $rules['personal.cid_copy'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
+            $rules['personal.cid_copy'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
         }
 
         // Handle profile picture upload
@@ -340,7 +340,7 @@ class EmployeeController extends Controller
             'cid_copy' => $empCidCopy,
             'status' => $request->status ?? ($user->status == 'Completed' ? 1 : 0),
         ];
-    
+
         // Update or create the user
         $user = User::updateOrCreate(
             ['id' => $employeeId], // Conditions to find the user
@@ -756,10 +756,10 @@ class EmployeeController extends Controller
             'DebitorAccount' => '204111',
             'DownPaymentClearAct' => '205144',
             'DownPaymentInterimAccount' => '205144',
-            'DefaultAccount' => $jobDetail->account_number ?? '', //employee individual acc no 
-            'DefaultBankCode' => $bankCode, //Bank Code 
-            'BankCountry' => 'BT', //static 
-            'HouseBank' => '-1', //Bank Code 
+            'DefaultAccount' => $jobDetail->account_number ?? '', //employee individual acc no
+            'DefaultBankCode' => $bankCode, //Bank Code
+            'BankCountry' => 'BT', //static
+            'HouseBank' => '-1', //Bank Code
             // 'U_TPN' => $tpnNo,
             'U_TPN' => $jobDetail->tpn_number,
             "BPFiscalTaxIDCollection" =>
