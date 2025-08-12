@@ -92,13 +92,13 @@ class AttendanceApiController extends Controller
         }
         // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
         // $device = EmployeeDevices::where('employee_id', $user->id)->first();
-        $deviceExists = EmployeeDevices::where('employee_id', $user->id)
-            ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
-            ->exists();
+        // $deviceExists = EmployeeDevices::where('employee_id', $user->id)
+        //     ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
+        //     ->exists();
 
-        if (!$deviceExists) {
-            return $this->errorResponse('Device mismatch detected or not registered.');
-        }
+        // if (!$deviceExists) {
+        //     return $this->errorResponse('Device mismatch detected or not registered.');
+        // }
         
         
         if($request->attendance_date && $request->shift_name == 'Night Shift'){
