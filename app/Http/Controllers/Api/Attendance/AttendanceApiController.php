@@ -92,6 +92,7 @@ class AttendanceApiController extends Controller
         }
         // $serverTimeOnly = now()->format('H:i:s'); // e.g. "09:45:30"
         // $device = EmployeeDevices::where('employee_id', $user->id)->first();
+        //uncomment it later when fixed
         // $deviceExists = EmployeeDevices::where('employee_id', $user->id)
         //     ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
         //     ->exists();
