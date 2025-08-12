@@ -174,63 +174,81 @@
        document.addEventListener("DOMContentLoaded", function() {
 
 
-        document.getElementById('receiveAllToggle').addEventListener('change', function () {
-        let checked = this.checked;
+       document.getElementById('receiveAllToggle').addEventListener('change', async function () {
+        const receiveAllToggle = this;
+        const checked = receiveAllToggle.checked;
+
+        if (!checked) {
+            // If unchecked, prevent action or reset individual toggles if needed
+            return;
+        }
+
         showConfirmationMessage(
-        'Are you sure you want to receive all the items?',
-        function () {
-            // Get the toggle element that triggered this, if needed
-             $('#loader').show();
-            const receiveAllToggle = document.getElementById('receiveAllToggle');
+            'Are you sure you want to receive all the items?',
+            async function onConfirm() {
+                $('#loader').show();
 
-            document.querySelectorAll('.receive-toggle').forEach(function (checkbox) {
-                if (!checkbox.disabled && !checkbox.checked) {
-                    checkbox.checked = true;
-                }
+                // Process each requisition detail toggle
+                const receiveToggles = document.querySelectorAll('.receive-toggle');
 
-                // Get data-key
-                let requisitionKey = checkbox.getAttribute("data-key");
-
-                if (checkbox.checked) {
-                    let childRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
-                    let quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
-                    let grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
-
-                    if (childRows.length === 0) {
-                        receiveSerialItems(requisitionKey, grnId, quantityInput, true);
-                    } else {
-                        childRows.forEach((row) => {
-                            let serialCheckbox = row.querySelector("input[type='checkbox']");
-                            if (serialCheckbox) {
-                                serialCheckbox.checked = true;
-                                serialCheckbox.value = 1;
-                                quantityInput.readOnly = true;
-                                serialCheckbox.addEventListener('click', function (e) {
-                                    e.preventDefault(); // prevent toggling
-                                });
-                            }
-                        });
-                        updateReceivedQuantity(requisitionKey);
-                        receiveSerialItems(requisitionKey, grnId, quantityInput, true);
+                for (const toggle of receiveToggles) {
+                    if (toggle.disabled || toggle.checked) {
+                        // Skip if already processed
+                        continue;
                     }
-                }
-            });
 
-            // Disable master toggle after confirmation
-            if (receiveAllToggle) {
+                    const requisitionKey = toggle.getAttribute('data-key');
+                    const quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
+                    const grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
+
+                    // Check all serial checkboxes for this key and disable them
+                    const serialRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
+
+                    serialRows.forEach(row => {
+                        const serialCheckbox = row.querySelector("input[type='checkbox']");
+                        if (serialCheckbox && !serialCheckbox.checked) {
+                            serialCheckbox.checked = true;
+                        }
+                        if (serialCheckbox) {
+                            serialCheckbox.disabled = true;
+                            serialCheckbox.addEventListener('click', e => e.preventDefault());
+                        }
+
+                        const remarkInput = row.querySelector("input[name*='[remark]']");
+                        if (remarkInput) {
+                            remarkInput.disabled = true;
+                            remarkInput.value = '';
+                            remarkInput.style.backgroundColor = 'white';
+                            remarkInput.placeholder = '';
+                        }
+                    });
+
+                    // Update quantity input to total of serial quantities
+                    updateReceivedQuantity(requisitionKey);
+
+                    // Disable quantity input to prevent edits
+                    if (quantityInput) quantityInput.readOnly = true;
+
+                    // Set main toggle to checked and disable
+                    toggle.checked = true;
+                    toggle.disabled = true;
+
+                    receiveSerialItems(requisitionKey, grnId, quantityInput, true);
+                }
+
+                // Disable master toggle after all done
                 receiveAllToggle.disabled = true;
-            }
-        },
-        function () {
-                    // Cancel callback
-                    const receiveAllToggle = document.getElementById('receiveAllToggle');
-                    if (receiveAllToggle) {
-                        receiveAllToggle.checked = false;
-                    }
-                }
-            );
 
-        });
+                $('#loader').hide();
+                showSuccessMessage('All items received successfully.');
+            },
+            function onCancel() {
+                // User canceled
+                receiveAllToggle.checked = false;
+            }
+        );
+    });
+
 
         document.querySelectorAll(".select-all").forEach((checkbox) => {
                 checkbox.addEventListener("change", function () {
@@ -418,7 +436,7 @@
             const serialNo = row.querySelector("input[name*='[serial_no]']")?.value;
             const amount = row.querySelector("input[name*='[amount]']")?.value;
             const receivedCheckbox = row.querySelector("input[type='checkbox']");
-            const received = receivedCheckbox?.checked ? 1 : 0;
+            const received = all ? 1 : (receivedCheckbox?.checked ? 1 : 0);
             const remark = row.querySelector("input[name*='[remark]']")?.value;
 
             if (receivedCheckbox) {
@@ -438,6 +456,7 @@
 
         const csrfToken = "{{ csrf_token() }}";
 
+
         fetch('/assets/receive', {
             method: 'POST',
             headers: {
@@ -455,6 +474,7 @@
             if(!all){
             $('#loader').hide();
             showSuccessMessage('Item received successfully.');
+
             }
 
         })
@@ -464,6 +484,7 @@
         if(all){
             $('#loader').hide();
             showSuccessMessage('All Items received successfully.');
+
         }
     }
 

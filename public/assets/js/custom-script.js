@@ -1103,6 +1103,7 @@ function showSuccessMessage(message, reload = true, documentReferrer = null, ite
                 window.location.href = documentReferrer; // Redirect to the referrer
             } else if (reload && !itemType) {
                 location.reload(); // Reload the page if no referrer is provided
+                $('#loader').show();
             }
         }
     });
