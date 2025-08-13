@@ -31,7 +31,7 @@ class GeneralApporvalController extends Controller
                         $query->where('approver_emp_id', $user->id)
                             ->where('application_type', $modelClass); // Use class name directly
                     })
-                    ->whereNotIn('status', [-1, 3])
+                    ->whereNotIn('status', [-1, 3, 4])
                     ->filter($request, false)
                     ->when(!empty($extraConditions), function ($query) use ($extraConditions) {
                         $query->where($extraConditions);

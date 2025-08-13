@@ -56,12 +56,8 @@ class AttendanceDetailController extends Controller
             return $this->getDepartmentHeadEmployees($loggedInUserId);
         }
 
-        if (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
-            return $this->getImmediateHeadEmployees($loggedInUserId);
-        }
-
         if (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
-            return $this->getManagingDirectorEmployees();
+            return $this->getManagingDirectorEmployees($loggedInUserId);
         }
 
         if (in_array(ATTENDANCE_MANAGER, $allRoles)) {
@@ -87,29 +83,12 @@ class AttendanceDetailController extends Controller
             ->toArray();
     }
 
-    private function getImmediateHeadEmployees(int $loggedInUserId)
-    {
-        $loggedInUser = User::with('empJob')->find($loggedInUserId);
-
-        if (!$loggedInUser || !$loggedInUser->empJob || !$loggedInUser->empJob->mas_section_id) {
-            return [];
-        }
-
-        // Get all employees in the same section except the logged-in user
-        return User::whereHas('empJob', function ($query) use ($loggedInUser) {
-            $query->where('mas_section_id', $loggedInUser->empJob->mas_section_id);
-        })
-            ->where('id', '!=', $loggedInUserId)
-            ->pluck('id')
-            ->toArray();
-    }
-
-    private function getManagingDirectorEmployees()
+    private function getManagingDirectorEmployees($loggedInUserId)
     {
         // Get all users with DEPARTMENT_HEAD role
-        return User::whereHas('roles', function ($query) {
-            $query->where('role_id', DEPARTMENT_HEAD);
-        })
+        return User::where('is_active', 1)
+            ->where('id', '<>', SAP_USER_ID)
+            ->where('id', '<>', SUPER_USER_ID)
             ->pluck('id')
             ->toArray();
     }

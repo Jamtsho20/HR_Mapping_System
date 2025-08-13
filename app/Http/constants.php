@@ -134,3 +134,6 @@ const INFORMED_LATE_STATUS = 26;
 const LATE_STATUS = 29;
 
 const SIFA_LOAN_PAY_HEAD = 24;
+
+const SAP_USER_ID = 1;
+const SUPER_USER_ID = 2;
