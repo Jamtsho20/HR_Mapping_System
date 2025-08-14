@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Attendance Entry')
+@section('page-title', 'My Attendance')
 @section('content')
 @push('page_styles')
     <style>
