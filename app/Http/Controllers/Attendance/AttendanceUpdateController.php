@@ -78,6 +78,10 @@ class AttendanceUpdateController extends Controller
             return []; // Will fetch all employees
         }
 
+        if (in_array(ADMIN, $allRoles)) {
+            return []; // Will fetch all employees
+        }
+
         return [];
     }
 
@@ -148,8 +152,11 @@ class AttendanceUpdateController extends Controller
         $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUserId);
 
         // If no specific employee IDs (ATTENDANCE_MANAGER), show all employees
-        if (empty($employeeIds) && in_array(ATTENDANCE_MANAGER, $allRoles)) {
+        if (empty($employeeIds) && (in_array(ATTENDANCE_MANAGER, $allRoles) || in_array(ADMIN, $allRoles))) {
             return User::select(['id', 'name', 'employee_id', 'username', 'title'])
+                ->where('id', '<>', SUPER_USER_ID)
+                ->where('id', '<>', SAP_USER_ID)
+                ->active()
                 ->active() // Using the scope from your User model
                 ->get();
         }
