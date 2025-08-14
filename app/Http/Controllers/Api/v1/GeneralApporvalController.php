@@ -31,7 +31,7 @@ class GeneralApporvalController extends Controller
                         $query->where('approver_emp_id', $user->id)
                             ->where('application_type', $modelClass); // Use class name directly
                     })
-                    ->whereNotIn('status', [-1, 3, 4])
+                    ->whereNotIn('status', [-1, 3])
                     ->filter($request, false)
                     ->when(!empty($extraConditions), function ($query) use ($extraConditions) {
                         $query->where($extraConditions);
@@ -43,7 +43,11 @@ class GeneralApporvalController extends Controller
             $response = [
                 'leave_applications_count' => $fetchCount(LeaveApplication::class, ['employee:id,name,username', 'leaveType:id,name']),
                 'leave_encashment_applications_count' => $fetchCount(LeaveEncashmentApplication::class, ['employee:id,name,username'], [['created_at', '>=', Carbon::now()->startOfYear()]]),
-                'advance_applications_count' => $fetchCount(AdvanceApplication::class, ['advanceType:id,name', 'employee:id,name,username', 'advance_approved_by:id,name']),
+                'advance_applications_count' => $fetchCount(AdvanceApplication::class, 
+                                                    ['advanceType:id,name', 'employee:id,name,username', 'advance_approved_by:id,name'],
+                                                    function ($query) {
+                                                        $query->where('type_id', '!=', 7);
+                                                    }),
                 'travel_authorization_applications_count' => $fetchCount(TravelAuthorizationApplication::class, ['employee:id,name,username', 'travelType:id,name']),
                 'expense_applications_count' => $fetchCount(ExpenseApplication::class, ['type:id,name', 'employee:id,name,username']),
                 'dsa_claim_applications_count' => $fetchCount(DsaClaimApplication::class, ['employee:id,name,username']),

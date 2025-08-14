@@ -40,7 +40,7 @@ class AttendanceUpdateController extends Controller
         $filterDate = $this->getFilterDate($request);
         $employeeFilter = $request->get('employee');
 
-        $employeeIds = $this->getEmployeeIdsByRole($userRoleIds, $allRoles, $loggedInUser->id);
+        $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUser->id);
         $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter);
         $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
 
@@ -60,17 +60,17 @@ class AttendanceUpdateController extends Controller
         }
     }
 
-    private function getEmployeeIdsByRole(array $userRoleIds, array $allRoles, int $loggedInUserId)
+    private function getEmployeeIdsByRole(array $allRoles, int $loggedInUserId)
     {
-        if (in_array(DEPARTMENT_HEAD, $userRoleIds)) {
+        if (in_array(DEPARTMENT_HEAD, $allRoles)) {
             return $this->getDepartmentHeadEmployees($loggedInUserId);
         }
 
-        if (in_array(IMMEDIATE_HEAD, $userRoleIds)) {
+        if (in_array(IMMEDIATE_HEAD, $allRoles)) {
             return $this->getImmediateHeadEmployees($loggedInUserId);
         }
 
-        if (in_array(MANAGING_DIRECTOR, $userRoleIds)) {
+        if (in_array(MANAGING_DIRECTOR, $allRoles)) {
             return $this->getManagingDirectorEmployees();
         }
 
@@ -145,7 +145,7 @@ class AttendanceUpdateController extends Controller
 
     private function getEmployeesForFilter(array $userRoleIds, array $allRoles, int $loggedInUserId)
     {
-        $employeeIds = $this->getEmployeeIdsByRole($userRoleIds, $allRoles, $loggedInUserId);
+        $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUserId);
 
         // If no specific employee IDs (ATTENDANCE_MANAGER), show all employees
         if (empty($employeeIds) && in_array(ATTENDANCE_MANAGER, $allRoles)) {

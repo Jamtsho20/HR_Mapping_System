@@ -56,6 +56,7 @@ class UserController extends Controller
                 ->first();
             
             return response()->json([
+                
                 'message' => 'Profile picture updated successfully.',
                 'user' => $userDetail,
                 
