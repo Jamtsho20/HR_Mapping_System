@@ -15,10 +15,16 @@
 
         </div>
     </div>
-
     <br>
     <div class="block-header block-header-default">
         @component('layouts.includes.filter')
+            <div class="col-md-2 form-group">
+                <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}"
+                    placeholder="Name">
+            </div>
+            <div class="col-2 form-group">
+                <input type="month" name="year" class="form-control" value="{{ request()->get('year') }}">
+            </div>
             <div class="col-md-2 form-group">
                 <select class="form-control select2 select2-hidden-accessible" data-placeholder="Select Department"
                     name="department">
