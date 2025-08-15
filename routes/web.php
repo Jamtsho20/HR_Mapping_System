@@ -214,6 +214,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('attendance-update', 'AttendanceUpdateController');
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
         Route::resource('attendance-status', 'AttendanceStatusController');
+        Route::resource('attendance-detail', 'AttendanceDetailController')->except('create', 'show', 'edit');
     });
 
     // attendance report

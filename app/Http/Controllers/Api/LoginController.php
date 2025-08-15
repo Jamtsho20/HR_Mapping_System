@@ -61,7 +61,7 @@ class LoginController extends Controller
             $token = $user->createToken($request->username)->plainTextToken;
             // if device is not registered then create it for attendance validation purpose uncomment this line
             $existingDevice = EmployeeDevices::where('employee_id', $user->id)
-                ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
+                // ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
                 ->first();
             
 
@@ -80,7 +80,8 @@ class LoginController extends Controller
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
-                'device_id' => $existingDevice->device_id ?? null
+                'device_id' => $request->device_id ?? $existingDevice?->device_id ?? null
+                // 'device_id' => $existingDevice->device_id ?? null
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
