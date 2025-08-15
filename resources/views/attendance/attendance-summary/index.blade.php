@@ -96,17 +96,6 @@
                                                         @php
                                                             $data = $attendance['attendanceMap'][$day] ?? null;
                                                             $isToday = now()->day;
-                                                            // $tooltip = '';
-                                                            // if (!empty($data['attendance_date']) && $data['attendance_date'] != '-') {
-                                                            //     $date = \Carbon\Carbon::createFromFormat('d-m-y', $data['attendance_date']);
-                                                            //     if ($date->lessThanOrEqualTo(now())) {
-                                                            //         $tooltip = "Check-in: " . ($data['check_in_at'] ?? config('global.null_value')) . "&#10;" .
-                                                            //                 "Check-out: " . ($data['check_out_at'] ?? config('global.null_value')) . "&#10;" .
-                                                            //                 "Status: " . ($data['attendance_status_code'] ?? config('global.null_value')) . " - " . ($data['attendance_status_description'] ?? config('global.null_value')) . "&#10;" .
-                                                            //                 "Worked Hours: " . ($data['worked_hours'] ?? config('global.null_value')) . "&#10;" .
-                                                            //                 "Date: " . ($data['attendance_date'] ?? config('global.null_value'));
-                                                            //     }
-                                                            // }
                                                         @endphp
                                                         <td class="text-center fw-bold"
                                                             style="color: {{ $data['status_color'] ?? '#929898' }}; {{ $day == $isToday ? 'background-color: #e2f5ce;' : '' }}"
