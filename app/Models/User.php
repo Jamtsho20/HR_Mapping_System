@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\CreatedByTrait;
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -181,6 +182,13 @@ class User extends Authenticatable
         if ($request->has('cid_no') && $request->query('cid_no') != '') {
             $query->where('cid_no', '=', $request->query('cid_no'));
         }
+        if ($request->get('year')) {
+            $date = Carbon::createFromFormat('Y-m', $request->get('year'))->startOfMonth();
+            $query->where('date_of_appointment', '<', $date);
+        }
+
+
+
 
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('mas_employees.name', 'LIKE', '%' . $request->query('name') . '%');
@@ -244,7 +252,7 @@ class User extends Authenticatable
 
     public function getEmpIdNameAttribute()
     {
-        return $this->username . ' - ' . $this->title . ' ' . $this->name ;
+        return $this->username . ' - ' . $this->title . ' ' . $this->name;
     }
 
     public function getEmpNameAttribute() //combination of title and full name while display

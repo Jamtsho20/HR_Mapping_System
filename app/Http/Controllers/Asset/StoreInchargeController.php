@@ -23,15 +23,27 @@ class StoreInchargeController extends Controller
 
             $privileges = $request->instance();
             $inchargeId = auth()->user()->id;
-            $toBeReturned = AssetReturnApplication::where('status', 3)->where('received_acknowledged', 0)->whereHas('details', function ($query) use ($inchargeId) {
-                $query->whereHas('store', function ($query) use ($inchargeId) {
+            $toBeReturned = AssetReturnApplication::where('status', 3)
+                ->where('received_acknowledged', 0)
+                ->whereHas('details.store', function ($query) use ($inchargeId) {
                     $query->where('store_incharge', $inchargeId);
-                });})->get();
-            $returned = AssetReturnApplication::where('received_acknowledged', 1)->whereHas('details', function ($query) use ($inchargeId) {
-                $query->whereHas('store', function ($query) use ($inchargeId) {
+                })
+                ->with(['details' => function ($query) use ($inchargeId) {
+                    $query->whereHas('store', function ($query) use ($inchargeId) {
+                        $query->where('store_incharge', $inchargeId);
+                    });
+                }])
+                ->get();
+            $returned = AssetReturnApplication::where('received_acknowledged', 1)->
+            whereHas('details.store', function ($query) use ($inchargeId) {
                     $query->where('store_incharge', $inchargeId);
-                });})->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
-         
+                })
+                ->with(['details' => function ($query) use ($inchargeId) {
+                    $query->whereHas('store', function ($query) use ($inchargeId) {
+                        $query->where('store_incharge', $inchargeId);
+                    });
+                }])->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
+
             // $userAssets = $assets->concat($assetTransfer);
 
         return view('asset.store-incharge.index', compact('privileges','toBeReturned', 'returned'));
@@ -39,7 +51,14 @@ class StoreInchargeController extends Controller
 
     public function show(string $id)
     {
-        $return = AssetReturnApplication::with('details')->findOrFail($id);
+        $inchargeId = auth()->user()->id;
+        $return = AssetReturnApplication::whereHas('details.store', function ($query) use ($inchargeId) {
+                    $query->where('store_incharge', $inchargeId);
+                })->with(['details' => function ($query) use ($inchargeId) {
+                    $query->whereHas('store', function ($query) use ($inchargeId) {
+                        $query->where('store_incharge', $inchargeId);
+                    });
+                }])->findOrFail($id);
         $approvalDetail = getApplicationLogs(\App\Models\AssetReturnApplication::class, $return->id);
         $dzongkhags = MasDzongkhag::select('id', 'dzongkhag')->get();
         $stores = MasStore::select('id', 'name')->get();
