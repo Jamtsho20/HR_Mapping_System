@@ -172,7 +172,7 @@
 
                                     <td>
                                         <input type="date" class="form-control  resetKeyForNew"
-                                            name="details[AAAAA][date_placed_in_service]" required />
+                                            name="details[AAAAA][date_placed_in_service]" max="{{ date('Y-m-d') }}" required />
                                     </td>
 
                                     <td>

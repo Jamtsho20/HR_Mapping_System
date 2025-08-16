@@ -28,7 +28,6 @@
                                                 <th>EMPLOYEE</th>
                                                 <th>ASSET RETURN NUMBER</th>
                                                 <th>RETURN DATE</th>
-                                                <th>RETURN STORE</th>
                                                 <th>ACKNOWLEDGE </th>
                                                 <th>STATUS</th>
                                                 <th>VIEW</th>
@@ -46,10 +45,6 @@
                                                 <td>{{ $application->employee->emp_id_name }}</td>
                                                 <td>{{ $application->transaction_no }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($application->transaction_date)->format('d-M-Y') }}</td>
-                                                <td>@foreach($application->details as $detail)
-                                                    <div>{{ $detail->store->name ?? 'N/A' }}</div>
-                                                    @endforeach
-                                                </td>
                                                 <td class="text-center">
 
                                                         <input
@@ -94,10 +89,6 @@
                                                 <td>{{ $application->employee->emp_id_name }}</td>
                                                 <td>{{ $application->transaction_no }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($application->transaction_date)->format('d-M-Y') }}</td>
-                                                <td>@foreach($application->details as $detail)
-                                                    <div>{{ $detail->store->name ?? 'N/A' }}</div>
-                                                    @endforeach
-                                                </td>
                                                 <td class="text-center">
                                                     <input type="checkbox" style="accent-color: primary; pointer-events: none;"
                                                         {{ $application->received_acknowledged ? 'checked' : '' }}>
@@ -128,7 +119,7 @@
                                             @endforelse
                                             @endif
 
-                                            @if(!$toBeReturned->isEmpty() && !$returned->isEmpty())
+                                            @if($toBeReturned->isEmpty() && $returned->isEmpty())
                                             <tr>
                                                 <td colspan="7" class="text-center text-info">No Returns Found</td>
                                             </tr>

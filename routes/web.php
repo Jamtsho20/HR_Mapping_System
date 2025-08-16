@@ -36,6 +36,7 @@ use App\Http\Controllers\WorkStructure\BusinessUnitController;
 use App\Http\Controllers\AssetReport\GoodIssueReportController;
 use App\Http\Controllers\AssetReport\GoodReceiptReportController;
 use App\Http\Controllers\AssetReport\AssetTransferReportController;
+use App\Http\Controllers\AssetReport\AssetReturnReportController;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
 use App\Models\User;
@@ -419,6 +420,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/export-good-transfer-report', [AssetTransferReportController::class, 'exportPdf'])->name('good-transfer-report-pdf.export');
     Route::get('/export-good-transfer-excel-report', [AssetTransferReportController::class, 'exportExcel'])->name('good-transfer-report-excel.export');
+
+    Route::get('/export-asset-report', [AssetReturnReportController::class, 'exportAssetPdf'])->name('good-return-report-pdf.export');
+    Route::get('/export-asset-excel-report', [AssetReturnReportController::class, 'exportAssetExcel'])->name('good-return-report-excel.export');
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
@@ -447,6 +451,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-good-issue-report', [GoodIssueReportController::class, 'printGoodIssue'])->name('good-issue-report-print');
     Route::get('/print-good-receipt-report', [GoodReceiptReportController::class, 'printGoodReceipt'])->name('good-receipt-report-print');
     Route::get('/print-good-transfer-report', [AssetTransferReportController::class, 'print'])->name('good-transfer-report-print');
+    Route::get('/print-good-return-report', [AssetReturnReportController::class, 'print'])->name('good-return-report-print');
     //Assets
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
