@@ -37,8 +37,8 @@
     $employeeName = $user->name ?? 'User';
 @endphp
 
-<div class="card mb-4 shadow-sm border-0">
-    <div class="card-body py-3">
+<div class="card mb-2 shadow-sm border-0">
+    <div class="card-body py-0">
         <h4 class="fw-bold mb-0 fs-5">
             {{ $icon }} {{ $greeting }}, {{ $title }} {{ $employeeName }}!
         </h4>
