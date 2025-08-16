@@ -43,6 +43,7 @@ class UploadAttendanceDetailsDaily extends Command
                     $departmentId = optional($employee->empJob)->mas_department_id;
                     $sectionId = optional($employee->empJob)->mas_section_id;
                     $regionId = optional(optional($employee->empJob)->office)->mas_region_id;
+                
 
                     // if ((!$departmentId && !$sectionId) || !$regionId) {
                     if (!$regionId) {
