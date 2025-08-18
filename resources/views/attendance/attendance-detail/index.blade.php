@@ -42,10 +42,10 @@
                                                         #
                                                     </th>
                                                     <th>
-                                                        Attendance Date
+                                                        Employee
                                                     </th>
                                                     <th>
-                                                        Employee
+                                                        Attendance Date
                                                     </th>
                                                     <th>
                                                         Clocked-in At

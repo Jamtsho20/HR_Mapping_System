@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Attendance Update')
 @section('content')
+
 @if ($privileges->create)
 
 @endif
@@ -44,10 +45,10 @@
                                                         #
                                                     </th>
                                                     <th>
-                                                        Attendance Date
+                                                        Employee
                                                     </th>
                                                     <th>
-                                                        Employee
+                                                        Attendance Date
                                                     </th>
                                                     <th>
                                                         Clocked-in At
@@ -77,8 +78,8 @@
                                                 @foreach($attendanceRecords as $record)
                                                 <tr>
                                                     <td style="text-align: right;">{{ $loop->iteration }}</td>
-                                                    <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
                                                     <td>{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
+                                                    <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_in_at ?? config('global.null_value') }}</td>
                                                     <td title="{{ $record->checkedInFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedInFrom->name ?? config('global.null_value'), 10) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_out_at ?? config('global.null_value') }}</td>

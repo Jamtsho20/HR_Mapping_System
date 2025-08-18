@@ -8,6 +8,60 @@
             text-align: left !important;
             white-space: pre-line;
         }
+
+        .table-responsive {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px; /* optional: scroll area height */
+            position: relative;
+        }
+
+        .table th,
+        .table td {
+            white-space: nowrap;
+        }
+
+        /* Freeze header row */
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: #f8f9fa;
+        }
+
+        /* Freeze first column */
+        .table th:first-child,
+        .table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 6;
+            background: #fff;
+        }
+
+        /* Freeze second column */
+        .table th:nth-child(2),
+        .table td:nth-child(2) {
+            position: sticky;
+            left: 60px; /* adjust according to col # width */
+            z-index: 6;
+            background: #fff;
+        }
+
+        /* Special rule: header + frozen column */
+        .table thead th:first-child {
+            top: 0;
+            left: 0;
+            z-index: 7; /* above everything */
+            background: #f1f1f9;
+        }
+
+        .table thead th:nth-child(2) {
+            top: 0;
+            left: 60px;
+            z-index: 7;
+            background: #f1f1f9;
+        }
+
     </style>
 @endpush
 
