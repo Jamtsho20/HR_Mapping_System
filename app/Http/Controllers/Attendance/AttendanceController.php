@@ -18,10 +18,10 @@ class AttendanceController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('permission:attendance/attendance-entry,view')->only('index');
-        $this->middleware('permission:attendance/attendance-entry,create')->only('store');
-        $this->middleware('permission:attendance/attendance-entry,edit')->only('update');
-        $this->middleware('permission:attendance/attendance-entry,delete')->only('destroy');
+        $this->middleware('permission:attendance/my-attendance,view')->only('index');
+        $this->middleware('permission:attendance/my-attendance,create')->only('store');
+        $this->middleware('permission:attendance/my-attendance,edit')->only('update');
+        $this->middleware('permission:attendance/my-attendance,delete')->only('destroy');
     }
 
     public function index(Request $request)

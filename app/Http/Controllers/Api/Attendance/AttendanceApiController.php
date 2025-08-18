@@ -143,7 +143,7 @@ class AttendanceApiController extends Controller
                     $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $attendanceStatus;
                 }
             }
-            dd($attendanceStatus);
+            
             // Update history JSON safely
             $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
             $history[] = [
