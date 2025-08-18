@@ -770,6 +770,16 @@ class EmployeeController extends Controller
             ]
         ];
 
+        $profitCenterEmpData = [
+            'CenterCode' => $employee->username ?? '',
+            'CenterName' => $employee->name ?? '',
+            'InWhichDimension' => 4,
+            'EffectiveFrom' => date('Y-m-d'),
+            'EffectiveTo' => null,
+            'Active' => 'Y'
+        ];
+
+        $this ->apiController->postProfitCenter($profitCenterEmpData);
         $this->apiController->postEmployeeToSap($sapData);
     }
 
