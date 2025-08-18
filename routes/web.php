@@ -167,7 +167,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
-        Route::resource('gewogs', 'GewogController');
+        Route::resource('gewogs', 'GewogController'); 
         Route::resource('leave-types', 'LeaveTypeController');
         Route::resource('nationalities', 'NationalityController');
         Route::resource('section', 'SectionController');
