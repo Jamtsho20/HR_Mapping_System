@@ -41,17 +41,17 @@
                                         <div class="dataTables_scroll">
                                             <div class="dataTables_scrollHead"
                                                 style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                                <div class="dataTables_scrollHeadInner"
+                                                <div class="dataTables_scrollHeadInner freeze-table-col-wrapper"
                                                     style="box-sizing: content-box; padding-right: 0px;">
                                                     <table
                                                         class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                                         id="basic-datatable table-responsive">
                                                         <thead>
                                                             <tr role="row" class="thead-light">
-                                                                <th>
+                                                                <th class="freeze-col">
                                                                     #
                                                                 </th>
-                                                                <th>
+                                                                <th class="freeze-col">
                                                                     For Month
                                                                 </th>
                                                                 @foreach($days as $day)
@@ -70,8 +70,8 @@
                                                                     $isCurrentMonth = $monthName === $currentMonthName;
                                                                 @endphp
                                                                 <tr style="{{ $isCurrentMonth ? 'background-color: #e2f5ce;' : '' }}">
-                                                                    <td>{{ $index + 1 }}</td>
-                                                                    <td>{{ $monthName }}</td>
+                                                                    <td class="freeze-col">{{ $index + 1 }}</td>
+                                                                    <td class="freeze-col">{{ $monthName }}</td>
 
                                                                     @foreach ($days as $day)
                                                                         @php
