@@ -11,7 +11,7 @@ class MasAssets extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = [ 'serial_number', 'current_employee_id', 'item_id', 'current_site_id', 'received_serial_id', 'commission_detail_id', 'asset_transfer_detail_id', 'return_detail_id', 'initial_owner_id', 'created_by', 'updated_by', 'status' ];
+    protected $fillable = [ 'serial_number', 'current_employee_id', 'item_id', 'current_site_id', 'received_serial_id', 'commission_detail_id', 'asset_transfer_detail_id', 'return_detail_id', 'initial_owner_id', 'created_by', 'updated_by', 'status', 'quantity', 'amount', 'description', 'current_depreciation', 'item_code', 'depreciation_type', 'asset_transfer_id','uom' ];
 
     public function receivedSerial()
     {
@@ -75,18 +75,20 @@ class MasAssets extends Model
             'current_site_id' => $asset->current_site_id,
             'asset_transfer_detail_id' => $asset->asset_transfer_detail_id,
             'return_detail_id' => $asset->return_detail_id,
+            'current_depreciation' => $asset->current_depreciation
         ]);
     });
 
     static::updated(function ($asset) {
         // Log when key fields are updated
-        if ($asset->wasChanged(['current_employee_id', 'current_site_id', 'asset_transfer_detail_id', 'return_detail_id'])) {
+        if ($asset->wasChanged(['current_employee_id', 'current_site_id', 'asset_transfer_detail_id', 'return_detail_id', 'current_depreciation', 'item_code', 'description', 'quantity', 'amount'])) {
             MasAssetLog::create([
                 'asset_id' => $asset->id,
                 'current_employee_id' => $asset->current_employee_id,
                 'current_site_id' => $asset->current_site_id,
                 'asset_transfer_detail_id' => $asset->asset_transfer_detail_id,
                 'return_detail_id' => $asset->return_detail_id,
+                'current_depreciation' => $asset->current_depreciation
             ]);
         }
     });

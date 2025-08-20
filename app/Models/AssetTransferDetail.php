@@ -11,16 +11,21 @@ class AssetTransferDetail extends Model
 
     protected $fillable = [
         'asset_transfer_id',
-        'received_serial_id'
+        'mas_asset_id'
     ];
     public function assetTransfer()
     {
         return $this->belongsTo(AssetTransferApplication::class, 'asset_transfer_id');
     }
 
-    public function receivedSerial(){
-        return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
+    public function asset()
+    {
+        return $this->belongsTo(MasAssets::class, 'mas_asset_id');
     }
+
+    // public function receivedSerial(){
+    //     return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');
+    // }
 
     public function scopeReceivedSerial($query)
     {

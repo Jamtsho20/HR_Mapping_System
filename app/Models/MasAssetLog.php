@@ -15,6 +15,7 @@ class MasAssetLog extends Model
         'current_employee_id',
         'current_site_id',
         'asset_transfer_detail_id',
-        'return_detail_id'
+        'return_detail_id',
+        'current_depreciation'
     ];
 }

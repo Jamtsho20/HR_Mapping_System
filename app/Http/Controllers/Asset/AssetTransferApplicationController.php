@@ -13,6 +13,7 @@ use App\Services\ApplicationHistoriesService;
 use App\Mail\ApplicationForwardedMail;
 use App\Models\AssetTransferApplication;
 use App\Models\AssetTransferDetail;
+use App\Models\MasAssets;
 use App\Models\RequisitionDetail;
 use App\Models\MasSiteSupervisor;
 use Illuminate\Support\Facades\Mail;
@@ -129,7 +130,6 @@ class AssetTransferApplicationController extends Controller
      */
     public function store(Request $request)
     {
-
         if ($request->hasFile('attachments')) {
             $this->rules['attachments'] = 'array'; // Ensure attachments is an array
             $this->rules['attachments.*'] = 'file|mimes:pdf,jpg,png,docx|max:2048';
@@ -164,9 +164,9 @@ class AssetTransferApplicationController extends Controller
                 $dzongkhag_id = MasSite::where('id', $request->to_site)->pluck('dzongkhag_id')->first();
 
                 $to_employee = \App\Models\MasSiteSupervisor::where('dzongkhag_id', $dzongkhag_id)
-                    ->pluck('employee_id')
+                ->pluck('employee_id')
                     ->first();
-            }
+                }
         }
 
         try{
@@ -185,14 +185,18 @@ class AssetTransferApplicationController extends Controller
             ]);
 
             foreach ($request->details as $detail) {
-                $received_serial = ReceivedSerial::where('id', $detail['asset_no'])->first();
-                $received_serial->is_transfered = 1;
-                $received_serial->is_transfered_to = $to_employee  ?? $request->to_employee ?? null;
-                $received_serial->save();
+
+                $mas_assets = MasAssets::where('id', $detail['asset_no'])->first();
+
+                if($mas_assets->receivedSerial){
+                    $mas_assets->receivedSerial->is_transfered = 1;
+                    $mas_assets->receivedSerial->is_transfered_to = $to_employee ?? $request->to_employee ?? null;
+                    $mas_assets->receivedSerial->save();
+                }
 
                 $application->details()->create([
                     'asset_transfer_id' => $application->id,
-                    'received_serial_id' => $detail['asset_no']
+                    'mas_asset_id' => $detail['asset_no']
                 ]);
             }
 

@@ -778,12 +778,12 @@ class AjaxRequestController extends Controller
             // ->get();
 
 
-            $assetNos = MasAssets::where('current_employee_id', $empID)
-                ->when($siteID, function ($query, $siteID) {
-                    return $query->where('current_site_id', $siteID);
-                })
-                ->with('receivedSerial.requisitionDetail.grnItemDetail.item')
-                ->get();
+            if($siteID == null){
+                $assetNos = MasAssets::where('current_employee_id', $empID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+            }else{
+                $assetNos = MasAssets::where('current_site_id', $siteID)->with('receivedSerial.requisitionDetail.grnItemDetail.item')->get();
+            }
+           
 
 
             return $this->successResponse($assetNos);

@@ -1,4 +1,5 @@
 @extends('layouts.app')
+<script src="{{ asset('assets/js/custom-script.js') }}?v={{ filemtime(public_path('assets/js/custom-script.js')) }}"></script>
 @section('page-title', 'Requisition')
 @section('buttons')
 <a href="{{ url('asset/requisition') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Requisition List</a>
@@ -233,7 +234,7 @@
                     toggle.checked = true;
                     toggle.disabled = true;
 
-                    receiveSerialItems(requisitionKey, grnId, quantityInput, true);
+                    await receiveSerialItems(requisitionKey, grnId, quantityInput, true);
                 }
 
                 // Disable master toggle after all done
@@ -459,8 +460,9 @@
 
         fetch('/assets/receive', {
             method: 'POST',
-            headers: {
+           headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrfToken
             },
             body: JSON.stringify({
