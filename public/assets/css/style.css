@@ -60480,7 +60480,7 @@ html [type="button"],
 .freeze-table-col-wrapper .table thead th {
     position: sticky;
     top: 0;
-    z-index: 5;
+    z-index: 4;
     background: #f1f1f9;
 }
 
@@ -60488,13 +60488,13 @@ html [type="button"],
 .freeze-table-col-wrapper .table .freeze-col {
     position: sticky;
     background: #fff;
-    z-index: 6;
+    z-index: 5;
 }
 
 /* header + frozen column */
 .freeze-table-col-wrapper .table thead .freeze-col {
     background: #f1f1f9;
-    z-index: 7;
+    z-index: 6;
 }
 
 /*# sourceMappingURL=style.css.map */

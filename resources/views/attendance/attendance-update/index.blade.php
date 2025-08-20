@@ -8,10 +8,10 @@
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="row">
-        <div class="col-6 form-group">
+        <div class="col-3 form-group">
             <input type="date" id="date" name="date" class="form-control" value="{{ $selectedDate }}" onchange="this.form.submit()">
         </div>
-        <div class="col-6 form-group">
+        <div class="col-3 form-group">
             <select name="employee" class="form-control select2" onchange="this.form.submit()">
                 <option value="">-- Select Employee --</option>
                 @foreach ($employees as $employee)
