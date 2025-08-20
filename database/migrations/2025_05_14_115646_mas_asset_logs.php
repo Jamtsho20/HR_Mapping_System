@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('current_site_id')->nullable()->constrained('mas_sites');
             $table->foreignId('asset_transfer_detail_id')->constrained('asset_transfer_details')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('return_detail_id')->constrained('return_details')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->integer('quantity')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
     }

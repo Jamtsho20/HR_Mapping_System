@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->tinyInteger('status')->default(1)->comment('1 = commissioned, 2 = transferred, 3 = returned');
+            $table->decimal('amount', 10, 2);
+            $table->integer('quantity')->nullable();
             $table->timestamps();
         });
     }

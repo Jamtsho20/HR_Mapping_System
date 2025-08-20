@@ -131,17 +131,20 @@
                                             {{ $loop->iteration }}
                                         </td>
                                         <td class="text-center">
-                                            {{ $detail->receivedSerial->requisitionDetail?->grnItemDetail->item->item_no . '-' . $detail->receivedSerial->asset_serial_no }}
+                                           {{ $detail->asset->receivedSerial
+                                                ? $detail->asset->receivedSerial->requisitionDetail?->grnItemDetail->item->item_no . '-' . $detail->asset->receivedSerial->asset_serial_no
+                                                : $detail->asset->item_code . '-' . $detail->asset->serial_number }}
+
                                         </td>
                                         <td class="text-center">
-                                            {{  $detail->receivedSerial->asset_description ?? $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_description }}
+                                            {{  $detail->asset->receivedSerial?->asset_description ?? $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->item_description ?? $detail->asset->description }}
                                         </td>
                                         <td class="text-center">
-                                            {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom }}
+                                            {{ $detail->asset->receivedSerial?->requisitionDetail->grnItemDetail->item->uom ?? $detail->asset->uom }}
                                         </td>
-                                        <td class="text-right">{{ $detail->receivedSerial->quantity ?? 1 }}</td>
+                                        <td class="text-right">{{ $detail->asset->receivedSerial?->quantity ?? $detail->asset->quantity ?? 1 }}</td>
                                         <td class="text-right">
-                                            {{ $detail->receivedSerial->amount }}
+                                            {{ $detail->asset->receivedSerial?->amount ?? $detail->asset->amount ?? ''}}
                                         </td>
                                         <td class="text-center">
                                             {{ \Carbon\Carbon::parse($detail->date_placed_in_service)->format('d-M-Y') }}

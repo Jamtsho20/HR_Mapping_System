@@ -69,15 +69,27 @@ class RequisitionApplicationController extends Controller
          return view('asset.requisition-apply.index', compact('privileges', 'requisitions', 'reqTypes'));
      }
 
-     public function receive(string $id)
-     {
-        $requisition = RequisitionApplication::with('histories', 'details.serials')->find($id);
-        if($requisition->type_id == 1){
-            return view('asset.requisition-apply.receive', compact('requisition'));
-        }else{
-            return view('asset.requisition-apply.receive-consumable', compact('requisition'));
+    public function receive(string $id)
+        {
+            $requisition = RequisitionApplication::with('histories', 'details.serials')->findOrFail($id);
+
+            if ($requisition->type_id == 1) {
+                return response(
+                    view('asset.requisition-apply.receive', compact('requisition'))
+                )
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+            } else {
+                return response(
+                    view('asset.requisition-apply.receive-consumable', compact('requisition'))
+                )
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+            }
         }
-     }
+
      /**
       * Show the form for creating a new resource.
       */
