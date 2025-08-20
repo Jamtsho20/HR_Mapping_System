@@ -167,7 +167,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
-        Route::resource('gewogs', 'GewogController');
+        Route::resource('gewogs', 'GewogController'); 
         Route::resource('leave-types', 'LeaveTypeController');
         Route::resource('nationalities', 'NationalityController');
         Route::resource('section', 'SectionController');
@@ -211,7 +211,8 @@ Route::middleware('auth')->group(function () {
 
     // ATTENDANCE
     Route::namespace('Attendance')->prefix('attendance')->group(function () {
-        Route::resource('attendance-entry', 'AttendanceController')->except('create', 'show', 'edit');
+        // Route::resource('attendance-entry', 'AttendanceController')->except('create', 'show', 'edit');
+        Route::resource('my-attendance', 'AttendanceController')->except('create', 'show', 'edit');
         Route::resource('attendance-update', 'AttendanceUpdateController');
         Route::resource('attendance-summary', 'AttendanceSummaryController')->except('create', 'show', 'edit');
         Route::resource('attendance-status', 'AttendanceStatusController');

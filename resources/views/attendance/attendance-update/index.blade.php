@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('page-title', 'Attendance Update')
 @section('content')
+
 @if ($privileges->create)
 
 @endif
@@ -33,21 +34,21 @@
                             <div class="dataTables_scroll">
                                 <div class="dataTables_scrollHead"
                                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                    <div class="dataTables_scrollHeadInner"
+                                    <div class="dataTables_scrollHeadInner freeze-table-col-wrapper"
                                         style="box-sizing: content-box; padding-right: 0px;">
                                         <table
                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                             id="basic-datatable table-responsive">
                                             <thead>
                                                 <tr role="row" class="thead-light" style="text-align: center;">
-                                                    <th>
+                                                    <th class="freeze-col">
                                                         #
                                                     </th>
-                                                    <th>
-                                                        Attendance Date
-                                                    </th>
-                                                    <th>
+                                                    <th class="freeze-col">
                                                         Employee
+                                                    </th>
+                                                    <th class="freeze-col">
+                                                        Attendance Date
                                                     </th>
                                                     <th>
                                                         Clocked-in At
@@ -76,9 +77,9 @@
                                             <tbody>
                                                 @foreach($attendanceRecords as $record)
                                                 <tr>
-                                                    <td style="text-align: right;">{{ $loop->iteration }}</td>
-                                                    <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
-                                                    <td>{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
+                                                    <td class="freeze-col" style="text-align: right;">{{ $loop->iteration }}</td>
+                                                    <td class="freeze-col">{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
+                                                    <td class="freeze-col" style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_in_at ?? config('global.null_value') }}</td>
                                                     <td title="{{ $record->checkedInFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedInFrom->name ?? config('global.null_value'), 10) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_out_at ?? config('global.null_value') }}</td>

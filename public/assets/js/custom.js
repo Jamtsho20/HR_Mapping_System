@@ -226,6 +226,59 @@
 		$("head link#sidemenu-theme").attr("href", $(this).data("sidetheme"));
 	});
 
+	// for sticky columns and freezing columns implemented in attendance module index page can use globally for any tabular report
+	function setupStickyCols() {
+		$('.freeze-table-col-wrapper .table').each(function() {
+			var $table = $(this);
+			var $rows = $table.find('tr');
+			if (!$rows.length) return;
+
+			// find indexes of headers marked freeze-col
+			var stickyIdx = [];
+			$table.find('thead tr:first th').each(function(i) {
+				if ($(this).hasClass('freeze-col')) stickyIdx.push(i);
+			});
+			if (!stickyIdx.length) return;
+
+			// clear previous left
+			$rows.each(function() {
+				var $cells = $(this).children();
+				stickyIdx.forEach(function(ci) {
+					$cells.eq(ci).css('left', '');
+				});
+			});
+
+			// compute widths & set left
+			var left = 0;
+			stickyIdx.forEach(function(ci) {
+				var maxW = 0;
+				$rows.each(function() {
+					var $cell = $(this).children().eq(ci);
+					if ($cell.length) {
+						var w = $cell.get(0).getBoundingClientRect().width;
+						if (w > maxW) maxW = w;
+					}
+				});
+				$rows.each(function() {
+					var $cell = $(this).children().eq(ci);
+					if ($cell.length) {
+						$cell.css('left', left + 'px');
+					}
+				});
+				left += Math.ceil(maxW);
+			});
+		});
+	}
+
+	setupStickyCols();
+	$(window).on('resize', setupStickyCols);
+
+	if ($.fn.dataTable) {
+		$(document).on('draw.dt', function() {
+			setupStickyCols();
+		});
+	}
+
 	/*Theme-layout*/
 	
 
