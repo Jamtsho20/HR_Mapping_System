@@ -204,7 +204,7 @@ class ApiController extends BaseController
 
                     if ($existingItemDetail) {
                         // Update stock if item already exists
-                        $existingItemDetail->quantity += $detail['quantity'];
+                        $existingItemDetail->quantity = $detail['quantity'];
                         $existingItemDetail->save();
                     } else {
                         // Create a new record if item does not exist
