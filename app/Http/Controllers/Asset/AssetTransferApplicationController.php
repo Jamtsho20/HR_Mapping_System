@@ -94,11 +94,11 @@ class AssetTransferApplicationController extends Controller
     public function myAssetIndex(Request $request){
         $privileges = $request->instance();
         $transferTypes = MasTransferType::get(['id', 'name']);
-        $toBeTransferedToUserAsset = AssetTransferApplication::where('status', 3)->where('received_acknowledged', 0)->whereHas('details.receivedSerial', function ($query) {
-            $query->where('is_transfered_to', auth()->user()->id);
+        $toBeTransferedToUserAsset = AssetTransferApplication::where('status', 3)->where('received_acknowledged', 0)->whereHas('details.asset', function ($query) {
+            $query->where('current_employee_id', auth()->user()->id);
         })->get();
-        $transferedToUser = AssetTransferApplication::where('received_acknowledged', 1)->whereHas('details.receivedSerial', function ($query) {
-            $query->where('is_transfered_to', auth()->user()->id);
+        $transferedToUser = AssetTransferApplication::where('received_acknowledged', 1)->whereHas('details.asset', function ($query) {
+            $query->where('current_employee_id', auth()->user()->id);
         })->filter($request)->orderBy('created_at')->paginate(config('global.pagination'))->withQueryString();
 
         // $userAssets = $assets->concat($assetTransfer);

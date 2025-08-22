@@ -44,7 +44,7 @@ class CommissionExport implements FromCollection, WithHeadings
                     $comm->transaction_no,
                     $comm->transaction_date,
                     $detail->receivedSerial->asset_serial_no ?? '-',
-                    \Illuminate\Support\Str::limit($detail->receivedSerial->asset_description ?? '', 25, '...'),
+                    $detail->receivedSerial->asset_description ?? '',
                     $detail->receivedSerial->requisitionDetail->grnItemDetail->item->uom ?? '-',
                     $detail->receivedSerial?->quantity ?? 1,
                     $detail->receivedSerial->amount ?? 0,

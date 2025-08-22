@@ -50,7 +50,7 @@ class RequisitionExport implements FromCollection, WithHeadings
                     $req->transaction_date,
                     $req->doc_no ?? config('global.null_value'),
                     $detail->grnItem->grn_no ?? config('global.null_value'),
-                    \Illuminate\Support\Str::limit($detail->grnItemDetail->item->item_description ?? '', 25, '...'),
+                    $detail->grnItemDetail->item->item_description ?? '',
                     $detail->grnItemDetail->item->uom ?? config('global.null_value'),
                     $detail->grnItemDetail->store->name ?? '-',
                     $detail->grnItemDetail->quantity ?? 0,
