@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
+use App\Models\AttendanceStatus;
 use App\Models\EmployeeAttendance;
 use App\Models\MasDepartment;
 use App\Models\MasSection;
@@ -37,6 +38,8 @@ class AttendanceSummaryController extends Controller
         $filterData = $this->prepareFilterData($loggedInUser);
         $departments = $filterData['departments'];
         $sections = $filterData['sections'];
+        // $attendanceStatus = AttendanceStatus::get();
+        // dd($attendanceStatus);
         $employees = User::whereIsActive(1)
             ->whereNotIn('id', [1, 2])
             ->when($filterData['departmentId'], fn($q) => $q->whereHas('empJob', fn($q) => $q->where('mas_department_id', $filterData['departmentId'])))
