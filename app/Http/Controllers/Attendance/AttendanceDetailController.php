@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceStatus;
+use App\Models\MasDepartment;
+use App\Models\MasSection;
 use App\Services\DelegationService;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -17,26 +20,77 @@ class AttendanceDetailController extends Controller
 
     public function index(Request $request)
     {
+        $privileges = $request->instance();
         $delegationService = new DelegationService();
-        $loggedInUser = auth()->user();
-
+        $loggedInUser = User::with(['empJob'])->find(auth()->id());
         // Get user roles using the relationship
         $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
 
         $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
         $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
-
-        $privileges = $request->instance();
+        $attendanceStatus = AttendanceStatus::get();
+        //received filter params from form
         $filterDate = $this->getFilterDate($request);
         $employeeFilter = $request->get('employee');
+        $deptFilter = $request->get('department');
+        $secFilter = $request->get('section');
+        $attendanceStatusFilter = $request->get('attendance_status');
 
-        $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUser->id);
-        $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter);
-        $employees = $this->getEmployeesForFilter($allRoles, $loggedInUser->id);
+        // filter params that need to be displayed in form
+        $filterParamsByRole = $this->getFilterParamsByRole($allRoles, $loggedInUser);
+        //attendance params is the params that need to be considered before displayinfg attendance data 
+        $attendanceParamsByRole = $this->getAttendanceParamsByRole($allRoles, $loggedInUser);
+        // $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter, $attendanceStatusFilter);
+        $attendanceRecords = $this->getAttendanceRecords($attendanceParamsByRole, $filterDate, $employeeFilter, $deptFilter, $secFilter, $attendanceStatusFilter);
 
         $selectedDate = $filterDate->toDateString();
 
-        return view('attendance.attendance-detail.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees'));
+        return view('attendance.attendance-detail.index', compact('privileges', 'filterParamsByRole', 'attendanceRecords', 'selectedDate', 'attendanceStatus'));
+    }
+
+    private function getFilterParamsByRole($allRoles, $loggedInUser)
+    {
+        if (array_intersect([MANAGING_DIRECTOR, ATTENDANCE_MANAGER, ADMIN], $allRoles)) {
+            return [
+                'employees'   => User::employee()->get(),
+                'departments' => MasDepartment::where('status', 1)->get(),
+                'sections'    => MasSection::where('status', 1)->get(),
+                'attendanceStatus' => AttendanceStatus::get()
+            ];
+        }
+
+        // Department Head
+        if (in_array(DEPARTMENT_HEAD, $allRoles) && $loggedInUser->empJob) {
+            $departmentId = $loggedInUser->empJob->mas_department_id;
+
+            return [
+                'employees'   => User::employee()
+                                    ->whereHas('empJob', fn($q) => $q->where('mas_department_id', $departmentId))
+                                    ->get(),
+                'departments' => MasDepartment::where('status', 1)->where('id', $departmentId)->get(),
+                'sections'    => MasSection::where('mas_department_id', $departmentId)->get(),
+                'attendanceStatus' => AttendanceStatus::get()
+            ];
+        }
+
+        //immediate Head Role
+        if (in_array(IMMEDIATE_HEAD, $allRoles) && $loggedInUser->empJob) {
+            $departmentId = $loggedInUser->empJob->mas_department_id;
+            $sectionId = $loggedInUser->empJob->mas_section_id;
+
+            return [
+                'employees'   => User::employee()
+                                    ->whereHas('empJob', fn($q) => $q->where('mas_section_id', $sectionId))
+                                    ->pluck('id')
+                                    ->toArray(),
+                'departments' => [$departmentId],
+                'sections'    => [$sectionId],
+                'attendanceStatus' => AttendanceStatus::get()
+            ];
+        }
+
+        // Default: no access
+        return ['employees' => [], 'departments' => [], 'sections' => []];
     }
 
     private function getFilterDate(Request $request)
@@ -50,91 +104,68 @@ class AttendanceDetailController extends Controller
         }
     }
 
-    private function getEmployeeIdsByRole(array $allRoles, int $loggedInUserId)
+    private function getAttendanceParamsByRole(array $allRoles, $loggedInUser)
     {
-        if (in_array(DEPARTMENT_HEAD, $allRoles)) {
-            return $this->getDepartmentHeadEmployees($loggedInUserId);
+        // $attendanceStatus = AttendanceStatus::where
+        // Higher roles: ADMIN / MD / ATTENDANCE_MANAGER
+        if (array_intersect([MANAGING_DIRECTOR, ATTENDANCE_MANAGER, ADMIN], $allRoles)) {
+            return [
+                'employees'   => User::employee()->pluck('id')->toArray(),
+            ];
         }
 
-        if (in_array(MANAGING_DIRECTOR, $allRoles)) {
-            return $this->getManagingDirectorEmployees($loggedInUserId);
+        // Department Head
+        if (in_array(DEPARTMENT_HEAD, $allRoles) && $loggedInUser->empJob) {
+            $departmentId = $loggedInUser->empJob->mas_department_id;
+
+            return [
+                'employees'   => User::employee()
+                                    ->whereHas('empJob', fn($q) => $q->where('mas_department_id', $departmentId))
+                                    ->pluck('id')
+                                    ->toArray(),
+            ];
         }
 
-        if (in_array(ATTENDANCE_MANAGER, $allRoles)) {
-            return []; // Will fetch all employees
+        //immediate Head Role
+        if (in_array(IMMEDIATE_HEAD, $allRoles) && $loggedInUser->empJob) {
+            $departmentId = $loggedInUser->empJob->mas_department_id;
+            $sectionId = $loggedInUser->empJob->mas_section_id;
+
+            return [
+                'employees'   => User::employee()
+                                    ->whereHas('empJob', fn($q) => $q->where('mas_section_id', $sectionId))
+                                    ->pluck('id')
+                                    ->toArray(),
+            ];
         }
 
-        if (in_array(ADMIN, $allRoles)) {
-            return []; // Will fetch all employees
-        }
-
-        return [];
+        // Default: no access
+        return ['employees' => []];
     }
 
-    private function getDepartmentHeadEmployees(int $loggedInUserId)
-    {
-        $loggedInUser = User::with('empJob')->find($loggedInUserId);
-
-        if (!$loggedInUser || !$loggedInUser->empJob || !$loggedInUser->empJob->mas_department_id) {
-            return [];
-        }
-
-        // Get all users with IMMEDIATE_HEAD role in the same department
-        return User::whereHas('empJob', function ($query) use ($loggedInUser) {
-                $query->where('mas_department_id', $loggedInUser->empJob->mas_department_id);
-            })
-            ->pluck('id')
-            ->toArray();
-    }
-
-    private function getManagingDirectorEmployees($loggedInUserId)
-    {
-        // Get all users with DEPARTMENT_HEAD role
-        return User::where('is_active', 1)
-            ->where('id', '<>', SAP_USER_ID)
-            ->where('id', '<>', SUPER_USER_ID)
-            ->pluck('id')
-            ->toArray();
-    }
-
-    private function getAttendanceRecords(array $employeeIds, Carbon $filterDate, $employeeFilter)
+    private function getAttendanceRecords($attendanceParamsByRole, Carbon $filterDate, $employeeFilter, $deptFilter, $secFilter, $attendanceStatusFilter)
     {
         $query = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
             ->whereDate('created_at', $filterDate)
+            ->when($attendanceStatusFilter, function ($query) use($attendanceStatusFilter) {
+                $query->where('attendance_status_id', $attendanceStatusFilter);
+            })
+            ->when($deptFilter, function ($query) use ($deptFilter){
+                $query->where('department_id', $deptFilter);
+            })
+            ->when($secFilter, function ($query) use ($secFilter){
+                $query->where('section_id', $secFilter);
+            })
             ->when($employeeFilter, function ($query) use ($employeeFilter) {
                 $query->where('employee_id', $employeeFilter);
             });
 
         // If employeeIds is empty, it means ATTENDANCE_MANAGER (show all)
-        if (!empty($employeeIds)) {
-            $query->whereIn('employee_id', $employeeIds);
-        }
+        // if (!empty($attendanceParamsByRole['employees'])) {
+        //     $query->whereIn('employee_id', $attendanceParamsByRole['employees']);
+        // }
 
         return $query->paginate(config('global.pagination'));
-    }
-
-    private function getEmployeesForFilter(array $allRoles, int $loggedInUserId)
-    {
-        $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUserId);
-
-        // If no specific employee IDs (ATTENDANCE_MANAGER), show all employees
-        if (empty($employeeIds) && (in_array(ATTENDANCE_MANAGER, $allRoles) || in_array(ADMIN, $allRoles))) {
-            return User::select(['id', 'name', 'employee_id', 'username', 'title'])
-                ->where('id', '<>', SUPER_USER_ID)
-                ->where('id', '<>', SAP_USER_ID)
-                ->active() // Using the scope from your User model
-                ->get();
-        }
-
-        // If no employee IDs and not ATTENDANCE_MANAGER, return empty collection
-        if (empty($employeeIds)) {
-            return collect();
-        }
-
-        return User::whereIn('id', $employeeIds)
-            ->select(['id', 'name', 'employee_id', 'username', 'title'])
-            ->active() // Using the scope from your User model
-            ->get();
     }
 
 }

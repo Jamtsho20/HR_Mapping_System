@@ -233,6 +233,10 @@ class User extends Authenticatable
         return $query->where('is_active', 1);
     }
 
+    public function scopeEmployee($query){
+        return $query->where('id', '<>', SUPER_USER_ID)->where('id', '<>', SAP_USER_ID);
+    }
+
 
     public function scopeCompleted($query)
     {

@@ -15,4 +15,9 @@ class AttendanceStatus extends Model
         'description',
         'color',
     ];
+
+    public function getAttendanceStatusAttribute() //combination of title and full name while display
+    {
+        return $this->code . '-' . $this->description;
+    }
 }
