@@ -29,7 +29,7 @@ class AssetTransferDetail extends Model
 
     public function scopeReceivedSerial($query)
     {
-        return $query->whereNotNull('received_serial_id'); // Or whatever condition makes sense
+        return $query->whereNotNull('received_serial_id');
     }
 
 }

@@ -127,7 +127,7 @@ class AssetTransferApplication extends Model
                         continue;
                     }
 
-                    $masAsset = \App\Models\MasAssets::where('received_serial_id', $detail->received_serial_id)->first();
+                    $masAsset = \App\Models\MasAssets::where('id', $detail->mas_asset_id)->first();
 
                     if ($masAsset) {
                        $updateData = [
