@@ -161,9 +161,9 @@ class AttendanceDetailController extends Controller
             });
 
         // If employeeIds is empty, it means ATTENDANCE_MANAGER (show all)
-        // if (!empty($attendanceParamsByRole['employees'])) {
-        //     $query->whereIn('employee_id', $attendanceParamsByRole['employees']);
-        // }
+        if (!empty($attendanceParamsByRole['employees'])) {
+            $query->whereIn('employee_id', $attendanceParamsByRole['employees']);
+        }
 
         return $query->paginate(config('global.pagination'));
     }
