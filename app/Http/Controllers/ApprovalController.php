@@ -411,7 +411,7 @@ class ApprovalController extends Controller
                                         "LineNumber" => 0,
                                         "ValidFrom" => $detail->date_placed_in_service,
                                         "ValidTo" => null,
-                                        "DistributionRule4" => $application->employee->username
+                                        "DistributionRule4" => 'DUMMY'
                                     ]
                                 ]
                             ];
