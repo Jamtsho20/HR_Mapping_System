@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\DepartmentWiseShift;
 use App\Models\EmployeeShift;
 use App\Models\User;
-use App\Services\DelegationService;
 use Illuminate\Http\Request;
 
 class ShiftEmployeeController extends Controller
@@ -22,14 +21,6 @@ class ShiftEmployeeController extends Controller
     public function index(Request $request)
     {
         $privileges = $request->instance();
-        // $delegationService = new DelegationService();
-        // $loggedInUser = User::with(['empJob'])->find(auth()->id());
-        // // Get user roles using the relationship
-        // $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
-
-        // $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
-        // $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
-
         $employees = User::filter($request)->select(['id', 'name', 'employee_id', 'username', 'title'])->get();
         $employeeShifts = EmployeeShift::filter($request)->orderBy('created_at', 'desc')->paginate(config('global.pagination'));
 
