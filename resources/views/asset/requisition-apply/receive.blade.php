@@ -428,67 +428,71 @@
             }
         }
 
-    function receiveSerialItems(requisitionKey, grnId, quantityInput, all=false) {
-        const childRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
-        const childData = [];
+    function receiveSerialItems(requisitionKey, grnId, quantityInput, all = false) {
+    const childRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
+    const childData = [];
+
+    childRows.forEach((row) => {
+        const id = row.querySelector("input[name*='[id]']")?.value;
+        const serialNo = row.querySelector("input[name*='[serial_no]']")?.value;
+        const amount = row.querySelector("input[name*='[amount]']")?.value;
+        const receivedCheckbox = row.querySelector("input[type='checkbox']");
+        const received = (all === true) ? 1 : (receivedCheckbox?.checked ? 1 : 0);
+        const remark = row.querySelector("input[name*='[remark]']")?.value;
+
+        if (serialNo) {
+            childData.push({
+                id: id,
+                serial_no: serialNo,
+                amount: amount,
+                received: received,
+                remark: remark
+            });
+        }
+    });
+
+    const csrfToken = "{{ csrf_token() }}";
+
+    // IMPORTANT: return fetch so caller can await
+    return fetch('/assets/receive', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+            grnId: grnId,
+            quantity: quantityInput.value,
+            childData: childData
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // ✅ Only show success here
+        if (!all) {
+            showSuccessMessage('Item received successfully.');
+        }
+
 
         childRows.forEach((row) => {
-            const id = row.querySelector("input[name*='[id]']")?.value;
-            const serialNo = row.querySelector("input[name*='[serial_no]']")?.value;
-            const amount = row.querySelector("input[name*='[amount]']")?.value;
             const receivedCheckbox = row.querySelector("input[type='checkbox']");
-            const received = all ? 1 : (receivedCheckbox?.checked ? 1 : 0);
-            const remark = row.querySelector("input[name*='[remark]']")?.value;
-
-            if (receivedCheckbox) {
-                receivedCheckbox.disabled = true;
-            }
-
-            if (serialNo) {
-                childData.push({
-                    id: id,
-                    serial_no: serialNo,
-                    amount: amount,
-                    received: received,
-                    remark: remark
-                });
-            }
+            const remarkInput = row.querySelector("input[name*='[remark]']");
+            if (receivedCheckbox) receivedCheckbox.disabled = true;
+            if (remarkInput) remarkInput.disabled = true;
         });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorMessage('Failed to receive item(s). Please try again.');
+    })
+}
 
-        const csrfToken = "{{ csrf_token() }}";
-
-
-        fetch('/assets/receive', {
-            method: 'POST',
-           headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({
-                grnId: grnId,
-                quantity: quantityInput.value,
-                childData: childData
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(!all){
-            $('#loader').hide();
-            showSuccessMessage('Item received successfully.');
-
-            }
-
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-        if(all){
-            $('#loader').hide();
-            showSuccessMessage('All Items received successfully.');
-
-        }
-    }
 
      $('#loader').show();
     checkIfAllReceived();

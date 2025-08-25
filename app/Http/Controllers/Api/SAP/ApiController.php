@@ -1077,31 +1077,22 @@ class ApiController extends BaseController
                 $site       = MasSite::where('code', $item['site_code'] ?? null)->first();
                 $i_code     = MasItem::where('item_no', $item['item_code'])->first() ?? null;
 
-                $asset = MasAssets::where('serial_number', $item['serial_no'])->where('item_id', $i_code?->id)->first() ?? MasAssets::where('serial_number', $item['serial_no'])->where('item_code', $item['item_code'])->first();
+                MasAssets::create(
+                    [
+                        'serial_number' => $item['serial_no'],
+                        'item_code'       => $item['item_code'],
+                        'description'     => $item['description'],
+                        'uom' => $item['uom'],
+                        'current_employee_id' => $employee?->id,
+                        'current_site_id'     => $site?->id,
+                        'initial_owner_id'    => $employee?->id,
+                        'created_by'          => auth()->id(),
+                        'quantity'            => $item['quantity'],
+                        'amount'              => $item['amount'],
+                    ]
+                );
 
-                if ($asset) {
-                    $asset->update([
-                        'current_depreciation'=> $item['current_depreciation'],
-                    ]);
-                    continue;
-                }else{
-                    MasAssets::create(
-                        [
-                            'serial_number' => $item['serial_no'],
-                            'item_code'       => $item['item_code'],
-                            'description'     => $item['description'],
-                            'uom' => $item['uom'],
-                            'current_employee_id' => $employee?->id,
-                            'current_site_id'     => $site?->id,
-                            'initial_owner_id'    => $employee?->id,
-                            'created_by'          => auth()->id(),
-                            'quantity'            => $item['quantity'],
-                            'amount'              => $item['amount'],
-                            'current_depreciation'=> $item['current_depreciation'],
-                        ]
-                    );
 
-                }
             }
         });
         }catch (\Exception $e) {
