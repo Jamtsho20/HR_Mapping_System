@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Create New Department Wise Shift')
+@section('page-title', 'Create New Shift Employee')
 @section('content')
 
 <form action="{{ route('shift-employee.store') }}" method="POST">
