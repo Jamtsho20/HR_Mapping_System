@@ -63,7 +63,7 @@
                                                 {{ \Carbon\Carbon::parse($dsaclaim->created_at)->format('d-M-Y') }} at {{ \Carbon\Carbon::parse($dsaclaim->created_at)->format('h:i A') }}
                                             </td>
                                             <td>
-                                                {{ $dsaclaim->employee->emp_id_name . ' ' . $dsaclaim->employee->name }}
+                                                {{ $dsaclaim->employee->emp_id_name  }}
                                             <td>{{ $dsaclaim->created_at->format('d-M-Y') }}
                                             <td class="text-right">{{ formatAmount($dsaclaim->net_payable_amount) }}
                                             </td>
