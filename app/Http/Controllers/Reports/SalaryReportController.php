@@ -25,11 +25,14 @@ class SalaryReportController extends Controller
     {
         $privileges = $request->instance();
         $employee = employeeList();
+
         $request->merge([
             'year' => $request->get('year', \Carbon\Carbon::now()->format('Y-m'))
         ]);
 
-        $salaries = FinalPaySlip::filter($request)->paginate(config('global.pagination'))->withQueryString();
+        $salaries = FinalPaySlip::whereHas('employee', function ($q) {
+            $q->where('is_active', 1);
+        })->filter($request)->paginate(config('global.pagination'))->withQueryString();
 
         return view('report.salary-report.index', compact('privileges', 'salaries', 'employee'));
     }
@@ -260,7 +263,9 @@ class SalaryReportController extends Controller
 
         // Generate PDF with chunk processing for salary records
         $pdf = Pdf::loadView('export-report.salary-report-pdf', [
-            'salaries' => FinalPaySlip::filter($request)->cursor(),
+            'salaries' => FinalPaySlip::whereHas('employee', function ($q) {
+                $q->where('is_active', 1);
+            })->filter($request)->cursor(),
             'totals' => $totals
         ])->setOptions($options)->setPaper('a4', 'landscape');
 
