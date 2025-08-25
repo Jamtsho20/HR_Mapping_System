@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const today = new Date();
         const currentDay = today.getDate();
 
-        if (currentDay > 30) {
+        if (currentDay > 21) {
             showErrorMessage('SIFA Loan applications are only allowed from the 1st to the 21st of each month.');
             advanceTypeSelect.value = ''; // Reset selection
             formSections.forEach(function (section) {

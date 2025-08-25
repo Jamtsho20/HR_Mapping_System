@@ -41,6 +41,20 @@ class AssetReturnApplication extends Model
 
             $query->where('type_id', $request->query('type_id'));
         }
+
+         if($request->from_date && $request->to_date){
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }elseif ($request->from_date) {
+            $query->where('created_at', '>=', $request->from_date);
+        }
+
+        if($request->return_no){
+            $query->where('transaction_no', $request->return_no);
+        }
+
+        if($request->status){
+            $query->where('status', $request->status);
+        }
     }
 
     public static function booted(){

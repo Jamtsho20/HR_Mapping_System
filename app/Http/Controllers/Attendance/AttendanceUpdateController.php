@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Services\DelegationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class AttendanceUpdateController extends Controller
 {
@@ -32,21 +31,23 @@ class AttendanceUpdateController extends Controller
 
         // Get user roles using the relationship
         $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
-
+        $attendanceStatus = AttendanceStatus::get();
+        
         $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
         $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
 
         $privileges = $request->instance();
+
         $filterDate = $this->getFilterDate($request);
         $employeeFilter = $request->get('employee');
 
         $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUser->id);
-        $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter);
+        $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter, $request->attendance_status);
         $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
 
         $selectedDate = $filterDate->toDateString();
 
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees'));
+        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees', 'attendanceStatus'));
     }
 
     private function getFilterDate(Request $request)
@@ -131,10 +132,14 @@ class AttendanceUpdateController extends Controller
             ->toArray();
     }
 
-    private function getAttendanceRecords(array $employeeIds, Carbon $filterDate, $employeeFilter)
+    private function getAttendanceRecords(array $employeeIds, Carbon $filterDate, $employeeFilter, $attendanceStatus)
     {
         $query = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
             ->whereDate('created_at', $filterDate)
+            ->when($attendanceStatus, function ($query) use($attendanceStatus){
+                $query->where('attendance_status_id', $attendanceStatus);
+            })
+            // ->where('attendance_status_id', $attendanceStatus)
             ->when($employeeFilter, function ($query) use ($employeeFilter) {
                 $query->where('employee_id', $employeeFilter);
             });

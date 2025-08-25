@@ -19,6 +19,32 @@
 @extends('layouts.app')
 @section('page-title', 'Dashboard')
 @section('content')
+@php
+    $hour = now()->format('H');
+    if ($hour >= 5 && $hour < 12) {
+        $greeting = 'Good Morning';
+        $icon = '🌅';
+    } elseif ($hour >= 12 && $hour < 18) {
+        $greeting = 'Good Afternoon';
+        $icon = '🌤';
+    } else {
+        $greeting = 'Good Evening';
+        $icon = '🌙';
+    }
+
+    $user = auth()->user();
+    $title = $user->title ?? ''; // fetch title like 'Miss', 'Mr.', etc.
+    $employeeName = $user->name ?? 'User';
+@endphp
+
+<div class="card mb-2 shadow-sm border-0">
+    <div class="card-body py-0">
+        <h4 class="fw-bold mb-0 fs-5">
+            {{ $icon }} {{ $greeting }}, {{ $title }} {{ $employeeName }}!
+        </h4>
+    </div>
+</div>
+
 
 {{-- Holiday Alert (Displayed at the Top) --}}
 @php
@@ -333,9 +359,12 @@ $holidayAlert = $notifications->firstWhere('title', 'Holiday Alert');
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>
-                                        {{ $asset->receivedSerial->requisitionDetail->grnItemDetail->item->item_no.'-'.$asset->receivedSerial->asset_serial_no ?? config('global.null_value') }}
+                                      {{ $asset->receivedSerial
+                                            ? ($asset->receivedSerial->requisitionDetail->grnItemDetail->item->item_no . '-' . $asset->receivedSerial->asset_serial_no)
+                                            : ($asset->serial_number ?? config('global.null_value')) }}
+
                                     </td>
-                                    <td>{{ $asset->item->item_description }}</td>
+                                    <td>{{ $asset->item?->item_description ?? $asset->description }}</td>
                                 </tr>
                                 @empty
                                 <tr>

@@ -1,23 +1,35 @@
 @extends('layouts.app')
 @section('page-title', 'Attendance Update')
 @section('content')
+
 @if ($privileges->create)
 
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
     <div class="row">
-        <div class="col-6 form-group">
-            <input type="date" id="date" name="date" class="form-control" value="{{ $selectedDate }}" onchange="this.form.submit()">
+        <div class="col-3 form-group">
+            <input type="date" id="date" name="date" class="form-control" value="{{ $selectedDate }}">
         </div>
-        <div class="col-6 form-group">
-            <select name="employee" class="form-control select2" onchange="this.form.submit()">
+        <div class="col-3 form-group">
+            <select name="employee" class="form-control select2">
                 <option value="">-- Select Employee --</option>
                 @foreach ($employees as $employee)
                 <option value="{{ $employee->id }}"
                     {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
                     {{ $employee->emp_id_name }}
                 </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-3 form-group">
+            <select class="form-control select2" name="attendance_status">
+                <option value="" disabled selected>--Select Attendance Status--</option>
+                @foreach ($attendanceStatus as $status)
+                    <option value="{{ $status->id }}"
+                        {{ request()->get('attendance_status') == $status->id ? 'selected' : '' }}>
+                        {{ $status->attendance_status }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -33,21 +45,21 @@
                             <div class="dataTables_scroll">
                                 <div class="dataTables_scrollHead"
                                     style="overflow: scroll; position: relative; border: 0px; width: 100%;">
-                                    <div class="dataTables_scrollHeadInner"
+                                    <div class="dataTables_scrollHeadInner freeze-table-col-wrapper"
                                         style="box-sizing: content-box; padding-right: 0px;">
                                         <table
                                             class="table table-bordered text-nowrap border-bottom dataTable no-footer"
                                             id="basic-datatable table-responsive">
                                             <thead>
                                                 <tr role="row" class="thead-light" style="text-align: center;">
-                                                    <th>
+                                                    <th class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}">
                                                         #
+                                                    </th>
+                                                    <th class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}">
+                                                        Employee
                                                     </th>
                                                     <th>
                                                         Attendance Date
-                                                    </th>
-                                                    <th>
-                                                        Employee
                                                     </th>
                                                     <th>
                                                         Clocked-in At
@@ -74,11 +86,11 @@
                                             </thead>
 
                                             <tbody>
-                                                @foreach($attendanceRecords as $record)
+                                                @forelse($attendanceRecords as $record)
                                                 <tr>
-                                                    <td style="text-align: right;">{{ $loop->iteration }}</td>
+                                                    <td class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}" style="text-align: right;">{{ $loop->iteration }}</td>
+                                                    <td class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}">{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
                                                     <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
-                                                    <td>{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_in_at ?? config('global.null_value') }}</td>
                                                     <td title="{{ $record->checkedInFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedInFrom->name ?? config('global.null_value'), 10) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_out_at ?? config('global.null_value') }}</td>
@@ -105,7 +117,11 @@
                                                         @endif
                                                     </td>
                                                 </tr>
-                                                @endforeach
+                                                @empty
+                                                <tr>
+                                                    <td colspan="10" class="text-danger text-center">No Data Found</td>
+                                                </tr>
+                                                @endforelse
                                             </tbody>
 
                                         </table>

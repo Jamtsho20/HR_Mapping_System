@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Mail\GoodsIssuedMail;
 use App\Models\MasDzongkhag;
 use App\Models\MasSite;
+use App\Models\MasAssets;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
@@ -203,7 +204,7 @@ class ApiController extends BaseController
 
                     if ($existingItemDetail) {
                         // Update stock if item already exists
-                        $existingItemDetail->quantity += $detail['quantity'];
+                        $existingItemDetail->quantity = $detail['quantity'];
                         $existingItemDetail->save();
                     } else {
                         // Create a new record if item does not exist
@@ -985,5 +986,121 @@ class ApiController extends BaseController
         \Log::info('sap response: ' . json_encode($responseArray));
         return response()->json(['success' => true, 'data' => $responseArray], 201);
     }
+
+    public function postProfitCenter($data){
+         $response = $this->startSession();
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $session = json_decode($response->getContent(), true);
+
+            $sessionId = $session['sessionId'] ?? null;
+        } else {
+            return response()->json(['msg_error' => 'Invalid JSON response: ' . json_last_error_msg()], 500);
+        }
+
+        if (empty($sessionId)) {
+            return response()->json(['msg_error' => 'Failed to retrieve session ID'], 500);
+        }
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => SAP_BASE_URL . ':' . SAP_PORT . '/b1s/v1/ProfitCenters',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                "Cookie: $sessionId; B1SESSION=$sessionId",
+                'Content-Type: application/json',
+            ],
+            CURLOPT_SSL_VERIFYPEER => false, // REMOVE IN PRODUCTIONPconstant
+            CURLOPT_SSL_VERIFYHOST => false, // REMOVE IN PRODUCTION
+        ));
+
+        $response = curl_exec($curl);
+        $responseArray = json_decode($response, true);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+            curl_close($curl);
+            return response()->json(['msg_error' => 'Curl error: ' . $error_msg], 500);
+        }
+
+        curl_close($curl);
+
+        if ($httpCode != 201) {
+            $errorMessage = $responseArray['error']['message']['value'] ?? 'Something went wrong from SAP API';
+            \Log::info($errorMessage);
+            return response()->json(['msg_error' => $errorMessage], $httpCode);
+        }
+
+        \Log::info('sap response: ' . json_encode($responseArray));
+        return response()->json(['success' => true, 'data' => $responseArray], 201);
+    }
+
+
+    public function getAssetData(Request $request)
+    {
+        $assets = $request->input('assets');
+
+        // Normalize: wrap single object in array
+        if (!isset($assets[0])) {
+            $assets = [$assets];
+        }
+
+        $rules = [
+            'assets.*.employee_id' => 'required_without:assets.*.site_code',
+            'assets.*.site_code'   => 'required_without:assets.*.employee_id',
+            'assets.*.serial_no'   => 'required',
+            'assets.*.item_code'   => 'required',
+            'assets.*.description' => 'required',
+            'assets.*.quantity'    => 'required|numeric',
+            'assets.*.amount'      => 'required|numeric',
+            'assets.*.current_depreciation' => 'required|numeric'
+        ];
+
+        $validator = \Validator::make(['assets' => $assets], $rules);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator->errors());
+        }
+
+        try{
+        DB::transaction(function () use ($assets) {
+        foreach ($assets as $item) {
+                $employee   = User::find($item['employee_id'] ?? null);
+                $site       = MasSite::where('code', $item['site_code'] ?? null)->first();
+                $i_code     = MasItem::where('item_no', $item['item_code'])->first() ?? null;
+
+                MasAssets::create(
+                    [
+                        'serial_number' => $item['serial_no'],
+                        'item_code'       => $item['item_code'],
+                        'description'     => $item['description'],
+                        'uom' => $item['uom'],
+                        'current_employee_id' => $employee?->id,
+                        'current_site_id'     => $site?->id,
+                        'initial_owner_id'    => $employee?->id,
+                        'created_by'          => auth()->id(),
+                        'quantity'            => $item['quantity'],
+                        'amount'              => $item['amount'],
+                    ]
+                );
+
+
+            }
+        });
+        }catch (\Exception $e) {
+            \Log::error("Asset save failed: " . $e->getMessage());
+            return $this->errorResponse('Something went wrong while saving assets. Please try again.');
+        }
+        return $this->successResponse('Asset saved successfully');
+    }
+
 
 }

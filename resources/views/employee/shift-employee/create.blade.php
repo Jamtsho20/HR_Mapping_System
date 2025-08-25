@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page-title', 'Create New Department Wise Shift')
+@section('page-title', 'Create New Shift Employee')
 @section('content')
 
 <form action="{{ route('shift-employee.store') }}" method="POST">
@@ -57,7 +57,7 @@
         <div class="card-footer text-center">
             @include('layouts.includes.buttons', [
             'buttonName' => 'SAVE',
-            'cancelUrl' => url('master/shift-employee') ,
+            'cancelUrl' => url('employee/shift-employee') ,
             'cancelName' => 'CANCEL'
             ])
         </div>

@@ -290,7 +290,7 @@
                                 response.data.forEach(function(assetNo) {
                                   assetSelect.append(
                                         '<option value="' + assetNo.id + '">' +
-                                        ((assetNo.requisition_detail?.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.asset_serial_no) +
+                                        ((assetNo.received_serial?.requisition_detail.grn_item_detail?.item?.item_no ?? 'N/A') + '-' + assetNo.serial_number) +
                                         '</option>'
                                     );
                                         });
@@ -330,10 +330,15 @@
 
                         // Add a default "Select" option
                         assetSelect.append('<option value="" disabled selected hidden>Select</option>');
-
+                    console.log(response);
                         // Loop through the received asset numbers and populate the dropdown
                         response.data.forEach(function(assetNo) {
-                            assetSelect.append('<option value="' + assetNo.id + '">' +assetNo.requisition_detail.grn_item_detail.item.item_no ?? 'N/A' + ' - ' + assetNo.asset_serial_no + '</option>');
+                            let itemNo = assetNo.received_serial?.requisition_detail?.grn_item_detail?.item?.item_no ?? '';
+                            if (itemNo) itemNo += '-';
+
+                            assetSelect.append(
+                                `<option value="${assetNo.id}">${itemNo} ${assetNo.serial_number}</option>`
+                            );
                         });
 
                         $('#loader').hide();
@@ -350,6 +355,7 @@
             $(document).on('change', '.asset_no', function () {
                     const selectedVal = $(this).val();
                     const $currentSelect = $(this);
+                    console.log(selectedVal);
                     $('#loader').show();
 
                     // Skip if no value is selected
@@ -385,10 +391,10 @@
                                 const grnDetail = data?.requisition_detail?.grn_item_detail;
                                 const item = grnDetail?.item;
                                 const $row = $currentSelect.closest('tr');
-                                $row.find('input[id="category"]').val(data.requisition_detail.grn_item_detail.item.item_group || '');
-                                $row.find('input[id="description"]').val(grnDetail?.description || '');
+                                $row.find('input[id="category"]').val(data.requisition_detail?.grn_item_detail.item.item_group || 'Data pushed from SAP');
+                                $row.find('input[id="description"]').val(grnDetail?.description || data.description || '');
                                 $row.find('input[id="asset_type"]').val(''); // You can assign logic if available
-                                $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || '');
+                                $row.find('input[id="uom"]').val(data?.requisition_detail?.unitOfMeasurement?.name || item?.uom || data.uom || '');
                                 $row.find('input[id="quantity"]').val(data.quantity || '');
                                 $row.find('input[id="date_placed_in_service"]').val(data.commission_detail?.date_placed_in_service || '');
                                 updateTotalQuantity();
