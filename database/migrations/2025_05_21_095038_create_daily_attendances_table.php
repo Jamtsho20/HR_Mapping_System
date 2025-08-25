@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('daily_attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('attendance_id')->constrained('employee_attendances')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('attendance_id')->constrained('employee_attendances')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('department_id')->nullable()->constrained('mas_departments')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('section_id')->nullable()->constrained('mas_sections')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->integer('day');

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendance_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('daily_attendance_id')->constrained('daily_attendances')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('daily_attendance_id')->constrained('daily_attendances')->references('id')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('employee_id')->constrained('mas_employees')->references('id');
             $table->foreignId('department_id')->index()->nullable()->constrained('mas_departments')->references('id'); // newly added
             $table->foreignId('section_id')->index()->nullable()->constrained('mas_sections')->references('id'); // newly added
