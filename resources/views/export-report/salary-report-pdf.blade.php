@@ -145,7 +145,7 @@
                     <td>{{ $salary->employee->name }}</td>
                     <td>{{ $salary->employee->empJob->designation->name }}</td>
                     <td>{{ $salary->employee->empJob->empType->name }}</td>
-                    <td>{{ $salary->employee->empJob->basic_pay }}</td>
+                    <td>{{ $salary->details['basic_pay'] }}</td>
                     <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}</td>
                     <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}</td>
                     <td>{{ $salary->details['allowances']['Add. Work Allowance'] ?? '0' }}</td>
