@@ -8,16 +8,19 @@
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-12 form-group">
-        <select name="employee" class="form-control select2">
-            <option value="">-- Select Employee --</option>
-            @foreach ($employees as $employee)
-            <option value="{{ $employee->id }}"
-                {{ old('employee', request()->get('employee')) == $employee->id ? 'selected' : '' }}>
-                {{ $employee->emp_id_name }}
-            </option>
-            @endforeach
-        </select>
+    <div class="row">
+        <div class="col-12 form-group">
+            <select name="employee" class="form-control select2">
+                <option value="">-- Select Employee --</option>
+                @foreach ($employees as $employee)
+                <option value="{{ $employee->id }}"
+                    {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+                    {{ $employee->emp_id_name }}
+                </option>
+                @endforeach
+            </select>
+        </div>
+
     </div>
     @endcomponent
 
@@ -47,6 +50,9 @@
                                                         Department Shift
                                                     </th>
                                                     <th>
+                                                        Shift Time
+                                                    </th>
+                                                    <th>
                                                         Off Days
                                                     </th>
                                                     <th>
@@ -60,6 +66,7 @@
                                                     <td>{{ $employeeShifts->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $shift->masEmployee->emp_id_name }}</td>
                                                     <td>{{ $shift->departmentShift->name }}</td>
+                                                    <td>{{ $shift->departmentShift->formatted_start_time .' - '. $shift->departmentShift->formatted_end_time}}</td>
                                                     @php
                                                     $offDays = json_decode($shift->off_days, true);
                                                     @endphp

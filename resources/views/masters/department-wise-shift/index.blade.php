@@ -62,8 +62,8 @@
                                                     <td>{{ $shift->name }}</td>
                                                     <td>{{ $shift->shiftType->name }}</td>
                                                     <td>{{ $shift->department->name }}</td>
-                                                    <td>{{ $shift->start_time }}</td>
-                                                    <td>{{ $shift->end_time }}</td>
+                                                    <td>{{ $shift->formatted_start_time }}</td>
+                                                    <td>{{ $shift->formatted_end_time }}</td>
                                                     <td>{{ $shift->status ? 'Active' : 'Inactive' }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)

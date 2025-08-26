@@ -1,15 +1,26 @@
 @extends('layouts.app')
-@section('page-title', 'Office Timing')
+@section('page-title', 'Field Employee')
 @section('content')
 @if ($privileges->create)
 @section('buttons')
-<a href="{{ route('office-timings.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Office Timing</a>
+<a href="{{ route('field-employee.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Field Employee</a>
 @endsection
 @endif
 <div class="block-header block-header-default">
     @component('layouts.includes.filter')
-    <div class="col-6 form-group">
-        <input type="text" name="name" class="form-control" value="{{ request()->get('name') }}" placeholder="Name">
+    <div class="row">
+        <div class="col-12 form-group">
+            <select name="employee" class="form-control select2">
+                <option value="">-- Select Employee --</option>
+                @foreach ($employees as $employee)
+                <option value="{{ $employee->id }}"
+                    {{ request()->get('employee') == $employee->id ? 'selected' : '' }}>
+                    {{ $employee->emp_id_name }}
+                </option>
+                @endforeach
+            </select>
+        </div>
+
     </div>
     @endcomponent
 
@@ -33,22 +44,13 @@
                                                         Sl. No
                                                     </th>
                                                     <th>
-                                                        Seasons
+                                                        Employee
                                                     </th>
                                                     <th>
-                                                        Start Month
+                                                        Section
                                                     </th>
                                                     <th>
-                                                        End Month
-                                                    </th>
-                                                    <th>
-                                                        Start Time
-                                                    </th>
-                                                    <th>
-                                                        Lunch Time
-                                                    </th>
-                                                    <th>
-                                                        End Time
+                                                        Department
                                                     </th>
                                                     <th>
                                                         Action
@@ -56,19 +58,15 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($officeTimings as $timing)
+                                                @forelse($fieldEmployees as $fieldEmployee)
                                                 <tr>
-                                                    <td>{{ $officeTimings->firstItem() + ($loop->iteration - 1) }}</td>
-                                                    <td>{{ $timing->season_name }}</td>
-                                                    <td>{{ $timing->start_month_name }}</td>
-                                                    <td>{{ $timing->end_month_name }}</td>
-                                                    <td>{{ $timing->formatted_start_time }}</td>
-                                                    <td>{{ $timing->formatted_lunch_time }}</td>
-                                                    <td>{{ $timing->formatted_end_time }}</td>
+                                                    <td>{{ $fieldEmployees->firstItem() + ($loop->iteration - 1) }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->emp_id_name }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->empJob->section->name ?? '-' }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->empJob->department->name ?? '-' }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
-                                                        <a href="{{ url('master/office-timings/' . $timing->id . '/edit') }}"
-                                                            data-season="{{ config('global.season')[$timing->season] ?? 'N/A' }}"
+                                                        <a href="{{ url('employee/field-employee/' . $fieldEmployee->id . '/edit') }}"
                                                             class="btn btn-sm btn-rounded btn-outline-success">
                                                             <i class="fa fa-edit"></i> EDIT
                                                         </a>
@@ -77,15 +75,16 @@
                                                         @if ($privileges->delete)
                                                         <a href="#"
                                                             class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                            data-url="{{ url('master/office-timings/' . $timing->id) }}">
+                                                            data-url="{{ url('employee/field-employee/' . $fieldEmployee->id) }}">
                                                             <i class="fa fa-trash"></i> DELETE
                                                         </a>
                                                         @endif
                                                     </td>
+                                                    </td>
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="7" class="text-center text-danger">No Office Timings found</td>
+                                                    <td colspan="3" class="text-center text-danger">No Record Found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -93,6 +92,11 @@
                                         </table>
 
                                     </div>
+                                    @if ($fieldEmployees->hasPages())
+                                    <div class="card-footer">
+                                        {{ $fieldEmployees->links() }}
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

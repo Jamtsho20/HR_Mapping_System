@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeDevices;
+use App\Models\FieldEmployee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
@@ -64,7 +65,7 @@ class LoginController extends Controller
                 // ->whereRaw('LOWER(device_id) = ?', [strtolower($request->device_id)])
                 ->first();
             
-
+            $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
             if(!$existingDevice && $request->username != 'SAP000' && $request->username != 'E00000'){
                 $existingDevice = EmployeeDevices::create([
                     'employee_id' => $user->id,
@@ -80,7 +81,8 @@ class LoginController extends Controller
                 // 'attendance_features' => $attendanceFeatures,
                 // 'office_timings' => $officeTiming,
                 'token' => $token,
-                'device_id' => $request->device_id ?? $existingDevice?->device_id ?? null
+                'device_id' => $request->device_id ?? $existingDevice?->device_id ?? null,
+                'is_field_emp' => $isFieldEmp
                 // 'device_id' => $existingDevice->device_id ?? null
             ], 200);
         } catch (\Exception $e) {

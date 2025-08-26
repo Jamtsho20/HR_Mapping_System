@@ -36,10 +36,10 @@
                                                         Name
                                                     </th>
                                                     <th>
-                                                        Start_time
+                                                        Start Time
                                                     </th>
                                                     <th>
-                                                        End_time
+                                                        End Time
                                                     </th>
                                                     <th>
                                                         Action
@@ -51,8 +51,8 @@
                                                 <tr>
                                                     <td>{{ $shiftTypes->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $types->name }}</td>
-                                                    <td>{{ $types->start_time }}</td>
-                                                    <td>{{ $types->end_time }}</td>
+                                                    <td>{{ $types->formatted_start_time }}</td>
+                                                    <td>{{ $types->formatted_end_time }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
                                                         <a href="{{ url('master/shift-types/' . $types->id . '/edit') }}"

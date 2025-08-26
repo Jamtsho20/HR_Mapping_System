@@ -8,19 +8,37 @@ use Illuminate\Database\Eloquent\Model;
 
 class MasShiftType extends Model
 {
-    use HasFactory,CreatedByTrait;
+    use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'name', 'start_time', 'end_time'
+        'name',
+        'start_time',
+        'end_time'
     ];
 
-    public function departmentShifts(){
+    public function departmentShifts()
+    {
         return $this->hasMany(DepartmentWiseShift::class, 'type_id');
     }
-      public function scopeFilter($query, $request)
+
+    public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {
             $query->where('name', 'LIKE', '%' . $request->query('name') . '%');
         }
+    }
+
+    public function getFormattedStartTimeAttribute(){
+        $startTime = $this->start_time 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->start_time)->format('h:i A') 
+            : null;
+        return trim($startTime ?? '');
+    }
+
+    public function getFormattedEndTimeAttribute(){
+        $endTime = $this->end_time 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->end_time)->format('h:i A') 
+            : null;
+        return trim($endTime ?? '');
     }
 }
