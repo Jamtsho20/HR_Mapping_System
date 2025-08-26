@@ -142,7 +142,7 @@
                                                             <td>{{ $salary->employee->empJob->empType->name }}</td>
                                                             <td>{{ \Carbon\Carbon::parse($salary->for_month)->format('F Y') }}
                                                             </td>
-                                                            <td>{{ $salary->employee->empJob->basic_pay }}</td>
+                                                            <td>{{ $salary->details['basic_pay'] }}</td>
                                                             <td>{{ $salary->details['allowances']['House Allowance'] ?? '0' }}
                                                             </td>
                                                             <td>{{ $salary->details['allowances']['Medical Allowance'] ?? '0' }}
