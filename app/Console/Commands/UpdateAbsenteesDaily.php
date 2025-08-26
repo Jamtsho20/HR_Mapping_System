@@ -25,7 +25,7 @@ class UpdateAbsenteesDaily extends Command
     /**
      * Execute the console command.
      */
-    [{"date":"2025-08-25 22:35:03","attendance_status_id":2,"remarks":"Marked absent on 2025-08-25 22:35:03 as he\/she didn`t checked in for the day (System generated).","updated_by":1}]
+    
     public function handle()
     {
         $currentDay = (int) now()->format('d'); // eg. 17
@@ -41,6 +41,7 @@ class UpdateAbsenteesDaily extends Command
             $attendanceDetails = AttendanceDetail::where('daily_attendance_id', $dailyAttendance->id)->where('attendance_status_id', CREATED_STATUS)->get();
             foreach($attendanceDetails as $detail){
                 $remarks = 'marked as absent for ' . now()->format('Y-m-d') . ' as he/she didn`t clocked-in for the day (System generated).';
+                // $remarks = 'Marked absent on ' . now()->toDateTimeString() . ' as he/she didn`t clocked-in for the day (System generated).';
                 $history = $detail->update_history ? json_decode($detail->update_history, true) : [];
                 $history[] = [
                     'date' => now()->toDateTimeString(),
