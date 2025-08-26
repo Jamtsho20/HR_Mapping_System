@@ -181,11 +181,13 @@ class AttendanceApiController extends Controller
                 $attendance->check_in_at = $request->check_in_at;
                 $attendance->check_in_office_id = !$isFieldEmp ? $request->check_in_from : null;
                 $attendance->check_in_from = $isFieldEmp ? $request->check_in_from_location : null;
+                $attendance->check_in_coordinates = $isFieldEmp ? $request->check_in_coordinates: null;
                 $attendance->check_in_ip = $request->ip();
             } elseif ($request->check_type === 'check-out') {
                 $attendance->check_out_at = $request->check_out_at;
                 $attendance->check_out_office_id = !$isFieldEmp ? $request->check_out_from : null;
                 $attendance->check_out_from = $isFieldEmp ? $request->check_out_from_location : null;
+                $attendance->check_out_coordinates = $isFieldEmp ? $request->check_out_coordinates: null;
                 $attendance->check_out_ip = $request->ip();
             }
 
