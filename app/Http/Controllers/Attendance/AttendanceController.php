@@ -60,7 +60,7 @@ class AttendanceController extends Controller
         for ($i = 1; $i <= $maxDays; $i++) {
             $days[] = str_pad($i, 2, '0', STR_PAD_LEFT);
         }
-        // dd($year);
+        
         return view('attendance.attendance-entry.index', compact('privileges', 'monthlyAttendances', 'days', 'year'));
     }
 

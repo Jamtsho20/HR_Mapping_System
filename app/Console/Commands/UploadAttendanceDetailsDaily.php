@@ -75,30 +75,15 @@ class UploadAttendanceDetailsDaily extends Command
                                 'employee_id' => $employee->id,
                                 'department_id' => $departmentId ?? null,
                                 'section_id' => $sectionId ?? null,
-                                'check_in_at' => null,
-                                'check_out_at' => null,
-                                'check_in_ip' => null,
-                                'check_out_ip' => null,
+                                // 'check_in_at' => null,
+                                // 'check_out_at' => null,
+                                // 'check_in_ip' => null,
+                                // 'check_out_ip' => null,
                                 'attendance_status_id' => $attendanceStatus,
                                 'created_by' => 1,
                                 'created_at' => now(),
                             ];
                         }
-
-                    // $insertData[] = [
-                    //     'daily_attendance_id' => $dailyAttendance->id,
-                    //     'employee_id' => $employee->id,
-                    //     'department_id' => $departmentId ?? null,
-                    //     'section_id' => $sectionId ?? null,
-                    //     'check_in_at' => null,
-                    //     'check_out_at' => null,
-                    //     'check_in_ip' => null,
-                    //     'check_out_ip' => null,
-                    //     'attendance_status_id' => $attendanceStatus,
-                    //     'created_by' => 1,
-                    //     'created_at' => now(),
-                    // ];
-                
                 }
 
                 if (!empty($insertData)) {  

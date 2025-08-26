@@ -200,8 +200,8 @@ class AttendanceSummaryController extends Controller
                 // Fill map for that day
                 $grouped[$empId]['attendanceMap'][$forDay] = [
                     'employee' => $detail->employee->emp_id_name ?? config('global.null_value'),
-                    'checked_in_from' => $detail->checkedInFrom->name ?? config('global.null_value'),
-                    'checked_out_from' => $detail->checkedOutFrom->name ?? config('global.null_value'),
+                    'checked_in_from' => $detail->check_in_office_id ? ($detail->checkedInFrom?->name ?? config('global.null_value')) : ($detail->check_in_from ?? config('global.null_value')),
+                    'checked_out_from' => $detail->check_out_office_id ? ($detail->checkedOutFrom?->name ?? config('global.null_value')) : ($detail->check_out_from ?? config('global.null_value')),
                     'check_in_at' => $detail->formatted_check_in_at ?? config('global.null_value'),
                     'check_out_at' => $detail->formatted_check_out_at ?? config('global.null_value'),
                     'attendance_status_code' => $detail->attendance_status_id == INFORMED_LATE_STATUS ? $detail->present_display_status : $detail->attendanceStatus->code ?? config('global.null_value'),

@@ -109,6 +109,7 @@
                                                         @php
                                                             $data = $attendance['attendanceMap'][$day] ?? null;
                                                             $isToday = now()->day;
+                                                            // $record->check_out_office_id ? ($record->checkedOutFrom->name ?? config('global.null_value')) : ($record->check_out_from ?? config('global.null_value'))
                                                         @endphp
                                                         <td class="text-center fw-bold"
                                                             style="color: {{ $data['status_color'] ?? '#929898' }}; {{ $day == $isToday ? 'background-color: #e2f5ce;' : '' }}"

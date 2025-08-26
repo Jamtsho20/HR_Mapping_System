@@ -109,9 +109,9 @@
                                                     <td class="{{ $attendanceRecords->count() ? 'freeze-col' : '' }}">{{ $record->employee->emp_id_name ?? config('global.null_value') }}</td>
                                                     <td style="text-align: right;">{{ getDisplayDateFormat($record->created_at) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_in_at ?? config('global.null_value') }}</td>
-                                                    <td title="{{ $record->checkedInFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedInFrom->name ?? config('global.null_value'), 10) }}</td>
+                                                    <td title="{{ $record->check_in_office_id ? ($record->checkedInFrom->name ?? config('global.null_value')) : ($record->check_in_from ?? config('global.null_value')) }}">{{ truncateText($record->check_in_office_id ? ($record->checkedInFrom->name ?? config('global.null_value')) : ($record->check_in_from ?? config('global.null_value')), 10) }}</td>
                                                     <td style="text-align: right;">{{ $record->formatted_check_out_at ?? config('global.null_value') }}</td>
-                                                    <td title="{{ $record->checkedOutFrom->name ?? config('global.null_value') }}">{{ truncateText($record->checkedOutFrom->name ?? config('global.null_value'), 10) }}</td>
+                                                    <td title="{{ $record->check_out_office_id ? ($record->checkedOutFrom->name ?? config('global.null_value')) : ($record->check_out_from ?? config('global.null_value')) }}">{{ truncateText($record->check_out_office_id ? ($record->checkedOutFrom->name ?? config('global.null_value')) : ($record->check_out_from ?? config('global.null_value')), 10) }}</td>
                                                     <td style="text-align: center;">
                                                         @if($record->attendanceStatus)
                                                         <span class="badge"

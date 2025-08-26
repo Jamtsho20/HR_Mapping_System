@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Attendance;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
 use App\Models\EmployeeDevices;
+use App\Models\FieldEmployee;
 use App\Models\MasAttendanceFeature;
 use App\Models\MasOffice;
 use App\Services\AttendanceService;
@@ -58,11 +59,13 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $offices = MasOffice::whereStatus(1)->get(['id', 'name', 'longitude', 'latitude', 'radius']);
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
-        // dd($officeTiming);
+        $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
+        
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
             'offices' => $offices,
             'office_timings' => $officeTiming,  
+            'is_field_emp' => $isFieldEmp
         ]);
     }
 
@@ -75,15 +78,30 @@ class AttendanceApiController extends Controller
     }
 
     public function attendanceEntry(Request $request){
-        // \Log::info('attendance request:', $request->all());
         $attendanceService = new AttendanceService();
         $user = auth()->user();
-        if($request->check_type === 'check-in' && !$request->check_in_at){
+        $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
+        
+        $type = $request->check_type;
+        $isCheckIn  = $type === 'check-in';
+        $isCheckOut = $type === 'check-out';
+
+        if ($isCheckIn) {
             $this->rules['check_in_at'] = 'required';
-            $this->rules['check_in_from'] = 'required';
-        }else if($request->check_type === 'check-out' && !$request->check_out_at){
+            if ($isFieldEmp) {
+                $this->rules['check_in_from_location'] = 'required';
+            } else {
+                $this->rules['check_in_from'] = 'required';
+            }
+        }
+
+        if ($isCheckOut) {
             $this->rules['check_out_at'] = 'required';
-            $this->rules['check_out_from'] = 'required';
+            if ($isFieldEmp) {
+                $this->rules['check_out_from_location'] = 'required';
+            } else {
+                $this->rules['check_out_from'] = 'required';
+            }
         }
 
         $validator = \Validator::make($request->all(), $this->rules);
@@ -101,7 +119,6 @@ class AttendanceApiController extends Controller
         //     return $this->errorResponse('Device mismatch detected or not registered.');
         // }
         
-        
         if($request->attendance_date && $request->shift_name == 'Night Shift'){
             $loggedInUserDailyAttendanceEntry = $attendanceService->empAttendanceEntry($user, $year = null, $monthYear = null, 'yesterday');
         }else{
@@ -115,7 +132,7 @@ class AttendanceApiController extends Controller
 
         //new code here
         // Use transaction with row locking to prevent race conditions
-        DB::transaction(function () use ($loggedInUserDailyAttendanceEntry, $request, $user, $attendanceService) {
+        DB::transaction(function () use ($loggedInUserDailyAttendanceEntry, $request, $user, $attendanceService, $isFieldEmp) {
             // Lock the attendance row for update
             $attendance = AttendanceDetail::lockForUpdate()->find($loggedInUserDailyAttendanceEntry->id);
 
@@ -143,7 +160,7 @@ class AttendanceApiController extends Controller
                     $attendanceStatus = (($request->check_type == 'check-in' && $request->check_in_at) || ($request->check_type == 'check-out' && $request->check_out_at)) ? PRESENT_STATUS : $attendanceStatus;
                 }
             }
-            
+
             // Update history JSON safely
             $history = $attendance->update_history ? json_decode($attendance->update_history, true) : [];
             $history[] = [
@@ -162,11 +179,13 @@ class AttendanceApiController extends Controller
             // Update check-in/out data conditionally
             if ($request->check_type === 'check-in') {
                 $attendance->check_in_at = $request->check_in_at;
-                $attendance->check_in_office_id = $request->check_in_from;
+                $attendance->check_in_office_id = !$isFieldEmp ? $request->check_in_from : null;
+                $attendance->check_in_from = $isFieldEmp ? $request->check_in_from_location : null;
                 $attendance->check_in_ip = $request->ip();
             } elseif ($request->check_type === 'check-out') {
                 $attendance->check_out_at = $request->check_out_at;
-                $attendance->check_out_office_id = $request->check_out_from;
+                $attendance->check_out_office_id = !$isFieldEmp ? $request->check_out_from : null;
+                $attendance->check_out_from = $isFieldEmp ? $request->check_out_from_location : null;
                 $attendance->check_out_ip = $request->ip();
             }
 
