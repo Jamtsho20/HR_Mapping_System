@@ -1276,6 +1276,7 @@ function handleAcknowledgment(checkbox, transferId) {
                 })
                 .catch(error => {
                     let errorMessage = 'Failed to acknowledge receipt.';
+                    
                     if (error && error.message) {
                         errorMessage += ' ' + error.message;
                     }
