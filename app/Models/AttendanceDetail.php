@@ -69,7 +69,7 @@ class AttendanceDetail extends Model
     public function getFormattedCheckInAtAttribute()
     {
         return $this->check_in_at
-            ? Carbon::createFromFormat('H:i:s', $this->check_in_at)->format('g:i A')
+            ? Carbon::createFromFormat('H:i:s', $this->check_in_at)->format('g:i:s A')
             : null;
     }
 
@@ -78,5 +78,9 @@ class AttendanceDetail extends Model
         return $this->check_out_at
             ? Carbon::createFromFormat('H:i:s', $this->check_out_at)->format('g:i A')
             : null;
+        //uncomment below one if se4cond is required
+        // return $this->check_out_at
+        //     ? Carbon::createFromFormat('H:i:s', $this->check_out_at)->format('g:i:s A')
+        //     : null;
     }
 }

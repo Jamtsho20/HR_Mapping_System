@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceDetail;
-use App\Models\EmployeeDevices;
+// use App\Models\EmployeeDevices;
 use App\Models\FieldEmployee;
 use App\Models\MasAttendanceFeature;
 use App\Models\MasOffice;
@@ -59,13 +59,13 @@ class AttendanceApiController extends Controller
         $attendanceService = new AttendanceService();
         $offices = MasOffice::whereStatus(1)->get(['id', 'name', 'longitude', 'latitude', 'radius']);
         $officeTiming = $attendanceService->getEffectiveOfficeTiming($user) ?? [];
-        $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
+        // $isFieldEmp = FieldEmployee::where('mas_employee_id', $user->id)->exists();
         
         return $this->successResponse([
             'attendance_features' => $attendanceFeatures,
             'offices' => $offices,
             'office_timings' => $officeTiming,  
-            'is_field_emp' => $isFieldEmp
+            // 'is_field_emp' => $isFieldEmp
         ]);
     }
 
