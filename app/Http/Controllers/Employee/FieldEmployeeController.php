@@ -3,50 +3,54 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Models\DepartmentWiseShift;
-use App\Models\EmployeeShift;
+use App\Models\FieldEmployee;
 use App\Models\User;
 use App\Services\DelegationService;
 use Illuminate\Http\Request;
 
-class ShiftEmployeeController extends Controller
+class FieldEmployeeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:employee/shift-employee,view')->only('index');
-        $this->middleware('permission:employee/shift-employee,create')->only('store');
-        $this->middleware('permission:employee/shift-employee,edit')->only('update');
-        $this->middleware('permission:employee/shift-employee,delete')->only('destroy');
+        $this->middleware('permission:employee/field-employee,view')->only('index');
+        $this->middleware('permission:employee/field-employee,create')->only('store');
+        $this->middleware('permission:employee/field-employee,edit')->only('update');
+        $this->middleware('permission:employee/field-employee,delete')->only('destroy');
     }
 
     public function index(Request $request)
-{
-    $loggedInUser = auth()->user();
-    $delegationService = new DelegationService();
+    {
+        $loggedInUser = auth()->user();
+        $delegationService = new DelegationService();
 
-    $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
-    $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
-    $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
+        // Get all role IDs including delegated roles
+        $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
+        $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
+        $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
 
-    $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUser->id);
+        // Get employee IDs that the logged-in user can view
+        $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUser->id);
 
-    // Query EmployeeShift with filters
-    $employeeShiftsQuery = EmployeeShift::query()->filter($request);
+        // Prepare FieldEmployee query
+        $fieldEmployeesQuery = FieldEmployee::query()->filter($request);
 
-    if (!empty($employeeIds)) {
-        $employeeShiftsQuery->whereIn('mas_employee_id', $employeeIds);
+        // Filter by employee IDs if applicable
+        if (!empty($employeeIds)) {
+            $fieldEmployeesQuery->whereIn('mas_employee_id', $employeeIds);
+        }
+
+        $fieldEmployees = $fieldEmployeesQuery->orderBy('created_at', 'desc')
+            ->paginate(config('global.pagination'));
+
+        // Prepare employees for filter dropdown
+        $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
+
+        return view('employee/field-employee.index', [
+            'privileges' => $request->instance(),
+            'fieldEmployees' => $fieldEmployees,
+            'employees' => $employees,
+        ]);
     }
-
-    $employeeShifts = $employeeShiftsQuery->orderBy('created_at', 'desc')
-        ->paginate(config('global.pagination'));
-
-    // Prepare employees for filter dropdown
-    $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
-
-    $privileges = $request->instance();
-
-    return view('employee/shift-employee.index', compact('privileges', 'employeeShifts', 'employees'));
-}
 
     private function getEmployeeIdsByRole(array $allRoles, int $loggedInUserId)
     {
@@ -138,68 +142,54 @@ class ShiftEmployeeController extends Controller
             ->get();
     }
 
-
     public function create()
     {
-        $shifts = \App\Models\DepartmentWiseShift::all();
-        return view('employee/shift-employee/create', compact('shifts'));
+        return view('employee/field-employee.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'mas_employee_id' => 'required|exists:mas_employees,id',
-            'department_shift_id' => 'required|exists:department_wise_shifts,id',
-            'off_days' => 'required|array|min:1',
-            'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
         ]);
 
-        $shift = new \App\Models\EmployeeShift();
-        $shift->mas_employee_id = $request->mas_employee_id;
-        $shift->department_shift_id = $request->department_shift_id;
-        $shift->off_days = json_encode($request->off_days);
-        $shift->save();
+        FieldEmployee::create([
+            'mas_employee_id' => $request->mas_employee_id,
+        ]);
 
-        return redirect()->route('shift-employee.index')
-            ->with('msg_success', 'Employee shift assigned successfully.');
+        return redirect()->route('field-employee.index')
+            ->with('msg_success', 'Field Employee created successfully.');
     }
 
     public function edit(string $id)
     {
-        $shift = \App\Models\EmployeeShift::findOrFail($id);
+        $field = FieldEmployee::findOrFail($id);
         $employees = User::all();
-        $shifts = DepartmentWiseShift::all();
-        return view('employee/shift-employee.edit', compact('shift', 'employees', 'shifts'));
+        return view('employee/field-employee.edit', compact('field', 'employees'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'mas_employee_id' => 'required|exists:mas_employees,id',
-            'department_shift_id' => 'required|exists:department_wise_shifts,id',
-            'off_days' => 'required|array|min:1',
-            'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
         ]);
 
-        $shift = EmployeeShift::findOrFail($id);
-        $shift->mas_employee_id = $request->mas_employee_id;
-        $shift->department_shift_id = $request->department_shift_id;
-        $shift->off_days = $request->off_days; // if $casts exists
-        $shift->updated_by = auth()->id();
-        $shift->save();
+        $field = FieldEmployee::findOrFail($id);
+        $field->mas_employee_id = $request->mas_employee_id;
+        $field->updated_by = auth()->id();
+        $field->save();
 
-        return redirect()->route('shift-employee.index')
-            ->with('msg_success', 'Employee shift updated successfully.');
+        return redirect()->route('field-employee.index')
+            ->with('msg_success', 'Field Employee updated successfully.');
     }
 
     public function destroy($id)
     {
         try {
-            EmployeeShift::findOrFail($id)->delete();
-
-            return back()->with('msg_success', 'Attendance Feature has been deleted');
+            FieldEmployee::findOrFail($id)->delete();
+            return back()->with('msg_success', 'Field Employee has been deleted');
         } catch (\Exception $e) {
-            return back()->with('msg_error', 'Attendance Feature cannot be deleted as it has been used by other module. For further information contact system admin.');
+            return back()->with('msg_error', 'Field Employee cannot be deleted as it has been used by other module. For further information contact system admin.');
         }
     }
 }
