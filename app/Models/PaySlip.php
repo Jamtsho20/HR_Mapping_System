@@ -131,7 +131,15 @@ class PaySlip extends Model
                     $employeeIDs[] = $detail->mas_employee_id;
                 }
 
-                $paySlip->repaymentSchedule(json_encode($employeeIDs));
+                $currentMonth = now()->format('Y-m');
+                $alreadyExists = \DB::table('sifaloanrepayment')
+                    ->whereIn('mas_employee_id', $employeeIDs)
+                    ->whereRaw("DATE_FORMAT(month, '%Y-%m') = ?", [$currentMonth])
+                    ->exists();
+
+                if (! $alreadyExists) {
+                    $paySlip->repaymentSchedule(json_encode($employeeIDs));
+                }
             }
         });
     }

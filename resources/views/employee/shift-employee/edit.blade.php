@@ -59,7 +59,7 @@
         <div class="card-footer text-center">
             @include('layouts.includes.buttons', [
             'buttonName' => 'UPDATE',
-            'cancelUrl' => url('master/shift-employee'),
+            'cancelUrl' => url('employee/shift-employee'),
             'cancelName' => 'CANCEL'
             ])
         </div>

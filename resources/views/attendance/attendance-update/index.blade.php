@@ -22,17 +22,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-3 form-group">
-            <select class="form-control select2" name="attendance_status">
-                <option value="" disabled selected>--Select Attendance Status--</option>
-                @foreach ($attendanceStatus as $status)
-                    <option value="{{ $status->id }}"
-                        {{ request()->get('attendance_status') == $status->id ? 'selected' : '' }}>
-                        {{ $status->attendance_status }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+       
     </div>
     @endcomponent
     <br>

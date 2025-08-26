@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('page-title', 'Employee Shift')
+@section('page-title', 'Field Employee')
 @section('content')
 @if ($privileges->create)
 @section('buttons')
-<a href="{{ route('shift-employee.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Employee Shift</a>
+<a href="{{ route('field-employee.create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Field Employee</a>
 @endsection
 @endif
 <div class="block-header block-header-default">
@@ -47,10 +47,10 @@
                                                         Employee
                                                     </th>
                                                     <th>
-                                                        Department Shift
+                                                        Section
                                                     </th>
                                                     <th>
-                                                        Off Days
+                                                        Department
                                                     </th>
                                                     <th>
                                                         Action
@@ -58,18 +58,15 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($employeeShifts as $shift)
+                                                @forelse($fieldEmployees as $fieldEmployee)
                                                 <tr>
-                                                    <td>{{ $employeeShifts->firstItem() + ($loop->iteration - 1) }}</td>
-                                                    <td>{{ $shift->masEmployee->emp_id_name }}</td>
-                                                    <td>{{ $shift->departmentShift->name }}</td>
-                                                    @php
-                                                    $offDays = json_decode($shift->off_days, true);
-                                                    @endphp
-                                                    <td>{{ implode(', ', $offDays ?? []) }}</td>
+                                                    <td>{{ $fieldEmployees->firstItem() + ($loop->iteration - 1) }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->emp_id_name }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->empJob->section->name ?? '-' }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->empJob->department->name ?? '-' }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
-                                                        <a href="{{ url('employee/shift-employee/' . $shift->id . '/edit') }}"
+                                                        <a href="{{ url('employee/field-employee/' . $fieldEmployee->id . '/edit') }}"
                                                             class="btn btn-sm btn-rounded btn-outline-success">
                                                             <i class="fa fa-edit"></i> EDIT
                                                         </a>
@@ -78,15 +75,16 @@
                                                         @if ($privileges->delete)
                                                         <a href="#"
                                                             class="delete-btn btn btn-sm btn-rounded btn-outline-danger"
-                                                            data-url="{{ url('employee/shift-employee/' . $shift->id) }}">
+                                                            data-url="{{ url('employee/field-employee/' . $fieldEmployee->id) }}">
                                                             <i class="fa fa-trash"></i> DELETE
                                                         </a>
                                                         @endif
                                                     </td>
+                                                    </td>
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="7" class="text-center text-danger">No shift Types found</td>
+                                                    <td colspan="3" class="text-center text-danger">No Record Found</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
@@ -94,9 +92,9 @@
                                         </table>
 
                                     </div>
-                                    @if ($employeeShifts->hasPages())
+                                    @if ($fieldEmployees->hasPages())
                                     <div class="card-footer">
-                                        {{ $employeeShifts->links() }}
+                                        {{ $fieldEmployees->links() }}
                                     </div>
                                     @endif
                                 </div>

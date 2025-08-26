@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\DelegationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceUpdateController extends Controller
 {
@@ -31,23 +32,21 @@ class AttendanceUpdateController extends Controller
 
         // Get user roles using the relationship
         $userRoleIds = $loggedInUser->roles->pluck('id')->toArray();
-        $attendanceStatus = AttendanceStatus::get();
-        
+
         $delegatedRoles = $delegationService->delegatedRole($loggedInUser->id);
         $allRoles = collect(array_unique(array_merge($userRoleIds, $delegatedRoles)))->values()->all();
 
         $privileges = $request->instance();
-
         $filterDate = $this->getFilterDate($request);
         $employeeFilter = $request->get('employee');
 
         $employeeIds = $this->getEmployeeIdsByRole($allRoles, $loggedInUser->id);
-        $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter, $request->attendance_status);
+        $attendanceRecords = $this->getAttendanceRecords($employeeIds, $filterDate, $employeeFilter);
         $employees = $this->getEmployeesForFilter($userRoleIds, $allRoles, $loggedInUser->id);
 
         $selectedDate = $filterDate->toDateString();
 
-        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees', 'attendanceStatus'));
+        return view('attendance.attendance-update.index', compact('privileges', 'attendanceRecords', 'selectedDate', 'employees'));
     }
 
     private function getFilterDate(Request $request)
@@ -70,7 +69,9 @@ class AttendanceUpdateController extends Controller
         if (in_array(IMMEDIATE_HEAD, $allRoles)) {
             return $this->getImmediateHeadEmployees($loggedInUserId);
         }
-
+        if (in_array(SUPERVISOR, $allRoles)) {
+            return $this->getSupervisorEmployees($loggedInUserId);
+        }
         if (in_array(MANAGING_DIRECTOR, $allRoles)) {
             return $this->getManagingDirectorEmployees();
         }
@@ -104,6 +105,23 @@ class AttendanceUpdateController extends Controller
             ->pluck('id')
             ->toArray();
     }
+    private function getSupervisorEmployees(int $loggedInUserId)
+    {
+        $loggedInUser = User::with('empJob')->find($loggedInUserId);
+
+        if (!$loggedInUser || !$loggedInUser->empJob || !$loggedInUser->empJob->mas_section_id) {
+            return [];
+        }
+
+        // Get all employees in the same section except the logged-in supervisor
+        return User::whereHas('empJob', function ($query) use ($loggedInUser) {
+            $query->where('mas_section_id', $loggedInUser->empJob->mas_section_id);
+        })
+            ->where('id', '!=', $loggedInUserId)
+            ->pluck('id')
+            ->toArray();
+    }
+
 
     private function getImmediateHeadEmployees(int $loggedInUserId)
     {
@@ -132,14 +150,10 @@ class AttendanceUpdateController extends Controller
             ->toArray();
     }
 
-    private function getAttendanceRecords(array $employeeIds, Carbon $filterDate, $employeeFilter, $attendanceStatus)
+    private function getAttendanceRecords(array $employeeIds, Carbon $filterDate, $employeeFilter)
     {
         $query = \App\Models\AttendanceDetail::with(['employee', 'attendanceStatus'])
             ->whereDate('created_at', $filterDate)
-            ->when($attendanceStatus, function ($query) use($attendanceStatus){
-                $query->where('attendance_status_id', $attendanceStatus);
-            })
-            // ->where('attendance_status_id', $attendanceStatus)
             ->when($employeeFilter, function ($query) use ($employeeFilter) {
                 $query->where('employee_id', $employeeFilter);
             });

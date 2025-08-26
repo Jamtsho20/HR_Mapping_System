@@ -138,6 +138,11 @@ class User extends Authenticatable
         return $this->hasMany(EmployeeShift::class, 'mas_employee_id');
     }
 
+    public function employeeFields()
+    {
+        return $this->hasMany(FieldEmployee::class, 'mas_employee_id');
+    }
+
     public function attendanceDetails()
     {
         return $this->hasMany(AttendanceDetail::class, 'employee_id');
