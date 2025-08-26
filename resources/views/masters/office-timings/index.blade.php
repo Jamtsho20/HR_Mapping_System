@@ -42,13 +42,13 @@
                                                         End Month
                                                     </th>
                                                     <th>
-                                                        Start_time
+                                                        Start Time
                                                     </th>
                                                     <th>
-                                                        Lunch_time_from
+                                                        Lunch Time
                                                     </th>
                                                     <th>
-                                                        End_time
+                                                        End Time
                                                     </th>
                                                     <th>
                                                         Action
@@ -62,9 +62,9 @@
                                                     <td>{{ $timing->season_name }}</td>
                                                     <td>{{ $timing->start_month_name }}</td>
                                                     <td>{{ $timing->end_month_name }}</td>
-                                                    <td>{{ $timing->start_time }}</td>
-                                                    <td>{{ $timing->lunch_time_from }}</td>
-                                                    <td>{{ $timing->end_time }}</td>
+                                                    <td>{{ $timing->formatted_start_time }}</td>
+                                                    <td>{{ $timing->formatted_lunch_time }}</td>
+                                                    <td>{{ $timing->formatted_end_time }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
                                                         <a href="{{ url('master/office-timings/' . $timing->id . '/edit') }}"

@@ -50,6 +50,9 @@
                                                         Department Shift
                                                     </th>
                                                     <th>
+                                                        Shift Time
+                                                    </th>
+                                                    <th>
                                                         Off Days
                                                     </th>
                                                     <th>
@@ -63,6 +66,7 @@
                                                     <td>{{ $employeeShifts->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $shift->masEmployee->emp_id_name }}</td>
                                                     <td>{{ $shift->departmentShift->name }}</td>
+                                                    <td>{{ $shift->departmentShift->formatted_start_time .' - '. $shift->departmentShift->formatted_end_time}}</td>
                                                     @php
                                                     $offDays = json_decode($shift->off_days, true);
                                                     @endphp

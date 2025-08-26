@@ -25,6 +25,35 @@ class DepartmentWiseShift extends Model
     public function deptShiftEmployees(){
         return $this->hasMany(EmployeeShift::class, 'department_shift_id');
     }
+
+    public function getFormattedStartTimeAttribute(){
+        $startTime = $this->start_time 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->start_time)->format('h:i A') 
+            : null;
+        return trim($startTime ?? '');
+    }
+
+    public function getFormattedEndTimeAttribute(){
+        $endTime = $this->end_time 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->end_time)->format('h:i A') 
+            : null;
+        return trim($endTime ?? '');
+    }
+
+    // public function getShiftTimeAttribute()
+    // {
+    //     $start = $this->start_time 
+    //         ? \Carbon\Carbon::createFromFormat('H:i:s', $this->start_time)->format('h:i A') 
+    //         : null;
+
+    //     $end = $this->end_time 
+    //         ? \Carbon\Carbon::createFromFormat('H:i:s', $this->end_time)->format('h:i A') 
+    //         : null;
+
+    //     return trim(($start ?? '') . ' - ' . ($end ?? ''), ' -');
+    // }
+
+
     public function scopeFilter($query, $request)
     {
         if ($request->has('name') && $request->query('name') != '') {

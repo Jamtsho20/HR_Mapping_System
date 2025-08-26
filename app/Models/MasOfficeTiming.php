@@ -32,4 +32,31 @@ class MasOfficeTiming extends Model
     public function getEndMonthNameAttribute(){
         return config('global.months')[$this->end_month];
     }
+
+    public function getFormattedStartTimeAttribute(){
+        $startTime = $this->start_time 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->start_time)->format('h:i A') 
+            : null;
+        return trim($startTime ?? '');
+    }
+
+    public function getFormattedEndTimeAttribute(){
+        $endTime = $this->end_time 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->end_time)->format('h:i A') 
+            : null;
+        return trim($endTime ?? '');
+    }
+
+    public function getformattedLunchTimeAttribute()
+    {
+        $lunchFrom = $this->lunch_time_from 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->lunch_time_from)->format('h:i A') 
+            : null;
+
+        $lunchTo = $this->lunch_time_to 
+            ? \Carbon\Carbon::createFromFormat('H:i:s', $this->lunch_time_to )->format('h:i A') 
+            : null;
+
+        return trim(($lunchFrom ?? '') . ' - ' . ($lunchTo ?? ''), ' -');
+    }
 }
