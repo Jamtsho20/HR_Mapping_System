@@ -15,18 +15,17 @@ return new class extends Migration
             $table->id();
             $table->string('serial_number')->unique()->nullable()->index();
             $table->foreignId('current_employee_id')->nullable()->constrained('mas_employees');
-            $table->foreignId('item_id')->index()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('item_id')->index()->nullable()->constrained('mas_items')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('current_site_id')->nullable()->constrained('mas_sites');
-            $table->foreignId('received_serial_id')->unique()->constrained('received_serials')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('commission_detail_id')->index()->constrained('commission_details')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('asset_transfer_detail_id')->constrained('asset_transfer_details')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('return_detail_id')->constrained('return_details')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('initial_owner_id')->index()->constrained('mas_employees')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('received_serial_id')->unique()->nullable()->constrained('received_serials')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('sap_asset_id')->unique()->nullable()->constrained('sap_assets')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('commission_detail_id')->index()->nullable()->constrained('commission_details')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('asset_transfer_detail_id')->nullable()->constrained('asset_transfer_details')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('return_detail_id')->nullable()->constrained('return_details')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('initial_owner_id')->index()->nullable()->constrained('mas_employees')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('created_by')->index()->constrained('mas_employees');
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->tinyInteger('status')->default(1)->comment('1 = commissioned, 2 = transferred, 3 = returned');
-            $table->decimal('amount', 10, 2);
-            $table->integer('quantity')->nullable();
             $table->timestamps();
         });
     }

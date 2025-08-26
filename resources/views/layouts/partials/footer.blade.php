@@ -65,9 +65,9 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <!-- CUSTOM JS -->
-<script src="{{ asset('assets/js/custom.js') }}"></script>
-<script src="{{ asset('assets/js/add-new-row.js') }}"></script>
-<script src="{{ asset('assets/js/custom-script.js') }}"></script>
+<script src="{{ asset('assets/js/custom.js') }}?v={{ filemtime(public_path('assets/js/custom.js')) }}"></script>
+<script src="{{ asset('assets/js/add-new-row.js') }}?v={{ filemtime(public_path('assets/js/add-new-row.js')) }}"></script>
+<script src="{{ asset('assets/js/custom-script.js') }}?v={{ filemtime(public_path('assets/js/custom-script.js')) }}"></script>
 {{-- <script src="{{ asset('assets/js/bulk-approval-rejection.js') }}"></script> --}}
 <script>
     $(document).ready(function() {

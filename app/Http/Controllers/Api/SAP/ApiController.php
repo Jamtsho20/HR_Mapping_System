@@ -1061,7 +1061,11 @@ class ApiController extends BaseController
             'assets.*.description' => 'required',
             'assets.*.quantity'    => 'required|numeric',
             'assets.*.amount'      => 'required|numeric',
-            'assets.*.current_depreciation' => 'required|numeric'
+            'assets.*.current_depreciation' => 'required|numeric',
+            'assets.*.uom' => 'required',
+            'assets.*.capitalization_date' => 'required|date',
+            'assets.*.end_date' => 'required|date',
+            'assets.*.category' => 'required',
         ];
 
         $validator = \Validator::make(['assets' => $assets], $rules);

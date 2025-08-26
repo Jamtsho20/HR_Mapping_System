@@ -13,6 +13,10 @@ class MasAssets extends Model
 
     protected $fillable = [ 'serial_number', 'current_employee_id', 'item_id', 'current_site_id', 'received_serial_id', 'commission_detail_id', 'asset_transfer_detail_id', 'return_detail_id', 'initial_owner_id', 'created_by', 'updated_by', 'status', 'quantity', 'amount', 'description', 'current_depreciation', 'item_code', 'depreciation_type', 'asset_transfer_id','uom' ];
 
+    public function sapAssets()
+    {
+        return $this->belongsTo(SapAsset::class, 'sap_asset_id');
+    }
     public function receivedSerial()
     {
         return $this->belongsTo(ReceivedSerial::class, 'received_serial_id');

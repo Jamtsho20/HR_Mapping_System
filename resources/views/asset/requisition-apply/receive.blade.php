@@ -1,5 +1,4 @@
 @extends('layouts.app')
-<script src="{{ asset('assets/js/custom-script.js') }}?v={{ filemtime(public_path('assets/js/custom-script.js')) }}"></script>
 @section('page-title', 'Requisition')
 @section('buttons')
 <a href="{{ url('asset/requisition') }}" class="btn btn-primary"><i class="fa fa-reply"></i> Back to Requisition List</a>
@@ -27,7 +26,6 @@
                         <label for="requisition_date">Requisition Date <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="requisition_date"
                             value="{{ $requisition->transaction_date }}" readonly>
-
                     </div>
                 </div>
                 <div class="row">
@@ -45,7 +43,6 @@
                             <label class="form-check-label" for="receiveAllToggle">Receive All</label>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="table-responsive">
@@ -64,7 +61,6 @@
                                 <th>Remark</th>
                                 <th>Quantity Received</th>
                                 <th>Receive</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -118,7 +114,7 @@
                             </tr>
 
                             <!-- Collapsible Row -->
-                            <tr class = "collapse" id="collapseDetails{{$key}}" data-key="{{$key}}">
+                            <tr class="collapse" id="collapseDetails{{$key}}" data-key="{{$key}}">
                                 <th colspan="1"></th>
                                 <th colspan="2">Serial No</th>
                                 <th colspan="2">Amount</th>
@@ -126,34 +122,30 @@
                                 <th>Received</th>
                                 <th colspan="6"></th>
                             </tr>
-                            @foreach ($detail->serials as $serial )
-
-                            <tr class="collapse  serial-row-{{$key}}" id="collapseDetails{{$key}}"  style="background-color: white;">
+                            @foreach ($detail->serials as $serialIndex => $serial )
+                            <tr class="collapse serial-row-{{$key}}" id="collapseDetails{{$key}}" data-key="{{$key}}" data-serial-index="{{$serialIndex}}" style="background-color: white;">
                                 <td colspan="1">
-                                    <input type="hidden" name="details[{{$key}}][serials][id]" value="{{$serial->id}}">
+                                    <input type="hidden" name="details[{{$key}}][serials][{{$serialIndex}}][id]" value="{{$serial->id}}">
                                 </td>
-
-                                        <td colspan="2">
-                                            <p>{{$serial->requisitionDetail->grnItemDetail->item->item_no. '-' .$serial->asset_serial_no}}</p>
-                                            <input type="hidden" name="details[{{$key}}][serials][id]" value="{{$serial->id}}" class="form-control form-control-sm">
-                                            <input type="hidden" name="details[{{$key}}][serials][serial_no]" value="{{$serial->asset_serial_no}}" class="form-control form-control-sm" readonly required />
-                                        </td>
-                                        <td colspan="2">
-                                            <p>{{ number_format($serial->amount, 2) }}</p>
-                                            <input type="hidden" name="details[{{$key}}][serials][amount]"  value="{{ isset($serial->amount) ? number_format($serial->amount, 2) : config('global.null_value') }}"  class="form-control form-control-sm" readonly required />
-                                        </td>
-                                        <td>
-                                            <p>{{$serial->quantity}}</p>
-                                            <input type="hidden" name="details[{{$key}}][serials][quantity]" value="{{$serial->quantity}}" class="form-control form-control-sm quantity-key-{{$key}}">
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" name="details[{{$key}}][serials][received]" class="select-all select-checkbox select-key-{{$key}}" value="{{$serial->is_received}}"{{ $serial->is_received ? 'checked' : '' }}>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="details[{{$key}}][serials][remark]" value="{{$serial->remark}}" class="form-control form-control-sm check" placeholder="Remark" style="background-color: white">
-                                        </td>
-                                        <td colspan="6">
-                                        </td>
+                                <td colspan="2">
+                                    <p>{{$serial->requisitionDetail->grnItemDetail->item->item_no. '-' .$serial->asset_serial_no}}</p>
+                                    <input type="hidden" name="details[{{$key}}][serials][{{$serialIndex}}][serial_no]" value="{{$serial->asset_serial_no}}" class="form-control form-control-sm" readonly required />
+                                </td>
+                                <td colspan="2">
+                                    <p>{{ number_format($serial->amount, 2) }}</p>
+                                    <input type="hidden" name="details[{{$key}}][serials][{{$serialIndex}}][amount]" value="{{ isset($serial->amount) ? number_format($serial->amount, 2) : config('global.null_value') }}" class="form-control form-control-sm" readonly required />
+                                </td>
+                                <td>
+                                    <p>{{$serial->quantity}}</p>
+                                    <input type="hidden" name="details[{{$key}}][serials][{{$serialIndex}}][quantity]" value="{{$serial->quantity}}" class="form-control form-control-sm quantity-key-{{$key}}">
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="details[{{$key}}][serials][{{$serialIndex}}][received]" class="select-all select-checkbox select-key-{{$key}}" value="{{$serial->is_received}}" data-serial-key="{{$key}}-{{$serialIndex}}" {{ $serial->is_received ? 'checked' : '' }}>
+                                </td>
+                                <td>
+                                    <input type="text" name="details[{{$key}}][serials][{{$serialIndex}}][remark]" value="{{$serial->remark}}" class="form-control form-control-sm check" placeholder="Remark" style="background-color: white">
+                                </td>
+                                <td colspan="6"></td>
                             </tr>
                             @endforeach
                             @empty
@@ -162,25 +154,20 @@
                             </tr>
                             @endforelse
                         </tbody>
-
                     </table>
                 </div>
             </div>
-
         </div>
-
     </div>
-
+@push('page_scripts')
     <script>
        document.addEventListener("DOMContentLoaded", function() {
-
 
        document.getElementById('receiveAllToggle').addEventListener('change', async function () {
         const receiveAllToggle = this;
         const checked = receiveAllToggle.checked;
 
         if (!checked) {
-            // If unchecked, prevent action or reset individual toggles if needed
             return;
         }
 
@@ -189,12 +176,10 @@
             async function onConfirm() {
                 $('#loader').show();
 
-                // Process each requisition detail toggle
                 const receiveToggles = document.querySelectorAll('.receive-toggle');
 
                 for (const toggle of receiveToggles) {
                     if (toggle.disabled || toggle.checked) {
-                        // Skip if already processed
                         continue;
                     }
 
@@ -202,11 +187,10 @@
                     const quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
                     const grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
 
-                    // Check all serial checkboxes for this key and disable them
-                    const serialRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
+                    const serialRows = document.querySelectorAll(`tr.serial-row-${requisitionKey}[data-key="${requisitionKey}"]`);
 
                     serialRows.forEach(row => {
-                        const serialCheckbox = row.querySelector("input[type='checkbox']");
+                        const serialCheckbox = row.querySelector("input[type='checkbox'].select-checkbox");
                         if (serialCheckbox && !serialCheckbox.checked) {
                             serialCheckbox.checked = true;
                         }
@@ -224,27 +208,22 @@
                         }
                     });
 
-                    // Update quantity input to total of serial quantities
                     updateReceivedQuantity(requisitionKey);
 
-                    // Disable quantity input to prevent edits
                     if (quantityInput) quantityInput.readOnly = true;
 
-                    // Set main toggle to checked and disable
                     toggle.checked = true;
                     toggle.disabled = true;
 
                     await receiveSerialItems(requisitionKey, grnId, quantityInput, true);
                 }
 
-                // Disable master toggle after all done
                 receiveAllToggle.disabled = true;
 
                 $('#loader').hide();
                 showSuccessMessage('All items received successfully.');
             },
             function onCancel() {
-                // User canceled
                 receiveAllToggle.checked = false;
             }
         );
@@ -252,159 +231,143 @@
 
 
         document.querySelectorAll(".select-all").forEach((checkbox) => {
-                checkbox.addEventListener("change", function () {
-                    let row = this.closest("tr");
-                    let remarkInput = row.querySelector("input[name*='[remark]']");
+            checkbox.addEventListener("change", function () {
+                let row = this.closest("tr");
+                let remarkInput = row.querySelector("input[name*='[remark]']");
+                let key = this.getAttribute('data-serial-key').split('-')[0];
 
-                    if (!this.checked) {
-                        if (remarkInput) {
-                            remarkInput.disabled = false;
-                            remarkInput.style.backgroundColor = "#fdfdfd";
-                            remarkInput.placeholder = "Remark";
-                        }
-                    } else {
-                        if (remarkInput) {
-                            remarkInput.disabled = true;
-                            remarkInput.value = "";
-                            remarkInput.placeholder = "";
-                            remarkInput.style.backgroundColor = "white";
-                        }
+                if (!this.checked) {
+                    if (remarkInput) {
+                        remarkInput.disabled = false;
+                        remarkInput.style.backgroundColor = "#fdfdfd";
+                        remarkInput.placeholder = "Remark";
                     }
-                });
+                } else {
+                    if (remarkInput) {
+                        remarkInput.disabled = true;
+                        remarkInput.value = "";
+                        remarkInput.placeholder = "";
+                        remarkInput.style.backgroundColor = "white";
+                    }
+                }
+
+
+                updateReceivedQuantity(key);
             });
+        });
 
         document.querySelectorAll(".receive-toggle").forEach(toggle => {
-        let requisitionKey = toggle.getAttribute("data-key");
+            let requisitionKey = toggle.getAttribute("data-key");
 
+            if (toggle.checked) {
 
-         if (toggle.checked) {
-            let childRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
-            childRows.forEach((row) => {
-                let serialCheckbox = row.querySelector("input[type='checkbox']");
-                if (serialCheckbox) {
-                    serialCheckbox.readOnly = true;
-                    serialCheckbox.addEventListener('click', function (e) {
-                        e.preventDefault(); // prevent toggling
-                    });
+                let childRows = document.querySelectorAll(`tr.serial-row-${requisitionKey}[data-key="${requisitionKey}"]`);
+                childRows.forEach((row) => {
+                    let serialCheckbox = row.querySelector("input[type='checkbox'].select-checkbox");
+                    if (serialCheckbox) {
+                        serialCheckbox.readOnly = true;
+                        serialCheckbox.addEventListener('click', function (e) {
+                            e.preventDefault();
+                        });
+                    }
+
+                    let remarkInput = row.querySelector("input[name*='[remark]']");
+                    if (remarkInput) {
+                        remarkInput.disabled = true;
+                        remarkInput.placeholder = "";
+                        remarkInput.style.backgroundColor = "white";
+                    }
+                });
+            }
+
+            let quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
+            let grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
+
+            function toggleCheckbox() {
+                if(quantityInput.value > quantityInput.max){
+                    showErrorMessage('Quantity received cannot be greater than the quantity issued by SAP.');
+                    quantityInput.value = quantityInput.max;
                 }
-
-                let remarkInput = row.querySelector("input[name*='[remark]']");
-                if (remarkInput) {
-                    remarkInput.disabled = true;
-                    remarkInput.placeholder = "";
-                    remarkInput.style.backgroundColor = "white";
+                if (!toggle.hasAttribute('disabled')) {
+                    if (quantityInput.value === "") {
+                        toggle.disabled = true;
+                        toggle.checked = false;
+                    } else {
+                        toggle.disabled = false;
+                    }
                 }
+            }
+
+            toggleCheckbox();
+            quantityInput.addEventListener("input", toggleCheckbox);
+            quantityInput.addEventListener("change", toggleCheckbox);
+
+            toggle.addEventListener("change", function() {
+                let toggleElement = this;
+
+                showConfirmationMessage(
+                    'Are you sure you want to receive this item?',
+                    async function () {
+                        $('#loader').show();
+                        toggleElement.disabled = true;
+
+                        try {
+                            await receiveSerialItems(requisitionKey, grnId, quantityInput);
+                        } catch (error) {
+                            console.error('Error receiving items:', error);
+                            toggleElement.disabled = false;
+                            toggleElement.checked = false;
+                        } finally {
+                            $('#loader').hide();
+                        }
+                    },
+                    function () {
+                        toggleElement.checked = false;
+                    }
+                );
             });
-        }
-        let quantityInput = document.querySelector(`input[name="details[${requisitionKey}][received_quantity]"]`);
-        let grnId = document.querySelector(`input[name="details[${requisitionKey}][grn_id]"]`).value;
-        let requisition_status = document.getElementById('requisition_status');
-        // Function to enable/disable checkbox based on quantity
-        function toggleCheckbox() {
-            if(quantityInput.value > quantityInput.max){
-            showErrorMessage('Quantity received cannot be greater than the quantity issued by SAP.');
-            quantityInput.value = quantityInput.max;
-            }
-           if (!toggle.hasAttribute('disabled')) {
-            if ( quantityInput.value === "") {
-                toggle.disabled = true;
-                toggle.checked = false;
-            } else {
-                toggle.disabled = false;
-            }
-        }
+        });
 
-
-        }
-
-        // Initial check on page load
-        toggleCheckbox();
-
-        // Check when quantity input changes
-        quantityInput.addEventListener("input, change", toggleCheckbox);
-
-        // Handle toggle change
-        toggle.addEventListener("change", function() {
-            let isChecked = this.checked;
-            let toggleElement = this;
-            let hiddenInput = document.getElementById("hiddenToggleInput");
-            let checkedElements =
-
-
-            showConfirmationMessage(
-                'Are you sure you want to receive this item?',
-                 function () {
-            $('#loader').show();
-            toggleElement.disabled = true;
-
-            receiveSerialItems(requisitionKey, grnId, quantityInput);
-
-            $('#loader').hide();
-
-
-        },
-        function () {
-
-            $('#loader').hide();
-            toggleElement.checked = false; // Uncheck if canceled
-        }
-    );
-
-});
-
-
-    });
-
-    document.querySelectorAll(".toggle-btn").forEach(function(button) {
+        document.querySelectorAll(".toggle-btn").forEach(function(button) {
             button.addEventListener("click", function() {
                 let targetId = this.getAttribute("data-bs-target");
                 let target = document.querySelector(targetId);
                 target.addEventListener("shown.bs.collapse", () => {
-                    this.innerHTML = "-"; // Change to minus when expanded
+                    this.innerHTML = "-";
                 });
 
                 target.addEventListener("hidden.bs.collapse", () => {
-                    this.innerHTML = "+"; // Change back to plus when collapsed
+                    this.innerHTML = "+";
                 });
             });
         });
 
-        document.querySelectorAll(".select-all").forEach(function (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener("change", function () {
-            let row = this.closest("tr"); // Get the closest row
-            if (!row) return;
 
-            let key = row.getAttribute("id")?.replace("collapseDetails", ""); // Extract key
-            if (key) {
-                updateReceivedQuantity(key);
-            }
-        });
-    });
+        function updateReceivedQuantity(key) {
 
-    // Function to update the received_quantity input field
-    function updateReceivedQuantity(key) {
-        let rows = document.querySelectorAll(`#collapseDetails${key} .select-checkbox`);
-        let total = 0;
+            let serialRows = document.querySelectorAll(`tr.serial-row-${key}[data-key="${key}"]`);
+            let total = 0;
 
-        rows.forEach((checkbox, index) => {
-            if (checkbox.checked) {
-                let quantityInput = document.querySelectorAll(`.quantity-key-${key}`)[index];
-                if (quantityInput) {
-                    let quantity = parseFloat(quantityInput.value);
-                    if (!isNaN(quantity)) {
-                        total += quantity;
+            serialRows.forEach((row) => {
+                let checkbox = row.querySelector("input[type='checkbox'].select-checkbox");
+                if (checkbox && checkbox.checked) {
+                    let quantityInput = row.querySelector(`.quantity-key-${key}`);
+                    if (quantityInput) {
+                        let quantity = parseFloat(quantityInput.value);
+                        if (!isNaN(quantity)) {
+                            total += quantity;
+                        }
                     }
                 }
+            });
+
+            let receivedQuantityInput = document.querySelector(`input[name="details[${key}][received_quantity]"]`);
+            if (receivedQuantityInput) {
+                receivedQuantityInput.value = total;
             }
-        });
-        let receivedQuantityInput = document.querySelector(`input[name="details[${key}][received_quantity]"]`);
-
-        if (receivedQuantityInput) {
-        receivedQuantityInput.value = total;
         }
-    }
 
-    function checkIfAllReceived() {
+        function checkIfAllReceived() {
             const receiveToggles = document.querySelectorAll('.receive-toggle');
             const allReceived = Array.from(receiveToggles).every(toggle => toggle.checked || toggle.disabled);
             const receiveAll = document.getElementById('receiveAllToggle');
@@ -412,8 +375,8 @@
             receiveAll.checked = allReceived;
             const anyReceived = Array.from(receiveToggles).some(toggle => toggle.checked);
 
-             if (anyReceived) {
-                 receiveAll.disabled = true;
+            if (anyReceived) {
+                receiveAll.disabled = true;
                 if (receiveAll) {
                     receiveAll.readOnly = true;
                     receiveAll.addEventListener('click', function (e) {
@@ -422,82 +385,80 @@
                 }
             }
 
-            // Optional: Disable the master toggle if everything is already received
             if (allReceived) {
                 receiveAll.disabled = true;
             }
         }
 
-    function receiveSerialItems(requisitionKey, grnId, quantityInput, all = false) {
-    const childRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
-    const childData = [];
 
-    childRows.forEach((row) => {
-        const id = row.querySelector("input[name*='[id]']")?.value;
-        const serialNo = row.querySelector("input[name*='[serial_no]']")?.value;
-        const amount = row.querySelector("input[name*='[amount]']")?.value;
-        const receivedCheckbox = row.querySelector("input[type='checkbox']");
-        const received = (all === true) ? 1 : (receivedCheckbox?.checked ? 1 : 0);
-        const remark = row.querySelector("input[name*='[remark]']")?.value;
+        function receiveSerialItems(requisitionKey, grnId, quantityInput, all = false) {
 
-        if (serialNo) {
-            childData.push({
-                id: id,
-                serial_no: serialNo,
-                amount: amount,
-                received: received,
-                remark: remark
+            const childRows = document.querySelectorAll(`tr.serial-row-${requisitionKey}[data-key="${requisitionKey}"]`);
+            const childData = [];
+
+            childRows.forEach((row) => {
+                const serialIndex = row.getAttribute('data-serial-index');
+                const id = row.querySelector(`input[name="details[${requisitionKey}][serials][${serialIndex}][id]"]`)?.value;
+                const serialNo = row.querySelector(`input[name="details[${requisitionKey}][serials][${serialIndex}][serial_no]"]`)?.value;
+                const amount = row.querySelector(`input[name="details[${requisitionKey}][serials][${serialIndex}][amount]"]`)?.value;
+                const receivedCheckbox = row.querySelector("input[type='checkbox'].select-checkbox");
+                const received = (all === true) ? 1 : (receivedCheckbox?.checked ? 1 : 0);
+                const remark = row.querySelector(`input[name="details[${requisitionKey}][serials][${serialIndex}][remark]"]`)?.value;
+
+                if (serialNo) {
+                    childData.push({
+                        id: id,
+                        serial_no: serialNo,
+                        amount: amount,
+                        received: received,
+                        remark: remark
+                    });
+                }
+            });
+
+            const csrfToken = "{{ csrf_token() }}";
+
+            return fetch('/assets/receive', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    grnId: grnId,
+                    quantity: quantityInput.value,
+                    childData: childData
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!all) {
+                    showSuccessMessage('Item received successfully.');
+                }
+
+                childRows.forEach((row) => {
+                    const receivedCheckbox = row.querySelector("input[type='checkbox'].select-checkbox");
+                    const remarkInput = row.querySelector("input[name*='[remark]']");
+                    if (receivedCheckbox) receivedCheckbox.disabled = true;
+                    if (remarkInput) remarkInput.disabled = true;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorMessage('Failed to receive item(s). Please try again.');
             });
         }
+
+        $('#loader').show();
+        checkIfAllReceived();
+        $('#loader').hide();
     });
-
-    const csrfToken = "{{ csrf_token() }}";
-
-    // IMPORTANT: return fetch so caller can await
-    return fetch('/assets/receive', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        },
-        body: JSON.stringify({
-            grnId: grnId,
-            quantity: quantityInput.value,
-            childData: childData
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // ✅ Only show success here
-        if (!all) {
-            showSuccessMessage('Item received successfully.');
-        }
-
-
-        childRows.forEach((row) => {
-            const receivedCheckbox = row.querySelector("input[type='checkbox']");
-            const remarkInput = row.querySelector("input[name*='[remark]']");
-            if (receivedCheckbox) receivedCheckbox.disabled = true;
-            if (remarkInput) remarkInput.disabled = true;
-        });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showErrorMessage('Failed to receive item(s). Please try again.');
-    })
-}
-
-
-     $('#loader').show();
-    checkIfAllReceived();
-    $('#loader').hide();
-});
     </script>
-
+@endpush
 @endsection
