@@ -37,7 +37,7 @@ use App\Http\Controllers\AssetReport\GoodIssueReportController;
 use App\Http\Controllers\AssetReport\GoodReceiptReportController;
 use App\Http\Controllers\AssetReport\AssetTransferReportController;
 use App\Http\Controllers\AssetReport\AssetReturnReportController;
-use App\Http\Controllers\AssetReport\CWIPReportController;
+use App\Http\Controllers\AssetReport\CwipReportController;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
 use App\Models\User;
@@ -491,7 +491,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('good-receipt-report', 'GoodReceiptReportController')->except('create', 'show', 'edit');
         Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
         Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
-        Route::resource('cwip-report', 'CWIPReportController')->except('create', 'show', 'edit');
+        Route::resource('cwip-report', 'CwipReportController')->except('create', 'show', 'edit');
     });
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
