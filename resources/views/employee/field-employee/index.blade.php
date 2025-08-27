@@ -47,10 +47,10 @@
                                                         Employee
                                                     </th>
                                                     <th>
-                                                        Section
+                                                        Department
                                                     </th>
                                                     <th>
-                                                        Department
+                                                        Section
                                                     </th>
                                                     <th>
                                                         Action
@@ -62,8 +62,8 @@
                                                 <tr>
                                                     <td>{{ $fieldEmployees->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $fieldEmployee->masEmployee->emp_id_name }}</td>
-                                                    <td>{{ $fieldEmployee->masEmployee->empJob->section->name ?? '-' }}</td>
                                                     <td>{{ $fieldEmployee->masEmployee->empJob->department->name ?? '-' }}</td>
+                                                    <td>{{ $fieldEmployee->masEmployee->empJob->section->name ?? '-' }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
                                                         <a href="{{ url('employee/field-employee/' . $fieldEmployee->id . '/edit') }}"

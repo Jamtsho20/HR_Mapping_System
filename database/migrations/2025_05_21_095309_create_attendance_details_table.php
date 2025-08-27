@@ -27,8 +27,10 @@ return new class extends Migration
             $table->foreignId('updated_by')->index()->nullable()->constrained('mas_employees');
             $table->foreignId('checked_in_office_id')->index()->nullable()->constrained('mas_offices')->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('checked_out_office_id')->index()->nullable()->constrained('mas_offices')->cascadeOnUpdate()->restrictOnDelete();
-            $table->string('check_in_from', 200)->nullable();
-            $table->string('check_out_from', 200)->nullable();
+            $table->string('check_in_from', 200)->nullable()->comment('only for field employee');
+            $table->string('check_out_from', 200)->nullable()->comment('only for field employee');
+            $table->string('check_in_coordinates', 200)->nullable()->comment('only for field employee');
+            $table->string('check_out_coordinates', 200)->nullable()->comment('only for field employee');
             //if this required uncomment this two column
             $table->foreignId('verified_by')->index()->nullable()->constrained('mas_employees'); // newly added
             $table->foreignId('approved_by')->index()->nullable()->constrained('mas_employees'); // newly added

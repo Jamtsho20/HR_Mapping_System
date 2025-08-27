@@ -11,7 +11,7 @@ class AttendanceDetail extends Model
 {
     use HasFactory, CreatedByTrait;
 
-    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip', 'check_in_office_id', 'check_out_office_id', 'verified_by', 'approved_by', 'created_by', 'updated_by', 'update_history'];
+    protected $fillable = ['daily_attendance_id', 'employee_id', 'check_in_at', 'attendance_status_id', 'check_out_at', 'check_in_ip', 'check_out_ip', 'check_in_office_id', 'check_out_office_id', 'check_in_from', 'check_out_from', 'check_in_coordinates', 'check_out_coordinates', 'verified_by', 'approved_by', 'created_by', 'updated_by', 'update_history'];
 
     public function dailyAttendance()
     {
