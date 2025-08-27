@@ -219,9 +219,7 @@ class SalaryReportController extends Controller
         ];
 
         // Use chunk to process records in batches
-        FinalPaySlip::whereHas('employee', function ($q) {
-            $q->where('is_active', 1);
-        })->filter($request)
+        FinalPaySlip::filter($request)
             ->chunk(50, function ($salaries) use (&$totals) {
                 foreach ($salaries as $salary) {
                     $details = $salary->details;
@@ -324,15 +322,13 @@ class SalaryReportController extends Controller
         ];
 
         // Use chunk to process records in batches
-        FinalPaySlip::whereHas('employee', function ($q) {
-            $q->where('is_active', 1);
-        })->filter($request)
+        FinalPaySlip::filter($request)
             ->chunk(50, function ($salaries) use (&$totals) {
                 foreach ($salaries as $salary) {
                     $details = $salary->details;
 
                     // Update basic totals
-                    $totals['basic'] += $salary->employee->empJob->basic_pay ?? 0;
+                    $totals['basic'] += $details['basic_pay'] ?? 0;
                     $totals['gross'] += $details['gross_pay'] ?? 0;
                     $totals['net'] += $details['net_pay'] ?? 0;
 
