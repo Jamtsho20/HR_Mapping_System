@@ -14,6 +14,7 @@ use App\Mail\GoodsIssuedMail;
 use App\Models\MasDzongkhag;
 use App\Models\MasSite;
 use App\Models\MasAssets;
+use App\Models\SapAsset;
 use App\Models\RequisitionApplication;
 use App\Models\RequisitionDetail;
 use App\Traits\JsonResponseTrait;
@@ -1046,10 +1047,8 @@ class ApiController extends BaseController
 
     public function getAssetData(Request $request)
     {
-        $assets = $request->input('assets');
-
-        // Normalize: wrap single object in array
-        if (!isset($assets[0])) {
+        $assets = $request->input('assets') ?? [];
+        if (!is_array($assets)) {
             $assets = [$assets];
         }
 
@@ -1057,7 +1056,7 @@ class ApiController extends BaseController
             'assets.*.employee_id' => 'required_without:assets.*.site_code',
             'assets.*.site_code'   => 'required_without:assets.*.employee_id',
             'assets.*.serial_no'   => 'required',
-            'assets.*.item_code'   => 'required',
+            'assets.*.item_code'   => 'nullable',
             'assets.*.description' => 'required',
             'assets.*.quantity'    => 'required|numeric',
             'assets.*.amount'      => 'required|numeric',
@@ -1075,33 +1074,79 @@ class ApiController extends BaseController
         }
 
         try{
-        DB::transaction(function () use ($assets) {
+        $result = DB::transaction(function () use ($assets) {
         foreach ($assets as $item) {
                 $employee   = User::find($item['employee_id'] ?? null);
                 $site       = MasSite::where('code', $item['site_code'] ?? null)->first();
-                $i_code     = MasItem::where('item_no', $item['item_code'])->first() ?? null;
+                $i_code = null;
+                if (!empty($item['item_code'])) {
+                    $i_code = MasItem::firstOrCreate(
+                        ['item_no' => $item['item_code']],
+                        [
+                            'item_no' => $item['item_code'],
+                            'item_description' => $item['description'],
+                            'uom' => $item['uom'],
+                            'item_group' => $item['category'],
+                            'is_fixed_asset' => $item['is_fixed_asset'] ?? 1,
+                            'status' => 1,
+                        ]
+                    );
+                }
 
-                MasAssets::create(
-                    [
-                        'serial_number' => $item['serial_no'],
-                        'item_code'       => $item['item_code'],
-                        'description'     => $item['description'],
-                        'uom' => $item['uom'],
-                        'current_employee_id' => $employee?->id,
-                        'current_site_id'     => $site?->id,
-                        'initial_owner_id'    => $employee?->id,
-                        'created_by'          => auth()->id(),
-                        'quantity'            => $item['quantity'],
-                        'amount'              => $item['amount'],
-                    ]
-                );
+              $pushedAsset = SapAsset::where('serial_number', $item['serial_no'])->first();
+
+                if ($pushedAsset) {
+                    return $this->errorResponse('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                }
+
+                // Create if not found
+                $pushedAsset = SapAsset::create([
+                    'serial_number' => $item['serial_no'],
+                    'item_id' => $i_code?->id,
+                    'uom' => $i_code ? $i_code->uom : $item['uom'],
+                    'grn_number' => $item['grn_number'] ?? null,
+                    'item_description' => $i_code ? $i_code->item_description : $item['description'],
+                    'current_employee_id' => $employee?->id,
+                    'current_site_id' => $site?->id,
+                    'initial_owner_id' => $employee?->id,
+                    'created_by' => auth()->id(),
+                    'quantity' => $item['quantity'],
+                    'amount' => $item['amount'],
+                    'capitalization_date' => $item['capitalization_date'],
+                    'end_date' => $item['end_date'],
+                ]);
+
+                // --- Push to MasAssets ---
+                $masAsset = MasAssets::where('serial_number', $item['serial_no'])->first();
+
+                 if ($masAsset) {
+                    return $this->errorResponse('Asset with serial number ' . $item['serial_no'] . ' already exists.');
+                }
+
+                // Create if not found
+                $masAsset = MasAssets::create([
+                    'serial_number' => $item['serial_no'],
+                    'current_employee_id' => $employee?->id,
+                    'current_site_id' => $site?->id,
+                    'initial_owner_id' => $employee?->id,
+                    'created_by' => auth()->id(),
+                    'sap_asset_id' => $pushedAsset->id,
+                ]);
+
+                return response()->json([
+                    'status' => 'created',
+                    'message' => 'Asset successfully created in both tables',
+                    'sap_asset_id' => $pushedAsset->id,
+                    'mas_asset_id' => $masAsset->id,
+                ]);
 
 
             }
         });
+        return $result;
         }catch (\Exception $e) {
-            \Log::error("Asset save failed: " . $e->getMessage());
-            return $this->errorResponse('Something went wrong while saving assets. Please try again.');
+            // \Log::error("Asset save failed: " . $e->getMessage());
+            return $this->errorResponse('Something went wrong while saving assets. Please try again.'. $e->getMessage());
         }
         return $this->successResponse('Asset saved successfully');
     }

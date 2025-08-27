@@ -37,6 +37,7 @@ use App\Http\Controllers\AssetReport\GoodIssueReportController;
 use App\Http\Controllers\AssetReport\GoodReceiptReportController;
 use App\Http\Controllers\AssetReport\AssetTransferReportController;
 use App\Http\Controllers\AssetReport\AssetReturnReportController;
+use App\Http\Controllers\AssetReport\CWIPReportController;
 use App\Jobs\UpdateEmployeePasswordJob;
 use App\Mail\SendCredentialsMail;
 use App\Models\User;
@@ -167,7 +168,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('departments', 'DepartmentController');
         Route::resource('designations', 'DesignationController');
         Route::resource('dzongkhags', 'DzongkhagController');
-        Route::resource('gewogs', 'GewogController'); 
+        Route::resource('gewogs', 'GewogController');
         Route::resource('leave-types', 'LeaveTypeController');
         Route::resource('nationalities', 'NationalityController');
         Route::resource('section', 'SectionController');
@@ -425,6 +426,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/export-asset-report', [AssetReturnReportController::class, 'exportAssetPdf'])->name('good-return-report-pdf.export');
     Route::get('/export-asset-excel-report', [AssetReturnReportController::class, 'exportAssetExcel'])->name('good-return-report-excel.export');
+
+    Route::get('/export-cwip-report', [CwipReportController::class, 'exportCwipPdf'])->name('cwip-report-pdf.export');
+    Route::get('/export-cwip-excel-report', [CwipReportController::class, 'exportCwipExcel'])->name('cwip-report-excel.export');
     //printer
     Route::get('/print-leave-availed-report', [LeaveAvailedReportController::class, 'printLeave'])->name('leave-availed-report-print');
     Route::get('/print-leave-balance-report', [LeaveBalanceReportController::class, 'printLeaveBalance'])->name('leave-balance-report-print');
@@ -454,6 +458,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print-good-receipt-report', [GoodReceiptReportController::class, 'printGoodReceipt'])->name('good-receipt-report-print');
     Route::get('/print-good-transfer-report', [AssetTransferReportController::class, 'print'])->name('good-transfer-report-print');
     Route::get('/print-good-return-report', [AssetReturnReportController::class, 'print'])->name('good-return-report-print');
+    Route::get('/print-cwip-report', [CwipReportController::class, 'printCwip'])->name('cwip-report-print');
     //Assets
     Route::namespace('Asset')->prefix('asset')->group(function () {
         Route::resource('mas-store', 'SubStoreMasterController');
@@ -486,6 +491,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('good-receipt-report', 'GoodReceiptReportController')->except('create', 'show', 'edit');
         Route::resource('asset-transfer-report', 'AssetTransferReportController')->except('create', 'show', 'edit');
         Route::resource('asset-return-report', 'AssetReturnReportController')->except('create', 'show', 'edit');
+        Route::resource('cwip-report', 'CWIPReportController')->except('create', 'show', 'edit');
     });
     //PayMaster
     Route::namespace('PayMaster')->prefix('paymaster')->group(function () {
