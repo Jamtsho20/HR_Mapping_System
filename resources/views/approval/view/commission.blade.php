@@ -83,7 +83,7 @@
                                                                 {{ $loop->iteration }}
                                                             </td>
                                                             <td class="text-center">
-                                                                {{ $detail->receivedSerial->asset_serial_no }}
+                                                                {{ $detail->receivedSerial->requisitionDetail->grnItemDetail->item->item_no .'-'. $detail->receivedSerial->asset_serial_no }}
                                                             </td>
                                                             <td class="text-center">
                                                                 {{ $detail->receivedSerial->asset_description }}
