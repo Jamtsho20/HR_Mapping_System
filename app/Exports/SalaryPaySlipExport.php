@@ -22,9 +22,10 @@ class SalaryPaySlipExport implements FromCollection, WithHeadings
         $serialNo = 1;
 
         // Access the request data to apply filters
-        return FinalPaySlip::whereHas('employee', function ($q) {
-            $q->where('is_active', 1);
-        })->filter($this->request)->get()->map(function ($salaries) use (&$serialNo) {
+        // whereHas('employee', function ($q) {
+        //     $q->where('is_active', 1);
+        // })
+        return FinalPaySlip::filter($this->request)->get()->map(function ($salaries) use (&$serialNo) {
             return [
                 $serialNo++,
                 $salaries->employee->username ?? '-',
