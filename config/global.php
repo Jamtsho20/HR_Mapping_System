@@ -326,4 +326,13 @@ return [
         2024, 2025, 2026,
     ],
 
+    'asset_class' => [
+        1004 => 'Network Systems',
+        1005 => 'ISP Systems',
+        1010 => 'Power Utilities & AC Equipment',
+        1011 => 'Shelter',
+        1014 => 'Intangible Asset - Softwares',
+        1016 => 'Tower Equipment'
+    ]
+
 ];

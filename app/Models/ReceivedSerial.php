@@ -53,6 +53,15 @@ class ReceivedSerial extends Model
             $query->where('created_at', '>=', $request->from_date);
         }
 
+        $query->whereHas('requisitionDetail', function ($q) use ($request) {
+            if ($request->received_from_date && $request->received_to_date) {
+                $receivedToDate = $request->received_to_date . ' 23:59:59';
+                $q->whereBetween('received_at', [$request->received_from_date, $receivedToDate]);
+            } elseif ($request->received_from_date) {
+                $q->where('received_at', '>=', $request->received_from_date);
+            }
+        });
+
 
         if($request->is_received !== null){
         $query->where('is_received', $request->is_received);
@@ -65,11 +74,24 @@ class ReceivedSerial extends Model
         }
 
         if($request->req_no){
-            $query->whereHas('requisitionDetail.requisition', function ($q) use ($request) {
-                $q->whereRaw("SUBSTRING_INDEX(transaction_no, '/', -1) = ?", [$request->req_no]);
+            $reqNo = urldecode($request->req_no);
+            $query->whereHas('requisitionDetail.requisition', function ($q) use ($reqNo) {
+                $q->where('transaction_no', $reqNo);
             });
         }
 
+        if ($request->serial_no) {
+
+            $lastPart = last(explode('-', $request->serial_no));
+
+            $query->where('asset_serial_no', $lastPart);
+        }
+
+        if($request->grn){
+            $query->whereHas('requisitionDetail.grnItem', function ($q) use ($request) {
+                $q->whereRaw("SUBSTRING_INDEX(grn_no, '-', -1) = ?", [$request->grn]);
+            });
+        }
 
         if ($request->get('year')) {
             // Step 1: Split the date range into two parts

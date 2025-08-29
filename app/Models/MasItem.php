@@ -11,7 +11,15 @@ class MasItem extends Model
     use HasFactory, CreatedByTrait;
 
     protected $fillable = [
-        'store_id', 'item_category', 'item_number', 'item_description', 'uom', 'quantity', 'status'
+        'item_no',
+        'is_fixed_asset',
+         'item_group',
+         'item_description',
+         'item_group_id',
+         'uom',
+         'status',
+         'item_no_old',
+         'item_group_id',
     ];
 
     public function grnItems()

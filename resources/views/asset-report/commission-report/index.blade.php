@@ -74,7 +74,7 @@
                                                     Application Date
                                                 </th>
                                                 <th>
-                                                    Asset No
+                                                    Serial No
                                                 </th>
                                                 <th>
                                                     Item Description
