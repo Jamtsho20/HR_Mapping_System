@@ -140,7 +140,7 @@ class AttendanceApiController extends Controller
             $remarks = $attendance->remarks; // default to existing remarks
 
             // Calculate attendance status and remarks only if no check-in yet and status is CREATED
-            if (!$attendance->check_in_at && $attendance->attendance_status_id === CREATED_STATUS) {
+            if (!$attendance->check_in_at && ($attendance->attendance_status_id === CREATED_STATUS || $attendance->attendance_status_id === INFORMED_LATE_STATUS)) {
                 $officeTiming = $attendanceService->getEffectiveOfficeTiming($user);
                 
                 $startTime = Carbon::createFromFormat('H:i:s', $officeTiming['start_time']);
