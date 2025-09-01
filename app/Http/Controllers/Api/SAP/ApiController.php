@@ -240,11 +240,20 @@ class ApiController extends BaseController
         $rules = [
             'purchase_req_doc_no' => 'required|string|exists:requisition_applications,doc_no',
             'doc_no' => 'required|string',
+            'details.*.asset_serial_no' => 'nullable|string|required_without:details.*.batch_no',
+            'details.*.batch_no'        => 'nullable|string|required_without:details.*.asset_serial_no',
+            'details.*.item_code' => 'required|string|exists:mas_items,item_no',
+            'details.*.store_code' => 'required|string|exists:mas_stores,code',
         ];
 
         $messages=[
             'purchase_req_doc_no.required' => 'Purchase request document number is required',
-            'doc_no.required' => 'Document number is required'
+            'doc_no.required' => 'Document number is required',
+            'details.*.asset_serial_no.required_without' => 'Either Asset Serial No or Batch No must be provided',
+            'details.*.batch_no.required_without'        => 'Either Batch No or Asset Serial No must be provided',
+            'details.*.item_code.exists' => 'Item code :input not found in HRMS system.',
+            'details.*.store_code.exists' => 'Store code :input not found in HRMS system.',
+
         ];
 
          $validator = \Validator::make($request->all(), $rules, $messages);
@@ -266,26 +275,46 @@ class ApiController extends BaseController
 
             foreach ($request->details as $detail) {
 
-                $item_id = MasItem::where('item_no', $detail['item_no'])->pluck('id');
-                $store_id = MasStore::where('code', $detail['store'])->pluck('id');
-
+                $item_id = MasItem::where('item_no', $detail['item_code'])->value('id');
+                $store_id = MasStore::where('code', $detail['store_code'])->value('id');
                 $reqDetail = RequisitionDetail::where('requisition_id', $requisitionAppliciaiton->id)->where('item_id', $item_id)->where('store_id', $store_id)->first();
                 if (!$reqDetail) {
-                    return $this->errorResponse('Requisition detail not found for item ' . $detail['item_no'] . ' and store ' . $detail['store']);
-                }
-                $reqDetail->received_quantity = $detail['quantity'];
+                    return $this->errorResponse(
+                        'Requisition detail not found for item ' . $detail['item_code'] .
+                        ' and store ' . $detail['store_code']
+                    );
+                    }
+                
+                $reqDetail->received_quantity = (int)  $detail['quantity'];
                 $reqDetail->save();
+
+
+
+                $bulkSerials[] = [
+                    'requisition_detail_id' => $reqDetail->id,
+                    'asset_serial_no'       => $detail['asset_serial_no'] ?? null,
+                    'batch_no'              => $detail['batch_no'] ?? null,
+                    'asset_description'     => $detail['asset_description'] ?? null,
+                    'amount'                => $detail['amount'] ?? null,
+                    'quantity'              => $detail['quantity'] ?? null,
+                    'created_at'            => now(),
+                    'updated_at'            => now(),
+                ];
+            }
+
+            if (!empty($bulkSerials)) {
+                ReceivedSerial::insert($bulkSerials);
             }
 
 
             $employee = User::find($requisitionAppliciaiton->created_by); // Ensure employee_id exists in requisition
+            DB::commit();
             if ($employee && $employee->email) {
                 Mail::to($employee->email)->send(new GoodsIssuedMail($employee, $requisitionAppliciaiton));
             } else {
                 \Log::warning("Email not sent: No email found for user ID {$requisitionAppliciaiton->created_by}");
             }
 
-            DB::commit();
 
             return $this->successResponse($requisitionAppliciaiton, 'Good issue document number saved successfully.');
         }
@@ -369,12 +398,6 @@ class ApiController extends BaseController
                     if (!empty($line['serials'])) {
                         $serialsData = [];
                         foreach ($line['serials'] as $serial) {
-
-                            // $exists = ReceivedSerial::where('asset_serial_no', $serial['asset_serial_no'])->exists();
-                            // if ($exists) {
-                                //     DB::rollBack();
-                                //     return $this->errorResponse("Duplicate serial number found: {$serial['asset_serial_no']}");
-                                // }
 
                             $serialsData[] = [
                                 'requisition_detail_id' => $requisition_detail->id,

@@ -22,6 +22,10 @@
                                         &nbsp;&nbsp;</th>
                                     <td style="padding-left:25px;"> {{ $commission->transaction_no }}</td>
                                 </tr>
+                                <tr>
+                                    <th style="width:35%;">Requisition No <span class="pull-right d-none d-sm-block">:</span> &nbsp;&nbsp;</th>
+                                    <td style="padding-left:25px;"> {{ $commission->requisition->transaction_no ?? '-' }}</td>
+                                </tr>
 
                                 <tr>
                                     <th style="width:35%;">Commission Date<span
