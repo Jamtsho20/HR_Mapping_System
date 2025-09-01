@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AttendanceDetail;
+use App\Models\DepartmentWiseShift;
 use App\Models\EmployeeAttendance;
 use App\Models\EmployeeShift;
 use App\Models\LeaveApplication;
@@ -22,7 +23,7 @@ class AttendanceService
         $attendanceStatus = CREATED_STATUS;
         // if employee is in shift then they will have different sets OFF Days based on that OFF Days need to set attendance status.
         $isShiftEmp = EmployeeShift::where('mas_employee_id', $empId)->first();
-        
+
         $isOnTour = TravelAuthorizationApplication::where('status', '<>', -1)
             ->where('created_by', $empId)
             ->whereHas('details', function ($query) use ($currentDate) {
@@ -61,13 +62,13 @@ class AttendanceService
             ->whereDate('start_date', '<=', $currentDate->toDateString())
             ->whereDate('end_date', '>=', $currentDate->toDateString())
             ->first();
-        
+
         if ($matchingHoliday && !$isShiftEmp) {
             return HOLIDAY_STATUS;
         }
 
-        // 4. Check for Sunday
-        if ($currentDate->isSunday() && !$isShiftEmp) {
+        // 4. Check for Sunday and Satuarday if regular employee
+        if (($currentDate->isSunday() || $currentDate->isSaturday()) && !$isShiftEmp) {
             return WEEKLY_OFF_STATUS;
         }
 
@@ -81,21 +82,42 @@ class AttendanceService
 
     public function getEffectiveOfficeTiming($userData)
     {
+        $today = Carbon::now()->format('l');
         $currentMonthNum = getMappedMonth();
         $officeTiming = [];
+
         $office = $userData->empJob->office;
+        $loggedInUserDeptId = $userData->empJob->mas_department_id;
         $officeTiming['office_name'] = $office->name;
         $officeTiming['longitude'] = $office->longitude;
         $officeTiming['latitude'] = $office->latitude;
-        // $officeTiming['longitude'] = substr((string) $office->longitude, 0, 9);
-        // $officeTiming['latitude'] = substr((string) $office->latitude, 0, 9);
-        // $officeTiming['raidus'] = $office->raidus . ' ' . config('global.raidus_unit');
         $officeTiming['radius'] = $office->radius;
         $officeTiming['attendance_buffer_mins'] = config('global.attendance_buffer_mins');
-        if (isset($userData['employeeInShifts']) && isset($userData['employeeInShifts'][0]['departmentShift'])) {
-            $officeTiming['start_time'] = $userData['employeeInShifts'][0]['departmentShift']->start_time;
-            $officeTiming['end_time'] = $userData['employeeInShifts'][0]['departmentShift']->end_time;
-            $officeTiming['shift_name'] = $userData['employeeInShifts'][0]['departmentShift']['shiftType']->name;
+
+
+        // if (isset($userData['employeeInShifts']) && isset($userData['employeeInShifts'][0]['departmentShift'])) {
+        if (!empty($userData['employeeInShifts'][0])) {
+            $shiftData = $userData['employeeInShifts'][0];
+
+            // Decode JSON values into arrays
+            $shifts = [
+                'Morning' => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [],
+                'Evening' => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [],
+                'Night'   => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [],
+            ];
+
+            // Find which shift today belongs to using shifts data
+            $todayShift = collect($shifts)->first(function ($days) use ($today) {
+                return in_array($today, $days);
+            });
+
+            if ($todayShift) {
+                $departmentWiseShift = DepartmentWiseShift::where('department_id', $loggedInUserDeptId)->first();
+
+                $officeTiming['start_time'] = $departmentWiseShift->start_time;
+                $officeTiming['end_time'] = $departmentWiseShift->end_time;
+                $officeTiming['shift_name'] = $departmentWiseShift->shiftType->name;
+            }
         } else {
             $defaultOfficeTiming = MasOfficeTiming::where(function ($query) use ($currentMonthNum) {
                 $query->whereRaw('? BETWEEN start_month AND end_month', [$currentMonthNum])
@@ -113,32 +135,32 @@ class AttendanceService
     {
         $year = $year;
         $monthYear = $monthYear ?? Carbon::now()->format('m-Y');
-        
+
         $now = Carbon::now();
-        if($flag === 'yesterday'){
+        if ($flag === 'yesterday') {
             $now->subDay();
         }
         $currentDay = $now->day;
 
         $empAttendance = EmployeeAttendance::with(['dailyAttendances' => function ($query) use ($flag, $currentDay) {
-                        if($flag === 'daily' || $flag === 'yesterday'){
-                            $query->where('day', $currentDay);
-                        }
-                    }])
-                    ->year($year)         // optional filter by year
-                    ->forMonth($monthYear)
-                    ->first();
-        
-                  
+            if ($flag === 'daily' || $flag === 'yesterday') {
+                $query->where('day', $currentDay);
+            }
+        }])
+            ->year($year)         // optional filter by year
+            ->forMonth($monthYear)
+            ->first();
+
+
         $dailyAttendance = $empAttendance?->dailyAttendances;
 
         if (!$dailyAttendance || $dailyAttendance->isEmpty()) {
             return null;
         }
 
-        if(!$flag){
+        if (!$flag) {
             $attendances = [];
-            foreach($dailyAttendance as $attendance){
+            foreach ($dailyAttendance as $attendance) {
                 $detail = AttendanceDetail::where('daily_attendance_id', $attendance->id)
                     ->where('employee_id', $loggedInUser->id)
                     ->first();
@@ -160,10 +182,10 @@ class AttendanceService
                 }
 
                 $workedHours = ($detail->check_in_at && $detail->check_out_at)
-                                ? Carbon::createFromFormat('H:i:s', $detail->check_in_at)
-                                    ->diff(Carbon::createFromFormat('H:i:s', $detail->check_out_at))
-                                    ->format('%Hh:%Im:%Ss')
-                                : config('global.null_value');
+                    ? Carbon::createFromFormat('H:i:s', $detail->check_in_at)
+                    ->diff(Carbon::createFromFormat('H:i:s', $detail->check_out_at))
+                    ->format('%Hh:%Im:%Ss')
+                    : config('global.null_value');
 
                 $attendances[] = [
                     'check_in_at' => $detail->formatted_check_in_at ?? config('global.null_value'),
@@ -179,7 +201,7 @@ class AttendanceService
                     'remarks' => $detail->remarks ?? config('global.null_value')
                 ];
             }
-            
+
             return $attendances;
         }
         // dd($dailyAttendance[0]->id);
@@ -188,7 +210,8 @@ class AttendanceService
             ->first();
     }
 
-    public function prepareLeaveStatus($isOnLeave){
+    public function prepareLeaveStatus($isOnLeave)
+    {
         switch ($isOnLeave->type_id) {
             case CASUAL_LEAVE:
                 return match ($isOnLeave->from_day) {
@@ -213,5 +236,4 @@ class AttendanceService
                 return EOL_LEAVE_STATUS;
         }
     }
-
 }

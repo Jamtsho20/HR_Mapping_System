@@ -22,9 +22,9 @@ class DepartmentWiseShift extends Model
         return $this->belongsTo(MasShiftType::class, 'type_id');
     }
 
-    public function deptShiftEmployees(){
-        return $this->hasMany(EmployeeShift::class, 'department_shift_id');
-    }
+    // public function deptShiftEmployees(){
+    //     return $this->hasMany(EmployeeShift::class, 'department_shift_id');
+    // }
 
     public function getFormattedStartTimeAttribute(){
         $startTime = $this->start_time 

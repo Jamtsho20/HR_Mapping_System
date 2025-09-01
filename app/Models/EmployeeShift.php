@@ -11,11 +11,17 @@ class EmployeeShift extends Model
     use HasFactory, CreatedByTrait;
     protected $fillable = [
         'mas_employee_id',
-        'department_shift_id',
+        // 'department_shift_id',
+        'morning_shift_days',
+        'evening_shift_days',
+        'night_shift_days',
         'off_days'
     ];
 
     protected $cast = [
+        'morning_shift_days' => 'array',
+        'evening_shift_days' => 'array',
+        'night_shift_days' => 'array',
         'off_days' => 'array'
     ];
 
@@ -23,10 +29,10 @@ class EmployeeShift extends Model
     {
         return $this->belongsTo(User::class, 'mas_employee_id');
     }
-    public function departmentShift()
-    {
-        return $this->belongsTo(DepartmentWiseShift::class, 'department_shift_id');
-    }
+    // public function departmentShift()
+    // {
+    //     return $this->belongsTo(DepartmentWiseShift::class, 'department_shift_id');
+    // }
 
     public function scopeFilter($query, $request)
     {

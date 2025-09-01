@@ -46,11 +46,20 @@
                                                     <th>
                                                         Employee
                                                     </th>
-                                                    <th>
+                                                    {{-- <th>
                                                         Department Shift
                                                     </th>
                                                     <th>
                                                         Shift Time
+                                                    </th> --}}
+                                                    <th>
+                                                        Morning Shift
+                                                    </th>
+                                                    <th>
+                                                        Evening Shift
+                                                    </th>
+                                                    <th>
+                                                        Night Shift
                                                     </th>
                                                     <th>
                                                         Off Days
@@ -65,12 +74,18 @@
                                                 <tr>
                                                     <td>{{ $employeeShifts->firstItem() + ($loop->iteration - 1) }}</td>
                                                     <td>{{ $shift->masEmployee->emp_id_name }}</td>
-                                                    <td>{{ $shift->departmentShift->name }}</td>
-                                                    <td>{{ $shift->departmentShift->formatted_start_time .' - '. $shift->departmentShift->formatted_end_time}}</td>
+                                                    {{-- <td>{{ $shift->departmentShift->name }}</td>
+                                                    <td>{{ $shift->departmentShift->formatted_start_time .' - '. $shift->departmentShift->formatted_end_time}}</td> --}}
                                                     @php
-                                                    $offDays = json_decode($shift->off_days, true);
+                                                        $offDays = json_decode($shift->off_days, true);
+                                                        $mornignShiftDays = json_decode($shift->morning_shift_days, true);
+                                                        $eveningShiftDays = json_decode($shift->evening_shift_days, true);
+                                                        $nightShiftDays = json_decode($shift->night_shift_days, true);
                                                     @endphp
-                                                    <td>{{ implode(', ', $offDays ?? []) }}</td>
+                                                    <td>{{ $mornignShiftDays ? implode(', ', $mornignShiftDays) : config('global.null_value') }}</td>
+                                                    <td>{{ $eveningShiftDays ? implode(', ', $eveningShiftDays) : config('global.null_value') }}</td>
+                                                    <td>{{ $nightShiftDays ? implode(', ', $nightShiftDays) : config('global.null_value') }}</td>
+                                                    <td>{{ $offDays ? implode(', ', $offDays) : config('global.null_value') }}</td>
                                                     <td class="text-center">
                                                         @if ($privileges->edit)
                                                         <a href="{{ url('employee/shift-employee/' . $shift->id . '/edit') }}"
