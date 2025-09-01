@@ -108,7 +108,7 @@
                                 </td>
                                 <td class="text-center align-middle">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input receive-toggle" type="checkbox" id="receiveToggle{{$key}}" data-key="{{$key}}" value="{{$detail->is_received}}" {{ $detail->is_received ? 'checked disabled' : '' }}>
+                                        <input class="form-check-input receive-toggle" type="checkbox" id="receiveToggle{{$key}}" data-key="{{$key}}"  {{ $detail->is_received ? 'checked disabled' : '' }}>
                                     </div>
                                 </td>
                             </tr>
@@ -212,10 +212,22 @@
 
                     if (quantityInput) quantityInput.readOnly = true;
 
-                    toggle.checked = true;
-                    toggle.disabled = true;
+                     try {
+                        await receiveSerialItems(requisitionKey, grnId, quantityInput, true);
 
-                    await receiveSerialItems(requisitionKey, grnId, quantityInput, true);
+                        toggle.checked = true;
+                        toggle.disabled = true;
+                        serialRows.forEach(row => {
+                            const serialCheckbox = row.querySelector("input[type='checkbox'].select-checkbox");
+                            const remarkInput = row.querySelector("input[name*='[remark]']");
+                            if (serialCheckbox) serialCheckbox.disabled = true;
+                            if (remarkInput) remarkInput.disabled = true;
+                        });
+
+                    } catch (error) {
+                        console.error('Failed for requisition:', requisitionKey, error);
+                        showErrorMessage('Failed to receive items. Please try again.');
+                    }
                 }
 
                 receiveAllToggle.disabled = true;
@@ -255,6 +267,26 @@
                 updateReceivedQuantity(key);
             });
         });
+
+        function checkAndExpandIfNoneSelected(requisitionKey) {
+            const serialRows = document.querySelectorAll(`.serial-row-${requisitionKey}`);
+            const anyChecked = Array.from(serialRows).some(row => {
+                const checkbox = row.querySelector("input.select-checkbox");
+                return checkbox && checkbox.checked;
+            });
+
+            if (!anyChecked) {
+                // Trigger collapse
+                const toggleBtn = document.querySelector(`.toggle-btn[data-bs-target="#collapseDetails${requisitionKey}"]`);
+                if (toggleBtn) toggleBtn.click();
+
+                showInfoMessage("Please select at least one serial item to receive. Ensure that the items you wish to receive are checked. Use the top receive all button to receive all items at once.");
+                return false;
+            }
+
+            return true;
+        }
+
 
         document.querySelectorAll(".receive-toggle").forEach(toggle => {
             let requisitionKey = toggle.getAttribute("data-key");
@@ -308,8 +340,13 @@
                 showConfirmationMessage(
                     'Are you sure you want to receive this item?',
                     async function () {
-                        $('#loader').show();
-                        toggleElement.disabled = true;
+                        if (!checkAndExpandIfNoneSelected(requisitionKey)) {
+                        toggleElement.checked = false;
+                        return;
+                    }
+
+                    $('#loader').show();
+                    toggleElement.disabled = true;
 
                         try {
                             await receiveSerialItems(requisitionKey, grnId, quantityInput);
