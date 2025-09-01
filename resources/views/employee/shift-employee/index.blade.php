@@ -105,7 +105,7 @@
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="7" class="text-center text-danger">No shift Types found</td>
+                                                    <td colspan="7" class="text-center text-danger">No Employee Found!</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
