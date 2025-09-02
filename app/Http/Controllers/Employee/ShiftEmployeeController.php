@@ -187,6 +187,11 @@ class ShiftEmployeeController extends Controller
             // 'department_shift_id' => 'required|exists:department_wise_shifts,id',
             // 'off_days' => 'required|array|min:1',
             // 'off_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+        ],
+        [
+                // 'mas_employee_id.unique' => 'This employee already has a shift assigned.',
+                'mas_employee_id.exists' => 'The selected employee does not exist.',
+                'mas_employee_id.required' => 'Please select an employee.',
         ]);
 
         $shift = EmployeeShift::findOrFail($id);
