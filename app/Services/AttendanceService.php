@@ -101,19 +101,21 @@ class AttendanceService
 
             // Decode JSON values into arrays
             $shifts = [
-                'Morning' => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [],
-                'Evening' => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [],
-                'Night'   => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [],
+                MORNING_SHIFT => json_decode($shiftData['morning_shift_days'] ?? '[]', true) ?: [], // morning
+                EVENING_SHIFT => json_decode($shiftData['evening_shift_days'] ?? '[]', true) ?: [], // evening
+                NIGHT_SHIFT => json_decode($shiftData['night_shift_days'] ?? '[]', true) ?: [], // night
             ];
 
-            // Find which shift today belongs to using shifts data
-            $todayShift = collect($shifts)->first(function ($days) use ($today) {
+            // Detect today’s shift type id
+            $todayShiftTypeId = collect($shifts)->search(function ($days) use ($today) {
                 return in_array($today, $days);
             });
 
-            if ($todayShift) {
-                $departmentWiseShift = DepartmentWiseShift::where('department_id', $loggedInUserDeptId)->first();
-
+            if ($todayShiftTypeId) {
+                $departmentWiseShift = DepartmentWiseShift::where('department_id', $loggedInUserDeptId)
+                    ->where('type_id', $todayShiftTypeId)
+                    ->first();
+                
                 $officeTiming['start_time'] = $departmentWiseShift->start_time;
                 $officeTiming['end_time'] = $departmentWiseShift->end_time;
                 $officeTiming['shift_name'] = $departmentWiseShift->shiftType->name;
