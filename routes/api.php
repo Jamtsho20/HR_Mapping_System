@@ -172,7 +172,7 @@ Route::middleware('api.access.log')->group(function () {
         Route::post('save-goods-issued', [ApiController::class, 'saveGoodsIssued']);
         Route::post('save-goods-issued-consumable', [ApiController::class, 'saveGoodIssueConsumable']);
         Route::post('save-site', [ApiController::class, 'saveSite']);
-        Route::get('save-assets', [ApiController::class, 'getAssetData']);
+        Route::post('save-assets', [ApiController::class, 'getAssetData']);
     });
     Route::namespace('Api')->middleware('auth:sanctum')->group(function () {
         Route::resource('holidays', 'HolidayListController');
