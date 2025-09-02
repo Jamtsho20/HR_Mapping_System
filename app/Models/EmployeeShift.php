@@ -39,6 +39,10 @@ class EmployeeShift extends Model
         if ($request->has('employee') && $request->query('employee') != '') {
             $query->where('mas_employee_id', 'LIKE', '%' . $request->query('employee') . '%');
         }
+
+        // if ($onesOwnRecord) {
+        //     $query->where('mas_employee_id', auth()->user()->id);
+        // }
         
     }
 
